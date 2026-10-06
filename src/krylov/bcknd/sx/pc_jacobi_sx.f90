@@ -36,7 +36,7 @@ module sx_jacobi
   use precon, only : pc_t
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
-  use num_types, only : rp
+  use num_types, only : xp, rp
   use gather_scatter, only : gs_t, GS_OP_ADD
   implicit none
   private
@@ -160,12 +160,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     integer :: i, j, k, l, e
 
 
@@ -239,12 +239,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     integer :: i, j, k, l, e
 
 
@@ -318,12 +318,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     integer :: i, j, k, l, e
 
 
@@ -397,12 +397,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     integer :: i, j, k, l, e
 
 
@@ -476,12 +476,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     integer :: i, j, k, l, e
 
 
@@ -555,12 +555,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     integer :: i, j, k, l, e
 
 
@@ -634,12 +634,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     integer :: i, j, k, l, e
 
 
@@ -713,12 +713,12 @@ contains
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     integer :: i, j, k, l, e
 
 
@@ -789,12 +789,12 @@ contains
     integer, parameter :: lz = 7
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
@@ -868,12 +868,12 @@ contains
     integer, parameter :: lz = 6
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
@@ -947,12 +947,12 @@ contains
     integer, parameter :: lz = 5
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
@@ -1026,12 +1026,12 @@ contains
     integer, parameter :: lz = 4
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
@@ -1105,12 +1105,12 @@ contains
     integer, parameter :: lz = 3
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)
@@ -1184,12 +1184,12 @@ contains
     integer, parameter :: lz = 2
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: d(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: dxt(lx, lx)
     real(kind=rp), intent(in) :: dyt(lx, lx)
     real(kind=rp), intent(in) :: dzt(lx, lx)

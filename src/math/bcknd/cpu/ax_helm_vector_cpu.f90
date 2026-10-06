@@ -169,12 +169,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -256,43 +256,43 @@ contains
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
@@ -384,12 +384,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -421,49 +421,49 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e) &
-                        + Dx(i,7) * u(7,j,1,e) &
-                        + Dx(i,8) * u(8,j,1,e) &
-                        + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e) &
-                        + Dx(i,11) * u(11,j,1,e) &
-                        + Dx(i,12) * u(12,j,1,e) &
-                        + Dx(i,13) * u(13,j,1,e) &
-                        + Dx(i,14) * u(14,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e) &
+                  + Dx(i,7) * u(7,j,1,e) &
+                  + Dx(i,8) * u(8,j,1,e) &
+                  + Dx(i,9) * u(9,j,1,e) &
+                  + Dx(i,10) * u(10,j,1,e) &
+                  + Dx(i,11) * u(11,j,1,e) &
+                  + Dx(i,12) * u(12,j,1,e) &
+                  + Dx(i,13) * u(13,j,1,e) &
+                  + Dx(i,14) * u(14,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e) &
-                        + Dx(i,7) * v(7,j,1,e) &
-                        + Dx(i,8) * v(8,j,1,e) &
-                        + Dx(i,9) * v(9,j,1,e) &
-                        + Dx(i,10) * v(10,j,1,e) &
-                        + Dx(i,11) * v(11,j,1,e) &
-                        + Dx(i,12) * v(12,j,1,e) &
-                        + Dx(i,13) * v(13,j,1,e) &
-                        + Dx(i,14) * v(14,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e) &
+                  + Dx(i,7) * v(7,j,1,e) &
+                  + Dx(i,8) * v(8,j,1,e) &
+                  + Dx(i,9) * v(9,j,1,e) &
+                  + Dx(i,10) * v(10,j,1,e) &
+                  + Dx(i,11) * v(11,j,1,e) &
+                  + Dx(i,12) * v(12,j,1,e) &
+                  + Dx(i,13) * v(13,j,1,e) &
+                  + Dx(i,14) * v(14,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e) &
-                        + Dx(i,7) * w(7,j,1,e) &
-                        + Dx(i,8) * w(8,j,1,e) &
-                        + Dx(i,9) * w(9,j,1,e) &
-                        + Dx(i,10) * w(10,j,1,e) &
-                        + Dx(i,11) * w(11,j,1,e) &
-                        + Dx(i,12) * w(12,j,1,e) &
-                        + Dx(i,13) * w(13,j,1,e) &
-                        + Dx(i,14) * w(14,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e) &
+                  + Dx(i,7) * w(7,j,1,e) &
+                  + Dx(i,8) * w(8,j,1,e) &
+                  + Dx(i,9) * w(9,j,1,e) &
+                  + Dx(i,10) * w(10,j,1,e) &
+                  + Dx(i,11) * w(11,j,1,e) &
+                  + Dx(i,12) * w(12,j,1,e) &
+                  + Dx(i,13) * w(13,j,1,e) &
+                  + Dx(i,14) * w(14,j,1,e)
           end do
        end do
 
@@ -471,49 +471,49 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e) &
-                           + Dy(j,7) * u(i,7,k,e) &
-                           + Dy(j,8) * u(i,8,k,e) &
-                           + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e) &
-                           + Dy(j,11) * u(i,11,k,e) &
-                           + Dy(j,12) * u(i,12,k,e) &
-                           + Dy(j,13) * u(i,13,k,e) &
-                           + Dy(j,14) * u(i,14,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e) &
+                     + Dy(j,7) * u(i,7,k,e) &
+                     + Dy(j,8) * u(i,8,k,e) &
+                     + Dy(j,9) * u(i,9,k,e) &
+                     + Dy(j,10) * u(i,10,k,e) &
+                     + Dy(j,11) * u(i,11,k,e) &
+                     + Dy(j,12) * u(i,12,k,e) &
+                     + Dy(j,13) * u(i,13,k,e) &
+                     + Dy(j,14) * u(i,14,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e) &
-                           + Dy(j,7) * v(i,7,k,e) &
-                           + Dy(j,8) * v(i,8,k,e) &
-                           + Dy(j,9) * v(i,9,k,e) &
-                           + Dy(j,10) * v(i,10,k,e) &
-                           + Dy(j,11) * v(i,11,k,e) &
-                           + Dy(j,12) * v(i,12,k,e) &
-                           + Dy(j,13) * v(i,13,k,e) &
-                           + Dy(j,14) * v(i,14,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e) &
+                     + Dy(j,7) * v(i,7,k,e) &
+                     + Dy(j,8) * v(i,8,k,e) &
+                     + Dy(j,9) * v(i,9,k,e) &
+                     + Dy(j,10) * v(i,10,k,e) &
+                     + Dy(j,11) * v(i,11,k,e) &
+                     + Dy(j,12) * v(i,12,k,e) &
+                     + Dy(j,13) * v(i,13,k,e) &
+                     + Dy(j,14) * v(i,14,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e) &
-                           + Dy(j,7) * w(i,7,k,e) &
-                           + Dy(j,8) * w(i,8,k,e) &
-                           + Dy(j,9) * w(i,9,k,e) &
-                           + Dy(j,10) * w(i,10,k,e) &
-                           + Dy(j,11) * w(i,11,k,e) &
-                           + Dy(j,12) * w(i,12,k,e) &
-                           + Dy(j,13) * w(i,13,k,e) &
-                           + Dy(j,14) * w(i,14,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e) &
+                     + Dy(j,7) * w(i,7,k,e) &
+                     + Dy(j,8) * w(i,8,k,e) &
+                     + Dy(j,9) * w(i,9,k,e) &
+                     + Dy(j,10) * w(i,10,k,e) &
+                     + Dy(j,11) * w(i,11,k,e) &
+                     + Dy(j,12) * w(i,12,k,e) &
+                     + Dy(j,13) * w(i,13,k,e) &
+                     + Dy(j,14) * w(i,14,k,e)
              end do
           end do
        end do
@@ -521,139 +521,139 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e) &
-                        + Dz(k,7) * u(i,1,7,e) &
-                        + Dz(k,8) * u(i,1,8,e) &
-                        + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e) &
-                        + Dz(k,11) * u(i,1,11,e) &
-                        + Dz(k,12) * u(i,1,12,e) &
-                        + Dz(k,13) * u(i,1,13,e) &
-                        + Dz(k,14) * u(i,1,14,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e) &
+                  + Dz(k,7) * u(i,1,7,e) &
+                  + Dz(k,8) * u(i,1,8,e) &
+                  + Dz(k,9) * u(i,1,9,e) &
+                  + Dz(k,10) * u(i,1,10,e) &
+                  + Dz(k,11) * u(i,1,11,e) &
+                  + Dz(k,12) * u(i,1,12,e) &
+                  + Dz(k,13) * u(i,1,13,e) &
+                  + Dz(k,14) * u(i,1,14,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e) &
-                        + Dz(k,7) * v(i,1,7,e) &
-                        + Dz(k,8) * v(i,1,8,e) &
-                        + Dz(k,9) * v(i,1,9,e) &
-                        + Dz(k,10) * v(i,1,10,e) &
-                        + Dz(k,11) * v(i,1,11,e) &
-                        + Dz(k,12) * v(i,1,12,e) &
-                        + Dz(k,13) * v(i,1,13,e) &
-                        + Dz(k,14) * v(i,1,14,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e) &
+                  + Dz(k,7) * v(i,1,7,e) &
+                  + Dz(k,8) * v(i,1,8,e) &
+                  + Dz(k,9) * v(i,1,9,e) &
+                  + Dz(k,10) * v(i,1,10,e) &
+                  + Dz(k,11) * v(i,1,11,e) &
+                  + Dz(k,12) * v(i,1,12,e) &
+                  + Dz(k,13) * v(i,1,13,e) &
+                  + Dz(k,14) * v(i,1,14,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e) &
-                        + Dz(k,7) * w(i,1,7,e) &
-                        + Dz(k,8) * w(i,1,8,e) &
-                        + Dz(k,9) * w(i,1,9,e) &
-                        + Dz(k,10) * w(i,1,10,e) &
-                        + Dz(k,11) * w(i,1,11,e) &
-                        + Dz(k,12) * w(i,1,12,e) &
-                        + Dz(k,13) * w(i,1,13,e) &
-                        + Dz(k,14) * w(i,1,14,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e) &
+                  + Dz(k,7) * w(i,1,7,e) &
+                  + Dz(k,8) * w(i,1,8,e) &
+                  + Dz(k,9) * w(i,1,9,e) &
+                  + Dz(k,10) * w(i,1,10,e) &
+                  + Dz(k,11) * w(i,1,11,e) &
+                  + Dz(k,12) * w(i,1,12,e) &
+                  + Dz(k,13) * w(i,1,13,e) &
+                  + Dz(k,14) * w(i,1,14,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1) &
-                         + Dxt(i,7) * ur(7,j,1) &
-                         + Dxt(i,8) * ur(8,j,1) &
-                         + Dxt(i,9) * ur(9,j,1) &
-                         + Dxt(i,10) * ur(10,j,1) &
-                         + Dxt(i,11) * ur(11,j,1) &
-                         + Dxt(i,12) * ur(12,j,1) &
-                         + Dxt(i,13) * ur(13,j,1) &
-                         + Dxt(i,14) * ur(14,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1) &
+                  + Dxt(i,7) * ur(7,j,1) &
+                  + Dxt(i,8) * ur(8,j,1) &
+                  + Dxt(i,9) * ur(9,j,1) &
+                  + Dxt(i,10) * ur(10,j,1) &
+                  + Dxt(i,11) * ur(11,j,1) &
+                  + Dxt(i,12) * ur(12,j,1) &
+                  + Dxt(i,13) * ur(13,j,1) &
+                  + Dxt(i,14) * ur(14,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1) &
-                         + Dxt(i,7) * vr(7,j,1) &
-                         + Dxt(i,8) * vr(8,j,1) &
-                         + Dxt(i,9) * vr(9,j,1) &
-                         + Dxt(i,10) * vr(10,j,1) &
-                         + Dxt(i,11) * vr(11,j,1) &
-                         + Dxt(i,12) * vr(12,j,1) &
-                         + Dxt(i,13) * vr(13,j,1) &
-                         + Dxt(i,14) * vr(14,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1) &
+                  + Dxt(i,7) * vr(7,j,1) &
+                  + Dxt(i,8) * vr(8,j,1) &
+                  + Dxt(i,9) * vr(9,j,1) &
+                  + Dxt(i,10) * vr(10,j,1) &
+                  + Dxt(i,11) * vr(11,j,1) &
+                  + Dxt(i,12) * vr(12,j,1) &
+                  + Dxt(i,13) * vr(13,j,1) &
+                  + Dxt(i,14) * vr(14,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1) &
-                         + Dxt(i,7) * wr(7,j,1) &
-                         + Dxt(i,8) * wr(8,j,1) &
-                         + Dxt(i,9) * wr(9,j,1) &
-                         + Dxt(i,10) * wr(10,j,1) &
-                         + Dxt(i,11) * wr(11,j,1) &
-                         + Dxt(i,12) * wr(12,j,1) &
-                         + Dxt(i,13) * wr(13,j,1) &
-                         + Dxt(i,14) * wr(14,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1) &
+                  + Dxt(i,7) * wr(7,j,1) &
+                  + Dxt(i,8) * wr(8,j,1) &
+                  + Dxt(i,9) * wr(9,j,1) &
+                  + Dxt(i,10) * wr(10,j,1) &
+                  + Dxt(i,11) * wr(11,j,1) &
+                  + Dxt(i,12) * wr(12,j,1) &
+                  + Dxt(i,13) * wr(13,j,1) &
+                  + Dxt(i,14) * wr(14,j,1)
           end do
        end do
 
@@ -661,52 +661,52 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k) &
-                            + Dyt(j,7) * us(i,7,k) &
-                            + Dyt(j,8) * us(i,8,k) &
-                            + Dyt(j,9) * us(i,9,k) &
-                            + Dyt(j,10) * us(i,10,k) &
-                            + Dyt(j,11) * us(i,11,k) &
-                            + Dyt(j,12) * us(i,12,k) &
-                            + Dyt(j,13) * us(i,13,k) &
-                            + Dyt(j,14) * us(i,14,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k) &
+                     + Dyt(j,7) * us(i,7,k) &
+                     + Dyt(j,8) * us(i,8,k) &
+                     + Dyt(j,9) * us(i,9,k) &
+                     + Dyt(j,10) * us(i,10,k) &
+                     + Dyt(j,11) * us(i,11,k) &
+                     + Dyt(j,12) * us(i,12,k) &
+                     + Dyt(j,13) * us(i,13,k) &
+                     + Dyt(j,14) * us(i,14,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k) &
-                            + Dyt(j,7) * vs(i,7,k) &
-                            + Dyt(j,8) * vs(i,8,k) &
-                            + Dyt(j,9) * vs(i,9,k) &
-                            + Dyt(j,10) * vs(i,10,k) &
-                            + Dyt(j,11) * vs(i,11,k) &
-                            + Dyt(j,12) * vs(i,12,k) &
-                            + Dyt(j,13) * vs(i,13,k) &
-                            + Dyt(j,14) * vs(i,14,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k) &
+                     + Dyt(j,7) * vs(i,7,k) &
+                     + Dyt(j,8) * vs(i,8,k) &
+                     + Dyt(j,9) * vs(i,9,k) &
+                     + Dyt(j,10) * vs(i,10,k) &
+                     + Dyt(j,11) * vs(i,11,k) &
+                     + Dyt(j,12) * vs(i,12,k) &
+                     + Dyt(j,13) * vs(i,13,k) &
+                     + Dyt(j,14) * vs(i,14,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k) &
-                            + Dyt(j,7) * ws(i,7,k) &
-                            + Dyt(j,8) * ws(i,8,k) &
-                            + Dyt(j,9) * ws(i,9,k) &
-                            + Dyt(j,10) * ws(i,10,k) &
-                            + Dyt(j,11) * ws(i,11,k) &
-                            + Dyt(j,12) * ws(i,12,k) &
-                            + Dyt(j,13) * ws(i,13,k) &
-                            + Dyt(j,14) * ws(i,14,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k) &
+                     + Dyt(j,7) * ws(i,7,k) &
+                     + Dyt(j,8) * ws(i,8,k) &
+                     + Dyt(j,9) * ws(i,9,k) &
+                     + Dyt(j,10) * ws(i,10,k) &
+                     + Dyt(j,11) * ws(i,11,k) &
+                     + Dyt(j,12) * ws(i,12,k) &
+                     + Dyt(j,13) * ws(i,13,k) &
+                     + Dyt(j,14) * ws(i,14,k)
              end do
           end do
        end do
@@ -715,107 +715,107 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + Dzt(k,11) * ut(i,1,11) &
-                            + Dzt(k,12) * ut(i,1,12) &
-                            + Dzt(k,13) * ut(i,1,13) &
-                            + Dzt(k,14) * ut(i,1,14) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + Dzt(k,11) * ut(i,1,11) &
+                     + Dzt(k,12) * ut(i,1,12) &
+                     + Dzt(k,13) * ut(i,1,13) &
+                     + Dzt(k,14) * ut(i,1,14) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + Dzt(k,11) * vt(i,1,11) &
-                            + Dzt(k,12) * vt(i,1,12) &
-                            + Dzt(k,13) * vt(i,1,13) &
-                            + Dzt(k,14) * vt(i,1,14) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + Dzt(k,11) * vt(i,1,11) &
+                     + Dzt(k,12) * vt(i,1,12) &
+                     + Dzt(k,13) * vt(i,1,13) &
+                     + Dzt(k,14) * vt(i,1,14) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + Dzt(k,11) * wt(i,1,11) &
-                            + Dzt(k,12) * wt(i,1,12) &
-                            + Dzt(k,13) * wt(i,1,13) &
-                            + Dzt(k,14) * wt(i,1,14) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + Dzt(k,11) * wt(i,1,11) &
+                     + Dzt(k,12) * wt(i,1,12) &
+                     + Dzt(k,13) * wt(i,1,13) &
+                     + Dzt(k,14) * wt(i,1,14) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + Dzt(k,11) * ut(i,1,11) &
-                            + Dzt(k,12) * ut(i,1,12) &
-                            + Dzt(k,13) * ut(i,1,13) &
-                            + Dzt(k,14) * ut(i,1,14)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + Dzt(k,11) * ut(i,1,11) &
+                     + Dzt(k,12) * ut(i,1,12) &
+                     + Dzt(k,13) * ut(i,1,13) &
+                     + Dzt(k,14) * ut(i,1,14)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + Dzt(k,11) * vt(i,1,11) &
-                            + Dzt(k,12) * vt(i,1,12) &
-                            + Dzt(k,13) * vt(i,1,13) &
-                            + Dzt(k,14) * vt(i,1,14)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + Dzt(k,11) * vt(i,1,11) &
+                     + Dzt(k,12) * vt(i,1,12) &
+                     + Dzt(k,13) * vt(i,1,13) &
+                     + Dzt(k,14) * vt(i,1,14)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + Dzt(k,11) * wt(i,1,11) &
-                            + Dzt(k,12) * wt(i,1,12) &
-                            + Dzt(k,13) * wt(i,1,13) &
-                            + Dzt(k,14) * wt(i,1,14)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + Dzt(k,11) * wt(i,1,11) &
+                     + Dzt(k,12) * wt(i,1,12) &
+                     + Dzt(k,13) * wt(i,1,13) &
+                     + Dzt(k,14) * wt(i,1,14)
              end do
           end do
        end if
@@ -838,12 +838,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -875,46 +875,46 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e) &
-                        + Dx(i,7) * u(7,j,1,e) &
-                        + Dx(i,8) * u(8,j,1,e) &
-                        + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e) &
-                        + Dx(i,11) * u(11,j,1,e) &
-                        + Dx(i,12) * u(12,j,1,e) &
-                        + Dx(i,13) * u(13,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e) &
+                  + Dx(i,7) * u(7,j,1,e) &
+                  + Dx(i,8) * u(8,j,1,e) &
+                  + Dx(i,9) * u(9,j,1,e) &
+                  + Dx(i,10) * u(10,j,1,e) &
+                  + Dx(i,11) * u(11,j,1,e) &
+                  + Dx(i,12) * u(12,j,1,e) &
+                  + Dx(i,13) * u(13,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e) &
-                        + Dx(i,7) * v(7,j,1,e) &
-                        + Dx(i,8) * v(8,j,1,e) &
-                        + Dx(i,9) * v(9,j,1,e) &
-                        + Dx(i,10) * v(10,j,1,e) &
-                        + Dx(i,11) * v(11,j,1,e) &
-                        + Dx(i,12) * v(12,j,1,e) &
-                        + Dx(i,13) * v(13,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e) &
+                  + Dx(i,7) * v(7,j,1,e) &
+                  + Dx(i,8) * v(8,j,1,e) &
+                  + Dx(i,9) * v(9,j,1,e) &
+                  + Dx(i,10) * v(10,j,1,e) &
+                  + Dx(i,11) * v(11,j,1,e) &
+                  + Dx(i,12) * v(12,j,1,e) &
+                  + Dx(i,13) * v(13,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e) &
-                        + Dx(i,7) * w(7,j,1,e) &
-                        + Dx(i,8) * w(8,j,1,e) &
-                        + Dx(i,9) * w(9,j,1,e) &
-                        + Dx(i,10) * w(10,j,1,e) &
-                        + Dx(i,11) * w(11,j,1,e) &
-                        + Dx(i,12) * w(12,j,1,e) &
-                        + Dx(i,13) * w(13,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e) &
+                  + Dx(i,7) * w(7,j,1,e) &
+                  + Dx(i,8) * w(8,j,1,e) &
+                  + Dx(i,9) * w(9,j,1,e) &
+                  + Dx(i,10) * w(10,j,1,e) &
+                  + Dx(i,11) * w(11,j,1,e) &
+                  + Dx(i,12) * w(12,j,1,e) &
+                  + Dx(i,13) * w(13,j,1,e)
           end do
        end do
 
@@ -922,46 +922,46 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e) &
-                           + Dy(j,7) * u(i,7,k,e) &
-                           + Dy(j,8) * u(i,8,k,e) &
-                           + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e) &
-                           + Dy(j,11) * u(i,11,k,e) &
-                           + Dy(j,12) * u(i,12,k,e) &
-                           + Dy(j,13) * u(i,13,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e) &
+                     + Dy(j,7) * u(i,7,k,e) &
+                     + Dy(j,8) * u(i,8,k,e) &
+                     + Dy(j,9) * u(i,9,k,e) &
+                     + Dy(j,10) * u(i,10,k,e) &
+                     + Dy(j,11) * u(i,11,k,e) &
+                     + Dy(j,12) * u(i,12,k,e) &
+                     + Dy(j,13) * u(i,13,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e) &
-                           + Dy(j,7) * v(i,7,k,e) &
-                           + Dy(j,8) * v(i,8,k,e) &
-                           + Dy(j,9) * v(i,9,k,e) &
-                           + Dy(j,10) * v(i,10,k,e) &
-                           + Dy(j,11) * v(i,11,k,e) &
-                           + Dy(j,12) * v(i,12,k,e) &
-                           + Dy(j,13) * v(i,13,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e) &
+                     + Dy(j,7) * v(i,7,k,e) &
+                     + Dy(j,8) * v(i,8,k,e) &
+                     + Dy(j,9) * v(i,9,k,e) &
+                     + Dy(j,10) * v(i,10,k,e) &
+                     + Dy(j,11) * v(i,11,k,e) &
+                     + Dy(j,12) * v(i,12,k,e) &
+                     + Dy(j,13) * v(i,13,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e) &
-                           + Dy(j,7) * w(i,7,k,e) &
-                           + Dy(j,8) * w(i,8,k,e) &
-                           + Dy(j,9) * w(i,9,k,e) &
-                           + Dy(j,10) * w(i,10,k,e) &
-                           + Dy(j,11) * w(i,11,k,e) &
-                           + Dy(j,12) * w(i,12,k,e) &
-                           + Dy(j,13) * w(i,13,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e) &
+                     + Dy(j,7) * w(i,7,k,e) &
+                     + Dy(j,8) * w(i,8,k,e) &
+                     + Dy(j,9) * w(i,9,k,e) &
+                     + Dy(j,10) * w(i,10,k,e) &
+                     + Dy(j,11) * w(i,11,k,e) &
+                     + Dy(j,12) * w(i,12,k,e) &
+                     + Dy(j,13) * w(i,13,k,e)
              end do
           end do
        end do
@@ -969,133 +969,133 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e) &
-                        + Dz(k,7) * u(i,1,7,e) &
-                        + Dz(k,8) * u(i,1,8,e) &
-                        + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e) &
-                        + Dz(k,11) * u(i,1,11,e) &
-                        + Dz(k,12) * u(i,1,12,e) &
-                        + Dz(k,13) * u(i,1,13,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e) &
+                  + Dz(k,7) * u(i,1,7,e) &
+                  + Dz(k,8) * u(i,1,8,e) &
+                  + Dz(k,9) * u(i,1,9,e) &
+                  + Dz(k,10) * u(i,1,10,e) &
+                  + Dz(k,11) * u(i,1,11,e) &
+                  + Dz(k,12) * u(i,1,12,e) &
+                  + Dz(k,13) * u(i,1,13,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e) &
-                        + Dz(k,7) * v(i,1,7,e) &
-                        + Dz(k,8) * v(i,1,8,e) &
-                        + Dz(k,9) * v(i,1,9,e) &
-                        + Dz(k,10) * v(i,1,10,e) &
-                        + Dz(k,11) * v(i,1,11,e) &
-                        + Dz(k,12) * v(i,1,12,e) &
-                        + Dz(k,13) * v(i,1,13,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e) &
+                  + Dz(k,7) * v(i,1,7,e) &
+                  + Dz(k,8) * v(i,1,8,e) &
+                  + Dz(k,9) * v(i,1,9,e) &
+                  + Dz(k,10) * v(i,1,10,e) &
+                  + Dz(k,11) * v(i,1,11,e) &
+                  + Dz(k,12) * v(i,1,12,e) &
+                  + Dz(k,13) * v(i,1,13,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e) &
-                        + Dz(k,7) * w(i,1,7,e) &
-                        + Dz(k,8) * w(i,1,8,e) &
-                        + Dz(k,9) * w(i,1,9,e) &
-                        + Dz(k,10) * w(i,1,10,e) &
-                        + Dz(k,11) * w(i,1,11,e) &
-                        + Dz(k,12) * w(i,1,12,e) &
-                        + Dz(k,13) * w(i,1,13,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e) &
+                  + Dz(k,7) * w(i,1,7,e) &
+                  + Dz(k,8) * w(i,1,8,e) &
+                  + Dz(k,9) * w(i,1,9,e) &
+                  + Dz(k,10) * w(i,1,10,e) &
+                  + Dz(k,11) * w(i,1,11,e) &
+                  + Dz(k,12) * w(i,1,12,e) &
+                  + Dz(k,13) * w(i,1,13,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1) &
-                         + Dxt(i,7) * ur(7,j,1) &
-                         + Dxt(i,8) * ur(8,j,1) &
-                         + Dxt(i,9) * ur(9,j,1) &
-                         + Dxt(i,10) * ur(10,j,1) &
-                         + Dxt(i,11) * ur(11,j,1) &
-                         + Dxt(i,12) * ur(12,j,1) &
-                         + Dxt(i,13) * ur(13,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1) &
+                  + Dxt(i,7) * ur(7,j,1) &
+                  + Dxt(i,8) * ur(8,j,1) &
+                  + Dxt(i,9) * ur(9,j,1) &
+                  + Dxt(i,10) * ur(10,j,1) &
+                  + Dxt(i,11) * ur(11,j,1) &
+                  + Dxt(i,12) * ur(12,j,1) &
+                  + Dxt(i,13) * ur(13,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1) &
-                         + Dxt(i,7) * vr(7,j,1) &
-                         + Dxt(i,8) * vr(8,j,1) &
-                         + Dxt(i,9) * vr(9,j,1) &
-                         + Dxt(i,10) * vr(10,j,1) &
-                         + Dxt(i,11) * vr(11,j,1) &
-                         + Dxt(i,12) * vr(12,j,1) &
-                         + Dxt(i,13) * vr(13,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1) &
+                  + Dxt(i,7) * vr(7,j,1) &
+                  + Dxt(i,8) * vr(8,j,1) &
+                  + Dxt(i,9) * vr(9,j,1) &
+                  + Dxt(i,10) * vr(10,j,1) &
+                  + Dxt(i,11) * vr(11,j,1) &
+                  + Dxt(i,12) * vr(12,j,1) &
+                  + Dxt(i,13) * vr(13,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1) &
-                         + Dxt(i,7) * wr(7,j,1) &
-                         + Dxt(i,8) * wr(8,j,1) &
-                         + Dxt(i,9) * wr(9,j,1) &
-                         + Dxt(i,10) * wr(10,j,1) &
-                         + Dxt(i,11) * wr(11,j,1) &
-                         + Dxt(i,12) * wr(12,j,1) &
-                         + Dxt(i,13) * wr(13,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1) &
+                  + Dxt(i,7) * wr(7,j,1) &
+                  + Dxt(i,8) * wr(8,j,1) &
+                  + Dxt(i,9) * wr(9,j,1) &
+                  + Dxt(i,10) * wr(10,j,1) &
+                  + Dxt(i,11) * wr(11,j,1) &
+                  + Dxt(i,12) * wr(12,j,1) &
+                  + Dxt(i,13) * wr(13,j,1)
           end do
        end do
 
@@ -1103,49 +1103,49 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k) &
-                            + Dyt(j,7) * us(i,7,k) &
-                            + Dyt(j,8) * us(i,8,k) &
-                            + Dyt(j,9) * us(i,9,k) &
-                            + Dyt(j,10) * us(i,10,k) &
-                            + Dyt(j,11) * us(i,11,k) &
-                            + Dyt(j,12) * us(i,12,k) &
-                            + Dyt(j,13) * us(i,13,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k) &
+                     + Dyt(j,7) * us(i,7,k) &
+                     + Dyt(j,8) * us(i,8,k) &
+                     + Dyt(j,9) * us(i,9,k) &
+                     + Dyt(j,10) * us(i,10,k) &
+                     + Dyt(j,11) * us(i,11,k) &
+                     + Dyt(j,12) * us(i,12,k) &
+                     + Dyt(j,13) * us(i,13,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k) &
-                            + Dyt(j,7) * vs(i,7,k) &
-                            + Dyt(j,8) * vs(i,8,k) &
-                            + Dyt(j,9) * vs(i,9,k) &
-                            + Dyt(j,10) * vs(i,10,k) &
-                            + Dyt(j,11) * vs(i,11,k) &
-                            + Dyt(j,12) * vs(i,12,k) &
-                            + Dyt(j,13) * vs(i,13,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k) &
+                     + Dyt(j,7) * vs(i,7,k) &
+                     + Dyt(j,8) * vs(i,8,k) &
+                     + Dyt(j,9) * vs(i,9,k) &
+                     + Dyt(j,10) * vs(i,10,k) &
+                     + Dyt(j,11) * vs(i,11,k) &
+                     + Dyt(j,12) * vs(i,12,k) &
+                     + Dyt(j,13) * vs(i,13,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k) &
-                            + Dyt(j,7) * ws(i,7,k) &
-                            + Dyt(j,8) * ws(i,8,k) &
-                            + Dyt(j,9) * ws(i,9,k) &
-                            + Dyt(j,10) * ws(i,10,k) &
-                            + Dyt(j,11) * ws(i,11,k) &
-                            + Dyt(j,12) * ws(i,12,k) &
-                            + Dyt(j,13) * ws(i,13,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k) &
+                     + Dyt(j,7) * ws(i,7,k) &
+                     + Dyt(j,8) * ws(i,8,k) &
+                     + Dyt(j,9) * ws(i,9,k) &
+                     + Dyt(j,10) * ws(i,10,k) &
+                     + Dyt(j,11) * ws(i,11,k) &
+                     + Dyt(j,12) * ws(i,12,k) &
+                     + Dyt(j,13) * ws(i,13,k)
              end do
           end do
        end do
@@ -1154,101 +1154,101 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + Dzt(k,11) * ut(i,1,11) &
-                            + Dzt(k,12) * ut(i,1,12) &
-                            + Dzt(k,13) * ut(i,1,13) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + Dzt(k,11) * ut(i,1,11) &
+                     + Dzt(k,12) * ut(i,1,12) &
+                     + Dzt(k,13) * ut(i,1,13) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + Dzt(k,11) * vt(i,1,11) &
-                            + Dzt(k,12) * vt(i,1,12) &
-                            + Dzt(k,13) * vt(i,1,13) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + Dzt(k,11) * vt(i,1,11) &
+                     + Dzt(k,12) * vt(i,1,12) &
+                     + Dzt(k,13) * vt(i,1,13) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + Dzt(k,11) * wt(i,1,11) &
-                            + Dzt(k,12) * wt(i,1,12) &
-                            + Dzt(k,13) * wt(i,1,13) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + Dzt(k,11) * wt(i,1,11) &
+                     + Dzt(k,12) * wt(i,1,12) &
+                     + Dzt(k,13) * wt(i,1,13) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + Dzt(k,11) * ut(i,1,11) &
-                            + Dzt(k,12) * ut(i,1,12) &
-                            + Dzt(k,13) * ut(i,1,13)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + Dzt(k,11) * ut(i,1,11) &
+                     + Dzt(k,12) * ut(i,1,12) &
+                     + Dzt(k,13) * ut(i,1,13)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + Dzt(k,11) * vt(i,1,11) &
-                            + Dzt(k,12) * vt(i,1,12) &
-                            + Dzt(k,13) * vt(i,1,13)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + Dzt(k,11) * vt(i,1,11) &
+                     + Dzt(k,12) * vt(i,1,12) &
+                     + Dzt(k,13) * vt(i,1,13)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + Dzt(k,11) * wt(i,1,11) &
-                            + Dzt(k,12) * wt(i,1,12) &
-                            + Dzt(k,13) * wt(i,1,13)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + Dzt(k,11) * wt(i,1,11) &
+                     + Dzt(k,12) * wt(i,1,12) &
+                     + Dzt(k,13) * wt(i,1,13)
              end do
           end do
        end if
@@ -1271,12 +1271,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -1308,43 +1308,43 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e) &
-                        + Dx(i,7) * u(7,j,1,e) &
-                        + Dx(i,8) * u(8,j,1,e) &
-                        + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e) &
-                        + Dx(i,11) * u(11,j,1,e) &
-                        + Dx(i,12) * u(12,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e) &
+                  + Dx(i,7) * u(7,j,1,e) &
+                  + Dx(i,8) * u(8,j,1,e) &
+                  + Dx(i,9) * u(9,j,1,e) &
+                  + Dx(i,10) * u(10,j,1,e) &
+                  + Dx(i,11) * u(11,j,1,e) &
+                  + Dx(i,12) * u(12,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e) &
-                        + Dx(i,7) * v(7,j,1,e) &
-                        + Dx(i,8) * v(8,j,1,e) &
-                        + Dx(i,9) * v(9,j,1,e) &
-                        + Dx(i,10) * v(10,j,1,e) &
-                        + Dx(i,11) * v(11,j,1,e) &
-                        + Dx(i,12) * v(12,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e) &
+                  + Dx(i,7) * v(7,j,1,e) &
+                  + Dx(i,8) * v(8,j,1,e) &
+                  + Dx(i,9) * v(9,j,1,e) &
+                  + Dx(i,10) * v(10,j,1,e) &
+                  + Dx(i,11) * v(11,j,1,e) &
+                  + Dx(i,12) * v(12,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e) &
-                        + Dx(i,7) * w(7,j,1,e) &
-                        + Dx(i,8) * w(8,j,1,e) &
-                        + Dx(i,9) * w(9,j,1,e) &
-                        + Dx(i,10) * w(10,j,1,e) &
-                        + Dx(i,11) * w(11,j,1,e) &
-                        + Dx(i,12) * w(12,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e) &
+                  + Dx(i,7) * w(7,j,1,e) &
+                  + Dx(i,8) * w(8,j,1,e) &
+                  + Dx(i,9) * w(9,j,1,e) &
+                  + Dx(i,10) * w(10,j,1,e) &
+                  + Dx(i,11) * w(11,j,1,e) &
+                  + Dx(i,12) * w(12,j,1,e)
           end do
        end do
 
@@ -1352,43 +1352,43 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e) &
-                           + Dy(j,7) * u(i,7,k,e) &
-                           + Dy(j,8) * u(i,8,k,e) &
-                           + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e) &
-                           + Dy(j,11) * u(i,11,k,e) &
-                           + Dy(j,12) * u(i,12,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e) &
+                     + Dy(j,7) * u(i,7,k,e) &
+                     + Dy(j,8) * u(i,8,k,e) &
+                     + Dy(j,9) * u(i,9,k,e) &
+                     + Dy(j,10) * u(i,10,k,e) &
+                     + Dy(j,11) * u(i,11,k,e) &
+                     + Dy(j,12) * u(i,12,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e) &
-                           + Dy(j,7) * v(i,7,k,e) &
-                           + Dy(j,8) * v(i,8,k,e) &
-                           + Dy(j,9) * v(i,9,k,e) &
-                           + Dy(j,10) * v(i,10,k,e) &
-                           + Dy(j,11) * v(i,11,k,e) &
-                           + Dy(j,12) * v(i,12,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e) &
+                     + Dy(j,7) * v(i,7,k,e) &
+                     + Dy(j,8) * v(i,8,k,e) &
+                     + Dy(j,9) * v(i,9,k,e) &
+                     + Dy(j,10) * v(i,10,k,e) &
+                     + Dy(j,11) * v(i,11,k,e) &
+                     + Dy(j,12) * v(i,12,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e) &
-                           + Dy(j,7) * w(i,7,k,e) &
-                           + Dy(j,8) * w(i,8,k,e) &
-                           + Dy(j,9) * w(i,9,k,e) &
-                           + Dy(j,10) * w(i,10,k,e) &
-                           + Dy(j,11) * w(i,11,k,e) &
-                           + Dy(j,12) * w(i,12,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e) &
+                     + Dy(j,7) * w(i,7,k,e) &
+                     + Dy(j,8) * w(i,8,k,e) &
+                     + Dy(j,9) * w(i,9,k,e) &
+                     + Dy(j,10) * w(i,10,k,e) &
+                     + Dy(j,11) * w(i,11,k,e) &
+                     + Dy(j,12) * w(i,12,k,e)
              end do
           end do
        end do
@@ -1396,127 +1396,127 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e) &
-                        + Dz(k,7) * u(i,1,7,e) &
-                        + Dz(k,8) * u(i,1,8,e) &
-                        + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e) &
-                        + Dz(k,11) * u(i,1,11,e) &
-                        + Dz(k,12) * u(i,1,12,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e) &
+                  + Dz(k,7) * u(i,1,7,e) &
+                  + Dz(k,8) * u(i,1,8,e) &
+                  + Dz(k,9) * u(i,1,9,e) &
+                  + Dz(k,10) * u(i,1,10,e) &
+                  + Dz(k,11) * u(i,1,11,e) &
+                  + Dz(k,12) * u(i,1,12,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e) &
-                        + Dz(k,7) * v(i,1,7,e) &
-                        + Dz(k,8) * v(i,1,8,e) &
-                        + Dz(k,9) * v(i,1,9,e) &
-                        + Dz(k,10) * v(i,1,10,e) &
-                        + Dz(k,11) * v(i,1,11,e) &
-                        + Dz(k,12) * v(i,1,12,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e) &
+                  + Dz(k,7) * v(i,1,7,e) &
+                  + Dz(k,8) * v(i,1,8,e) &
+                  + Dz(k,9) * v(i,1,9,e) &
+                  + Dz(k,10) * v(i,1,10,e) &
+                  + Dz(k,11) * v(i,1,11,e) &
+                  + Dz(k,12) * v(i,1,12,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e) &
-                        + Dz(k,7) * w(i,1,7,e) &
-                        + Dz(k,8) * w(i,1,8,e) &
-                        + Dz(k,9) * w(i,1,9,e) &
-                        + Dz(k,10) * w(i,1,10,e) &
-                        + Dz(k,11) * w(i,1,11,e) &
-                        + Dz(k,12) * w(i,1,12,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e) &
+                  + Dz(k,7) * w(i,1,7,e) &
+                  + Dz(k,8) * w(i,1,8,e) &
+                  + Dz(k,9) * w(i,1,9,e) &
+                  + Dz(k,10) * w(i,1,10,e) &
+                  + Dz(k,11) * w(i,1,11,e) &
+                  + Dz(k,12) * w(i,1,12,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1) &
-                         + Dxt(i,7) * ur(7,j,1) &
-                         + Dxt(i,8) * ur(8,j,1) &
-                         + Dxt(i,9) * ur(9,j,1) &
-                         + Dxt(i,10) * ur(10,j,1) &
-                         + Dxt(i,11) * ur(11,j,1) &
-                         + Dxt(i,12) * ur(12,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1) &
+                  + Dxt(i,7) * ur(7,j,1) &
+                  + Dxt(i,8) * ur(8,j,1) &
+                  + Dxt(i,9) * ur(9,j,1) &
+                  + Dxt(i,10) * ur(10,j,1) &
+                  + Dxt(i,11) * ur(11,j,1) &
+                  + Dxt(i,12) * ur(12,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1) &
-                         + Dxt(i,7) * vr(7,j,1) &
-                         + Dxt(i,8) * vr(8,j,1) &
-                         + Dxt(i,9) * vr(9,j,1) &
-                         + Dxt(i,10) * vr(10,j,1) &
-                         + Dxt(i,11) * vr(11,j,1) &
-                         + Dxt(i,12) * vr(12,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1) &
+                  + Dxt(i,7) * vr(7,j,1) &
+                  + Dxt(i,8) * vr(8,j,1) &
+                  + Dxt(i,9) * vr(9,j,1) &
+                  + Dxt(i,10) * vr(10,j,1) &
+                  + Dxt(i,11) * vr(11,j,1) &
+                  + Dxt(i,12) * vr(12,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1) &
-                         + Dxt(i,7) * wr(7,j,1) &
-                         + Dxt(i,8) * wr(8,j,1) &
-                         + Dxt(i,9) * wr(9,j,1) &
-                         + Dxt(i,10) * wr(10,j,1) &
-                         + Dxt(i,11) * wr(11,j,1) &
-                         + Dxt(i,12) * wr(12,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1) &
+                  + Dxt(i,7) * wr(7,j,1) &
+                  + Dxt(i,8) * wr(8,j,1) &
+                  + Dxt(i,9) * wr(9,j,1) &
+                  + Dxt(i,10) * wr(10,j,1) &
+                  + Dxt(i,11) * wr(11,j,1) &
+                  + Dxt(i,12) * wr(12,j,1)
           end do
        end do
 
@@ -1524,46 +1524,46 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k) &
-                            + Dyt(j,7) * us(i,7,k) &
-                            + Dyt(j,8) * us(i,8,k) &
-                            + Dyt(j,9) * us(i,9,k) &
-                            + Dyt(j,10) * us(i,10,k) &
-                            + Dyt(j,11) * us(i,11,k) &
-                            + Dyt(j,12) * us(i,12,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k) &
+                     + Dyt(j,7) * us(i,7,k) &
+                     + Dyt(j,8) * us(i,8,k) &
+                     + Dyt(j,9) * us(i,9,k) &
+                     + Dyt(j,10) * us(i,10,k) &
+                     + Dyt(j,11) * us(i,11,k) &
+                     + Dyt(j,12) * us(i,12,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k) &
-                            + Dyt(j,7) * vs(i,7,k) &
-                            + Dyt(j,8) * vs(i,8,k) &
-                            + Dyt(j,9) * vs(i,9,k) &
-                            + Dyt(j,10) * vs(i,10,k) &
-                            + Dyt(j,11) * vs(i,11,k) &
-                            + Dyt(j,12) * vs(i,12,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k) &
+                     + Dyt(j,7) * vs(i,7,k) &
+                     + Dyt(j,8) * vs(i,8,k) &
+                     + Dyt(j,9) * vs(i,9,k) &
+                     + Dyt(j,10) * vs(i,10,k) &
+                     + Dyt(j,11) * vs(i,11,k) &
+                     + Dyt(j,12) * vs(i,12,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k) &
-                            + Dyt(j,7) * ws(i,7,k) &
-                            + Dyt(j,8) * ws(i,8,k) &
-                            + Dyt(j,9) * ws(i,9,k) &
-                            + Dyt(j,10) * ws(i,10,k) &
-                            + Dyt(j,11) * ws(i,11,k) &
-                            + Dyt(j,12) * ws(i,12,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k) &
+                     + Dyt(j,7) * ws(i,7,k) &
+                     + Dyt(j,8) * ws(i,8,k) &
+                     + Dyt(j,9) * ws(i,9,k) &
+                     + Dyt(j,10) * ws(i,10,k) &
+                     + Dyt(j,11) * ws(i,11,k) &
+                     + Dyt(j,12) * ws(i,12,k)
              end do
           end do
        end do
@@ -1572,95 +1572,95 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + Dzt(k,11) * ut(i,1,11) &
-                            + Dzt(k,12) * ut(i,1,12) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + Dzt(k,11) * ut(i,1,11) &
+                     + Dzt(k,12) * ut(i,1,12) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + Dzt(k,11) * vt(i,1,11) &
-                            + Dzt(k,12) * vt(i,1,12) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + Dzt(k,11) * vt(i,1,11) &
+                     + Dzt(k,12) * vt(i,1,12) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + Dzt(k,11) * wt(i,1,11) &
-                            + Dzt(k,12) * wt(i,1,12) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + Dzt(k,11) * wt(i,1,11) &
+                     + Dzt(k,12) * wt(i,1,12) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + Dzt(k,11) * ut(i,1,11) &
-                            + Dzt(k,12) * ut(i,1,12)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + Dzt(k,11) * ut(i,1,11) &
+                     + Dzt(k,12) * ut(i,1,12)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + Dzt(k,11) * vt(i,1,11) &
-                            + Dzt(k,12) * vt(i,1,12)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + Dzt(k,11) * vt(i,1,11) &
+                     + Dzt(k,12) * vt(i,1,12)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + Dzt(k,11) * wt(i,1,11) &
-                            + Dzt(k,12) * wt(i,1,12)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + Dzt(k,11) * wt(i,1,11) &
+                     + Dzt(k,12) * wt(i,1,12)
              end do
           end do
        end if
@@ -1683,12 +1683,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -1720,40 +1720,40 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e) &
-                        + Dx(i,7) * u(7,j,1,e) &
-                        + Dx(i,8) * u(8,j,1,e) &
-                        + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e) &
-                        + Dx(i,11) * u(11,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e) &
+                  + Dx(i,7) * u(7,j,1,e) &
+                  + Dx(i,8) * u(8,j,1,e) &
+                  + Dx(i,9) * u(9,j,1,e) &
+                  + Dx(i,10) * u(10,j,1,e) &
+                  + Dx(i,11) * u(11,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e) &
-                        + Dx(i,7) * v(7,j,1,e) &
-                        + Dx(i,8) * v(8,j,1,e) &
-                        + Dx(i,9) * v(9,j,1,e) &
-                        + Dx(i,10) * v(10,j,1,e) &
-                        + Dx(i,11) * v(11,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e) &
+                  + Dx(i,7) * v(7,j,1,e) &
+                  + Dx(i,8) * v(8,j,1,e) &
+                  + Dx(i,9) * v(9,j,1,e) &
+                  + Dx(i,10) * v(10,j,1,e) &
+                  + Dx(i,11) * v(11,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e) &
-                        + Dx(i,7) * w(7,j,1,e) &
-                        + Dx(i,8) * w(8,j,1,e) &
-                        + Dx(i,9) * w(9,j,1,e) &
-                        + Dx(i,10) * w(10,j,1,e) &
-                        + Dx(i,11) * w(11,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e) &
+                  + Dx(i,7) * w(7,j,1,e) &
+                  + Dx(i,8) * w(8,j,1,e) &
+                  + Dx(i,9) * w(9,j,1,e) &
+                  + Dx(i,10) * w(10,j,1,e) &
+                  + Dx(i,11) * w(11,j,1,e)
           end do
        end do
 
@@ -1761,40 +1761,40 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e) &
-                           + Dy(j,7) * u(i,7,k,e) &
-                           + Dy(j,8) * u(i,8,k,e) &
-                           + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e) &
-                           + Dy(j,11) * u(i,11,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e) &
+                     + Dy(j,7) * u(i,7,k,e) &
+                     + Dy(j,8) * u(i,8,k,e) &
+                     + Dy(j,9) * u(i,9,k,e) &
+                     + Dy(j,10) * u(i,10,k,e) &
+                     + Dy(j,11) * u(i,11,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e) &
-                           + Dy(j,7) * v(i,7,k,e) &
-                           + Dy(j,8) * v(i,8,k,e) &
-                           + Dy(j,9) * v(i,9,k,e) &
-                           + Dy(j,10) * v(i,10,k,e) &
-                           + Dy(j,11) * v(i,11,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e) &
+                     + Dy(j,7) * v(i,7,k,e) &
+                     + Dy(j,8) * v(i,8,k,e) &
+                     + Dy(j,9) * v(i,9,k,e) &
+                     + Dy(j,10) * v(i,10,k,e) &
+                     + Dy(j,11) * v(i,11,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e) &
-                           + Dy(j,7) * w(i,7,k,e) &
-                           + Dy(j,8) * w(i,8,k,e) &
-                           + Dy(j,9) * w(i,9,k,e) &
-                           + Dy(j,10) * w(i,10,k,e) &
-                           + Dy(j,11) * w(i,11,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e) &
+                     + Dy(j,7) * w(i,7,k,e) &
+                     + Dy(j,8) * w(i,8,k,e) &
+                     + Dy(j,9) * w(i,9,k,e) &
+                     + Dy(j,10) * w(i,10,k,e) &
+                     + Dy(j,11) * w(i,11,k,e)
              end do
           end do
        end do
@@ -1802,121 +1802,121 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e) &
-                        + Dz(k,7) * u(i,1,7,e) &
-                        + Dz(k,8) * u(i,1,8,e) &
-                        + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e) &
-                        + Dz(k,11) * u(i,1,11,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e) &
+                  + Dz(k,7) * u(i,1,7,e) &
+                  + Dz(k,8) * u(i,1,8,e) &
+                  + Dz(k,9) * u(i,1,9,e) &
+                  + Dz(k,10) * u(i,1,10,e) &
+                  + Dz(k,11) * u(i,1,11,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e) &
-                        + Dz(k,7) * v(i,1,7,e) &
-                        + Dz(k,8) * v(i,1,8,e) &
-                        + Dz(k,9) * v(i,1,9,e) &
-                        + Dz(k,10) * v(i,1,10,e) &
-                        + Dz(k,11) * v(i,1,11,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e) &
+                  + Dz(k,7) * v(i,1,7,e) &
+                  + Dz(k,8) * v(i,1,8,e) &
+                  + Dz(k,9) * v(i,1,9,e) &
+                  + Dz(k,10) * v(i,1,10,e) &
+                  + Dz(k,11) * v(i,1,11,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e) &
-                        + Dz(k,7) * w(i,1,7,e) &
-                        + Dz(k,8) * w(i,1,8,e) &
-                        + Dz(k,9) * w(i,1,9,e) &
-                        + Dz(k,10) * w(i,1,10,e) &
-                        + Dz(k,11) * w(i,1,11,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e) &
+                  + Dz(k,7) * w(i,1,7,e) &
+                  + Dz(k,8) * w(i,1,8,e) &
+                  + Dz(k,9) * w(i,1,9,e) &
+                  + Dz(k,10) * w(i,1,10,e) &
+                  + Dz(k,11) * w(i,1,11,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1) &
-                         + Dxt(i,7) * ur(7,j,1) &
-                         + Dxt(i,8) * ur(8,j,1) &
-                         + Dxt(i,9) * ur(9,j,1) &
-                         + Dxt(i,10) * ur(10,j,1) &
-                         + Dxt(i,11) * ur(11,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1) &
+                  + Dxt(i,7) * ur(7,j,1) &
+                  + Dxt(i,8) * ur(8,j,1) &
+                  + Dxt(i,9) * ur(9,j,1) &
+                  + Dxt(i,10) * ur(10,j,1) &
+                  + Dxt(i,11) * ur(11,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1) &
-                         + Dxt(i,7) * vr(7,j,1) &
-                         + Dxt(i,8) * vr(8,j,1) &
-                         + Dxt(i,9) * vr(9,j,1) &
-                         + Dxt(i,10) * vr(10,j,1) &
-                         + Dxt(i,11) * vr(11,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1) &
+                  + Dxt(i,7) * vr(7,j,1) &
+                  + Dxt(i,8) * vr(8,j,1) &
+                  + Dxt(i,9) * vr(9,j,1) &
+                  + Dxt(i,10) * vr(10,j,1) &
+                  + Dxt(i,11) * vr(11,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1) &
-                         + Dxt(i,7) * wr(7,j,1) &
-                         + Dxt(i,8) * wr(8,j,1) &
-                         + Dxt(i,9) * wr(9,j,1) &
-                         + Dxt(i,10) * wr(10,j,1) &
-                         + Dxt(i,11) * wr(11,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1) &
+                  + Dxt(i,7) * wr(7,j,1) &
+                  + Dxt(i,8) * wr(8,j,1) &
+                  + Dxt(i,9) * wr(9,j,1) &
+                  + Dxt(i,10) * wr(10,j,1) &
+                  + Dxt(i,11) * wr(11,j,1)
           end do
        end do
 
@@ -1924,43 +1924,43 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k) &
-                            + Dyt(j,7) * us(i,7,k) &
-                            + Dyt(j,8) * us(i,8,k) &
-                            + Dyt(j,9) * us(i,9,k) &
-                            + Dyt(j,10) * us(i,10,k) &
-                            + Dyt(j,11) * us(i,11,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k) &
+                     + Dyt(j,7) * us(i,7,k) &
+                     + Dyt(j,8) * us(i,8,k) &
+                     + Dyt(j,9) * us(i,9,k) &
+                     + Dyt(j,10) * us(i,10,k) &
+                     + Dyt(j,11) * us(i,11,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k) &
-                            + Dyt(j,7) * vs(i,7,k) &
-                            + Dyt(j,8) * vs(i,8,k) &
-                            + Dyt(j,9) * vs(i,9,k) &
-                            + Dyt(j,10) * vs(i,10,k) &
-                            + Dyt(j,11) * vs(i,11,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k) &
+                     + Dyt(j,7) * vs(i,7,k) &
+                     + Dyt(j,8) * vs(i,8,k) &
+                     + Dyt(j,9) * vs(i,9,k) &
+                     + Dyt(j,10) * vs(i,10,k) &
+                     + Dyt(j,11) * vs(i,11,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k) &
-                            + Dyt(j,7) * ws(i,7,k) &
-                            + Dyt(j,8) * ws(i,8,k) &
-                            + Dyt(j,9) * ws(i,9,k) &
-                            + Dyt(j,10) * ws(i,10,k) &
-                            + Dyt(j,11) * ws(i,11,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k) &
+                     + Dyt(j,7) * ws(i,7,k) &
+                     + Dyt(j,8) * ws(i,8,k) &
+                     + Dyt(j,9) * ws(i,9,k) &
+                     + Dyt(j,10) * ws(i,10,k) &
+                     + Dyt(j,11) * ws(i,11,k)
              end do
           end do
        end do
@@ -1969,89 +1969,89 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + Dzt(k,11) * ut(i,1,11) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + Dzt(k,11) * ut(i,1,11) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + Dzt(k,11) * vt(i,1,11) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + Dzt(k,11) * vt(i,1,11) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + Dzt(k,11) * wt(i,1,11) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + Dzt(k,11) * wt(i,1,11) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + Dzt(k,11) * ut(i,1,11)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + Dzt(k,11) * ut(i,1,11)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + Dzt(k,11) * vt(i,1,11)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + Dzt(k,11) * vt(i,1,11)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + Dzt(k,11) * wt(i,1,11)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + Dzt(k,11) * wt(i,1,11)
              end do
           end do
        end if
@@ -2074,12 +2074,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -2111,37 +2111,37 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e) &
-                        + Dx(i,7) * u(7,j,1,e) &
-                        + Dx(i,8) * u(8,j,1,e) &
-                        + Dx(i,9) * u(9,j,1,e) &
-                        + Dx(i,10) * u(10,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e) &
+                  + Dx(i,7) * u(7,j,1,e) &
+                  + Dx(i,8) * u(8,j,1,e) &
+                  + Dx(i,9) * u(9,j,1,e) &
+                  + Dx(i,10) * u(10,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e) &
-                        + Dx(i,7) * v(7,j,1,e) &
-                        + Dx(i,8) * v(8,j,1,e) &
-                        + Dx(i,9) * v(9,j,1,e) &
-                        + Dx(i,10) * v(10,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e) &
+                  + Dx(i,7) * v(7,j,1,e) &
+                  + Dx(i,8) * v(8,j,1,e) &
+                  + Dx(i,9) * v(9,j,1,e) &
+                  + Dx(i,10) * v(10,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e) &
-                        + Dx(i,7) * w(7,j,1,e) &
-                        + Dx(i,8) * w(8,j,1,e) &
-                        + Dx(i,9) * w(9,j,1,e) &
-                        + Dx(i,10) * w(10,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e) &
+                  + Dx(i,7) * w(7,j,1,e) &
+                  + Dx(i,8) * w(8,j,1,e) &
+                  + Dx(i,9) * w(9,j,1,e) &
+                  + Dx(i,10) * w(10,j,1,e)
           end do
        end do
 
@@ -2149,37 +2149,37 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e) &
-                           + Dy(j,7) * u(i,7,k,e) &
-                           + Dy(j,8) * u(i,8,k,e) &
-                           + Dy(j,9) * u(i,9,k,e) &
-                           + Dy(j,10) * u(i,10,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e) &
+                     + Dy(j,7) * u(i,7,k,e) &
+                     + Dy(j,8) * u(i,8,k,e) &
+                     + Dy(j,9) * u(i,9,k,e) &
+                     + Dy(j,10) * u(i,10,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e) &
-                           + Dy(j,7) * v(i,7,k,e) &
-                           + Dy(j,8) * v(i,8,k,e) &
-                           + Dy(j,9) * v(i,9,k,e) &
-                           + Dy(j,10) * v(i,10,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e) &
+                     + Dy(j,7) * v(i,7,k,e) &
+                     + Dy(j,8) * v(i,8,k,e) &
+                     + Dy(j,9) * v(i,9,k,e) &
+                     + Dy(j,10) * v(i,10,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e) &
-                           + Dy(j,7) * w(i,7,k,e) &
-                           + Dy(j,8) * w(i,8,k,e) &
-                           + Dy(j,9) * w(i,9,k,e) &
-                           + Dy(j,10) * w(i,10,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e) &
+                     + Dy(j,7) * w(i,7,k,e) &
+                     + Dy(j,8) * w(i,8,k,e) &
+                     + Dy(j,9) * w(i,9,k,e) &
+                     + Dy(j,10) * w(i,10,k,e)
              end do
           end do
        end do
@@ -2187,115 +2187,115 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e) &
-                        + Dz(k,7) * u(i,1,7,e) &
-                        + Dz(k,8) * u(i,1,8,e) &
-                        + Dz(k,9) * u(i,1,9,e) &
-                        + Dz(k,10) * u(i,1,10,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e) &
+                  + Dz(k,7) * u(i,1,7,e) &
+                  + Dz(k,8) * u(i,1,8,e) &
+                  + Dz(k,9) * u(i,1,9,e) &
+                  + Dz(k,10) * u(i,1,10,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e) &
-                        + Dz(k,7) * v(i,1,7,e) &
-                        + Dz(k,8) * v(i,1,8,e) &
-                        + Dz(k,9) * v(i,1,9,e) &
-                        + Dz(k,10) * v(i,1,10,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e) &
+                  + Dz(k,7) * v(i,1,7,e) &
+                  + Dz(k,8) * v(i,1,8,e) &
+                  + Dz(k,9) * v(i,1,9,e) &
+                  + Dz(k,10) * v(i,1,10,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e) &
-                        + Dz(k,7) * w(i,1,7,e) &
-                        + Dz(k,8) * w(i,1,8,e) &
-                        + Dz(k,9) * w(i,1,9,e) &
-                        + Dz(k,10) * w(i,1,10,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e) &
+                  + Dz(k,7) * w(i,1,7,e) &
+                  + Dz(k,8) * w(i,1,8,e) &
+                  + Dz(k,9) * w(i,1,9,e) &
+                  + Dz(k,10) * w(i,1,10,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1) &
-                         + Dxt(i,7) * ur(7,j,1) &
-                         + Dxt(i,8) * ur(8,j,1) &
-                         + Dxt(i,9) * ur(9,j,1) &
-                         + Dxt(i,10) * ur(10,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1) &
+                  + Dxt(i,7) * ur(7,j,1) &
+                  + Dxt(i,8) * ur(8,j,1) &
+                  + Dxt(i,9) * ur(9,j,1) &
+                  + Dxt(i,10) * ur(10,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1) &
-                         + Dxt(i,7) * vr(7,j,1) &
-                         + Dxt(i,8) * vr(8,j,1) &
-                         + Dxt(i,9) * vr(9,j,1) &
-                         + Dxt(i,10) * vr(10,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1) &
+                  + Dxt(i,7) * vr(7,j,1) &
+                  + Dxt(i,8) * vr(8,j,1) &
+                  + Dxt(i,9) * vr(9,j,1) &
+                  + Dxt(i,10) * vr(10,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1) &
-                         + Dxt(i,7) * wr(7,j,1) &
-                         + Dxt(i,8) * wr(8,j,1) &
-                         + Dxt(i,9) * wr(9,j,1) &
-                         + Dxt(i,10) * wr(10,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1) &
+                  + Dxt(i,7) * wr(7,j,1) &
+                  + Dxt(i,8) * wr(8,j,1) &
+                  + Dxt(i,9) * wr(9,j,1) &
+                  + Dxt(i,10) * wr(10,j,1)
           end do
        end do
 
@@ -2303,40 +2303,40 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k) &
-                            + Dyt(j,7) * us(i,7,k) &
-                            + Dyt(j,8) * us(i,8,k) &
-                            + Dyt(j,9) * us(i,9,k) &
-                            + Dyt(j,10) * us(i,10,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k) &
+                     + Dyt(j,7) * us(i,7,k) &
+                     + Dyt(j,8) * us(i,8,k) &
+                     + Dyt(j,9) * us(i,9,k) &
+                     + Dyt(j,10) * us(i,10,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k) &
-                            + Dyt(j,7) * vs(i,7,k) &
-                            + Dyt(j,8) * vs(i,8,k) &
-                            + Dyt(j,9) * vs(i,9,k) &
-                            + Dyt(j,10) * vs(i,10,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k) &
+                     + Dyt(j,7) * vs(i,7,k) &
+                     + Dyt(j,8) * vs(i,8,k) &
+                     + Dyt(j,9) * vs(i,9,k) &
+                     + Dyt(j,10) * vs(i,10,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k) &
-                            + Dyt(j,7) * ws(i,7,k) &
-                            + Dyt(j,8) * ws(i,8,k) &
-                            + Dyt(j,9) * ws(i,9,k) &
-                            + Dyt(j,10) * ws(i,10,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k) &
+                     + Dyt(j,7) * ws(i,7,k) &
+                     + Dyt(j,8) * ws(i,8,k) &
+                     + Dyt(j,9) * ws(i,9,k) &
+                     + Dyt(j,10) * ws(i,10,k)
              end do
           end do
        end do
@@ -2345,83 +2345,83 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + Dzt(k,10) * ut(i,1,10)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + Dzt(k,10) * ut(i,1,10)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + Dzt(k,10) * vt(i,1,10)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + Dzt(k,10) * vt(i,1,10)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + Dzt(k,10) * wt(i,1,10)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + Dzt(k,10) * wt(i,1,10)
              end do
           end do
        end if
@@ -2444,12 +2444,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -2481,34 +2481,34 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e) &
-                        + Dx(i,7) * u(7,j,1,e) &
-                        + Dx(i,8) * u(8,j,1,e) &
-                        + Dx(i,9) * u(9,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e) &
+                  + Dx(i,7) * u(7,j,1,e) &
+                  + Dx(i,8) * u(8,j,1,e) &
+                  + Dx(i,9) * u(9,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e) &
-                        + Dx(i,7) * v(7,j,1,e) &
-                        + Dx(i,8) * v(8,j,1,e) &
-                        + Dx(i,9) * v(9,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e) &
+                  + Dx(i,7) * v(7,j,1,e) &
+                  + Dx(i,8) * v(8,j,1,e) &
+                  + Dx(i,9) * v(9,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e) &
-                        + Dx(i,7) * w(7,j,1,e) &
-                        + Dx(i,8) * w(8,j,1,e) &
-                        + Dx(i,9) * w(9,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e) &
+                  + Dx(i,7) * w(7,j,1,e) &
+                  + Dx(i,8) * w(8,j,1,e) &
+                  + Dx(i,9) * w(9,j,1,e)
           end do
        end do
 
@@ -2516,34 +2516,34 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e) &
-                           + Dy(j,7) * u(i,7,k,e) &
-                           + Dy(j,8) * u(i,8,k,e) &
-                           + Dy(j,9) * u(i,9,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e) &
+                     + Dy(j,7) * u(i,7,k,e) &
+                     + Dy(j,8) * u(i,8,k,e) &
+                     + Dy(j,9) * u(i,9,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e) &
-                           + Dy(j,7) * v(i,7,k,e) &
-                           + Dy(j,8) * v(i,8,k,e) &
-                           + Dy(j,9) * v(i,9,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e) &
+                     + Dy(j,7) * v(i,7,k,e) &
+                     + Dy(j,8) * v(i,8,k,e) &
+                     + Dy(j,9) * v(i,9,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e) &
-                           + Dy(j,7) * w(i,7,k,e) &
-                           + Dy(j,8) * w(i,8,k,e) &
-                           + Dy(j,9) * w(i,9,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e) &
+                     + Dy(j,7) * w(i,7,k,e) &
+                     + Dy(j,8) * w(i,8,k,e) &
+                     + Dy(j,9) * w(i,9,k,e)
              end do
           end do
        end do
@@ -2551,109 +2551,109 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e) &
-                        + Dz(k,7) * u(i,1,7,e) &
-                        + Dz(k,8) * u(i,1,8,e) &
-                        + Dz(k,9) * u(i,1,9,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e) &
+                  + Dz(k,7) * u(i,1,7,e) &
+                  + Dz(k,8) * u(i,1,8,e) &
+                  + Dz(k,9) * u(i,1,9,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e) &
-                        + Dz(k,7) * v(i,1,7,e) &
-                        + Dz(k,8) * v(i,1,8,e) &
-                        + Dz(k,9) * v(i,1,9,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e) &
+                  + Dz(k,7) * v(i,1,7,e) &
+                  + Dz(k,8) * v(i,1,8,e) &
+                  + Dz(k,9) * v(i,1,9,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e) &
-                        + Dz(k,7) * w(i,1,7,e) &
-                        + Dz(k,8) * w(i,1,8,e) &
-                        + Dz(k,9) * w(i,1,9,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e) &
+                  + Dz(k,7) * w(i,1,7,e) &
+                  + Dz(k,8) * w(i,1,8,e) &
+                  + Dz(k,9) * w(i,1,9,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1) &
-                         + Dxt(i,7) * ur(7,j,1) &
-                         + Dxt(i,8) * ur(8,j,1) &
-                         + Dxt(i,9) * ur(9,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1) &
+                  + Dxt(i,7) * ur(7,j,1) &
+                  + Dxt(i,8) * ur(8,j,1) &
+                  + Dxt(i,9) * ur(9,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1) &
-                         + Dxt(i,7) * vr(7,j,1) &
-                         + Dxt(i,8) * vr(8,j,1) &
-                         + Dxt(i,9) * vr(9,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1) &
+                  + Dxt(i,7) * vr(7,j,1) &
+                  + Dxt(i,8) * vr(8,j,1) &
+                  + Dxt(i,9) * vr(9,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1) &
-                         + Dxt(i,7) * wr(7,j,1) &
-                         + Dxt(i,8) * wr(8,j,1) &
-                         + Dxt(i,9) * wr(9,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1) &
+                  + Dxt(i,7) * wr(7,j,1) &
+                  + Dxt(i,8) * wr(8,j,1) &
+                  + Dxt(i,9) * wr(9,j,1)
           end do
        end do
 
@@ -2661,37 +2661,37 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k) &
-                            + Dyt(j,7) * us(i,7,k) &
-                            + Dyt(j,8) * us(i,8,k) &
-                            + Dyt(j,9) * us(i,9,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k) &
+                     + Dyt(j,7) * us(i,7,k) &
+                     + Dyt(j,8) * us(i,8,k) &
+                     + Dyt(j,9) * us(i,9,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k) &
-                            + Dyt(j,7) * vs(i,7,k) &
-                            + Dyt(j,8) * vs(i,8,k) &
-                            + Dyt(j,9) * vs(i,9,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k) &
+                     + Dyt(j,7) * vs(i,7,k) &
+                     + Dyt(j,8) * vs(i,8,k) &
+                     + Dyt(j,9) * vs(i,9,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k) &
-                            + Dyt(j,7) * ws(i,7,k) &
-                            + Dyt(j,8) * ws(i,8,k) &
-                            + Dyt(j,9) * ws(i,9,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k) &
+                     + Dyt(j,7) * ws(i,7,k) &
+                     + Dyt(j,8) * ws(i,8,k) &
+                     + Dyt(j,9) * ws(i,9,k)
              end do
           end do
        end do
@@ -2700,77 +2700,77 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + Dzt(k,9) * ut(i,1,9)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + Dzt(k,9) * ut(i,1,9)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + Dzt(k,9) * vt(i,1,9)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + Dzt(k,9) * vt(i,1,9)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + Dzt(k,9) * wt(i,1,9)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + Dzt(k,9) * wt(i,1,9)
              end do
           end do
        end if
@@ -2793,12 +2793,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -2830,31 +2830,31 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e) &
-                        + Dx(i,7) * u(7,j,1,e) &
-                        + Dx(i,8) * u(8,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e) &
+                  + Dx(i,7) * u(7,j,1,e) &
+                  + Dx(i,8) * u(8,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e) &
-                        + Dx(i,7) * v(7,j,1,e) &
-                        + Dx(i,8) * v(8,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e) &
+                  + Dx(i,7) * v(7,j,1,e) &
+                  + Dx(i,8) * v(8,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e) &
-                        + Dx(i,7) * w(7,j,1,e) &
-                        + Dx(i,8) * w(8,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e) &
+                  + Dx(i,7) * w(7,j,1,e) &
+                  + Dx(i,8) * w(8,j,1,e)
           end do
        end do
 
@@ -2862,31 +2862,31 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e) &
-                           + Dy(j,7) * u(i,7,k,e) &
-                           + Dy(j,8) * u(i,8,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e) &
+                     + Dy(j,7) * u(i,7,k,e) &
+                     + Dy(j,8) * u(i,8,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e) &
-                           + Dy(j,7) * v(i,7,k,e) &
-                           + Dy(j,8) * v(i,8,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e) &
+                     + Dy(j,7) * v(i,7,k,e) &
+                     + Dy(j,8) * v(i,8,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e) &
-                           + Dy(j,7) * w(i,7,k,e) &
-                           + Dy(j,8) * w(i,8,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e) &
+                     + Dy(j,7) * w(i,7,k,e) &
+                     + Dy(j,8) * w(i,8,k,e)
              end do
           end do
        end do
@@ -2894,103 +2894,103 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e) &
-                        + Dz(k,7) * u(i,1,7,e) &
-                        + Dz(k,8) * u(i,1,8,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e) &
+                  + Dz(k,7) * u(i,1,7,e) &
+                  + Dz(k,8) * u(i,1,8,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e) &
-                        + Dz(k,7) * v(i,1,7,e) &
-                        + Dz(k,8) * v(i,1,8,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e) &
+                  + Dz(k,7) * v(i,1,7,e) &
+                  + Dz(k,8) * v(i,1,8,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e) &
-                        + Dz(k,7) * w(i,1,7,e) &
-                        + Dz(k,8) * w(i,1,8,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e) &
+                  + Dz(k,7) * w(i,1,7,e) &
+                  + Dz(k,8) * w(i,1,8,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1) &
-                         + Dxt(i,7) * ur(7,j,1) &
-                         + Dxt(i,8) * ur(8,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1) &
+                  + Dxt(i,7) * ur(7,j,1) &
+                  + Dxt(i,8) * ur(8,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1) &
-                         + Dxt(i,7) * vr(7,j,1) &
-                         + Dxt(i,8) * vr(8,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1) &
+                  + Dxt(i,7) * vr(7,j,1) &
+                  + Dxt(i,8) * vr(8,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1) &
-                         + Dxt(i,7) * wr(7,j,1) &
-                         + Dxt(i,8) * wr(8,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1) &
+                  + Dxt(i,7) * wr(7,j,1) &
+                  + Dxt(i,8) * wr(8,j,1)
           end do
        end do
 
@@ -2998,34 +2998,34 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k) &
-                            + Dyt(j,7) * us(i,7,k) &
-                            + Dyt(j,8) * us(i,8,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k) &
+                     + Dyt(j,7) * us(i,7,k) &
+                     + Dyt(j,8) * us(i,8,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k) &
-                            + Dyt(j,7) * vs(i,7,k) &
-                            + Dyt(j,8) * vs(i,8,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k) &
+                     + Dyt(j,7) * vs(i,7,k) &
+                     + Dyt(j,8) * vs(i,8,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k) &
-                            + Dyt(j,7) * ws(i,7,k) &
-                            + Dyt(j,8) * ws(i,8,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k) &
+                     + Dyt(j,7) * ws(i,7,k) &
+                     + Dyt(j,8) * ws(i,8,k)
              end do
           end do
        end do
@@ -3034,71 +3034,71 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + Dzt(k,8) * ut(i,1,8)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + Dzt(k,8) * ut(i,1,8)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + Dzt(k,8) * vt(i,1,8)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + Dzt(k,8) * vt(i,1,8)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + Dzt(k,8) * wt(i,1,8)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + Dzt(k,8) * wt(i,1,8)
              end do
           end do
        end if
@@ -3121,12 +3121,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -3158,28 +3158,28 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e) &
-                        + Dx(i,7) * u(7,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e) &
+                  + Dx(i,7) * u(7,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e) &
-                        + Dx(i,7) * v(7,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e) &
+                  + Dx(i,7) * v(7,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e) &
-                        + Dx(i,7) * w(7,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e) &
+                  + Dx(i,7) * w(7,j,1,e)
           end do
        end do
 
@@ -3187,28 +3187,28 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e) &
-                           + Dy(j,7) * u(i,7,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e) &
+                     + Dy(j,7) * u(i,7,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e) &
-                           + Dy(j,7) * v(i,7,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e) &
+                     + Dy(j,7) * v(i,7,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e) &
-                           + Dy(j,7) * w(i,7,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e) &
+                     + Dy(j,7) * w(i,7,k,e)
              end do
           end do
        end do
@@ -3216,97 +3216,97 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e) &
-                        + Dz(k,7) * u(i,1,7,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e) &
+                  + Dz(k,7) * u(i,1,7,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e) &
-                        + Dz(k,7) * v(i,1,7,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e) &
+                  + Dz(k,7) * v(i,1,7,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e) &
-                        + Dz(k,7) * w(i,1,7,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e) &
+                  + Dz(k,7) * w(i,1,7,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1) &
-                         + Dxt(i,7) * ur(7,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1) &
+                  + Dxt(i,7) * ur(7,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1) &
-                         + Dxt(i,7) * vr(7,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1) &
+                  + Dxt(i,7) * vr(7,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1) &
-                         + Dxt(i,7) * wr(7,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1) &
+                  + Dxt(i,7) * wr(7,j,1)
           end do
        end do
 
@@ -3314,31 +3314,31 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k) &
-                            + Dyt(j,7) * us(i,7,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k) &
+                     + Dyt(j,7) * us(i,7,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k) &
-                            + Dyt(j,7) * vs(i,7,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k) &
+                     + Dyt(j,7) * vs(i,7,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k) &
-                            + Dyt(j,7) * ws(i,7,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k) &
+                     + Dyt(j,7) * ws(i,7,k)
              end do
           end do
        end do
@@ -3347,65 +3347,65 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + Dzt(k,7) * ut(i,1,7)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + Dzt(k,7) * ut(i,1,7)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + Dzt(k,7) * vt(i,1,7)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + Dzt(k,7) * vt(i,1,7)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + Dzt(k,7) * wt(i,1,7)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + Dzt(k,7) * wt(i,1,7)
              end do
           end do
        end if
@@ -3428,12 +3428,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -3465,25 +3465,25 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e) &
-                        + Dx(i,6) * u(6,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e) &
+                  + Dx(i,6) * u(6,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e) &
-                        + Dx(i,6) * v(6,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e) &
+                  + Dx(i,6) * v(6,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e) &
-                        + Dx(i,6) * w(6,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e) &
+                  + Dx(i,6) * w(6,j,1,e)
           end do
        end do
 
@@ -3491,25 +3491,25 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e) &
-                           + Dy(j,6) * u(i,6,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e) &
+                     + Dy(j,6) * u(i,6,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e) &
-                           + Dy(j,6) * v(i,6,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e) &
+                     + Dy(j,6) * v(i,6,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e) &
-                           + Dy(j,6) * w(i,6,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e) &
+                     + Dy(j,6) * w(i,6,k,e)
              end do
           end do
        end do
@@ -3517,91 +3517,91 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e) &
-                        + Dz(k,6) * u(i,1,6,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e) &
+                  + Dz(k,6) * u(i,1,6,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e) &
-                        + Dz(k,6) * v(i,1,6,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e) &
+                  + Dz(k,6) * v(i,1,6,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e) &
-                        + Dz(k,6) * w(i,1,6,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e) &
+                  + Dz(k,6) * w(i,1,6,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1) &
-                         + Dxt(i,6) * ur(6,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1) &
+                  + Dxt(i,6) * ur(6,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1) &
-                         + Dxt(i,6) * vr(6,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1) &
+                  + Dxt(i,6) * vr(6,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1) &
-                         + Dxt(i,6) * wr(6,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1) &
+                  + Dxt(i,6) * wr(6,j,1)
           end do
        end do
 
@@ -3609,28 +3609,28 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k) &
-                            + Dyt(j,6) * us(i,6,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k) &
+                     + Dyt(j,6) * us(i,6,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k) &
-                            + Dyt(j,6) * vs(i,6,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k) &
+                     + Dyt(j,6) * vs(i,6,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k) &
-                            + Dyt(j,6) * ws(i,6,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k) &
+                     + Dyt(j,6) * ws(i,6,k)
              end do
           end do
        end do
@@ -3639,59 +3639,59 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + Dzt(k,6) * ut(i,1,6)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + Dzt(k,6) * ut(i,1,6)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + Dzt(k,6) * vt(i,1,6)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + Dzt(k,6) * vt(i,1,6)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + Dzt(k,6) * wt(i,1,6)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + Dzt(k,6) * wt(i,1,6)
              end do
           end do
        end if
@@ -3714,12 +3714,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -3751,22 +3751,22 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e) &
-                        + Dx(i,5) * u(5,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e) &
+                  + Dx(i,5) * u(5,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e) &
-                        + Dx(i,5) * v(5,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e) &
+                  + Dx(i,5) * v(5,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e) &
-                        + Dx(i,5) * w(5,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e) &
+                  + Dx(i,5) * w(5,j,1,e)
           end do
        end do
 
@@ -3774,22 +3774,22 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e) &
-                           + Dy(j,5) * u(i,5,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e) &
+                     + Dy(j,5) * u(i,5,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e) &
-                           + Dy(j,5) * v(i,5,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e) &
+                     + Dy(j,5) * v(i,5,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e) &
-                           + Dy(j,5) * w(i,5,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e) &
+                     + Dy(j,5) * w(i,5,k,e)
              end do
           end do
        end do
@@ -3797,85 +3797,85 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e) &
-                        + Dz(k,5) * u(i,1,5,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e) &
+                  + Dz(k,5) * u(i,1,5,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e) &
-                        + Dz(k,5) * v(i,1,5,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e) &
+                  + Dz(k,5) * v(i,1,5,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e) &
-                        + Dz(k,5) * w(i,1,5,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e) &
+                  + Dz(k,5) * w(i,1,5,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1) &
-                         + Dxt(i,5) * ur(5,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1) &
+                  + Dxt(i,5) * ur(5,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1) &
-                         + Dxt(i,5) * vr(5,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1) &
+                  + Dxt(i,5) * vr(5,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1) &
-                         + Dxt(i,5) * wr(5,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1) &
+                  + Dxt(i,5) * wr(5,j,1)
           end do
        end do
 
@@ -3883,25 +3883,25 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k) &
-                            + Dyt(j,5) * us(i,5,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k) &
+                     + Dyt(j,5) * us(i,5,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k) &
-                            + Dyt(j,5) * vs(i,5,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k) &
+                     + Dyt(j,5) * vs(i,5,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k) &
-                            + Dyt(j,5) * ws(i,5,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k) &
+                     + Dyt(j,5) * ws(i,5,k)
              end do
           end do
        end do
@@ -3910,53 +3910,53 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + Dzt(k,5) * ut(i,1,5)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + Dzt(k,5) * ut(i,1,5)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + Dzt(k,5) * vt(i,1,5)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + Dzt(k,5) * vt(i,1,5)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + Dzt(k,5) * wt(i,1,5)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + Dzt(k,5) * wt(i,1,5)
              end do
           end do
        end if
@@ -3979,12 +3979,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -4016,19 +4016,19 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e) &
-                        + Dx(i,4) * u(4,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e) &
+                  + Dx(i,4) * u(4,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e) &
-                        + Dx(i,4) * v(4,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e) &
+                  + Dx(i,4) * v(4,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e) &
-                        + Dx(i,4) * w(4,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e) &
+                  + Dx(i,4) * w(4,j,1,e)
           end do
        end do
 
@@ -4036,19 +4036,19 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e) &
-                           + Dy(j,4) * u(i,4,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e) &
+                     + Dy(j,4) * u(i,4,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e) &
-                           + Dy(j,4) * v(i,4,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e) &
+                     + Dy(j,4) * v(i,4,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e) &
-                           + Dy(j,4) * w(i,4,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e) &
+                     + Dy(j,4) * w(i,4,k,e)
              end do
           end do
        end do
@@ -4056,79 +4056,79 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e) &
-                        + Dz(k,4) * u(i,1,4,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e) &
+                  + Dz(k,4) * u(i,1,4,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e) &
-                        + Dz(k,4) * v(i,1,4,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e) &
+                  + Dz(k,4) * v(i,1,4,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e) &
-                        + Dz(k,4) * w(i,1,4,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e) &
+                  + Dz(k,4) * w(i,1,4,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1) &
-                         + Dxt(i,4) * ur(4,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1) &
+                  + Dxt(i,4) * ur(4,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1) &
-                         + Dxt(i,4) * vr(4,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1) &
+                  + Dxt(i,4) * vr(4,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1) &
-                         + Dxt(i,4) * wr(4,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1) &
+                  + Dxt(i,4) * wr(4,j,1)
           end do
        end do
 
@@ -4136,22 +4136,22 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k) &
-                            + Dyt(j,4) * us(i,4,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k) &
+                     + Dyt(j,4) * us(i,4,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k) &
-                            + Dyt(j,4) * vs(i,4,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k) &
+                     + Dyt(j,4) * vs(i,4,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k) &
-                            + Dyt(j,4) * ws(i,4,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k) &
+                     + Dyt(j,4) * ws(i,4,k)
              end do
           end do
        end do
@@ -4160,47 +4160,47 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + Dzt(k,4) * ut(i,1,4)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + Dzt(k,4) * ut(i,1,4)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + Dzt(k,4) * vt(i,1,4)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + Dzt(k,4) * vt(i,1,4)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + Dzt(k,4) * wt(i,1,4)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + Dzt(k,4) * wt(i,1,4)
              end do
           end do
        end if
@@ -4223,12 +4223,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -4260,16 +4260,16 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e) &
-                        + Dx(i,3) * u(3,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e) &
+                  + Dx(i,3) * u(3,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e) &
-                        + Dx(i,3) * v(3,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e) &
+                  + Dx(i,3) * v(3,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e) &
-                        + Dx(i,3) * w(3,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e) &
+                  + Dx(i,3) * w(3,j,1,e)
           end do
        end do
 
@@ -4277,16 +4277,16 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e) &
-                           + Dy(j,3) * u(i,3,k,e)
+                     + Dy(j,2) * u(i,2,k,e) &
+                     + Dy(j,3) * u(i,3,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e) &
-                           + Dy(j,3) * v(i,3,k,e)
+                     + Dy(j,2) * v(i,2,k,e) &
+                     + Dy(j,3) * v(i,3,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e) &
-                           + Dy(j,3) * w(i,3,k,e)
+                     + Dy(j,2) * w(i,2,k,e) &
+                     + Dy(j,3) * w(i,3,k,e)
              end do
           end do
        end do
@@ -4294,73 +4294,73 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e) &
-                        + Dz(k,3) * u(i,1,3,e)
+                  + Dz(k,2) * u(i,1,2,e) &
+                  + Dz(k,3) * u(i,1,3,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e) &
-                        + Dz(k,3) * v(i,1,3,e)
+                  + Dz(k,2) * v(i,1,2,e) &
+                  + Dz(k,3) * v(i,1,3,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e) &
-                        + Dz(k,3) * w(i,1,3,e)
+                  + Dz(k,2) * w(i,1,2,e) &
+                  + Dz(k,3) * w(i,1,3,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1) &
-                         + Dxt(i,3) * ur(3,j,1)
+                  + Dxt(i,2) * ur(2,j,1) &
+                  + Dxt(i,3) * ur(3,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1) &
-                         + Dxt(i,3) * vr(3,j,1)
+                  + Dxt(i,2) * vr(2,j,1) &
+                  + Dxt(i,3) * vr(3,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1) &
-                         + Dxt(i,3) * wr(3,j,1)
+                  + Dxt(i,2) * wr(2,j,1) &
+                  + Dxt(i,3) * wr(3,j,1)
           end do
        end do
 
@@ -4368,19 +4368,19 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k) &
-                            + Dyt(j,3) * us(i,3,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k) &
+                     + Dyt(j,3) * us(i,3,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k) &
-                            + Dyt(j,3) * vs(i,3,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k) &
+                     + Dyt(j,3) * vs(i,3,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k) &
-                            + Dyt(j,3) * ws(i,3,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k) &
+                     + Dyt(j,3) * ws(i,3,k)
              end do
           end do
        end do
@@ -4389,41 +4389,41 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + Dzt(k,3) * ut(i,1,3)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + Dzt(k,3) * ut(i,1,3)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + Dzt(k,3) * vt(i,1,3)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + Dzt(k,3) * vt(i,1,3)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + Dzt(k,3) * wt(i,1,3)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + Dzt(k,3) * wt(i,1,3)
              end do
           end do
        end if
@@ -4446,12 +4446,12 @@ contains
     real(kind=rp), intent(in) :: h1(lx, lx, lx, n)
     real(kind=rp), intent(in) :: h2(lx, lx, lx, n)
     real(kind=rp), intent(in) :: B(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G11(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G22(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G33(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G12(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G13(lx, lx, lx, n)
-    real(kind=rp), intent(in) :: G23(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G11(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G22(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G33(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G12(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G13(lx, lx, lx, n)
+    real(kind=xp), intent(in) :: G23(lx, lx, lx, n)
     real(kind=rp), intent(in) :: Dx(lx, lx)
     real(kind=rp), intent(in) :: Dy(lx, lx)
     real(kind=rp), intent(in) :: Dz(lx, lx)
@@ -4483,13 +4483,13 @@ contains
        do j = 1, lx * lx
           do i = 1, lx
              wur(i,j,1) = Dx(i,1) * u(1,j,1,e) &
-                        + Dx(i,2) * u(2,j,1,e)
+                  + Dx(i,2) * u(2,j,1,e)
 
              wvr(i,j,1) = Dx(i,1) * v(1,j,1,e) &
-                        + Dx(i,2) * v(2,j,1,e)
+                  + Dx(i,2) * v(2,j,1,e)
 
              wwr(i,j,1) = Dx(i,1) * w(1,j,1,e) &
-                        + Dx(i,2) * w(2,j,1,e)
+                  + Dx(i,2) * w(2,j,1,e)
           end do
        end do
 
@@ -4497,13 +4497,13 @@ contains
           do j = 1, lx
              do i = 1, lx
                 wus(i,j,k) = Dy(j,1) * u(i,1,k,e) &
-                           + Dy(j,2) * u(i,2,k,e)
+                     + Dy(j,2) * u(i,2,k,e)
 
                 wvs(i,j,k) = Dy(j,1) * v(i,1,k,e) &
-                           + Dy(j,2) * v(i,2,k,e)
+                     + Dy(j,2) * v(i,2,k,e)
 
                 wws(i,j,k) = Dy(j,1) * w(i,1,k,e) &
-                           + Dy(j,2) * w(i,2,k,e)
+                     + Dy(j,2) * w(i,2,k,e)
 
              end do
           end do
@@ -4512,67 +4512,67 @@ contains
        do k = 1, lx
           do i = 1, lx*lx
              wut(i,1,k) = Dz(k,1) * u(i,1,1,e) &
-                        + Dz(k,2) * u(i,1,2,e)
+                  + Dz(k,2) * u(i,1,2,e)
 
              wvt(i,1,k) = Dz(k,1) * v(i,1,1,e) &
-                        + Dz(k,2) * v(i,1,2,e)
+                  + Dz(k,2) * v(i,1,2,e)
 
              wwt(i,1,k) = Dz(k,1) * w(i,1,1,e) &
-                        + Dz(k,2) * w(i,1,2,e)
+                  + Dz(k,2) * w(i,1,2,e)
           end do
        end do
 
        do i = 1, lx*lx*lx
           ur(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wur(i,1,1) &
-                      + G12(i,1,1,e) * wus(i,1,1) &
-                      + G13(i,1,1,e) * wut(i,1,1) )
+               * ( G11(i,1,1,e) * wur(i,1,1) &
+               + G12(i,1,1,e) * wus(i,1,1) &
+               + G13(i,1,1,e) * wut(i,1,1) )
           us(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wur(i,1,1) &
-                      + G22(i,1,1,e) * wus(i,1,1) &
-                      + G23(i,1,1,e) * wut(i,1,1) )
+               * ( G12(i,1,1,e) * wur(i,1,1) &
+               + G22(i,1,1,e) * wus(i,1,1) &
+               + G23(i,1,1,e) * wut(i,1,1) )
           ut(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wur(i,1,1) &
-                      + G23(i,1,1,e) * wus(i,1,1) &
-                      + G33(i,1,1,e) * wut(i,1,1) )
+               * ( G13(i,1,1,e) * wur(i,1,1) &
+               + G23(i,1,1,e) * wus(i,1,1) &
+               + G33(i,1,1,e) * wut(i,1,1) )
 
           vr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wvr(i,1,1) &
-                      + G12(i,1,1,e) * wvs(i,1,1) &
-                      + G13(i,1,1,e) * wvt(i,1,1) )
+               * ( G11(i,1,1,e) * wvr(i,1,1) &
+               + G12(i,1,1,e) * wvs(i,1,1) &
+               + G13(i,1,1,e) * wvt(i,1,1) )
           vs(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wvr(i,1,1) &
-                      + G22(i,1,1,e) * wvs(i,1,1) &
-                      + G23(i,1,1,e) * wvt(i,1,1) )
+               * ( G12(i,1,1,e) * wvr(i,1,1) &
+               + G22(i,1,1,e) * wvs(i,1,1) &
+               + G23(i,1,1,e) * wvt(i,1,1) )
           vt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wvr(i,1,1) &
-                      + G23(i,1,1,e) * wvs(i,1,1) &
-                      + G33(i,1,1,e) * wvt(i,1,1) )
+               * ( G13(i,1,1,e) * wvr(i,1,1) &
+               + G23(i,1,1,e) * wvs(i,1,1) &
+               + G33(i,1,1,e) * wvt(i,1,1) )
 
           wr(i,1,1) = h1(i,1,1,e) &
-                    * ( G11(i,1,1,e) * wwr(i,1,1) &
-                      + G12(i,1,1,e) * wws(i,1,1) &
-                      + G13(i,1,1,e) * wwt(i,1,1) )
+               * ( G11(i,1,1,e) * wwr(i,1,1) &
+               + G12(i,1,1,e) * wws(i,1,1) &
+               + G13(i,1,1,e) * wwt(i,1,1) )
           ws(i,1,1) = h1(i,1,1,e) &
-                    * ( G12(i,1,1,e) * wwr(i,1,1) &
-                      + G22(i,1,1,e) * wws(i,1,1) &
-                      + G23(i,1,1,e) * wwt(i,1,1) )
+               * ( G12(i,1,1,e) * wwr(i,1,1) &
+               + G22(i,1,1,e) * wws(i,1,1) &
+               + G23(i,1,1,e) * wwt(i,1,1) )
           wt(i,1,1) = h1(i,1,1,e) &
-                    * ( G13(i,1,1,e) * wwr(i,1,1) &
-                      + G23(i,1,1,e) * wws(i,1,1) &
-                      + G33(i,1,1,e) * wwt(i,1,1) )
+               * ( G13(i,1,1,e) * wwr(i,1,1) &
+               + G23(i,1,1,e) * wws(i,1,1) &
+               + G33(i,1,1,e) * wwt(i,1,1) )
        end do
 
        do j = 1, lx*lx
           do i = 1, lx
              au(i,j,1,e) = Dxt(i,1) * ur(1,j,1) &
-                         + Dxt(i,2) * ur(2,j,1)
+                  + Dxt(i,2) * ur(2,j,1)
 
              av(i,j,1,e) = Dxt(i,1) * vr(1,j,1) &
-                         + Dxt(i,2) * vr(2,j,1)
+                  + Dxt(i,2) * vr(2,j,1)
 
              aw(i,j,1,e) = Dxt(i,1) * wr(1,j,1) &
-                         + Dxt(i,2) * wr(2,j,1)
+                  + Dxt(i,2) * wr(2,j,1)
           end do
        end do
 
@@ -4580,16 +4580,16 @@ contains
           do j = 1, lx
              do i = 1, lx
                 au(i,j,k,e) = au(i,j,k,e) &
-                            + Dyt(j,1) * us(i,1,k) &
-                            + Dyt(j,2) * us(i,2,k)
+                     + Dyt(j,1) * us(i,1,k) &
+                     + Dyt(j,2) * us(i,2,k)
 
                 av(i,j,k,e) = av(i,j,k,e) &
-                            + Dyt(j,1) * vs(i,1,k) &
-                            + Dyt(j,2) * vs(i,2,k)
+                     + Dyt(j,1) * vs(i,1,k) &
+                     + Dyt(j,2) * vs(i,2,k)
 
                 aw(i,j,k,e) = aw(i,j,k,e) &
-                            + Dyt(j,1) * ws(i,1,k) &
-                            + Dyt(j,2) * ws(i,2,k)
+                     + Dyt(j,1) * ws(i,1,k) &
+                     + Dyt(j,2) * ws(i,2,k)
              end do
           end do
        end do
@@ -4598,35 +4598,35 @@ contains
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * u(i,1,k,e)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * v(i,1,k,e)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2) &
-                            + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2) &
+                     + h2(i,1,k,e) * B(i,1,k,e) * w(i,1,k,e)
              end do
           end do
        else
           do k = 1, lx
              do i = 1, lx*lx
                 au(i,1,k,e) = au(i,1,k,e) &
-                            + Dzt(k,1) * ut(i,1,1) &
-                            + Dzt(k,2) * ut(i,1,2)
+                     + Dzt(k,1) * ut(i,1,1) &
+                     + Dzt(k,2) * ut(i,1,2)
 
                 av(i,1,k,e) = av(i,1,k,e) &
-                            + Dzt(k,1) * vt(i,1,1) &
-                            + Dzt(k,2) * vt(i,1,2)
+                     + Dzt(k,1) * vt(i,1,1) &
+                     + Dzt(k,2) * vt(i,1,2)
 
                 aw(i,1,k,e) = aw(i,1,k,e) &
-                            + Dzt(k,1) * wt(i,1,1) &
-                            + Dzt(k,2) * wt(i,1,2)
+                     + Dzt(k,1) * wt(i,1,1) &
+                     + Dzt(k,2) * wt(i,1,2)
              end do
           end do
        end if
