@@ -78,7 +78,7 @@ module fluid_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
   use zero_dirichlet, only : zero_dirichlet_t
-  use utils, only : neko_error, neko_type_error
+  use utils, only : neko_error, neko_type_error, NEKO_VARNAME_LEN
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t, BC_DIRICHLET
   use mixed_bc, only : mixed_bc_t
@@ -206,11 +206,29 @@ module fluid_pnpn
   end type fluid_pnpn_t
 
   interface
+     !> Split a boundary condition entry of the case file into a velocity
+     !! part and a pressure part.
+     !! @param[inout] json The boundary condition entry.
+     !! @param[inout] velocity_json The velocity part, valid if `has_velocity`.
+     !! @param[inout] pressure_json The pressure part, valid if `has_pressure`.
+     !! @param[out] has_velocity Whether the entry defines a velocity condition.
+     !! @param[out] has_pressure Whether the entry defines a pressure condition.
+     module subroutine fluid_pnpn_bc_split(json, velocity_json, &
+          pressure_json, has_velocity, has_pressure)
+       type(json_file), intent(inout) :: json
+       type(json_file), intent(inout) :: velocity_json
+       type(json_file), intent(inout) :: pressure_json
+       logical, intent(out) :: has_velocity
+       logical, intent(out) :: has_pressure
+     end subroutine fluid_pnpn_bc_split
+  end interface
+
+  interface
      !> Boundary condition factory for pressure.
      !! @details Will mark a mesh zone for the bc and finalize.
      !! @param[inout] object The object to be allocated.
-     !! @param[in] scheme The `scalar_pnpn` scheme.
-     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] scheme The `fluid_pnpn` scheme.
+     !! @param[inout] json The pressure part of the boundary condition entry.
      !! @param[in] coef SEM coefficients.
      !! @param[in] user The user interface.
      module subroutine pressure_bc_factory(object, scheme, json, coef, user)
@@ -226,18 +244,102 @@ module fluid_pnpn
      !> Boundary condition factory for velocity
      !! @details Will mark a mesh zone for the bc and finalize.
      !! @param[inout] object The object to be allocated.
-     !! @param[in] scheme The `scalar_pnpn` scheme.
-     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] scheme The `fluid_pnpn` scheme.
+     !! @param[inout] json The velocity part of the boundary condition entry.
      !! @param[in] coef SEM coefficients.
      !! @param[in] user The user interface.
      module subroutine velocity_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_pnpn_t), intent(inout) :: scheme
+       type(fluid_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
        type(user_t), target, intent(in) :: user
      end subroutine velocity_bc_factory
   end interface
+
+  interface
+     !> Velocity boundary condition allocator.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] full_stress_formulation Whether the scheme uses the full
+     !! viscous stress formulation.
+     module subroutine fluid_pnpn_velocity_bc_allocator(object, type_name, &
+          full_stress_formulation)
+       class(bc_t), pointer, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+       logical, intent(in) :: full_stress_formulation
+     end subroutine fluid_pnpn_velocity_bc_allocator
+  end interface
+
+  interface
+     !> Pressure boundary condition allocator.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] type_name The name of the boundary condition type.
+     module subroutine fluid_pnpn_pressure_bc_allocator(object, type_name)
+       class(bc_t), pointer, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine fluid_pnpn_pressure_bc_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for a fluid Pn/Pn boundary condition allocator.
+  !! Implemented in user modules, it should allocate `obj` to the custom user
+  !! type.
+  abstract interface
+     subroutine fluid_pnpn_bc_allocate(obj)
+       import bc_t
+       class(bc_t), pointer, intent(inout) :: obj
+     end subroutine fluid_pnpn_bc_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom velocity
+     !! boundary condition types.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] allocator The allocator for the custom user type.
+     module subroutine register_fluid_pnpn_velocity_bc(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(fluid_pnpn_bc_allocate), pointer, intent(in) :: allocator
+     end subroutine register_fluid_pnpn_velocity_bc
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom pressure
+     !! boundary condition types.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] allocator The allocator for the custom user type.
+     module subroutine register_fluid_pnpn_pressure_bc(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(fluid_pnpn_bc_allocate), pointer, intent(in) :: allocator
+     end subroutine register_fluid_pnpn_pressure_bc
+  end interface
+
+  !> A name-allocator pair for user-defined fluid Pn/Pn boundary conditions.
+  type fluid_pnpn_bc_allocator_entry
+     character(len=NEKO_VARNAME_LEN) :: type_name
+     procedure(fluid_pnpn_bc_allocate), pointer, nopass :: allocator => null()
+  end type fluid_pnpn_bc_allocator_entry
+
+  !> Registry of user-defined velocity boundary condition allocators.
+  type(fluid_pnpn_bc_allocator_entry), allocatable, private :: &
+       fluid_pnpn_velocity_bc_registry(:)
+
+  !> The size of `fluid_pnpn_velocity_bc_registry`.
+  integer, private :: fluid_pnpn_velocity_bc_registry_size = 0
+
+  !> Registry of user-defined pressure boundary condition allocators.
+  type(fluid_pnpn_bc_allocator_entry), allocatable, private :: &
+       fluid_pnpn_pressure_bc_registry(:)
+
+  !> The size of `fluid_pnpn_pressure_bc_registry`.
+  integer, private :: fluid_pnpn_pressure_bc_registry_size = 0
+
+  public :: fluid_pnpn_bc_split, fluid_pnpn_bc_allocate, &
+       fluid_pnpn_velocity_bc_allocator, fluid_pnpn_pressure_bc_allocator, &
+       register_fluid_pnpn_velocity_bc, register_fluid_pnpn_pressure_bc
 
 contains
 
@@ -999,31 +1101,35 @@ contains
     call profiler_end_region('Fluid', 1)
   end subroutine fluid_pnpn_step
 
-  !> Sets up the boundary condition for the scheme.
+  !> Sets up the boundary conditions for the scheme.
+  !! @details Each entry of `case.fluid.boundary_conditions` is split into a
+  !! velocity part and a pressure part by `fluid_pnpn_bc_split`. The parts are
+  !! passed to `velocity_bc_factory` and `pressure_bc_factory`, and the
+  !! resulting objects are appended to `bcs_vel` and `bcs_prs` and marked in
+  !! the residual projectors. The `facet_type` array of the mesh, used by the
+  !! FDM preconditioner, is set to 1 on the zones of an entry with a Dirichlet
+  !! pressure condition and to 2 otherwise.
   !! @param user The user interface.
+  !! @param params The case file parameters.
   subroutine fluid_pnpn_setup_bcs(this, user, params)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
     type(json_file), intent(inout) :: params
-    integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr
+    integer :: i, n_bcs, j, k, l, zone_size, global_zone_size, ierr
+    integer :: facet_value
     class(bc_t), pointer :: bc_i
     type(json_core) :: core
     type(json_value), pointer :: bc_object
-    type(json_file) :: bc_subdict
-    logical :: ale_active_local, any_moving_wall, moving_
+    type(json_file) :: bc_subdict, velocity_subdict, pressure_subdict
+    logical :: moving_, has_velocity, has_pressure, pressure_dirichlet
     logical :: found
     ! Monitor which boundary zones have been marked
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
     character(len=256) :: error_msg
-
-    ! For ALE, we set a flag while reading the BCs
     character(len=:), allocatable :: bc_type_str
+
     this%ale%has_moving_boundary = .false.
-    any_moving_wall = .false.
-    ale_active_local = .false.
-    call json_get_or_default(params, 'case.fluid.ale.enabled', &
-         ale_active_local, .false.)
 
     ! Special PnPn boundary conditions for pressure
     call this%bc_prs_surface%init_from_components(this%c_Xh)
@@ -1035,10 +1141,8 @@ contains
        call params%get_core(core)
        call params%get('case.fluid.boundary_conditions', bc_object, found)
 
-       !
-       ! Velocity bcs
-       !
        call this%bcs_vel%init(n_bcs)
+       call this%bcs_prs%init(n_bcs)
 
        allocate(marked_zones(size(this%msh%labeled_zones)))
        marked_zones = .false.
@@ -1048,16 +1152,6 @@ contains
           call json_extract_item(core, bc_object, i, bc_subdict)
 
           call json_get_or_lookup(bc_subdict, "zone_indices", zone_indices)
-
-          ! Set the ALE flag to true if there is any moving no_slip wall
-          call json_get(bc_subdict, "type", bc_type_str)
-          moving_ = .false.
-          if (trim(bc_type_str) .eq. "no_slip") then
-             call json_get_or_default(bc_subdict, "moving", moving_, .false.)
-          end if
-          if (moving_) then
-             this%ale%has_moving_boundary = .true.
-          end if
 
           ! Check that we are not trying to assing a bc to zone, for which one
           ! has already been assigned and that the zone has more than 0 size
@@ -1089,11 +1183,28 @@ contains
              end if
           end do
 
-          bc_i => null()
-          call velocity_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+          call fluid_pnpn_bc_split(bc_subdict, velocity_subdict, &
+               pressure_subdict, has_velocity, has_pressure)
 
-          ! Not all bcs require an allocation for velocity in particular,
-          ! so we check.
+          !
+          ! Velocity
+          !
+          bc_i => null()
+          if (has_velocity) then
+             ! Set the ALE flag to true if there is any moving no_slip wall
+             call json_get(velocity_subdict, "type", bc_type_str)
+             if (trim(bc_type_str) .eq. "no_slip") then
+                call json_get_or_default(velocity_subdict, "moving", moving_, &
+                     .false.)
+                if (moving_) this%ale%has_moving_boundary = .true.
+             end if
+
+             call velocity_bc_factory(bc_i, this, velocity_subdict, &
+                  this%c_Xh, user)
+          end if
+
+          ! A homogeneous Neumann condition for velocity does not create an
+          ! object, so we check.
           if (associated(bc_i)) then
 
              select type (bc_i)
@@ -1140,6 +1251,16 @@ contains
                 end if
                 call this%bcs_vel_projector%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
+             class is (mixed_bc_t)
+                ! User-defined mixed conditions, resolved by the coupled
+                ! projector.
+                if (.not. this%full_stress_formulation) then
+                   call neko_error("The " // trim(bc_i%name) // &
+                        " boundary condition is a mixed condition and " // &
+                        "requires the full stress formulation to be enabled.")
+                end if
+                call this%bcs_vel_projector%mark(bc_i)
+                call this%bcs_vel%append(bc_i)
              class default
 
                 ! Additionally we mark the special PnPn pressure bc.
@@ -1158,7 +1279,50 @@ contains
                 call this%bcs_vel%append(bc_i)
              end select
           end if
+
+          !
+          ! Pressure
+          !
+          bc_i => null()
+          pressure_dirichlet = .false.
+          if (has_pressure) then
+             call pressure_bc_factory(bc_i, this, pressure_subdict, &
+                  this%c_Xh, user)
+          end if
+
+          ! The natural pressure condition does not create an object, so we
+          ! check.
+          if (associated(bc_i)) then
+             call this%bcs_prs%append(bc_i)
+
+             ! Mark strong pressure bcs in the projector to force zero change.
+             if (bc_i%bc_type .eq. BC_DIRICHLET) then
+                call this%bcs_prs_projector%mark(bc_i)
+                pressure_dirichlet = .true.
+             end if
+          end if
+
+          ! Mark the facets of the zones for the FDM preconditioner: 1 where
+          ! the pressure is strongly imposed, 2 otherwise.
+          if (pressure_dirichlet) then
+             facet_value = 1
+          else
+             facet_value = 2
+          end if
+
+          do j = 1, size(zone_indices)
+             do k = 1, this%msh%nelv
+                do l = 1, 2 * this%msh%gdim
+                   if (this%msh%facet_type(l, k) .eq. -zone_indices(j)) then
+                      this%msh%facet_type(l, k) = facet_value
+                   end if
+                end do
+             end do
+          end do
        end do
+
+       call velocity_subdict%destroy()
+       call pressure_subdict%destroy()
 
        if (this%ale%active .and. (.not. this%ale%has_moving_boundary)) then
           call neko_error("Case file error: ALE is active, " // &
@@ -1174,31 +1338,6 @@ contains
                   "No fluid boundary condition assigned to zone ", i
              call neko_error(error_msg)
           end if
-       end do
-
-       !
-       ! Pressure bcs
-       !
-       call this%bcs_prs%init(n_bcs)
-
-       do i = 1, n_bcs
-          ! Create a new json containing just the subdict for this bc
-          call json_extract_item(core, bc_object, i, bc_subdict)
-          bc_i => null()
-          call pressure_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
-
-          ! Not all bcs require an allocation for pressure in particular,
-          ! so we check.
-          if (associated(bc_i)) then
-             call this%bcs_prs%append(bc_i)
-
-             ! Mark strong pressure bcs in the projector to force zero change.
-             if (bc_i%bc_type .eq. BC_DIRICHLET) then
-                call this%bcs_prs_projector%mark(bc_i)
-             end if
-
-          end if
-
        end do
     else
        ! Check that there are no labeled zones, i.e. all are periodic.
@@ -1223,7 +1362,6 @@ contains
     this%prs_dirichlet = this%bcs_prs_projector%dof_mask%is_set()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
-
 
     if (allocated(marked_zones)) then
        deallocate(marked_zones)
