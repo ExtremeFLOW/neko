@@ -1485,15 +1485,15 @@ contains
     real(kind=rp), intent(in) :: scal(:)
     type(field_t), intent(in), optional :: msk
     real(kind=rp), allocatable :: wr(:,:), ws(:,:), wt(:,:), rowabs(:)
-    real(kind=rp), allocatable :: v(:), gv(:)
+    real(kind=rp), allocatable :: v(:), gv(:), sv(:)
     character(len=LOG_SIZE) :: log_buf
-    real(kind=rp) :: rmax, gmin, gsum, nrm(2), lam
+    real(kind=rp) :: rmax, gmin, gsum, nrm(2), lam, mom(2)
     real(kind=dp) :: pair(2), xmin(3)
     integer :: i, n_lag, n_zero, n_glb, it, imin
     integer, parameter :: n_power = 20
 
     n_lag = size(d)
-    allocate(rowabs(n_lag))
+    allocate(rowabs(n_lag), sv(n_lag))
 
     ! |G| 1: the same operators with the Lagrange weights replaced by
     ! their absolute values. The lumping runs on the host at start-up, so
@@ -1514,6 +1514,31 @@ contains
 
     ! G 1: the signed row sums, for the constant-mode gain
     call df_adjoint_rowsum(this, ones, rowsum, scal, msk)
+
+    ! Momentum consistency of the weight W: the adjoint pair conserves the
+    ! W-weighted integral of the deposit (it equals the sum of the marker
+    ! forces), the fluid loses the B-weighted one. With the GLL mass the
+    ! two coincide; with the element-lumped mass they differ by the ratio
+    ! of local to mean mass where the deposit lands, which on the fluid
+    ! side of a cut element need not average to one. Logged as the ratio
+    ! physical / intended for a unit force on every marker.
+    sv = scal(1:n_lag) * ones
+    this%ib_fx%x = 0.0_rp
+    call df_adjoint_apply(this, sv, this%ib_fx, .true., msk)
+    mom(1) = sum(this%ib_fx%x * this%Bm * this%coef%mult)
+    if (this%adjoint_mass) then
+       mom(2) = mom(1)
+    else
+       mom(2) = sum(this%ib_fx%x * this%coef%mult / this%winv%x)
+    end if
+    this%ib_fx%x = 0.0_rp
+    call MPI_Allreduce(MPI_IN_PLACE, mom, 2, MPI_REAL_PRECISION, MPI_SUM, &
+         NEKO_COMM)
+    if (abs(mom(2)) .gt. 0.0_rp) then
+       write(log_buf, '(A,A,F7.3)') trim(label), &
+            ': momentum ratio physical/intended ', mom(1) / mom(2)
+       call neko_log%message(log_buf)
+    end if
 
     rmax = 0.0_rp
     do i = 1, n_lag
@@ -1599,7 +1624,7 @@ contains
     ! iteration used it as scratch)
     call df_adjoint_rowsum(this, ones, rowsum, scal, msk)
 
-    deallocate(rowabs)
+    deallocate(rowabs, sv)
 
   end subroutine df_adjoint_lump
 
