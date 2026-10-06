@@ -312,8 +312,9 @@ so no case in this repo needs redistancing after the build. What is not known:
   - On Rider–Kothe, Saini's configuration completes but gives a worse normal (§4.1d). Its solve
     does not reach a distance in the compression band, and the thin tail has no $\phi$ contour to
     rebuild from.
-  - The committed events path has not been run on Rider–Kothe since the fixes (`NEXT_SESSION.md`,
-    Rider–Kothe plan).
+  - The committed events path on Rider–Kothe (2026-10-06) converges $\psi$ onto $\phi$'s
+    contour, which fragments from $t\approx2$: $E_r(8)$ 0.835 against transport's 0.0452
+    (`CDI_METHOD.md` §4.1d).
 - **Whether a monotone conditioning transform would serve better.** The normal is
   invariant under any monotone rescaling (§1), so
   $\psi \leftarrow L\tanh(\psi/L)$ flattens the far-field kinks without a pseudo-time

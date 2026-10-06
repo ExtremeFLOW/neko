@@ -9,33 +9,32 @@ goes there and the item leaves this file. The records with every prediction and 
 
 ## Rider–Kothe redistancing
 
-1. **Run the committed events path on Rider–Kothe.** It has not run since the 2026-10-02 fixes; queued 2026-10-05, predictions in `logs/d5/PREREGISTERED.txt`.
-   - Configuration: `psi_init = "redistance"`, SSP-RK3, sign-function $\varepsilon$ equal to the
-     phase field's, band $2.5H$, `cfl` 0.1, $\Delta t_{tls}=0.5$.
-   - One run at $H=1/64$, $N=5$, $\xi=1$, $\gamma=1$. Pre-register it.
-   - Compare against `rider_kothe_xi10` on the same build (transport only: $E_r$ 0.0452, normal
-     0.6–1.3° off; `examples/rider_kothe/README.md`).
-   - Judge by the normal angle in the compression band (`examples/rider_kothe/logs/d5/rd_quality.py`, gitignored) and by
-     $E_r(8)$.
-2. **D5: one knob at a time**, from the two measured causes in `CDI_METHOD.md` §4.1d.
-   1. The sign-function width: 0.25 against $H/N$-scaled.
-   2. Dealiased $\mathbf C(\mathbf w)$ plus the sign guard.
-   3. D2: BDF2/EXT2 with the printed Eq. (31) SVV (`svv_step_eq31`) in place of SSP-RK3 with
+1. **D5: one knob at a time.** The committed events path fails on Rider–Kothe ($E_r(8)$ 0.835,
+   $\phi$'s contour fragmenting from $t\approx2$); Saini's configuration completes (0.0407,
+   `CDI_METHOD.md` §4.1d). They differ in seven settings; change one at a time from the committed
+   path, judged as before (`rd_quality.py`, $E_r(8)$, against `rider_kothe_xi10` at 0.0452):
+   1. The sign-function width: 0.25 against $H/N$-scaled (first: it is why his solve barely moves
+      $\psi$ in the band).
+   2. The extent and pseudo-step: $25H$ and $\Delta\tau=H/(N{+}1)$ against $2.5H$ and pseudo-CFL 0.1.
+   3. Dealiased $\mathbf C(\mathbf w)$ plus the sign guard.
+   4. D2: BDF2/EXT2 with the printed Eq. (31) SVV (`svv_step_eq31`) in place of SSP-RK3 with
       `svv_step_imp`. BDF2 can fail at a steep apex near a medial axis where RK3's Lie split held
       (`examples/redistance_circles/archive/README_process_2026-09.md` §7.5).
-3. **The thin tail.** Where the filament is thinner than $2\varepsilon$ (5–6% of its length at
+2. **The thin tail.** Where the filament is thinner than $2\varepsilon$ (5–6% of its length at
    maximum stretch), $\phi$ has no 0.5 contour, so no reseed setting can rebuild $\psi$ there. Each
    candidate is a change to the method, not a knob:
    - a compression flux masked to the interface band;
    - the monotone transform $\psi \leftarrow L\tanh(\psi/L)$ (`REDISTANCING.md` §8).
-4. **A convergence measure for the $\tau$ solve:** a residual on the compression band, not the
+3. **A convergence measure for the $\tau$ solve:** a residual on the compression band, not the
    build band (`CDI_METHOD.md` §4.3).
-5. **Housekeeping.**
+4. **Housekeeping.**
    - Regenerate `examples/rider_kothe/evidence/`: all of it predates the fixes. Use kthviz style
      and put a GIF beside every MP4. Working script: `examples/rider_kothe/logs/anim/anim_rk.py`
      (gitignored, local).
    - `rider_h192.case` ships but has never run: run it or remove it.
    - Run $\xi=0.75$ under strain (~30 min) to see whether the cross turns over.
+   - The $H=1/64$ runs end at $t=8.00008$ (100001 steps; Neko's summed time is a round-off below 8
+     after 100000), so $E_r(8)$ is one step past the reversal. Decide whether to stop exactly at 8.
 
 ## Saini §4.5, for reference
 

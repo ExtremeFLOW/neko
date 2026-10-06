@@ -635,6 +635,15 @@ worse normal source than the transported one:
 better than the transported $\psi$'s. On a straining flow with an under-resolved tail, and
 around corners, it is not.
 
+**The committed events path fails on Rider–Kothe (2026-10-06).** SSP-RK3, sign-function
+$\varepsilon$ equal to the phase field's, $2.5H$, pseudo-CFL 0.1, events every 0.5: $E_r(8)$
+0.835 against transport's 0.0452, worst violation 0.41. Its solve converges ($\psi$ within
+0.25–0.4$\varepsilon$ of the distance to $\phi$'s contour to $t\approx3$), and that is the
+problem: the contour fragments from $t\approx2$ (3 pieces, 27 at $t=4$, 98 at $t=8$), and each
+reseed turns the pieces into zero sets, the Zalesak mechanism of §4.1c. Saini's configuration,
+whose solve barely leaves the seed, completes (item 3). The two differ in seven settings
+(`examples/rider_kothe/README.md`).
+
 **4. A prescribed velocity belongs to the explicit terms' time level (2026-10-05).** Neko's scalar
 step applies advection and the compression source to $s^n$ and extrapolates them to $t_{n+1}$
 (`src/scalar/scalar_pnpn.f90`), Saini's Eq. (34) with $\mathbf C\,u^{n+1-j}$. So the velocity
@@ -1010,7 +1019,7 @@ imply.
 | 2D Zalesak | the two redistancing variants, $\xi=2.8$, $N=5$: `seed="phi"` and in-place `seed="psi"` | recorded: `seed="phi"` completes at $E_r$ 0.7087, worst violation $1.06\times10^{-1}$; `seed="psi"` $E_r$ 1.667 at $t=3$, stopped. **Not citable**: from the earlier configuration (analytic $\psi$, $\lvert\nabla\psi\rvert$ trigger, before the `grad_floor` fix, with the history bug). The shipped `.case` files now use `psi_init = "redistance"` and the 0.5 timer, and have not been re-run (`NEXT_SESSION.md`); $\xi=2.8$ at $N=5$ violates $N\ge3.68\xi$ (§4.1b) | `examples/zalesak_disk/README.md` |
 | 2D Zalesak | arm C: built $\psi$ + periodic reseed, $\xi=1$, $N\in\{3,5,7\}$, with the history restart (2026-10-02) | $N=3$ diverges $t=11.2$; $N=5$ completes at $E_r$ 0.574 (arm B 0.034); $N=7$ diverges $t=4.5$ | §4.1c: the relaxation converges, $\phi$'s contour fragments and the reseed sustains the fragments |
 | 2D Zalesak | SVV on vs off, $\xi=1$ (Saini's $\xi=1/N$), $N\in\{3,5,7\}$, ten rotations, identical $\Delta t$ per pair | SVV-on $E_r$ **0.101 → 0.021 → 0.0040**; SVV-off **0.932 → 0.975 → 1.027** | single-variable; the gap grows 9× → 47× → 256× with $N$ (§5) |
-| Rider–Kothe | re-run 2026-10-02 with the diffusion fix and 2026-10-05/06 with the velocity fix (§4.1d): $\psi$-normal, `svv_psi` $c_0=0.1$, redistancing **OFF**; $\xi\in\{1,1.5,2\}$ × $\gamma$ at $H=1/64$; $h$-series to $H=1/128$ at $\xi=1$ | $E_r(t{=}8)$ 0.0452 → 0.0104 under $h$-refinement (rate ≈2.1); $\xi$ trades shape (0.0452 at $\xi=1$, 0.0710 at $\xi=2$) against boundedness ($2.5\times10^{-3}$ → 0); band $\lvert\nabla\psi\rvert$ to 15 at $t=4$, back to 1.008 at $t=8$, normal within 0.6–1.3° of exact; SVV on $\psi$ worth 10–11% in $E_r$. Saini's full periodic-reseed configuration (scratch user file) completes, $E_r$ 0.0407, but its $\psi$ normal is 4–8° off | `examples/rider_kothe/README.md`; `evidence/` predates the fix |
+| Rider–Kothe | re-run 2026-10-02 with the diffusion fix and 2026-10-05/06 with the velocity fix (§4.1d): $\psi$-normal, `svv_psi` $c_0=0.1$, redistancing **OFF**; $\xi\in\{1,1.5,2\}$ × $\gamma$ at $H=1/64$; $h$-series to $H=1/128$ at $\xi=1$ | $E_r(t{=}8)$ 0.0452 → 0.0104 under $h$-refinement (rate ≈2.1); $\xi$ trades shape (0.0452 at $\xi=1$, 0.0710 at $\xi=2$) against boundedness ($2.5\times10^{-3}$ → 0); band $\lvert\nabla\psi\rvert$ to 15 at $t=4$, back to 1.008 at $t=8$, normal within 0.6–1.3° of exact; SVV on $\psi$ worth 10–11% in $E_r$. Saini's full periodic-reseed configuration (scratch user file) completes, $E_r$ 0.0407, but its $\psi$ normal is 4–8° off; the committed events path completes at $E_r$ 0.835, $\phi$'s contour fragmenting from $t\approx2$ | `examples/rider_kothe/README.md`; `evidence/` predates the fix |
 | Saini §4.4 circles | Eq. (44) standalone with the authors' configuration from their public case: sign-function $\varepsilon=0.25$ in Eq. (46), dealiased $\mathbf C(\mathbf w)$, their sign guard; their BDF2/EXT2, $c_0{=}2$, $N_{svv}{=}N/6$, $\tau{=}6$, over the 18-cell Fig. 12 grid | **reproduced** (2026-09-29). 12 of 18 cells within 0.1% of their values, four more within 2.2%; the four Table 2 cells are all within 2.2%. Two cells ($H{=}1/5$, $N{=}4$ and 8) fail on our mesh through zero-set round-off, and match exactly when started from their zero-set $\psi_0$ | `examples/redistance_circles/README.md` §4–§5, `evidence/` |
 
 The $\phi$-normal runs predate the `grad_floor` fix (§4.1) and were not re-run;

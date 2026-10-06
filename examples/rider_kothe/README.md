@@ -9,6 +9,7 @@ the flow reverses and it unwinds back to a disk at $t=8$.
   file `logs/d5/rider_kothe_d5.f90`, which already filled `s_lambda_tot`; the committed
   `rider_kothe.f90` got that fix on 2026-10-02.
 - **The measurements of the reseeded $\psi$** are from 2026-10-05.
+- **The committed events path** ran on 2026-10-05/06, on the velocity-fix build.
 
 It is the only case with genuine strain, which makes it the only one that can
 settle whether redistancing is needed and what $(\xi, \gamma)$ to use.
@@ -161,8 +162,42 @@ transport alone reads 0.0446 here.
 - Of its keys, only the history restart is in `rider_kothe.f90`.
 - The sign-function width, BDF2, dealiasing and the guard are scratch-only (decision D2/D5 in
   `../../NEXT_SESSION.md`).
-- The committed events path (SSP-RK3, sign-function $\varepsilon$ equal to the phase field's,
-  $2.5H$) has not been run here since the fixes.
+
+### The committed events path fails
+
+`rider_kothe.f90`'s own redistancing, on the velocity-fix build (2026-10-05/06,
+`logs/events_2026-10-05/`, predictions and verdicts in `logs/d5/PREREGISTERED.txt`): built
+$\psi_0$, every 0.5 an Eq. (47) reseed and an SSP-RK3 Eq. (44) solve over $2.5H$ at pseudo-CFL
+0.1, sign-function $\varepsilon$ equal to the phase field's, implicit SVV $c_0=2$, $N/4$.
+Otherwise `rider_kothe_xi10`.
+
+| | transport only (`rider_kothe_xi10`) | committed events path |
+|---|---|---|
+| $E_r(t{=}8)$ | 0.0452 | **0.835** |
+| worst violation | $2.6\times10^{-3}$ | **0.41** |
+| area($\phi>0.5$)/$A_0$ at $t=4$ / $t=8$ | 0.978 / 1.000 | 0.986 / 0.838 |
+
+Right after each event, in the compression band (`rd_quality.py`):
+
+| $t$ | 0.56 | 1.04 | 2.0 | 3.04 | 4.0 | 6.0 | 8.0 |
+|---|---|---|---|---|---|---|---|
+| $\phi$ 0.5-contour pieces | 1 | 1 | 3 | 9 | 27 | 60 | 98 |
+| $\psi$ normal vs exact | 4.3° | 5.9° | 11.6° | 20.9° | 33.7° | 60° | 86° |
+| $\lvert\psi-d_\phi\rvert$ mean, in $\varepsilon$ | 0.42 | 0.24 | 0.33 | 0.40 | 0.68 | 2.1 | 3.5 |
+
+Transport's normal is 0.6–1.3° off at the same times, with 1–2 contour pieces.
+
+- **The solve converges.** To $t\approx3$, $\psi$ is within 0.25–0.4$\varepsilon$ of the
+  distance to $\phi$'s 0.5 contour, its target.
+- **That is what fails.** $\phi$'s contour starts to fragment by $t=2$. Each reseed makes every
+  piece a zero set of $\psi$, and the compression then maintains it. It is the Zalesak arm C
+  mechanism (`../../CDI_METHOD.md` §4.1c), here under strain. $\lVert dn\rVert$ per event is
+  155–526 and rising.
+- **Saini's configuration completes on the same problem** (`rk_eLf` above, 0.0407). Its solve
+  barely moves $\psi$ from the seed in the band. It differs from the committed path in seven
+  settings: sign-function width, extent $25H$, $\Delta\tau=H/(N{+}1)$, Eq. (31) SVV, BDF2/EXT2,
+  dealiasing and the sign guard. Which of them matters is not measured (`../../NEXT_SESSION.md`).
+- The 16th event fires on the extra step at $t=8.00008$, so the $E_r$ frame is post-reseed.
 
 **How good is the reseeded $\psi$?** All of the following was measured on frames written right
 after an event (`logs/d5/rd_quality.py`, `logs/d5/filament_core.py`; tables in `logs/d5/ev/`; gitignored, local):
