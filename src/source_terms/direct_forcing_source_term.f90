@@ -368,7 +368,15 @@ contains
     call json_get_or_default(json, 'marker_output', this%marker_output, &
          .false.)
     call json_get_or_default(json, 'nudge', this%nudge, 0.5_rp)
-    call json_get_or_default(json, 'face_tolerance', this%face_tol, 0.02_rp)
+    ! The face nudge is for the adjoint spread's thin-wall problem; the
+    ! kernel spread has a finite footprint on both sides of a face
+    if (this%adjoint_spread) then
+       call json_get_or_default(json, 'face_tolerance', this%face_tol, &
+            0.02_rp)
+    else
+       call json_get_or_default(json, 'face_tolerance', this%face_tol, &
+            0.0_rp)
+    end if
 
     ! ---- Report: operators first, then only the parameters they use ----
     call neko_log%message('Interp     : '// trim(interp_scheme))
@@ -916,27 +924,37 @@ contains
   !!   (a reference coordinate beyond one, i.e. found by extrapolation
   !!   within the search padding): first along the surface tangent, which
   !!   keeps them on the surface, then along the inward normal with a
-  !!   growing step;
-  !! - within `face_tol` of an element face in reference coordinates: the
+  !!   growing step of `nudge` times the finest grid spacing;
+  !! - on a face: a reference coordinate within `face_tol` of one AND the
+  !!   surface normal within about 35 degrees of that face's normal. The
   !!   Lagrange basis there is nearly a Kronecker delta on the face nodes,
   !!   so a surface running along a face is forced as a wall one node
-  !!   layer thick, which the flow passes between the nodes. These move
-  !!   outward along the normal, into the fluid element, with a growing
-  !!   step. The wall thickens locally by that step.
-  !! The step is `nudge` times the finest grid spacing. The counts and the
-  !! bounding box of the affected markers are logged.
+  !!   layer thick, which the flow passes between the nodes (an oblique
+  !!   crossing has no such hole, the markers beyond the face cover the
+  !!   neighbour). These move outward along the normal by the one step
+  !!   that puts them twice the tolerance inside the fluid element, sized
+  !!   from the local grid spacing and the first GLL node gap, so the wall
+  !!   thickens locally by about a third of a grid spacing. Adjoint spread
+  !!   only (`face_tol` defaults to 0 for the kernel spread).
+  !! The counts and the bounding box of the affected markers are logged.
   subroutine df_nudge_bad_markers(this, n_lag)
     class(direct_forcing_source_term_t), intent(inout) :: this
     integer, intent(in) :: n_lag
     integer, parameter :: n_pass = 3
+    real(kind=dp), parameter :: cos_par = 0.8_dp
     character(len=LOG_SIZE) :: log_buf
+    real(kind=rp), allocatable :: dsm(:)
     real(kind=dp) :: delta, nrm(3), tng(3), ax(3), step(3), lo(3), hi(3), nn
+    real(kind=dp) :: gap, dz1, shift
     real(kind=rp) :: rmax
-    integer :: i, pass, cnt(3), kmin(1)
+    integer :: i, pass, cnt(3), kmin(1), kmax(1)
     integer, allocatable :: bad(:)
 
     delta = real(this%nudge, dp) * this%ds_min
-    allocate(bad(n_lag))
+    ! First GLL node gap in reference coordinates, to convert a reference
+    ! distance from a face into grid spacings
+    dz1 = real(this%coef%Xh%zg(2, 1) - this%coef%Xh%zg(1, 1), dp)
+    allocate(bad(n_lag), dsm(max(n_lag, 1)))
 
     do pass = 1, n_pass + 1
        cnt = 0
@@ -951,7 +969,15 @@ contains
              if (rmax .gt. 1.0_rp) then
                 bad(i) = 2
              else if (rmax .gt. 1.0_rp - this%face_tol) then
-                bad(i) = 3
+                ! Only a surface running along the face is a thin wall:
+                ! compare the marker normal with the face normal, taken
+                ! as the physical axis of the reference direction
+                kmax = maxloc(abs(this%global_interp%rst(:, i)))
+                nrm = this%lag_nrm(i)%x
+                nn = norm2(nrm)
+                if (nn .gt. tiny(nn)) then
+                   if (abs(nrm(kmax(1))) / nn .gt. cos_par) bad(i) = 3
+                end if
              end if
           end if
           if (bad(i) .gt. 0) then
@@ -984,6 +1010,12 @@ contains
        end if
        if (sum(cnt) .eq. 0 .or. pass .gt. n_pass) exit
 
+       ! Local grid spacing at the markers, for the face step
+       dsm = 0.0_rp
+       if (n_lag .gt. 0) then
+          call this%global_interp%evaluate(dsm, this%ds%x, .true.)
+       end if
+
        do i = 1, n_lag
           if (bad(i) .eq. 0) cycle
           nrm = this%lag_nrm(i)%x
@@ -991,8 +1023,17 @@ contains
           if (nn .le. tiny(nn)) cycle
           nrm = nrm / nn
           if (bad(i) .eq. 3) then
-             ! Off the face, into the fluid, a little further each pass
-             step = delta * real(pass, dp) * nrm
+             ! Off the face into the fluid: the reference distance still
+             ! to cover, converted to physical units with the local grid
+             ! spacing over the first GLL node gap
+             gap = 1.0_dp - real(maxval(abs(this%global_interp%rst(:, i))), dp)
+             shift = (2.0_dp * real(this%face_tol, dp) - gap) / dz1
+             if (dsm(i) .gt. 0.0_rp) then
+                shift = shift * real(dsm(i), dp)
+             else
+                shift = shift * this%ds_min
+             end if
+             step = shift * nrm
           else if (pass .eq. 1) then
              ! Along the surface: a tangent built from the axis least
              ! aligned with the normal
@@ -1013,7 +1054,7 @@ contains
        call this%global_interp%find_points_xyz(this%xyz, n_lag)
     end do
 
-    deallocate(bad)
+    deallocate(bad, dsm)
 
   end subroutine df_nudge_bad_markers
 
