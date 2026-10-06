@@ -8,6 +8,8 @@
   instead of through it. Feedback terms with a gain of order `1/dt` are
   unstable when extrapolated with EXT3 and stable when applied as computed.
   Calls without the new arguments are unchanged.
+- Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
+  ranks have zero points.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
