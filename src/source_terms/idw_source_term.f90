@@ -174,6 +174,30 @@ module idw_source_term
      !> Lumped marker weights D of the adjoint spread, + and - side
      real(kind=rp), allocatable :: dp_mark(:)
      real(kind=rp), allocatable :: dm_mark(:)
+     !> Constant-mode gain per marker, (G D 1)_m, + and - side (diagnostic)
+     real(kind=rp), allocatable :: gp_mark(:)
+     real(kind=rp), allocatable :: gm_mark(:)
+     !> One-sided interpolation weight sums c_m = I(swp 1), I(swm 1) and the
+     !! per-marker normalisation s_m = 1 / max(c_m, cmin) (0 for c_m <= 0)
+     real(kind=rp), allocatable :: cp_mark(:), cm_mark(:)
+     real(kind=rp), allocatable :: sp_mark(:), sm_mark(:)
+     !> Deposit weights D_m s_m handed to the transpose
+     real(kind=rp), allocatable :: dsp_mark(:), dsm_mark(:)
+     type(c_ptr) :: sp_mark_d = C_NULL_PTR
+     type(c_ptr) :: sm_mark_d = C_NULL_PTR
+     type(c_ptr) :: dsp_mark_d = C_NULL_PTR
+     type(c_ptr) :: dsm_mark_d = C_NULL_PTR
+     !> Side weights of the adjoint spread, pmsk/(pmsk+mmsk) and
+     !! mmsk/(pmsk+mmsk): a surface node shared by both sides counts half
+     !! on each
+     type(field_t) :: swp
+     type(field_t) :: swm
+     !> Half-width of the band of nodes on the surface that belong to both
+     !! sides, in local grid spacings
+     real(kind=rp) :: mask_band = 0.0_rp
+     !> Floor of the one-sided weight sum below which the normalisation is
+     !! clamped
+     real(kind=rp) :: cmin = 0.25_rp
      !> Gain factor on the lumped weights of the adjoint spread
      real(kind=rp) :: spread_gain = 1.0_rp
      !> Scaled marker values -D u_m / dt handed to the transpose
@@ -272,9 +296,12 @@ contains
     call neko_log%message(log_buf)
 
     call json_get_or_default(json, "interpolation", interp_scheme, &
-         "barycentric")
+         "spectral")
     select case (trim(interp_scheme))
-    case ("barycentric")
+    case ("spectral", "barycentric")
+       ! Point evaluation of the element's polynomial interpolant at the
+       ! marker; "barycentric" is the historical name, after the formula
+       ! used to evaluate the Lagrange basis
        this%idw_interp = .false.
     case ("idw")
        this%idw_interp = .true.
@@ -309,7 +336,7 @@ contains
        ! cut element, far out in the fluid, is kicked by 1/B.
        if (this%idw_interp) then
           call neko_error('IDW source term: the adjoint spread pairs with &
-               &the barycentric interpolation')
+               &the spectral interpolation')
        end if
        this%adjoint_spread = .true.
        this%adjoint_mass = trim(spread_scheme) .eq. 'adjoint_mass'
@@ -321,6 +348,24 @@ contains
     if (this%adjoint_spread) then
        call json_get_or_default(json, "spread_gain", this%spread_gain, 1.0_rp)
        write(log_buf, '(A,f5.2)') 'Spread gain: ', this%spread_gain
+       call neko_log%message(log_buf)
+       call json_get_or_default(json, "one_sided_min_weight", this%cmin, &
+            0.25_rp)
+       write(log_buf, '(A,f5.2)') 'Min weight : ', this%cmin
+       call neko_log%message(log_buf)
+    end if
+    ! Nodes within mask_band grid spacings of the surface belong to both
+    ! sides. At an element face the Lagrange basis is supported on the
+    ! face alone, so a face-aligned wall seen one-sidedly has no footprint
+    ! on the fluid side; sharing the surface nodes restores it. Default on
+    ! for the adjoint spread only, the kernel spread keeps its masks.
+    if (this%adjoint_spread) then
+       call json_get_or_default(json, "mask_band", this%mask_band, 0.1_rp)
+    else
+       call json_get_or_default(json, "mask_band", this%mask_band, 0.0_rp)
+    end if
+    if (this%one_sided) then
+       write(log_buf, '(A,f5.2)') 'Mask band  : ', this%mask_band
        call neko_log%message(log_buf)
     end if
 
@@ -658,8 +703,8 @@ contains
     if (this%one_sided) then
        call idw_compute_mask(this%mmsk, this%pmsk, this%lag_pts, &
             this%lag_nrm, this%active_el, this%el_off, this%el_lag, &
-            coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, &
-            coef%Xh%lx, coef%msh%nelv)
+            coef%dof%x%x, coef%dof%y%x, coef%dof%z%x, this%ds%x, &
+            this%mask_band, coef%Xh%lx, coef%msh%nelv)
     else
        ! Assign the host arrays directly: the field_t defined assignment only
        ! fills the device buffer on a device build, and idw_assemble below and
@@ -840,29 +885,39 @@ contains
   end subroutine idw_assemble
 
   !> Write the markers held by this rank to `idw_markers_<rank>.csv`:
-  !! x, y, z, nx, ny, nz, d_plus, d_minus (the lumped weights of the
-  !! adjoint spread, zero for the kernel spread). Markers held by several
-  !! ranks appear in every holder's file.
+  !! x, y, z, nx, ny, nz, d_plus, d_minus, gain_plus, gain_minus (the
+  !! lumped weights of the adjoint spread and its constant-mode gain per
+  !! marker, zero for the kernel spread). Markers held by several ranks
+  !! appear in every holder's file.
   subroutine idw_write_markers(this)
     class(idw_source_term_t), intent(inout) :: this
     character(len=64) :: fname
-    real(kind=rp) :: dp_m, dm_m
+    real(kind=rp) :: dp_m, dm_m, gp_m, gm_m, cp_m, cm_m
     integer :: i, unit, n_lag
 
     n_lag = size(this%lag_pts)
     write(fname, '(A,I0,A)') 'idw_markers_', pe_rank, '.csv'
     open(newunit = unit, file = trim(fname), status = 'replace', &
          action = 'write')
-    write(unit, '(A)') 'x,y,z,nx,ny,nz,d_plus,d_minus'
+    write(unit, '(A)') 'x,y,z,nx,ny,nz,d_plus,d_minus,gain_plus,' // &
+         'gain_minus,c_plus,c_minus'
     do i = 1, n_lag
        dp_m = 0.0_rp
        dm_m = 0.0_rp
+       gp_m = 0.0_rp
+       gm_m = 0.0_rp
+       cp_m = 0.0_rp
+       cm_m = 0.0_rp
        if (allocated(this%dp_mark)) dp_m = this%dp_mark(i)
        if (allocated(this%dm_mark)) dm_m = this%dm_mark(i)
-       write(unit, '(7(ES16.8,","),ES16.8)') this%lag_pts(i)%x(1), &
+       if (allocated(this%gp_mark)) gp_m = this%gp_mark(i)
+       if (allocated(this%gm_mark)) gm_m = this%gm_mark(i)
+       if (allocated(this%cp_mark)) cp_m = this%cp_mark(i)
+       if (allocated(this%cm_mark)) cm_m = this%cm_mark(i)
+       write(unit, '(11(ES16.8,","),ES16.8)') this%lag_pts(i)%x(1), &
             this%lag_pts(i)%x(2), this%lag_pts(i)%x(3), &
             this%lag_nrm(i)%x(1), this%lag_nrm(i)%x(2), &
-            this%lag_nrm(i)%x(3), dp_m, dm_m
+            this%lag_nrm(i)%x(3), dp_m, dm_m, gp_m, gm_m, cp_m, cm_m
     end do
     close(unit)
 
@@ -957,53 +1012,113 @@ contains
   subroutine idw_adjoint_spread_weights(this)
     class(idw_source_term_t), intent(inout) :: this
     real(kind=rp), allocatable :: ones(:), rowsum(:)
-    character(len=LOG_SIZE) :: log_buf
-    integer :: n_lag
+    integer :: n_lag, nv, n
 
     n_lag = size(this%lag_pts)
+    nv = max(n_lag, 1)
+    n = this%tmp%size()
     allocate(this%dp_mark(n_lag), this%dm_mark(n_lag))
+    allocate(this%gp_mark(n_lag), this%gm_mark(n_lag))
+    allocate(this%cp_mark(n_lag), this%cm_mark(n_lag))
+    allocate(this%sp_mark(nv), this%sm_mark(nv))
+    allocate(this%dsp_mark(nv), this%dsm_mark(nv))
     allocate(ones(n_lag), rowsum(n_lag))
     ones = 1.0_rp
     this%dp_mark = 0.0_rp
     this%dm_mark = 0.0_rp
+    this%gp_mark = 0.0_rp
+    this%gm_mark = 0.0_rp
+    this%cp_mark = 0.0_rp
+    this%cm_mark = 0.0_rp
+    this%sp_mark = 0.0_rp
+    this%sm_mark = 0.0_rp
+    this%dsp_mark = 0.0_rp
+    this%dsm_mark = 0.0_rp
+
+    ! Side weights: pmsk and mmsk are complementary 0/1 except on the
+    ! surface band, where both are 1 and each side counts half. Host
+    ! arithmetic, then the device mirror.
+    call this%swp%init(this%coef%dof, "ib_swp")
+    call this%swm%init(this%coef%dof, "ib_swm")
+    if (this%one_sided) then
+       this%swp%x = this%pmsk%x / (this%pmsk%x + this%mmsk%x)
+       this%swm%x = this%mmsk%x / (this%pmsk%x + this%mmsk%x)
+    else
+       this%swp%x = 1.0_rp
+       this%swm%x = 0.0_rp
+    end if
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%swp%x, this%swp%x_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%swm%x, this%swm%x_d, n, HOST_TO_DEVICE, &
+            sync = .true.)
+    end if
+
+    ! One-sided weight sums c_m = I(sw 1) and the normalisation s_m that
+    ! makes the one-sided interpolation reproduce a constant on its side:
+    ! s = 1/c for c >= cmin, clamped to 1/cmin for small positive c, and 0
+    ! for c <= 0 (a marker whose side sum is negative would push a uniform
+    ! flow the wrong way). The scaling is a per-marker factor on both the
+    ! interpolation and the deposit, so the pair stays adjoint.
+    this%tmp%x = this%swp%x
+    call this%global_interp%evaluate(this%cp_mark, this%tmp%x, .true.)
+    call idw_adjoint_normalisation(this%cp_mark, this%sp_mark, this%cmin, &
+         'Adj. spread + side')
+    if (this%one_sided) then
+       this%tmp%x = this%swm%x
+       call this%global_interp%evaluate(this%cm_mark, this%tmp%x, .true.)
+       call idw_adjoint_normalisation(this%cm_mark, this%sm_mark, &
+            this%cmin, 'Adj. spread - side')
+    end if
 
     if (this%one_sided) then
        call idw_adjoint_lump(this, ones, rowsum, this%dp_mark, &
-            'Adj. spread + side', this%pmsk)
+            'Adj. spread + side', this%sp_mark, this%swp)
+       this%gp_mark = rowsum * this%dp_mark
        call idw_adjoint_lump(this, ones, rowsum, this%dm_mark, &
-            'Adj. spread - side', this%mmsk)
+            'Adj. spread - side', this%sm_mark, this%swm)
+       this%gm_mark = rowsum * this%dm_mark
     else
        call idw_adjoint_lump(this, ones, rowsum, this%dp_mark, &
-            'Adj. spread')
+            'Adj. spread', this%sp_mark)
+       this%gp_mark = rowsum * this%dp_mark
     end if
+    this%dsp_mark(1:n_lag) = this%dp_mark * this%sp_mark(1:n_lag)
+    this%dsm_mark(1:n_lag) = this%dm_mark * this%sm_mark(1:n_lag)
 
     deallocate(ones, rowsum)
 
-    ! Device mirrors: the weights are read by the per-step scaling and the
-    ! scaled values are handed to the transpose as a mapped array
-    allocate(this%vals_adj(max(n_lag, 1)))
+    ! Device mirrors: the interpolation scaling and the deposit weights
+    ! are read by the per-step path, the scaled values are handed to the
+    ! transpose as a mapped array
+    allocate(this%vals_adj(nv))
     this%vals_adj = 0.0_rp
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%vals_adj, this%vals_adj_d, max(n_lag, 1))
-       call device_memcpy(this%vals_adj, this%vals_adj_d, max(n_lag, 1), &
+       call device_map(this%vals_adj, this%vals_adj_d, nv)
+       call device_memcpy(this%vals_adj, this%vals_adj_d, nv, &
             HOST_TO_DEVICE, sync = .false.)
-       if (n_lag .gt. 0) then
-          call device_map(this%dp_mark, this%dp_mark_d, n_lag)
-          call device_memcpy(this%dp_mark, this%dp_mark_d, n_lag, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_map(this%dm_mark, this%dm_mark_d, n_lag)
-          call device_memcpy(this%dm_mark, this%dm_mark_d, n_lag, &
-               HOST_TO_DEVICE, sync = .true.)
-       end if
+       call device_map(this%sp_mark, this%sp_mark_d, nv)
+       call device_memcpy(this%sp_mark, this%sp_mark_d, nv, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_map(this%sm_mark, this%sm_mark_d, nv)
+       call device_memcpy(this%sm_mark, this%sm_mark_d, nv, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_map(this%dsp_mark, this%dsp_mark_d, nv)
+       call device_memcpy(this%dsp_mark, this%dsp_mark_d, nv, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_map(this%dsm_mark, this%dsm_mark_d, nv)
+       call device_memcpy(this%dsm_mark, this%dsm_mark_d, nv, &
+            HOST_TO_DEVICE, sync = .true.)
     end if
 
     if (this%one_sided) then
-       call idw_adjoint_check_response(this, this%dp_mark, &
-            'Adj. spread + side', this%pmsk)
-       call idw_adjoint_check_response(this, this%dm_mark, &
-            'Adj. spread - side', this%mmsk)
+       call idw_adjoint_check_response(this, this%dp_mark, this%sp_mark, &
+            'Adj. spread + side', this%swp)
+       call idw_adjoint_check_response(this, this%dm_mark, this%sm_mark, &
+            'Adj. spread - side', this%swm)
     else
-       call idw_adjoint_check_response(this, this%dp_mark, 'Adj. spread')
+       call idw_adjoint_check_response(this, this%dp_mark, this%sp_mark, &
+            'Adj. spread')
     end if
 
   end subroutine idw_adjoint_spread_weights
@@ -1016,9 +1131,9 @@ contains
   !! step. The device result must match the host one to round-off; a
   !! difference points at the device data flow (deposit kernel, CSR
   !! mirrors, marker exchange), not at the method.
-  subroutine idw_adjoint_check_response(this, d, label, msk)
+  subroutine idw_adjoint_check_response(this, d, scal, label, msk)
     class(idw_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: d(:)
+    real(kind=rp), intent(in) :: d(:), scal(:)
     character(len=*), intent(in) :: label
     type(field_t), intent(in), optional :: msk
     real(kind=rp), allocatable :: vals(:), du_host(:,:,:,:)
@@ -1039,7 +1154,8 @@ contains
     end if
     vals = 0.0_rp
     call this%global_interp%evaluate(vals, this%tmp%x, .true.)
-    vals(1:n_lag) = d * vals(1:n_lag)
+    ! Normalised marker velocity s I(msk 1), then the deposit weight d s
+    vals(1:n_lag) = d * scal(1:n_lag)**2 * vals(1:n_lag)
 
     this%ib_fx%x = 0.0_rp
     call idw_adjoint_apply(this, vals, this%ib_fx, .true., msk)
@@ -1091,6 +1207,36 @@ contains
 
   end subroutine idw_adjoint_check_response
 
+  !> Normalisation of the one-sided interpolation from its weight sums.
+  !! Logs how many markers are clamped and how many switched off.
+  subroutine idw_adjoint_normalisation(c, sc, cmin, label)
+    real(kind=rp), intent(in) :: c(:)
+    real(kind=rp), intent(inout) :: sc(:)
+    real(kind=rp), intent(in) :: cmin
+    character(len=*), intent(in) :: label
+    character(len=LOG_SIZE) :: log_buf
+    integer :: i, cnt(2)
+
+    cnt = 0
+    sc = 0.0_rp
+    do i = 1, size(c)
+       if (c(i) .ge. cmin) then
+          sc(i) = 1.0_rp / c(i)
+       else if (c(i) .gt. 0.0_rp) then
+          sc(i) = 1.0_rp / cmin
+          cnt(1) = cnt(1) + 1
+       else
+          sc(i) = 0.0_rp
+          cnt(2) = cnt(2) + 1
+       end if
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, cnt, 2, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    write(log_buf, '(A,A,I0,A,I0)') trim(label), &
+         ': weight sum clamped ', cnt(1), ', switched off ', cnt(2)
+    call neko_log%message(log_buf)
+
+  end subroutine idw_adjoint_normalisation
+
   !> Lumped weights of one side, `d = gain / (|G| 1)`. The absolute row
   !! sums are bounded from above by applying the interpolation and its
   !! transpose with the absolute values of the Lagrange weights,
@@ -1098,10 +1244,11 @@ contains
   !! row sums `I msk Binv gs_add(I^T 1)` give the resulting gain on a
   !! constant marker velocity, `gain * (G 1) / (|G| 1)`, logged as min and
   !! mean over all markers together with the zero-weight count.
-  subroutine idw_adjoint_lump(this, ones, rowsum, d, label, msk)
+  subroutine idw_adjoint_lump(this, ones, rowsum, d, label, scal, msk)
     class(idw_source_term_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: ones(:), rowsum(:), d(:)
     character(len=*), intent(in) :: label
+    real(kind=rp), intent(in) :: scal(:)
     type(field_t), intent(in), optional :: msk
     real(kind=rp), allocatable :: wr(:,:), ws(:,:), wt(:,:), rowabs(:)
     real(kind=rp), allocatable :: v(:), gv(:)
@@ -1123,7 +1270,7 @@ contains
       li%weights_r(:,:) = abs(wr)
       li%weights_s(:,:) = abs(ws)
       li%weights_t(:,:) = abs(wt)
-      call idw_adjoint_rowsum(this, ones, rowabs, msk)
+      call idw_adjoint_rowsum(this, ones, rowabs, scal, msk)
       li%weights_r(:,:) = wr
       li%weights_s(:,:) = ws
       li%weights_t(:,:) = wt
@@ -1131,7 +1278,7 @@ contains
     deallocate(wr, ws, wt)
 
     ! G 1: the signed row sums, for the constant-mode gain
-    call idw_adjoint_rowsum(this, ones, rowsum, msk)
+    call idw_adjoint_rowsum(this, ones, rowsum, scal, msk)
 
     rmax = 0.0_rp
     do i = 1, n_lag
@@ -1180,7 +1327,7 @@ contains
     lam = 0.0_rp
     do it = 1, n_power
        gv = d * v
-       call idw_adjoint_rowsum(this, gv, rowsum, msk)
+       call idw_adjoint_rowsum(this, gv, rowsum, scal, msk)
        nrm(1) = 0.0_rp
        nrm(2) = 0.0_rp
        do i = 1, n_lag
@@ -1196,8 +1343,11 @@ contains
     write(log_buf, '(A,A,F6.3,A,I0,A)') trim(label), &
          ': largest gain ', lam, ' (', n_power, ' power iterations)'
     call neko_log%message(log_buf)
-
     deallocate(v, gv)
+
+    ! Leave the signed row sums in `rowsum` for the caller (the power
+    ! iteration used it as scratch)
+    call idw_adjoint_rowsum(this, ones, rowsum, scal, msk)
 
     deallocate(rowabs)
 
@@ -1205,13 +1355,22 @@ contains
 
   !> Row sums of one side's marker Gram matrix with the current weights:
   !! `rowsum = I(msk S(ones))`, S applied through the scratch forcing field.
-  subroutine idw_adjoint_rowsum(this, ones, rowsum, msk)
+  !! `rowsum = s I(msk S(s vals))` with the per-marker scaling s on both
+  !! sides of the operator pair.
+  subroutine idw_adjoint_rowsum(this, vals, rowsum, scal, msk)
     class(idw_source_term_t), intent(inout) :: this
-    real(kind=rp), intent(inout) :: ones(:), rowsum(:)
+    real(kind=rp), intent(inout) :: vals(:), rowsum(:)
+    real(kind=rp), intent(in) :: scal(:)
     type(field_t), intent(in), optional :: msk
+    real(kind=rp), allocatable :: sv(:)
+    integer :: n_lag
+
+    n_lag = size(vals)
+    allocate(sv(n_lag))
+    sv = scal(1:n_lag) * vals
 
     this%ib_fx%x = 0.0_rp
-    call idw_adjoint_apply(this, ones, this%ib_fx, .true., msk)
+    call idw_adjoint_apply(this, sv, this%ib_fx, .true., msk)
     rowsum = 0.0_rp
     ! Host arrays throughout: field_col3 would act on the device mirrors on
     ! a device build and leave the host side untouched
@@ -1221,7 +1380,9 @@ contains
     else
        call this%global_interp%evaluate(rowsum, this%ib_fx%x, .true.)
     end if
+    rowsum = scal(1:n_lag) * rowsum
     this%ib_fx%x = 0.0_rp
+    deallocate(sv)
 
   end subroutine idw_adjoint_rowsum
 
@@ -1241,47 +1402,49 @@ contains
     n_lag = size(this%fu_ib)
     idt = -1.0_rp / real(dt, kind=rp)
 
+    ! The marker velocities fu_ib etc. are already normalised (s I(sw u));
+    ! the deposit carries d s, so the pair interp/spread stays adjoint
     if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
-       call idw_spread_adjoint_side(this, this%fu_ib_d, this%dp_mark_d, &
-            this%ib_fx, idt, n_lag, this%one_sided, this%pmsk)
-       call idw_spread_adjoint_side(this, this%fv_ib_d, this%dp_mark_d, &
-            this%ib_fy, idt, n_lag, this%one_sided, this%pmsk)
-       call idw_spread_adjoint_side(this, this%fw_ib_d, this%dp_mark_d, &
-            this%ib_fz, idt, n_lag, this%one_sided, this%pmsk)
+       call idw_spread_adjoint_side(this, this%fu_ib_d, this%dsp_mark_d, &
+            this%ib_fx, idt, n_lag, this%one_sided, this%swp)
+       call idw_spread_adjoint_side(this, this%fv_ib_d, this%dsp_mark_d, &
+            this%ib_fy, idt, n_lag, this%one_sided, this%swp)
+       call idw_spread_adjoint_side(this, this%fw_ib_d, this%dsp_mark_d, &
+            this%ib_fz, idt, n_lag, this%one_sided, this%swp)
        if (this%one_sided) then
-          call idw_spread_adjoint_side(this, this%fum_ib_d, this%dm_mark_d, &
-               this%ib_fx, idt, n_lag, .true., this%mmsk)
-          call idw_spread_adjoint_side(this, this%fvm_ib_d, this%dm_mark_d, &
-               this%ib_fy, idt, n_lag, .true., this%mmsk)
-          call idw_spread_adjoint_side(this, this%fwm_ib_d, this%dm_mark_d, &
-               this%ib_fz, idt, n_lag, .true., this%mmsk)
+          call idw_spread_adjoint_side(this, this%fum_ib_d, &
+               this%dsm_mark_d, this%ib_fx, idt, n_lag, .true., this%swm)
+          call idw_spread_adjoint_side(this, this%fvm_ib_d, &
+               this%dsm_mark_d, this%ib_fy, idt, n_lag, .true., this%swm)
+          call idw_spread_adjoint_side(this, this%fwm_ib_d, &
+               this%dsm_mark_d, this%ib_fz, idt, n_lag, .true., this%swm)
        end if
     else if (this%one_sided) then
-       this%vals_adj(1:n_lag) = idt * this%dp_mark * this%fu_ib
+       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fu_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fx, .true., &
-            this%pmsk)
-       this%vals_adj(1:n_lag) = idt * this%dp_mark * this%fv_ib
+            this%swp)
+       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fv_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fy, .true., &
-            this%pmsk)
-       this%vals_adj(1:n_lag) = idt * this%dp_mark * this%fw_ib
+            this%swp)
+       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fw_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fz, .true., &
-            this%pmsk)
+            this%swp)
 
-       this%vals_adj(1:n_lag) = idt * this%dm_mark * this%fum_ib
+       this%vals_adj(1:n_lag) = idt * this%dsm_mark(1:n_lag) * this%fum_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fx, .true., &
-            this%mmsk)
-       this%vals_adj(1:n_lag) = idt * this%dm_mark * this%fvm_ib
+            this%swm)
+       this%vals_adj(1:n_lag) = idt * this%dsm_mark(1:n_lag) * this%fvm_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fy, .true., &
-            this%mmsk)
-       this%vals_adj(1:n_lag) = idt * this%dm_mark * this%fwm_ib
+            this%swm)
+       this%vals_adj(1:n_lag) = idt * this%dsm_mark(1:n_lag) * this%fwm_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fz, .true., &
-            this%mmsk)
+            this%swm)
     else
-       this%vals_adj(1:n_lag) = idt * this%dp_mark * this%fu_ib
+       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fu_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fx, .true.)
-       this%vals_adj(1:n_lag) = idt * this%dp_mark * this%fv_ib
+       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fv_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fy, .true.)
-       this%vals_adj(1:n_lag) = idt * this%dp_mark * this%fw_ib
+       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fw_ib
        call idw_adjoint_apply(this, this%vals_adj, this%ib_fz, .true.)
     end if
 
@@ -1312,6 +1475,45 @@ contains
 
   end subroutine idw_spread_adjoint_side
 
+  !> Host interpolation of the adjoint spread: the side-weighted spectral
+  !! evaluate normalised per marker, `s I(sw u)`, both sides under
+  !! `one_sided`. Host arrays throughout (CPU builds only).
+  subroutine idw_interp_adjoint_host(this, u, v, w)
+    class(idw_source_term_t), intent(inout) :: this
+    type(field_t), intent(inout) :: u, v, w
+    integer :: n_lag
+
+    n_lag = size(this%fu_ib)
+    if (this%one_sided) then
+       this%tmp%x = u%x * this%swp%x
+       call this%global_interp%evaluate(this%fu_ib, this%tmp%x, .true.)
+       this%tmp%x = v%x * this%swp%x
+       call this%global_interp%evaluate(this%fv_ib, this%tmp%x, .true.)
+       this%tmp%x = w%x * this%swp%x
+       call this%global_interp%evaluate(this%fw_ib, this%tmp%x, .true.)
+       this%tmp%x = u%x * this%swm%x
+       call this%global_interp%evaluate(this%fum_ib, this%tmp%x, .true.)
+       this%tmp%x = v%x * this%swm%x
+       call this%global_interp%evaluate(this%fvm_ib, this%tmp%x, .true.)
+       this%tmp%x = w%x * this%swm%x
+       call this%global_interp%evaluate(this%fwm_ib, this%tmp%x, .true.)
+       this%fu_ib = this%sp_mark(1:n_lag) * this%fu_ib
+       this%fv_ib = this%sp_mark(1:n_lag) * this%fv_ib
+       this%fw_ib = this%sp_mark(1:n_lag) * this%fw_ib
+       this%fum_ib = this%sm_mark(1:n_lag) * this%fum_ib
+       this%fvm_ib = this%sm_mark(1:n_lag) * this%fvm_ib
+       this%fwm_ib = this%sm_mark(1:n_lag) * this%fwm_ib
+    else
+       call this%global_interp%evaluate(this%fu_ib, u%x, .true.)
+       call this%global_interp%evaluate(this%fv_ib, v%x, .true.)
+       call this%global_interp%evaluate(this%fw_ib, w%x, .true.)
+       this%fu_ib = this%sp_mark(1:n_lag) * this%fu_ib
+       this%fv_ib = this%sp_mark(1:n_lag) * this%fv_ib
+       this%fw_ib = this%sp_mark(1:n_lag) * this%fw_ib
+    end if
+
+  end subroutine idw_interp_adjoint_host
+
   !> Device path of the adjoint spectral spread: the spectral (masked)
   !! interpolation evaluated straight into the device marker buffers, as
   !! in `idw_compute_device`, then the device spread.
@@ -1319,27 +1521,42 @@ contains
     class(idw_source_term_t), intent(inout) :: this
     type(field_t), intent(inout) :: u, v, w
     type(time_state_t), intent(in) :: time
-    integer :: nt
+    integer :: nt, n_lag
 
     nt = this%tmp%size()
+    n_lag = size(this%fu_ib)
 
+    ! Side-weighted interpolation, then the per-marker normalisation s
     if (this%one_sided) then
-       call idw_interp_masked(this%global_interp, this%tmp, u, this%pmsk, &
+       call idw_interp_masked(this%global_interp, this%tmp, u, this%swp, &
             this%fu_ib, nt)
-       call idw_interp_masked(this%global_interp, this%tmp, v, this%pmsk, &
+       call idw_interp_masked(this%global_interp, this%tmp, v, this%swp, &
             this%fv_ib, nt)
-       call idw_interp_masked(this%global_interp, this%tmp, w, this%pmsk, &
+       call idw_interp_masked(this%global_interp, this%tmp, w, this%swp, &
             this%fw_ib, nt)
-       call idw_interp_masked(this%global_interp, this%tmp, u, this%mmsk, &
+       call idw_interp_masked(this%global_interp, this%tmp, u, this%swm, &
             this%fum_ib, nt)
-       call idw_interp_masked(this%global_interp, this%tmp, v, this%mmsk, &
+       call idw_interp_masked(this%global_interp, this%tmp, v, this%swm, &
             this%fvm_ib, nt)
-       call idw_interp_masked(this%global_interp, this%tmp, w, this%mmsk, &
+       call idw_interp_masked(this%global_interp, this%tmp, w, this%swm, &
             this%fwm_ib, nt)
+       if (n_lag .gt. 0) then
+          call device_col2(this%fu_ib_d, this%sp_mark_d, n_lag)
+          call device_col2(this%fv_ib_d, this%sp_mark_d, n_lag)
+          call device_col2(this%fw_ib_d, this%sp_mark_d, n_lag)
+          call device_col2(this%fum_ib_d, this%sm_mark_d, n_lag)
+          call device_col2(this%fvm_ib_d, this%sm_mark_d, n_lag)
+          call device_col2(this%fwm_ib_d, this%sm_mark_d, n_lag)
+       end if
     else
        call this%global_interp%evaluate(this%fu_ib, u%x, .false.)
        call this%global_interp%evaluate(this%fv_ib, v%x, .false.)
        call this%global_interp%evaluate(this%fw_ib, w%x, .false.)
+       if (n_lag .gt. 0) then
+          call device_col2(this%fu_ib_d, this%sp_mark_d, n_lag)
+          call device_col2(this%fv_ib_d, this%sp_mark_d, n_lag)
+          call device_col2(this%fw_ib_d, this%sp_mark_d, n_lag)
+       end if
     end if
 
     call idw_spread_adjoint(this, time%dt, .false.)
@@ -1641,6 +1858,20 @@ contains
 
     if (allocated(this%dp_mark)) deallocate(this%dp_mark)
     if (allocated(this%dm_mark)) deallocate(this%dm_mark)
+    if (allocated(this%gp_mark)) deallocate(this%gp_mark)
+    if (allocated(this%gm_mark)) deallocate(this%gm_mark)
+    if (allocated(this%cp_mark)) deallocate(this%cp_mark)
+    if (allocated(this%cm_mark)) deallocate(this%cm_mark)
+    if (allocated(this%sp_mark)) deallocate(this%sp_mark)
+    if (allocated(this%sm_mark)) deallocate(this%sm_mark)
+    if (allocated(this%dsp_mark)) deallocate(this%dsp_mark)
+    if (allocated(this%dsm_mark)) deallocate(this%dsm_mark)
+    if (c_associated(this%sp_mark_d)) call device_free(this%sp_mark_d)
+    if (c_associated(this%sm_mark_d)) call device_free(this%sm_mark_d)
+    if (c_associated(this%dsp_mark_d)) call device_free(this%dsp_mark_d)
+    if (c_associated(this%dsm_mark_d)) call device_free(this%dsm_mark_d)
+    call this%swp%free()
+    call this%swm%free()
     if (allocated(this%vals_adj)) deallocate(this%vals_adj)
     call this%winv%free()
     if (c_associated(this%dp_mark_d)) call device_free(this%dp_mark_d)
@@ -1805,6 +2036,9 @@ contains
                  this%shared_slot, this%n_shared_glb, &
                  adjoint = this%adjoint_interp, B = this%Bm, &
                  sw_p = this%w%x, sw_m = this%wm%x)
+         else if (this%adjoint_spread) then
+            ! Side-weighted interpolation normalised per marker, s I(sw u)
+            call idw_interp_adjoint_host(this, u, v, w)
          else if (this%one_sided) then
             fum_ib = 0.0_rp
             fvm_ib = 0.0_rp
@@ -2727,17 +2961,18 @@ contains
   !! depends on the markers overlapping it, so each thread keeps it in a
   !! private element-sized buffer.
   subroutine idw_compute_mask(mmsk, pmsk, lag_pts, lag_nrm, active_el, &
-       el_off, el_lag, x, y, z, lx, ne)
+       el_off, el_lag, x, y, z, ds, band, lx, ne)
     type(field_t), intent(inout) :: mmsk, pmsk
     type(point_t), intent(in) :: lag_pts(:)
     type(point_t), intent(in) :: lag_nrm(:)
     integer, intent(in) :: active_el(:), el_off(:), el_lag(:)
     integer, intent(in) :: lx, ne
-    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: x, y, z
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: x, y, z, ds
+    real(kind=rp), intent(in) :: band
     real(kind=rp) :: dist(lx,lx,lx)
     real(kind=rp) :: euler_pt(3)
     integer :: a, i, ii, j, k, l, e
-    real(kind=rp) :: r
+    real(kind=rp) :: r, dn, nn
     real(kind=dp) :: xp, yp, zp
 
     mmsk%x = 1.0_rp
@@ -2784,7 +3019,14 @@ contains
                       euler_pt(2) = (y(j,k,l,e) - yp)
                       euler_pt(3) = (z(j,k,l,e) - zp)
 
-                      if (sum(euler_pt * lag_nrm(i)%x) .gt. 0) then
+                      ! Signed distance to the marker's tangent plane; a
+                      ! node within the band is on the surface and stays
+                      ! on both sides
+                      nn = sqrt(sum(lag_nrm(i)%x**2))
+                      dn = sum(euler_pt * lag_nrm(i)%x) / max(nn, tiny(nn))
+                      if (abs(dn) .le. band * ds(j,k,l,e)) then
+                         continue
+                      else if (dn .gt. 0) then
                          mmsk%x(j,k,l,e) = 0.0_rp
                       else
                          pmsk%x(j,k,l,e) = 0.0_rp
