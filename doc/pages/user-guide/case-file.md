@@ -40,74 +40,22 @@ The current high-level structure of the case file is shown below.
         "time": {},
         "numerics": {},
         "fluid": {},
-        "scalar": {},
+        "scalars": {},
         "simulation_components" : [],
         "point_zones" : [],
         "runtime_statistics": {}
     }
 }
 ~~~~~~~~~~~~~~~
-Neko also supports multiple scalar fields, using the keyword `scalars` in the
-case object. Users can define multiple scalar fields, and each field can have
-its own boundary conditions, source terms, and solver settings. When using
-multiple scalar fields, the `name` property of each scalar field is used to
-identify the scalar field in the user file, defaulted to `s_1, s_2, ...`.
 
 The `version` keyword is reserved to track changes in the format of the file.
 The subsections below list all the configuration options for each of the
 high-level objects. Some parameters will have default values, and are therefore
 optional.
 
-## Output frequency control
-A common scheme for controlling the output frequency is applied for various
-outputs.
-It is described already now in order to clarify the meaning of several
-parameters found in the tables below.
-
-The frequency is controlled by two parameters, ending with `_control` and
-`_value`, respectively.
-The latter name is perhaps not ideal, but it is somewhat difficult to come up
-with a good one, suggestions are welcome.
-
-The `_value` parameter defines the output frequency, but both its JSON type and
-interpretation depend on the choice of `_control`. Neko requires an integer
-literal for `tsteps` and `nsamples`, and a real literal for `simulationtime`.
-For example, use `10` for ten time steps but `10.0` for ten simulation-time
-units. The following options are possible.
-1. `simulationtime`, then `_value` is the time interval between the outputs.
-2. `tsteps`, then `_value` is the number of time steps between the outputs.
-3. `nsamples`, then `_value` is the total number of outputs that will be
-   performed in the course of the simulation.
-4. `never`, then `_value` is ignored and output is never performed.
-
-The times at which an output is written are a property of the case, not of
-the run. With `simulationtime` they are the whole multiples of
-\f$ \Delta t_{out} \f$, so a case asking for an output every 1.0 writes at
-11.0, 12.0, 13.0 whether it started from 0, from 10.5, or from a checkpoint
-in between. With `nsamples` the samples divide the interval over which the
-output is active instead, \f$ t_k = t_{start} + k (t_{end} - t_{start}) / n
-\f$, where \f$ t_{start} \f$ is the start of the simulation or, for the
-statistics, the start of the averaging, and the last sample falls on
-`end_time`. Only the times inside the interval where the output is active
-are written, and since the schedule does not depend on when the run was
-started, restarting neither skips nor repeats an output and the file numbering
-carries on.
-
-Each of those times is written at the first step to reach it, at most one file
-per output per step, so a time step longer than the interval writes once and
-moves on rather than building up a backlog. The write scheduled for `end_time`
-still happens when the last step overshoots it.
-
-The initial state is written in addition to the scheduled times, unless
-`output_at_start` is `false`. Checkpoints and statistics never write it: a
-checkpoint holds nothing the initial condition does not, and an average over
-an interval of zero length is empty.
-
-@note A statistics file covers the interval between two writes, and the first
-one covers only the interval from the start of the averaging to the first
-scheduled time, which is shorter than the rest unless the two coincide. One
-more reason to use the weighted averages when post-processing.
-
+@note The `scalars` object is used to set up scalar advection-diffusion-reaction
+equations, as discussed below. The object `scalar` can alternatively be used to
+set up a single equation, simplifying the layout.
 
 ## The case object
 
@@ -392,3 +340,53 @@ currently supports 50 regions, with id 1..25 being reserved for internal use.
 | ---------------- | ----------------------------------------------------------- | ----------------- | ------------- |
 | `enabled`        | Whether to enable gathering of runtime statistics           | `true` or `false` | `false`       |
 | `output_profile` | Whether to output all gathered profiling data as a CSV file | `true` or `false` | `false`       |
+
+## Output frequency control
+A common scheme for controlling the output frequency is applied for various
+outputs.
+It is described already now in order to clarify the meaning of several
+parameters found in the tables below.
+
+The frequency is controlled by two parameters, ending with `_control` and
+`_value`, respectively.
+The latter name is perhaps not ideal, but it is somewhat difficult to come up
+with a good one, suggestions are welcome.
+
+The `_value` parameter defines the output frequency, but both its JSON type and
+interpretation depend on the choice of `_control`. Neko requires an integer
+literal for `tsteps` and `nsamples`, and a real literal for `simulationtime`.
+For example, use `10` for ten time steps but `10.0` for ten simulation-time
+units. The following options are possible.
+1. `simulationtime`, then `_value` is the time interval between the outputs.
+2. `tsteps`, then `_value` is the number of time steps between the outputs.
+3. `nsamples`, then `_value` is the total number of outputs that will be
+   performed in the course of the simulation.
+4. `never`, then `_value` is ignored and output is never performed.
+
+The times at which an output is written are a property of the case, not of
+the run. With `simulationtime` they are the whole multiples of
+\f$ \Delta t_{out} \f$, so a case asking for an output every 1.0 writes at
+11.0, 12.0, 13.0 whether it started from 0, from 10.5, or from a checkpoint
+in between. With `nsamples` the samples divide the interval over which the
+output is active instead, \f$ t_k = t_{start} + k (t_{end} - t_{start}) / n
+\f$, where \f$ t_{start} \f$ is the start of the simulation or, for the
+statistics, the start of the averaging, and the last sample falls on
+`end_time`. Only the times inside the interval where the output is active
+are written, and since the schedule does not depend on when the run was
+started, restarting neither skips nor repeats an output and the file numbering
+carries on.
+
+Each of those times is written at the first step to reach it, at most one file
+per output per step, so a time step longer than the interval writes once and
+moves on rather than building up a backlog. The write scheduled for `end_time`
+still happens when the last step overshoots it.
+
+The initial state is written in addition to the scheduled times, unless
+`output_at_start` is `false`. Checkpoints and statistics never write it: a
+checkpoint holds nothing the initial condition does not, and an average over
+an interval of zero length is empty.
+
+@note A statistics file covers the interval between two writes, and the first
+one covers only the interval from the start of the averaging to the first
+scheduled time, which is shorter than the rest unless the two coincide. One
+more reason to use the weighted averages when post-processing.
