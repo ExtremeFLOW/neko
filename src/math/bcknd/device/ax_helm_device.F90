@@ -38,7 +38,8 @@ module ax_helm_device
   use mesh, only : mesh_t
   use device_math, only : device_addcol4
   use device, only : device_get_ptr
-  use num_types, only : rp
+  use num_types, only : rp, xp, sp
+  use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   implicit none
   private
@@ -244,6 +245,13 @@ contains
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
 #elif HAVE_METAL
+    ! Metal has no fp64: the geometric factors arrive as xp and the kernels
+    ! consume them as float, so the backend requires xp = sp, i.e. a build
+    ! configured with --enable-real=ssp.
+    if (xp .ne. sp) then
+       call neko_error('The Metal backend requires xp = sp (no fp64 on ' // &
+            'Metal GPUs). Configure with --enable-real=ssp.')
+    end if
     call metal_ax_helm(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
          Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
          coef%G11_d, coef%G22_d, coef%G33_d, &
@@ -299,6 +307,13 @@ contains
          coef%G12_d, coef%G13_d, coef%G23_d, &
          msh%nelv, Xh%lx)
 #elif HAVE_METAL
+    ! Metal has no fp64: the geometric factors arrive as xp and the kernels
+    ! consume them as float, so the backend requires xp = sp, i.e. a build
+    ! configured with --enable-real=ssp.
+    if (xp .ne. sp) then
+       call neko_error('The Metal backend requires xp = sp (no fp64 on ' // &
+            'Metal GPUs). Configure with --enable-real=ssp.')
+    end if
     call metal_ax_helm_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
          Xh%dx_d, Xh%dy_d, Xh%dz_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
          coef%G11_d, coef%G22_d, coef%G33_d, &
