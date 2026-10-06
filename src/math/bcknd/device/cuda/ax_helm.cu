@@ -104,8 +104,8 @@ extern "C" {
                          ((real *) w, (real *) u,                               \
                           (real *) dx, (real *) dy, (real *) dz,                \
                           (real *) dxt, (real *) dyt, (real *) dzt, (real *) h1,\
-                          (real *) g11, (real *) g22, (real *) g33,             \
-                          (real *) g12, (real *) g13, (real *) g23);            \
+                          (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,             \
+                          (real_xp *) g12, (real_xp *) g13, (real_xp *) g23);            \
       CUDA_CHECK(cudaGetLastError());
 
 /* Runtime dispatch onto the tuned chunk candidate */
@@ -122,8 +122,8 @@ extern "C" {
       <<<NEKO_EB_NBLCKS(*nelv, LX, C), NEKO_EB_NTHRDS(LX, C), 0, stream>>>      \
                           ((real *) w, (real *) u,                              \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
-                           (real *) g11, (real *) g22, (real *) g33,            \
-                           (real *) g12, (real *) g13, (real *) g23, *nelv);    \
+                           (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,            \
+                           (real_xp *) g12, (real_xp *) g13, (real_xp *) g23, *nelv);    \
       CUDA_CHECK(cudaGetLastError());
 
 #define CASE_KSTEP_PADDED(LX, C)                                                \
@@ -131,8 +131,8 @@ extern "C" {
       <<<NEKO_EB_NBLCKS(*nelv, LX, C), NEKO_EB_NTHRDS(LX, C), 0, stream>>>      \
                           ((real *) w, (real *) u,                              \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
-                           (real *) g11, (real *) g22, (real *) g33,            \
-                           (real *) g12, (real *) g13, (real *) g23, *nelv);    \
+                           (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,            \
+                           (real_xp *) g12, (real_xp *) g13, (real_xp *) g23, *nelv);    \
       CUDA_CHECK(cudaGetLastError());
 
 /* Runtime dispatch onto the tuned elements per block candidate */
@@ -325,9 +325,9 @@ extern "C" {
                                     ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
-                                     (real *) h1, (real *) g11, (real *) g22,  \
-                                     (real *) g33, (real *) g12, (real *) g13, \
-                                     (real *) g23, *nelv);                     \
+                                     (real *) h1, (real_xp *) g11, (real_xp *) g22,  \
+                                     (real_xp *) g33, (real_xp *) g12, (real_xp *) g13, \
+                                     (real_xp *) g23, *nelv);                     \
     CUDA_CHECK(cudaGetLastError());
 
 #define CASE_VECTOR_KSTEP_PADDED(LX, C)                                        \
@@ -336,9 +336,9 @@ extern "C" {
                                     ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
-                                     (real *) h1, (real *) g11, (real *) g22,  \
-                                     (real *) g33, (real *) g12, (real *) g13, \
-                                     (real *) g23, *nelv);                     \
+                                     (real *) h1, (real_xp *) g11, (real_xp *) g22,  \
+                                     (real_xp *) g33, (real_xp *) g12, (real_xp *) g13, \
+                                     (real_xp *) g23, *nelv);                     \
     CUDA_CHECK(cudaGetLastError());
 
 /* Runtime dispatch onto the tuned elements per block candidate */
