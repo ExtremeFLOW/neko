@@ -43,7 +43,7 @@ module cg
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t, &
        vector_bc_projector_components
-  use host_array, only : host_array_t
+  use matrix, only : matrix_t
   use scratch_registry, only : neko_scratch_registry
   use math, only : glsc3, abscmp
   use comm, only : MPI_EXTRA_PRECISION, MPI_REAL_PRECISION, NEKO_COMM
@@ -55,15 +55,15 @@ module cg
 
   !> CPU implementation of the preconditioned conjugate gradient method.
   !!
-  !! Workspace pointers are associated with host arrays from the scratch
-  !! registry only for the duration of a solve.
+  !! Workspace pointers are associated with arrays and a matrix from the
+  !! scratch registry only for the duration of a solve.
   type, public, extends(ksp_t) :: cg_t
      !> Operator action \f$w = A p\f$.
      real(kind=rp), pointer :: w(:) => null()
      !> Residual \f$r = f - A x\f$.
      real(kind=rp), pointer :: r(:) => null()
      !> Rolling space of search directions \f$p\f$.
-     real(kind=rp), pointer :: p(:,:) => null()
+     type(matrix_t), pointer :: p => null()
      !> Preconditioned residual \f$z = M^{-1} r\f$.
      real(kind=rp), pointer :: z(:) => null()
      !> Step lengths associated with the stored search directions.
@@ -73,9 +73,9 @@ module cg
      procedure, pass(this) :: init => cg_init
      !> Free a CPU PCG solver.
      procedure, pass(this) :: free => cg_free
-     !> Solve a linear system with the CPU PCG method.
+     !> Solve a linear system with the standard PCG method.
      procedure, pass(this) :: solve => cg_solve
-     !> Solve three independent systems with the CPU PCG method.
+     !> Solve three independent systems with the standard PCG method.
      procedure, pass(this) :: solve_coupled => cg_solve_coupled
   end type cg_t
 
@@ -132,7 +132,7 @@ contains
 
   end subroutine cg_free
 
-  !> Solve a linear system with the Standard PCG method.
+  !> Solve a linear system with the standard PCG method.
   function cg_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(cg_t), intent(inout) :: this
@@ -148,7 +148,6 @@ contains
     integer :: iter, max_iter, i, j, k, p_cur, p_prev, ierr
     real(kind=rp) :: rnorm, rtr, rtz2, rtz1, x_plus(NEKO_BLK_SIZE)
     real(kind=rp) :: beta, pap, norm_fac, tmp
-    type(host_array_t), pointer :: w_tmp, r_tmp, p_tmp, z_tmp, alpha_tmp
     integer :: temp_indices(5)
 
     if (present(niter)) then
@@ -160,15 +159,14 @@ contains
 
     call neko_scratch_registry%request(this%w, temp_indices(1), n, .false.)
     call neko_scratch_registry%request(this%r, temp_indices(2), n, .false.)
+    call neko_scratch_registry%request(this%p, temp_indices(3), &
+         n, CG_P_SPACE, .false.)
     call neko_scratch_registry%request(this%z, temp_indices(4), n, .false.)
-    call neko_scratch_registry%request(this%alpha, temp_indices(5), CG_P_SPACE, .false.)
-    call neko_scratch_registry%request(p_tmp, temp_indices(3), &
-         n * CG_P_SPACE, .false.)
+    call neko_scratch_registry%request(this%alpha, temp_indices(5), &
+         CG_P_SPACE, .false.)
 
-    this%p(1:n, 1:CG_P_SPACE) => p_tmp%x
-
-    associate(w => this%w%x, r => this%r%x, p => this%p%x, &
-         z => this%z%x, alpha => this%alpha%x)
+    associate(w => this%w, r => this%r, p => this%p%x, &
+         z => this%z, alpha => this%alpha)
 
       rtz1 = 1.0_rp
       rtr = 0.0_rp
@@ -191,7 +189,7 @@ contains
       if (abscmp(rnorm, 0.0_rp)) then
          ksp_results%converged = .true.
          nullify(this%w, this%r, this%p, this%z, this%alpha)
-         call neko_scratch_registry%relinquish_host_array(temp_indices)
+         call neko_scratch_registry%relinquish(temp_indices)
          return
       end if
 
@@ -262,7 +260,7 @@ contains
       end do
     end associate
     nullify(this%w, this%r, this%p, this%z, this%alpha)
-    call neko_scratch_registry%relinquish_host_array(temp_indices)
+    call neko_scratch_registry%relinquish(temp_indices)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
@@ -289,7 +287,7 @@ contains
 
   end subroutine second_cg_part
 
-  !> Solve three independent systems with the CPU PCG method.
+  !> Solve three independent systems with the standard PCG method.
   function cg_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(cg_t), intent(inout) :: this

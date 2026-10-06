@@ -43,7 +43,7 @@ module gmres
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t, &
        vector_bc_projector_components
-  use host_array, only : host_array_t
+  use matrix, only : matrix_t
   use scratch_registry, only : neko_scratch_registry
   use math, only : glsc3, rzero, copy, sub2, cmult2, abscmp
   use neko_config, only : NEKO_BLK_SIZE
@@ -54,9 +54,9 @@ module gmres
 
   !> CPU implementation of the preconditioned standard GMRES method.
   !!
-  !! The large working vectors are associated with host arrays from the
-  !! scratch registry only for the duration of a solve. The small
-  !! extra-precision reduction arrays remain owned by the solver.
+  !! The large working vectors and Krylov bases are associated with arrays
+  !! and matrices from the scratch registry only for the duration of a solve.
+  !! The small extra-precision reduction arrays remain owned by the solver.
   type, public, extends(ksp_t) :: gmres_t
      !> Maximum dimension of the Krylov basis before restarting.
      integer :: lgmres = 30
@@ -65,9 +65,9 @@ module gmres
      !> Residual at the start of a restart cycle.
      real(kind=rp), pointer :: r(:) => null()
      !> Preconditioned Krylov basis.
-     real(kind=rp), pointer :: z(:,:) => null()
+     type(matrix_t), pointer :: z => null()
      !> Krylov basis.
-     real(kind=rp), pointer :: v(:,:) => null()
+     type(matrix_t), pointer :: v => null()
      !> Upper-Hessenberg matrix in extra precision.
      real(kind=xp), allocatable :: h(:,:)
      !> Sines of the Givens rotations in extra precision.
@@ -196,7 +196,6 @@ contains
     real(kind=xp) :: alpha, lr, alpha2, norm_fac, tmp, acc
     real(kind=rp) :: temp, rnorm
     logical :: conv
-    type(host_array_t), pointer :: w_tmp, r_tmp, z_tmp, v_tmp
     integer :: temp_indices(4)
 
     conv = .false.
@@ -212,22 +211,16 @@ contains
     nthrds = 1
     !$ nthrds = omp_get_max_threads()
 
-    call neko_scratch_registry%request_host_array(w_tmp, temp_indices(1), &
-         n, .false.)
-    call neko_scratch_registry%request_host_array(r_tmp, temp_indices(2), &
-         n, .false.)
-    call neko_scratch_registry%request_host_array(z_tmp, temp_indices(3), &
-         n * this%lgmres, .false.)
-    call neko_scratch_registry%request_host_array(v_tmp, temp_indices(4), &
-         n * this%lgmres, .false.)
+    call neko_scratch_registry%request(this%w, temp_indices(1), n, .false.)
+    call neko_scratch_registry%request(this%r, temp_indices(2), n, .false.)
+    call neko_scratch_registry%request(this%z, temp_indices(3), &
+         n, this%lgmres, .false.)
+    call neko_scratch_registry%request(this%v, temp_indices(4), &
+         n, this%lgmres, .false.)
 
-    this%w => w_tmp%x
-    this%r => r_tmp%x
-    this%z(1:n, 1:this%lgmres) => z_tmp%x
-    this%v(1:n, 1:this%lgmres) => v_tmp%x
-
-    associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-         v => this%v, s => this%s, gam => this%gam, hp => this%hp)
+    associate(w => this%w, c => this%c, r => this%r, z => this%z%x, &
+         h => this%h, v => this%v%x, s => this%s, gam => this%gam, &
+         hp => this%hp)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
@@ -431,7 +424,7 @@ contains
 
     end associate
     nullify(this%w, this%r, this%z, this%v)
-    call neko_scratch_registry%relinquish_host_array(temp_indices)
+    call neko_scratch_registry%relinquish(temp_indices)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter

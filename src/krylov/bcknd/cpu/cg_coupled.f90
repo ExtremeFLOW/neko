@@ -41,7 +41,6 @@ module cg_cpld
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t
-  use host_array, only : host_array_t
   use scratch_registry, only : neko_scratch_registry
   use math, only : abscmp
   use comm, only : MPI_EXTRA_PRECISION, NEKO_COMM
@@ -221,8 +220,7 @@ contains
     real(kind=rp) :: rnorm, rtr, rtr0, rtz2, rtz1
     real(kind=rp) :: beta, pap, alpha, norm_fac
     real(kind=xp) :: tmp_xp, r1_xp, r2_xp, r3_xp, mult_xp
-    type(host_array_t), pointer :: w_tmp, r_tmp, p_tmp, z_tmp
-    integer :: temp_indices(4)
+    integer :: temp_indices(12)
 
     if (present(niter)) then
        max_iter = niter
@@ -231,27 +229,18 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    call neko_scratch_registry%request_host_array(w_tmp, temp_indices(1), &
-         3 * n, .false.)
-    call neko_scratch_registry%request_host_array(r_tmp, temp_indices(2), &
-         3 * n, .false.)
-    call neko_scratch_registry%request_host_array(p_tmp, temp_indices(3), &
-         3 * n, .false.)
-    call neko_scratch_registry%request_host_array(z_tmp, temp_indices(4), &
-         3 * n, .false.)
-
-    this%w1 => w_tmp%x(1:n)
-    this%w2 => w_tmp%x(n+1:2*n)
-    this%w3 => w_tmp%x(2*n+1:3*n)
-    this%r1 => r_tmp%x(1:n)
-    this%r2 => r_tmp%x(n+1:2*n)
-    this%r3 => r_tmp%x(2*n+1:3*n)
-    this%p1 => p_tmp%x(1:n)
-    this%p2 => p_tmp%x(n+1:2*n)
-    this%p3 => p_tmp%x(2*n+1:3*n)
-    this%z1 => z_tmp%x(1:n)
-    this%z2 => z_tmp%x(n+1:2*n)
-    this%z3 => z_tmp%x(2*n+1:3*n)
+    call neko_scratch_registry%request(this%w1, temp_indices(1), n, .false.)
+    call neko_scratch_registry%request(this%w2, temp_indices(2), n, .false.)
+    call neko_scratch_registry%request(this%w3, temp_indices(3), n, .false.)
+    call neko_scratch_registry%request(this%r1, temp_indices(4), n, .false.)
+    call neko_scratch_registry%request(this%r2, temp_indices(5), n, .false.)
+    call neko_scratch_registry%request(this%r3, temp_indices(6), n, .false.)
+    call neko_scratch_registry%request(this%p1, temp_indices(7), n, .false.)
+    call neko_scratch_registry%request(this%p2, temp_indices(8), n, .false.)
+    call neko_scratch_registry%request(this%p3, temp_indices(9), n, .false.)
+    call neko_scratch_registry%request(this%z1, temp_indices(10), n, .false.)
+    call neko_scratch_registry%request(this%z2, temp_indices(11), n, .false.)
+    call neko_scratch_registry%request(this%z3, temp_indices(12), n, .false.)
 
     associate (p1 => this%p1, p2 => this%p2, p3 => this%p3, z1 => this%z1, &
          z2 => this%z2, z3 => this%z3, r1 => this%r1, r2 => this%r2, &
