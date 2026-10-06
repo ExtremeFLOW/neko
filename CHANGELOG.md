@@ -2,6 +2,8 @@
 
 ## Develop
 
+- Organaized `fluid_pnpn_t`, so that types extending `fluid_pnpn_t` can
+  reuse them.
 - Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
   ranks have zero points.
 - Fixed device memory leaking on every write of a spatially averaged
