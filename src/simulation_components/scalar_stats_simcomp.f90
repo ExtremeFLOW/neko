@@ -189,9 +189,14 @@ contains
          hom_dir = hom_dir, name = stats_fname, &
          path = this%case%output_directory)
 
+    ! Statistics are averaged over the interval between two writes, so
+    ! writing at the very start of the averaging would only produce an
+    ! empty file. The schedule is anchored to the start of the averaging.
     call this%case%output_controller%add(this%stats_output, &
          this%output_controller%control_value, &
-         this%output_controller%control_mode)
+         this%output_controller%control_mode, &
+         start_time = max(this%start_time, this%case%time%start_time), &
+         write_at_start = .false.)
 
     call neko_log%end_section()
 
@@ -202,6 +207,7 @@ contains
     class(scalar_stats_simcomp_t), intent(inout) :: this
     call this%free_base()
     call this%stats%free()
+    call this%stats_output%free()
   end subroutine scalar_stats_simcomp_free
 
   subroutine scalar_stats_simcomp_restart(this, time)

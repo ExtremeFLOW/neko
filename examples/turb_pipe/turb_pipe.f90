@@ -23,9 +23,9 @@ contains
     w => fields%get("w")
 
     do i = 1, u%size()
-       x = u%dof%x(i,1,1,1)
-       y = u%dof%y(i,1,1,1)
-       z = u%dof%z(i,1,1,1)
+       x = u%dof%x%x(i,1,1,1)
+       y = u%dof%y%x(i,1,1,1)
+       z = u%dof%z%x(i,1,1,1)
        uvw = pipe_ic(x, y, z)
 
        u%x(i,1,1,1) = uvw(1)

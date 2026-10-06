@@ -18,7 +18,7 @@ But that comes with some drawbacks:
 - Updating Neko via Git becomes more complex, as you'll need to resolve merge
   conflicts between your changes and upstream updates.
 - To avoid that hassle, you would have to open a pull request and merge your
-  changes into Neko—though this may not be your intention. Or it might be to
+  changes into Neko—though this may not be your intention. Or it might be too
   small in scope to qualify for being included.
 
 
@@ -35,6 +35,7 @@ supports this. Here is a list of things you can implement.
 - Krylov solvers (`ksp_t` descendants).
 - Matrix-vector products (`ax_t` descendants).
 - Scalar schemes (`scalar_scheme_t` descendants).
+- Scalar boundary conditions ([bc_t](#bc::bc_t) descendants).
 
 This list will hopefully be extended later. Fluid schemes are a notable
 omission.
@@ -42,13 +43,13 @@ omission.
 To implement a new type, the easiest thing is to start by copying over the
 `.f90` of an already existing type, renaming things inside and then adding the
 functionality you want (e.g. the particular form of the source term). When you
-are done, two special subroutines have to be added to you module. To make
+are done, two special subroutines have to be added to your module. To make
 explaining easier, let us assume that your module is called `mymodule` and the
 new type `mytype`.
 
 - All the types in the list above have a routine called `register_*`, where the
  `*` is replaced by the name of the type, for example, `register_source_term`.
-- The also provide a procedure interface called `*_allocate`, e.g. 
+- They also provide a procedure interface called `*_allocate`, e.g.
   `source_term_allocate`.
 
 Both of these routines should be brought into the the new modules with `use`
@@ -85,7 +86,7 @@ statements. Then, two routines need to be defined in the module.
   end subroutine 
   ```
 
-  Note that the `*_register_types` routine can register maybe types, not
+  Note that the `*_register_types` routine can register many types, not
   necessarily just one.
 
 For custom device kernels, `mymodule` must define a C interface to a CUDA/HIP

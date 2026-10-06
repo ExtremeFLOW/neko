@@ -1,7 +1,7 @@
 #ifndef __MATH_MATH_KERNEL_H__
 #define __MATH_MATH_KERNEL_H__
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -192,6 +192,12 @@ __global__ void masked_scatter_copy_aligned_kernel(T * __restrict__ a,
 #endif
 
 /**
+ * Block size of masked_atomic_reduction_kernel, also the number of shared
+ * memory bins
+ */
+#define MASKED_ATOMIC_RED_BLOCK 256
+
+/**
  * Device kernel for masked atomic update
  */
 template< typename T >
@@ -201,14 +207,78 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
                                                const int n,
                                                const int m) {
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
 #if __CUDA_ARCH__ >= 600
-  for (int i = idx; i < m; i += str) 
-    atomicAdd( &(a[mask[i+1]-1]), b[i]);
+  __shared__ T bins[MASKED_ATOMIC_RED_BLOCK];
+  __shared__ int bins_base;
+
+  const int lane = threadIdx.x % 32;
+  const int str = MASKED_ATOMIC_RED_BLOCK * gridDim.x;
+
+  bins[threadIdx.x] = 0.0;
+
+  /* Stride over whole blocks, so every thread reaches every barrier and
+     every lane every shuffle; lanes past the end carry no target */
+  for (int base = blockIdx.x * MASKED_ATOMIC_RED_BLOCK; base < m;
+       base += str) {
+
+    if (threadIdx.x == 0)
+      bins_base = mask[base + 1] - 1 - MASKED_ATOMIC_RED_BLOCK / 2;
+    __syncthreads();
+    const int kbase = bins_base;
+
+    const int i = base + threadIdx.x;
+    int key = -1;
+    T val = 0.0;
+    if (i < m) {
+      key = mask[i + 1] - 1;
+      val = b[i];
+    }
+
+    /* A run starts where the target changes and ends in the lane before
+       the next run's head */
+    const int key_prev = __shfl_up_sync(0xffffffff, key, 1);
+    const bool head = (lane == 0) || (key != key_prev);
+    const unsigned int heads = __ballot_sync(0xffffffff, head);
+
+    if (heads == 0xffffffff) {
+      /* No two neighbouring lanes share a target, so there is nothing to
+         combine: scatter directly, as a plain atomic kernel would. The
+         ballot is the same in every lane, so the branch is warp-uniform. */
+      if (key >= 0)
+        atomicAdd(&a[key], val);
+    }
+    else {
+      const unsigned int next = heads & ~((2u << lane) - 1u);
+      const int run_end = next ? __ffs(next) - 2 : 31;
+
+      /* Segmented suffix sum, the head ends up with the sum of its run */
+#pragma unroll
+      for (int off = 1; off < 32; off *= 2) {
+        const T tmp = __shfl_down_sync(0xffffffff, val, off);
+        if (lane + off <= run_end)
+          val += tmp;
+      }
+
+      if (head && key >= 0) {
+        const int s = key - kbase;
+        if (s >= 0 && s < MASKED_ATOMIC_RED_BLOCK)
+          atomicAdd(&bins[s], val);
+        else
+          atomicAdd(&a[key], val);
+      }
+    }
+    __syncthreads();
+
+    /* Flush the bins and clear them for the next stride; the barrier at
+       the top of the loop orders this against the next accumulation */
+    const T sum = bins[threadIdx.x];
+    if (sum != (T) 0.0) {
+      atomicAdd(&a[kbase + threadIdx.x], sum);
+      bins[threadIdx.x] = 0.0;
+    }
+  }
 #else
-  if (idx == 0) 
+  if (blockIdx.x * blockDim.x + threadIdx.x == 0)
     assert(0 && "masked_atomic_reduction_kernel requires compute capability 6.0 or higher.");
 #endif
 }
@@ -1251,6 +1321,42 @@ __global__ void glmax_kernel(const T * a,
   __syncthreads();
 
   max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : ninf;
+  if (wid == 0)
+    max_val = reduce_max_warp<T>(max_val);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = max_val;
+
+}
+
+/**
+ * Device kernel for glamax
+ * @note The identity is zero, since the reduced values are non-negative.
+ */
+template< typename T >
+__global__ void glamax_kernel(const T * a,
+                              T * buf_h,
+                              const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % warpSize;
+  const unsigned int wid = threadIdx.x / warpSize;
+
+  __shared__ T shared[32];
+  T max_val = T(0);
+  for (int i = idx; i<n ; i += str)
+  {
+    max_val = max(max_val, fabs(a[i]));
+  }
+
+  max_val = reduce_max_warp<T>(max_val);
+  if (lane == 0)
+    shared[wid] = max_val;
+  __syncthreads();
+
+  max_val = (threadIdx.x < blockDim.x / warpSize) ? shared[lane] : T(0);
   if (wid == 0)
     max_val = reduce_max_warp<T>(max_val);
 

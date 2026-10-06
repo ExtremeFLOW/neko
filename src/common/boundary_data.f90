@@ -249,11 +249,11 @@ contains
 
     n = this%coef%dof%size()
 
-    call vector_masked_gather_copy_0(this%x, this%coef%dof%x, &
+    call vector_masked_gather_copy_0(this%x, this%coef%dof%x%x, &
          this%bc%facet_node_msk, n, this%n_local)
-    call vector_masked_gather_copy_0(this%y, this%coef%dof%y, &
+    call vector_masked_gather_copy_0(this%y, this%coef%dof%y%x, &
          this%bc%facet_node_msk, n, this%n_local)
-    call vector_masked_gather_copy_0(this%z, this%coef%dof%z, &
+    call vector_masked_gather_copy_0(this%z, this%coef%dof%z%x, &
          this%bc%facet_node_msk, n, this%n_local)
 
     call vector_face_masked_gather_copy_0(this%n_x, this%coef%nx, &

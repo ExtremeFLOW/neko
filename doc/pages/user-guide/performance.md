@@ -126,8 +126,8 @@ The two formulations are:
 Five operators ship a third, which hands the tensor contractions of an
 element to the matrix units of the device rather than to the ordinary
 FMA pipes: on CUDA `Ax` (scalar and vector), `opgrad`, `dudxyz`, `conv1`
-and `cdtp`; on HIP the same five less the vector `Ax`, which has no matrix
-core kernel. `convect_scalar` and `lambda2` have no such variant on either
+and `cdtp`; on HIP the same five, the vector `Ax` included.
+`convect_scalar` and `lambda2` have no such variant on either
 backend and keep tuning the two.
 
 - the **dmma** variant on CUDA, which stages a cube in shared memory
@@ -177,7 +177,9 @@ surplus wavefronts are given an element of their own: the block covers
 `eb` elements, as many as the `ceil(lx^2/16)` groups leave wavefronts
 for and rounded down to a power of two so that it divides `nwf`, and
 `wpe = nwf / eb` wavefronts cooperate on each, the staging, geometry and
-write-back passes parallelising over the whole block either way. At
+write-back passes parallelising over the wavefronts that own the element
+rather than over the whole block --- only the derivative matrices are
+staged block-wide. At
 `lx = 4` with eight wavefronts that is eight elements, one each, with
 nothing idle; at `lx = 12` it is one element and eight cooperating
 wavefronts.
@@ -281,10 +283,29 @@ fifteen for `conv1` and five for `cdtp`. The variants that stage past
 48 kB additionally check that the device will grant a block the shared
 memory they need.
 
+@note For the Helmholtz operator the mfma search has a second dimension:
+which matrix core tile the contraction is issued on. Double precision has
+two, and they trade against each other rather than one dominating. The
+batched `v_mfma_f64_4x4x4f64` tile fills `M = lx < 16` exactly, where
+`v_mfma_f64_16x16x4f64` wastes half its rows at `lx = 8` --- but it runs at
+128 rather than 256 flop per cycle per compute unit, owes four cycles on
+each step of an accumulate chain where the large tile owes none, and
+re-reads its second operand once per M-tile, which is two to three times
+the shared memory traffic. Counting issues and cycles, the small tile wins
+by 2x at `lx = 4`, the two are within about 10% of each other from `lx = 5`
+to `8`, and the large tile wins by 1.5x from `lx = 9` up. That was a
+compile-time choice until the accounting was redone, which is exactly the
+kind of decision the tuner exists to make, so both are now candidates ---
+eight instead of four in a double precision build. Single precision has no
+4x4x4 instruction, so there the dimension collapses and only four
+candidates are timed. Both tiles reproduce a reference to machine precision
+and give bit-identical double precision results, so nothing but time is at
+stake in trying them.
+
 @note The mfma variant covers `4 <= lx <= 12` in *both* precisions, on
-gfx90a (MI250X) and gfx942 (MI300A / MI300X), for the scalar `Ax`,
-`opgrad`, `dudxyz`, `conv1` and `cdtp` --- there is no vector mfma
-kernel. `v_mfma_f32_16x16x4f32` is true IEEE fp32, so a single precision
+gfx90a (MI250X) and gfx942 (MI300A / MI300X), for the scalar and vector
+`Ax`, `opgrad`, `dudxyz`, `conv1` and `cdtp`.
+`v_mfma_f32_16x16x4f32` is true IEEE fp32, so a single precision
 build loses nothing in accuracy there; the upper order bound is the LDS
 needed to keep the staged cubes resident, not the instruction.
 Availability is confirmed by launching a probe kernel that reports
@@ -306,19 +327,31 @@ on a given part is exactly what the tuner measures.
 The vector (three component) Helmholtz operator runs its own search,
 reported as a separate `Autotune Ax vector` section: the elements per
 block of its kstep variant against, on CUDA, the warp counts of a vector
-dmma variant and of the two TMA staged forms of it. It has no 1d
-formulation, so `NEKO_AUTOTUNE=1D` selects kstep there, and no matrix
-core variant on HIP, where the vector search is the elements per block
-sweep alone. Blocking is not expected to pay much for the vector kernels
+dmma variant and of the two TMA staged forms of it, and on HIP the
+wavefront counts of a vector mfma variant. It has no 1d
+formulation, so `NEKO_AUTOTUNE=1D` selects kstep there.
+Blocking is not expected to pay much for the vector kernels
 --- they sit at 254-255 registers, where a wider block changes threads
 per block but not registers per thread, so it only saves the derivative
 matrix loads --- but it is swept rather than assumed. Because the three
-components share one set of geometric factors, the dmma variant reads
-them once into registers and runs the components through the same staged
-cubes rather than staging twelve of them. On GH200 at `lx = 8` that
-loses narrowly to kstep --- holding the factors costs occupancy --- so
-it is there for the low order end, where the register cost falls away
+components share one set of geometric factors, the matrix unit variants
+read them once into registers and run the components through the same
+staged cubes rather than staging twelve of them. On GH200 at `lx = 8`
+that loses narrowly to kstep --- holding the factors costs occupancy ---
+so it is there for the low order end, where the register cost falls away
 and the shared memory footprint does not.
+
+The mfma form makes the same trade, but decides it per instantiation
+rather than taking it everywhere. A thread holds seven values for each of
+the `ceil(lx^3 / (64 * wpe))` points it owns, which is one point and
+fourteen registers where eight wavefronts cooperate on an `lx = 8`
+element and twenty seven points and 378 registers where a single
+wavefront takes an `lx = 12` one, against the 256 a lane addresses. The
+factors are therefore kept in registers only while they fit a 64 register
+budget, and re-read from global memory per component otherwise, on the
+expectation that an element read moments earlier is still in L2. Which
+side of that line a candidate falls on follows from `lx` and the
+wavefront count, so it adds no tuner dimension.
 
 Within each formulation the tuner also sweeps a geometry parameter. For
 the kstep kernels this is the number of *elements per thread block*: a
@@ -362,14 +395,24 @@ form
 on CUDA, where the second field is the elements packed into one cube, and
 
 ```
-  MFMA  4wf 1 e:    136.40 us/call
-  MFMA  8wf 1 e:    136.40 us/call
+  MFMA  4x4x4 4wf 1 e:    136.40 us/call
+  MFMA  4x4x4 8wf 2 e:    136.40 us/call
 ```
 
-on HIP, where it is the elements per block that the wavefront count
-implies. The chosen line names the same pair, as
+on HIP, where the first field is the matrix core tile and the last the
+elements per block that the wavefront count implies. The vector operator's
+matrix core lines carry one more field, `reg` or `glob`, saying whether that
+candidate held the geometric
+factors in registers across the three components or re-read them from
+global memory for each one --- which follows from the order and the
+wavefront count rather than being swept, so neighbouring candidates can
+differ in memory traffic as well as in block shape. At `lx = 8` in double
+precision the single wavefront candidate reports `glob` and the rest
+`reg`; at `lx = 12` only the eight wavefront candidate reports `reg`.
+
+The chosen line names the same pair, as
 `Chose        : 3 (DMMA, 2 warps, 8 elem/blk)` or
-`Chose        : 3 (MFMA, 4 wf, 1 elem/block)`.
+`Chose        : 3 (MFMA 4x4x4, 4 wf, 1 elem/blk)`.
 
 At `lx = 8` on Hopper the TMA staged variants add lines of their own,
 which carry no element count --- they stage a single element by
@@ -435,11 +478,13 @@ turns the sweep off if the extra tuning time is not wanted.
 
 The tuning behaviour is controlled by the environment variables
 described in the @ref appendices_env-var reference: `NEKO_AUTOTUNE`
-pins a formulation and skips the search entirely, `NEKO_EB_TUNE` and
+narrows the search to one formulation, whose geometry is still swept,
+`NEKO_EB_TUNE` and
 `NEKO_MFMA_TUNE` enable or disable the elements per block and matrix
 core sweeps, `NEKO_EB`, `NEKO_CHUNKS`, `NEKO_DMMA_NW`,
-`NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` force a particular geometry when a
-formulation is pinned, and
+`NEKO_DMMA_TMA_NW` and `NEKO_MFMA_NWF` pin a particular geometry instead
+of sweeping it --- pinning both leaves nothing to measure and skips the
+search --- and
 `NEKO_TUNE_ROUNDS` / `NEKO_TUNE_ITERS` control the sampling of both
 sweeps. All
 of them are useful mainly for A/B testing; the defaults are intended to
@@ -488,11 +533,10 @@ implementations of the off-process gs exchange, and the right choice
 depends on the host/accelerator combination and the interconnect.
 
 The active backend can be selected at runtime via the `NEKO_GS_COMM`
-environment variable. If the variable is unset, a sensible default is
-chosen based on the build configuration (device-aware MPI when device
-MPI is available, and otherwise the fastest of the host backends the
-build supports, picked by the autotuner described in
-@ref performance-gs-autotuning). The supported values are:
+environment variable. If the variable is unset, the backend is picked by
+measurement: every backend the build supports is benchmarked at
+initialisation and the fastest one is kept, see
+@ref performance-gs-autotuning. The supported values are:
 
 | `NEKO_GS_COMM` | Backend | Requirement | Typical use |
 |---|---|---|---|
@@ -542,33 +586,55 @@ crosses the network once per stage it survives and is copied locally each
 time, and the stages are dependent, so only the first one overlaps the
 local gather-scatter. This is a trade of bandwidth and latency for message
 count: it pays where per-message overhead dominates and loses where the
-halo is already large enough to be bandwidth bound. `CRYSTAL` is
-benchmarked by the autotuning like any other host candidate, which is the
-intended way to find out which regime a given run is in;
-`NEKO_GS_TUNE=-CRYSTAL` drops it. `CRYSTALGPU` is not autotuned and has to
-be asked for by name.
+halo is already large enough to be bandwidth bound. Benchmarking is the
+intended way to find out which regime a given run is in: `CRYSTAL` is a
+default candidate in the autotuning (`NEKO_GS_TUNE=-CRYSTAL` drops it),
+and `CRYSTALGPU` is one on any device build that can drive it
+(`NEKO_GS_TUNE=-CRYSTALGPU` drops it).
 
-#### Runtime autotuning of the host backend {#performance-gs-autotuning}
+#### Runtime autotuning of the comm. backend {#performance-gs-autotuning}
 
-Which host backend wins depends on the MPI implementation, the
+Which backend wins depends on the MPI implementation, the
 interconnect and the halo of the particular decomposition, so the
 choice is made by measurement rather than by a built-in rule. When
 `NEKO_GS_COMM` is unset, no `comm_bcknd` argument is passed to
 `gs%init` and the run has more than one rank, each `gs_t` instance
-benchmarks the available host backends at initialisation and keeps the
-fastest one. This mirrors the autotuning of the device MPI
-synchronisation strategy (`NEKO_GS_STRTGY`) already done on
-accelerator builds.
+benchmarks the available backends at initialisation and keeps the
+fastest one. A candidate with a sub-choice of its own has that
+benchmarked too and contributes the winning variant's time, reported on
+that candidate's own line: the device MPI synchronisation strategy
+(`NEKO_GS_STRTGY`), and the coarray signaling mode.
 
-By default the candidates are every host backend the build supports
-except `CAF`: `MPI`, `NEIGHBOUR`, `MPIRMA` and `CRYSTAL`, which need
-nothing but MPI-3, plus `SHMEM` (OpenSHMEM) and `UTOFU` when the corresponding
-support was built in -- a backend whose support is missing aborts in
-its `init`, so it is left out of the list rather than tried. `SHMEM`
-and `CAF` are additionally skipped when `NEKO_COMM` does not span every
-process (`NEKO_COMM_ID`), since they address their peers by global PE /
-image number; `UTOFU` and `MPIRMA` exchange their addresses over
+By default the candidates are every backend the build supports except
+`CAF` and `NVSHMEM`: `MPI`, `NEIGHBOUR`, `MPIRMA` and `CRYSTAL`, which
+need nothing but MPI-3, plus `SHMEM` (OpenSHMEM) and `UTOFU` when the
+corresponding support was built in -- a backend whose support is missing
+aborts in its `init`, so it is left out of the list rather than tried.
+`SHMEM` and `CAF` are additionally skipped when `NEKO_COMM` does not span
+every process (`NEKO_COMM_ID`), since they address their peers by global
+PE / image number; `UTOFU` and `MPIRMA` exchange their addresses over
 `NEKO_COMM` itself and are kept in that case.
+
+On a CUDA or HIP build the device-resident backends join the comparison:
+`MPIGPU` and `CRYSTALGPU` when the build was configured with
+`--enable-device-mpi`, and `NCCL` when NCCL or RCCL was built in. `NCCL`
+carries the same restriction as the PE-addressed host backends and is
+skipped when `NEKO_COMM` does not span every process, since its
+communicator is built at startup from a unique id broadcast over
+`MPI_COMM_WORLD`. The host backends stay in the comparison on those
+builds and are measured as they actually run there, staging the halo
+through the host mirror of the shared buffer -- a copy in each direction
+that the device-resident backends avoid, which is precisely the trade the
+benchmark settles. Switching a candidate in also moves that staging
+(`gs_bcknd_t%shared_on_host`), so each backend is measured driving the
+exchange from the memory it was written for. OpenCL and Metal builds have
+no device-resident candidates: those backends' pack and unpack kernels
+exist for CUDA and HIP only, so such builds tune over the host backends
+alone.
+
+@note `NVSHMEM` is out of the default set because it aborts unless the
+peer lists come out symmetric and aligned, which is more than a run that
+never asked for it should risk. Add it with `NEKO_GS_TUNE=+NVSHMEM`.
 
 @note `MPIRMA` assumes the MPI implementation makes one-sided progress
 without the target entering MPI. That holds for hardware-driven
@@ -586,20 +652,26 @@ matched case insensitively:
 
 | `NEKO_GS_TUNE` | Candidates |
 |---|---|
-| unset | every supported host backend but `CAF` |
+| unset | every supported backend but `CAF` and `NVSHMEM` |
 | `+CAF` | the default set, plus the coarray backend |
+| `+NVSHMEM` | the default set, plus the NVSHMEM backend |
 | `-MPIRMA` | the default set, without the MPI one-sided backend |
 | `-CRYSTAL` | the default set, without the crystal router backend |
 | `-SHMEM` | the default set, without OpenSHMEM |
 | `+CAF,-SHMEM` | both deltas applied to the default set |
 | `MPI,NEIGHBOUR` | exactly those two, whatever the build supports |
+| `MPIGPU,NCCL` | the two device backends alone, on a GPU build |
 | `UTOFU` | uTofu alone -- nothing to compare, so it is simply used |
 
-Names prefixed with `+`/`-` modify the default set, plain names
-replace it, and mixing the two forms is an error, as is naming
-something that is not a host gather-scatter backend. Backends selected
-but unusable in this build or run are dropped from the comparison; a
-backend that was named explicitly says so in the log:
+Names are spelled as for `NEKO_GS_COMM` with one exception: `SHMEM`
+there means OpenSHMEM on a CPU build and NVSHMEM on a GPU build, while
+here the two can be candidates of the same run and are spelled apart,
+`SHMEM` for the host backend and `NVSHMEM` for the device one. Names
+prefixed with `+`/`-` modify the default set, plain names replace it,
+and mixing the two forms is an error, as is naming something that is not
+a gather-scatter backend. Backends selected but unusable in this build or
+run are dropped from the comparison; a backend that was named explicitly
+says so in the log:
 
 ```
  CAF          : unavailable
@@ -643,6 +715,27 @@ backend that was kept:
  uTofu        :  1.732E-04 s
  Tuned comm   :          MPI
 ```
+
+On a GPU build the device candidates appear in the same table, below the
+host ones. The device MPI row names the synchronisation strategy it was
+measured under, the way the `CAF` row names its signaling mode, since
+that is part of what was measured and is what the run goes on to use;
+`(env)` marks a strategy that came from `NEKO_GS_STRTGY` rather than from
+the benchmark:
+
+```
+ Comm         :         auto
+ ...
+ MPI          :  8.031E-05 s
+ Dev. MPI [01]:  3.412E-05 s
+ NCCL         :  2.984E-05 s
+ Dev. Crystal :  4.755E-05 s
+ Tuned comm   :         NCCL
+```
+
+Pinning device MPI with `NEKO_GS_COMM=MPIGPU` benchmarks no backends, so
+there the strategy keeps the line of its own it has always had,
+`Avg. strtgy` or `Env. strtgy`.
 
 Tuning is skipped, keeping the host MPI backend, if any rank holds
 zero dofs: such a rank skips the halo exchange entirely, which would

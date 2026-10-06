@@ -227,17 +227,40 @@ void metal_masked_scatter_copy(void *a_ptr, void *b_ptr, void *mask_ptr,
         }, (NSUInteger)*n_mask);
 }
 
+/* Must match MASKED_ATOMIC_RED_BLOCK in math_kernel.metal */
+#define MASKED_ATOMIC_RED_BLOCK 256
+
 void metal_masked_atomic_reduction(void *a_ptr, void *b_ptr, void *mask_ptr,
                                    int *n, int *m, void *strm) {
     if (*m < 1) return;
     id<MTLCommandQueue> q = (__bridge id<MTLCommandQueue>)(strm);
-    dispatch_simple(q, get_pipeline(@"masked_atomic_reduction_kernel"),
-        ^(id<MTLComputeCommandEncoder> enc) {
-            [enc setBuffer:(__bridge id<MTLBuffer>)(a_ptr) offset:0 atIndex:0];
-            [enc setBuffer:(__bridge id<MTLBuffer>)(b_ptr) offset:0 atIndex:1];
-            [enc setBuffer:(__bridge id<MTLBuffer>)(mask_ptr) offset:0 atIndex:2];
-            [enc setBytes:m length:sizeof(int) atIndex:3];
-        }, (NSUInteger)*m);
+    @autoreleasepool {
+        id<MTLComputePipelineState> pso =
+            get_pipeline(@"masked_atomic_reduction_kernel");
+        if (pso.maxTotalThreadsPerThreadgroup < MASKED_ATOMIC_RED_BLOCK ||
+            pso.threadExecutionWidth != 32) {
+            NSLog(@"Metal: masked_atomic_reduction_kernel needs %d threads "
+                  "per threadgroup and 32 wide simdgroups",
+                  MASKED_ATOMIC_RED_BLOCK);
+            abort();
+        }
+        id<MTLCommandBuffer> cb = [q commandBuffer];
+        id<MTLComputeCommandEncoder> enc = [cb computeCommandEncoder];
+        [enc setComputePipelineState:pso];
+        [enc setBuffer:(__bridge id<MTLBuffer>)(a_ptr) offset:0 atIndex:0];
+        [enc setBuffer:(__bridge id<MTLBuffer>)(b_ptr) offset:0 atIndex:1];
+        [enc setBuffer:(__bridge id<MTLBuffer>)(mask_ptr) offset:0 atIndex:2];
+        [enc setBytes:m length:sizeof(int) atIndex:3];
+        /* Whole threadgroups, so every simdgroup lane exists for the
+           shuffles; the kernel guards the tail */
+        NSUInteger nblocks = ((NSUInteger)*m + MASKED_ATOMIC_RED_BLOCK - 1) /
+            MASKED_ATOMIC_RED_BLOCK;
+        [enc dispatchThreadgroups:MTLSizeMake(nblocks, 1, 1)
+            threadsPerThreadgroup:MTLSizeMake(MASKED_ATOMIC_RED_BLOCK, 1, 1)];
+        [enc endEncoding];
+        [cb commit];
+        [cb waitUntilCompleted];
+    }
 }
 
 void metal_masked_scatter_copy_aligned(void *a_ptr, void *b_ptr, void *mask_ptr,
@@ -949,6 +972,13 @@ real metal_glmax(void *a_ptr, real *ninf, int *n, void *strm) {
     if (*n < 1) return *ninf;
     return (real)metal_reduce_extremum(a_ptr, *n, strm,
                                          @"glmax_kernel",
+                                         @"reduce_max_kernel");
+}
+
+real metal_glamax(void *a_ptr, int *n, void *strm) {
+    if (*n < 1) return (real) 0.0;
+    return (real)metal_reduce_extremum(a_ptr, *n, strm,
+                                         @"glamax_kernel",
                                          @"reduce_max_kernel");
 }
 

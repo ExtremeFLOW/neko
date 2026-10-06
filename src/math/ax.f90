@@ -42,8 +42,9 @@ module ax_product
   !> Base type for a matrix-vector product providing \f$ Ax \f$
   type, public, abstract :: ax_t
    contains
-     procedure(ax_compute), nopass, deferred :: compute
+     procedure(ax_compute), pass(this), deferred :: compute
      procedure(ax_compute_vector), pass(this), deferred :: compute_vector
+     procedure, pass(this) :: free => ax_free
   end type ax_t
 
   interface
@@ -101,13 +102,14 @@ module ax_product
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
   abstract interface
-     subroutine ax_compute(w, u, coef, msh, Xh)
+     subroutine ax_compute(this, w, u, coef, msh, Xh)
        import space_t
        import mesh_t
        import coef_t
        import ax_t
        import rp
        implicit none
+       class(ax_t), intent(in) :: this
        type(space_t), intent(in) :: Xh
        type(mesh_t), intent(in) :: msh
        type(coef_t), intent(in) :: coef
@@ -119,8 +121,8 @@ module ax_product
   !> Abstract interface for computing\f$ Ax \f$ inside a Krylov method,
   !! taking 3 components of a vector field in a coupled manner.
   !! @param au Result for the first component of the vector.
-  !! @param av Result for the first component of the vector.
-  !! @param aw Result for the first component of the vector.
+  !! @param av Result for the second component of the vector.
+  !! @param aw Result for the third component of the vector.
   !! @param u The first component of the vector.
   !! @param v The second component of the vector.
   !! @param w The third component of the vector.
@@ -147,5 +149,16 @@ module ax_product
        real(kind=rp), intent(in) :: w(Xh%lx, Xh%ly, Xh%lz, msh%nelv)
      end subroutine ax_compute_vector
   end interface
+
+contains
+
+  !> Release resources held by a matrix-vector product.
+  !!
+  !! This default implementation permits resource-free operators to require no
+  !! special handling. Descendants with pointer or allocatable components
+  !! should override it.
+  subroutine ax_free(this)
+    class(ax_t), intent(inout) :: this
+  end subroutine ax_free
 
 end module ax_product

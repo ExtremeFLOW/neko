@@ -202,10 +202,12 @@ contains
 
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
+       !$omp end single
 
        call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
@@ -238,10 +240,12 @@ contains
     end if
 
     if (strong_) then
+       !$omp single
        if (.not. this%updated) then
           call this%update(this%field_list, this%bc_u, time)
           this%updated = .true.
        end if
+       !$omp end single
 
        if (this%msk(0) .gt. 0) then
           call device_masked_copy_0(x_d, this%bc_u%field_bc%x_d, &

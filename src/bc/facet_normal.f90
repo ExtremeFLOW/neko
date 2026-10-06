@@ -64,6 +64,8 @@ module facet_normal
      procedure, pass(this) :: apply_surfvec => facet_normal_apply_surfvec
      procedure, pass(this) :: apply_surfvec_dev => &
           facet_normal_apply_surfvec_dev
+     procedure, pass(this) :: apply_surfvec_sub => &
+          facet_normal_apply_surfvec_sub
      ! > Recompute normals
      procedure, pass(this) :: recompute_normals => facet_normal_recompute_normals
      !> Constructor.
@@ -154,13 +156,12 @@ contains
     real(kind=rp), intent(inout), dimension(n) :: v
     real(kind=rp), intent(inout), dimension(n) :: w
     type(time_state_t), intent(in), optional :: time
-    integer :: i, m, k, idx(4), facet
-    real(kind=rp) :: normal(3), area
+    integer :: i, m, k
 
     m = this%unique_mask(0)
     ! Since apply_surfvec is called outside of the parallel region, we
     ! need to open a separate parallel region here
-    !$omp parallel do
+    !$omp parallel do private(k)
     do i = 1, m
        k = this%unique_mask(i)
        x(k) = u(k) * this%nx%x(i)
@@ -170,6 +171,49 @@ contains
     !$omp end parallel do
 
   end subroutine facet_normal_apply_surfvec
+
+  !> Subtract the normal projection of a vector from a scalar field, on the
+  !! facet nodes only.
+  !! @details Computes `res(k) = res(k) - c * (u,v,w)(k) . n(k)` over the
+  !! unique facet-node mask. This is the fused form of zeroing three full
+  !! fields, calling apply_surfvec into them, and then reading all three back
+  !! across the whole domain: the surface term is nonzero only on the mask, so
+  !! the full-field traffic carries nothing. Safe to accumulate in place
+  !! because unique_mask visits every dof exactly once, with the normals of
+  !! all adjoining faces already summed into nx/ny/nz (see finalize).
+  !!
+  !! @note This carries orphaned worksharing rather than opening its own
+  !! parallel region, so the caller can cover several of these and the loops
+  !! around them with one region. The trailing barrier of the `!$omp do` is
+  !! required: consecutive calls read and write the same `res` entries wherever
+  !! two facet masks meet. Encountered outside a parallel region it still gives
+  !! the right answer, just on one thread.
+  !! @param res Scalar field to subtract from.
+  !! @param u First component of the vector.
+  !! @param v Second component of the vector.
+  !! @param w Third component of the vector.
+  !! @param c Scalar coefficient applied to the projection.
+  !! @param n Number of entries in each array.
+  subroutine facet_normal_apply_surfvec_sub(this, res, u, v, w, c, n)
+    class(facet_normal_t), intent(in) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout), dimension(n) :: res
+    real(kind=rp), intent(in), dimension(n) :: u
+    real(kind=rp), intent(in), dimension(n) :: v
+    real(kind=rp), intent(in), dimension(n) :: w
+    real(kind=rp), intent(in) :: c
+    integer :: i, m, k
+
+    m = this%unique_mask(0)
+    !$omp do
+    do i = 1, m
+       k = this%unique_mask(i)
+       res(k) = res(k) - c * (u(k) * this%nx%x(i) &
+            + v(k) * this%ny%x(i) + w(k) * this%nz%x(i))
+    end do
+    !$omp end do
+
+  end subroutine facet_normal_apply_surfvec_sub
 
   !> Apply in facet normal direction (vector valued, device version)
   subroutine facet_normal_apply_surfvec_dev(this, x_d, y_d, z_d, &

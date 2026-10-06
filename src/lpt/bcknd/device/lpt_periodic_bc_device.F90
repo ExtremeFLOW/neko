@@ -132,6 +132,98 @@ module lpt_periodic_bc_device
        type(c_ptr), value :: acc_xlaglag, acc_ylaglag, acc_zlaglag, strm
      end subroutine cuda_lpt_periodic_bc_wrap_rotational
   end interface
+#elif HAVE_OPENCL
+  interface
+     !> CUDA kernel entry point for translational periodic wrapping.
+     subroutine opencl_lpt_periodic_bc_wrap_translational(x, y, z, n, &
+          n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+          periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+          periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+          periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+          periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+          periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+          periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+          periodic_len1, periodic_len2, periodic_len3, strm) &
+          bind(c, name = 'opencl_lpt_periodic_bc_wrap_translational')
+       use, intrinsic :: iso_c_binding
+       use num_types, only : c_rp
+       implicit none
+       integer(c_int) :: n, n_periodic_dirs
+       real(c_rp) :: periodic_dir_x1, periodic_dir_y1, periodic_dir_z1
+       real(c_rp) :: periodic_dir_x2, periodic_dir_y2, periodic_dir_z2
+       real(c_rp) :: periodic_dir_x3, periodic_dir_y3, periodic_dir_z3
+       real(c_rp) :: periodic_min1, periodic_min2, periodic_min3
+       real(c_rp) :: periodic_max1, periodic_max2, periodic_max3
+       real(c_rp) :: periodic_shift_x1, periodic_shift_y1, periodic_shift_z1
+       real(c_rp) :: periodic_shift_x2, periodic_shift_y2, periodic_shift_z2
+       real(c_rp) :: periodic_shift_x3, periodic_shift_y3, periodic_shift_z3
+       real(c_rp) :: periodic_len1, periodic_len2, periodic_len3
+       type(c_ptr), value :: x, y, z, strm
+     end subroutine opencl_lpt_periodic_bc_wrap_translational
+
+     !> CUDA kernel entry point for rotational periodic wrapping.
+     subroutine opencl_lpt_periodic_bc_wrap_rotational(x, y, z, n, theta_min, &
+          theta_max, theta_len, u, v, w, u_lag, v_lag, w_lag, u_laglag, &
+          v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
+          acc_ylaglag, acc_zlaglag, strm) &
+          bind(c, name = 'opencl_lpt_periodic_bc_wrap_rotational')
+       use, intrinsic :: iso_c_binding
+       use num_types, only : c_rp
+       implicit none
+       integer(c_int) :: n
+       real(c_rp) :: theta_min, theta_max, theta_len
+       type(c_ptr), value :: x, y, z, u, v, w, u_lag, v_lag, w_lag
+       type(c_ptr), value :: u_laglag, v_laglag, w_laglag
+       type(c_ptr), value :: acc_xlag, acc_ylag, acc_zlag
+       type(c_ptr), value :: acc_xlaglag, acc_ylaglag, acc_zlaglag, strm
+     end subroutine opencl_lpt_periodic_bc_wrap_rotational
+  end interface
+#elif HAVE_METAL
+  interface
+     !> CUDA kernel entry point for translational periodic wrapping.
+     subroutine metal_lpt_periodic_bc_wrap_translational(x, y, z, n, &
+          n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+          periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+          periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+          periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+          periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+          periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+          periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+          periodic_len1, periodic_len2, periodic_len3, strm) &
+          bind(c, name = 'metal_lpt_periodic_bc_wrap_translational')
+       use, intrinsic :: iso_c_binding
+       use num_types, only : c_rp
+       implicit none
+       integer(c_int) :: n, n_periodic_dirs
+       real(c_rp) :: periodic_dir_x1, periodic_dir_y1, periodic_dir_z1
+       real(c_rp) :: periodic_dir_x2, periodic_dir_y2, periodic_dir_z2
+       real(c_rp) :: periodic_dir_x3, periodic_dir_y3, periodic_dir_z3
+       real(c_rp) :: periodic_min1, periodic_min2, periodic_min3
+       real(c_rp) :: periodic_max1, periodic_max2, periodic_max3
+       real(c_rp) :: periodic_shift_x1, periodic_shift_y1, periodic_shift_z1
+       real(c_rp) :: periodic_shift_x2, periodic_shift_y2, periodic_shift_z2
+       real(c_rp) :: periodic_shift_x3, periodic_shift_y3, periodic_shift_z3
+       real(c_rp) :: periodic_len1, periodic_len2, periodic_len3
+       type(c_ptr), value :: x, y, z, strm
+     end subroutine metal_lpt_periodic_bc_wrap_translational
+
+     !> CUDA kernel entry point for rotational periodic wrapping.
+     subroutine metal_lpt_periodic_bc_wrap_rotational(x, y, z, n, theta_min, &
+          theta_max, theta_len, u, v, w, u_lag, v_lag, w_lag, u_laglag, &
+          v_laglag, w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
+          acc_ylaglag, acc_zlaglag, strm) &
+          bind(c, name = 'metal_lpt_periodic_bc_wrap_rotational')
+       use, intrinsic :: iso_c_binding
+       use num_types, only : c_rp
+       implicit none
+       integer(c_int) :: n
+       real(c_rp) :: theta_min, theta_max, theta_len
+       type(c_ptr), value :: x, y, z, u, v, w, u_lag, v_lag, w_lag
+       type(c_ptr), value :: u_laglag, v_laglag, w_laglag
+       type(c_ptr), value :: acc_xlag, acc_ylag, acc_zlag
+       type(c_ptr), value :: acc_xlaglag, acc_ylaglag, acc_zlaglag, strm
+     end subroutine metal_lpt_periodic_bc_wrap_rotational
+  end interface
 #endif
 
   public :: lpt_periodic_bc_wrap_translational_device
@@ -197,8 +289,28 @@ contains
          periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
          periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
          periodic_len1, periodic_len2, periodic_len3, strm_)
+#elif HAVE_OPENCL
+    call opencl_lpt_periodic_bc_wrap_translational(x%x_d, y%x_d, z%x_d, n, &
+         n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+         periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+         periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+         periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+         periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+         periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+         periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+         periodic_len1, periodic_len2, periodic_len3, strm_)
+#elif HAVE_METAL
+    call metal_lpt_periodic_bc_wrap_translational(x%x_d, y%x_d, z%x_d, n, &
+         n_periodic_dirs, periodic_dir_x1, periodic_dir_y1, periodic_dir_z1, &
+         periodic_dir_x2, periodic_dir_y2, periodic_dir_z2, periodic_dir_x3, &
+         periodic_dir_y3, periodic_dir_z3, periodic_min1, periodic_min2, &
+         periodic_min3, periodic_max1, periodic_max2, periodic_max3, &
+         periodic_shift_x1, periodic_shift_y1, periodic_shift_z1, &
+         periodic_shift_x2, periodic_shift_y2, periodic_shift_z2, &
+         periodic_shift_x3, periodic_shift_y3, periodic_shift_z3, &
+         periodic_len1, periodic_len2, periodic_len3, strm_)
 #else
-    call neko_error('LPT periodic BC device wrapping requires CUDA or HIP')
+    call neko_error('No device backend configured')
 #endif
   end subroutine lpt_periodic_bc_wrap_translational_device
 
@@ -282,8 +394,20 @@ contains
          w_lag_d, u_laglag_d, v_laglag_d, w_laglag_d, acc_xlag_d, &
          acc_ylag_d, acc_zlag_d, acc_xlaglag_d, acc_ylaglag_d, &
          acc_zlaglag_d, strm_)
+#elif HAVE_OPENCL
+    call opencl_lpt_periodic_bc_wrap_rotational(x%x_d, y%x_d, z%x_d, n, &
+         theta_min, theta_max, theta_len, u_d, v_d, w_d, u_lag_d, v_lag_d, &
+         w_lag_d, u_laglag_d, v_laglag_d, w_laglag_d, acc_xlag_d, &
+         acc_ylag_d, acc_zlag_d, acc_xlaglag_d, acc_ylaglag_d, &
+         acc_zlaglag_d, strm_)
+#elif HAVE_METAL
+    call metal_lpt_periodic_bc_wrap_rotational(x%x_d, y%x_d, z%x_d, n, &
+         theta_min, theta_max, theta_len, u_d, v_d, w_d, u_lag_d, v_lag_d, &
+         w_lag_d, u_laglag_d, v_laglag_d, w_laglag_d, acc_xlag_d, &
+         acc_ylag_d, acc_zlag_d, acc_xlaglag_d, acc_ylaglag_d, &
+         acc_zlaglag_d, strm_)
 #else
-    call neko_error('LPT periodic BC device wrapping requires CUDA or HIP')
+    call neko_error('No device backend configured')
 #endif
   end subroutine lpt_periodic_bc_wrap_rotational_device
 

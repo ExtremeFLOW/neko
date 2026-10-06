@@ -58,6 +58,55 @@ module richardson_device
      end subroutine cuda_richardson_compute
   end interface
 #elif HAVE_OPENCL
+  interface
+     subroutine opencl_richardson_compute(u_d, v_d, w_d, temp_d, temp_w_d, &
+          n_x_d, n_y_d, n_z_d, h_d, &
+          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+          kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type_int, &
+          bc_value, tstep, &
+          Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+          ts_diagn, q_diagn) &
+          bind(c, name = 'opencl_richardson_compute')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       use num_types, only : c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d, temp_d, temp_w_d
+       type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
+       type(c_ptr), value :: mu_w_d, rho_w_d
+       real(c_rp) :: kappa, z0, z0h_in, bc_value, Pr
+       real(c_rp) :: g(3)
+       type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
+       integer(c_int) :: n_nodes, tstep, bc_type_int
+       type(c_ptr), value :: Ri_b_diagn, L_ob_diagn
+       type(c_ptr), value :: utau_diagn, magu_diagn
+       type(c_ptr), value :: ti_diagn, ts_diagn, q_diagn
+     end subroutine opencl_richardson_compute
+  end interface
+#elif HAVE_METAL
+  interface
+     subroutine metal_richardson_compute(u_d, v_d, w_d, temp_d, temp_w_d, &
+          n_x_d, n_y_d, n_z_d, h_d, &
+          tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+          kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, bc_type_int, &
+          bc_value, tstep, &
+          Ri_b_diagn, L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+          ts_diagn, q_diagn) &
+          bind(c, name = 'metal_richardson_compute')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       use num_types, only : c_rp
+       implicit none
+       type(c_ptr), value :: u_d, v_d, w_d, temp_d, temp_w_d
+       type(c_ptr), value :: n_x_d, n_y_d, n_z_d, h_d
+       type(c_ptr), value :: mu_w_d, rho_w_d
+       real(c_rp) :: kappa, z0, z0h_in, bc_value, Pr
+       real(c_rp) :: g(3)
+       type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d
+       integer(c_int) :: n_nodes, tstep, bc_type_int
+       type(c_ptr), value :: Ri_b_diagn, L_ob_diagn
+       type(c_ptr), value :: utau_diagn, magu_diagn
+       type(c_ptr), value :: ti_diagn, ts_diagn, q_diagn
+     end subroutine metal_richardson_compute
+  end interface
 #endif
   public :: richardson_compute_device
 
@@ -111,7 +160,21 @@ contains
          L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
          ts_diagn, q_diagn)
 #elif HAVE_OPENCL
-    call neko_error("OPENCL is not implemented for the richardson wall model")
+    call opencl_richardson_compute(u_d, v_d, w_d, temp_d, temp_w_d, &
+         n_x_d, n_y_d, n_z_d, h_d, &
+         tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, &
+         bc_type_int, bc_value, tstep, Ri_b_diagn, &
+         L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+         ts_diagn, q_diagn)
+#elif HAVE_METAL
+    call metal_richardson_compute(u_d, v_d, w_d, temp_d, temp_w_d, &
+         n_x_d, n_y_d, n_z_d, h_d, &
+         tau_x_d, tau_y_d, tau_z_d, n_nodes, &
+         kappa, mu_w_d, rho_w_d, g, Pr, z0, z0h_in, &
+         bc_type_int, bc_value, tstep, Ri_b_diagn, &
+         L_ob_diagn, utau_diagn, magu_diagn, ti_diagn, &
+         ts_diagn, q_diagn)
 #else
     call neko_error('No device backend configured')
 #endif

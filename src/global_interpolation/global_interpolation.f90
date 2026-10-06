@@ -291,17 +291,15 @@ contains
 
     ! Store the number of dofs
     this%n_dof = dof%size()
-    ! NOTE: Passing dof%x(:,1,1,1), etc in init_xyz passes down the entire
+    ! NOTE: Passing dof%x%x(:,1,1,1), etc in init_xyz passes down the entire
     ! dof%x array and not a slice. It is done this way for
     ! to get the right dimension (see global_interpolation_init_xyz).
     if (.not. present(mask)) then
-       call this%init_xyz(dof%x(:,1,1,1), dof%y(:,1,1,1), dof%z(:,1,1,1), &
+       call this%init_xyz(dof%x%x(:,1,1,1), dof%y%x(:,1,1,1), dof%z%x(:,1,1,1), &
             dof%msh%gdim, dof%msh%nelv, dof%Xh, comm = comm, &
             tol = tol, pad = pad)
     else
 
-       ! Initialize a helper field with the size of the mask
-       call this%masked_field%init(mask%size())
        ! Verify that the mask size is compatible with the dofmap
        temp_nelv = mask%size() / (dof%Xh%lx*dof%Xh%ly*dof%Xh%lz)
        if (mod(mask%size(), dof%Xh%lx*dof%Xh%ly*dof%Xh%lz) /= 0) then
@@ -309,9 +307,12 @@ contains
                " elements in the mesh.")
        end if
        ! Initialize with the masked coordinates
-       call this%init_xyz(dof%x(mask%get(),1,1,1), dof%y(mask%get(),1,1,1), &
-            dof%z(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
+       call this%init_xyz(dof%x%x(mask%get(),1,1,1), dof%y%x(mask%get(),1,1,1), &
+            dof%z%x(mask%get(),1,1,1), dof%msh%gdim, temp_nelv, dof%Xh, &
             comm = comm, tol = tol, pad = pad)
+       ! Initialize a helper field with the size of the mask, after
+       ! init_xyz since that frees the object
+       call this%masked_field%init(mask%size())
     end if
 
   end subroutine global_interpolation_init_dof
@@ -509,6 +510,7 @@ contains
 
     call this%temp_local%free()
     call this%temp%free()
+    call this%masked_field%free()
     if (allocated(this%points_at_pe)) then
        do i = 0, this%pe_size-1
           call this%points_at_pe(i)%free()

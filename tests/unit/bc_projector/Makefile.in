@@ -5,7 +5,10 @@ endif
 FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
 FC = @FC@
 
-%.o : %.F90
+# Depend on the library so the test objects follow any change to Neko.
+NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
+
+%.o : %.F90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) $<
 
 ../fixtures/mesh_fixture.o : ../fixtures/mesh_fixture.f90
@@ -13,6 +16,13 @@ FC = @FC@
 
 
 check: bc_projector_suite
+
+# Regenerate this Makefile from Makefile.in via config.status
+# whenever it changes.
+SUBDIR := $(patsubst $(abspath @top_builddir@)/%,%,$(CURDIR))
+
+Makefile: Makefile.in @top_builddir@/config.status
+	cd @top_builddir@ && $(SHELL) ./config.status $(SUBDIR)/Makefile
 
 
 bc_projector_suite_TESTS := test_bc_projector.pf\
