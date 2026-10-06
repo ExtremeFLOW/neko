@@ -31,7 +31,7 @@
 ! POSSIBILITY OF SUCH DAMAGE.
 !
 !> Device backend dispatch for the IDW immersed-boundary source term
-module device_idw_source_term
+module device_direct_forcing_source_term
   use num_types, only : rp, c_rp
   use utils, only : neko_error
   use device, only : glb_cmd_queue
@@ -280,4 +280,4 @@ contains
 
   end subroutine device_idw_interp_partials
 
-end module device_idw_source_term
+end module device_direct_forcing_source_term

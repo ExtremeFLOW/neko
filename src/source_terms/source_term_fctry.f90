@@ -38,7 +38,7 @@ submodule (source_term) source_term_fctry
   use coriolis_source_term, only : coriolis_source_term_t
   use brinkman_source_term, only : brinkman_source_term_t
   use centrifugal_source_term, only : centrifugal_source_term_t
-  use idw_source_term, only : idw_source_term_t
+  use direct_forcing_source_term, only : direct_forcing_source_term_t
   use translation_source_term, only : translation_source_term_t
   use gradient_jump_penalty, only : gradient_jump_penalty_t
   use sponge_source_term, only : sponge_source_term_t
@@ -60,7 +60,7 @@ submodule (source_term) source_term_fctry
        "field", &
        "hpfrt", &
        "translation", &
-       "idw" &
+       "direct_forcing" &
        ]
 
 contains
@@ -123,8 +123,8 @@ contains
        allocate(field_source_term_t::object)
     case ("hpfrt")
        allocate(hpfrt_source_term_t::object)
-    case ("idw")
-       allocate(idw_source_term_t::object)       
+    case ("direct_forcing")
+       allocate(direct_forcing_source_term_t::object)
     case default
        do i = 1, source_term_registry_size
           if (trim(type_name) .eq. trim(source_term_registry(i)%type_name)) then

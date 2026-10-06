@@ -43,7 +43,7 @@ SUBDIRS = tuple\
 	  utils\
 	  expression\
 	  point_interpolation\
-	  idw_source_term\
+	  direct_forcing\
 	  templates/parallel\
 	  bc_projector\
 	  boundary_operation\
@@ -97,7 +97,7 @@ TESTS = device/device_test\
 	utils/read_duration_test\
 	expression/expression_test\
 	point_interpolation/point_interpolation_test\
-	idw_source_term/idw_source_term_test\
+	direct_forcing/direct_forcing_test\
 	templates/parallel/parallel_test\
 	bc_projector/bc_projector_test\
 	boundary_operation/boundary_operation_test\
@@ -194,8 +194,8 @@ EXTRA_DIST = \
 	point_interpolation/test_point_interpolation_parallel.pf\
 	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\
-	idw_source_term/test_idw_interp.pf\
-	idw_source_term/test_idw_adjoint_spread.pf\
+	direct_forcing/test_idw_interp.pf\
+	direct_forcing/test_idw_adjoint_spread.pf\
 	bc_projector/test_bc_projector.pf\
 	bc_projector/test_coupled_bc_projector.pf\
 	boundary_operation/test_boundary_operation.pf\

@@ -4,7 +4,7 @@ module test_idw_interp_par
   use point, only : point_t
   use stack, only : stack_i4_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
-  use idw_source_term, only : idw_interp_shepard, idw_build_shared_slots
+  use direct_forcing_source_term, only : idw_interp_shepard, idw_build_shared_slots
   implicit none
 
   integer, parameter :: lx = 6

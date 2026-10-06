@@ -4,7 +4,7 @@ module test_idw_interp
   use math, only : NEKO_EPS
   use point, only : point_t
   use stack, only : stack_i4_t
-  use idw_source_term, only : idw_interp_shepard, &
+  use direct_forcing_source_term, only : idw_interp_shepard, &
        idw_interp_shepard_partials, idw_interp_shepard_normalize, &
        inv_dist_weight
   implicit none
