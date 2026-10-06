@@ -1,5 +1,7 @@
 #ifndef __SEM_COEF_KERNEL_H__
 #define __SEM_COEF_KERNEL_H__
+
+#include <device/device_config.h>
 /*
  Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
@@ -38,12 +40,12 @@
  * Device kernel for coef geometry
  */
 template< typename T, const int LX, const int CHUNKS >
-__global__ void coef_generate_geo_kernel(T * __restrict__ G11,
-					 T * __restrict__ G12,
-					 T * __restrict__ G13,
-					 T * __restrict__ G22,
-					 T * __restrict__ G23,
-					 T * __restrict__ G33,
+__global__ void coef_generate_geo_kernel(real_xp * __restrict__ G11,
+					 real_xp * __restrict__ G12,
+					 real_xp * __restrict__ G13,
+					 real_xp * __restrict__ G22,
+					 real_xp * __restrict__ G23,
+					 real_xp * __restrict__ G33,
 					 const T * __restrict__ drdx,
 					 const T * __restrict__ drdy,
 					 const T * __restrict__ drdz,

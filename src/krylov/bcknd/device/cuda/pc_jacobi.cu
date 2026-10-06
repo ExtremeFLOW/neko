@@ -41,12 +41,12 @@ __global__ void jacobi_kernel(T * __restrict__ du,
 			      const T * __restrict__ dxt,
 			      const T * __restrict__ dyt,
 			      const T * __restrict__ dzt,
-			      const T * __restrict__ G11,
-			      const T * __restrict__ G22,
-			      const T * __restrict__ G33,
-			      const T * __restrict__ G12,
-			      const T * __restrict__ G13,
-			      const T * __restrict__ G23,
+			      const real_xp * __restrict__ G11,
+			      const real_xp * __restrict__ G22,
+			      const real_xp * __restrict__ G33,
+			      const real_xp * __restrict__ G12,
+			      const real_xp * __restrict__ G13,
+			      const real_xp * __restrict__ G23,
 			      const int nel) {
   const int idx = threadIdx.x + blockIdx.x * blockDim.x;
   const int e = idx / (LX*LX*LX);
@@ -115,8 +115,8 @@ extern "C" {
       jacobi_kernel<real, N><<<blocks, threads, 0, stream>>>(  \
 	(real*)d,\
 	(real*)dxt, (real*)dyt, (real*)dzt,\
-	(real*)G11, (real*)G22, (real*)G33,\
-	(real*)G12, (real*)G13, (real*)G23,\
+	(real_xp*)G11, (real_xp*)G22, (real_xp*)G33,\
+	(real_xp*)G12, (real_xp*)G13, (real_xp*)G23,\
 	*nel);\
     break
 

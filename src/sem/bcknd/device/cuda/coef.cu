@@ -58,8 +58,8 @@ extern "C" {
     case LX:                                                                    \
       coef_generate_geo_kernel<real, LX, 1024>                                  \
         <<<nblcks, nthrds, 0, stream>>>                                         \
-        ((real *) G11, (real *) G12, (real *) G13,                              \
-         (real *) G22, (real *) G23, (real *) G33,                              \
+        ((real_xp *) G11, (real_xp *) G12, (real_xp *) G13,                              \
+         (real_xp *) G22, (real_xp *) G23, (real_xp *) G33,                              \
          (real *) drdx, (real *) drdy, (real *) drdz,                           \
          (real *) dsdx, (real *) dsdy, (real *) dsdz,                           \
          (real *) dtdx, (real *) dtdy, (real *) dtdz,                           \

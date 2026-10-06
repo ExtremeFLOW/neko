@@ -43,12 +43,12 @@ __kernel void jacobi_kernel_lx##LX(__global real * __restrict__ du,            \
                                    __global const real * __restrict__ dxt,     \
                                    __global const real * __restrict__ dyt,     \
                                    __global const real * __restrict__ dzt,     \
-                                   __global const real * __restrict__ G11,     \
-                                   __global const real * __restrict__ G22,     \
-                                   __global const real * __restrict__ G33,     \
-                                   __global const real * __restrict__ G12,     \
-                                   __global const real * __restrict__ G13,     \
-                                   __global const real * __restrict__ G23,     \
+                                   __global const real_xp * __restrict__ G11,     \
+                                   __global const real_xp * __restrict__ G22,     \
+                                   __global const real_xp * __restrict__ G33,     \
+                                   __global const real_xp * __restrict__ G12,     \
+                                   __global const real_xp * __restrict__ G13,     \
+                                   __global const real_xp * __restrict__ G23,     \
                                    const int nel) {                            \
                                                                                \
   const int idx = get_global_id(0);                                            \
