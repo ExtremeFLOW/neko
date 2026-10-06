@@ -175,10 +175,11 @@ than letting the plan grow.
   fail on our mesh for that reason. That README describes the case on its own; its §3 table
   maps every printed equation to a routine. Keep it in step with the code. How we got here is
   archived in `archive/README_process_2026-09.md`.
-- `examples/rider_kothe/` is complete with redistancing off. Its numbers are from the
-  2026-10-02 re-runs with the diffusion fix; every earlier Rider–Kothe number had the
-  frozen diffusion, so don't quote one. With both fixes, Saini's full periodic-reseed
-  configuration (scratch user file) completes ($E_r$ 0.0407 vs 0.0446 transport only).
+- `examples/rider_kothe/` is complete with redistancing off. Its tables are from the
+  2026-10-05/06 re-runs with the velocity fix (transport-only $E_r$ 0.0452); every number before
+  2026-10-02 had the frozen diffusion, so don't quote one. With the diffusion and history fixes,
+  Saini's full periodic-reseed configuration (scratch user file) completes ($E_r$ 0.0407 vs
+  0.0446 transport only, both before the velocity fix).
   But its $\psi$ normal is 4–8° off where transport's is 0.6–0.8°. So it is not a
   validated alternative; say so plainly.
 - **Saini's Rider–Kothe $E_r$ is not on our scale:** his code divides by the area
@@ -238,6 +239,10 @@ than letting the plan grow.
     initialisation unless a turbulence model is set. Filling only `s_lambda` froze
     Rider–Kothe's CDI diffusion at its $t=0$ value until 2026-10-02 and dissolved
     the filament (`CDI_METHOD.md` §4.1d).
+  - **A prescribed velocity goes in `preprocess`, at `time%tlag(1)`.** The scalar step applies
+    advection and its source terms to $s^n$ and extrapolates, so the velocity must be $u(t_n)$;
+    `compute` runs after the step and leaves step 1 at the case file's $u=0$. `time%t` in
+    `preprocess` is already $t_{n+1}$. Fixed in Rider–Kothe and Zalesak 2026-10-05 (`CDI_METHOD.md` §4.1d).
   - **A user hook that replaces a scalar field must restart its time history.**
     `compute()` runs after the scalar step's `slag%update()`, so the BDF lags still
     hold the old field, and BDF3 settles at old + 11/6 (new − old). Set

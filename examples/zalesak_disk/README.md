@@ -109,6 +109,10 @@ ten rotations to $t=20$:
 | $\phi$ range | **[0.00000, 0.99668]** | [0.000, 0.997] |
 | nodes outside $[0,1]$ | **0, at every one of 101 frames** | zero |
 
+These predate the 2026-10-05 velocity fix (step 1 used to run with $u=0$; `../../CDI_METHOD.md`
+§4.1d). Re-run on the fixed build, this case gives $E_r$ 0.02206, $E_s$ 0.00468, still no node
+outside $[0,1]$ (`logs/vel_fix_2026-10-05/`, gitignored), so the Zalesak tables were not re-run.
+
 $E_r$ grows slowly and monotonically — 0.0133 after one rotation, 0.0187 at
 five, 0.0220 at ten — with mass conserved to $4\times10^{-8}$ and **not one
 boundedness violation anywhere in the run**. That last point is the one worth

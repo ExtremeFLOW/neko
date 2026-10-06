@@ -4,7 +4,7 @@ Vortex-in-a-box: a disk is stretched into a thin spiral filament by $t=4$, then
 the flow reverses and it unwinds back to a disk at $t=8$.
 
 **Status: complete with redistancing off.**
-- **The tables** are from the re-runs of 2026-10-02.
+- **The tables** are from the re-runs of 2026-10-05/06, after the velocity fix below.
 - **The redistancing comparison** (`rk_Af`, `rk_eLf`) ran on 2026-10-01 on the scratch user
   file `logs/d5/rider_kothe_d5.f90`, which already filled `s_lambda_tot`; the committed
   `rider_kothe.f90` got that fix on 2026-10-02.
@@ -21,6 +21,12 @@ Two bugs affected the earlier Rider–Kothe numbers:
   (`../../CDI_METHOD.md` §4.1d).
 
 Both are fixed. The old results are not quoted here.
+
+A third, small defect was fixed on 2026-10-05: the velocity was prescribed after each step, so
+step 1 ran with $u=0$ (see "Configuration"). It moved every $E_r(8)$ up by 0.5–3.0%
+(`logs/vel_fix_2026-10-05/PREREGISTERED.txt`; the earlier outputs are in
+`logs/pre_velfix_2026-10-05/`). The two same-build comparisons below, SVV on/off and
+`rk_Af`/`rk_eLf`, ran before it and are kept, since each pair shares one build.
 
 $\xi = \varepsilon N/H$ throughout — see [`CDI_METHOD.md`](../../CDI_METHOD.md) §1.
 
@@ -42,15 +48,15 @@ band report (`run_rider_kothe_xi10.log`, lines `|grad psi| t=`):
 | $t$ | band $\|\nabla\psi\|$ min | mean | max |
 |---|---|---|---|
 | 0.08 | 0.805 | 1.026 | 1.28 |
-| 2.0 | 0.0255 | 5.48 | 10.7 |
-| **4.0** (max stretch) | **0.0391** | **7.69** | **15.2** |
-| 6.0 | 0.0496 | 5.42 | 10.0 |
+| 2.0 | 0.0494 | 5.48 | 10.7 |
+| **4.0** (max stretch) | **0.0394** | **7.69** | **15.2** |
+| 6.0 | 0.0480 | 5.42 | 10.0 |
 | **8.0** | **0.778** | **1.008** | **1.19** |
 
 The strain integrates back to zero over the cycle, so $|\nabla\psi|$ returns to 1 (band mean
 1.008; the SVV keeps it from returning exactly). **Its direction never leaves.** At every frame
-measured ($t=2$–8), $\psi$'s normal is within 0.6–1.3° of the exact interface in the compression band
-(`logs/d5/ev/rd_quality_eLf_Af.txt`, run `rk_Af`, the same configuration). That includes the
+measured ($t=1$–8), $\psi$'s normal is within 0.6–1.3° of the exact interface in the compression band
+(`logs/vel_fix_2026-10-05/rdq_output_v2.txt`, this run). That includes the
 5–6% of the filament that is thinner than $2\varepsilon$ at $t=4$.
 
 **Redistancing does worse here** (next-but-one section): its rebuilt $\psi$ points 4–8° off the
@@ -64,7 +70,9 @@ exact solution there is the initial condition; at intermediate times the shape i
 a spiral with no closed form. Boundedness, mass and $|\nabla\psi|$ need no
 reference and are valid throughout. Every row has `svv_psi` $c_0=0.1$, $N/2$, and no
 redistancing. The numbers come from `logs/d5/gamma_sweep.py` (gitignored, local), over every output
-frame (spacing 0.08; 0.04 at $H=1/96$ and 1/128), and are collected in `logs/table_lambda_svv_2026-10-05.txt`.
+frame (spacing 0.08; 0.04 at $H=1/96$ and 1/128), and are collected in `logs/table_velfix_2026-10-06.txt`.
+At $H=1/64$ the run ends one step past the reversal, at $t=8.00008$: Neko's accumulated time is
+a round-off below 8 after 100000 steps of $8\times10^{-5}$.
 
 ### $\xi$ trades shape against boundedness
 
@@ -72,23 +80,23 @@ $H=1/64$, $N=5$:
 
 | $\xi$ | $\gamma$ | $E_r(t{=}8)$ | worst violation | area($\phi>0.5$)/$A_0$ @ $t{=}4$ | $\phi$ peak @ $t{=}4$ |
 |---|---|---|---|---|---|
-| **1.0** | 1.0 | **0.0446** | $2.5\times10^{-3}$ | 0.978 | 0.996 |
-| 1.5 | 0.5 | 0.0620 | $\sim10^{-30}$ | 0.933 | 0.976 |
-| 1.5 | 1.0 | 0.0631 | $\sim10^{-69}$ | 0.931 | 0.977 |
-| 1.5 | 2.0 | 0.0615 | **0** | 0.930 | 0.977 |
-| 2.0 | 1.0 | 0.0705 | **0** | 0.873 | 0.940 |
+| **1.0** | 1.0 | **0.0452** | $2.6\times10^{-3}$ | 0.978 | 0.996 |
+| 1.5 | 0.5 | 0.0632 | $\sim10^{-30}$ | 0.932 | 0.976 |
+| 1.5 | 1.0 | 0.0637 | $\sim10^{-70}$ | 0.931 | 0.977 |
+| 1.5 | 2.0 | 0.0618 | **0** | 0.930 | 0.977 |
+| 2.0 | 1.0 | 0.0710 | **0** | 0.872 | 0.940 |
 
-The maximum mass drift $|m/m_0-1|$ is at most $4.8\times10^{-6}$ in every row.
+The maximum mass drift $|m/m_0-1|$ is at most $4.9\times10^{-6}$ in every row.
 
 $E_r$ rises with $\xi$, and boundedness improves with it. At $\xi=1.5$, $\gamma$ hardly matters
-(0.0615–0.0631 over $\gamma=0.5$–2).
+(0.0618–0.0637 over $\gamma=0.5$–2).
 
 **Why.** A filament of thickness $d$ holds, at CDI equilibrium, a core of
 $1-e^{-d/2\varepsilon}$. That falls below 0.5 at $d<2\ln2\,\varepsilon$.
 - The exact filament at $t=4$ is $7.3\,H/N$ thick at its median (marker-advected interface,
   `logs/d5/PREREGISTERED.txt`, step 4). That is $7.3\varepsilon$ at $\xi=1$ and $3.7\varepsilon$
   at $\xi=2$.
-- So a larger $\varepsilon$ holds less of the filament above 0.5 (0.978 → 0.873), and less of
+- So a larger $\varepsilon$ holds less of the filament above 0.5 (0.978 → 0.872), and less of
   the shape survives the return.
 - A smaller $\varepsilon$ is less well bounded.
 
@@ -102,11 +110,11 @@ At $\xi=1.0$, $\gamma=1.0$, $N=5$:
 
 | mesh | $\varepsilon$ | $E_r(t{=}8)$ | worst violation | area($\phi>0.5$)/$A_0$ @ $t{=}4$ | $\phi$ peak @ $t{=}4$ |
 |---|---|---|---|---|---|
-| 1/64 | $3.13\times10^{-3}$ | 0.0446 | $2.5\times10^{-3}$ | 0.978 | 0.996 |
-| 1/96 | $2.08\times10^{-3}$ | 0.0211 | $3.0\times10^{-3}$ | 0.991 | 1.000 |
-| 1/128 | $1.56\times10^{-3}$ | **0.0101** | $2.4\times10^{-3}$ | 0.998 | 1.000 |
+| 1/64 | $3.13\times10^{-3}$ | 0.0452 | $2.6\times10^{-3}$ | 0.978 | 0.996 |
+| 1/96 | $2.08\times10^{-3}$ | 0.0215 | $3.0\times10^{-3}$ | 0.990 | 1.000 |
+| 1/128 | $1.56\times10^{-3}$ | **0.0104** | $2.4\times10^{-3}$ | 0.998 | 1.000 |
 
-- **Accuracy:** $E_r$ falls 4.4× over one doubling of the mesh, an observed rate of about 2.1. At
+- **Accuracy:** $E_r$ falls 4.3× over one doubling of the mesh, an observed rate of about 2.1. At
   fixed $\xi$, refining shrinks $\varepsilon$ and the mesh together, so the filament is
   $2\times$ more $\varepsilon$-widths thick at $H=1/128$.
 - **Boundedness does not improve:** the worst violation at $\xi=1$ stays at
@@ -114,7 +122,8 @@ At $\xi=1.0$, $\gamma=1.0$, $N=5$:
 
 ### SVV on $\psi$
 
-Three single-variable pairs, the fixed diffusion and $H=1/64$ in all. The SVV-off $E_r$ are
+Three single-variable pairs, the fixed diffusion and $H=1/64$ in all, both columns on the build
+before the 2026-10-05 velocity fix (hence 0.0446, not 0.0452). The SVV-off $E_r$ are
 recomputed from `logs/lambda_fix_nosvv_2026-10-02/` with `norms.E_r`; SVV off is not a
 configuration of this method (`../../CLAUDE.md`):
 
@@ -140,11 +149,12 @@ matters, the normal.** The validated configuration stays redistancing off.
 
 The redistancing settings of Saini's own circVortex case (`nandu90/nekLS_Examples@jcp`) were
 run against transport alone. Both runs use $H=1/64$, $N=5$, $\xi=1$, $\gamma=1$ and `svv_psi`
-$c_0=0.1$, $N/2$, the fixed diffusion, and run to $t=8$.
+$c_0=0.1$, $N/2$, the fixed diffusion, and run to $t=8$. Both predate the velocity fix, so
+transport alone reads 0.0446 here.
 
 | run | configuration | $E_r(t{=}8)$ | outcome |
 |---|---|---|---|
-| `rk_Af` | transport only, exact $\psi_0$ (= `rider_kothe_xi10`, bit-identical) | 0.0446 | completes |
+| `rk_Af` | transport only, exact $\psi_0$ (= `rider_kothe_xi10` before the velocity fix, bit-identical) | 0.0446 | completes |
 | `rk_eLf` | his full configuration: built $\psi_0$; every 0.5 an Eq. (47) reseed and an Eq. (44) solve over $25H$ with $\Delta\tau=H/(N{+}1)$, sign-function $\varepsilon=0.25$, Eq. (31) SVV, BDF2/EXT2, dealiased $\mathbf C(\mathbf w)$, his sign guard | 0.0407 | completes, worst violation $8.9\times10^{-4}$, $\lVert dn\rVert$ 86–159 per event |
 
 `rk_eLf` ran on the scratch user file `logs/d5/rider_kothe_d5.f90` (gitignored, local).
@@ -191,8 +201,8 @@ His circVortex in his fork (`nandu90/Nek5000@nekLS` 5e9b0ae) reproduces his pape
 with our `norms.E_r` on his $t=8$ dumps, he gets **0.0258** ($H=1/128$, $N=3$) and **0.0410**
 ($H=1/64$, $N=5$).
 
-At $H=1/64$, $N=5$ we get 0.0446 by transport alone and 0.0407 with his events, so the methods
-are level.
+At $H=1/64$, $N=5$ we get 0.0446 by transport alone and 0.0407 with his events (both before the
+velocity fix; transport alone is now 0.0452), so the methods are level.
 - **Filament retention matches.** His CLS keeps 0.978 of its $\phi>0.5$ area at $t=4$, as ours
   now does. Its core follows the same equilibrium curve $1-e^{-d/2\varepsilon}$.
 - **His low $E_r$ comes from his phase-field re-sharpening.** Without it (`userParam02 = 0`), his
@@ -230,6 +240,12 @@ $\gamma u_{\max}(t)$, $u_{\max}(t)=|\cos(\pi t/T)|$:
 **Neko's solve reads `s_lambda_tot`**, which it copies from `s_lambda` only at initialisation
 unless a turbulence model is set, so `material_properties` fills both every step
 (`../../CDI_METHOD.md` §4.1d).
+
+**Time levels.** The scalar step applies the explicit terms (advection, compression) to $s^n$
+and extrapolates them to $t_{n+1}$, as in Saini's Eq. (34). So the `preprocess` hook prescribes
+$\mathbf u(t_n)$ and $u_{\max}(t_n)$ before each step, including $\mathbf u(0)$ before step 1,
+as his circVortex `userchk` does. The implicit diffusion reads $u_{\max}$ at $t_{n+1}$. Until
+2026-10-05 the velocity was set in `compute`, after the step, so step 1 ran with $u=0$.
 
 $\Delta t$ is set by the explicit compression term's guard,
 $\gamma u_{\max}\Delta t/h_{\text{GLL,min}} \le 0.05$ (`../../CDI_METHOD.md` §2).
