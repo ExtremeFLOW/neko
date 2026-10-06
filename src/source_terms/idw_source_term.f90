@@ -72,7 +72,8 @@ module idw_source_term
        device_idw_interp_partials
   use gather_scatter, only : gs_t, GS_OP_ADD
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_MIN, &
-       MPI_MAX, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION
+       MPI_MAX, MPI_INTEGER, MPI_SUM, MPI_DOUBLE_PRECISION, MPI_MINLOC, &
+       MPI_2DOUBLE_PRECISION, MPI_Bcast
   use logger, only : neko_log, LOG_SIZE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -198,6 +199,9 @@ module idw_source_term
      !> Floor of the one-sided weight sum below which the normalisation is
      !! clamped
      real(kind=rp) :: cmin = 0.25_rp
+     !> Write the marker csv and register the diagnostic fields
+     !! ib_response_plus/minus and ib_mask_plus for the field output
+     logical :: marker_output = .false.
      !> Gain factor on the lumped weights of the adjoint spread
      real(kind=rp) :: spread_gain = 1.0_rp
      !> Scaled marker values -D u_m / dt handed to the transpose
@@ -249,7 +253,6 @@ contains
     character(len=:), allocatable :: object_type
     integer :: n_regions, i, j, k, e, n_lags
     integer :: msk_zeros(2)
-    logical :: marker_output
     integer :: np_min, nm_min, np_sum, nm_sum, np_empty, nm_empty, n_lag_glb
     integer :: gid_offset
     integer, allocatable :: np_i(:), nm_i(:), cnt_shr(:,:)
@@ -278,22 +281,11 @@ contains
     ! gain of at most 20/21), so the scheme applies it as computed.
     this%extrapolate = .false.
 
-    call neko_log%section('Inverse distance weighting')
+    call neko_log%section('Direct forcing')
 
-    call json_get_or_default(json, "rmax", this%rmax, 1.0_rp)
-    write(log_buf, '(A,f5.2)') 'Rmax       : ', this%rmax
-    call neko_log%message(log_buf)
-
+    ! ---- Options: parse everything first, report what applies below ----
     call json_get_or_default(json, "padding", aabb_padding, 0.125_dp)
-    write(log_buf, '(A,f5.2)') 'Padding    : ', aabb_padding
-    call neko_log%message(log_buf)
-    
-    call json_get_or_default(json, "power_parameter", this%pwr_param, 0.5_rp)
-    write(log_buf, '(A,f5.2)') 'IDW Power  : ', this%pwr_param
-    call neko_log%message(log_buf)
     call json_get_or_default(json, "one_sided", this%one_sided, .true.)
-    write(log_buf, '(A,L1)') 'One sided  : ', this%one_sided
-    call neko_log%message(log_buf)
 
     call json_get_or_default(json, "interpolation", interp_scheme, &
          "spectral")
@@ -316,7 +308,6 @@ contains
        call neko_error('IDW source term unknown interpolation scheme: ' &
             // trim(interp_scheme))
     end select
-    call neko_log%message('Interp     : '// trim(interp_scheme))
 
     call json_get_or_default(json, "spread", spread_scheme, "idw")
     select case (trim(spread_scheme))
@@ -344,39 +335,64 @@ contains
        call neko_error('IDW source term unknown spread scheme: ' &
             // trim(spread_scheme))
     end select
-    call neko_log%message('Spread     : '// trim(spread_scheme))
-    if (this%adjoint_spread) then
-       call json_get_or_default(json, "spread_gain", this%spread_gain, 1.0_rp)
-       write(log_buf, '(A,f5.2)') 'Spread gain: ', this%spread_gain
-       call neko_log%message(log_buf)
-       call json_get_or_default(json, "one_sided_min_weight", this%cmin, &
-            0.25_rp)
-       write(log_buf, '(A,f5.2)') 'Min weight : ', this%cmin
-       call neko_log%message(log_buf)
-    end if
-    ! Nodes within mask_band grid spacings of the surface belong to both
-    ! sides. At an element face the Lagrange basis is supported on the
-    ! face alone, so a face-aligned wall seen one-sidedly has no footprint
-    ! on the fluid side; sharing the surface nodes restores it. Default on
-    ! for the adjoint spread only, the kernel spread keeps its masks.
-    if (this%adjoint_spread) then
-       call json_get_or_default(json, "mask_band", this%mask_band, 0.1_rp)
-    else
-       call json_get_or_default(json, "mask_band", this%mask_band, 0.0_rp)
-    end if
-    if (this%one_sided) then
-       write(log_buf, '(A,f5.2)') 'Mask band  : ', this%mask_band
-       call neko_log%message(log_buf)
-    end if
 
+    ! Kernel parameters: the kernel spread and the Shepard interpolations
+    call json_get_or_default(json, "rmax", this%rmax, 1.0_rp)
+    call json_get_or_default(json, "power_parameter", this%pwr_param, 0.5_rp)
     call json_get_or_default(json, "interpolation_rmax", this%interp_rmax, &
          2.0_rp)
     ! The adjoint pairing needs the stencil of the spread
     if (this%adjoint_interp) this%interp_rmax = this%rmax
+
+    ! Adjoint spread parameters. Nodes within mask_band grid spacings of
+    ! the surface belong to both sides: at an element face the Lagrange
+    ! basis is supported on the face alone, so a face-aligned wall seen
+    ! one-sidedly has no footprint on the fluid side; sharing the surface
+    ! nodes restores it. Default on for the adjoint spread only, the
+    ! kernel spread keeps its masks.
+    if (this%adjoint_spread) then
+       call json_get_or_default(json, "spread_gain", this%spread_gain, 1.0_rp)
+       call json_get_or_default(json, "one_sided_min_weight", this%cmin, &
+            0.25_rp)
+       call json_get_or_default(json, "mask_band", this%mask_band, 0.1_rp)
+    else
+       call json_get_or_default(json, "mask_band", this%mask_band, 0.0_rp)
+    end if
+    call json_get_or_default(json, 'marker_output', this%marker_output, &
+         .false.)
+
+    ! ---- Report: operators first, then only the parameters they use ----
+    call neko_log%message('Interp     : '// trim(interp_scheme))
     if (this%idw_interp) then
-       write(log_buf, '(A,f5.2)') 'Interp rmax: ', this%interp_rmax
+       write(log_buf, '(A,f5.2)') ' `-rmax    : ', this%interp_rmax
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,f5.2)') ' `-power   : ', this%pwr_param
        call neko_log%message(log_buf)
     end if
+    call neko_log%message('Spread     : '// trim(spread_scheme))
+    if (this%adjoint_spread) then
+       write(log_buf, '(A,f5.2)') ' `-gain    : ', this%spread_gain
+       call neko_log%message(log_buf)
+       if (this%one_sided) then
+          write(log_buf, '(A,f5.2)') ' `-min wgt : ', this%cmin
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,f5.2)') ' `-band    : ', this%mask_band
+          call neko_log%message(log_buf)
+       end if
+    else
+       write(log_buf, '(A,f5.2)') ' `-rmax    : ', this%rmax
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,f5.2)') ' `-power   : ', this%pwr_param
+       call neko_log%message(log_buf)
+       if (this%one_sided .and. this%mask_band .gt. 0.0_rp) then
+          write(log_buf, '(A,f5.2)') ' `-band    : ', this%mask_band
+          call neko_log%message(log_buf)
+       end if
+    end if
+    write(log_buf, '(A,L1)') 'One sided  : ', this%one_sided
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,f5.2)') 'Padding    : ', aabb_padding
+    call neko_log%message(log_buf)
 
     ! The mass inner product sums the local B over the copies of a dof;
     ! Binv inverts exactly that sum, so 1/Binv is the assembled mass on
@@ -396,6 +412,7 @@ contains
 
 
     call json_get_or_default(json, 'filter.type', filter_type, 'none')
+    call neko_log%message('Filter     : ' // trim(filter_type))
     select case (filter_type)
     case ('PDE')
        allocate(PDE_filter_t::this%fltr)       
@@ -657,6 +674,7 @@ contains
     if (.not. this%idw_interp) then
        call this%global_interp%init(coef%dof, NEKO_COMM)
        call this%global_interp%find_points_xyz(this%xyz, n_lags)
+       call idw_nudge_bad_markers(this, n_lags)
     else
        allocate(this%shared_slot(n_lags))
        this%shared_slot = 0
@@ -750,8 +768,7 @@ contains
     ! Optional dump of the markers this rank holds, for inspection next to
     ! the solution: position, normal and the lumped weights of the adjoint
     ! spread (zero for the kernel spread). One csv per rank.
-    call json_get_or_default(json, 'marker_output', marker_output, .false.)
-    if (marker_output) call idw_write_markers(this)
+    if (this%marker_output) call idw_write_markers(this)
 
     if (this%idw_interp) then
        ! Per-marker local stencil counts; the counts of markers held by
@@ -883,6 +900,92 @@ contains
     end if
 
   end subroutine idw_assemble
+
+  !> Markers the point search cannot place, or that sit exactly on an
+  !! element boundary (one of |r|, |s|, |t| within eps of one, where the
+  !! Lagrange basis degenerates to the boundary nodes and the owner is
+  !! ambiguous), are moved by a small step and searched again: first along
+  !! the surface tangent, which keeps them on the surface, then along the
+  !! inward normal with a growing step. The step is a tenth of the finest
+  !! grid spacing. The count and the bounding box of the affected markers
+  !! are logged, so a cluster at one spot is visible.
+  subroutine idw_nudge_bad_markers(this, n_lag)
+    class(idw_source_term_t), intent(inout) :: this
+    integer, intent(in) :: n_lag
+    real(kind=dp), parameter :: eps = 1.0e-6_dp
+    integer, parameter :: n_pass = 3
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=dp) :: delta, nrm(3), tng(3), ax(3), step(3), lo(3), hi(3), nn
+    integer :: i, pass, n_bad, kmin(1)
+    logical, allocatable :: bad(:)
+
+    delta = 0.1_dp * this%ds_min
+    allocate(bad(n_lag))
+
+    do pass = 1, n_pass + 1
+       n_bad = 0
+       lo = huge(0.0_dp)
+       hi = -huge(0.0_dp)
+       do i = 1, n_lag
+          bad(i) = this%global_interp%el_owner0(i) .lt. 0 .or. &
+               maxval(abs(this%global_interp%rst(:, i))) .gt. 1.0_rp - eps
+          if (bad(i)) then
+             n_bad = n_bad + 1
+             lo = min(lo, this%lag_pts(i)%x)
+             hi = max(hi, this%lag_pts(i)%x)
+          end if
+       end do
+       call MPI_Allreduce(MPI_IN_PLACE, n_bad, 1, MPI_INTEGER, MPI_SUM, &
+            NEKO_COMM)
+       call MPI_Allreduce(MPI_IN_PLACE, lo, 3, MPI_DOUBLE_PRECISION, &
+            MPI_MIN, NEKO_COMM)
+       call MPI_Allreduce(MPI_IN_PLACE, hi, 3, MPI_DOUBLE_PRECISION, &
+            MPI_MAX, NEKO_COMM)
+
+       if (pass .eq. 1) then
+          write(log_buf, '(A,I0)') 'Bad markers: ', n_bad
+       else
+          write(log_buf, '(A,I0,A,I0)') 'Bad markers: ', n_bad, &
+               ' after nudge pass ', pass - 1
+       end if
+       call neko_log%message(log_buf)
+       if (n_bad .gt. 0) then
+          write(log_buf, '(A,3ES11.3)') ' `-from    : ', lo
+          call neko_log%message(log_buf)
+          write(log_buf, '(A,3ES11.3)') ' `-to      : ', hi
+          call neko_log%message(log_buf)
+       end if
+       if (n_bad .eq. 0 .or. pass .gt. n_pass) exit
+
+       do i = 1, n_lag
+          if (.not. bad(i)) cycle
+          nrm = this%lag_nrm(i)%x
+          nn = norm2(nrm)
+          if (nn .le. tiny(nn)) cycle
+          nrm = nrm / nn
+          if (pass .eq. 1) then
+             ! Along the surface: a tangent built from the axis least
+             ! aligned with the normal
+             kmin = minloc(abs(nrm))
+             ax = 0.0_dp
+             ax(kmin(1)) = 1.0_dp
+             tng(1) = nrm(2) * ax(3) - nrm(3) * ax(2)
+             tng(2) = nrm(3) * ax(1) - nrm(1) * ax(3)
+             tng(3) = nrm(1) * ax(2) - nrm(2) * ax(1)
+             step = delta * tng / norm2(tng)
+          else
+             ! Into the body, a little further each pass
+             step = -delta * real(pass - 1, dp) * nrm
+          end if
+          this%lag_pts(i)%x = this%lag_pts(i)%x + step
+          this%xyz(:, i) = real(this%lag_pts(i)%x, rp)
+       end do
+       call this%global_interp%find_points_xyz(this%xyz, n_lag)
+    end do
+
+    deallocate(bad)
+
+  end subroutine idw_nudge_bad_markers
 
   !> Write the markers held by this rank to `idw_markers_<rank>.csv`:
   !! x, y, z, nx, ny, nz, d_plus, d_minus, gain_plus, gain_minus (the
@@ -1063,12 +1166,12 @@ contains
     this%tmp%x = this%swp%x
     call this%global_interp%evaluate(this%cp_mark, this%tmp%x, .true.)
     call idw_adjoint_normalisation(this%cp_mark, this%sp_mark, this%cmin, &
-         'Adj. spread + side')
+         this%lag_pts, 'Adj. spread + side')
     if (this%one_sided) then
        this%tmp%x = this%swm%x
        call this%global_interp%evaluate(this%cm_mark, this%tmp%x, .true.)
        call idw_adjoint_normalisation(this%cm_mark, this%sm_mark, &
-            this%cmin, 'Adj. spread - side')
+            this%cmin, this%lag_pts, 'Adj. spread - side')
     end if
 
     if (this%one_sided) then
@@ -1138,8 +1241,13 @@ contains
     type(field_t), intent(in), optional :: msk
     real(kind=rp), allocatable :: vals(:), du_host(:,:,:,:)
     character(len=LOG_SIZE) :: log_buf
+    character(len=6) :: suffix
+    type(field_t), pointer :: fld
     real(kind=rp) :: m(3)
     integer :: n_lag, n, nv
+
+    suffix = '_plus'
+    if (index(label, '- side') .gt. 0) suffix = '_minus'
 
     n_lag = size(d)
     nv = max(n_lag, 1)
@@ -1162,6 +1270,28 @@ contains
     m(1) = maxval(abs(this%ib_fx%x))
     m(2) = m(1)
     m(3) = 0.0_rp
+
+    ! Keep the response as a registry field for the field output: a wall
+    ! node on this side should show a value near one, a hole shows zero
+    if (this%marker_output) then
+       call neko_registry%add_field(this%coef%dof, 'ib_response' // suffix, &
+            ignore_existing = .true.)
+       fld => neko_registry%get_field('ib_response' // suffix)
+       fld%x = this%ib_fx%x
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_memcpy(fld%x, fld%x_d, n, HOST_TO_DEVICE, sync = .true.)
+       end if
+       if (present(msk)) then
+          call neko_registry%add_field(this%coef%dof, 'ib_mask' // suffix, &
+               ignore_existing = .true.)
+          fld => neko_registry%get_field('ib_mask' // suffix)
+          fld%x = msk%x
+          if (NEKO_BCKND_DEVICE .eq. 1) then
+             call device_memcpy(fld%x, fld%x_d, n, HOST_TO_DEVICE, &
+                  sync = .true.)
+          end if
+       end if
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        du_host = this%ib_fx%x
@@ -1209,31 +1339,56 @@ contains
 
   !> Normalisation of the one-sided interpolation from its weight sums.
   !! Logs how many markers are clamped and how many switched off.
-  subroutine idw_adjoint_normalisation(c, sc, cmin, label)
+  subroutine idw_adjoint_normalisation(c, sc, cmin, lag_pts, label)
     real(kind=rp), intent(in) :: c(:)
     real(kind=rp), intent(inout) :: sc(:)
     real(kind=rp), intent(in) :: cmin
+    type(point_t), intent(in) :: lag_pts(:)
     character(len=*), intent(in) :: label
     character(len=LOG_SIZE) :: log_buf
-    integer :: i, cnt(2)
+    real(kind=dp) :: lo(3, 2), hi(3, 2)
+    integer :: i, k, cnt(2)
 
     cnt = 0
+    lo = huge(0.0_dp)
+    hi = -huge(0.0_dp)
     sc = 0.0_rp
     do i = 1, size(c)
        if (c(i) .ge. cmin) then
           sc(i) = 1.0_rp / c(i)
+          cycle
        else if (c(i) .gt. 0.0_rp) then
           sc(i) = 1.0_rp / cmin
-          cnt(1) = cnt(1) + 1
+          k = 1
        else
           sc(i) = 0.0_rp
-          cnt(2) = cnt(2) + 1
+          k = 2
        end if
+       cnt(k) = cnt(k) + 1
+       lo(:, k) = min(lo(:, k), lag_pts(i)%x)
+       hi(:, k) = max(hi(:, k), lag_pts(i)%x)
     end do
     call MPI_Allreduce(MPI_IN_PLACE, cnt, 2, MPI_INTEGER, MPI_SUM, NEKO_COMM)
+    call MPI_Allreduce(MPI_IN_PLACE, lo, 6, MPI_DOUBLE_PRECISION, MPI_MIN, &
+         NEKO_COMM)
+    call MPI_Allreduce(MPI_IN_PLACE, hi, 6, MPI_DOUBLE_PRECISION, MPI_MAX, &
+         NEKO_COMM)
     write(log_buf, '(A,A,I0,A,I0)') trim(label), &
          ': weight sum clamped ', cnt(1), ', switched off ', cnt(2)
     call neko_log%message(log_buf)
+    ! Where the degenerate markers are, as bounding boxes
+    if (cnt(1) .gt. 0) then
+       write(log_buf, '(A,3ES11.3)') '   clamped from ', lo(:, 1)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,3ES11.3)') '   clamped to   ', hi(:, 1)
+       call neko_log%message(log_buf)
+    end if
+    if (cnt(2) .gt. 0) then
+       write(log_buf, '(A,3ES11.3)') '   off     from ', lo(:, 2)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,3ES11.3)') '   off     to   ', hi(:, 2)
+       call neko_log%message(log_buf)
+    end if
 
   end subroutine idw_adjoint_normalisation
 
@@ -1254,7 +1409,8 @@ contains
     real(kind=rp), allocatable :: v(:), gv(:)
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: rmax, gmin, gsum, nrm(2), lam
-    integer :: i, n_lag, n_zero, n_glb, it
+    real(kind=dp) :: pair(2), xmin(3)
+    integer :: i, n_lag, n_zero, n_glb, it, imin
     integer, parameter :: n_power = 20
 
     n_lag = size(d)
@@ -1290,16 +1446,29 @@ contains
     n_zero = 0
     gmin = huge(0.0_rp)
     gsum = 0.0_rp
+    imin = 0
     do i = 1, n_lag
        if (rowabs(i) .gt. 1.0e-6_rp * rmax) then
           d(i) = this%spread_gain / rowabs(i)
-          gmin = min(gmin, rowsum(i) * d(i))
+          if (rowsum(i) * d(i) .lt. gmin) then
+             gmin = rowsum(i) * d(i)
+             imin = i
+          end if
           gsum = gsum + rowsum(i) * d(i)
        else
           d(i) = 0.0_rp
           n_zero = n_zero + 1
        end if
     end do
+    ! Position of the marker with the smallest constant gain, from the
+    ! rank that holds it
+    pair(1) = real(gmin, dp)
+    pair(2) = real(pe_rank, dp)
+    call MPI_Allreduce(MPI_IN_PLACE, pair, 1, MPI_2DOUBLE_PRECISION, &
+         MPI_MINLOC, NEKO_COMM)
+    xmin = 0.0_dp
+    if (int(pair(2)) .eq. pe_rank .and. imin .gt. 0) xmin = this%lag_pts(imin)%x
+    call MPI_Bcast(xmin, 3, MPI_DOUBLE_PRECISION, int(pair(2)), NEKO_COMM)
     n_glb = n_lag - n_zero
     call MPI_Allreduce(MPI_IN_PLACE, n_zero, 1, MPI_INTEGER, MPI_SUM, &
          NEKO_COMM)
@@ -1312,6 +1481,8 @@ contains
 
     write(log_buf, '(A,A,F6.3,A,F6.3)') trim(label), &
          ': const. gain min ', gmin, ', mean ', gsum / max(n_glb, 1)
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,3ES11.3)') '   min gain at ', xmin
     call neko_log%message(log_buf)
     write(log_buf, '(A,A,I6)') trim(label), ': zero-weight markers ', n_zero
     call neko_log%message(log_buf)
