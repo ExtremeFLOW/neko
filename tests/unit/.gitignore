@@ -27,6 +27,7 @@ test-suite.log
 !vtkhdf/vtkhdf_test
 !restart_consistency/restart_consistency_test
 !restart_consistency_hdf5/restart_consistency_hdf5_test
+!geo_compression/geo_compression_test
 
 # Processed files
 **.inc
@@ -93,3 +94,4 @@ bc_projector/bc_projector_suite
 boundary_operation/boundary_operation_suite
 checkpoint_payload/checkpoint_payload_test
 wall_sampling/wall_sampling_suite
+geo_compression/geo_compression_suite

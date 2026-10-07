@@ -426,7 +426,11 @@ contains
     end if
 
     ! Setup Ax for the pressure
-    call ax_helm_allocator(this%Ax_prs, type_name = "standard")
+    if (this%c_Xh%geo_compression) then
+       call ax_helm_allocator(this%Ax_prs, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%Ax_prs, type_name = "standard")
+    end if
 
 
     ! Setup backend dependent summation of AB/BDF
@@ -580,6 +584,9 @@ contains
           class is (ax_helm_svv_t)
              operator%svv => this%svv
           end select
+       else if (this%c_Xh%geo_compression) then
+          call ax_helm_allocator(this%Ax_vel, &
+               type_name = "standard_compr")
        else
           call ax_helm_allocator(this%Ax_vel, type_name = "standard")
        end if

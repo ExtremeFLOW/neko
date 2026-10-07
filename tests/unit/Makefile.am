@@ -49,6 +49,7 @@ SUBDIRS = tuple\
 	  boundary_operation\
 	  checkpoint_payload\
 	  wall_sampling\
+	  geo_compression\
 	  restart_consistency\
 	  templates/serial
 
@@ -103,6 +104,7 @@ TESTS = device/device_test\
 	boundary_operation/boundary_operation_test\
 	checkpoint_payload/checkpoint_payload_test\
 	wall_sampling/wall_sampling_test\
+	geo_compression/geo_compression_test\
 	restart_consistency/restart_consistency_test\
 	templates/serial/serial_test
 
@@ -202,6 +204,8 @@ EXTRA_DIST = \
 	wall_sampling/test_gll.pf\
 	wall_sampling/test_distance.pf\
 	wall_sampling/wall_sampling_test\
+	geo_compression/test_geo_compression_parallel.pf\
+	geo_compression/geo_compression_test\
 	restart_consistency/test_restart_consistency.pf\
 	restart_consistency/restart_consistency_test\
 	templates/parallel/test_parallel.pf\

@@ -252,6 +252,8 @@ contains
        class is (ax_helm_svv_t)
           operator%svv => this%svv
        end select
+    else if (this%c_Xh%geo_compression) then
+       call ax_helm_allocator(this%ax, type_name = "standard_compr")
     else
        call ax_helm_allocator(this%ax, type_name = "standard")
     end if

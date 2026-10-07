@@ -351,6 +351,8 @@ Used to define the properties of the numerical discretization.
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                           | Integer                    | `3/2(polynomial_order + 1) - 1` |
 | `oifs`                       | Whether to apply the Operator-Integration-Factor-Splitting (OIFS).                                              | `true` or `false`          | `false`                         |
 | `oifs_target_cfl`            | The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.                      | Positive real              | `1.9`                           |
+| `compress_geometric_factors` | Whether the standard Helmholtz operators of the fluid, the scalars and the multigrid levels read the geometric factors from one copy per distinct element shape, which cuts their memory traffic on meshes of repeated shapes. The copies are held on top of the full factors. CPU, SX and device backends, not XSMM. | `true` or `false` | `false` |
+| `compress_geometric_factors_tolerance` | Tolerance on the absolute difference of the geometric factors, summed over the quadrature points of an element with the off-diagonal factors counted twice, under which two elements share them. As it is absolute, it depends on the size of the elements. | Non-negative real | `1e-7` |
 
 ## Fluid {#case-file_fluid}
 
