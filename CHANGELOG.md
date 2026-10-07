@@ -2,6 +2,8 @@
 
 ## Develop
 
+
+- Fixed several OpenMP races in the scratch registry.
 - Added `source_term_t%extrapolate` and the `extrapolate` and optional
   `scale` arguments to `source_term_handler_t%compute`, letting a source term
   be added after the EXT extrapolation of the Pn-Pn fluid and scalar schemes
