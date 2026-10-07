@@ -315,6 +315,13 @@ so no case in this repo needs redistancing after the build. What is not known:
   - The committed events path on Rider–Kothe (2026-10-06) converges $\psi$ onto $\phi$'s
     contour, which fragments from $t\approx2$: $E_r(8)$ 0.835 against transport's 0.0452
     (`CDI_METHOD.md` §4.1d).
+  - The event-made $\psi$ fragments are made by `svv_step_imp`'s $|\mathbf c|=1$ step (§9.5). With the printed
+    Eq. (31) form, BDF2/EXT2, and Saini's width 0.25 with $25H$, the reseed beats transport on
+    $\phi$'s shape at $H=1/64$ and $1/128$ ($E_r(8)$ 0.0342 and 0.0085 against 0.0452 and 0.0104).
+    Its $\psi$ is then not a distance in the band, and from $t\approx2$ its normal is further from
+    the exact interface than transport's; $\phi$'s own normal is off by about as much, so the
+    reseed imports $\phi$'s error. All on a
+    scratch user file (`CDI_METHOD.md` §4.1d item 5).
 - **Whether a monotone conditioning transform would serve better.** The normal is
   invariant under any monotone rescaling (§1), so
   $\psi \leftarrow L\tanh(\psi/L)$ flattens the far-field kinks without a pseudo-time

@@ -16,7 +16,7 @@ it here. Read `README.md` and `CDI_METHOD.md` before touching a case's `.f90`.
 | `examples/redistance_circles/archive/README_process_2026-09.md` | the archived process record: the audit, the ε = H/N work (drift, capture, apex, N/4 arms), eliminated hypotheses, the study of the authors' code, dated history | when a question is about how or why, or needs an old number |
 | `CDI_METHOD.md` | the method: equations, naming, every design decision. §1 $\xi$ and the notation clash with Saini, §4 redistancing, §4.4 the method lessons of the circles case, §5 SVV, §7 what is actually validated | before touching any `.f90` or making a method claim |
 | `REDISTANCING.md` | when to redistance, and **§9: what the Fortran computes for Eq. (44), routine by routine** | before touching `rd_*`, `unit_normal`, the SVV steps |
-| `NEXT_SESSION.md` | the Rider–Kothe redistancing plan (velocity lag, the events path, D5/D2, the thin tail), Saini §4.5's reference values, and the parked items for the other cases | working on the coupled cases |
+| `NEXT_SESSION.md` | the Rider–Kothe redistancing plan (which events path to carry, why the rebuilt normal is worse than transport's, the thin tail), Saini §4.5's reference values beside his code's, and the parked items for the other cases | working on the coupled cases |
 | `examples/<case>/README.md` | exact parameters and results of that case | before quoting any number |
 | `references/` | the JCP PDF (gitignored) and a frozen snapshot of the test-case notes | see "Writing docs" |
 | `../neko-multiphase/references/` | the older ANL report (PDF) and its reading notes, the source of truth for the notes | only for implementation detail |
@@ -60,8 +60,9 @@ than letting the plan grow.
   - `redistance_circles` uses the printed form and nothing else, in its own
     `svv_step_eq31`, built on the 17 shared routines without editing them. It is
     how that equation is solved, not a `.case` option; don't reintroduce a
-    toggle for the old $|\mathbf c|=1$ form. Moving the coupled cases to it is a
-    separate decision (`NEXT_SESSION.md`, D2).
+    toggle for the old $|\mathbf c|=1$ form. On Rider–Kothe the $|\mathbf c|=1$ form is what
+    makes the coupled events' spurious zero sets (D5, `CDI_METHOD.md` §4.1d item 5); moving the
+    coupled files to the printed form is the user's decision (`NEXT_SESSION.md`).
   - The sign convention of an IC (negative vs positive inside) cannot matter to
     Eq. (44): the equation and the scheme are exactly odd in $\psi$, checked bit
     for bit.
@@ -78,7 +79,7 @@ than letting the plan grow.
     together with his sign guard: a node whose $\psi^n$ disagrees in sign with $\psi_0$ keeps
     $\psi^n$. Dealiasing moves zero-set nodes and breaks a flat interface's exact steady state.
     The coupled cases keep the non-dealiased GLL form (`conv1`, then B, gather-scatter, Binv,
-    equal to $\operatorname{sgn}(\psi)|\nabla\psi|$ to 1e-14) until D5 decides.
+    equal to $\operatorname{sgn}(\psi)|\nabla\psi|$ to 1e-14); every D5 run kept it too.
   - `redistance_circles` integrates it with Saini's own BDF2/EXT2 (Eqs. 34–35), its
     only scheme since 2026-09-26. At $\varepsilon=H/N$ (2026-09-26) BDF2 and BDF3 agree with RK3
     within 1.9% in the Table 2 cells to $\tau=24$
@@ -86,7 +87,8 @@ than letting the plan grow.
     2.2% over the whole Fig. 12 grid (§7.2). So the
     integrator is not a suspect. The exception is the weaker
     $N_{svv}=N/4$ at $H{=}1/5$, $N{=}7$: only RK3's Lie-split damping held the apex
-    there (§7.5). The coupled cases still use SSP-RK3 with `svv_step_imp`.
+    there (§7.5). The coupled cases still use SSP-RK3 with `svv_step_imp`; on Rider–Kothe one
+    event with BDF2 and the printed SVV matches RK3 with it within 1% in the band means (D5).
 - **Never seed `psi` from an analytic distance in any run that redistances.**
   `case.cdi.psi_init` has two values: `"exact"` (the analytic periodic distance,
   the default, and what the validated no-redistancing results use) and
@@ -180,8 +182,13 @@ than letting the plan grow.
   2026-10-02 had the frozen diffusion, so don't quote one. With the diffusion and history fixes,
   Saini's full periodic-reseed configuration (scratch user file) completes ($E_r$ 0.0407 vs
   0.0446 transport only, both before the velocity fix).
-  But its $\psi$ normal is 4–8° off where transport's is 0.6–0.8°. So it is not a
-  validated alternative; say so plainly.
+  But its $\psi$ normal is 4–8° off where transport's is 0.6–0.8°. D5 (scratch user file
+  `logs/d5_2026-10-06/rider_kothe_0c.f90`, 2026-10-06/07): with BDF2, the printed Eq. (31) SVV and
+  Saini's width 0.25 with $25H$, the reseed beats transport on $\phi$'s shape ($E_r(8)$ 0.0342 vs
+  0.0452; 0.0085 vs 0.0104 at $H=1/128$). Its $\psi$ is not a distance in the band, though, and its
+  normal is further from the exact interface than transport's from $t\approx2$ on, as its $\phi$'s
+  own normal is. None of the reseed configurations
+  is a validated alternative yet, and none is in `rider_kothe.f90`; say so plainly.
 - **Saini's Rider–Kothe $E_r$ is not on our scale:** his code divides by the area
   *outside* the disk (his CLS is 1 outside), ~13× ours. Recompute on his dumps with
   `norms.E_r` before comparing (`examples/rider_kothe/README.md`).

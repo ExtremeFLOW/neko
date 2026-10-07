@@ -10,6 +10,8 @@ the flow reverses and it unwinds back to a disk at $t=8$.
   `rider_kothe.f90` got that fix on 2026-10-02.
 - **The measurements of the reseeded $\psi$** are from 2026-10-05.
 - **The committed events path** ran on 2026-10-05/06, on the velocity-fix build.
+- **What breaks it, and the configurations after it** (D5) ran on 2026-10-06/07, on the
+  scratch user file `logs/d5_2026-10-06/rider_kothe_0c.f90`.
 
 It is the only case with genuine strain, which makes it the only one that can
 settle whether redistancing is needed and what $(\xi, \gamma)$ to use.
@@ -60,8 +62,11 @@ measured ($t=1$–8), $\psi$'s normal is within 0.6–1.3° of the exact interfa
 (`logs/vel_fix_2026-10-05/rdq_output_v2.txt`, this run). That includes the
 5–6% of the filament that is thinner than $2\varepsilon$ at $t=4$.
 
-**Redistancing does worse here** (next-but-one section): its rebuilt $\psi$ points 4–8° off the
-exact interface, and is wrong across that thin tail. See
+**Redistancing gives a worse normal here from $t\approx2$ on, in every configuration tried**
+(next-but-one section). The best of them, Saini's sign width and extent with the printed Eq. (31)
+SVV, does give a better $\phi$ shape than transport at $H=1/64$ and $1/128$. But its $\psi$ is not a
+distance, and its normal is 0.9–2.1° off at maximum stretch ($t=4$) where transport's is
+0.3–0.8°. See
 [`../../REDISTANCING.md`](../../REDISTANCING.md).
 
 ## Results
@@ -196,8 +201,111 @@ Transport's normal is 0.6–1.3° off at the same times, with 1–2 contour piec
 - **Saini's configuration completes on the same problem** (`rk_eLf` above, 0.0407). Its solve
   barely moves $\psi$ from the seed in the band. It differs from the committed path in seven
   settings: sign-function width, extent $25H$, $\Delta\tau=H/(N{+}1)$, Eq. (31) SVV, BDF2/EXT2,
-  dealiasing and the sign guard. Which of them matters is not measured (`../../NEXT_SESSION.md`).
+  dealiasing and the sign guard. The next section measures what they do: one key at a time for single events, two at a
+  time for the full runs.
 - The 16th event fires on the extra step at $t=8.00008$, so the $E_r$ frame is post-reseed.
+
+### What breaks it, and what changes it (D5)
+
+All on the scratch user file `logs/d5_2026-10-06/rider_kothe_0c.f90` (2026-10-06/07), which is
+`rider_kothe.f90` plus three keys:
+- `redistance.sgn_eps`: Eq. (46)'s width, default $\varepsilon$;
+- `redistance.svv_form`: `"imp"` (`svv_step_imp`, $|\mathbf c|=1$ inside the bilinear form) or
+  `"eq31"` (Eq. (31) as printed, $\mathbf D_\mu=|\operatorname{sgn}\psi^n|$ left of the
+  assembled operator, `svv_step_eq31` ported from `redistance_circles`);
+- `redistance.scheme`: `"rk3"`, or `"bdf2"`, Saini's BDF2/EXT2 with the SVV unsplit in the
+  implicit solve. No dealiasing and no sign guard in either.
+
+With all three at their defaults it reproduces the committed run byte for byte (every frame to
+$t=0.56$, build and first event included). Predictions and verdicts are in
+`logs/d5/PREREGISTERED.txt`, tables in `logs/d5_2026-10-06/tables/`.
+
+**$\psi$ breaks first, and the SVV does it.**
+- **In the committed run the first extra pieces are $\psi$'s.** They appear right after event 2
+  ($t=1.04$: two extra loops of $\psi=0$ in the thin tail, three pieces in all, $\phi$ still one). $\phi$'s first extra
+  piece ($t=1.12$) forms on one of them. Zalesak arm C does the same (`../../CDI_METHOD.md`
+  §4.1c).
+- **Within an event only the SVV can make a zero crossing.** An SSP-RK3 stage of Eq. (44) cannot
+  change a node's sign unless $|\nabla\psi|>1+2\varepsilon/\Delta\tau\approx35$ (the log's maximum
+  is 10.8), and the reseed's zero set is $\phi$'s contour.
+- **One event, measured one step after it** (event 2):
+
+  | | `svv_step_imp` (committed) | Eq. (31) as printed |
+  |---|---|---|
+  | $\psi$ pieces ($\phi$: 1) | 3 | 1 |
+  | nodes with $\operatorname{sgn}\psi\ne\operatorname{sgn}(\phi-\tfrac12)$, before → after | 78 → 228 | 67 → 8 |
+  | largest distance of $\psi=0$ from $\phi=0.5$ | $3.2\varepsilon$ | $0.41\varepsilon$ |
+  | $\psi$ normal vs exact | 6.3° | 4.3° |
+
+  In the band $|\nabla\psi|$ is the same (1.107 against 1.109) and $|\psi-d_\phi|$ is 21% smaller
+  ($1.26$ against $1.60\times10^{-3}$). BDF2 gives the same event as RK3 within 1% in these band
+  means (7 nodes flipped against 8).
+- **The sign width 0.25 alone** (still $2.5H$) also keeps the zero set, but $\psi$ then stays
+  the seed. Its normal is 37° off by $t=0.5$, and $\phi$'s interface is 57% thicker before the
+  first event. It was not run further.
+
+**Full runs**, to $t=8.00008$ (16 events). The angle is $\psi$'s normal against the exact
+interface right after the events at $t=2$–5, and at $t=8$.
+
+| run | $E_r(8)$ | $E_s(8)$ | worst violation | $\phi$ pieces, $t=3$–6 | angle, $t=2$–5 | at $t=8$ |
+|---|---|---|---|---|---|---|
+| transport only (`rider_kothe_xi10`) | 0.0452 | 0.0237 | $2.6\times10^{-3}$ | 1–2 | 0.6–0.8° | 1.3° |
+| committed events path | 0.835 | 0.340 | 0.41 | 9–60 | 12–47° | 86° |
+| BDF2 + Eq. (31) | 0.0960 | 0.0367 | $6.4\times10^{-3}$ | 2–7 | 5.7–12° | 54° |
+| BDF2 + Eq. (31) + width 0.25 + $25H$ | **0.0342** | **0.0147** | $6.2\times10^{-4}$ | 2–3 | 1.0–2.6° | 29° |
+| `rk_eLf` (Saini's settings, old build) | 0.0407 | 0.0179 | $8.9\times10^{-4}$ | 3 | 4.3–8.2° | 29° |
+| $H=1/128$, transport only (`rider_h128`) | 0.0104 | 0.0053 | $2.4\times10^{-3}$ | 1 | 0.3° | 0.3° |
+| $H=1/128$, BDF2 + Eq. (31) + 0.25 + $25H$ | **0.0085** | **0.0045** | $1.3\times10^{-3}$ | 1 | 0.5–1.1° | 7.3° |
+
+- **The printed SVV removes the event-made zero sets.** With it alone, $\psi$ converges onto
+  $\phi$'s contour (within $0.2\varepsilon$ to $t\approx5$). From $t\approx2.5$ $\phi$'s thin tail
+  breaks first, and every later reseed copies the breaks.
+- **Adding the width 0.25 with $25H$, as Saini's code pairs them, gives the best $\phi$ of our
+  configurations, and the only one below transport.** $E_r$, $E_s$ and the violation are below
+  transport's at both resolutions; the $h$-rate is 2.0 against transport's 2.1. $|E_v|$ is not
+  ($3.4\times10^{-6}$ against $1.0\times10^{-8}$ at $H=1/64$). It ran with BDF2/EXT2; RK3 with 0.25
+  and $25H$ was not run.
+- **But that $\psi$ is not a distance.** Its band $|\nabla\psi|$ is 1.66 (2.7 at $H=1/128$), the
+  logistic relaxation of the seed (`../redistance_circles/eps_1d/README.md` §4). It sits
+  $2.6\varepsilon$ ($7$–$9\varepsilon$) from the distance to $\phi$'s contour. It is a smoothed copy
+  of $\phi$'s interface, refreshed every 0.5.
+- **Saini's own code does the same.** Right after its $t=0$ build his TLS has band $|\nabla\psi|$
+  1.64 at $H=1/64$, $N=5$ (`logs/d5/saini/cv64n5`; ours 1.66) and 2.32 at $H=1/128$, $N=3$
+  (`cv128`). His $\psi$ normal is 5–6° off the exact interface at $t=4$–7, against this run's
+  2.1–5.2°, and 16.9° at $t=8$, against 28.6° (`logs/d5/saini/cv64n5_normals.txt`). His later
+  dumps appear to fall just before his events (band $|\nabla\psi|$ 5th percentile $\sim10^{-3}$),
+  so they compare a transported field with our post-event frames.
+- **From $t\approx2$ its normal is worse than transport's against the exact interface, not
+  against its own target.** Against $\phi$'s 0.5 contour it is 0.9–1.5° off at $t=2$–5 (0.5–0.6°
+  at $H=1/128$), closer than transport's $\psi$ (1.2–2.7°; 0.5–1.1°). Before $t\approx2$ it is as
+  good as transport's or better (0.45° against 1.07° at $t=0.56$).
+- **The gap is $\phi$'s.** $\phi$'s own normal (from $\phi-\tfrac12$) is off the exact interface by
+  about as much: 0.5–3.1° at $t=2$–6 and 27° at $t=8$, against 0.7–1.0° and 2.0° for transport-only
+  $\phi$ (at $H=1/128$: 0.3–1.5° and 8.1°, against 0.3–0.5° and 0.6°;
+  `logs/d5_2026-10-06/tables/phin_*.txt`). So the reseed carries $\phi$'s interface into $\psi$
+  faithfully. Once $\psi$ follows $\phi$, nothing pulls $\phi$ back to the exact interface;
+  transport's $\psi$, independent of $\phi$, keeps correcting it. The rise at the end is shared by
+  `rk_eLf` and Saini's code. **Not understood:** his Fig. 16b ($H=1/128$, right after a
+  re-distancing, by its 0.074 plateau) shows an interface slope near 1, where his own code gives
+  2.3 here. Open (`../../NEXT_SESSION.md`).
+- **Against `rk_eLf`** it still differs in $\Delta\tau$, dealiasing, the guard and the build. The
+  two agree at $t=0.56$ (band $|\nabla\psi|$ 1.800 both, normal 0.45° against 0.49°) and part by $t=2$ (1.0° against 4.3°); which difference
+  does it is not measured.
+- **None of this is in `rider_kothe.f90` yet.** Which events path the coupled cases should carry
+  is open (`../../NEXT_SESSION.md`).
+
+How the committed path differs from Saini's code, by the paper and his `circVortex`
+(`nandu90/Nek5000@nekLS`, gitignored copy in `logs/d5/saini/`):
+- his re-distancing uses $\Delta\tau=H/(N{+}1)$, 150 steps, so $25H$ of pseudo-time; the paper
+  prints $2.5H$ (15 steps); ours is $\Delta\tau=0.1\,h_{\text{GLL,min}}$, 213 steps over $2.5H$;
+- the $|\mathbf c|$ of his Eq. (44) SVV is $|\operatorname{sgn}\psi|$ at each node, at most 0.21
+  with width 0.25; ours is 1 everywhere, so our viscosity is at least $4.7\times$ his and nonzero on
+  the zero set;
+- his phase field is re-sharpened by Eq. (39) every 0.05 (12 pseudo-steps, $\varepsilon$ of
+  pseudo-time, normal from his TLS); ours has no such step: the CDI compression acts every step
+  at $\gamma u_{\max}(t)$;
+- his transport SVV uses the local $|\mathbf u(\mathbf x,t)|$; our `svv_psi` takes $u_{\max}$ once,
+  at the first step, so here it never follows $|\cos(\pi t/8)|$.
 
 **How good is the reseeded $\psi$?** All of the following was measured on frames written right
 after an event (`logs/d5/rd_quality.py`, `logs/d5/filament_core.py`; tables in `logs/d5/ev/`; gitignored, local):
@@ -290,9 +398,16 @@ $\gamma=2.0$; `rider_h128` is the $H=1/128$ refinement.
 
 ## Evidence
 
-**All files in `evidence/` predate the 2026-10-02 fixes.** They were made on 2026-09-10 with the
-frozen diffusion, and show the dissolving filament it produced. They are to be regenerated from
-`visualize.ipynb`, in the kthviz style (`../../NEXT_SESSION.md`).
+**`rider_redistancing_events.mp4`** (and `.gif`) is the D5 comparison at $H=1/64$: transport
+only, the committed events path, BDF2 + Eq. (31), and that with width 0.25 and $25H$. The top row
+is $\phi$, the bottom row $\psi$ with its zero contour solid; the exact interface is dashed. Made
+2026-10-07 by `logs/anim/anim_rk.py` (gitignored, local) from the runs of "What breaks it, and what
+changes it". At the tail tip the rebuilt $\psi$'s zero contour stops where $\phi$'s does, while
+transport's follows the exact interface.
+
+**Every other file in `evidence/` predates the 2026-10-02 fixes.** They were made on 2026-09-10
+with the frozen diffusion, and show the dissolving filament it produced. They are to be
+regenerated from `visualize.ipynb`, in the kthviz style (`../../NEXT_SESSION.md`).
 - Without SVV: `rider_kothe_methods.mp4`, `rider_grad_psi.png`, `rider_xi_and_h.png`.
 - With SVV on $\psi$ ($H=1/128$, $N=6$): `rider_svv_snapshots.png`, `rider_svv_methods.mp4`,
   `rider_svv_c01_filmstrip.png`.
