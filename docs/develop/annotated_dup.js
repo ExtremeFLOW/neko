@@ -705,7 +705,12 @@ var annotated_dup =
       [ "fluid_plan1_t", "dc/d90/structfluid__plan1_1_1fluid__plan1__t.html", "dc/d90/structfluid__plan1_1_1fluid__plan1__t" ]
     ] ],
     [ "fluid_pnpn", "dc/da3/namespacefluid__pnpn.html", [
+      [ "fluid_pnpn_bc_allocate", "df/d5d/interfacefluid__pnpn_1_1fluid__pnpn__bc__allocate.html", "df/d5d/interfacefluid__pnpn_1_1fluid__pnpn__bc__allocate" ],
+      [ "fluid_pnpn_bc_allocator_entry", "d0/d45/structfluid__pnpn_1_1fluid__pnpn__bc__allocator__entry.html", "d0/d45/structfluid__pnpn_1_1fluid__pnpn__bc__allocator__entry" ],
       [ "fluid_pnpn_t", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t" ]
+    ] ],
+    [ "fluid_pnpn_bc_template", "df/d44/namespacefluid__pnpn__bc__template.html", [
+      [ "fluid_pnpn_bc_template_t", "df/df3/structfluid__pnpn__bc__template_1_1fluid__pnpn__bc__template__t.html", "df/df3/structfluid__pnpn__bc__template_1_1fluid__pnpn__bc__template__t" ]
     ] ],
     [ "fluid_scheme_base", "df/d6a/namespacefluid__scheme__base.html", [
       [ "fluid_base_free_intrf", "d9/dda/interfacefluid__scheme__base_1_1fluid__base__free__intrf.html", "d9/dda/interfacefluid__scheme__base_1_1fluid__base__free__intrf" ],

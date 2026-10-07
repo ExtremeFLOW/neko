@@ -330,6 +330,7 @@ var namespaces_dup =
     [ "fluid_output", "d6/d60/namespacefluid__output.html", "d6/d60/namespacefluid__output" ],
     [ "fluid_plan1", "d6/d78/namespacefluid__plan1.html", "d6/d78/namespacefluid__plan1" ],
     [ "fluid_pnpn", "dc/da3/namespacefluid__pnpn.html", "dc/da3/namespacefluid__pnpn" ],
+    [ "fluid_pnpn_bc_template", "df/d44/namespacefluid__pnpn__bc__template.html", "df/d44/namespacefluid__pnpn__bc__template" ],
     [ "fluid_scheme_base", "df/d6a/namespacefluid__scheme__base.html", "df/d6a/namespacefluid__scheme__base" ],
     [ "fluid_scheme_compressible", "d3/d66/namespacefluid__scheme__compressible.html", "d3/d66/namespacefluid__scheme__compressible" ],
     [ "fluid_scheme_compressible_ns", "d2/de6/namespacefluid__scheme__compressible__ns.html", "d2/de6/namespacefluid__scheme__compressible__ns" ],

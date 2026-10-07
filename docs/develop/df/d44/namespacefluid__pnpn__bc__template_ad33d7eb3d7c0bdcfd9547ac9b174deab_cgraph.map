@@ -1,0 +1,5 @@
+<map id="fluid_pnpn_bc_template::fluid_pnpn_bc_template_register_types" name="fluid_pnpn_bc_template::fluid_pnpn_bc_template_register_types">
+<area shape="rect" id="Node000001" title="Register the custom velocity boundary condition type with fluid Pn/Pn." alt="" coords="5,5,191,60"/>
+<area shape="rect" id="Node000002" href="$df/d44/namespacefluid__pnpn__bc__template.html#aa13845532bcbc27c7df6afbab37502f7" title="Allocate the custom boundary condition." alt="" coords="239,5,424,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,30,225,30,225,35,191,35"/>
+</map>

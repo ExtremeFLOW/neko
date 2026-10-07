@@ -123,6 +123,7 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <li class="level3"><a href="#autotoc_md87">Available conditions</a></li>
 <li class="level3"><a href="#most-wall-model">MOST wall model</a></li>
 <li class="level3"><a href="#richardson-wall-model">Richardson wall model</a></li>
+<li class="level3"><a href="#case-file_fluid-split-boundary-conditions">Separate velocity and pressure conditions</a></li>
 </ul>
 </li>
 <li class="level2"><a href="#case-file_fluid-ic">Initial conditions</a></li>
@@ -569,40 +570,44 @@ Specifying the boundaries</h3>
 <p>The default name of the boundary conditions is given by the <code>&lt;variable&gt;_bc_&lt;zone_index&gt;</code> pattern. i.e., the pressure boundary condition that applies in zone index 5 can be retrieved by the <code>pressure_bc_5</code> name.</p>
 <h3><a class="anchor" id="autotoc_md87"></a>
 Available conditions</h3>
-<p>The conditions to apply is specified by <code>type</code> keyword inside each of the JSON objects. The full list of possible conditions for the fluid is specified in the table below.</p>
+<p>The conditions to apply are specified by the <code>type</code> keyword inside each of the JSON objects. Each type sets both the velocity and the pressure condition on the zone, and the table below lists what each type corresponds to. An empty entry means the natural condition of the scheme for that field: a homogeneous Neumann condition for the velocity, or a Neumann condition for the pressure with the normal gradient given by the momentum equation. These combinations cover the standard cases. It is also possible to set the velocity and the pressure condition separately, see <a class="el" href="../../dd/d33/case-file.html#case-file_fluid-split-boundary-conditions">below</a>.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
-<th class="markdownTableHeadNone">Boundary Condition   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<th class="markdownTableHeadNone">Boundary Condition   </th><th class="markdownTableHeadNone">Velocity   </th><th class="markdownTableHeadNone">Pressure   </th><th class="markdownTableHeadNone">Description    </th></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">A symmetry plane. Must be axis-aligned.    </td></tr>
+<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone"><code>symmetry</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">A symmetry plane. Must be axis-aligned.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">velocity_value   </td><td class="markdownTableBodyNone">A Dirichlet condition for velocity.    </td></tr>
+<td class="markdownTableBodyNone">velocity_value   </td><td class="markdownTableBodyNone"><code>dirichlet</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">A Dirichlet condition for velocity.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a>   </td><td class="markdownTableBodyNone">A no-slip wall. Either stationary or moving.    </td></tr>
+<td class="markdownTableBodyNone">expression_velocity   </td><td class="markdownTableBodyNone"><code>expression</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">A Dirichlet condition for velocity given by mathematical expressions.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">outflow   </td><td class="markdownTableBodyNone">A pressure outlet.    </td></tr>
+<td class="markdownTableBodyNone">expression_pressure   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"><code>expression</code>   </td><td class="markdownTableBodyNone">A Dirichlet condition for pressure given by a mathematical expression.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">normal_outflow   </td><td class="markdownTableBodyNone">An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components.    </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a>   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">A no-slip wall. Either stationary or moving.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">outflow+user   </td><td class="markdownTableBodyNone">Same as <code>outflow</code> but with user-specified pressure.    </td></tr>
+<td class="markdownTableBodyNone">outflow   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"><code><a class="el" href="../../da/ddc/namespacezero__dirichlet.html" title="Defines a zero-valued Dirichlet boundary condition.">zero_dirichlet</a></code>   </td><td class="markdownTableBodyNone">A pressure outlet.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">normal_outflow+user   </td><td class="markdownTableBodyNone">Same as <code>normal_outflow</code> but with user-specified pressure.    </td></tr>
+<td class="markdownTableBodyNone">normal_outflow   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d8/d74/namespacenon__normal.html" title="Implements non_normal_t.">non_normal</a></code>   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../da/ddc/namespacezero__dirichlet.html" title="Defines a zero-valued Dirichlet boundary condition.">zero_dirichlet</a></code>   </td><td class="markdownTableBodyNone">An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">outflow+dong   </td><td class="markdownTableBodyNone">A pressure outlet with the Dong condition applied.    </td></tr>
+<td class="markdownTableBodyNone">outflow+user   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"><code>user_dirichlet</code>   </td><td class="markdownTableBodyNone">Same as <code>outflow</code> but with user-specified pressure.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">normal_outflow+dong   </td><td class="markdownTableBodyNone">The <code>normal_outflow</code> with the Dong condition applied.    </td></tr>
+<td class="markdownTableBodyNone">normal_outflow+user   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d8/d74/namespacenon__normal.html" title="Implements non_normal_t.">non_normal</a></code>   </td><td class="markdownTableBodyNone"><code>user_dirichlet</code>   </td><td class="markdownTableBodyNone">Same as <code>normal_outflow</code> but with user-specified pressure.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a>   </td><td class="markdownTableBodyNone">Prescribed wall shear stress.    </td></tr>
+<td class="markdownTableBodyNone">outflow+dong   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"><code>dong</code>   </td><td class="markdownTableBodyNone">A pressure outlet with the Dong condition applied.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a>   </td><td class="markdownTableBodyNone">Shear stress condition based on a wall model for large-eddy simulation.    </td></tr>
+<td class="markdownTableBodyNone">normal_outflow+dong   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d8/d74/namespacenon__normal.html" title="Implements non_normal_t.">non_normal</a></code>   </td><td class="markdownTableBodyNone"><code>dong</code>   </td><td class="markdownTableBodyNone">The <code>normal_outflow</code> with the Dong condition applied.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">blasius_profile   </td><td class="markdownTableBodyNone">A Blasius velocity profile.    </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a>   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a></code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">Prescribed wall shear stress.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">user_velocity   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_vector_t</code> user-defined Dirichlet condition for velocity.    </td></tr>
+<td class="markdownTableBodyNone"><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a>   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a></code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">Shear stress condition based on a wall model for large-eddy simulation.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.    </td></tr>
+<td class="markdownTableBodyNone">blasius_profile   </td><td class="markdownTableBodyNone"><code>blasius_profile</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">A Blasius velocity profile.    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone"><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a>   </td><td class="markdownTableBodyNone">A Dirichlet condition that prescribes values from another Neko simulation running concurrently.   </td></tr>
+<td class="markdownTableBodyNone">user_velocity   </td><td class="markdownTableBodyNone"><code>user_dirichlet</code>   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone">The <code>field_dirichlet_vector_t</code> user-defined Dirichlet condition for velocity.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">user_pressure   </td><td class="markdownTableBodyNone"></td><td class="markdownTableBodyNone"><code>user_dirichlet</code>   </td><td class="markdownTableBodyNone">The <code>field_dirichlet_t</code> user-defined Dirichlet condition for pressure.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a>   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a></code>   </td><td class="markdownTableBodyNone"><code><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a></code> (if <code>couple_pressure</code>)   </td><td class="markdownTableBodyNone">A Dirichlet condition that prescribes values from another Neko simulation running concurrently.   </td></tr>
 </table>
 <p>A more detailed description of each boundary condition is provided below.</p>
 <ul>
@@ -892,6 +897,69 @@ Richardson wall model</h3>
 <p>Louis, J.-F. (1979). A parametric model of vertical eddy fluxes in the atmosphere. Boundary-Layer Meteorology, 17(2), 187–202. <a href="https://doi.org/10.1007/BF00117978">https://doi.org/10.1007/BF00117978</a>.</p>
 <p>Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., &amp; Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. <a href="https://doi.org/10.1175/2007JAS2294.1">https://doi.org/10.1175/2007JAS2294.1</a>. </p>
 </details>
+<h3><a class="anchor" id="case-file_fluid-split-boundary-conditions"></a>
+Separate velocity and pressure conditions</h3>
+<p>Instead of a joint <code>type</code>, a boundary condition object can hold a <code>velocity</code> object and a <code>pressure</code> object, each with its own <code>type</code>. Both must be present in this form. This allows combinations that are not covered by the joint types, for example a <code><a class="el" href="../../d8/d74/namespacenon__normal.html" title="Implements non_normal_t.">non_normal</a></code> velocity condition with a pressure given by an expression.</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;zone_indices&quot;: [4],</div>
+<div class="line">  &quot;velocity&quot;: {</div>
+<div class="line">    &quot;type&quot;: &quot;non_normal&quot;,</div>
+<div class="line">    &quot;value&quot;: [1.0, 0.0, 0.0]</div>
+<div class="line">  },</div>
+<div class="line">  &quot;pressure&quot;: {</div>
+<div class="line">    &quot;type&quot;: &quot;expression&quot;,</div>
+<div class="line">    &quot;value&quot;: &quot;p_0*sin(2*pi*f*t)&quot;</div>
+<div class="line">  }</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>The natural conditions of the scheme are selected with the <code>neumann</code> type. For the velocity it is a Neumann condition on the viscous traction, which is homogeneous, i.e. no constraint, unless a constant <code>flux</code> is given. For the pressure it is the Neumann condition of the Pn/Pn scheme, with the normal gradient given by the momentum equation, as on velocity Dirichlet boundaries. There the flux is set by the scheme, so the pressure <code>neumann</code> type takes no keywords. Keywords at the top level of the object, such as <code>zone_indices</code> and <code>name</code>, apply to both conditions. Keywords inside <code>velocity</code> and <code>pressure</code> apply to that condition only and take precedence over the top-level ones. A joint <code>type</code> cannot be combined with a <code>velocity</code> or <code>pressure</code> object in the same entry.</p>
+<p>The combinations defined by the joint types are the ones that are tested. When combining conditions separately, it is up to the user to make sure that the combination is well posed. In particular, the pressure is only de-meaned when no zone has a Dirichlet pressure condition.</p>
+<p>The available velocity condition types are listed below. The keywords they accept are the same as for the corresponding joint types.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Velocity condition   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">dirichlet   </td><td class="markdownTableBodyNone">A Dirichlet condition with a constant <code>value</code>. Same as <code>velocity_value</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">expression   </td><td class="markdownTableBodyNone">A Dirichlet condition given by expressions. Same as <code>expression_velocity</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a>   </td><td class="markdownTableBodyNone">A no-slip wall, see <code><a class="el" href="../../d1/da7/namespaceno__slip.html" title="Defines no-slip boundary condition (extends zero_dirichlet)">no_slip</a></code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">symmetry   </td><td class="markdownTableBodyNone">A symmetry plane, see <code>symmetry</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../d8/d74/namespacenon__normal.html" title="Implements non_normal_t.">non_normal</a>   </td><td class="markdownTableBodyNone">A homogeneous Neumann condition for the surface-normal component combined with a Dirichlet for the surface-parallel components, see <code>normal_outflow</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">neumann   </td><td class="markdownTableBodyNone">A Neumann condition on the viscous traction. Without keywords it is homogeneous, i.e. no constraint. The optional <code>flux</code>, an array of 3 reals, prescribes a constant traction per unit area, added to the right-hand side of the momentum equation.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a>   </td><td class="markdownTableBodyNone">Prescribed wall shear stress, see <code><a class="el" href="../../da/dea/namespaceshear__stress.html" title="Defines a shear stress boundary condition for a vector field. Maintainer: Timofey Mukha.">shear_stress</a></code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a>   </td><td class="markdownTableBodyNone">Shear stress from a wall model, see <code><a class="el" href="../../da/ddd/namespacewall__model.html" title="Implements wall_model_t.">wall_model</a></code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">blasius_profile   </td><td class="markdownTableBodyNone">A Blasius velocity profile, see <code>blasius_profile</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">user_dirichlet   </td><td class="markdownTableBodyNone">The user-defined Dirichlet condition. Same as <code>user_velocity</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a>   </td><td class="markdownTableBodyNone">Values from another Neko simulation, see <code><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a></code>.   </td></tr>
+</table>
+<p>The available pressure condition types are the following.</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Pressure condition   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">dirichlet   </td><td class="markdownTableBodyNone">A Dirichlet condition with a constant <code>value</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><a class="el" href="../../da/ddc/namespacezero__dirichlet.html" title="Defines a zero-valued Dirichlet boundary condition.">zero_dirichlet</a>   </td><td class="markdownTableBodyNone">A zero pressure. The pressure part of <code>outflow</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">expression   </td><td class="markdownTableBodyNone">A Dirichlet condition given by an expression. Same as <code>expression_pressure</code>.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">dong   </td><td class="markdownTableBodyNone">The Dong outflow condition. The pressure part of <code>outflow+dong</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">neumann   </td><td class="markdownTableBodyNone">The Neumann condition of the Pn/Pn scheme, with the normal gradient given by the momentum equation. Takes no keywords.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">user_dirichlet   </td><td class="markdownTableBodyNone">The user-defined Dirichlet condition. Same as <code>user_pressure</code>.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a>   </td><td class="markdownTableBodyNone">Values from another Neko simulation, see <code><a class="el" href="../../d1/da5/namespaceoverset__interface.html" title="Defines overset interface scalar boundary conditions.">overset_interface</a></code>.   </td></tr>
+</table>
+<p>Custom velocity and pressure condition types can be added from user modules with the <code>register_fluid_pnpn_velocity_bc</code> and <code>register_fluid_pnpn_pressure_bc</code> routines. See <code><a class="el" href="../../dd/d4f/fluid__pnpn__bc__template_8f90.html">fluid_pnpn_bc_template.f90</a></code> in the <code>examples/programming/user_type_templates</code> directory for a template.</p>
 <h2><a class="anchor" id="case-file_fluid-ic"></a>
 Initial conditions</h2>
 <p>The object <code>initial_condition</code> is used to provide initial conditions. It is mandatory. Note that this currently pertains to both the fluid, but also scalars. The means of prescribing the values are controlled via the <code>type</code> keyword:</p>
@@ -2100,7 +2168,7 @@ Viscous regularization</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Tue Oct 6 2026 03:46:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Oct 7 2026 03:48:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

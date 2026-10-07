@@ -934,26 +934,6 @@ Static Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Will mark a mesh zone for the bc and finalize. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">object</td><td>The object to be allocated. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">scheme</td><td>The <code><a class="el" href="../../db/d56/namespacescalar__pnpn.html" title="Contains the scalar_pnpn_t type.">scalar_pnpn</a></code> scheme. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>JSON object for initializing the bc. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">coef</td><td>SEM coefficients. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">user</td><td>The user interface. Boundary condition factory for velocity</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Will mark a mesh zone for the bc and finalize. </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">object</td><td>The object to be allocated. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">scheme</td><td>The <code><a class="el" href="../../db/d56/namespacescalar__pnpn.html" title="Contains the scalar_pnpn_t type.">scalar_pnpn</a></code> scheme. </td></tr>
-    <tr><td class="paramdir">[in,out]</td><td class="paramname">json</td><td>JSON object for initializing the bc. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">coef</td><td>SEM coefficients. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">user</td><td>The user interface. </td></tr>
-  </table>
-  </dd>
-</dl>
 
 <p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00194">194</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
@@ -1348,9 +1328,10 @@ Static Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
+<p>Each entry of <code>case.fluid.boundary_conditions</code> is split into a velocity part and a pressure part by <code>fluid_pnpn_bc_split</code>. The parts are passed to <code>velocity_bc_factory</code> and <code>pressure_bc_factory</code>, and the resulting objects are appended to <code>bcs_vel</code> and <code>bcs_prs</code> and marked in the residual projectors. The <code>facet_type</code> array of the mesh, used by the FDM preconditioner, is set to 1 on the zones of an entry with a Dirichlet pressure condition and to 2 otherwise. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">user</td><td>The user interface. </td></tr>
+    <tr><td class="paramname">params</td><td>The case file parameters. </td></tr>
   </table>
   </dd>
 </dl>
@@ -3535,7 +3516,7 @@ Static Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html">fluid_pnpn</a></li><li class="navelem"><a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a></li>
-    <li class="footer">Generated on Tue Oct 6 2026 03:46:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Oct 7 2026 03:48:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

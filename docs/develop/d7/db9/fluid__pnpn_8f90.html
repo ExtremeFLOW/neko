@@ -101,7 +101,8 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90.html','../../'
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
 <a href="#namespaces">Modules</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">fluid_pnpn.f90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -111,6 +112,12 @@ $(document).ready(function(){initNavTree('d7/db9/fluid__pnpn_8f90.html','../../'
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn::fluid_pnpn_t</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/d5d/interfacefluid__pnpn_1_1fluid__pnpn__bc__allocate.html">fluid_pnpn::fluid_pnpn_bc_allocate</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Split a boundary condition entry of the case file into a velocity part and a pressure part.  <a href="../../df/d5d/interfacefluid__pnpn_1_1fluid__pnpn__bc__allocate.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d45/structfluid__pnpn_1_1fluid__pnpn__bc__allocator__entry.html">fluid_pnpn::fluid_pnpn_bc_allocator_entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom velocity boundary condition types.  <a href="../../d0/d45/structfluid__pnpn_1_1fluid__pnpn__bc__allocator__entry.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="namespaces" name="namespaces"></a>
@@ -122,7 +129,6 @@ Modules</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aba03bcf1446e7bee67439441ad8c8970" id="r_aba03bcf1446e7bee67439441ad8c8970"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#aba03bcf1446e7bee67439441ad8c8970">fluid_pnpn::fluid_pnpn_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, msh, lx, params, user, chkp)</td></tr>
-<tr class="memdesc:aba03bcf1446e7bee67439441ad8c8970"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boundary condition factory for pressure.  <br /></td></tr>
 <tr class="separator:aba03bcf1446e7bee67439441ad8c8970"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21e7a0cfb7be2640882fe62d11311950" id="r_a21e7a0cfb7be2640882fe62d11311950"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a21e7a0cfb7be2640882fe62d11311950">fluid_pnpn::fluid_pnpn_ax_vel_factory</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a21e7a0cfb7be2640882fe62d11311950"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate and configure the Helmholtz matrix-vector product for the velocity, <code>thisAx_vel</code>.  <br /></td></tr>
@@ -135,11 +141,26 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a96ca79ca6ac5e710dbed4e47c979235a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advance fluid simulation in time.  <br /></td></tr>
 <tr class="separator:a96ca79ca6ac5e710dbed4e47c979235a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e1c19eeee43186db5669e6e0ed96d36" id="r_a1e1c19eeee43186db5669e6e0ed96d36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a1e1c19eeee43186db5669e6e0ed96d36">fluid_pnpn::fluid_pnpn_setup_bcs</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, user, params)</td></tr>
-<tr class="memdesc:a1e1c19eeee43186db5669e6e0ed96d36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the boundary condition for the scheme.  <br /></td></tr>
+<tr class="memdesc:a1e1c19eeee43186db5669e6e0ed96d36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the boundary conditions for the scheme.  <br /></td></tr>
 <tr class="separator:a1e1c19eeee43186db5669e6e0ed96d36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f70c90f36be1ce04e75fa930aed3819" id="r_a7f70c90f36be1ce04e75fa930aed3819"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a7f70c90f36be1ce04e75fa930aed3819">fluid_pnpn::fluid_pnpn_write_boundary_conditions</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a7f70c90f36be1ce04e75fa930aed3819"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a field with boundary condition specifications.  <br /></td></tr>
 <tr class="separator:a7f70c90f36be1ce04e75fa930aed3819"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a2d2e9e7e48df3576e13731a33d3b9598" id="r_a2d2e9e7e48df3576e13731a33d3b9598"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/d45/structfluid__pnpn_1_1fluid__pnpn__bc__allocator__entry.html">fluid_pnpn_bc_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a2d2e9e7e48df3576e13731a33d3b9598">fluid_pnpn::fluid_pnpn_velocity_bc_registry</a></td></tr>
+<tr class="memdesc:a2d2e9e7e48df3576e13731a33d3b9598"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of user-defined velocity boundary condition allocators.  <br /></td></tr>
+<tr class="separator:a2d2e9e7e48df3576e13731a33d3b9598"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48662187cd809264633a2c917b14d310" id="r_a48662187cd809264633a2c917b14d310"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a48662187cd809264633a2c917b14d310">fluid_pnpn::fluid_pnpn_velocity_bc_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a48662187cd809264633a2c917b14d310"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of <code>fluid_pnpn_velocity_bc_registry</code>.  <br /></td></tr>
+<tr class="separator:a48662187cd809264633a2c917b14d310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43d628d6d676f9a6de62f82dc1db497d" id="r_a43d628d6d676f9a6de62f82dc1db497d"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/d45/structfluid__pnpn_1_1fluid__pnpn__bc__allocator__entry.html">fluid_pnpn_bc_allocator_entry</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a43d628d6d676f9a6de62f82dc1db497d">fluid_pnpn::fluid_pnpn_pressure_bc_registry</a></td></tr>
+<tr class="memdesc:a43d628d6d676f9a6de62f82dc1db497d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registry of user-defined pressure boundary condition allocators.  <br /></td></tr>
+<tr class="separator:a43d628d6d676f9a6de62f82dc1db497d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c39bc58a8619d4de7e8540f0b9c7872" id="r_a3c39bc58a8619d4de7e8540f0b9c7872"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">private</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/da3/namespacefluid__pnpn.html#a3c39bc58a8619d4de7e8540f0b9c7872">fluid_pnpn::fluid_pnpn_pressure_bc_registry_size</a> = 0</td></tr>
+<tr class="memdesc:a3c39bc58a8619d4de7e8540f0b9c7872"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of <code>fluid_pnpn_pressure_bc_registry</code>.  <br /></td></tr>
+<tr class="separator:a3c39bc58a8619d4de7e8540f0b9c7872"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -147,7 +168,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_48eb729a40134e424c89304faa5c21a9.html">fluid</a></li><li class="navelem"><a class="el" href="../../d7/db9/fluid__pnpn_8f90.html">fluid_pnpn.f90</a></li>
-    <li class="footer">Generated on Tue Oct 6 2026 03:46:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Oct 7 2026 03:47:59 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -117,15 +117,16 @@ $(document).ready(function(){initNavTree('df/d67/md__2home_2runner_2work_2neko_2
 <li><code><a class="el" href="../../d3/db9/ax__helm__template_8f90.html">ax_helm_template.f90</a></code> — <code>ax_t</code> Helmholtz matrix-vector product</li>
 <li><code><a class="el" href="../../dd/d32/scalar__scheme__template_8f90.html">scalar_scheme_template.f90</a></code> — <code>scalar_scheme_t</code></li>
 <li><code><a class="el" href="../../d5/dd6/scalar__pnpn__bc__template_8f90.html">scalar_pnpn_bc_template.f90</a></code> — scalar Pn/Pn <code>bc_t</code></li>
+<li><code><a class="el" href="../../dd/d4f/fluid__pnpn__bc__template_8f90.html">fluid_pnpn_bc_template.f90</a></code> — fluid Pn/Pn velocity <code>bc_t</code> (pressure conditions register through <code>register_fluid_pnpn_pressure_bc</code>)</li>
 </ul>
-<p>The executable bodies are safe, minimal starting points rather than useful models: the LES and wall-model templates produce zero additional effects; the preconditioner and Ax templates are identities; and the Krylov and scalar Pn/Pn boundary-condition templates stop with an explicit error until their solve and apply routines are implemented. Replace the marked <code>TODO</code> sections with the actual algorithm. </p>
+<p>The executable bodies are safe, minimal starting points rather than useful models: the LES and wall-model templates produce zero additional effects; the preconditioner and Ax templates are identities; and the Krylov, scalar Pn/Pn and fluid Pn/Pn boundary-condition templates stop with an explicit error until their solve and apply routines are implemented. Replace the marked <code>TODO</code> sections with the actual algorithm. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Tue Oct 6 2026 03:46:50 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Oct 7 2026 03:48:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

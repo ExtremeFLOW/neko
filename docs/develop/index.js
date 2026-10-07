@@ -70,7 +70,8 @@ var index =
             [ "Specifying the boundaries", "dd/d33/case-file.html#autotoc_md86", null ],
             [ "Available conditions", "dd/d33/case-file.html#autotoc_md87", null ],
             [ "MOST wall model", "dd/d33/case-file.html#most-wall-model", null ],
-            [ "Richardson wall model", "dd/d33/case-file.html#richardson-wall-model", null ]
+            [ "Richardson wall model", "dd/d33/case-file.html#richardson-wall-model", null ],
+            [ "Separate velocity and pressure conditions", "dd/d33/case-file.html#case-file_fluid-split-boundary-conditions", null ]
           ] ],
           [ "Initial conditions", "dd/d33/case-file.html#case-file_fluid-ic", null ],
           [ "Source terms", "dd/d33/case-file.html#case-file_fluid-source-term", [

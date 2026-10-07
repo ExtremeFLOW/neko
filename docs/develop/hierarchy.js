@@ -90,6 +90,7 @@ var hierarchy =
       [ "field_dirichlet::field_dirichlet_t", "d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html", null ],
       [ "field_dirichlet_vector::field_dirichlet_vector_t", "da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html", null ],
       [ "field_neumann::field_neumann_t", "df/dd4/structfield__neumann_1_1field__neumann__t.html", null ],
+      [ "fluid_pnpn_bc_template::fluid_pnpn_bc_template_t", "df/df3/structfluid__pnpn__bc__template_1_1fluid__pnpn__bc__template__t.html", null ],
       [ "inflow::inflow_t", "d5/d8a/structinflow_1_1inflow__t.html", null ],
       [ "mixed_bc::mixed_bc_t", "d0/de5/structmixed__bc_1_1mixed__bc__t.html", [
         [ "non_normal::non_normal_t", "da/d18/structnon__normal_1_1non__normal__t.html", null ],
@@ -380,6 +381,8 @@ var hierarchy =
     [ "fluid_scheme_base::fluid_base_free_intrf", "d9/dda/interfacefluid__scheme__base_1_1fluid__base__free__intrf.html", null ],
     [ "fluid_scheme_base::fluid_base_init_all_intrf", "de/d70/interfacefluid__scheme__base_1_1fluid__base__init__all__intrf.html", null ],
     [ "fluid_scheme_base::fluid_base_init_common_intrf", "d8/d51/interfacefluid__scheme__base_1_1fluid__base__init__common__intrf.html", null ],
+    [ "fluid_pnpn::fluid_pnpn_bc_allocate", "df/d5d/interfacefluid__pnpn_1_1fluid__pnpn__bc__allocate.html", null ],
+    [ "fluid_pnpn::fluid_pnpn_bc_allocator_entry", "d0/d45/structfluid__pnpn_1_1fluid__pnpn__bc__allocator__entry.html", null ],
     [ "fluid_scheme_base::fluid_scheme_base_compute_cfl_intrf", "de/dc0/interfacefluid__scheme__base_1_1fluid__scheme__base__compute__cfl__intrf.html", null ],
     [ "fluid_scheme_base::fluid_scheme_base_free_intrf", "df/d23/interfacefluid__scheme__base_1_1fluid__scheme__base__free__intrf.html", null ],
     [ "fluid_scheme_base::fluid_scheme_base_init_intrf", "de/df3/interfacefluid__scheme__base_1_1fluid__scheme__base__init__intrf.html", null ],
