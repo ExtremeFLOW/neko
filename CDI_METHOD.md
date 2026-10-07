@@ -906,7 +906,9 @@ one.
   $\mathbf D_\mu\mathbf S_{vv}$ (Eqs. 7, 33, 35), whereas `svv_local` applies
   `nu` *inside* the bilinear form. The two agree only while $\mu$ is constant.
 
-For transport the difference is a mild over-diffusion. **For the redistancing
+For transport the difference is an over-diffusion that has never been measured. The uniform
+bound came with the first SVV implementation, when SVV also sat on $\phi$, where a constant
+$\nu$ inside the bilinear form kept the operator symmetric and conservative (`NEXT_SESSION.md`). **For the redistancing
 equation it is not mild.** There $|\mathbf c|=|\operatorname{sgn}\psi|$ vanishes
 on the zero set, and in the left-multiplied form that is what stops the SVV
 dragging the interface. At the earlier sign-function $\varepsilon=H/N$ (2026-09-23) it

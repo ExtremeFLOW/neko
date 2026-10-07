@@ -23,6 +23,13 @@ the scratch user file `examples/rider_kothe/logs/d5_2026-10-06/rider_kothe_0c.f9
      ($H=1/64$), 0.0085 against 0.0104 ($H=1/128$). But $\psi$ is then not a distance in the band;
      it is a smoothed copy of $\phi$'s interface, refreshed every 0.5. That is a method decision,
      not a knob.
+   - **Dealiased $\mathbf C(\mathbf w)$ and the sign guard: use them** (user, 2026-10-07; Saini's
+     email: "active for all my cases", `examples/redistance_circles/README.md` §2). They go
+     together: dealiasing lets zero-set nodes move, the guard freezes them. His coupled guard
+     (`constrainTLSR`) keeps $\psi^n$ at any node whose $\psi^n$ disagrees in sign with
+     $\phi-\tfrac12$. Port both from `redistance_circles.f90` (`adv_dealias_t`, the guard loop
+     of `redistance_standalone`) into the scratch file's BDF2 branch, then run the 0.25/$25H$
+     configuration with them.
 2. **Why the rebuilt $\psi$'s normal is worse than transport's** against the exact interface, in
    every events configuration (with 0.25 and $25H$: 1.0–2.6° at $t=2$–5, 29° at $t=8$; transport
    0.6–0.8° and 1.3°). Against $\phi$'s own contour it is closer than transport's, and $\phi$'s own
@@ -49,9 +56,16 @@ the scratch user file `examples/rider_kothe/logs/d5_2026-10-06/rider_kothe_0c.f9
      `rider_redistancing_events` (2026-10-07) predates the fixes. Use kthviz style and put a GIF
      beside every MP4. Working script: `examples/rider_kothe/logs/anim/anim_rk.py` (gitignored,
      local).
-   - `svv_psi` takes $u_{\max}$ once, at the first step, so on Rider–Kothe its viscosity never
-     follows $|\cos(\pi t/8)|$; Saini's uses the local $|\mathbf u(\mathbf x,t)|$. Changing it
-     would move the transport-only numbers (not measured).
+   - **`svv_psi`'s $|\mathbf c|$** (reviewed 2026-10-07). Ours is the flow's $u_{\max}$, taken
+     once at the first step, so on Rider–Kothe it never follows $|\cos(\pi t/8)|$; Saini's is the
+     local $|\mathbf u(\mathbf x,t)|$, left of the assembled operator. There is no measured
+     reason for ours. It came with the first SVV implementation, when SVV also sat on $\phi$: a
+     constant $\nu$ inside the bilinear form keeps the operator symmetric (one stability check,
+     plain CG) and conserves mass, which mattered for $\phi$ and does not for $\psi$. For the
+     explicit instance his form is a pointwise multiply of `svv_op`'s output by
+     $|\mathbf u|/u_{\max}$ (not a $\nu$ varied inside `svv_local`), and the startup stability
+     check still bounds it. No change on the slab; on Zalesak and Rider–Kothe it moves every
+     transport-only number, so test it alone first (`rider_kothe_xi10` against 0.0452).
    - `rider_h192.case` ships but has never run: run it or remove it.
    - Run $\xi=0.75$ under strain (~30 min) to see whether the cross turns over.
    - The $H=1/64$ runs end at $t=8.00008$ (100001 steps; Neko's summed time is a round-off below 8
