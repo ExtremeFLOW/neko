@@ -4,6 +4,39 @@
 
 
 - Fixed several OpenMP races in the scratch registry.
+- Added `source_term_t%extrapolate` and the `extrapolate` and optional
+  `scale` arguments to `source_term_handler_t%compute`, letting a source term
+  be added after the EXT extrapolation of the Pn-Pn fluid and scalar schemes
+  instead of through it. Feedback terms with a gain of order `1/dt` are
+  unstable when extrapolated with EXT3 and stable when applied as computed.
+  Callers of `compute` must now pass `extrapolate`.
+- Changed the CPU CG, coupled CG and GMRES solvers to obtain their large work
+  arrays from the scratch registry for each solve instead of retaining
+  dedicated storage.
+- Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
+  ranks have zero points.
+- Fixed device memory leaking on every write of a spatially averaged
+  statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
+  `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
+  temporary 1D and 2D output data were never freed. `map_2d_t%free` now also
+  releases its work fields and its internal `map_1d_t`.
+- Fixed memory leaks in several free routines and temporary objects,
+  including reused JSON objects, `.fld` output masks, the point zone and
+  constant registries, and user source term fields.
+- Fixed `field_vdot3` deallocating its output field on entry.
+- Fixed the CPU dynamic Smagorinsky model not relinquishing its scratch
+  fields, which grew the memory every time step and caused an error at
+  shutdown.
+- Error and warning routines are now hooked to pFUnit's exceptions, making it
+  possible to test for error emission.
+- Added format-independent checkpoint payloads for registering named fields,
+  field histories, nodal mesh arrays, and distributed or replicated real
+  arrays. HDF5 checkpoints now preserve the payload hierarchy and support
+  multiple scalars and ALE, including restart at a different polynomial order.
+  Mesh arrays derive their distribution and standard GLL interpolation from
+  their mesh and function space, while generic arrays retain a fixed logical
+  extent. The `.chkp` format remains available through a single-scalar
+  compatibility view, and existing flat HDF5 checkpoints remain readable.
 - Added a setup-time conditioning diagnostic for the geometric factors, on
   `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
   metric condition number over the mesh, the worst for its Jacobi scaled

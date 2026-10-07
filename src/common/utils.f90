@@ -1,4 +1,4 @@
-! Copyright (c) 2019-2021, The Neko Authors
+! Copyright (c) 2019-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -51,12 +51,31 @@ module utils
      module procedure read_duration_components
   end interface read_duration
 
+  abstract interface
+     !> Interface for the throw procedure. Follows pFunit conventions.
+     subroutine throw_intf(filename, line_number, message)
+       character(len=*), intent(in) :: filename
+       integer, intent(in) :: line_number
+       character(len=*), optional, intent(in) :: message
+     end subroutine throw_intf
+  end interface
+
+  !> Pointer to the throw procedure.
+  !! @details Ordinarily only raises an error stop. During testing,
+  !! pFUnit will hijack this procedure to raise an excpeption that
+  !! can be caught by the testing framework.
+  procedure(throw_intf), pointer :: throw_error => null()
+  !> Same as above, but for warnings. Does nothing by default
+  procedure(throw_intf), pointer :: throw_warning => null()
+
   public :: neko_error, neko_warning, nonlinear_index, filename_chsuffix, &
        filename_path, filename_name, filename_suffix, &
        filename_suffix_pos, filename_tslash_pos, filename_split, &
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
-       neko_type_registration_error, NEKO_VARNAME_LEN, mkdir, read_duration
+       neko_type_registration_error, throw_error, throw_warning, throw_intf, &
+       default_throw_error, default_throw_warning, NEKO_VARNAME_LEN, mkdir, &
+       read_duration
 
   interface
      function c_mkdir(path, mode) bind(C, name="mkdir")
@@ -68,6 +87,24 @@ module utils
   end interface
 
 contains
+
+  !> Default throw method for warnings. Does nothing.
+  subroutine default_throw_warning(filename, line_number, message)
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: line_number
+    character(len=*), optional, intent(in) :: message
+  end subroutine default_throw_warning
+
+  !> Default throw method that stops execution.
+  !! @details pFUnit will highjack this method during testing to catch
+  !! exceptions.
+  subroutine default_throw_error(filename, line_number, message)
+    character(len=*), intent(in) :: filename
+    integer, intent(in) :: line_number
+    character(len=*), optional, intent(in) :: message
+
+    error stop
+  end subroutine default_throw_error
 
   !> Find position (in the string) of a filename's suffix
   pure function filename_suffix_pos(fname) result(suffix_pos)
@@ -332,7 +369,7 @@ contains
 
   end function index_is_on_facet
 
-  !> Reports an error and stops execution
+  !> Reports an error and calls throw_error, which stops execution by default.
   !! @param[optional] error_code The error code to report.
   subroutine neko_error_plain(error_code)
     integer, optional :: error_code
@@ -343,17 +380,16 @@ contains
 
     if (present(error_code)) then
        write(error_unit, *) '*** ERROR ***', error_code
-       flush(error_unit)
-       error stop
     else
        write(error_unit, *) '*** ERROR ***'
-       flush(error_unit)
-       error stop
     end if
+    flush(error_unit)
 
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error('utils.f90', -1, message='')
   end subroutine neko_error_plain
 
-  !> Reports an error and stops execution
+  !> Reports an error and calls throw_error, which stops execution by default.
   !! @param error_msg The error message to report.
   subroutine neko_error_msg(error_msg)
     character(len=*) :: error_msg
@@ -363,7 +399,8 @@ contains
     flush(output_unit)
     write(error_unit, *) '*** ERROR: ', trim(error_msg), ' ***'
     flush(error_unit)
-    error stop
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error('utils.f90', -1, message='')
   end subroutine neko_error_msg
 
   !> Reports an error allocating a type for a particular base pointer class.
@@ -386,7 +423,8 @@ contains
        write(error_unit, *) "    ", known_types(i)
     end do
     flush(error_unit)
-    error stop
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error('utils.f90', -1, message='')
   end subroutine neko_type_error
 
   subroutine neko_type_registration_error(base_type, wrong_type, known)
@@ -405,7 +443,8 @@ contains
             ' Make all custom type names unique!'
     end if
     flush(error_unit)
-    error stop
+    if (.not. associated(throw_error)) throw_error => default_throw_error
+    call throw_error('utils.f90', -1, message='')
   end subroutine neko_type_registration_error
 
   !> Reports a warning to standard output
@@ -413,6 +452,9 @@ contains
     character(len=*) :: warning_msg
     write(output_unit, *) '*** WARNING: ', trim(warning_msg), ' ***'
     flush(output_unit)
+
+    if (.not. associated(throw_warning)) throw_warning => default_throw_warning
+    call throw_warning('utils.f90', -1, message='')
   end subroutine neko_warning
 
   !> Concatenate an array of strings into one string with array items

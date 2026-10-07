@@ -459,6 +459,8 @@ AC_CONFIG_FILES([Makefile\
 
 # Config tests/unit
 AC_CONFIG_FILES([tests/unit/stack/Makefile\
+        tests/unit/restart_consistency/Makefile\
+        tests/unit/restart_consistency_hdf5/Makefile\
         tests/unit/tuple/Makefile\
         tests/unit/point/Makefile\
         tests/unit/htable/Makefile\
@@ -478,6 +480,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/ax/Makefile\
         tests/unit/krylov/Makefile\
         tests/unit/bc/Makefile\
+        tests/unit/fluid_pnpn_bc/Makefile\
         tests/unit/signal/Makefile\
         tests/unit/jobctrl/Makefile\
         tests/unit/vtkhdf/Makefile\
@@ -489,6 +492,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/octree/Makefile\
         tests/unit/vector/Makefile\
         tests/unit/matrix/Makefile\
+        tests/unit/errors/Makefile\
         tests/unit/tensor3/Makefile\
         tests/unit/tensor4/Makefile\
         tests/unit/case_file_utils/Makefile\
@@ -506,6 +510,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/templates/parallel/Makefile\
         tests/unit/bc_projector/Makefile\
         tests/unit/boundary_operation/Makefile\
+        tests/unit/checkpoint_payload/Makefile\
         tests/unit/wall_sampling/Makefile\
         tests/unit/templates/serial/Makefile])
 
