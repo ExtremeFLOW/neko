@@ -47,6 +47,7 @@ module source_term_handler
   use math, only : col2
   use device_math, only : device_col2
   use time_state, only : time_state_t
+  use scratch_registry, only : neko_scratch_registry
   implicit none
   private
 
@@ -74,9 +75,6 @@ module source_term_handler
      !> Number of source terms that are not extrapolated in time, counted
      !! when the terms are added.
      integer :: n_unextrapolated = 0
-     !> Copy of the right-hand side, kept while the source terms that are not
-     !! extrapolated in time are computed. Only allocated if there are any.
-     type(field_t), allocatable :: rhs_stash(:)
 
    contains
      !> Constructor.
@@ -145,13 +143,6 @@ contains
        end do
        deallocate(this%source_terms)
     end if
-
-    if (allocated(this%rhs_stash)) then
-       do i = 1, size(this%rhs_stash)
-          call this%rhs_stash(i)%free()
-       end do
-       deallocate(this%rhs_stash)
-    end if
     this%n_unextrapolated = 0
 
     nullify(this%coef)
@@ -164,40 +155,44 @@ contains
   end subroutine source_term_handler_free
 
   !> Add source terms to the right-hand side fields.
-  !! @details The selected source terms are summed and multiplied by the mass
-  !! matrix and, if present, by `scale`. Which terms are selected, and whether
-  !! the result replaces the right-hand side or is added to it, is set by
-  !! `extrapolate`:
-  !! - absent: all terms, replacing the right-hand side.
-  !! - `.true.`: the terms with `extrapolate = .true.`, replacing the
-  !!   right-hand side.
-  !! - `.false.`: the terms with `extrapolate = .false.`, added to the
-  !!   current right-hand side.
-  !!
-  !! A scheme that extrapolates its explicit terms in time calls the `.true.`
-  !! form before and the `.false.` form after the extrapolation, so that the
-  !! latter terms enter the step as computed.
+  !! @details The source terms whose `extrapolate` attribute equals
+  !! `extrapolate` are summed and multiplied by the mass matrix and, if
+  !! present, by `scale`. For `.true.` the result replaces the right-hand
+  !! side, for `.false.` it is added to it. A scheme that extrapolates its
+  !! explicit terms in time calls the `.true.` form before and the `.false.`
+  !! form after the extrapolation, so that the latter terms enter the step as
+  !! computed.
   !! @param time The time state.
   !! @param extrapolate Select the terms by their `extrapolate` attribute.
   !! @param scale Field multiplying the contributions, e.g. the density.
   subroutine source_term_handler_compute(this, time, extrapolate, scale)
     class(source_term_handler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    logical, intent(in), optional :: extrapolate
+    logical, intent(in) :: extrapolate
     type(field_t), intent(in), optional :: scale
-    integer :: i
-    type(field_t), pointer :: f
-    logical :: accumulate
+    type(field_list_t) :: stash
+    type(field_t), pointer :: f, s
+    integer, allocatable :: stash_idx(:)
+    integer :: i, n_rhs
+
+    n_rhs = this%rhs_fields%size()
 
     ! The terms that are not extrapolated are added on top of the
-    ! right-hand side, which is stashed while they are computed.
-    accumulate = .false.
-    if (present(extrapolate)) accumulate = .not. extrapolate
-    if (accumulate .and. this%n_unextrapolated .eq. 0) return
+    ! right-hand side, which is stashed in scratch fields meanwhile.
+    if (.not. extrapolate) then
+       if (this%n_unextrapolated .eq. 0) return
+       call stash%init(n_rhs)
+       allocate(stash_idx(n_rhs))
+       do i = 1, n_rhs
+          f => this%rhs_fields%get(i)
+          call neko_scratch_registry%request_field(s, stash_idx(i), .false.)
+          call field_copy(s, f)
+          call stash%assign(i, s)
+       end do
+    end if
 
-    do i = 1, this%rhs_fields%size()
+    do i = 1, n_rhs
        f => this%rhs_fields%get(i)
-       if (accumulate) call field_copy(this%rhs_stash(i), f)
        call field_rzero(f)
     end do
 
@@ -205,15 +200,13 @@ contains
     if (allocated(this%source_terms)) then
 
        do i = 1, size(this%source_terms)
-          if (present(extrapolate)) then
-             if (this%source_terms(i)%source_term%extrapolate .neqv. &
-                  extrapolate) cycle
-          end if
+          if (this%source_terms(i)%source_term%extrapolate .neqv. &
+               extrapolate) cycle
           call this%source_terms(i)%source_term%compute(time)
        end do
 
-       ! Multiply by mass matrix and scale, then restore the stash
-       do i = 1, this%rhs_fields%size()
+       ! Multiply by mass matrix and scale
+       do i = 1, n_rhs
           f => this%rhs_fields%get(i)
           if (NEKO_BCKND_DEVICE .eq. 1) then
              call device_col2(f%x_d, this%coef%B_d, f%size())
@@ -221,38 +214,39 @@ contains
              call col2(f%x, this%coef%B, f%size())
           end if
           if (present(scale)) call field_col2(f, scale)
-          if (accumulate) call field_add2(f, this%rhs_stash(i))
        end do
 
+    end if
+
+    ! Add back the stashed right-hand side
+    if (.not. extrapolate) then
+       do i = 1, n_rhs
+          f => this%rhs_fields%get(i)
+          s => stash%get(i)
+          call field_add2(f, s)
+       end do
+       call neko_scratch_registry%relinquish_field(stash_idx)
+       call stash%free()
+       deallocate(stash_idx)
     end if
 
   end subroutine source_term_handler_compute
 
-  !> Count the source terms that are not extrapolated in time and, if there
-  !! are any, allocate the stash for the right-hand side.
-  subroutine source_term_handler_setup_unextrapolated(this)
+  !> Count the source terms that are not extrapolated in time.
+  subroutine source_term_handler_count_unextrapolated(this)
     class(source_term_handler_t), intent(inout) :: this
-    type(field_t), pointer :: f
     integer :: i
 
     this%n_unextrapolated = 0
-    if (allocated(this%source_terms)) then
-       do i = 1, size(this%source_terms)
-          if (.not. this%source_terms(i)%source_term%extrapolate) then
-             this%n_unextrapolated = this%n_unextrapolated + 1
-          end if
-       end do
-    end if
+    if (.not. allocated(this%source_terms)) return
 
-    if (this%n_unextrapolated .eq. 0 .or. allocated(this%rhs_stash)) return
-
-    allocate(this%rhs_stash(this%rhs_fields%size()))
-    do i = 1, this%rhs_fields%size()
-       f => this%rhs_fields%get(i)
-       call this%rhs_stash(i)%init(f%dof, 'rhs_stash')
+    do i = 1, size(this%source_terms)
+       if (.not. this%source_terms(i)%source_term%extrapolate) then
+          this%n_unextrapolated = this%n_unextrapolated + 1
+       end if
     end do
 
-  end subroutine source_term_handler_setup_unextrapolated
+  end subroutine source_term_handler_count_unextrapolated
 
   !> Read from the json file and initialize the source terms.
   subroutine source_term_handler_add_json_source_terms(this, json, name)
@@ -308,7 +302,7 @@ contains
           end if
        end do
 
-       call source_term_handler_setup_unextrapolated(this)
+       call source_term_handler_count_unextrapolated(this)
     end if
 
   end subroutine source_term_handler_add_json_source_terms
@@ -340,7 +334,7 @@ contains
 
     this%source_terms(n_sources + 1)%source_term = source_term
 
-    call source_term_handler_setup_unextrapolated(this)
+    call source_term_handler_count_unextrapolated(this)
 
   end subroutine source_term_handler_add_source_term
 end module source_term_handler

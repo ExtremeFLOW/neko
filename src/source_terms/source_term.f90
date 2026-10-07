@@ -216,6 +216,7 @@ contains
 
     call this%fields%free()
     nullify(this%coef)
+    this%extrapolate = .true.
   end subroutine source_term_free_base
 
   !> Destructor for the `source_term_wrapper_t` type.

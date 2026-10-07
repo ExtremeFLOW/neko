@@ -2,12 +2,12 @@
 
 ## Develop
 
-- Added `source_term_t%extrapolate` and optional `extrapolate` and `scale`
-  arguments to `source_term_handler_t%compute`, letting a source term be
-  added after the EXT extrapolation of the Pn-Pn fluid and scalar schemes
+- Added `source_term_t%extrapolate` and the `extrapolate` and optional
+  `scale` arguments to `source_term_handler_t%compute`, letting a source term
+  be added after the EXT extrapolation of the Pn-Pn fluid and scalar schemes
   instead of through it. Feedback terms with a gain of order `1/dt` are
   unstable when extrapolated with EXT3 and stable when applied as computed.
-  Calls without the new arguments are unchanged.
+  Callers of `compute` must now pass `extrapolate`.
 - Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
   ranks have zero points.
 - Fixed device memory leaking on every write of a spatially averaged
