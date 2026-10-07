@@ -5,6 +5,17 @@
 - *BREAKING* User initial conditions are no longer copied from the host to the
   device after the user routine, so on GPUs the routine must leave the values in
   the device arrays itself, e.g. with `device_memcpy`.
+- Added `source_term_t%extrapolate` and the `extrapolate` and optional
+  `scale` arguments to `source_term_handler_t%compute`, letting a source term
+  be added after the EXT extrapolation of the Pn-Pn fluid and scalar schemes
+  instead of through it. Feedback terms with a gain of order `1/dt` are
+  unstable when extrapolated with EXT3 and stable when applied as computed.
+  Callers of `compute` must now pass `extrapolate`.
+- Changed the CPU CG, coupled CG and GMRES solvers to obtain their large work
+  arrays from the scratch registry for each solve instead of retaining
+  dedicated storage.
+- Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
+  ranks have zero points.
 - Fixed device memory leaking on every write of a spatially averaged
   statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
   `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
@@ -27,7 +38,6 @@
   their mesh and function space, while generic arrays retain a fixed logical
   extent. The `.chkp` format remains available through a single-scalar
   compatibility view, and existing flat HDF5 checkpoints remain readable.
-
 - Added a setup-time conditioning diagnostic for the geometric factors, on
   `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
   metric condition number over the mesh, the worst for its Jacobi scaled

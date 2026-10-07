@@ -42,6 +42,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
     integer :: i, j, i_y
+    integer :: file_unit
     real(kind=rp) :: uvw(3)
 
     real(kind=dp), dimension(num_rows, num_columns) :: data_mode_cheb_2D
@@ -76,17 +77,17 @@ contains
     allocate(TS2D_GLL(num_ygll, num_columns-1))
     allocate(TS3D_GLL(num_ygll, num_columns-1))
     ! data reading
-    open(unit = 10, file = 'TSwave_cheb_2D.bin', form = 'unformatted', &
-         access = 'stream')
-    read(10) data_mode_cheb_2D
-    close(10)
+    open(newunit = file_unit, file = 'TSwave_cheb_2D.bin', &
+         form = 'unformatted', access = 'stream')
+    read(file_unit) data_mode_cheb_2D
+    close(file_unit)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
-    open(unit = 10, file = 'TSwave_cheb_3D.bin', form = 'unformatted', &
-         access = 'stream')
-    read(10) data_mode_cheb_3D
-    close(10)
+    open(newunit = file_unit, file = 'TSwave_cheb_3D.bin', &
+         form = 'unformatted', access = 'stream')
+    read(file_unit) data_mode_cheb_3D
+    close(file_unit)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
 
     ! alternative of point zone
