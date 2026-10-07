@@ -30,7 +30,14 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Implements an inverse distance weighting based source term
+!> Direct forcing immersed boundary source term.
+!! @details A body given as a triangulated surface is represented by
+!! Lagrangian markers. Each time step the velocity is interpolated to the
+!! markers, the force that brings it to the body velocity is formed and
+!! spread back onto the spectral element mesh. Interpolation (spectral,
+!! Shepard, Shepard adjoint to the kernel spread) and spread (inverse
+!! distance kernel, adjoint of the spectral interpolation) are selectable;
+!! the kernel routines keep the `idw_` prefix, the term-level ones `df_`.
 module direct_forcing_source_term
   use num_types, only : rp, dp
   use field_list, only : field_list_t
@@ -153,7 +160,8 @@ module direct_forcing_source_term
      type(file_t) :: force_file
      type(vector_t) :: force_row
      type(time_based_controller_t) :: force_controller
-     type(gs_t) :: gs
+     !> The fluid's gather-scatter (coef%gs_h), used for the assemblies
+     type(gs_t), pointer :: gs => null()
      logical :: one_sided
      !> Use Shepard IDW interpolation onto the markers instead of the
      !! global (rst-based) interpolation
@@ -267,7 +275,8 @@ contains
     integer, allocatable :: np_i(:), nm_i(:), cnt_shr(:,:)
     character(len=LOG_SIZE) :: log_buf
     real(kind=dp) :: aabb_padding,dx_max, dy_max, dz_max, ds_max, ds_min
-    real(kind=dp) :: diam_min, dxe, dye, dze
+    real(kind=dp) :: diam_min, dxe, dye, dze, pad_need
+    real(kind=rp) :: reach
     type(stack_i4_t) :: overlaps
     type(stack_pt_t) :: lagrangian_points
     type(stack_pt_t) :: lagrangian_normals
@@ -383,10 +392,10 @@ contains
 
     ! ---- Report: operators first, then only the parameters they use ----
     call neko_log%message('Interp     : '// trim(interp_scheme))
-    if (this%idw_interp) then
+    ! The Shepard interpolation has its own stencil radius; the adjoint
+    ! one uses the spread's, reported with the spread below
+    if (this%idw_interp .and. .not. this%adjoint_interp) then
        write(log_buf, '(A,f5.2)') ' `-rmax    : ', this%interp_rmax
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,f5.2)') ' `-power   : ', this%pwr_param
        call neko_log%message(log_buf)
     end if
     call neko_log%message('Spread     : '// trim(spread_scheme))
@@ -726,7 +735,9 @@ contains
     call this%w%init(coef%dof, "ib_weight")
     call this%wm%init(coef%dof, "ib_mweight")
 
-    call this%gs%init(coef%dof)
+    ! Reuse the fluid's gather-scatter: same dofmap, and no second
+    ! communication set-up (and its log block) in the middle of this one
+    this%gs => coef%gs_h
 
     call df_assemble(this%gs, this%ds, coef%mult)
     call df_assemble(this%gs, this%ds, coef%mult)
@@ -875,25 +886,42 @@ contains
           call neko_log%message(log_buf)
        end if
 
-       diam_min = huge(0.0_dp)
-       do e = 1, coef%msh%nelv
-          dxe = maxval(coef%dof%x%x(:,:,:,e)) - minval(coef%dof%x%x(:,:,:,e))
-          dye = maxval(coef%dof%y%x(:,:,:,e)) - minval(coef%dof%y%x(:,:,:,e))
-          dze = maxval(coef%dof%z%x(:,:,:,e)) - minval(coef%dof%z%x(:,:,:,e))
-          diam_min = min(diam_min, sqrt(dxe**2 + dye**2 + dze**2))
-       end do
-       call MPI_Allreduce(MPI_IN_PLACE, diam_min, 1, &
-            MPI_DOUBLE_PRECISION, MPI_MIN, NEKO_COMM)
-
-       if (this%interp_rmax * this%ds_max .gt. aabb_padding * diam_min) then
-          call neko_log%warning('interpolation_rmax*ds may exceed the &
-               &element search reach; consider increasing padding')
-       end if
     end if
 
     call lagrangian_points%free()
     call lagrangian_normals%free()
     call lagrangian_gids%free()
+
+    if (.not. this%adjoint_spread .or. this%idw_interp) then
+       ! The kernel stencils (spread radius rmax, Shepard radius
+       ! interp_rmax, in local grid spacings) must fit inside the padding
+       ! of the element boxes, or they are truncated at element
+       ! boundaries: a marker is listed only for elements whose box,
+       ! grown by padding * diameter, contains it. Checked per active
+       ! element, where the markers are, and reported as the padding the
+       ! case needs.
+       reach = this%interp_rmax
+       if (.not. this%adjoint_spread) reach = max(reach, this%rmax)
+       pad_need = 0.0_dp
+       do i = 1, size(this%active_el)
+          e = this%active_el(i) + 1
+          dxe = maxval(coef%dof%x%x(:,:,:,e)) - minval(coef%dof%x%x(:,:,:,e))
+          dye = maxval(coef%dof%y%x(:,:,:,e)) - minval(coef%dof%y%x(:,:,:,e))
+          dze = maxval(coef%dof%z%x(:,:,:,e)) - minval(coef%dof%z%x(:,:,:,e))
+          diam_min = sqrt(dxe**2 + dye**2 + dze**2)
+          pad_need = max(pad_need, real(reach * maxval(this%ds%x(:,:,:,e)), &
+               dp) / diam_min)
+       end do
+       call MPI_Allreduce(MPI_IN_PLACE, pad_need, 1, &
+            MPI_DOUBLE_PRECISION, MPI_MAX, NEKO_COMM)
+       write(log_buf, '(A,F6.3,A,F6.3)') 'Padding needed for the &
+            &kernel stencils: ', pad_need, ', set: ', aabb_padding
+       call neko_log%message(log_buf)
+       if (pad_need .gt. aabb_padding) then
+          call neko_log%warning('kernel stencils exceed the element &
+               &search reach; increase padding to the value above')
+       end if
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) call df_build_device_maps(this)
 
@@ -2244,7 +2272,7 @@ contains
     if (c_associated(this%part_d)) call device_free(this%part_d)
     if (c_associated(this%Bm_d)) call device_free(this%Bm_d)
 
-    call this%gs%free()
+    nullify(this%gs)
 
     call this%ib_fx%free()
     call this%ib_fy%free()

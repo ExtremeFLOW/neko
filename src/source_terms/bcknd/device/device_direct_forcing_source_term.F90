@@ -30,7 +30,8 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Device backend dispatch for the IDW immersed-boundary source term
+!> Device backend dispatch for the direct forcing source term's kernel
+!! routines (inverse distance gather and Shepard partial sums)
 module device_direct_forcing_source_term
   use num_types, only : rp, c_rp
   use utils, only : neko_error
