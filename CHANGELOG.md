@@ -2,6 +2,9 @@
 
 ## Develop
 
+- Changed the CPU CG, coupled CG and GMRES solvers to obtain their large work
+  arrays from the scratch registry for each solve instead of retaining
+  dedicated storage.
 - Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
   ranks have zero points.
 - Fixed device memory leaking on every write of a spatially averaged
