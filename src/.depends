@@ -339,7 +339,7 @@ math/bcknd/cpu/ax_helm_compr_vector_cpu.lo : math/bcknd/cpu/ax_helm_compr_vector
 math/bcknd/sx/ax_helm_sx.lo : math/bcknd/sx/ax_helm_sx.f90 math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
 math/bcknd/sx/ax_helm_compr_sx.lo : math/bcknd/sx/ax_helm_compr_sx.f90 common/utils.lo math/math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/bcknd/sx/ax_helm_sx.lo 
 math/bcknd/xsmm/ax_helm_xsmm.lo : math/bcknd/xsmm/ax_helm_xsmm.F90 math/mxm_wrapper.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
-math/bcknd/device/ax_helm_device.lo : math/bcknd/device/ax_helm_device.F90 device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
+math/bcknd/device/ax_helm_device.lo : math/bcknd/device/ax_helm_device.F90 common/utils.lo device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm.lo 
 math/bcknd/device/ax_helm_svv_one_sided_device.lo : math/bcknd/device/ax_helm_svv_one_sided_device.F90 common/utils.lo device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_svv.lo 
 math/bcknd/device/ax_helm_svv_one_sided_full_device.lo : math/bcknd/device/ax_helm_svv_one_sided_full_device.F90 common/utils.lo device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_svv_full.lo 
 math/bcknd/device/ax_helm_full_device.lo : math/bcknd/device/ax_helm_full_device.F90 device/device.lo math/bcknd/device/device_math.lo mesh/mesh.lo sem/space.lo sem/coef.lo config/num_types.lo math/ax_helm_full.lo 

@@ -1038,7 +1038,7 @@ if ENABLE_ADIOS2
 # Now, use libtools to wrap everything
 
 io/nek_adios2.lo: io/nek_adios2.cpp
-	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(CPPFLAGS) -I@top_builddir@/src -I@top_srcdir@/src -c $< -o $@
 
 libneko_la_LIBADD += \
         io/nek_adios2.lo
