@@ -1282,6 +1282,13 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
     Note that in this case, we still solve for the absolute velocity, not the
     relative one. It is simply advection that is affected. Useful to perform
     simulations on domains that are moving on a periodic direction.
+12. `direct_forcing`, a direct forcing immersed boundary. A body given as a
+    triangulated surface (STL) is covered with Lagrangian markers, the
+    velocity is interpolated to the markers every step, and the force that
+    brings it to rest is spread back onto the mesh. See
+    [Direct forcing](@ref direct-forcing) for the method and the choice of
+    interpolation and spread operators, and the
+    [parameter table](@ref case-file_direct-forcing) below.
 
 #### Brinkman
 The Brinkman source term introduces regions of resistance in the fluid domain.
@@ -1396,6 +1403,93 @@ the boundary mesh is computed using a step function with a cut-off distance of
       "brinkman": {
          "limits": [0.0, 100.0],
          "penalty": 1.0
+      }
+   }
+]
+~~~~~~~~~~~~~~~
+
+#### Direct forcing {#case-file_direct-forcing}
+The direct forcing source term represents a solid body at rest inside the
+fluid mesh by a set of Lagrangian markers on its surface. Each time step the
+velocity is interpolated to the markers and the force
+
+\f[
+   \mathbf{f} = -\frac{g}{\Delta t}\, S\, I\, \mathbf{u}^n
+\f]
+
+is spread back onto the mesh, where \f$ I \f$ is the interpolation, \f$ S \f$
+the spread and \f$ g \f$ the `spread_gain`. The term is applied without time
+extrapolation. The method, the available interpolation and spread operators,
+their stability and the diagnostics the term prints are described on the
+[Direct forcing](@ref direct-forcing) page. The surface is read from an STL
+file given as a `boundary_mesh` object, with the same `mesh_transform`
+options as for the Brinkman term, and is refined to the local grid spacing
+before the markers are seeded.
+
+| Name                    | Description                                                                                            | Admissible values                      | Default value                                  |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------- | ---------------------------------------------- |
+| `interpolation`         | Velocity interpolation onto the markers.                                                               | `spectral`, `idw`, `adjoint`           | `spectral`                                     |
+| `spread`                | Distribution of the marker forces onto the mesh. The adjoint spreads require `spectral` interpolation. | `idw`, `adjoint`, `adjoint_mass`       | `idw`                                          |
+| `rmax`                  | Radius of the inverse distance kernel, in local grid spacings.                                         | Real                                   | `1.2`                                          |
+| `power_parameter`       | Exponent of the inverse distance kernel.                                                               | Real                                   | `0.5`                                          |
+| `interpolation_rmax`    | Radius of the Shepard (`idw`) interpolation, in local grid spacings.                                   | Real                                   | `2.0` (`rmax` for the `adjoint` interpolation) |
+| `spread_gain`           | Gain \f$ g \f$ on the forcing.                                                                         | Real                                   | `1.0`                                          |
+| `one_sided`             | Treat the two sides of the surface with separate stencils.                                             | `true` or `false`                      | `true`                                         |
+| `mask_band`             | Half-width of the band of nodes that belong to both sides, in local grid spacings.                     | Real                                   | `0.1` (adjoint spread), `0.0` (kernel spread)  |
+| `one_sided_min_weight`  | Floor of the one-sided weight sum of a marker below which its normalisation is clamped (adjoint spread). | Real                                 | `0.25`                                         |
+| `padding`               | Growth of the element search boxes, relative to the element diameter.                                  | Real                                   | `0.125`                                        |
+| `nudge`                 | Step of the marker nudge for unplaced or outside markers, in units of the smallest grid spacing.       | Real                                   | `0.5`                                          |
+| `face_tolerance`        | Distance to an element face, in reference coordinates, below which a marker counts as on the face. `0` disables. | Real                         | `0.02` (adjoint spread), `0.0` (kernel spread) |
+| `face_nudge`            | Outward step of a marker on a face, in local grid spacings per pass.                                   | Real                                   | `0.02`                                         |
+| `marker_output`         | Write the markers to `df_markers_<rank>.csv` and register the diagnostic fields.                       | `true` or `false`                      | `false`                                        |
+| `filter.type`           | Filter applied to the assembled forcing, see [filters](@ref filter) for the other keywords.            | `none`, `elementwise`, `PDE`           | `none`                                         |
+| `objects`               | Array of JSON objects defining the immersed surfaces.                                                  | Each object must specify a `type`      | -                                              |
+| `force_output`          | Optional JSON object enabling the force output, see below.                                             | -                                      | -                                              |
+
+The objects take the following keywords.
+
+| Name                   | Description                                                                                  | Admissible values                       | Default value |
+| ---------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------- | ------------- |
+| `type`                 | Kind of object.                                                                              | `boundary_mesh`                         | -             |
+| `name`                 | File name of the triangulated surface.                                                       | STL file                                | -             |
+| `mesh_transform.type`  | Transformation applied to the surface, with the same keywords as for the Brinkman term.      | `none`, `bounding_box`                  | `none`        |
+| `marker_spacing`       | Target distance between markers, in units of the local grid spacing.                         | Real                                    | `1.0`         |
+| `refinement`           | Refine each triangle to its own local spacing, or all triangles to the smallest spacing.     | `local`, `uniform`                      | `local`       |
+| `max_markers`          | Abort if the number of markers exceeds this value.                                           | Integer                                 | `20000000`    |
+
+The `force_output` object writes the force on the immersed objects,
+\f$ \mathbf{F} = -\rho \int \mathbf{f} \, dV \f$ times `scale`, to a CSV file
+with the columns `tstep, time, Fx, Fy, Fz`.
+
+| Name                          | Description                                                     | Admissible values            | Default value   |
+| ----------------------------- | --------------------------------------------------------------- | ---------------------------- | --------------- |
+| `force_output.output_file`    | Name of the CSV file.                                           | String                       | `df_force.csv`  |
+| `force_output.output_control` | Output interval type.                                           | `tsteps`, `simulationtime`   | `tsteps`        |
+| `force_output.output_value`   | Output interval.                                                | Integer or real              | `1`             |
+| `force_output.scale`          | Factor on the force, e.g. \f$ 2/(\rho U^2 A) \f$ for coefficients. | Real                      | `1.0`           |
+| `force_output.overwrite`      | Overwrite the file instead of appending to it.                  | `true` or `false`            | `false`         |
+
+Example of a direct forcing term with the default operators and force output
+every ten steps.
+
+~~~~~~~~~~~~~~~{.json}
+"source_terms": [
+   {
+      "type": "direct_forcing",
+      "rmax": 1.2,
+      "power_parameter": 0.5,
+      "one_sided": true,
+      "objects": [
+         {
+            "type": "boundary_mesh",
+            "name": "sphere.stl",
+            "marker_spacing": 1.0
+         }
+      ],
+      "force_output": {
+         "output_file": "sphere_force.csv",
+         "output_control": "tsteps",
+         "output_value": 10
       }
    }
 ]

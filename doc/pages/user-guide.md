@@ -17,4 +17,5 @@ advanced topics such as statistics and user defined extensions.
 - \subpage performance
 - \subpage global-interpolation
 - \subpage filter
+- \subpage direct-forcing
 - \subpage programming-examples
