@@ -136,13 +136,14 @@ contains
 
   !> Stream the time value
   !! @param fld array of shape field%x
-  subroutine data_streamer_stream_time(this, time)
+  subroutine data_streamer_stream_time(this, time, tstep)
     class(data_streamer_t), intent(inout) :: this
     real(kind=dp), intent(in) :: time
+    integer, intent(in) :: tstep
 
 #ifdef HAVE_ADIOS2
     call neko_log%message("Streaming time", lvl = NEKO_LOG_DEBUG)
-    call fortran_adios2_stream_time(time)
+    call fortran_adios2_stream_time(time, tstep)
     call neko_log%message("Done streaming time", lvl = NEKO_LOG_DEBUG)
 #else
     call neko_warning('Is not being built with ADIOS2 support.')
@@ -284,23 +285,25 @@ contains
   !! is accessed by a data processor. The operations do not write to disk.
   !! data is communicated with mpi.
   !! @param fld array of shape field%x
-  subroutine fortran_adios2_stream_time(time)
+  subroutine fortran_adios2_stream_time(time, tstep)
     use, intrinsic :: ISO_C_BINDING
     implicit none
     real(kind=dp), intent(in) :: time
+    integer, intent(in) :: tstep
 
     interface
-       !> C-definition is: void adios2_stream_time_(const double *fld)
-       subroutine c_adios2_stream_time(time) &
+       !> C-definition is: void adios2_stream_time_(const double *time, const int *tstep)
+       subroutine c_adios2_stream_time(time, tstep) &
             bind(C, name = "adios2_stream_time_")
          use, intrinsic :: ISO_C_BINDING
          import c_dp
          implicit none
          real(kind=c_dp), intent(IN) :: time
+         integer(kind=c_int), intent(IN) :: tstep
        end subroutine c_adios2_stream_time
     end interface
 
-    call c_adios2_stream_time(time)
+    call c_adios2_stream_time(time, tstep)
   end subroutine fortran_adios2_stream_time
 
   !> Interface to adios2_stream in c++.

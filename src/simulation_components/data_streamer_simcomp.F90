@@ -209,7 +209,8 @@ contains
 
     if (time%t .ge. this%start_time) then
 
-       call this%dstream%stream_time(time%t)
+       ! Send time/tstep information to the data streamer.
+       call this%dstream%stream_time(time%t, time%tstep)
 
        do i = 1, size(this%field_names)
 
