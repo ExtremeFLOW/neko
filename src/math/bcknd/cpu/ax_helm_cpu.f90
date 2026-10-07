@@ -255,6 +255,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              tmp = 0.0_xp
@@ -401,6 +404,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -574,6 +580,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -740,6 +749,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -900,6 +912,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -1054,6 +1069,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -1202,6 +1220,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -1344,6 +1365,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -1480,6 +1504,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -1610,6 +1637,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -1734,6 +1764,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -1852,6 +1885,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -1964,6 +2000,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
@@ -2070,6 +2109,9 @@ contains
                + G33(i,1,1,e) * wut(i,1,1) )
        end do
 
+       ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
+       ! are xp, so each mixed kind product already evaluates in xp and
+       ! needs no cast, unlike the rp * rp D.u products above.
        do j = 1, lx*lx
           do i = 1, lx
              wa(i,j,1) = Dxt(i,1) * ur(1,j,1) &
