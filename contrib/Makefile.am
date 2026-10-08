@@ -1,4 +1,5 @@
 SUBDIRS = rea2nbin\
+	  gmsh2nmsh\
 	  prepart\
 	  genmeshbox\
 	  create_periodic_zones\

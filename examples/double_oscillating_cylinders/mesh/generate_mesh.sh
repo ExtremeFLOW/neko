@@ -1,24 +1,15 @@
 #!/bin/bash
+set -e
 
 # Set the paths to your executables here
 
-GMSH_PATH="/Gmsh-Path/"
-GMSH2NEK_PATH="/Neko-Path/contrib/gmsh2nek/"
-REA2NBIN_PATH="/Neko-Path/bin/rea2nbin"
+GMSH_PATH="/Gmsh-Path/bin/gmsh"
+GMSH2NMSH_PATH="/Neko-Path/bin/gmsh2nmsh"
 
 "$GMSH_PATH" double_cylinder.geo -
 
-"$GMSH2NEK_PATH" <<EOF
-3
-3D_ext_cyl
-1
-9 8
-0.0 0.0 -0.50
-3D_ext_cyl
-EOF
-
-"$REA2NBIN_PATH" 3D_ext_cyl.re2 double_oscillating_cylinders.nmsh
+# Physical surfaces 9 and 8 are made periodic
+"$GMSH2NMSH_PATH" 3D_ext_cyl.msh double_oscillating_cylinders.nmsh --periodic=9:8
 cp double_oscillating_cylinders.nmsh ../
 
 echo "Process completed successfully."
-
