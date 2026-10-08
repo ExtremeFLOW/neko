@@ -9,6 +9,9 @@
   edges are kept. It builds without the Neko library or MPI. The copy of
   Nek5000's `gmsh2nek` under `contrib` has been removed, and the examples
   that used it now use `gmsh2nmsh`.
+- Added deferred `init(coef, bclst, json)` and `free` to `pc_t`, so
+  user-registered preconditioners are initialized and freed like the built-in
+  ones.
 - Fixed several OpenMP races in the scratch registry.
 - Added `source_term_t%extrapolate` and the `extrapolate` and optional
   `scale` arguments to `source_term_handler_t%compute`, letting a source term
