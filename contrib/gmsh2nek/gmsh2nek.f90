@@ -99,6 +99,7 @@
       character*80 charline
       real A
       integer B
+      integer fileid
 	  
       character(1) re2nam1(80)
       character(1) mshnam1(32)
@@ -121,10 +122,10 @@
       call chcopy (mshname,mshnam1,len+4)
       call chcopy (re2name,re2nam1,len+4)
 
-      open(301,file=mshname)
-      read(301,*) charline
-      read(301,*) A,aorb,B
-      close(301)
+      open(newunit=fileid,file=mshname)
+      read(fileid,*) charline
+      read(fileid,*) A,aorb,B
+      close(fileid)
 	  
       if ((A.ge.3.0).or.(A.lt.2.0)) then
       write(6,*) 'ERROR: invalid msh file format!'  
@@ -146,6 +147,7 @@
       character*80 charline
       character*1  charlin1(80)
       integer A,B,C,elemType
+      integer fileid,fileid2
 
       equivalence(mshnam2,mshnam3)
       equivalence(charline,charlin1) 	  
@@ -171,19 +173,19 @@
 
       call blank (charline,80)
 
-      open(299,file=mshname)
-      open(300,file=mshnam2)
+      open(newunit=fileid,file=mshname)
+      open(newunit=fileid2,file=mshnam2)
 
 ! loop to find $PhysicalNames
       do while (.true.) 
-        read(299,*) charline
-        read(300,*)
+        read(fileid,*) charline
+        read(fileid2,*)
         charline = trim(charline)
         if (charline.eq."$PhysicalNames") goto 1010
       enddo
 ! end loop to $PhysicalNames
-1010  read(299,*) bcNumber ! bcNumber is number of boundaries
-      read(300,*)
+1010  read(fileid,*) bcNumber ! bcNumber is number of boundaries
+      read(fileid2,*)
       !bcNumber	= bcNumber - 1 
       allocate ( bcID       (2,bcNumber))
       allocate ( bcChar     (bcNumber))
@@ -192,8 +194,8 @@
 
       ibc_a = 0
       do ibc= 1,bcNumber
-      read(299,*) A,bcID(1,ibc),bcChar(ibc)
-      read(300,*)
+      read(fileid,*) A,bcID(1,ibc),bcChar(ibc)
+      read(fileid2,*)
       !write(6,*) trim(bcChar(ibc)),bcID(1,ibc)
         if(A.EQ.1) ibc_a = ibc_a + 1
       enddo
@@ -201,16 +203,16 @@
 
 ! loop to find Nodes section
       do while (.true.) 
-        read(299,*) charline
-        read(300,*)
+        read(fileid,*) charline
+        read(fileid2,*)
         charline = trim(charline)
         if (charline.eq."$Nodes") goto 1020
       enddo
 ! end loop to "$Nodes"
 
 ! read all nodes xyz
-1020  read(299,*) totalNode
-      read(300,*)
+1020  read(fileid,*) totalNode
+      read(fileid2,*)
 
 ! now we know total node number, allocate memory size.
       allocate ( node_xyz       (3,totalNode))
@@ -222,19 +224,19 @@
 
 ! read all node xyz.
       do inode = 1,totalNode
-      read(299,*)A,node_xyz(1,inode),node_xyz(2,inode) &
+      read(fileid,*)A,node_xyz(1,inode),node_xyz(2,inode) &
       ,node_xyz(3,inode)
-      read(300,*)
+      read(fileid2,*)
       enddo
 ! end read all nodes xyz
 
-      read(299,*)charline ! "$EndNodes"
-      read(300,*)
-      read(299,*)charline ! "$Elements"
-      read(300,*)
+      read(fileid,*)charline ! "$EndNodes"
+      read(fileid2,*)
+      read(fileid,*)charline ! "$Elements"
+      read(fileid2,*)
 	  
-      read(299,*)totalElem
-      read(300,*)
+      read(fileid,*)totalElem
+      read(fileid2,*)
 
       allocate ( line_array       (5,totalElem))
       allocate ( quad_array       (11,totalElem))
@@ -245,12 +247,12 @@
       totalQuad = 0
 
       do iElem= 1,totalElem
-      read(299,*) A,elemType
+      read(fileid,*) A,elemType
 
 	  ! detemine element type
       if (elemType.eq.8) then ! if line3
       totalLine = totalLine + 1
-      read(300,*) A,B,C, &
+      read(fileid2,*) A,B,C, &
       line_array(1,totalLine),line_array(2,totalLine),&
       line_array(3,totalLine),line_array(4,totalLine),&
       line_array(5,totalLine)
@@ -267,7 +269,7 @@
 
       elseif (elemType.eq.16) then ! if quad8
       totalQuad = totalQuad + 1
-      read(300,*) A,B,C, &
+      read(fileid2,*) A,B,C, &
       quad_array(1,totalQuad),quad_array(2,totalQuad),&
       quad_array(3,totalQuad),quad_array(4,totalQuad),&
       quad_array(5,totalQuad),quad_array(6,totalQuad),&
@@ -280,7 +282,7 @@
   
       elseif (elemType.eq.10) then ! if quad9
       totalQuad = totalQuad + 1
-      read(300,*) A,B,C,&
+      read(fileid2,*) A,B,C,&
       quad_array(1,totalQuad),quad_array(2,totalQuad),&
       quad_array(3,totalQuad),quad_array(4,totalQuad),&
       quad_array(5,totalQuad),quad_array(6,totalQuad),&
@@ -309,8 +311,8 @@
       write (6,*) 'total line element number is ', totalLine
       write (6,*) 'total quad element number is ', totalQuad
 
-      close(299)
-      close(300)
+      close(fileid)
+      close(fileid2)
 
       num_dim = 2
       num_elem = totalQuad
@@ -339,10 +341,10 @@
       integer elem_type,num_elm_follow,num_tags
       integer fileid
 	 
-      fileid = 302
 	  
 	  ! read msh file in binary format.
-      open(unit=fileid,file=mshname,access="stream",form="unformatted",status="old")
+      open(newunit=fileid,file=mshname,access="stream", &
+      form="unformatted",status="old")
 	  
       ! read two lines.
 ! ------------------------------------------------------------------
@@ -555,6 +557,7 @@
       character*80 charline
       character*1  charlin1(80)
       integer A,B,C,elemType
+      integer fileid,fileid2
 
       equivalence(mshnam2,mshnam3)
       equivalence(charline,charlin1) 	  
@@ -580,19 +583,19 @@
 
       call blank (charline,80)
 
-      open(299,file=mshname)
-      open(300,file=mshnam2)
+      open(newunit=fileid,file=mshname)
+      open(newunit=fileid2,file=mshnam2)
 
 ! loop to find $PhysicalNames
       do while (.true.) 
-        read(299,*) charline
-        read(300,*)
+        read(fileid,*) charline
+        read(fileid2,*)
         charline = trim(charline)
         if (charline.eq."$PhysicalNames") goto 1010
       enddo
 ! end loop to $PhysicalNames
-1010  read(299,*) bcNumber ! bcNumber is number of boundaries
-      read(300,*)
+1010  read(fileid,*) bcNumber ! bcNumber is number of boundaries
+      read(fileid2,*)
       !bcNumber	= bcNumber - 1 
       allocate ( bcID       (2,bcNumber))
       allocate ( bcChar     (bcNumber))
@@ -600,24 +603,24 @@
       call blank  (bcChar, 32*bcNumber)
       ibc_a = 0
       do ibc= 1,bcNumber
-      read(299,*) A,bcID(1,ibc),bcChar(ibc)
-      read(300,*)
+      read(fileid,*) A,bcID(1,ibc),bcChar(ibc)
+      read(fileid2,*)
       !write(6,*) trim(bcChar(ibc)),bcID(1,ibc)
          if(A.EQ.2) ibc_a = ibc_a + 1
       enddo
       bcNumber = ibc_a
 ! loop to find Nodes section
       do while (.true.) 
-        read(299,*) charline
-        read(300,*)
+        read(fileid,*) charline
+        read(fileid2,*)
         charline = trim(charline)
         if (charline.eq."$Nodes") goto 1020
       enddo
 ! end loop to "$Nodes"
 
 ! read all nodes xyz
-1020  read(299,*) totalNode
-      read(300,*)
+1020  read(fileid,*) totalNode
+      read(fileid2,*)
 
 ! now we know total node number, allocate memory size.
       allocate ( node_xyz       (3,totalNode))
@@ -629,19 +632,19 @@
 
 ! read all node xyz.
       do inode = 1,totalNode
-      read(299,*)A,node_xyz(1,inode),node_xyz(2,inode) &
+      read(fileid,*)A,node_xyz(1,inode),node_xyz(2,inode) &
       ,node_xyz(3,inode)
-      read(300,*)
+      read(fileid2,*)
       enddo
 ! end read all nodes xyz
 
-      read(299,*)charline ! "$EndNodes"
-      read(300,*)
-      read(299,*)charline ! "$Elements"
-      read(300,*)
+      read(fileid,*)charline ! "$EndNodes"
+      read(fileid2,*)
+      read(fileid,*)charline ! "$Elements"
+      read(fileid2,*)
 	  
-      read(299,*)totalElem
-      read(300,*)
+      read(fileid,*)totalElem
+      read(fileid2,*)
 ! msh (version2, ascci) only tells us the total element number,
 ! including all quad+hex elements.
 ! but we do not know the specific number of quads and hexs
@@ -654,12 +657,12 @@
       totalHex = 0
 
       do iElem= 1,totalElem
-      read(299,*) A,elemType
+      read(fileid,*) A,elemType
 
 	  ! detemine element type
       if (elemType.eq.16) then ! if quad8
       totalQuad = totalQuad + 1
-      read(300,*) A,B,C, &
+      read(fileid2,*) A,B,C, &
       quad_array(1,totalQuad),quad_array(2,totalQuad),&
       quad_array(3,totalQuad),quad_array(4,totalQuad),&
       quad_array(5,totalQuad),quad_array(6,totalQuad),&
@@ -678,7 +681,7 @@
  
       elseif (elemType.eq.10) then ! if quad9
       totalQuad = totalQuad + 1
-      read(300,*) A,B,C,&
+      read(fileid2,*) A,B,C,&
       quad_array(1,totalQuad),quad_array(2,totalQuad),&
       quad_array(3,totalQuad),quad_array(4,totalQuad),&
       quad_array(5,totalQuad),quad_array(6,totalQuad),&
@@ -698,7 +701,7 @@
 	 
       elseif (elemType.eq.17) then ! if hex20
       totalHex = totalHex + 1
-      read(300,*) A,B,C,&
+      read(fileid2,*) A,B,C,&
       hex_array(1,totalHex),hex_array(2,totalHex),&
       hex_array(3,totalHex),hex_array(4,totalHex),&
       hex_array(5,totalHex),hex_array(6,totalHex),&
@@ -717,7 +720,7 @@
 
       elseif (elemType.eq.12) then ! if hex27
       totalHex = totalHex + 1
-      read(300,*) A,B,C,&
+      read(fileid2,*) A,B,C,&
       hex_array(1,totalHex),hex_array(2,totalHex),&
       hex_array(3,totalHex),hex_array(4,totalHex),&
       hex_array(5,totalHex),hex_array(6,totalHex),&
@@ -755,8 +758,8 @@
       write (6,*) 'total quad element number is ', totalQuad
       write (6,*) 'total hex element number is ', totalHex
 
-      close(299)
-      close(300)
+      close(fileid)
+      close(fileid2)
 
       num_dim = 3
       num_elem = totalHex
@@ -787,10 +790,10 @@
       integer elem_type,num_elm_follow,num_tags
       integer fileid
 	 
-      fileid = 302
 	  
 	  ! read msh file in binary format.
-      open(unit=fileid,file=mshname,access="stream",form="unformatted",status="old")
+      open(newunit=fileid,file=mshname,access="stream", &
+      form="unformatted",status="old")
 	  
       ! read two lines.
 ! ------------------------------------------------------------------

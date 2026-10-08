@@ -1590,8 +1590,13 @@ contains
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
+    ! A rank without points still has to take part in the reduction
     if (n .lt. 1) then
        res = -huge(0.0_rp)
+       if (pe_size .gt. 1) then
+          call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+               MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+       end if
        return
     end if
 
@@ -1630,8 +1635,13 @@ contains
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
+    ! A rank without points still has to take part in the reduction
     if (n .lt. 1) then
        res = huge(0.0_rp)
+       if (pe_size .gt. 1) then
+          call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+               MPI_REAL_PRECISION, MPI_MIN, NEKO_COMM, ierr)
+       end if
        return
     end if
 
@@ -1673,8 +1683,13 @@ contains
     type(c_ptr), optional :: strm
     type(c_ptr) :: strm_
 
+    ! A rank without points still has to take part in the reduction
     if (n .lt. 1) then
        res = 0.0_rp
+       if (pe_size .gt. 1) then
+          call MPI_Allreduce(MPI_IN_PLACE, res, 1, &
+               MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+       end if
        return
     end if
 

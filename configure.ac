@@ -480,6 +480,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/ax/Makefile\
         tests/unit/krylov/Makefile\
         tests/unit/bc/Makefile\
+        tests/unit/fluid_pnpn_bc/Makefile\
         tests/unit/signal/Makefile\
         tests/unit/jobctrl/Makefile\
         tests/unit/vtkhdf/Makefile\
@@ -512,6 +513,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/checkpoint_payload/Makefile\
         tests/unit/wall_sampling/Makefile\
         tests/unit/crystal_router/Makefile\
+        tests/unit/geo_compression/Makefile\
         tests/unit/templates/serial/Makefile])
 
 if test "x${enable_contrib}" = xyes; then

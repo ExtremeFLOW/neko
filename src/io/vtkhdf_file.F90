@@ -1047,15 +1047,15 @@ contains
        call h5screate_f(H5S_SCALAR_F, filespace, ierr)
 
        call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
-       call h5tset_size_f(H5T_NEKO_STRING, int(6, size_t), ierr)
+       call h5tset_size_f(H5T_NEKO_STRING, int(7, size_t), ierr)
        call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
 
        call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
             attr_id, ierr)
        if (is_vector) then
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vector"], pd_dims1, ierr)
+          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vectors"], pd_dims1, ierr)
        else
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalar"], pd_dims1, ierr)
+          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalars"], pd_dims1, ierr)
        end if
 
        call h5aclose_f(attr_id, ierr)

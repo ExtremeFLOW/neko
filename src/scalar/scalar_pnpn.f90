@@ -252,6 +252,8 @@ contains
        class is (ax_helm_svv_t)
           operator%svv => this%svv
        end select
+    else if (this%c_Xh%geo_compression) then
+       call ax_helm_allocator(this%ax, type_name = "standard_compr")
     else
        call ax_helm_allocator(this%ax, type_name = "standard")
     end if
@@ -484,8 +486,8 @@ contains
          call this%svv%update(rho_cp, tstep)
       end if
 
-      ! Compute the source terms
-      call this%source_term%compute(time)
+      ! Compute the source terms that are extrapolated in time below
+      call this%source_term%compute(time, extrapolate = .true.)
 
       if (oifs) then
          ! The fluid step has already advanced u, v, and w to the new time.
@@ -520,6 +522,12 @@ contains
               rho_cp, real(dt, kind=rp), ext_bdf%diffusion_coeffs%x, &
               ext_bdf%ndiff, n)
       end if
+
+      ! Source terms that must not be extrapolated in time are added as
+      ! computed, weighted by the mass matrix and rho * cp like the
+      ! extrapolated terms above.
+      call this%source_term%compute(time, extrapolate = .false., &
+           scale = rho_cp)
 
       call slag%update()
 

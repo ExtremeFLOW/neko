@@ -34,7 +34,8 @@
 module coefs
   use gather_scatter, only : gs_t
   use gs_ops, only : GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_OPENCL
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_OPENCL, &
+       NEKO_BCKND_SX, NEKO_BCKND_XSMM
   use num_types, only : rp, sp, dp
   use dofmap, only : dofmap_t
   use space, only : space_t
@@ -178,19 +179,25 @@ module coefs
      !! build trips NEKO_METRIC_COND_SP.
      logical :: metric_sp_safe = .false.
      !> Compressed geometric factors \f$ G_{11} \f$
-     real(kind=rp), allocatable :: G11_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G11_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{22} \f$
-     real(kind=rp), allocatable :: G22_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G22_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{33} \f$
-     real(kind=rp), allocatable :: G33_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G33_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{12} \f$
-     real(kind=rp), allocatable :: G12_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G12_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{13} \f$
-     real(kind=rp), allocatable :: G13_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G13_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{23} \f$
-     real(kind=rp), allocatable :: G23_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G23_compr(:,:,:,:)
      !> Compressed geometric factors lookup indices
      integer, allocatable :: compression_inds(:)
+     !> Whether the compressed geometric factors are kept in step with the
+     !! geometry, see enable_geo_compression().
+     logical :: geo_compression = .false.
+     !> Relative tolerance under which two elements share their compressed
+     !! geometric factors.
+     real(kind=rp) :: geo_compression_tol = 0.0_rp
 
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      !> generate mapping data between element and reference element
@@ -252,6 +259,13 @@ module coefs
      type(c_ptr) :: G12_d = C_NULL_PTR
      type(c_ptr) :: G13_d = C_NULL_PTR
      type(c_ptr) :: G23_d = C_NULL_PTR
+     type(c_ptr) :: G11_compr_d = C_NULL_PTR
+     type(c_ptr) :: G22_compr_d = C_NULL_PTR
+     type(c_ptr) :: G33_compr_d = C_NULL_PTR
+     type(c_ptr) :: G12_compr_d = C_NULL_PTR
+     type(c_ptr) :: G13_compr_d = C_NULL_PTR
+     type(c_ptr) :: G23_compr_d = C_NULL_PTR
+     type(c_ptr) :: compression_inds_d = C_NULL_PTR
      type(c_ptr) :: dxdr_d = C_NULL_PTR
      type(c_ptr) :: dydr_d = C_NULL_PTR
      type(c_ptr) :: dzdr_d = C_NULL_PTR
@@ -300,6 +314,8 @@ module coefs
      procedure, pass(this) :: generate_cyclic_bc => coef_generate_cyclic_bc
      procedure, pass(this) :: recompute_metrics => coef_recompute_metrics
      procedure, pass(this) :: metric_condition => coef_metric_condition
+     procedure, pass(this) :: enable_geo_compression => &
+          coef_enable_geo_compression
      procedure, pass(this) :: enable_B_history => coef_enable_lagged_mass
      procedure, pass(this) :: update_B_history => coef_update_lagged_mass
      generic :: init => init_empty, init_all
@@ -502,8 +518,6 @@ contains
 
     call coef_generate_geo(this)
 
-    ! call coef_generate_geo_compressed(this)
-
     ! Both are dead weight under COEF_OPERATOR: nothing reads the facet
     ! metrics, and the conditioning diagnostic is two per-point eigenvalue
     ! solves plus three reductions spent on something no one consumes yet.
@@ -619,33 +633,9 @@ contains
        deallocate(this%G23)
     end if
 
-    if (allocated(this%G11_compressed)) then
-       deallocate(this%G11_compressed)
-    end if
-
-    if (allocated(this%compression_inds)) then
-       deallocate(this%compression_inds)
-    end if
-
-    if (allocated(this%G22_compressed)) then
-       deallocate(this%G22_compressed)
-    end if
-
-    if (allocated(this%G33_compressed)) then
-       deallocate(this%G33_compressed)
-    end if
-
-    if (allocated(this%G12_compressed)) then
-       deallocate(this%G12_compressed)
-    end if
-
-    if (allocated(this%G13_compressed)) then
-       deallocate(this%G13_compressed)
-    end if
-
-    if (allocated(this%G23_compressed)) then
-       deallocate(this%G23_compressed)
-    end if
+    call coef_free_geo_compr(this)
+    this%geo_compression = .false.
+    this%geo_compression_tol = 0.0_rp
 
     if (allocated(this%mult)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%mult, this%mult_d)
@@ -1574,14 +1564,85 @@ contains
 
   end subroutine coef_metric_condition
 
+  !> Enable compressed geometric factors.
+  !! @details Builds processor-local compressed copies of the geometric
+  !! factors, see coef_generate_geo_compr(), for the operators that read
+  !! them, e.g. ax_helm_compr_cpu_t, and rebuilds them with the geometry
+  !! in recompute_metrics(). The copies are read by the CPU, SX and device
+  !! backends, so nothing is built on the XSMM backend. Collective.
+  !! Like the other diagnostics, the statistics are only logged under
+  !! COEF_FULL, not for the operator-only coefficients of multigrid levels.
+  !! @param tol Tolerance on the difference of the geometric factors, summed
+  !! over the element, under which two elements share them, defaults to 1e-7.
+  subroutine coef_enable_geo_compression(this, tol)
+    class(coef_t), intent(inout) :: this
+    real(kind=rp), intent(in), optional :: tol
+
+    if (.not. this%coef_metrics_initialized) then
+       call neko_error('Geometric factors must be generated before they ' // &
+            'are compressed')
+    end if
+
+    if (present(tol)) then
+       if (tol .lt. 0.0_rp) then
+          call neko_error('Geometric factor compression tolerance must ' // &
+               'be non-negative')
+       end if
+    end if
+
+    if (NEKO_BCKND_XSMM .eq. 1) then
+       if (this%scope .eq. COEF_FULL) then
+          call neko_log%section('Compressed G')
+          call neko_log%message('Not built for the XSMM backend')
+          call neko_log%end_section()
+       end if
+       return
+    end if
+
+    this%geo_compression_tol = 1.0E-7_rp
+    if (present(tol)) then
+       this%geo_compression_tol = tol
+    end if
+
+    this%geo_compression = .true.
+    call coef_generate_geo_compr(this, this%scope .eq. COEF_FULL)
+
+  end subroutine coef_enable_geo_compression
+
   !> Compute processor-local compressed versions of mappings Gij
+  !! @details Elements whose geometric factors agree share one copy of them
+  !! in Gij_compr, and compression_inds maps each element to its copy. An
+  !! element agrees with the first element of a copy when the absolute
+  !! differences of their factors, summed over the quadrature points with the
+  !! off-diagonal factors counted twice, are at most geo_compression_tol.
+  !! Each element is compared with every copy found before it.
+  !! @param verbose Whether to log global statistics, which is collective.
   !! @note This could be faster with various tweaks
-  subroutine coef_generate_geo_compressed(c)
+  subroutine coef_generate_geo_compr(c, verbose)
     type(coef_t), intent(inout) :: c
-    integer :: e, m, i, lxyz, m_max
+    logical, intent(in) :: verbose
+    integer :: e, m, i, lxyz, m_max, ierr, n
     integer, allocatable :: c_inds_rev(:) ! reverse compression indices map
-    real(kind=rp) :: ctol = 1.0E-7_rp
-    real(kind=rp) :: diff = 0.0_rp
+    integer :: stats(2), glb_stats(2)
+    real(kind=rp) :: ctol, diff
+    character(len=LOG_SIZE) :: log_buf
+
+    call coef_free_geo_compr(c)
+
+    ! On a device backend the host factors are only current after
+    ! initialization, while recompute_metrics() updates the device ones
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       n = c%dof%size()
+       call device_memcpy(c%G11, c%G11_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G22, c%G22_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G33, c%G33_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G12, c%G12_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G13, c%G13_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G23, c%G23_d, n, DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    ctol = c%geo_compression_tol
+    diff = 0.0_rp
 
     ! First step, allocate full-size lookup structure for entire mesh
     allocate(c%compression_inds(c%msh%nelv))
@@ -1589,10 +1650,13 @@ contains
 
     ! Second step, loop over all elements, compute compression mapping
     ! First entry must be itself to get started
-    m_max = 1
-    c%compression_inds(1) = 1
-    c_inds_rev = 0
-    c_inds_rev(1) = 1
+    m_max = 0
+    if (c%msh%nelv .gt. 0) then
+       m_max = 1
+       c%compression_inds(1) = 1
+       c_inds_rev = 0
+       c_inds_rev(1) = 1
+    end if
 
     ! Loop over elements, but skip first
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
@@ -1604,10 +1668,10 @@ contains
           do i = 1, lxyz
              ! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_l1 )
              diff = diff + abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &
-                  + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
-                  + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
+                  + 2.0_rp*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
+                  + 2.0_rp*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
                   + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
-                  + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
+                  + 2.0_rp*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
                   + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
           end do
 
@@ -1618,39 +1682,132 @@ contains
           end if
        end do
 
-       ! never found a match
-       if ( diff .gt. ctol ) then
+       ! never found a match, written so that a NaN never matches either
+       if (.not. (diff .le. ctol)) then
           m_max = m_max + 1
           c%compression_inds(e) = m_max
           c_inds_rev(m_max) = e
        end if
     end do
 
-    write(*,*)
-    write(*,*) '------Mapping Compression-----'
-    write(*,*) 'Compressed from ', c%msh%nelv, ' to ', m_max
-
-    ! Third step, allocate and fill Gij_compressed objects
-    allocate(c%G11_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G22_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G33_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G12_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G13_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G23_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    ! Third step, allocate and fill Gij_compr objects
+    allocate(c%G11_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G22_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G33_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G12_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G13_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G23_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
     do m = 1, m_max
        do i = 1, lxyz
-          c%G11_compressed(i,1,1,m) = c%G11(i,1,1,c_inds_rev(m))
-          c%G22_compressed(i,1,1,m) = c%G22(i,1,1,c_inds_rev(m))
-          c%G33_compressed(i,1,1,m) = c%G33(i,1,1,c_inds_rev(m))
-          c%G12_compressed(i,1,1,m) = c%G12(i,1,1,c_inds_rev(m))
-          c%G13_compressed(i,1,1,m) = c%G13(i,1,1,c_inds_rev(m))
-          c%G23_compressed(i,1,1,m) = c%G23(i,1,1,c_inds_rev(m))
+          c%G11_compr(i,1,1,m) = c%G11(i,1,1,c_inds_rev(m))
+          c%G22_compr(i,1,1,m) = c%G22(i,1,1,c_inds_rev(m))
+          c%G33_compr(i,1,1,m) = c%G33(i,1,1,c_inds_rev(m))
+          c%G12_compr(i,1,1,m) = c%G12(i,1,1,c_inds_rev(m))
+          c%G13_compr(i,1,1,m) = c%G13(i,1,1,c_inds_rev(m))
+          c%G23_compr(i,1,1,m) = c%G23(i,1,1,c_inds_rev(m))
        end do
     end do
 
     deallocate(c_inds_rev)
 
-  end subroutine coef_generate_geo_compressed
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       n = lxyz * m_max
+       call device_map(c%G11_compr, c%G11_compr_d, n)
+       call device_map(c%G22_compr, c%G22_compr_d, n)
+       call device_map(c%G33_compr, c%G33_compr_d, n)
+       call device_map(c%G12_compr, c%G12_compr_d, n)
+       call device_map(c%G13_compr, c%G13_compr_d, n)
+       call device_map(c%G23_compr, c%G23_compr_d, n)
+       call device_map(c%compression_inds, c%compression_inds_d, c%msh%nelv)
+       call device_memcpy(c%G11_compr, c%G11_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G22_compr, c%G22_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G33_compr, c%G33_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G12_compr, c%G12_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G13_compr, c%G13_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G23_compr, c%G23_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%compression_inds, c%compression_inds_d, &
+            c%msh%nelv, HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    if (verbose) then
+       stats(1) = c%msh%nelv
+       stats(2) = m_max
+       call MPI_Allreduce(stats, glb_stats, 2, MPI_INTEGER, MPI_SUM, &
+            NEKO_COMM, ierr)
+
+       call neko_log%section('Compressed G')
+       write(log_buf, '(A,I0)') 'Copies     : ', glb_stats(2)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,I0)') 'Elements   : ', glb_stats(1)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES12.5)') 'Tolerance  : ', ctol
+       call neko_log%message(log_buf)
+       call neko_log%end_section()
+    end if
+
+  end subroutine coef_generate_geo_compr
+
+  !> Release the compressed geometric factors.
+  subroutine coef_free_geo_compr(c)
+    type(coef_t), intent(inout) :: c
+
+    if (allocated(c%compression_inds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%compression_inds, c%compression_inds_d)
+       end if
+       deallocate(c%compression_inds)
+    end if
+
+    if (allocated(c%G11_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G11_compr, c%G11_compr_d)
+       end if
+       deallocate(c%G11_compr)
+    end if
+
+    if (allocated(c%G22_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G22_compr, c%G22_compr_d)
+       end if
+       deallocate(c%G22_compr)
+    end if
+
+    if (allocated(c%G33_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G33_compr, c%G33_compr_d)
+       end if
+       deallocate(c%G33_compr)
+    end if
+
+    if (allocated(c%G12_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G12_compr, c%G12_compr_d)
+       end if
+       deallocate(c%G12_compr)
+    end if
+
+    if (allocated(c%G13_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G13_compr, c%G13_compr_d)
+       end if
+       deallocate(c%G13_compr)
+    end if
+
+    if (allocated(c%G23_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G23_compr, c%G23_compr_d)
+       end if
+       deallocate(c%G23_compr)
+    end if
+
+
+  end subroutine coef_free_geo_compr
 
   !> Generate mass matrix B for the given mesh and space
   !! @note This is also a stapleholder, we need to go through the coef class properly.
@@ -2036,6 +2193,9 @@ contains
 
     call coef_generate_dxyzdrst(this)
     call coef_generate_geo(this)
+    if (this%geo_compression) then
+       call coef_generate_geo_compr(this, .false.)
+    end if
     call coef_generate_area_and_normal(this)
     call coef_generate_mass(this)
     if (this%cyclic) then

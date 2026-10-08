@@ -28,6 +28,7 @@ test-suite.log
 !vtkhdf/vtkhdf_test
 !restart_consistency/restart_consistency_test
 !restart_consistency_hdf5/restart_consistency_hdf5_test
+!geo_compression/geo_compression_test
 
 # Processed files
 **.inc
@@ -76,6 +77,7 @@ time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
 errors/errors_test
 json_utils/json_utils_test
+fluid_pnpn_bc/fluid_pnpn_bc_test
 expression/expression_test
 point_interpolation/point_interpolation_suite
 **/test_write_*.vtkhdf
@@ -91,3 +93,4 @@ boundary_operation/boundary_operation_suite
 checkpoint_payload/checkpoint_payload_test
 wall_sampling/wall_sampling_suite
 crystal_router/crystal_router_suite
+geo_compression/geo_compression_suite
