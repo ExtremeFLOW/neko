@@ -39,7 +39,7 @@ math/mxm_wrapper.lo : math/mxm_wrapper.F90 common/utils.lo config/num_types.lo
 sem/speclib.lo : sem/speclib.f90 common/utils.lo math/math.lo config/num_types.lo 
 qoi/drag_torque.lo : qoi/drag_torque.f90 comm/comm.lo math/bcknd/device/device_math.lo device/device.lo config/neko_config.lo common/utils.lo config/num_types.lo sem/space.lo math/math.lo mesh/facet_zone.lo math/vector.lo sem/coef.lo field/field.lo 
 sem/local_interpolation.lo : sem/local_interpolation.f90 config/neko_config.lo math/bcknd/device/device_math.lo device/device.lo field/field_list.lo field/field.lo common/utils.lo math/fast3d.lo math/math.lo mesh/point.lo config/num_types.lo sem/space.lo math/tensor.lo 
-math/math.lo : math/math.f90 common/utils.lo comm/comm.lo config/num_types.lo 
+math/math.lo : math/math.F90 common/utils.lo comm/comm.lo config/num_types.lo 
 math/mathops.lo : math/mathops.f90 config/num_types.lo 
 math/fast3d.lo : math/fast3d.f90 math/math.lo sem/speclib.lo config/num_types.lo 
 sem/space.lo : sem/space.f90 math/math.lo math/mxm_wrapper.lo math/tensor.lo math/fast3d.lo common/utils.lo math/matrix.lo device/device.lo sem/speclib.lo config/num_types.lo config/neko_config.lo 
@@ -131,7 +131,7 @@ math/tensor.lo : math/tensor.f90 device/device.lo config/neko_config.lo math/mxm
 math/bcknd/cpu/tensor_cpu.lo : math/bcknd/cpu/tensor_cpu.f90 math/mxm_wrapper.lo config/num_types.lo 
 math/bcknd/sx/tensor_sx.lo : math/bcknd/sx/tensor_sx.f90 math/mxm_wrapper.lo config/num_types.lo 
 math/bcknd/xsmm/tensor_xsmm.lo : math/bcknd/xsmm/tensor_xsmm.F90 math/mxm_wrapper.lo config/num_types.lo 
-math/fdm.lo : math/fdm.f90 math/tensor.lo math/fast3d.lo device/device.lo math/math.lo comm/comm.lo common/utils.lo math/bcknd/xsmm/fdm_xsmm.lo math/bcknd/sx/fdm_sx.lo math/bcknd/device/fdm_device.lo math/bcknd/cpu/fdm_cpu.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo config/num_types.lo config/neko_config.lo 
+math/fdm.lo : math/fdm.F90 math/tensor.lo math/fast3d.lo device/device.lo math/math.lo comm/comm.lo common/utils.lo math/bcknd/xsmm/fdm_xsmm.lo math/bcknd/sx/fdm_sx.lo math/bcknd/device/fdm_device.lo math/bcknd/cpu/fdm_cpu.lo gs/gather_scatter.lo sem/dofmap.lo sem/space.lo mesh/mesh.lo config/num_types.lo config/neko_config.lo 
 math/bcknd/cpu/fdm_cpu.lo : math/bcknd/cpu/fdm_cpu.f90 math/bcknd/cpu/tensor_cpu.lo config/num_types.lo 
 math/bcknd/sx/fdm_sx.lo : math/bcknd/sx/fdm_sx.f90 math/bcknd/sx/tensor_sx.lo config/num_types.lo 
 math/bcknd/xsmm/fdm_xsmm.lo : math/bcknd/xsmm/fdm_xsmm.f90 math/bcknd/xsmm/tensor_xsmm.lo config/num_types.lo 
