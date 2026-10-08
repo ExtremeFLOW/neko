@@ -1,0 +1,12 @@
+#!/bin/sh
+# The suite runs its tests on up to 8 ranks, more than many machines have
+# cores. Let Open MPI oversubscribe (both the Open MPI 4 and the Open MPI 5
+# spelling); other MPI implementations ignore these variables.
+OMPI_MCA_rmaps_base_oversubscribe=1
+PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
+export OMPI_MCA_rmaps_base_oversubscribe PRTE_MCA_rmaps_default_mapping_policy
+if which mpirun >/dev/null; then
+    mpirun -np 8 ./crystal_router/crystal_router_suite
+else
+    mpiexec -np 8 ./crystal_router/crystal_router_suite
+fi

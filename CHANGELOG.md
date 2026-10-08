@@ -2,7 +2,8 @@
 
 ## Develop
 
-
+- Added an agent skill for writing pFUnit unit tests, rewrote the testing
+  guide, and brought older unit-test suites in line with the templates.
 - Added `gmsh2nmsh` under `contrib`, which converts Gmsh `.msh` meshes
   directly to `.nmsh` without going through `.re2`. Physical groups become
   labeled zones, group pairs can be made periodic, and curved second order
