@@ -44,6 +44,41 @@ describes it: configuration, the paper against the code, results and limitations
 
 The $\phi$-normal runs predate the `grad_floor` fix (`CDI_METHOD.md` §4.1) and were not re-run; read them for direction only.
 
+### Results at a glance
+
+$E_r$ is the relative error against the exact solution at the end time given, Saini's Eqs.
+(79)–(81) as `examples/norms.py` computes them (`CDI_METHOD.md` §7); `redistance_circles` uses his
+Eq. (84). The Rider–Kothe runs at $H=1/64$ end one step past $t=8$, at 8.00008. "Worst violation"
+is $\max(\phi-1,-\phi,0)$ over the run's output frames (every 0.05 on the slab, 0.2 on Zalesak,
+0.08 on Rider–Kothe). Zalesak's $\xi=1$, $N=7$ value is from the solver's step log; the step log of
+the $\xi=2.8$ run's re-run on the velocity-fix build shows a $2.3\times10^{-8}$ transient at step 1
+that the frames miss.
+
+| case | configuration | $E_r$ | worst violation | $\phi$-normal, same settings | Saini et al., our normalisation |
+|---|---|---|---|---|---|
+| `advecting_slab_1d` | $\psi$-normal, $\xi=1$, $\gamma=1$, $N=10$, $t=20$ | 0.00006 | $1.2\times10^{-10}$ | $\approx1.2$ | no $E_r$ in Saini's §4.2 |
+| | the same at $\xi=1.5$ | 0.00001 | 0 | | |
+| `zalesak_disk` | $\psi$-normal, $\xi=2.8$, $\gamma=1$, $H=1/50$, $N=5$, ten rotations | 0.022 | 0 | 1.07 | not compared yet (`NEXT_SESSION.md`) |
+| | $\xi=1$, $N=7$ | 0.0040 | $9.5\times10^{-6}$ | | |
+| `rider_kothe` | $\psi$-normal, transport only, $\xi=1$, $\gamma=1$, $H=1/64$, $N=5$, $t=8$ | 0.0452 | $2.6\times10^{-3}$ | not run | 0.0410 |
+| | $H=1/128$ | 0.0104 | $2.4\times10^{-3}$ | | 0.0258 (his $N=3$; ours $N=5$) |
+| | redistancing, run 2 (scratch user file): BDF2, Eq. (31) SVV, width 0.25, $25H$ | 0.0342 | $6.2\times10^{-4}$ | | |
+| | the same at $H=1/128$ | 0.0085 | $1.3\times10^{-3}$ | | |
+| | run 2 + dealiasing + sign guard: Saini's redistancing settings with our $\Delta\tau$, without his Eq. (39) re-sharpening (scratch) | 0.0402 | $7.1\times10^{-4}$ | | 0.0410 |
+| `redistance_circles` | Eq. (44) alone, Saini Table 2's four cells, $\tau=6$ | $1.3\times10^{-3}$–$6.6\times10^{-3}$ | — | — | ours/theirs 0.978–1.011 |
+
+- **Validated** are the slab, Zalesak and transport-only Rider–Kothe rows; `redistance_circles` is
+  a reproduction. The redistancing rows ran on scratch user files and are not in the code
+  (`examples/rider_kothe/README.md`, "Redistancing").
+- On Rider–Kothe the redistanced $\psi$'s normal is further from the exact interface than the
+  transported one's from $t\approx2$ on (4–8° against 0.6–0.8° at $t=2$–5 in the Run A row; 1.0–2.6°
+  in run 2), although run 2's $\phi$ is better.
+- The $\phi$-normal column predates the `grad_floor` fix; read it for direction only.
+- Saini's values: on Rider–Kothe, his own code's dumps rescored with our `norms.E_r` (his code
+  divides by the area outside the disk). His 0.0410 includes his Eq. (39) phase-field
+  re-sharpening; without it his code gives 0.208. On `redistance_circles` they are his `plot.py`
+  values. The Zalesak comparison waits for the same denominator audit.
+
 Each case is self-contained: one `.f90` user file, its `.case` configs, a
 `run.sh`, and a `README.md` with its exact parameters and results.
 Each adds a `visualize.ipynb` and an `evidence/` folder holding the animations
