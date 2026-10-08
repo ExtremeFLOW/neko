@@ -9,9 +9,11 @@ goes there and the item leaves this file. The records with every prediction and 
 
 ## Rider–Kothe redistancing
 
-D5 is done (`CDI_METHOD.md` §4.1d item 5, tables in `examples/rider_kothe/README.md`). It ran on
-the scratch user file `examples/rider_kothe/logs/d5_2026-10-06/rider_kothe_0c.f90`, whose keys
-`sgn_eps`, `svv_form` and `scheme` are bit-identical to the committed file at their defaults.
+D5 and D6 are done (`CDI_METHOD.md` §4.1d items 5–6; settings, tables and findings in
+`examples/rider_kothe/README.md`, "Redistancing"). They ran on the scratch user files
+`examples/rider_kothe/logs/d5_2026-10-06/rider_kothe_0c.f90` and
+`examples/rider_kothe/logs/d6_2026-10-07/rider_kothe_d6.f90`. With their keys at the defaults both
+reproduce the committed file's output byte for byte to $t=0.56$ (the README says what was compared).
 
 1. **Which events path should the coupled files carry?** A decision for the user; it touches the
    shared routines.
@@ -23,13 +25,10 @@ the scratch user file `examples/rider_kothe/logs/d5_2026-10-06/rider_kothe_0c.f9
      ($H=1/64$), 0.0085 against 0.0104 ($H=1/128$). But $\psi$ is then not a distance in the band;
      it is a smoothed copy of $\phi$'s interface, refreshed every 0.5. That is a method decision,
      not a knob.
-   - **Dealiased $\mathbf C(\mathbf w)$ and the sign guard: use them** (user, 2026-10-07; Saini's
-     email: "active for all my cases", `examples/redistance_circles/README.md` §2). They go
-     together: dealiasing lets zero-set nodes move, the guard freezes them. His coupled guard
-     (`constrainTLSR`) keeps $\psi^n$ at any node whose $\psi^n$ disagrees in sign with
-     $\phi-\tfrac12$. Port both from `redistance_circles.f90` (`adv_dealias_t`, the guard loop
-     of `redistance_standalone`) into the scratch file's BDF2 branch, then run the 0.25/$25H$
-     configuration with them.
+   - **Saini's dealiasing with his sign guard** on top of that reproduces his settings (0.0402,
+     against `rk_eLf`'s 0.0407 on the older build) and costs 18% against 0.0342, with $\psi$'s normal 2.4–4.2× further
+     off at $t=2$–5. Being faithful to his code is worse here. Which of the two carries the cost is
+     not measured; they ran as a pair.
 2. **Why the rebuilt $\psi$'s normal is worse than transport's** against the exact interface, in
    every events configuration (with 0.25 and $25H$: 1.0–2.6° at $t=2$–5, 29° at $t=8$; transport
    0.6–0.8° and 1.3°). Against $\phi$'s own contour it is closer than transport's, and $\phi$'s own
@@ -37,35 +36,19 @@ the scratch user file `examples/rider_kothe/logs/d5_2026-10-06/rider_kothe_0c.f9
    transport-only $\phi$ 0.9–1.0°, 2.0°). So the question is why $\phi$ drifts from the exact
    interface once $\psi$ follows it. Where, measured by region: the tail tip, where $\phi$'s contour
    retreats behind the exact one (visible in `evidence/rider_redistancing_events.mp4`)? The
-   end-time rise, which `rk_eLf` and Saini's own code share?
-   - And why Saini's Fig. 16b ($H=1/128$, post-event by its 0.074 plateau) shows an interface
-     slope near 1, where his own code gives band $|\nabla\psi|$ 2.32 right after its build
-     (`logs/d5/saini/cv128`; 1.64 in `cv64n5`). Check his paper's figure time and $N$ first.
-3. **Optional attribution.** `rk_eLf` and the 0.25/$25H$ run agree at $t=0.56$ and part by $t=2$
-   (normal 4.3° against 1.0°). They still differ in $\Delta\tau$, dealiasing with the sign guard,
-   and the build.
-4. **The thin tail.** Where the filament is thinner than $2\varepsilon$ (5–6% of its length at
+   end-time rise, which every 0.25/$25H$ run and Saini's own code share?
+3. **The thin tail.** Where the filament is thinner than $2\varepsilon$ (5–6% of its length at
    maximum stretch), $\phi$ has no 0.5 contour, so no reseed setting can rebuild $\psi$ there. Each
    candidate is a change to the method, not a knob:
    - a compression flux masked to the interface band;
    - the monotone transform $\psi \leftarrow L\tanh(\psi/L)$ (`REDISTANCING.md` §8).
-5. **A convergence measure for the $\tau$ solve:** a residual on the compression band, not the
+4. **A convergence measure for the $\tau$ solve:** a residual on the compression band, not the
    build band (`CDI_METHOD.md` §4.3).
-6. **Housekeeping.**
+5. **Housekeeping.**
    - Regenerate the rest of `examples/rider_kothe/evidence/`: everything but
      `rider_redistancing_events` (2026-10-07) predates the fixes. Use kthviz style and put a GIF
      beside every MP4. Working script: `examples/rider_kothe/logs/anim/anim_rk.py` (gitignored,
      local).
-   - **`svv_psi`'s $|\mathbf c|$** (reviewed 2026-10-07). Ours is the flow's $u_{\max}$, taken
-     once at the first step, so on Rider–Kothe it never follows $|\cos(\pi t/8)|$; Saini's is the
-     local $|\mathbf u(\mathbf x,t)|$, left of the assembled operator. There is no measured
-     reason for ours. It came with the first SVV implementation, when SVV also sat on $\phi$: a
-     constant $\nu$ inside the bilinear form keeps the operator symmetric (one stability check,
-     plain CG) and conserves mass, which mattered for $\phi$ and does not for $\psi$. For the
-     explicit instance his form is a pointwise multiply of `svv_op`'s output by
-     $|\mathbf u|/u_{\max}$ (not a $\nu$ varied inside `svv_local`), and the startup stability
-     check still bounds it. No change on the slab; on Zalesak and Rider–Kothe it moves every
-     transport-only number, so test it alone first (`rider_kothe_xi10` against 0.0452).
    - `rider_h192.case` ships but has never run: run it or remove it.
    - Run $\xi=0.75$ under strain (~30 min) to see whether the cross turns over.
    - The $H=1/64$ runs end at $t=8.00008$ (100001 steps; Neko's summed time is a round-off below 8
@@ -96,6 +79,7 @@ His §5.1 defaults differ from §4.5: CLS re-initialization $N/4$, $c_0=1.0$; TL
 $c_0=1.0$.
 
 What his figures measure:
+- Fig. 16: $\phi$ (his CLS) and $\psi$ (his TLS) along $y=0.75$ at $t=8$, $H=1/128$, $N=4$–6.
 - Figs. 17–18: $E_r$, $|E_v|$, $E_s$ at $t=8$ under $h$- and $p$-refinement.
 - Fig. 19: mean interface thickness $l_{avg}/l_0$ against $t$ (Eq. 87).
 - Fig. 20: $L_\infty$ of the CLS (boundedness) against $t$.
@@ -134,5 +118,4 @@ coupled algorithm", so a shallower slope with redistancing is expected.
   $N_{svv}=0.75$ gives mode 1 a kernel weight of 0.44.
 - **A possible second email to the authors:** the guard's round-off sensitivity at low $N$; his
   reversed with/without-guard pair; $25H$ against the printed $2.5H$; the outside-area
-  normalization of `ls_relerr`; Fig. 16b's interface slope near 1 against his code's 2.32 at
-  $H=1/128$.
+  normalization of `ls_relerr`.

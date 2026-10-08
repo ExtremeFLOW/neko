@@ -294,7 +294,11 @@ transport on Rider–Kothe (`CDI_METHOD.md` §4.1d).
 gives a wrong one ($|\nabla\psi|$ 0.067–3.165) that compounds under repeated
 events; the fine step builds a field identical to the analytic distance, so the
 closed form buys nothing there. **A one-shot test cannot detect this**, which is
-why the cheap 1D case is worth keeping wired for redistancing.
+why the cheap 1D case is worth keeping wired for redistancing. At Saini's sign width 0.25 the
+pseudo-velocity in the band is about 10× smaller. On Rider–Kothe a run with his $H/(N{+}1)$, on an
+older build and its own scratch file, completes 16 events and agrees with ours at
+$0.1\,h_{\text{GLL,min}}$ within a few percent in $E_r$ and $\psi$'s normal (`CDI_METHOD.md` §4.1d
+item 6).
 
 **Do not** pair `psi_init = "exact"` with periodic redistancing. That is the
 incoherent combination of §4(a): a global analytic field replaced discontinuously
@@ -322,6 +326,9 @@ so no case in this repo needs redistancing after the build. What is not known:
     the exact interface than transport's; $\phi$'s own normal is off by about as much, so the
     reseed imports $\phi$'s error. All on a
     scratch user file (`CDI_METHOD.md` §4.1d item 5).
+  - Adding Saini's dealiasing with his sign guard reproduces his settings and costs about 18% in
+    $E_r(8)$. In one event the pair leaves nodes across $\phi$'s contour that the run without it
+    does not; which of the two carries the cost is not measured (`CDI_METHOD.md` §4.1d item 6).
 - **Whether a monotone conditioning transform would serve better.** The normal is
   invariant under any monotone rescaling (§1), so
   $\psi \leftarrow L\tanh(\psi/L)$ flattens the far-field kinks without a pseudo-time

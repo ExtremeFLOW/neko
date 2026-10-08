@@ -164,8 +164,11 @@ Fig. 16b, is ≈1. In 1D the slope at ψ = 0 follows the logistic law
 $\dot y=\tfrac{1}{2\varepsilon}y(1-y)$, so from the seed's 19.1 it reaches
 $1/(1-(1-1/19.1)e^{-25H/2\varepsilon})=2.79$, which is what we measure. SVV does not change this:
 off, $\mathbf D_\mu$-weighted, constant, or c0 = 20, the slope stays 2.6–2.8. So something not in this
-1D model flattens their core. It could be 2D, dealiasing, or the transport by Eq. (43) between
-events. This is open.
+1D model flattens their core. But Fig. 16b is at $t=8$, after 16 events and the transport between
+them, and the paper does not say whether the frame is post-event (rendered p. 23). Right after its
+$t=0$ build his own code's band mean is 2.32 at H = 1/128, N = 3, of the order of this logistic
+value; at $t=8$ it is 0.94 (`../../rider_kothe/README.md`, "Saini's own code"). So the build
+agrees, and what flattens his core by $t=8$ is open.
 
 ### 4.4 Claim 2: "a consistent distance, irrespective of mesh size". Not in 1D.
 
@@ -206,7 +209,8 @@ fine-Δτ run by ≤ 4e-4 for H ≤ 1/20. At ε = H/N, with |w| ≈ 1, N = 8 at 
   25H, ten times the paper's 2.5H. The plateau this predicts, 0.0738 at H = 1/128, matches their
   Figs. 15 and 16b exactly.
 - **Claim 2** is not borne out in 1D: at 0.25 the reach after 25H falls from 2.1 H to 1.5 H between
-  H = 1/40 and 1/80. Open: why their Fig. 16b slope is ≈1 where 1D gives 2.8.
+  H = 1/40 and 1/80. Their Fig. 16b slope ≈1 is at $t=8$; right after his build his code gives 2.32
+  at H = 1/128, N = 3, of the order of the 1D 2.8. What flattens it by $t=8$ is open.
 - **For our coupled cases** (`rd_sgn` with ε = the CDI width, seeded from φ): moving to 0.25 means
   also adopting the 25H budget, not the 2.5H of the paper or of our `band`.
 

@@ -80,6 +80,8 @@ than letting the plan grow.
     $\psi^n$. Dealiasing moves zero-set nodes and breaks a flat interface's exact steady state.
     The coupled cases keep the non-dealiased GLL form (`conv1`, then B, gather-scatter, Binv,
     equal to $\operatorname{sgn}(\psi)|\nabla\psi|$ to 1e-14); every D5 run kept it too.
+    D6 (2026-10-07/08, scratch user file) added Saini's dealiasing with his guard on Rider–Kothe:
+    it reproduces his settings and costs about 18% in $E_r(8)$ (`CDI_METHOD.md` §4.1d item 6).
   - `redistance_circles` integrates it with Saini's own BDF2/EXT2 (Eqs. 34–35), its
     only scheme since 2026-09-26. At $\varepsilon=H/N$ (2026-09-26) BDF2 and BDF3 agree with RK3
     within 1.9% in the Table 2 cells to $\tau=24$
@@ -187,7 +189,9 @@ than letting the plan grow.
   Saini's width 0.25 with $25H$, the reseed beats transport on $\phi$'s shape ($E_r(8)$ 0.0342 vs
   0.0452; 0.0085 vs 0.0104 at $H=1/128$). Its $\psi$ is not a distance in the band, though, and its
   normal is further from the exact interface than transport's from $t\approx2$ on, as its $\phi$'s
-  own normal is. None of the reseed configurations
+  own normal is. D6 (`logs/d6_2026-10-07/rider_kothe_d6.f90`, 2026-10-07/08) adds Saini's
+  dealiasing with his sign guard: 0.0402, reproducing his settings' 0.0407 (older build), so the pair
+  accounts for the gap between the two. None of the reseed configurations
   is a validated alternative yet, and none is in `rider_kothe.f90`; say so plainly.
 - **Saini's Rider–Kothe $E_r$ is not on our scale:** his code divides by the area
   *outside* the disk (his CLS is 1 outside), ~13× ours. Recompute on his dumps with

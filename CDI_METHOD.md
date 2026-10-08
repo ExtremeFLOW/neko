@@ -594,7 +594,7 @@ All three coupled cases are periodic. Their pseudo-time also stops at
 $\text{band}\times H = 2.5H$, so a front can reach a wall only if an interface lies
 within $2.5H$ of it. A future walled case would need that check.
 
-### 4.1d An event must restart the time history, a varying diffusion must reach the solver, and a reseed is only as good as $\phi$ (2026-10-01/05)
+### 4.1d An event must restart the time history, a varying diffusion must reach the solver, and a reseed is only as good as $\phi$ (2026-10-01/08)
 
 On Rider–Kothe, the settings of Saini's circVortex case diverged in every events arm, including
 his complete configuration. Two bugs were found and fixed. Tables are in
@@ -627,30 +627,23 @@ his complete configuration. Two bugs were found and fixed. Tables are in
   is 0.041.
 - **Scope.** `zalesak_disk` and `advecting_slab_1d` have a constant $u_{\max}$ and are unaffected.
 
-**3. With both fixed, Saini's full configuration completes on Rider–Kothe** ($E_r$ 0.0407, worst
-violation $8.9\times10^{-4}$, $\lVert dn\rVert$ 86–159 per event, rising 1.9× over 16 events). But its rebuilt $\psi$ is a
-worse normal source than the transported one:
-- **The solve does not reach a distance in the compression band.** Its sign-function width is
-  0.25, so the pseudo-velocity there is below about 0.1 and $\psi$ stays close to the steep seed.
-  Right after each event $|\nabla\psi|$ has mean 1.66, and $\psi$ is $2.6\varepsilon$ off its
-  target on average.
-- **Its normal is 4–8° off the exact interface; the transported $\psi$'s is 0.6–0.8°.**
+**3. With both fixed, Saini's full configuration completes on Rider–Kothe, and the committed
+events path does not** (2026-10-01 and 2026-10-05/06; settings and tables in
+[`examples/rider_kothe/README.md`](examples/rider_kothe/README.md), "Redistancing").
+- **Saini's settings** (`rk_eLf`: sign width 0.25, $25H$, BDF2/EXT2, Eq. (31) SVV, dealiasing, his
+  guard) give $E_r(8)$ 0.0407, against transport's 0.0446 on the same build. But the rebuilt $\psi$
+  is not a distance in the band (mean $|\nabla\psi|$ 1.66, $2.6\varepsilon$ off its target), and
+  its normal is 4–8° off the exact interface where the transported $\psi$'s is 0.6–0.8°.
+- **The committed path** (SSP-RK3, `svv_step_imp`, sign width $\varepsilon$, $2.5H$) gives 0.835,
+  worst violation 0.41. Its solve converges, and that is the problem: $\phi$'s contour fragments
+  from $t\approx2$ (98 pieces at $t=8$), and each reseed turns the pieces into zero sets, the
+  mechanism of §4.1c under strain.
 - **Where the filament is thinner than $2\varepsilon$** (5–6% of its length at maximum stretch),
   $\phi$ has no 0.5 contour, and the rebuilt $\psi$ is wrong across it at 76–79% of points.
-- **$\phi$'s normal error rises to 28° at $t=8$**; transport alone ends at 2°.
 
 **A reseed takes $\phi$'s interface as the truth.** It is only safe while $\phi$'s interface is
-better than the transported $\psi$'s. On a straining flow with an under-resolved tail, and
-around corners, it is not.
-
-**The committed events path fails on Rider–Kothe (2026-10-06).** SSP-RK3, sign-function
-$\varepsilon$ equal to the phase field's, $2.5H$, pseudo-CFL 0.1, events every 0.5: $E_r(8)$
-0.835 against transport's 0.0452, worst violation 0.41. Its solve converges ($\psi$ within
-0.25–0.4$\varepsilon$ of the distance to $\phi$'s contour to $t\approx3$), and that is the
-problem: the contour fragments from $t\approx2$ (3 pieces, 27 at $t=4$, 98 at $t=8$), and each
-reseed turns the pieces into zero sets, the Zalesak mechanism of §4.1c. Saini's configuration,
-whose solve barely leaves the seed, completes (item 3). The two differ in seven settings; item 5
-measures what they do.
+better than the transported $\psi$'s. On a straining flow with an under-resolved tail, and around
+corners, it is not.
 
 **4. A prescribed velocity belongs to the explicit terms' time level (2026-10-05).** Neko's scalar
 step applies advection and the compression source to $s^n$ and extrapolates them to $t_{n+1}$
@@ -663,29 +656,41 @@ $E_r(8)$ moved up by 0.5–3.0% (0.0446 → 0.0452 at $H=1/64$, $\xi=1$); bounde
 area did not change; Zalesak moved 0.1%. Records: `examples/rider_kothe/logs/vel_fix_2026-10-05/`
 (gitignored, local).
 
-**5. The committed path's zero sets come from its SVV form (D5, 2026-10-06/07).** Measured on a
-scratch user file, one key at a time for single events and two at a time for the full runs; the tables are in `examples/rider_kothe/README.md`, "What
-breaks it, and what changes it".
-- **$\psi$ fragments first**, right after events, and $\phi$'s first extra piece forms on a
-  spurious $\psi$ piece. Within an event an SSP-RK3 stage cannot flip a node's sign (that needs
-  $|\nabla\psi|>1+2\varepsilon/\Delta\tau\approx35$), and the reseed's zero set is $\phi$'s
-  contour, so `svv_step_imp`'s $|\mathbf c|=1$ step makes the crossings.
-- **The printed Eq. (31) form removes them.** In event 2, 228 nodes end on the wrong side of
-  $\phi$'s contour with `svv_step_imp` and 8 with $\mathbf D_\mu=|\operatorname{sgn}\psi^n|$; one
-  $\psi$ piece instead of three. $|\nabla\psi|$ is unchanged, the distance error is 21% smaller, and
-  BDF2/EXT2 gives the same event as RK3 within 1% in the band means.
-- **With it (and BDF2/EXT2), $E_r(8)$ is 0.0960.** The solve converges onto $\phi$'s contour, and
-  from $t\approx2.5$ copies the breaks of $\phi$'s thin tail (item 3).
+**5. The committed path's zero sets come from its SVV form, and Saini's width and extent then
+beat transport on $\phi$ (D5, 2026-10-06/07).** On a scratch user file, one key at a time for
+single events and two at a time for the full runs:
+- **The SVV makes the crossings.** Within an event an SSP-RK3 stage cannot change a node's sign
+  unless $|\nabla\psi|>1+2\varepsilon/\Delta\tau\approx35$, and the reseed's zero set is $\phi$'s
+  contour. So `svv_step_imp`, nonzero on the zero set, makes them, and $\psi$ fragments first.
+- **The printed Eq. (31) form removes them.** With $\mathbf D_\mu=|\operatorname{sgn}\psi^n|$ left
+  of the assembled operator, 8 nodes end event 2 on the wrong side of $\phi$'s contour instead of
+  228, and $\psi$ is one piece instead of three. With BDF2/EXT2, $E_r(8)$ is 0.0960: $\phi$'s thin
+  tail then breaks first, and every reseed copies the breaks.
 - **Adding Saini's sign width 0.25 with $25H$ gives 0.0342** against transport's 0.0452, and 0.0085
-  against 0.0104 at $H=1/128$, with $E_s$ and boundedness below transport's too.
+  against 0.0104 at $H=1/128$, with $E_s$ and the worst violation below transport's too.
 - **But that $\psi$ is not a distance.** Its band $|\nabla\psi|$ is 1.66 (2.7 at $H=1/128$), the
-  logistic seed of `examples/redistance_circles/eps_1d/README.md` §4. Saini's own code gives the
-  same right after its build (1.64; 2.32 at $H=1/128$, $N=3$).
-- **From $t\approx2$ its normal is closer than transport's to $\phi$'s contour, but further from
-  the exact interface.** $\phi$'s own normal is off the exact interface by about as much (0.5–3.1°
-  at $t=2$–6, 27° at $t=8$; transport-only $\phi$ 0.7–1.0°, 2.0°). The reseed imports $\phi$'s
-  error, and once $\psi$ follows $\phi$ nothing corrects it.
-- None of this is in the committed coupled files (`NEXT_SESSION.md`).
+  logistic relaxation of the seed (`examples/redistance_circles/eps_1d/README.md` §4); Saini's own
+  code gives the same after its build (1.64; 2.32 at $H=1/128$, $N=3$).
+- **Its normal follows $\phi$, and $\phi$ drifts.** $\phi$'s own normal is 0.5–3.1° off the exact
+  interface at $t=2$–6 and 27° at $t=8$, against 0.7–1.0° and 2.0° under transport. The reseed
+  imports $\phi$'s error, and once $\psi$ follows $\phi$ nothing corrects it.
+
+**6. Saini's dealiasing with his sign guard is the rest of the difference, and it costs (D6,
+2026-10-07/08).** Added as a pair to item 5's best configuration, on a second scratch user file:
+- **Dealiasing moves nodes across zero, and the guard keeps them there.** Dealiasing evaluates
+  $\mathbf w$ between the nodes. The guard (`constrainTLSR`: a node whose $\psi^n$ disagrees in sign
+  with $\phi-\tfrac12$ keeps $\psi^n$) freezes a crossed node where it lands; it does not restore
+  it. In one event at width $\varepsilon$ that makes three $\psi$ islands; at 0.25 with $25H$, 18
+  frozen nodes and 0.6° more on $\psi$'s normal.
+- **The full run reproduces `rk_eLf`** ($E_r$ 0.0402 against 0.0407, the normal within 0.1° at every
+  post-event frame to $t=7$), although that run took a 14× larger $\Delta\tau$ on the older build.
+  So the pair accounts for the gap between item 5's 0.0342 and Saini's settings; $\Delta\tau$, the
+  build and the file together change little.
+- **It costs.** $\psi$'s normal is 2.4–4.2× further off at $t=2$–5 and $\phi$'s own 2–2.6× at
+  $t=3$–5, and $E_r$ and $E_s$ are about 18% higher. It stays below transport in $E_r$, $E_s$ and the
+  worst violation.
+  Which of the two carries the cost is not measured.
+- None of items 5–6 is in the committed coupled files (`NEXT_SESSION.md`).
 
 ### 4.2 Pseudo-timestep: fine steps, and why a one-shot test misleads
 
@@ -814,7 +819,8 @@ values exactly (README §4–§5).
   zero-set nodes alone. Dealiasing evaluates $\mathbf w$ between nodes, so they move
   and can change sign. The sign guard then freezes them by the sign of $\psi_0$,
   which is $\pm10^{-15}$ there, so a low-$N$ result depends on round-off (README §5).
-  The coupled cases keep the non-dealiased form, and so did every D5 run (§4.1d item 5).
+  The coupled cases keep the non-dealiased form. On Rider–Kothe, Saini's dealiasing with his
+  guard costs about 18% in $E_r(8)$ and 2.4–4.2× in $\psi$'s normal at $t=2$–5 (§4.1d item 6).
 - **Eq. (44) alone drifts.** Every signed distance function is a steady state, so
   nothing restores an interface's position, the weakness the paper's introduction
   names. The SVV beside the zero set moves it slowly, and dealiasing makes even a
@@ -906,9 +912,12 @@ one.
   $\mathbf D_\mu\mathbf S_{vv}$ (Eqs. 7, 33, 35), whereas `svv_local` applies
   `nu` *inside* the bilinear form. The two agree only while $\mu$ is constant.
 
-For transport the difference is an over-diffusion that has never been measured. The uniform
-bound came with the first SVV implementation, when SVV also sat on $\phi$, where a constant
-$\nu$ inside the bilinear form kept the operator symmetric and conservative (`NEXT_SESSION.md`). **For the redistancing
+For transport the uniform bound is the stronger filter, and the better one for $\phi$'s shape
+here. On Rider–Kothe, Saini's local $|\mathbf c|$ alone (D6, scratch user file) gives $E_r(8)$
+0.0470 against 0.0452, at the same worst violation, with $\psi$'s normal no worse
+(`examples/rider_kothe/README.md`, "SVV on $\psi$"). The uniform bound came with the first SVV implementation, when SVV also sat on $\phi$,
+where a constant $\nu$ inside the bilinear form kept the operator symmetric and conservative.
+**For the redistancing
 equation it is not mild.** There $|\mathbf c|=|\operatorname{sgn}\psi|$ vanishes
 on the zero set, and in the left-multiplied form that is what stops the SVV
 dragging the interface. At the earlier sign-function $\varepsilon=H/N$ (2026-09-23) it
@@ -1058,7 +1067,7 @@ imply.
 | 2D Zalesak | the two redistancing variants, $\xi=2.8$, $N=5$: `seed="phi"` and in-place `seed="psi"` | recorded: `seed="phi"` completes at $E_r$ 0.7087, worst violation $1.06\times10^{-1}$; `seed="psi"` $E_r$ 1.667 at $t=3$, stopped. **Not citable**: from the earlier configuration (analytic $\psi$, $\lvert\nabla\psi\rvert$ trigger, before the `grad_floor` fix, with the history bug). The shipped `.case` files now use `psi_init = "redistance"` and the 0.5 timer, and have not been re-run (`NEXT_SESSION.md`); $\xi=2.8$ at $N=5$ violates $N\ge3.68\xi$ (§4.1b) | `examples/zalesak_disk/README.md` |
 | 2D Zalesak | arm C: built $\psi$ + periodic reseed, $\xi=1$, $N\in\{3,5,7\}$, with the history restart (2026-10-02) | $N=3$ diverges $t=11.2$; $N=5$ completes at $E_r$ 0.574 (arm B 0.034); $N=7$ diverges $t=4.5$ | §4.1c: the relaxation converges, $\phi$'s contour fragments and the reseed sustains the fragments |
 | 2D Zalesak | SVV on vs off, $\xi=1$ (Saini's $\xi=1/N$), $N\in\{3,5,7\}$, ten rotations, identical $\Delta t$ per pair | SVV-on $E_r$ **0.101 → 0.021 → 0.0040**; SVV-off **0.932 → 0.975 → 1.027** | single-variable; the gap grows 9× → 47× → 256× with $N$ (§5) |
-| Rider–Kothe | re-run 2026-10-02 with the diffusion fix and 2026-10-05/06 with the velocity fix (§4.1d): $\psi$-normal, `svv_psi` $c_0=0.1$, redistancing **OFF**; $\xi\in\{1,1.5,2\}$ × $\gamma$ at $H=1/64$; $h$-series to $H=1/128$ at $\xi=1$ | $E_r(t{=}8)$ 0.0452 → 0.0104 under $h$-refinement (rate ≈2.1); $\xi$ trades shape (0.0452 at $\xi=1$, 0.0710 at $\xi=2$) against boundedness ($2.5\times10^{-3}$ → 0); band $\lvert\nabla\psi\rvert$ to 15 at $t=4$, back to 1.008 at $t=8$, normal within 0.6–1.3° of exact; SVV on $\psi$ worth 10–11% in $E_r$. Saini's full periodic-reseed configuration (scratch user file) completes, $E_r$ 0.0407, but its $\psi$ normal is 4–8° off; the committed events path completes at $E_r$ 0.835, $\phi$'s contour fragmenting from $t\approx2$. D5 (scratch user file, 2026-10-06/07): the event-made $\psi$ fragments come from `svv_step_imp` ($\phi$'s thin tail still breaks); BDF2 with the printed Eq. (31) SVV gives 0.0960, and adding Saini's width 0.25 with $25H$ gives 0.0342 (0.0085 at $H=1/128$, against 0.0104), but its $\psi$ is not a distance and from $t\approx2$ points further from the exact interface than transport's, as its $\phi$'s own normal does (§4.1d item 5) | `examples/rider_kothe/README.md`; `evidence/` predates the fix |
+| Rider–Kothe | re-run 2026-10-02 with the diffusion fix and 2026-10-05/06 with the velocity fix (§4.1d): $\psi$-normal, `svv_psi` $c_0=0.1$, redistancing **OFF**; $\xi\in\{1,1.5,2\}$ × $\gamma$ at $H=1/64$; $h$-series to $H=1/128$ at $\xi=1$ | $E_r(t{=}8)$ 0.0452 → 0.0104 under $h$-refinement (rate ≈2.1); $\xi$ trades shape (0.0452 at $\xi=1$, 0.0710 at $\xi=2$) against boundedness ($2.5\times10^{-3}$ → 0); band $\lvert\nabla\psi\rvert$ to 15 at $t=4$, back to 1.008 at $t=8$, normal within 0.6–1.3° of exact; SVV on $\psi$ worth 10–11% in $E_r$. Redistancing, on scratch user files (§4.1d items 3, 5, 6): the committed events path gives $E_r$ 0.835; BDF2 with the printed Eq. (31) SVV 0.0960; adding Saini's width 0.25 with $25H$ 0.0342 (0.0085 at $H=1/128$, against 0.0104), but its $\psi$ is not a distance and from $t\approx2$ points further from the exact interface than transport's; adding his dealiasing and sign guard reproduces his settings (0.0402; his own code 0.0410) and costs 18% | `examples/rider_kothe/README.md`; `evidence/` predates the fix |
 | Saini §4.4 circles | Eq. (44) standalone with the authors' configuration from their public case: sign-function $\varepsilon=0.25$ in Eq. (46), dealiased $\mathbf C(\mathbf w)$, their sign guard; their BDF2/EXT2, $c_0{=}2$, $N_{svv}{=}N/6$, $\tau{=}6$, over the 18-cell Fig. 12 grid | **reproduced** (2026-09-29). 12 of 18 cells within 0.1% of their values, four more within 2.2%; the four Table 2 cells are all within 2.2%. Two cells ($H{=}1/5$, $N{=}4$ and 8) fail on our mesh through zero-set round-off, and match exactly when started from their zero-set $\psi_0$ | `examples/redistance_circles/README.md` §4–§5, `evidence/` |
 
 The $\phi$-normal runs predate the `grad_floor` fix (§4.1) and were not re-run;
