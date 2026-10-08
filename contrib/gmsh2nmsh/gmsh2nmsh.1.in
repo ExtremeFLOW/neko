@@ -1,0 +1,158 @@
+.\" Manual page for gmsh2nmsh
+.TH GMSH2NMSH 1 "@MAN_DATE@" "Neko @PACKAGE_VERSION@" "User Commands"
+.SH NAME
+gmsh2nmsh \- convert a Gmsh mesh to Neko's nmsh format
+.SH SYNOPSIS
+.B gmsh2nmsh
+.I msh-file
+.RI [ nmsh-file ]
+.RI [ options ]
+.SH DESCRIPTION
+.B gmsh2nmsh
+reads a mesh in Gmsh's
+.B .msh
+format and writes the equivalent Neko native mesh in
+.B .nmsh
+format, without going through Nek5000's
+.B .re2
+format. It is part of the Neko contrib tools and is installed only when
+Neko has been configured with
+.BR --enable-contrib .
+It does not use MPI or the Neko library, see
+.B NOTES
+for building it on its own.
+.PP
+The input can be in MSH format 4.1 or 2.2, ASCII or binary. It must consist
+of first or second order hexahedra (3D) or quadrilaterals in a plane of
+constant z (pseudo-2D). The 8, 20 and 27 node hexahedra and the 4, 8 and 9
+node quadrilaterals are accepted. A quadrilateral mesh is written as a 2D
+.B .nmsh
+file, which Neko extrudes into a periodic slab one element thick when it
+reads the mesh, as it does for 2D meshes from
+.BR rea2nbin .
+Tetrahedra, prisms, pyramids, triangles and
+elements of order 3 or higher are rejected.
+.PP
+The conversion does the following:
+.IP \(bu 2
+Boundary facets in physical groups (surfaces in 3D, curves in 2D) become
+labeled zones. When all their tags are valid zone indices (1 to 20), the zone
+index is the physical tag. Otherwise the groups are numbered 1, 2, ... in
+increasing tag order. The mapping is printed as a table.
+.IP \(bu 2
+Pairs of physical groups given with
+.B \-\-periodic
+become periodic zones. The two groups of a pair must be related by a
+translation and their facets must match one to one.
+.IP \(bu 2
+For second order elements, edges whose midpoint is off the straight line
+between the edge end points are stored as midpoint curves, which Neko uses to
+build a quadratic geometry. Face and volume centre nodes are not used.
+.IP \(bu 2
+Left-handed elements are mirrored so that all elements are right-handed.
+.PP
+When physical groups are defined, Gmsh only saves the elements that belong
+to one. The volume (3D) or surface (2D) must therefore be in a physical
+group, or the mesh must be saved with
+.BR "Mesh.SaveAll = 1" .
+.SH ARGUMENTS
+.TP
+.I msh-file
+Input mesh file. Must end in
+.BR .msh .
+.TP
+.I nmsh-file
+Optional output file name. Must end in
+.BR .nmsh .
+When omitted, the output name is derived from
+.I msh-file
+by replacing the
+.B .msh
+suffix with
+.BR .nmsh .
+.SH OPTIONS
+.TP
+.BI \-\-periodic= pairs
+Make pairs of physical groups periodic. Groups are given by tag or by name,
+the two groups of a pair are separated by a colon and pairs by a comma, for
+example
+.B 1:2
+or
+.BR inlet:outlet,front:back .
+The option can be repeated. Names containing spaces or separator
+characters must be given by tag.
+.TP
+.BI \-\-tol= value
+Absolute tolerance used to match periodic facets and vertices. The default
+is 1e-6 times the shortest facet edge of the pair, but at least 1e-12 times
+the largest coordinate magnitude of the pair.
+.TP
+.BI \-\-curve\-tol= value
+Distance between an edge midpoint and the straight edge, relative to the
+edge length, above which the edge is stored as curved. The default is 1e-4.
+.TP
+.B \-\-linear
+Ignore the high-order nodes and write straight-sided elements.
+.TP
+.BR \-h ", " \-\-help
+Print a usage summary.
+.SH EXIT STATUS
+.TP
+.B 0
+The mesh was converted successfully.
+.TP
+.B non-zero
+An error occurred. Typical causes include an unsupported format version or
+element type, a mesh without hexahedra or quadrilaterals, or periodic
+groups that do not match under a translation.
+.SH EXAMPLES
+Generate a second order mesh with Gmsh and convert it:
+.PP
+.RS
+.B gmsh pipe.geo -3 -order 2
+.br
+.B gmsh2nmsh pipe.msh
+.RE
+.PP
+Convert a channel mesh that is periodic in x and z:
+.PP
+.RS
+.B gmsh2nmsh channel.msh \-\-periodic=xmin:xmax,zmin:zmax
+.RE
+.PP
+Check the result:
+.PP
+.RS
+.B mesh_checker pipe.nmsh
+.RE
+.SH NOTES
+Within Neko's build, the tool has its own configure script and is compiled
+with the plain Fortran compiler
+.B FC
+rather than
+.BR MPIFC ,
+so it links neither MPI nor any of Neko's dependencies.
+.PP
+The tool is a single Fortran 2008 source file without dependencies, so it can
+also be compiled on its own, for example on the machine where the mesh is
+generated:
+.PP
+.RS
+.B gfortran -O2 gmsh2nmsh.F90 -o gmsh2nmsh
+.RE
+.SH SEE ALSO
+.BR neko (1),
+.BR rea2nbin (1),
+.BR prepart (1)
+.PP
+Project documentation and user guide:
+.UR https://neko.cfd
+.UE
+.SH AUTHORS
+Neko is developed by the Neko authors. See the
+.B AUTHORS
+file distributed with the source for a complete list of contributors.
+.SH BUGS
+Report bugs at
+.UR https://github.com/ExtremeFLOW/neko/issues
+.UE .

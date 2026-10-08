@@ -30,3 +30,9 @@ automake -a
 echo "Deleting autom4te.cache directory"
 rm -r autom4te.cache
 
+# Sub-projects with their own configure script (AC_CONFIG_SUBDIRS)
+for subdir in contrib/gmsh2nmsh; do
+    (cd $subdir && rm -fr autom4te.cache && aclocal && autoconf && \
+         automake -a && rm -fr autom4te.cache) || exit 1
+done
+
