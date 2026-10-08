@@ -45,10 +45,6 @@ reproduce the committed file's output byte for byte to $t=0.56$ (the README says
 4. **A convergence measure for the $\tau$ solve:** a residual on the compression band, not the
    build band (`CDI_METHOD.md` §4.3).
 5. **Housekeeping.**
-   - Regenerate the rest of `examples/rider_kothe/evidence/`: everything but
-     `rider_redistancing_events` (2026-10-07) predates the fixes. Use kthviz style and put a GIF
-     beside every MP4. Working script: `examples/rider_kothe/logs/anim/anim_rk.py` (gitignored,
-     local).
    - `rider_h192.case` ships but has never run: run it or remove it.
    - Run $\xi=0.75$ under strain (~30 min) to see whether the cross turns over.
    - The $H=1/64$ runs end at $t=8.00008$ (100001 steps; Neko's summed time is a round-off below 8

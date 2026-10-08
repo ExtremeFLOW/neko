@@ -363,24 +363,39 @@ $\gamma=2.0$; `rider_h128` is the $H=1/128$ refinement.
 
 ## Evidence
 
-**`rider_redistancing_events.mp4`** (and `.gif`) compares four runs of "Redistancing" at
-$H=1/64$: transport only, the committed events path, run 1 and run 2. The top row is $\phi$, the
-bottom row $\psi$ with its zero contour solid; the exact interface is dashed. Made 2026-10-07 by
-`logs/anim/anim_rk.py` (gitignored, local). At the tail tip the rebuilt $\psi$'s zero contour stops
-where $\phi$'s does, while transport's follows the exact interface.
+Made on 2026-10-08 (the events animation on 2026-10-07), in the kthviz style, from this case's
+runs: the shipped transport-only cases and the scratch-file runs of "Redistancing". Every animation
+also ships as a GIF.
 
-**Every other file in `evidence/` predates the 2026-10-02 fixes.** They were made on 2026-09-10
-with the frozen diffusion, and show the dissolving filament it produced. They are to be
-regenerated from `visualize.ipynb`, in the kthviz style (`../../NEXT_SESSION.md`).
-- Without SVV: `rider_kothe_methods.mp4`, `rider_grad_psi.png`, `rider_xi_and_h.png`.
-- With SVV on $\psi$ ($H=1/128$, $N=6$): `rider_svv_snapshots.png`, `rider_svv_methods.mp4`,
-  `rider_svv_c01_filmstrip.png`.
+**The validated configuration, transport only** (`visualize.ipynb`, from `rider_kothe_xi10` and
+`rider_h128`):
+- **`rider_snapshots.png`** shows $\phi$ and $\psi$ at maximum stretch ($t=4$) and at the return
+  ($t=8$), $H=1/64$, against the marker-advected exact interface (dashed).
+  - $\phi$ values below 0 show in yellow. The specks at $t=4$ are an undershoot of up to
+    $9\times10^{-4}$ at that time (the run's worst, $2.6\times10^{-3}$, is at $t=3.2$).
+  - The pale streak in $\psi$ at $t=4$ (left edge) is small but negative, at most $-0.023$. It is not
+    a zero set: $\psi=0$ is drawn solid and follows the filament.
+- **`rider_grad_psi.png`** plots band $|\nabla\psi|$ against $t$ at $H=1/64$ and $1/128$: the mean,
+  and its 5–95% range shaded. It rises to about 8 at the reversal and returns to 1.00–1.01.
+- **`rider_transport.mp4`** shows the whole run at $H=1/64$ and $1/128$ side by side, every 0.08
+  (`logs/anim/anim_rk.py`). Anything below 0 shows yellow, however small; each panel's box gives
+  $\phi$'s range. The yellow patch at $H=1/128$ from $t\approx6.7$ on is an undershoot below
+  $10^{-6}$ (`logs/d5_2026-10-06/tables/full_h128.txt`).
+- **`rider_convergence.png`** plots $E_r(8)$ against $H$, with run 2's redistancing beside it, and
+  against $\xi$, with each point's worst violation (`logs/figs/figs_rk.py`, from
+  `logs/table_velfix_2026-10-06.txt` and the D5 tables).
 
-Animations of the fixed runs are in the gitignored `logs/anim/`, each as MP4 and GIF:
-- `rk_frozen_vs_fixed_diffusion`
-- `rk_reinit_events_phi_psi`
-- `rk_xi_series`
-- `rk_h_series`
+**Redistancing** (`logs/figs/figs_rk.py`, from the tables of "Redistancing"):
+- **`rider_redistancing_normals.png`** plots $\psi$'s normal against the exact interface on ten frames
+  right after events ($t=0.56$, 1.04, 2, 3.04, 4, 5.04, 6, 7.04, 7.52, 8), and $E_r(8)$, for
+  transport only and the four events runs.
+- **`rider_redistancing_contours.png`** draws $\phi=0.5$ against the exact interface for transport
+  only, run 2 and Run A: at $t=4$ over the whole domain and at the thin tail, whose tip no run
+  reaches, and at $t=8$.
+- **`rider_redistancing_events.mp4`** (2026-10-07, `logs/anim/anim_rk.py`) shows transport only, the
+  committed events path, run 1 and run 2. The top row is $\phi$, the bottom row $\psi$ with its zero
+  contour solid. At the tail tip the rebuilt $\psi$'s zero contour stops where $\phi$'s does, while
+  transport's follows the exact interface.
 
 ## Reference implementation (read, don't copy)
 

@@ -49,8 +49,8 @@ Each case is self-contained: one `.f90` user file, its `.case` configs, a
 Each adds a `visualize.ipynb` and an `evidence/` folder holding the animations
 and figures that notebook produces — all from this repo's own runs, not carried
 over. The notebooks ship executed, so the numbers are visible without rerunning
-them, except `rider_kothe`'s, whose outputs predate the 2026-10-02 fixes
-(regenerating them is in `NEXT_SESSION.md`).
+them. `rider_kothe`'s convergence and redistancing figures and its animations, like
+`redistance_circles`' figures, come from scripts under the case's gitignored `logs/`.
 
 The showcase cases carry more than one `.case` on purpose:
 `advecting_slab_1d` ships a $\xi$ and $\gamma$ sweep (the operating envelope is
