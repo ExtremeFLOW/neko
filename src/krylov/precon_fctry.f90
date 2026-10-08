@@ -94,6 +94,24 @@ contains
 
   end subroutine precon_allocator
 
+  !> Allocate and initialize a preconditioner.
+  !! @param pc The preconditioner to be allocated and initialized.
+  !! @param type_name The name of the preconditioner type.
+  !! @param coef SEM coefficients of the space the preconditioner acts on.
+  !! @param bclst Boundary conditions of the system being preconditioned.
+  !! @param json The preconditioner's dictionary from the case file.
+  module subroutine precon_factory(pc, type_name, coef, bclst, json)
+    class(pc_t), allocatable, intent(inout), target :: pc
+    character(len=*), intent(in) :: type_name
+    type(coef_t), intent(in), target :: coef
+    type(bc_list_t), intent(inout), target :: bclst
+    type(json_file), intent(inout) :: json
+
+    call precon_allocator(pc, type_name)
+    call pc%init(coef, bclst, json)
+
+  end subroutine precon_factory
+
   !> Register a custom preconditioner allocator.
   !! Called in custom user modules inside the `module_name_register_types`
   !! routine to add a custom type allocator to the registry.

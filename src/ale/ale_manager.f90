@@ -40,18 +40,13 @@ module ale_manager
   use space, only : space_t
   use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_allocator
+  use precon, only : pc_t, precon_factory
   use bc_list, only : bc_list_t
   use checkpoint, only : chkp_t
   use checkpoint_payload, only : checkpoint_payload_t
   use zero_dirichlet, only : zero_dirichlet_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use dofmap, only : dofmap_t
-  use jacobi, only : jacobi_t
-  use hsmg, only : hsmg_t
-  use phmg, only : phmg_t
-  use device_jacobi, only : device_jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
   use profiler, only : profiler_start_region, profiler_end_region
   use file, only : file_t
   use logger, only : neko_log, LOG_SIZE
@@ -914,8 +909,8 @@ contains
     call ax_helm_allocator(Ax, type_name = "standard")
     call krylov_solver_factory(ksp, n, ksp_solver, &
          ksp_max_iter, abstol, monitor = res_monitor)
-    call ale_precon_factory(pc, ksp, coef, coef%dof, &
-         coef%gs_h, this%bc_list, precon_type, precon_params)
+    call ale_precon_factory(pc, ksp, coef, this%bc_list, precon_type, &
+         precon_params)
 
     ! Save original h1/h2
     h1_restore = coef%h1
@@ -1512,28 +1507,15 @@ contains
   end subroutine ale_manager_free
 
   !> Factory for ALE Preconditioner
-  subroutine ale_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype, params)
+  subroutine ale_precon_factory(pc, ksp, coef, bclst, pctype, json)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
-    type(dofmap_t), target, intent(in) :: dof
-    type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*), intent(in) :: pctype
-    type(json_file), intent(inout) :: params
-    call precon_allocator(pc, pctype)
-    select type (pcp => pc)
-    type is (jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (sx_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (device_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (hsmg_t)
-       call pcp%init(coef, bclst, params)
-    type is (phmg_t)
-       call pcp%init(coef, bclst, params)
-    end select
+    type(json_file), intent(inout) :: json
+
+    call precon_factory(pc, pctype, coef, bclst, json)
     call ksp%set_pc(pc)
   end subroutine ale_precon_factory
 

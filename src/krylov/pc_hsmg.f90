@@ -146,11 +146,11 @@ module hsmg
 
 contains
 
-  subroutine hsmg_init(this, coef, bclst, hsmg_params)
+  subroutine hsmg_init(this, coef, bclst, json)
     class(hsmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
-    type(json_file), intent(inout) :: hsmg_params
+    type(json_file), intent(inout) :: json
     character(len=:), allocatable :: crs_solver, crs_pc
     logical :: crs_monitor
     integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
@@ -158,31 +158,31 @@ contains
     ! Exract coarse grid parameters
 
     ! Common parameters for the coarse grid
-    call json_get_or_default(hsmg_params, 'coarse_grid.solver', &
+    call json_get_or_default(json, 'coarse_grid.solver', &
          crs_solver, "cg")
 
     !
     ! Parameters for a Krylov based coarse grid solverthis
     !
-    call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
+    call json_get_or_default(json, 'coarse_grid.iterations', &
          this%niter, 10)
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.preconditioner', &
+    call json_get_or_default(json, 'coarse_grid.preconditioner', &
          crs_pc, "jacobi")
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.monitor', &
+    call json_get_or_default(json, 'coarse_grid.monitor', &
          crs_monitor, .false.)
 
     !
     ! Parameters for a tree-amg based coarse grid solver
     !
-    call json_get_or_default(hsmg_params, 'coarse_grid.levels', &
+    call json_get_or_default(json, 'coarse_grid.levels', &
          crs_tamg_lvls, 3)
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
+    call json_get_or_default(json, 'coarse_grid.iterations', &
          crs_tamg_itrs, 1)
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.cheby_degree', &
+    call json_get_or_default(json, 'coarse_grid.cheby_degree', &
          crs_tamg_cheby_degree, 4)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
@@ -354,11 +354,11 @@ contains
 
        select type (pc => this%pc_crs)
        type is (jacobi_t)
-          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+          call pc%init_from_components(this%c_crs, this%dm_crs, this%gs_crs)
        type is (sx_jacobi_t)
-          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+          call pc%init_from_components(this%c_crs, this%dm_crs, this%gs_crs)
        type is (device_jacobi_t)
-          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+          call pc%init_from_components(this%c_crs, this%dm_crs, this%gs_crs)
        end select
 
        call krylov_solver_factory(this%crs_solver, &

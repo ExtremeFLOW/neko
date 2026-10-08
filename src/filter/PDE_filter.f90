@@ -309,11 +309,11 @@ contains
 
     select type (pcp => pc)
     type is (jacobi_t)
-       call pcp%init(coef, dof, gs)
+       call pcp%init_from_components(coef, dof, gs)
     type is (sx_jacobi_t)
-       call pcp%init(coef, dof, gs)
+       call pcp%init_from_components(coef, dof, gs)
     type is (device_jacobi_t)
-       call pcp%init(coef, dof, gs)
+       call pcp%init_from_components(coef, dof, gs)
     end select
 
     call ksp%set_pc(pc)
