@@ -53,6 +53,7 @@ module gmsh2nmsh_util
 contains
 
   !> Print an error message and stop
+  !! @param msg Message to print before stopping
   subroutine fatal(msg)
     character(len=*), intent(in) :: msg
 
@@ -64,6 +65,7 @@ contains
   end subroutine fatal
 
   !> Print a warning
+  !! @param msg Message to print
   subroutine warn(msg)
     character(len=*), intent(in) :: msg
 
@@ -74,6 +76,8 @@ contains
   !> Print a progress line: the label, a row of dots and the value
   !! @details The output is flushed, so that progress is visible at once
   !! also when it is redirected.
+  !! @param label Text at the start of the line
+  !! @param value Text after the dots
   subroutine progress(label, value)
     character(len=*), intent(in) :: label, value
     integer, parameter :: WIDTH = 33
@@ -87,6 +91,7 @@ contains
   end subroutine progress
 
   !> An integer as text
+  !! @param i The integer
   function int_str(i) result(str)
     integer, intent(in) :: i
     character(len=:), allocatable :: str
@@ -98,6 +103,7 @@ contains
   end function int_str
 
   !> A real as short text, without trailing zeros
+  !! @param x The real
   function real_str(x) result(str)
     real(kind=dp), intent(in) :: x
     character(len=:), allocatable :: str
@@ -171,47 +177,57 @@ module gmsh2nmsh_reader
 
   !> Buffered reader for files mixing ASCII and binary data
   type :: msh_stream_t
-     integer :: unit = -1
-     integer(kind=i8) :: fsize = 0
+     integer :: unit = -1 !< Fortran unit of the file, -1 when closed
+     integer(kind=i8) :: fsize = 0 !< File size in bytes
      integer(kind=i8) :: pos = 1 !< Next byte to consume
      integer(kind=i8) :: buf_start = 1 !< File position of buf(1:1)
-     integer :: buf_len = 0
-     character(len=:), allocatable :: buf
-     logical :: binary = .false.
+     integer :: buf_len = 0 !< Number of valid bytes in buf
+     character(len=:), allocatable :: buf !< Read buffer
+     logical :: binary = .false. !< Read binary data
      logical :: swap = .false. !< Swap the byte order of data
-     integer :: size_t_len = 8
+     integer :: size_t_len = 8 !< Byte length of size_t values
+   contains
+     procedure, pass(this) :: free => msh_stream_free
   end type msh_stream_t
 
   !> First physical tag of the entities of one dimension (MSH 4)
   type :: entity_list_t
-     integer :: n = 0
-     integer, allocatable :: tag(:)
+     integer :: n = 0 !< Number of entities
+     integer, allocatable :: tag(:) !< Entity tags
+     !> First physical tag of each entity, 0 if it is in no group
      integer, allocatable :: phys(:)
+   contains
+     procedure, pass(this) :: free => entity_list_free
   end type entity_list_t
 
   !> Map from Gmsh node tags to node indices
   type :: node_map_t
-     integer(kind=i8) :: tag_min = 1
+     integer(kind=i8) :: tag_min = 1 !< Smallest node tag
+     !> Index of the node with tag tag_min + i - 1, 0 if there is none
      integer, allocatable :: idx(:)
+   contains
+     procedure, pass(this) :: free => node_map_free
   end type node_map_t
 
   !> Mesh data extracted from a Gmsh file
   type, public :: gmsh_mesh_t
-     real(kind=dp) :: version = 0.0_dp
-     logical :: binary = .false.
-     integer :: nnodes = 0
+     real(kind=dp) :: version = 0.0_dp !< MSH format version
+     logical :: binary = .false. !< The file is binary
+     integer :: nnodes = 0 !< Number of nodes
      !> Node coordinates (3, nnodes)
      real(kind=dp), allocatable :: xyz(:,:)
-     integer :: nphys = 0
-     integer, allocatable :: phys_dim(:)
-     integer, allocatable :: phys_tag(:)
+     integer :: nphys = 0 !< Number of physical names
+     integer, allocatable :: phys_dim(:) !< Dimension of each physical name
+     integer, allocatable :: phys_tag(:) !< Tag of each physical name
+     !> Physical names, without quotes
      character(len=GMSH_NAME_LEN), allocatable :: phys_name(:)
-     integer :: nhex = 0
+     integer :: nhex = 0 !< Number of hexahedra
      !> Number of hexahedra with edge nodes
      integer :: nhex_ho = 0
      !> Node indices of the hexahedra (20, nhex), see HEX_G2S
      integer, allocatable :: hex(:,:)
-     integer :: nquad = 0
+     integer :: nquad = 0 !< Number of quadrilaterals
+     !> Number of quadrilaterals with edge nodes
      integer :: nquad_ho = 0
      !> Node indices of the quadrilaterals (8, nquad), see QUAD_G2S
      integer, allocatable :: quad(:,:)
@@ -221,7 +237,7 @@ module gmsh2nmsh_reader
      integer :: nline = 0
      !> Node indices of the lines (3, nline): end points and midpoint
      integer, allocatable :: line(:,:)
-     integer, allocatable :: line_phys(:)
+     integer, allocatable :: line_phys(:) !< Physical tag of each line
      !> Number of curves and surfaces in more than one physical group
      integer :: n_multi_phys = 0
      !> Number of volumes in the geometry (MSH 4 only, else 0)
@@ -233,6 +249,46 @@ module gmsh2nmsh_reader
   public :: gmsh_read
 
 contains
+
+  !> Close the file of a stream and release its buffer
+  subroutine msh_stream_free(this)
+    class(msh_stream_t), intent(inout) :: this
+    logical :: is_open
+
+    if (this%unit .ne. -1) then
+       inquire(unit = this%unit, opened = is_open)
+       if (is_open) close(this%unit)
+    end if
+    this%unit = -1
+    if (allocated(this%buf)) deallocate(this%buf)
+    this%fsize = 0
+    this%pos = 1
+    this%buf_start = 1
+    this%buf_len = 0
+    this%binary = .false.
+    this%swap = .false.
+    this%size_t_len = 8
+
+  end subroutine msh_stream_free
+
+  !> Deallocate an entity list
+  subroutine entity_list_free(this)
+    class(entity_list_t), intent(inout) :: this
+
+    if (allocated(this%tag)) deallocate(this%tag)
+    if (allocated(this%phys)) deallocate(this%phys)
+    this%n = 0
+
+  end subroutine entity_list_free
+
+  !> Deallocate a node map
+  subroutine node_map_free(this)
+    class(node_map_t), intent(inout) :: this
+
+    if (allocated(this%idx)) deallocate(this%idx)
+    this%tag_min = 1
+
+  end subroutine node_map_free
 
   !> Deallocate all data of a Gmsh mesh
   subroutine gmsh_mesh_free(this)
@@ -273,6 +329,7 @@ contains
     character(len=256) :: name
     character(len=16) :: str
     logical :: ok, have_format, have_nodes
+    integer :: d
 
     call gm%free()
     call stream_open(s, fname)
@@ -331,7 +388,11 @@ contains
        call stream_end_section(s, name)
     end do
 
-    call stream_close(s)
+    call s%free()
+    do d = 0, 3
+       call ent(d)%free()
+    end do
+    call nmap%free()
 
     if (.not. have_nodes) then
        call fatal('No $Nodes section found in ' // trim(fname))
@@ -340,6 +401,8 @@ contains
   end subroutine gmsh_read
 
   !> Read the $MeshFormat section
+  !! @param s Input stream
+  !! @param gm Mesh receiving the version and file type
   subroutine read_format(s, gm)
     type(msh_stream_t), intent(inout) :: s
     type(gmsh_mesh_t), intent(inout) :: gm
@@ -383,6 +446,8 @@ contains
   end subroutine read_format
 
   !> Read the $PhysicalNames section (always ASCII)
+  !! @param s Input stream
+  !! @param gm Mesh receiving the physical names
   subroutine read_physical_names(s, gm)
     type(msh_stream_t), intent(inout) :: s
     type(gmsh_mesh_t), intent(inout) :: gm
@@ -414,6 +479,9 @@ contains
 
   !> Read the $Entities section (MSH 4), keeping the first physical tag of
   !! each entity
+  !! @param s Input stream
+  !! @param gm Mesh receiving the volume and multi-group counts
+  !! @param ent Entity lists of each dimension, filled on return
   subroutine read_entities(s, gm, ent)
     type(msh_stream_t), intent(inout) :: s
     type(gmsh_mesh_t), intent(inout) :: gm
@@ -427,7 +495,7 @@ contains
     end do
 
     do d = 0, 3
-       if (allocated(ent(d)%tag)) deallocate(ent(d)%tag, ent(d)%phys)
+       call ent(d)%free()
        ent(d)%n = int(cnt(d))
        if (d .eq. 3) gm%n_volumes = ent(d)%n
        allocate(ent(d)%tag(ent(d)%n), ent(d)%phys(ent(d)%n))
@@ -457,6 +525,9 @@ contains
   end subroutine read_entities
 
   !> Read the $Nodes section of a MSH 4 file
+  !! @param s Input stream
+  !! @param gm Mesh receiving the node coordinates
+  !! @param nmap Node tag map, built on return
   subroutine read_nodes_v4(s, gm, nmap)
     type(msh_stream_t), intent(inout) :: s
     type(gmsh_mesh_t), intent(inout) :: gm
@@ -524,10 +595,15 @@ contains
     end if
 
     call build_node_map(tags, nmap)
+    deallocate(tags)
+    if (allocated(cbuf)) deallocate(cbuf)
 
   end subroutine read_nodes_v4
 
   !> Read the $Nodes section of a MSH 2 file
+  !! @param s Input stream
+  !! @param gm Mesh receiving the node coordinates
+  !! @param nmap Node tag map, built on return
   subroutine read_nodes_v2(s, gm, nmap)
     type(msh_stream_t), intent(inout) :: s
     type(gmsh_mesh_t), intent(inout) :: gm
@@ -577,10 +653,16 @@ contains
     end if
 
     call build_node_map(tags, nmap)
+    deallocate(tags)
+    if (allocated(rec)) deallocate(rec)
 
   end subroutine read_nodes_v2
 
   !> Read the $Elements section of a MSH 4 file
+  !! @param s Input stream
+  !! @param gm Mesh receiving the elements
+  !! @param nmap Node tag map
+  !! @param ent Entity lists giving the physical tags
   subroutine read_elements_v4(s, gm, nmap, ent)
     type(msh_stream_t), intent(inout) :: s
     type(gmsh_mesh_t), intent(inout) :: gm
@@ -629,9 +711,14 @@ contains
        end if
     end do
 
+    if (allocated(buf)) deallocate(buf)
+
   end subroutine read_elements_v4
 
   !> Read the $Elements section of a MSH 2 file
+  !! @param s Input stream
+  !! @param gm Mesh receiving the elements
+  !! @param nmap Node tag map
   subroutine read_elements_v2(s, gm, nmap)
     type(msh_stream_t), intent(inout) :: s
     type(gmsh_mesh_t), intent(inout) :: gm
@@ -699,9 +786,12 @@ contains
        end do
     end if
 
+    if (allocated(buf)) deallocate(buf)
+
   end subroutine read_elements_v2
 
   !> Classify a Gmsh element type, stopping on types Neko cannot use
+  !! @param etype Gmsh element type number
   function element_kind(etype) result(ekind)
     integer, intent(in) :: etype
     integer :: ekind
@@ -740,6 +830,9 @@ contains
   end function element_kind
 
   !> First physical tag of an entity, 0 if it is in no physical group
+  !! @param ent Entity lists of each dimension
+  !! @param dim Entity dimension
+  !! @param tag Entity tag
   pure function entity_phys(ent, dim, tag) result(phys)
     type(entity_list_t), intent(in) :: ent(0:3)
     integer, intent(in) :: dim, tag
@@ -759,6 +852,10 @@ contains
   end function entity_phys
 
   !> Make room for @a n more elements of kind @a ekind
+  !! @param gm Mesh whose element arrays are grown
+  !! @param ekind Element kind
+  !! @param phys Physical tag, lines without one are not stored
+  !! @param n Number of elements to make room for
   subroutine reserve(gm, ekind, phys, n)
     type(gmsh_mesh_t), intent(inout) :: gm
     integer, intent(in) :: ekind, phys
@@ -795,6 +892,11 @@ contains
   end subroutine reserve
 
   !> Store one element given by its Gmsh node tags
+  !! @param gm Mesh receiving the element
+  !! @param ekind Element kind
+  !! @param tags Gmsh node tags of the element
+  !! @param phys Physical tag of the element, 0 if none
+  !! @param nmap Node tag map
   subroutine add_element(gm, ekind, tags, phys, nmap)
     type(gmsh_mesh_t), intent(inout) :: gm
     integer, intent(in) :: ekind
@@ -841,6 +943,8 @@ contains
   end subroutine add_element
 
   !> Build the map from node tags to node indices
+  !! @param tags Node tags in the order of the nodes
+  !! @param nmap Map, built on return
   subroutine build_node_map(tags, nmap)
     integer(kind=i8), intent(in) :: tags(:)
     type(node_map_t), intent(inout) :: nmap
@@ -863,7 +967,7 @@ contains
             'renumber the mesh in Gmsh before saving it')
     end if
 
-    if (allocated(nmap%idx)) deallocate(nmap%idx)
+    call nmap%free()
     allocate(nmap%idx(range))
     nmap%idx = 0
     nmap%tag_min = tmin
@@ -878,6 +982,8 @@ contains
   end subroutine build_node_map
 
   !> Node index of a node tag
+  !! @param nmap Node tag map
+  !! @param tag Gmsh node tag
   function node_index(nmap, tag) result(idx)
     type(node_map_t), intent(in) :: nmap
     integer(kind=i8), intent(in) :: tag
@@ -896,6 +1002,9 @@ contains
   end function node_index
 
   !> Make sure a 2D array has at least @a need columns
+  !! @param a Array to grow
+  !! @param nrow Number of rows
+  !! @param need Number of columns needed
   subroutine grow2(a, nrow, need)
     integer, allocatable, intent(inout) :: a(:,:)
     integer, intent(in) :: nrow, need
@@ -915,6 +1024,8 @@ contains
   end subroutine grow2
 
   !> Make sure a 1D array has at least @a need entries
+  !! @param a Array to grow
+  !! @param need Number of entries needed
   subroutine grow1(a, need)
     integer, allocatable, intent(inout) :: a(:)
     integer, intent(in) :: need
@@ -938,6 +1049,7 @@ contains
   ! ---------------------------------------------------------------------
 
   !> Read an int
+  !! @param s Input stream
   function read_int(s) result(v)
     type(msh_stream_t), intent(inout) :: s
     integer :: v
@@ -953,6 +1065,7 @@ contains
   end function read_int
 
   !> Read a size_t
+  !! @param s Input stream
   function read_size_t(s) result(v)
     type(msh_stream_t), intent(inout) :: s
     integer(kind=i8) :: v
@@ -968,6 +1081,8 @@ contains
   end function read_size_t
 
   !> Read an array of doubles
+  !! @param s Input stream
+  !! @param v Values read
   subroutine read_reals(s, v)
     type(msh_stream_t), intent(inout) :: s
     real(kind=dp), intent(out) :: v(:)
@@ -988,6 +1103,8 @@ contains
   ! ---------------------------------------------------------------------
 
   !> Open a file as a byte stream
+  !! @param s Stream to open
+  !! @param fname Name of the file
   subroutine stream_open(s, fname)
     type(msh_stream_t), intent(inout) :: s
     character(len=*), intent(in) :: fname
@@ -1007,18 +1124,9 @@ contains
 
   end subroutine stream_open
 
-  !> Close a stream
-  subroutine stream_close(s)
-    type(msh_stream_t), intent(inout) :: s
-
-    close(s%unit)
-    s%unit = -1
-    if (allocated(s%buf)) deallocate(s%buf)
-
-  end subroutine stream_close
-
   !> Make sure the byte at the current position is buffered
   !! @return .false. at the end of the file
+  !! @param s Stream
   function stream_fill(s) result(ok)
     type(msh_stream_t), intent(inout) :: s
     logical :: ok
@@ -1039,6 +1147,7 @@ contains
   end function stream_fill
 
   !> Whitespace test
+  !! @param c Character to test
   pure function is_space(c) result(res)
     character, intent(in) :: c
     logical :: res
@@ -1049,6 +1158,7 @@ contains
   end function is_space
 
   !> Read the next whitespace separated token
+  !! @param s Stream
   !! @param tok The token, truncated to len(tok)
   !! @param n Length of the token, 0 at the end of the file
   subroutine stream_token(s, tok, n)
@@ -1089,6 +1199,7 @@ contains
   end subroutine stream_token
 
   !> Skip the next token
+  !! @param s Stream
   subroutine stream_skip_token(s)
     type(msh_stream_t), intent(inout) :: s
     character(len=1) :: tok
@@ -1100,6 +1211,7 @@ contains
   end subroutine stream_skip_token
 
   !> Read the next token as an integer
+  !! @param s Stream
   function stream_int(s) result(v)
     type(msh_stream_t), intent(inout) :: s
     integer(kind=i8) :: v
@@ -1128,6 +1240,7 @@ contains
   end function stream_int
 
   !> Read the next token as a real
+  !! @param s Stream
   function stream_real(s) result(v)
     type(msh_stream_t), intent(inout) :: s
     real(kind=dp) :: v
@@ -1144,6 +1257,8 @@ contains
   end function stream_real
 
   !> Read the rest of the current line, without the line terminator
+  !! @param s Stream
+  !! @param str The line, truncated to len(str)
   !! @param ok .false. at the end of the file
   subroutine stream_line(s, str, ok)
     type(msh_stream_t), intent(inout) :: s
@@ -1182,6 +1297,7 @@ contains
   end subroutine stream_line
 
   !> Skip the rest of the current line
+  !! @param s Stream
   subroutine stream_skip_line(s)
     type(msh_stream_t), intent(inout) :: s
     character(len=1) :: str
@@ -1192,6 +1308,7 @@ contains
   end subroutine stream_skip_line
 
   !> Find the next section header
+  !! @param s Stream
   !! @param name Section name without the leading $
   !! @param ok .false. at the end of the file
   subroutine stream_section(s, name, ok)
@@ -1217,6 +1334,8 @@ contains
   end subroutine stream_section
 
   !> Consume the end marker of section @a name
+  !! @param s Stream
+  !! @param name Section name without the leading $
   subroutine stream_end_section(s, name)
     type(msh_stream_t), intent(inout) :: s
     character(len=*), intent(in) :: name
@@ -1240,6 +1359,8 @@ contains
   end subroutine stream_end_section
 
   !> Skip a section that is not needed
+  !! @param s Stream
+  !! @param name Section name without the leading $
   subroutine stream_skip_section(s, name)
     type(msh_stream_t), intent(inout) :: s
     character(len=*), intent(in) :: name
@@ -1257,6 +1378,8 @@ contains
   end subroutine stream_skip_section
 
   !> Read raw bytes
+  !! @param s Stream
+  !! @param str Bytes read, len(str) of them
   subroutine stream_read_chars(s, str)
     type(msh_stream_t), intent(inout) :: s
     character(len=*), intent(out) :: str
@@ -1272,6 +1395,8 @@ contains
   end subroutine stream_read_chars
 
   !> Read binary 4-byte integers
+  !! @param s Stream
+  !! @param a Values read
   subroutine stream_read_i4(s, a)
     type(msh_stream_t), intent(inout) :: s
     integer(kind=i4), intent(out) :: a(:)
@@ -1288,6 +1413,8 @@ contains
   end subroutine stream_read_i4
 
   !> Read binary doubles
+  !! @param s Stream
+  !! @param a Values read
   subroutine stream_read_r8(s, a)
     type(msh_stream_t), intent(inout) :: s
     real(kind=dp), intent(out) :: a(:)
@@ -1304,6 +1431,8 @@ contains
   end subroutine stream_read_r8
 
   !> Read binary size_t values
+  !! @param s Stream
+  !! @param a Values read
   subroutine stream_read_size_t(s, a)
     type(msh_stream_t), intent(inout) :: s
     integer(kind=i8), intent(out) :: a(:)
@@ -1322,11 +1451,13 @@ contains
        allocate(tmp(size(a)))
        call stream_read_i4(s, tmp)
        a = int(tmp, i8)
+       deallocate(tmp)
     end if
 
   end subroutine stream_read_size_t
 
   !> Reverse the byte order of a 4-byte integer
+  !! @param x Value to swap
   elemental function swap_i4(x) result(y)
     integer(kind=i4), intent(in) :: x
     integer(kind=i4) :: y
@@ -1342,6 +1473,7 @@ contains
   end function swap_i4
 
   !> Reverse the byte order of an 8-byte integer
+  !! @param x Value to swap
   elemental function swap_i8(x) result(y)
     integer(kind=i8), intent(in) :: x
     integer(kind=i8) :: y
@@ -1357,6 +1489,7 @@ contains
   end function swap_i8
 
   !> Reverse the byte order of a double
+  !! @param x Value to swap
   elemental function swap_r8(x) result(y)
     real(kind=dp), intent(in) :: x
     real(kind=dp) :: y
@@ -1488,8 +1621,41 @@ program gmsh2nmsh
   call print_warnings()
 
   call gm%free()
+  call free_mesh_data()
 
 contains
+
+  !> Deallocate the arrays of the converted mesh
+  subroutine free_mesh_data()
+
+    if (allocated(conn)) deallocate(conn)
+    if (allocated(facet_vtx)) deallocate(facet_vtx)
+    if (allocated(edge_vtx)) deallocate(edge_vtx)
+    if (allocated(flip)) deallocate(flip)
+    if (allocated(vid)) deallocate(vid)
+    if (allocated(bf_key)) deallocate(bf_key)
+    if (allocated(bf_phys)) deallocate(bf_phys)
+    if (allocated(bf_nmatch)) deallocate(bf_nmatch)
+    if (allocated(bf_grp)) deallocate(bf_grp)
+    if (allocated(bf_el)) deallocate(bf_el)
+    if (allocated(bf_side)) deallocate(bf_side)
+    if (allocated(bf_keep)) deallocate(bf_keep)
+    if (allocated(grp_tag)) deallocate(grp_tag)
+    if (allocated(grp_label)) deallocate(grp_label)
+    if (allocated(grp_partner)) deallocate(grp_partner)
+    if (allocated(grp_nfacets)) deallocate(grp_nfacets)
+    if (allocated(grp_ninternal)) deallocate(grp_ninternal)
+    if (allocated(grp_name)) deallocate(grp_name)
+    if (allocated(lab_e)) deallocate(lab_e)
+    if (allocated(lab_f)) deallocate(lab_f)
+    if (allocated(lab_label)) deallocate(lab_label)
+    if (allocated(per_e)) deallocate(per_e)
+    if (allocated(per_f)) deallocate(per_f)
+    if (allocated(per_pe)) deallocate(per_pe)
+    if (allocated(per_pf)) deallocate(per_pf)
+    if (allocated(parent)) deallocate(parent)
+
+  end subroutine free_mesh_data
 
   !> Print the banner with the version and the compiler
   subroutine print_banner()
@@ -1632,6 +1798,7 @@ contains
   end subroutine parse_arguments
 
   !> Text after the last dot of a file name
+  !! @param fname File name
   function file_suffix(fname) result(suffix)
     character(len=*), intent(in) :: fname
     character(len=80) :: suffix
@@ -1644,6 +1811,11 @@ contains
   end function file_suffix
 
   !> Match an option given as "name=value" or "name value"
+  !! @param arg Current command line argument
+  !! @param name Option name including the leading dashes
+  !! @param i Index of the current argument, advanced if the value follows it
+  !! @param argc Number of command line arguments
+  !! @param val Option value
   function option_value(arg, name, i, argc, val) result(match)
     character(len=*), intent(in) :: arg, name
     integer, intent(inout) :: i
@@ -1728,6 +1900,7 @@ contains
   end subroutine setup_elements
 
   !> Stop on elements with repeated vertices
+  !! @param e Element index
   subroutine check_degenerate(e)
     integer, intent(in) :: e
     integer :: a, b
@@ -1746,6 +1919,8 @@ contains
   end subroutine check_degenerate
 
   !> Corner coordinates of element @a e in symmetric order
+  !! @param e Element index
+  !! @param c Corner coordinates, column k for symmetric vertex k
   subroutine corner_coords(e, c)
     integer, intent(in) :: e
     real(kind=dp), intent(inout) :: c(3, 8)
@@ -1758,6 +1933,9 @@ contains
   end subroutine corner_coords
 
   !> Triple product a . (b x c)
+  !! @param a First vector
+  !! @param b Second vector
+  !! @param c Third vector
   pure function triple(a, b, c) result(v)
     real(kind=dp), intent(in) :: a(3), b(3), c(3)
     real(kind=dp) :: v
@@ -1769,6 +1947,7 @@ contains
   end function triple
 
   !> Sign carrying Jacobian of the (bi/tri)linear map at the element centre
+  !! @param c Corner coordinates in symmetric order
   function center_jacobian(c) result(det)
     real(kind=dp), intent(in) :: c(3, 8)
     real(kind=dp) :: det
@@ -1791,6 +1970,7 @@ contains
   end function center_jacobian
 
   !> Smallest Jacobian of the (bi/tri)linear map over the element corners
+  !! @param c Corner coordinates in symmetric order
   function min_corner_jacobian(c) result(det)
     real(kind=dp), intent(in) :: c(3, 8)
     real(kind=dp) :: det
@@ -1822,6 +2002,9 @@ contains
   end function min_corner_jacobian
 
   !> Symmetric vertex number of corner (i, j, k)
+  !! @param i Position along r, 0 or 1
+  !! @param j Position along s, 0 or 1
+  !! @param k Position along t, 0 or 1
   pure function cidx(i, j, k) result(idx)
     integer, intent(in) :: i, j, k
     integer :: idx
@@ -1870,6 +2053,8 @@ contains
   end subroutine number_vertices
 
   !> Sort the first @a n entries of a facet key
+  !! @param key Facet key
+  !! @param n Number of entries to sort
   pure subroutine sort_key(key, n)
     integer, intent(inout) :: key(4)
     integer, intent(in) :: n
@@ -1889,6 +2074,8 @@ contains
   end subroutine sort_key
 
   !> Bucket of a key of four integers
+  !! @param key Facet key
+  !! @param nb Number of buckets
   pure function hash_key(key, nb) result(h)
     integer, intent(in) :: key(4), nb
     integer :: h
@@ -1903,6 +2090,8 @@ contains
   end function hash_key
 
   !> Bucket of a cell of a uniform grid
+  !! @param cell Cell indices
+  !! @param nb Number of buckets
   pure function hash_cell(cell, nb) result(h)
     integer(kind=i8), intent(in) :: cell(3)
     integer, intent(in) :: nb
@@ -1917,6 +2106,10 @@ contains
   end function hash_cell
 
   !> Boundary facet with a given key, 0 if none
+  !! @param key Facet key
+  !! @param h Bucket of the key
+  !! @param head First facet of each bucket
+  !! @param nxt Next facet in the same bucket
   pure function find_key(key, h, head, nxt) result(j)
     integer, intent(in) :: key(4), h
     integer, intent(in) :: head(:), nxt(:)
@@ -2023,6 +2216,7 @@ contains
   end subroutine match_boundary_facets
 
   !> Index of a physical name of the boundary dimension, 0 if none
+  !! @param tag Physical tag
   function find_phys_name(tag) result(idx)
     integer, intent(in) :: tag
     integer :: idx
@@ -2042,7 +2236,7 @@ contains
   subroutine setup_groups()
     character(len=GMSH_NAME_LEN), allocatable :: tok(:)
     integer, allocatable :: tmp(:)
-    integer :: i, j, g, ga, gb, nlab, ntok, t
+    integer :: i, j, g, ga, gb, nlabeled, ntok, t
     logical :: fits
 
     ! Distinct physical tags of the matched facets
@@ -2069,6 +2263,7 @@ contains
     allocate(grp_tag(ngrp), grp_label(ngrp), grp_partner(ngrp))
     allocate(grp_nfacets(ngrp), grp_ninternal(ngrp), grp_name(ngrp))
     grp_tag = tmp(1:ngrp)
+    deallocate(tmp)
     grp_label = 0
     grp_partner = 0
     grp_nfacets = 0
@@ -2110,11 +2305,12 @@ contains
        grp_partner(ga) = gb
        grp_partner(gb) = ga
     end do
+    deallocate(tok)
 
     ! Labels: the physical tags if they are valid zone indices, otherwise
     ! the groups are numbered 1, 2, ... in order of their tags
-    nlab = count(grp_partner .eq. 0)
-    if (nlab .gt. MAX_ZONES) then
+    nlabeled = count(grp_partner .eq. 0)
+    if (nlabeled .gt. MAX_ZONES) then
        call fatal('More boundary physical groups than Neko ' // &
             'supports as labeled zones')
     end if
@@ -2140,6 +2336,9 @@ contains
   end subroutine setup_groups
 
   !> Split a periodic specification into tokens
+  !! @param spec Specification as given on the command line
+  !! @param tok The tokens
+  !! @param ntok Number of tokens
   subroutine split_tokens(spec, tok, ntok)
     character(len=*), intent(in) :: spec
     character(len=GMSH_NAME_LEN), allocatable, intent(out) :: tok(:)
@@ -2175,6 +2374,7 @@ contains
   end subroutine split_tokens
 
   !> Group index of a physical group given by tag or name
+  !! @param token Physical tag or name of the group
   function resolve_group(token) result(g)
     character(len=*), intent(in) :: token
     integer :: g
@@ -2234,6 +2434,10 @@ contains
   end subroutine mark_zones
 
   !> Add a periodic facet record
+  !! @param f Facet
+  !! @param e Element
+  !! @param pf Periodic facet
+  !! @param pe Periodic element
   subroutine add_periodic(f, e, pf, pe)
     integer, intent(in) :: f, e, pf, pe
 
@@ -2245,6 +2449,8 @@ contains
 
   end subroutine add_periodic
   !> Boundary facets of group @a g
+  !! @param g Group index
+  !! @param list Indices of the boundary facets of the group
   subroutine group_facets(g, list)
     integer, intent(in) :: g
     integer, allocatable, intent(out) :: list(:)
@@ -2261,6 +2467,12 @@ contains
   end subroutine group_facets
 
   !> Corners, centroid and vertex ids of boundary facet @a b
+  !! @param b Boundary facet index
+  !! @param x Corner coordinates
+  !! @param c Centroid
+  !! @param v Vertex ids of the corners
+  !! @param emin Shortest facet edge so far, updated
+  !! @param scale Largest coordinate magnitude so far, updated
   subroutine facet_geometry(b, x, c, v, emin, scale)
     integer, intent(in) :: b
     real(kind=dp), intent(out) :: x(3, nfv), c(3)
@@ -2288,6 +2500,10 @@ contains
   end subroutine facet_geometry
 
   !> Match the corners of two facets under a translation
+  !! @param xa Corners of the first facet
+  !! @param xb Corners of the second facet
+  !! @param offset Translation from the first facet to the second
+  !! @param tol Matching tolerance
   !! @param pair Corner of @a xb matching each corner of @a xa
   function match_corners(xa, xb, offset, tol, pair) result(match)
     real(kind=dp), intent(in) :: xa(3, nfv), xb(3, nfv), offset(3), tol
@@ -2317,6 +2533,8 @@ contains
   !! @a ga is matched to one facet of @a gb with a hash of the centroids,
   !! then both directions are marked as periodic facets and the matched
   !! vertices are merged.
+  !! @param ga Group index of the first side
+  !! @param gb Group index of the second side
   subroutine make_periodic(ga, gb)
     integer, intent(in) :: ga, gb
     integer, allocatable :: fa(:), fb(:), va(:,:), vb(:,:)
@@ -2437,9 +2655,12 @@ contains
          ' ' // real_str(offset(2)) // ' ' // real_str(offset(3)) // &
          ', tolerance ' // real_str(tol))
 
+    deallocate(fa, fb, va, vb, xa, xb, ca, cb, head, nxt, cell, used)
+
   end subroutine make_periodic
 
   !> Root of the set containing @a x0, with path compression
+  !! @param x0 Vertex id
   function uf_find(x0) result(r)
     integer, intent(in) :: x0
     integer :: r
@@ -2459,6 +2680,8 @@ contains
   end function uf_find
 
   !> Merge the sets containing @a a and @a b, keeping the smaller root
+  !! @param a Vertex id in the first set
+  !! @param b Vertex id in the second set
   subroutine uf_union(a, b)
     integer, intent(in) :: a, b
     integer :: ra, rb
@@ -2475,6 +2698,9 @@ contains
 
   !> Midpoint curves of the curved edges of element @a e
   !! @return .true. if the element has a curved edge
+  !! @param e Element index
+  !! @param curve_data Curve data of each edge, the midpoint in entries 1 to 3
+  !! @param curve_type Curve type of each edge, 4 for a midpoint curve, else 0
   function element_curve(e, curve_data, curve_type) result(curved)
     integer, intent(in) :: e
     real(kind=dp), intent(out) :: curve_data(5, 12)
@@ -2533,6 +2759,7 @@ contains
   !! order of their index) and the curved elements. Integers are 4 bytes,
   !! reals 8 bytes, without padding. Elements keep the original vertex ids,
   !! periodic facets store the merged ids of their vertices.
+  !! @param fname Name of the nmsh file
   subroutine write_nmsh(fname)
     character(len=*), intent(in) :: fname
     real(kind=dp) :: x(3, 8), curve_data(5, 12)
@@ -2592,6 +2819,7 @@ contains
 
   end subroutine write_nmsh
   !> Name of a group for messages
+  !! @param g Group index
   function group_label_str(g) result(str)
     integer, intent(in) :: g
     character(len=GMSH_NAME_LEN + 16) :: str
@@ -2627,6 +2855,7 @@ contains
        call progress('  Reoriented', int_str(nflip) // &
             ' left-handed elements')
     end if
+    deallocate(str)
 
   end subroutine print_elements
 
