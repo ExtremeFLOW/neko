@@ -204,9 +204,11 @@ baseline in the same frames and, with `bdf2` and `eq31` set, against D5's own BD
 All at $N=5$, $\xi=1$, $\gamma=1$, `svv_psi` $c_0=0.1$, $N/2$. The $H=1/64$ runs use
 $\Delta t=8\times10^{-5}$ and end at $t=8.00008$ (16 events; the 16th fires on that last step, so the
 $E_r$ frame is post-reseed); the $H=1/128$ runs use $\Delta t=4.1\times10^{-5}$. Every events run
-builds $\psi_0$ by Eq. (44); transport only starts from the exact distance. The angle is $\psi$'s normal against the exact interface on the
-frames right after the events at $t=2$–5, $\phi(1-\phi)$-weighted over the compression band. Cases
-are in `logs/`.
+builds $\psi_0$ by Eq. (44); transport only starts from the exact distance. The angle is $\psi$'s
+normal against the exact interface on the frames right after the events at $t=2$–5,
+$\phi(1-\phi)$-weighted over the compression band. For run 2 and Run A, the two runs measured at
+every frame, those frames sit at or near each interval's peak (item 7 below). Cases are in
+`logs/`.
 
 | run | settings beyond the committed path | $E_r(8)$ | $E_s(8)$ | worst violation | $\phi$ pieces, $t=3$–6 | angle, $t=2$–5 | at $t=8$ |
 |---|---|---|---|---|---|---|---|
@@ -297,6 +299,23 @@ $1.3\times10^{-3}$: the seed's slow relaxation (item 3 below).
 6. **The runs with width 0.25 and $25H$ degrade at the end.** $\psi$'s normal is 12.7–16.5° off at
    $t=7.52$ and 29° at $t=8$ at $H=1/64$, against transport's 1.4° and 1.3°. Saini's TLS shows the
    same rise, 12–17° at $t=7.5$–8.
+7. **Each event from $t=1$ to 5 adds to $\psi$'s normal error, and transport removes part of it
+   before the next** (every output frame, run 2 and Run A; `logs/d6_2026-10-07/tables/rdq_all_*.txt`,
+   `evidence/rider_redistancing_during.png`).
+   - The first event lowers the error: 1.06° → 0.45° in run 2, 1.07° → 0.49° in Run A. Before it,
+     transport alone had raised it from 0.02° to 1.04° (transport only) and from 0.46° to 1.06° (run 2).
+   - The events at $t=1$ to 5 raise it, ×1.3–2.5 in run 2 and ×1.4–6.5 in Run A. By the next event
+     the transport has lowered it to 0.23–0.86 of the post-event value, except run 2 at $t=5$ (0.99).
+     Run A at $t=2$: 0.66° before, 4.3° after, 0.97° at $t=2.48$. The event at $t=5.5$ is in between
+     (×1.08, ×1.33).
+   - From $t\approx6$ the events change it by ×0.8–1.05, and it grows between them: the end-of-run
+     rise of item 6.
+   - Transport alone changes by at most 8% across the same pairs of frames.
+   - The troughs rise with $\phi$'s own normal error (item 3: 0.5–2.3° at $t=2$–5), which the reseed
+     imports; the frames are 0.08 apart, so the event and the transport after it are not separated.
+     Run 2's error still rises for 0.16 after its event at $t=4$.
+   - Each event also resets the band $|\nabla\psi|$ to 1.61–1.67. Between events the strain moves
+     it, as it moves transport's to 7.7 at $t=4.08$.
 
 ### Saini's own code on the same problem
 
@@ -387,11 +406,18 @@ also ships as a GIF.
 
 **Redistancing** (`logs/figs/figs_rk.py`, from the tables of "Redistancing"):
 - **`rider_redistancing_normals.png`** plots $\psi$'s normal against the exact interface on ten frames
-  right after events ($t=0.56$, 1.04, 2, 3.04, 4, 5.04, 6, 7.04, 7.52, 8), and $E_r(8)$, for
-  transport only and the four events runs.
+  next to events ($t=0.56$, 1.04, 2, 3.04, 4, 5.04, 7.04, 7.52 just after; 6 and 8 just before), and
+  $E_r(8)$, for transport only and the four events runs. For run 2 and Run A the post-event frames
+  at $t=2$–5 sit at or near each interval's peak (item 7).
+- **`rider_redistancing_during.png`** plots, for transport only, run 2 and Run A, $\psi$'s normal at
+  every output frame (every 0.08) and the band mean $|\nabla\psi|$ from the run logs, with each
+  event's before and after values (`logs/d6_2026-10-07/tables/band_log_*.txt`).
 - **`rider_redistancing_contours.png`** draws $\phi=0.5$ against the exact interface for transport
   only, run 2 and Run A: at $t=4$ over the whole domain and at the thin tail, whose tip no run
   reaches, and at $t=8$.
+- **`rider_redistancing_dealias.mp4`** shows transport only, run 2 and Run A, so the effect of
+  dealiasing with the guard: at $t=4$ Run A's $\psi=0$ wiggles along the outer arm, and at $t=8$ both
+  rebuilt zero contours are ragged across the top of the disk (`logs/anim/anim_rk.py`).
 - **`rider_redistancing_events.mp4`** (2026-10-07, `logs/anim/anim_rk.py`) shows transport only, the
   committed events path, run 1 and run 2. The top row is $\phi$, the bottom row $\psi$ with its zero
   contour solid. At the tail tip the rebuilt $\psi$'s zero contour stops where $\phi$'s does, while

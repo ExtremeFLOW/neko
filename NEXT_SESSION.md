@@ -37,6 +37,11 @@ reproduce the committed file's output byte for byte to $t=0.56$ (the README says
    interface once $\psi$ follows it. Where, measured by region: the tail tip, where $\phi$'s contour
    retreats behind the exact one (visible in `evidence/rider_redistancing_events.mp4`)? The
    end-time rise, which every 0.25/$25H$ run and Saini's own code share?
+   - Measured on every frame for run 2 and Run A (2026-10-08, `evidence/rider_redistancing_during.png`,
+     README item 7): from $t=1$ to 5 each event raises $\psi$'s error and transport lowers it again
+     before the next; from $t\approx6$ it grows between events. The troughs rise with $\phi$'s own
+     error. Not separated: the event from the transport after it (frames 0.08 apart). A candidate
+     next variable is $\Delta t_{tls}$: one event at 0.5 and none after, or 1.0 instead of 0.5.
 3. **The thin tail.** Where the filament is thinner than $2\varepsilon$ (5–6% of its length at
    maximum stretch), $\phi$ has no 0.5 contour, so no reseed setting can rebuild $\psi$ there. Each
    candidate is a change to the method, not a knob:

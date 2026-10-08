@@ -690,6 +690,12 @@ single events and two at a time for the full runs:
   $t=3$–5, and $E_r$ and $E_s$ are about 18% higher. It stays below transport in $E_r$, $E_s$ and the
   worst violation.
   Which of the two carries the cost is not measured.
+- **Each event from $t=1$ to 5 adds to $\psi$'s normal error, and transport removes part of it
+  before the next** (every output frame): ×1.3–2.5 at the events in item 5's 0.0342 run and
+  ×1.4–6.5 with the pair, back to 0.23–0.86 of that by the next event (0.99 once). The first event
+  lowers the error, and from $t\approx6$ it grows between events. The troughs rise with $\phi$'s
+  own normal error, which the reseed imports; at 0.08 between frames the event and the transport
+  after it are not separated.
 - None of items 5–6 is in the committed coupled files (`NEXT_SESSION.md`).
 
 ### 4.2 Pseudo-timestep: fine steps, and why a one-shot test misleads
@@ -1105,7 +1111,8 @@ does not show (§5).
 **`rider_kothe/`** — transport only: `rider_snapshots.png`, `rider_grad_psi.png`
 ($|\nabla\psi|$ drifting and returning), `rider_transport.mp4`, `rider_convergence.png`
 ($E_r(8)$ against $H$ and $\xi$); redistancing: `rider_redistancing_normals.png`,
-`rider_redistancing_contours.png`, `rider_redistancing_events.mp4`. The list and captions are
+`rider_redistancing_during.png` (every frame), `rider_redistancing_contours.png`,
+`rider_redistancing_dealias.mp4`, `rider_redistancing_events.mp4`. The list and captions are
 in that case's README, "Evidence".
 
 **`redistance_circles/`** — `fig11_ic_and_exact.png`, `fig12_error_decay.png`,
