@@ -333,7 +333,9 @@ sized: the partial sums down and the marker velocities up. The point search,
 the marker seeding, the masks and the weights are computed once at start-up on
 the host, and the start-up cost grows with the number of markers and STL
 triangles. The term reuses the gather-scatter of the fluid, so it adds no
-communication set-up of its own.
+communication set-up of its own, and it takes the four fields it needs per
+step (the three forcing components and a work field) from the scratch
+registry instead of holding them for the whole run.
 
 ## Example {#direct-forcing_example}
 

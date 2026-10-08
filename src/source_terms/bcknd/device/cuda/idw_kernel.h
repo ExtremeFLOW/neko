@@ -35,7 +35,7 @@
 */
 
 /**
- * Inverse distance weight, mirrors inv_dist_weight() in idw_source_term.f90
+ * Inverse distance weight, mirrors inv_dist_weight() in direct_forcing_source_term.f90
  */
 template< typename T >
 __device__ __forceinline__ T inv_dist_weight(const T r, const T rmax,
@@ -148,9 +148,10 @@ __global__ void idw_gather_one_sided_kernel(T * __restrict__ fu,
  * the point's list (lag_off/lag_els), accumulate the eight partial sums in
  * registers (plus side: u, v, w, weight; minus side: u, v, w, weight) and
  * reduce them in shared memory. Mirrors idw_interp_shepard_partials() in
- * idw_source_term.f90: with adjoint != 0 the weight of a node is
- * K * mult * B / w_side, zero where |w_side| <= wtol, B being the assembled
- * mass matrix and w_p / w_m the assembled spread weights.
+ * direct_forcing_source_term.f90: with adjoint != 0 the weight of a node is
+ * K * mult / (Binv * w_side), zero where |w_side| <= wtol, Binv being the
+ * inverse of the assembled mass matrix (coef%Binv) and w_p / w_m the
+ * assembled spread weights.
  */
 template< typename T, int NT >
 __global__ void idw_interp_partials_kernel(T * __restrict__ part,
@@ -163,7 +164,7 @@ __global__ void idw_interp_partials_kernel(T * __restrict__ part,
                                            const T * __restrict__ ds,
                                            const T * __restrict__ pmsk,
                                            const T * __restrict__ mult,
-                                           const T * __restrict__ B,
+                                           const T * __restrict__ Binv,
                                            const T * __restrict__ w_p,
                                            const T * __restrict__ w_m,
                                            const T * __restrict__ lpx,
@@ -206,7 +207,7 @@ __global__ void idw_interp_partials_kernel(T * __restrict__ part,
       if (pmsk[idx] > (T) 0.0) {
         if (adjoint) {
           const T sw = w_p[idx];
-          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : (T) 0.0;
+          wgt = (fabs(sw) > wtol) ? wgt / (Binv[idx] * sw) : (T) 0.0;
         }
         acc[0] += wgt * u[idx];
         acc[1] += wgt * v[idx];
@@ -215,7 +216,7 @@ __global__ void idw_interp_partials_kernel(T * __restrict__ part,
       } else {
         if (adjoint) {
           const T sw = w_m[idx];
-          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : (T) 0.0;
+          wgt = (fabs(sw) > wtol) ? wgt / (Binv[idx] * sw) : (T) 0.0;
         }
         acc[4] += wgt * u[idx];
         acc[5] += wgt * v[idx];

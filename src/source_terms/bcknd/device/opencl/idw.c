@@ -117,7 +117,7 @@ void opencl_idw_gather_one_sided(void *fu, void *fv, void *fw,
  */
 void opencl_idw_interp_partials(void *part, void *u, void *v, void *w,
                                 void *x, void *y, void *z, void *ds,
-                                void *pmsk, void *mult, void *B,
+                                void *pmsk, void *mult, void *Binv,
                                 void *w_p, void *w_m,
                                 void *lpx, void *lpy, void *lpz,
                                 void *lag_off, void *lag_els,
@@ -145,7 +145,7 @@ void opencl_idw_interp_partials(void *part, void *u, void *v, void *w,
   CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &ds));
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &pmsk));
   CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &mult));
-  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &B));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &Binv));
   CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &w_p));
   CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &w_m));
   CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &lpx));

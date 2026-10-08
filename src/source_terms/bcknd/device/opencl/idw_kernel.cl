@@ -35,7 +35,7 @@
 */
 
 /**
- * Inverse distance weight, mirrors inv_dist_weight() in idw_source_term.f90
+ * Inverse distance weight, mirrors inv_dist_weight() in direct_forcing_source_term.f90
  */
 inline real inv_dist_weight(const real r, const real rmax,
                             const real p, const real eps) {
@@ -147,9 +147,10 @@ __kernel void idw_gather_one_sided(__global real * __restrict__ fu,
  * in the point's list (lag_off/lag_els), accumulate the eight partial sums
  * in registers (plus side: u, v, w, weight; minus side: u, v, w, weight)
  * and reduce them in local memory. Mirrors idw_interp_shepard_partials()
- * in idw_source_term.f90: with adjoint != 0 the weight of a node is
- * K * mult * B / w_side, zero where |w_side| <= wtol, B being the assembled
- * mass matrix and w_p / w_m the assembled spread weights. The work-group
+ * in direct_forcing_source_term.f90: with adjoint != 0 the weight of a node is
+ * K * mult / (Binv * w_side), zero where |w_side| <= wtol, Binv being the
+ * inverse of the assembled mass matrix (coef%Binv) and w_p / w_m the
+ * assembled spread weights. The work-group
  * size must be 256.
  */
 __kernel void idw_interp_partials(__global real * __restrict__ part,
@@ -162,7 +163,7 @@ __kernel void idw_interp_partials(__global real * __restrict__ part,
                                   __global const real * __restrict__ ds,
                                   __global const real * __restrict__ pmsk,
                                   __global const real * __restrict__ mult,
-                                  __global const real * __restrict__ B,
+                                  __global const real * __restrict__ Binv,
                                   __global const real * __restrict__ w_p,
                                   __global const real * __restrict__ w_m,
                                   __global const real * __restrict__ lpx,
@@ -206,7 +207,7 @@ __kernel void idw_interp_partials(__global real * __restrict__ part,
       if (pmsk[idx] > (real) 0.0) {
         if (adjoint) {
           const real sw = w_p[idx];
-          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : (real) 0.0;
+          wgt = (fabs(sw) > wtol) ? wgt / (Binv[idx] * sw) : (real) 0.0;
         }
         acc[0] += wgt * u[idx];
         acc[1] += wgt * v[idx];
@@ -215,7 +216,7 @@ __kernel void idw_interp_partials(__global real * __restrict__ part,
       } else {
         if (adjoint) {
           const real sw = w_m[idx];
-          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : (real) 0.0;
+          wgt = (fabs(sw) > wtol) ? wgt / (Binv[idx] * sw) : (real) 0.0;
         }
         acc[4] += wgt * u[idx];
         acc[5] += wgt * v[idx];

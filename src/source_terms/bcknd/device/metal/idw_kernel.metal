@@ -42,7 +42,7 @@
 using namespace metal;
 
 /**
- * Inverse distance weight, mirrors inv_dist_weight() in idw_source_term.f90
+ * Inverse distance weight, mirrors inv_dist_weight() in direct_forcing_source_term.f90
  */
 inline float inv_dist_weight(const float r, const float rmax,
                              const float p, const float eps) {
@@ -164,9 +164,10 @@ kernel void idw_gather_one_sided(device float * fu [[ buffer(0) ]],
  * the point's list (lag_off/lag_els), accumulate the eight partial sums in
  * registers (plus side: u, v, w, weight; minus side: u, v, w, weight) and
  * reduce them in threadgroup memory. Mirrors idw_interp_shepard_partials()
- * in idw_source_term.f90: with adjoint != 0 the weight of a node is
- * K * mult * B / w_side, zero where |w_side| <= wtol, B being the assembled
- * mass matrix and w_p / w_m the assembled spread weights. The threadgroup
+ * in direct_forcing_source_term.f90: with adjoint != 0 the weight of a node is
+ * K * mult / (Binv * w_side), zero where |w_side| <= wtol, Binv being the
+ * inverse of the assembled mass matrix (coef%Binv) and w_p / w_m the
+ * assembled spread weights. The threadgroup
  * size must be 256.
  */
 kernel void idw_interp_partials(device float * part [[ buffer(0) ]],
@@ -179,7 +180,7 @@ kernel void idw_interp_partials(device float * part [[ buffer(0) ]],
                                 device const float * ds [[ buffer(7) ]],
                                 device const float * pmsk [[ buffer(8) ]],
                                 device const float * mult [[ buffer(9) ]],
-                                device const float * B [[ buffer(10) ]],
+                                device const float * Binv [[ buffer(10) ]],
                                 device const float * w_p [[ buffer(11) ]],
                                 device const float * w_m [[ buffer(12) ]],
                                 device const float * lpx [[ buffer(13) ]],
@@ -225,7 +226,7 @@ kernel void idw_interp_partials(device float * part [[ buffer(0) ]],
       if (pmsk[idx] > 0.0f) {
         if (adjoint) {
           const float sw = w_p[idx];
-          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : 0.0f;
+          wgt = (fabs(sw) > wtol) ? wgt / (Binv[idx] * sw) : 0.0f;
         }
         acc[0] += wgt * u[idx];
         acc[1] += wgt * v[idx];
@@ -234,7 +235,7 @@ kernel void idw_interp_partials(device float * part [[ buffer(0) ]],
       } else {
         if (adjoint) {
           const float sw = w_m[idx];
-          wgt = (fabs(sw) > wtol) ? wgt * B[idx] / sw : 0.0f;
+          wgt = (fabs(sw) > wtol) ? wgt / (Binv[idx] * sw) : 0.0f;
         }
         acc[4] += wgt * u[idx];
         acc[5] += wgt * v[idx];

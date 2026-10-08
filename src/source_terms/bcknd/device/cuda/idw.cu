@@ -81,7 +81,7 @@ extern "C" {
    */
   void cuda_idw_interp_partials(void *part, void *u, void *v, void *w,
                                 void *x, void *y, void *z, void *ds,
-                                void *pmsk, void *mult, void *B,
+                                void *pmsk, void *mult, void *Binv,
                                 void *w_p, void *w_m,
                                 void *lpx, void *lpy, void *lpz,
                                 void *lag_off, void *lag_els,
@@ -100,7 +100,7 @@ extern "C" {
       <<<nblcks, nthrds, 0, stream>>>((real *) part, (real *) u, (real *) v,
                                       (real *) w, (real *) x, (real *) y,
                                       (real *) z, (real *) ds, (real *) pmsk,
-                                      (real *) mult, (real *) B, (real *) w_p,
+                                      (real *) mult, (real *) Binv, (real *) w_p,
                                       (real *) w_m, (real *) lpx, (real *) lpy,
                                       (real *) lpz, (int *) lag_off,
                                       (int *) lag_els, *n_lag, *lx3,

@@ -138,7 +138,7 @@ void metal_idw_gather_one_sided(void *fu, void *fv, void *fw,
  */
 void metal_idw_interp_partials(void *part, void *u, void *v, void *w,
                                void *x, void *y, void *z, void *ds,
-                               void *pmsk, void *mult, void *B,
+                               void *pmsk, void *mult, void *Binv,
                                void *w_p, void *w_m,
                                void *lpx, void *lpy, void *lpz,
                                void *lag_off, void *lag_els,
@@ -181,7 +181,7 @@ void metal_idw_interp_partials(void *part, void *u, void *v, void *w,
   [enc setBuffer:(__bridge id<MTLBuffer>)ds      offset:0 atIndex:7];
   [enc setBuffer:(__bridge id<MTLBuffer>)pmsk    offset:0 atIndex:8];
   [enc setBuffer:(__bridge id<MTLBuffer>)mult    offset:0 atIndex:9];
-  [enc setBuffer:(__bridge id<MTLBuffer>)B       offset:0 atIndex:10];
+  [enc setBuffer:(__bridge id<MTLBuffer>)Binv    offset:0 atIndex:10];
   [enc setBuffer:(__bridge id<MTLBuffer>)w_p     offset:0 atIndex:11];
   [enc setBuffer:(__bridge id<MTLBuffer>)w_m     offset:0 atIndex:12];
   [enc setBuffer:(__bridge id<MTLBuffer>)lpx     offset:0 atIndex:13];
