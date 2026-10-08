@@ -4,6 +4,4 @@ In this example, the torque calculation of an inclined ellipse body is performed
 The mesh in this example is kept almost rigid for up to 0.5 units away from the ellipse wall by setting a high value for gain.
 
 ## Mesh
-To generate the mesh, first open the `generate_mesh.sh` script and set the correct paths for your `gmsh`, `gmsh2nek`, and `rea2nbin` executables at the top of the file. Once the paths are configured, execute the script in the `mesh` folder.
-
-- The `generate_mesh.sh` script requires the `gmsh2nek` version from Neko's `contrib/gmsh2nek/` directory. If you use a different version, executing `gmsh2nek` using the prompt values in the script may fail, and you must execute the commands manually.
+To generate the mesh, first open the `generate_mesh.sh` script and set the correct paths for your `gmsh` and `gmsh2nmsh` executables at the top of the file. Once the paths are configured, execute the script in the `mesh` folder.
