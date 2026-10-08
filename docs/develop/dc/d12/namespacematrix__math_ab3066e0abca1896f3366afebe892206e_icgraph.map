@@ -1,0 +1,7 @@
+<map id="matrix_math::matrix_rzero" name="matrix_math::matrix_rzero">
+<area shape="rect" id="Node000001" title="Zero a real matrix ." alt="" coords="464,5,621,45"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a9ea95d716e31d5b94c4132bb9919f57f" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
+<area shape="rect" id="Node000003" href="$d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="5,5,185,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="220,28,185,28,185,23,220,23"/>
+</map>

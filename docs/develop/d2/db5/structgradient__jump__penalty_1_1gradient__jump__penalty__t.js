@@ -18,6 +18,7 @@ var structgradient__jump__penalty_1_1gradient__jump__penalty__t =
     [ "dphidxi", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#ae496339ad624e57bd06538eb471efe17", null ],
     [ "dphidxi_d", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a770f3a5956aef94ab84e4419ffdf8f49", null ],
     [ "end_time", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a2fa44c29c3d13f3ef0bb08560db851a8", null ],
+    [ "extrapolate", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a2f81050c15948b866c2e2b53ba32a559", null ],
     [ "facet_factor", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a518abd140e62a8a187becbab1557a09d", null ],
     [ "facet_factor_d", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a7232b539d751f55e80b43e8026937373", null ],
     [ "fields", "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#aef4203c049e709cbc855edca89fa298e", null ],

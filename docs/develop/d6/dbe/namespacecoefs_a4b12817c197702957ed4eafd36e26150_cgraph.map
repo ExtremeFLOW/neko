@@ -1,0 +1,7 @@
+<map id="coefs::coef_enable_geo_compression" name="coefs::coef_enable_geo_compression">
+<area shape="rect" id="Node000001" title="Enable compressed geometric factors." alt="" coords="5,5,149,45"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a25beafcbb6727f7313c267d9da250acb" title="Compute processor&#45;local compressed versions of mappings Gij." alt="" coords="197,5,356,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,23,184,23,184,28,150,28"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#a1c4224b967c6424ffb1e475ce832be24" title="Release the compressed geometric factors." alt="" coords="404,5,561,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="356,23,390,23,390,28,356,28"/>
+</map>

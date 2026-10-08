@@ -2,6 +2,7 @@ var prgm__lib_8F90 =
 [
     [ "opencl_prgm_lib_release", "d8/dae/prgm__lib_8F90.html#a78c01ae7f526303f5064048ada2d1529", null ],
     [ "ale_kinematics_program", "d8/dae/prgm__lib_8F90.html#ab3f2cd48e544d2b10e53c73a0d723a53", null ],
+    [ "ax_helm_compr_program", "d8/dae/prgm__lib_8F90.html#af73e46ea8c274fd46b26a3b3558ce4a0", null ],
     [ "ax_helm_full_program", "d8/dae/prgm__lib_8F90.html#a3419a6dedabdc69207a8c54cd65e3fda", null ],
     [ "ax_helm_program", "d8/dae/prgm__lib_8F90.html#a61cd844e7945c7a835ccfa0ead333084", null ],
     [ "bicgstab_program", "d8/dae/prgm__lib_8F90.html#ac56d1df06535c5c682ba352ffbf9149c", null ],

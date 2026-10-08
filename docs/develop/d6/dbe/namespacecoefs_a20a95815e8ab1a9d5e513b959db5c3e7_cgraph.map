@@ -1,0 +1,5 @@
+<map id="coefs::coef_free" name="coefs::coef_free">
+<area shape="rect" id="Node000001" title="Deallocate coefficients." alt="" coords="5,13,132,38"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a1c4224b967c6424ffb1e475ce832be24" title="Release the compressed geometric factors." alt="" coords="180,5,337,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="132,23,166,23,166,28,132,28"/>
+</map>

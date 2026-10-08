@@ -7,7 +7,7 @@
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="614,359,607,309,591,245,564,180,544,150,521,123,501,110,479,101,481,96,504,105,524,119,549,146,568,177,596,244,612,308,619,358"/>
 <area shape="rect" id="Node000004" href="$d2/d10/namespacecacg.html#a275c83514f65ff64794d9efc9fc6744d" title="S&#45;step CA PCG solve." alt="" coords="343,134,475,159"/>
 <area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="612,359,603,317,586,267,559,215,541,193,521,173,499,160,475,153,476,148,502,155,524,169,545,189,563,213,590,265,608,316,617,358"/>
-<area shape="rect" id="Node000005" href="$d9/df6/namespacecg.html#a96d53d214d70751c8816c2b2652e865c" title="Standard PCG solve." alt="" coords="358,183,461,209"/>
+<area shape="rect" id="Node000005" href="$d9/df6/namespacecg.html#a96d53d214d70751c8816c2b2652e865c" title="Solve a linear system with the standard PCG method." alt="" coords="358,183,461,209"/>
 <area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="609,361,596,328,578,290,553,253,521,222,492,208,461,201,462,195,494,203,524,218,557,250,583,288,601,326,614,359"/>
 <area shape="rect" id="Node000006" href="$d8/dec/namespacecheby.html#af10522996277386252a8473052af76ac" title=" " alt="" coords="332,233,487,258"/>
 <area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="603,363,570,316,547,293,521,273,486,258,488,253,524,268,551,289,574,313,607,359"/>
@@ -15,7 +15,7 @@
 <area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="585,368,522,337,488,325,490,320,524,332,587,363"/>
 <area shape="rect" id="Node000011" href="$d5/de6/namespacefield__math.html#ad4771a764f05b8b745e4de4a5b9573ab" title=" " alt="" coords="325,347,493,373"/>
 <area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="557,380,493,373,494,367,557,375"/>
-<area shape="rect" id="Node000012" href="$dc/d48/namespacegmres.html#a8cc185985251a86aa7bf0a8484c22aae" title="Standard GMRES solve." alt="" coords="332,397,487,422"/>
+<area shape="rect" id="Node000012" href="$dc/d48/namespacegmres.html#a8cc185985251a86aa7bf0a8484c22aae" title="Solve a linear system with the standard GMRES method." alt="" coords="332,397,487,422"/>
 <area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="557,395,487,403,486,398,557,390"/>
 <area shape="rect" id="Node000013" href="$dc/d12/namespacematrix__math.html#a799a21b14e5cf9f8e45b40ecd13cd0e7" title="Global inner product of three matrices ." alt="" coords="331,447,488,487"/>
 <area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="585,407,524,436,486,449,484,444,522,431,583,402"/>

@@ -105,13 +105,13 @@ $(document).ready(function(){initNavTree('dc/d48/namespacegmres.html','../../');
 </div><!--header-->
 <div class="contents">
 
-<p>Defines various GMRES methods.  
+<p>Implements <code><a class="el" href="../../df/db9/structgmres_1_1gmres__t.html" title="CPU implementation of the preconditioned standard GMRES method.">gmres_t</a></code>.  
 </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../df/db9/structgmres_1_1gmres__t.html">gmres_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard preconditioned generalized minimal residual method.  <a href="../../df/db9/structgmres_1_1gmres__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">CPU implementation of the preconditioned standard GMRES method.  <a href="../../df/db9/structgmres_1_1gmres__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -120,13 +120,13 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:aa4f06f5871783ac66cc7c8458fbfa096"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a standard GMRES solver.  <br /></td></tr>
 <tr class="separator:aa4f06f5871783ac66cc7c8458fbfa096"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62c9792c5a51541a708d8bb3cb541944" id="r_a62c9792c5a51541a708d8bb3cb541944"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d48/namespacegmres.html#a62c9792c5a51541a708d8bb3cb541944">gmres_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
-<tr class="memdesc:a62c9792c5a51541a708d8bb3cb541944"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a standard GMRES solver.  <br /></td></tr>
+<tr class="memdesc:a62c9792c5a51541a708d8bb3cb541944"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a standard GMRES solver.  <br /></td></tr>
 <tr class="separator:a62c9792c5a51541a708d8bb3cb541944"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8cc185985251a86aa7bf0a8484c22aae" id="r_a8cc185985251a86aa7bf0a8484c22aae"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d48/namespacegmres.html#a8cc185985251a86aa7bf0a8484c22aae">gmres_solve</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, f, n, coef, bc_projector, gs_h, niter)</td></tr>
-<tr class="memdesc:a8cc185985251a86aa7bf0a8484c22aae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard GMRES solve.  <br /></td></tr>
+<tr class="memdesc:a8cc185985251a86aa7bf0a8484c22aae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve a linear system with the standard GMRES method.  <br /></td></tr>
 <tr class="separator:a8cc185985251a86aa7bf0a8484c22aae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52935ad83fb1b965aad4215ea812d7bf" id="r_a52935ad83fb1b965aad4215ea812d7bf"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dc/d48/namespacegmres.html#a52935ad83fb1b965aad4215ea812d7bf">gmres_solve_coupled</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, y, z, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fx</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fy</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fz</a>, n, coef, bc_projector, gs_h, niter)</td></tr>
-<tr class="memdesc:a52935ad83fb1b965aad4215ea812d7bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard GMRES coupled solve.  <br /></td></tr>
+<tr class="memdesc:a52935ad83fb1b965aad4215ea812d7bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve three independent systems with the standard GMRES method.  <br /></td></tr>
 <tr class="separator:a52935ad83fb1b965aad4215ea812d7bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
@@ -154,7 +154,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/da7/gmres_8f90_source.html#l00130">130</a> of file <a class="el" href="../../d1/da7/gmres_8f90_source.html">gmres.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/da7/gmres_8f90_source.html#l00142">142</a> of file <a class="el" href="../../d1/da7/gmres_8f90_source.html">gmres.f90</a>.</p>
 
 </div>
 </div>
@@ -214,7 +214,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/da7/gmres_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d1/da7/gmres_8f90_source.html">gmres.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/da7/gmres_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d1/da7/gmres_8f90_source.html">gmres.f90</a>.</p>
 
 </div>
 </div>
@@ -294,13 +294,13 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/da7/gmres_8f90_source.html#l00177">177</a> of file <a class="el" href="../../d1/da7/gmres_8f90_source.html">gmres.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/da7/gmres_8f90_source.html#l00180">180</a> of file <a class="el" href="../../d1/da7/gmres_8f90_source.html">gmres.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dc/d48/namespacegmres_a8cc185985251a86aa7bf0a8484c22aae_cgraph.png" border="0" usemap="#adc/d48/namespacegmres_a8cc185985251a86aa7bf0a8484c22aae_cgraph" alt=""/></div>
 <map name="adc/d48/namespacegmres_a8cc185985251a86aa7bf0a8484c22aae_cgraph" id="adc/d48/namespacegmres_a8cc185985251a86aa7bf0a8484c22aae_cgraph">
-<area shape="rect" title="Standard GMRES solve." alt="" coords="5,128,160,153"/>
+<area shape="rect" title="Solve a linear system with the standard GMRES method." alt="" coords="5,128,160,153"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="208,5,317,31"/>
 <area shape="poly" title=" " alt="" coords="96,126,143,85,207,40,216,34,219,39,209,44,147,89,99,130"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="215,55,310,80"/>
@@ -417,7 +417,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/da7/gmres_8f90_source.html#l00422">422</a> of file <a class="el" href="../../d1/da7/gmres_8f90_source.html">gmres.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/da7/gmres_8f90_source.html#l00436">436</a> of file <a class="el" href="../../d1/da7/gmres_8f90_source.html">gmres.f90</a>.</p>
 
 </div>
 </div>
@@ -427,7 +427,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dc/d48/namespacegmres.html">gmres</a></li>
-    <li class="footer">Generated on Wed Oct 7 2026 03:48:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 8 2026 03:49:06 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

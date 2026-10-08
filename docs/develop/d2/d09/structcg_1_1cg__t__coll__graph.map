@@ -1,5 +1,9 @@
 <map id="cg::cg_t" name="cg::cg_t">
-<area shape="rect" id="Node000001" title="Standard preconditioned conjugate gradient method." alt="" coords="22,79,94,104"/>
-<area shape="rect" id="Node000002" href="$d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,5,111,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="61,44,61,79,55,79,55,44"/>
+<area shape="rect" id="Node000001" title="CPU implementation of the preconditioned conjugate gradient method." alt="" coords="43,181,115,207"/>
+<area shape="rect" id="Node000002" href="$d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,93,111,119"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="67,131,79,180,74,181,62,133"/>
+<area shape="rect" id="Node000003" href="$da/d95/structmatrix_1_1matrix__t.html" title=" " alt="" coords="135,93,263,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="173,129,97,183,94,179,170,125"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="172,5,227,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="202,45,202,93,197,93,197,45"/>
 </map>

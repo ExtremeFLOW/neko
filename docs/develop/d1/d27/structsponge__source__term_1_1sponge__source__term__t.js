@@ -23,6 +23,7 @@ var structsponge__source__term_1_1sponge__source__term__t =
     [ "dump_fields", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#a471b352bfef550ff9d47ac465eedfa00", null ],
     [ "dump_fname", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#a38ae616d64cbd777dcd96d2f0476ab6f", null ],
     [ "end_time", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#a2fa44c29c3d13f3ef0bb08560db851a8", null ],
+    [ "extrapolate", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#a2f81050c15948b866c2e2b53ba32a559", null ],
     [ "fields", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#aef4203c049e709cbc855edca89fa298e", null ],
     [ "fringe", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#a1b3fdaf25501f867dcbbed711ecf0403", null ],
     [ "fringe_registry_name", "d1/d27/structsponge__source__term_1_1sponge__source__term__t.html#a36e4fd7cbe9ae2097bcbfa79615b6dd2", null ],

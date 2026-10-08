@@ -1,0 +1,7 @@
+<map id="source_term_handler::source_term_handler_count_unextrapolated" name="source_term_handler::source_term_handler_count_unextrapolated">
+<area shape="rect" id="Node000001" title="Count the source terms that are not extrapolated in time." alt="" coords="236,45,407,100"/>
+<area shape="rect" id="Node000002" href="$db/d94/namespacesource__term__handler.html#ad34a0fc0bc6529303009b5492bf9fb87" title="Read from the json file and initialize the source terms." alt="" coords="5,5,188,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,58,188,52,189,46,223,52"/>
+<area shape="rect" id="Node000003" href="$db/d94/namespacesource__term__handler.html#ae377433d10ad5c802bb3888db110ff68" title="Add new source term to the list." alt="" coords="13,84,180,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,92,181,100,180,94,222,87"/>
+</map>

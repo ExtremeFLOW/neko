@@ -23,5 +23,6 @@ var registry__entry_8f90 =
     [ "init_register_tensor4", "d4/d0a/registry__entry_8f90.html#a31a620f1afd598099dba3980abd18e80", null ],
     [ "init_register_vector", "d4/d0a/registry__entry_8f90.html#a72779a2efe077428637ac684a542afd2", null ],
     [ "is_allocated", "d4/d0a/registry__entry_8f90.html#acbb55751525cb0c95a0384513b3970ab", null ],
+    [ "is_type", "d4/d0a/registry__entry_8f90.html#a6fade67a677d47f767998389c70bd647", null ],
     [ "move_from_registry_entry", "d4/d0a/registry__entry_8f90.html#a91d4609096cff2b1eba90259d01d61a2", null ]
 ];

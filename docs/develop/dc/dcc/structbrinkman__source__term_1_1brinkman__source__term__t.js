@@ -16,6 +16,7 @@ var structbrinkman__source__term_1_1brinkman__source__term__t =
     [ "brinkman", "dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#a2b809574c33ed2cd8f8d1820aeb86721", null ],
     [ "coef", "dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#a762808ffdb2bd97f7067516a7db72c88", null ],
     [ "end_time", "dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#a2fa44c29c3d13f3ef0bb08560db851a8", null ],
+    [ "extrapolate", "dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#a2f81050c15948b866c2e2b53ba32a559", null ],
     [ "fields", "dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#aef4203c049e709cbc855edca89fa298e", null ],
     [ "filter", "dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#add1804a3cda91932ce71c8d4cbbd7973", null ],
     [ "indicator", "dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html#af7a8ed193e3fce5658c3e52b9b5f9aee", null ],

@@ -42,6 +42,13 @@ var hierarchy =
     [ "ax_product::ax_compute_vector", "d1/d2e/interfaceax__product_1_1ax__compute__vector.html", null ],
     [ "ax_product::ax_helm_allocate", "d8/df9/interfaceax__product_1_1ax__helm__allocate.html", null ],
     [ "ax_product::ax_helm_allocator_entry", "d3/de0/structax__product_1_1ax__helm__allocator__entry.html", null ],
+    [ "ax_helm_compr_dmma_dispatch< T, LX, NW >", "da/d6e/structax__helm__compr__dmma__dispatch.html", null ],
+    [ "ax_helm_compr_dmma_tma_batch_dispatch< T, LX, NW >", "da/d8f/structax__helm__compr__dmma__tma__batch__dispatch.html", null ],
+    [ "ax_helm_compr_dmma_tma_dispatch< T, LX, NW >", "d7/dec/structax__helm__compr__dmma__tma__dispatch.html", null ],
+    [ "ax_helm_compr_dmma_tma_vector_dispatch< T, LX, NW >", "d6/deb/structax__helm__compr__dmma__tma__vector__dispatch.html", null ],
+    [ "ax_helm_compr_dmma_vector_dispatch< T, LX, NW >", "d5/d97/structax__helm__compr__dmma__vector__dispatch.html", null ],
+    [ "ax_helm_compr_mfma_dispatch< T, LX, NWF, TILE >", "d3/de5/structax__helm__compr__mfma__dispatch.html", null ],
+    [ "ax_helm_compr_mfma_vector_dispatch< T, LX, NWF, TILE >", "d0/dbe/structax__helm__compr__mfma__vector__dispatch.html", null ],
     [ "ax_helm_dmma_dispatch< T, LX, NW >", "d7/dc9/structax__helm__dmma__dispatch.html", null ],
     [ "ax_helm_dmma_tma_batch_dispatch< T, LX, NW >", "da/da4/structax__helm__dmma__tma__batch__dispatch.html", null ],
     [ "ax_helm_dmma_tma_dispatch< T, LX, NW >", "d2/d5c/structax__helm__dmma__tma__dispatch.html", null ],
@@ -51,13 +58,19 @@ var hierarchy =
     [ "ax_helm_mfma_vector_dispatch< T, LX, NWF, TILE >", "d7/dd5/structax__helm__mfma__vector__dispatch.html", null ],
     [ "ax_product::ax_t", "d3/d2c/structax__product_1_1ax__t.html", [
       [ "ax_helm::ax_helm_t", "d1/d58/structax__helm_1_1ax__helm__t.html", [
-        [ "ax_helm_cpu::ax_helm_cpu_t", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html", null ],
-        [ "ax_helm_device::ax_helm_device_t", "d7/d68/structax__helm__device_1_1ax__helm__device__t.html", null ],
+        [ "ax_helm_cpu::ax_helm_cpu_t", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html", [
+          [ "ax_helm_compr_cpu::ax_helm_compr_cpu_t", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html", null ]
+        ] ],
+        [ "ax_helm_device::ax_helm_device_t", "d7/d68/structax__helm__device_1_1ax__helm__device__t.html", [
+          [ "ax_helm_compr_device::ax_helm_compr_device_t", "da/d91/structax__helm__compr__device_1_1ax__helm__compr__device__t.html", null ]
+        ] ],
         [ "ax_helm_svv::ax_helm_svv_t", "d2/d41/structax__helm__svv_1_1ax__helm__svv__t.html", [
           [ "ax_helm_svv_one_sided_cpu::ax_helm_svv_one_sided_cpu_t", "d2/d78/structax__helm__svv__one__sided__cpu_1_1ax__helm__svv__one__sided__cpu__t.html", null ],
           [ "ax_helm_svv_one_sided_device::ax_helm_svv_one_sided_device_t", "db/dd2/structax__helm__svv__one__sided__device_1_1ax__helm__svv__one__sided__device__t.html", null ]
         ] ],
-        [ "ax_helm_sx::ax_helm_sx_t", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html", null ],
+        [ "ax_helm_sx::ax_helm_sx_t", "de/d9f/structax__helm__sx_1_1ax__helm__sx__t.html", [
+          [ "ax_helm_compr_sx::ax_helm_compr_sx_t", "d5/d75/structax__helm__compr__sx_1_1ax__helm__compr__sx__t.html", null ]
+        ] ],
         [ "ax_helm_template::ax_helm_template_t", "db/d0b/structax__helm__template_1_1ax__helm__template__t.html", null ],
         [ "ax_helm_xsmm::ax_helm_xsmm_t", "d3/d23/structax__helm__xsmm_1_1ax__helm__xsmm__t.html", null ]
       ] ],
@@ -476,11 +489,14 @@ var hierarchy =
     [ "device_tree_amg_smoother::hip_amg_cheby_solve_part1", "d8/de2/interfacedevice__tree__amg__smoother_1_1hip__amg__cheby__solve__part1.html", null ],
     [ "device_tree_amg_smoother::hip_amg_cheby_solve_part2", "d7/dca/interfacedevice__tree__amg__smoother_1_1hip__amg__cheby__solve__part2.html", null ],
     [ "ax_helm_device::hip_ax_helm", "da/dff/interfaceax__helm__device_1_1hip__ax__helm.html", null ],
+    [ "ax_helm_compr_device::hip_ax_helm_compr", "dd/dd7/interfaceax__helm__compr__device_1_1hip__ax__helm__compr.html", null ],
+    [ "ax_helm_compr_device::hip_ax_helm_compr_vector", "dc/df5/interfaceax__helm__compr__device_1_1hip__ax__helm__compr__vector.html", null ],
     [ "ax_helm_full_device::hip_ax_helm_stress_vector", "d6/d0b/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector.html", null ],
     [ "ax_helm_full_device::hip_ax_helm_stress_vector_part2", "da/de5/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector__part2.html", null ],
     [ "ax_helm_svv_one_sided_device::hip_ax_helm_svv_one_sided", "d3/d58/interfaceax__helm__svv__one__sided__device_1_1hip__ax__helm__svv__one__sided.html", null ],
     [ "ax_helm_svv_one_sided_full_device::hip_ax_helm_svv_one_sided_full", "df/d29/interfaceax__helm__svv__one__sided__full__device_1_1hip__ax__helm__svv__one__sided__full.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", null ],
+    [ "ax_helm_compr_device::hip_ax_helm_vector_part2", "d9/d00/interfaceax__helm__compr__device_1_1hip__ax__helm__vector__part2.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector_part2", "d2/dae/interfaceax__helm__device_1_1hip__ax__helm__vector__part2.html", null ],
     [ "bicgstab_device::hip_bicgstab_part1", "dc/dc2/interfacebicgstab__device_1_1hip__bicgstab__part1.html", null ],
     [ "bicgstab_device::hip_bicgstab_part2", "da/ddb/interfacebicgstab__device_1_1hip__bicgstab__part2.html", null ],

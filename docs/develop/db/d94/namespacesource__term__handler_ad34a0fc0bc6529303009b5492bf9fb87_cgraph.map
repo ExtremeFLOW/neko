@@ -1,0 +1,5 @@
+<map id="source_term_handler::source_term_handler_add_json_source_terms" name="source_term_handler::source_term_handler_add_json_source_terms">
+<area shape="rect" id="Node000001" title="Read from the json file and initialize the source terms." alt="" coords="5,5,188,60"/>
+<area shape="rect" id="Node000002" href="$db/d94/namespacesource__term__handler.html#ad8ef12c196f30f0b2a63ed534376de57" title="Count the source terms that are not extrapolated in time." alt="" coords="236,5,407,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,30,222,30,222,35,188,35"/>
+</map>

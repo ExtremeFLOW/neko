@@ -8,6 +8,7 @@ var namespacematrix =
     [ "matrix_assign_scalar", "d0/de4/namespacematrix.html#af9c0fe0434823ffbdc86e5fedb934867", null ],
     [ "matrix_bcknd_inverse", "d0/de4/namespacematrix.html#a2cc2d8b1bb684b86688a093090ad3ee9", null ],
     [ "matrix_copy_from", "d0/de4/namespacematrix.html#af5f3fb329f14a5ef93b68e7588382461", null ],
+    [ "matrix_dims", "d0/de4/namespacematrix.html#a7f0a783f751f70a12d74213e934e6d3d", null ],
     [ "matrix_free", "d0/de4/namespacematrix.html#a04dddb8ae0f27e3ad7f38aa3022109de", null ],
     [ "matrix_init", "d0/de4/namespacematrix.html#abb05c7e5c16ac585ac1cbe5721643005", null ],
     [ "matrix_ncols", "d0/de4/namespacematrix.html#a2e843b7432a8708d79fb842d798db4df", null ],

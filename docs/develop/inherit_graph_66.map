@@ -1,3 +1,51 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$db/d7a/structcase_1_1case__t.html" title=" " alt="" coords="5,5,108,31"/>
+<area shape="rect" id="Node000000" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="5,576,77,601"/>
+<area shape="rect" id="Node000001" href="$d0/dca/structblasius_1_1blasius__t.html" title="Blasius profile for inlet (vector valued)." alt="" coords="167,5,302,31"/>
+<area shape="poly" id="edge24_Node000000_Node000001" title=" " alt="" coords="40,562,44,450,55,294,65,214,80,141,99,81,110,58,123,40,143,26,166,18,168,23,146,30,127,44,115,61,104,83,85,142,71,215,60,294,49,450,46,562"/>
+<area shape="rect" id="Node000002" href="$df/dd9/structdirichlet_1_1dirichlet__t.html" title="Generic Dirichlet boundary condition &#160;on ." alt="" coords="161,55,309,80"/>
+<area shape="poly" id="edge25_Node000000_Node000002" title=" " alt="" coords="41,562,46,459,58,318,69,247,83,182,101,128,123,91,140,78,159,70,161,75,143,83,127,94,106,130,88,183,74,248,64,319,51,460,46,562"/>
+<area shape="rect" id="Node000003" href="$d0/d88/structdong__outflow_1_1dong__outflow__t.html" title="Dong outflow condition Follows &quot;A Convective&#45;like Energy&#45;Stable Open Boundary Condition for &#160;Simulati..." alt="" coords="161,105,309,145"/>
+<area shape="poly" id="edge26_Node000000_Node000003" title=" " alt="" coords="42,562,49,471,64,350,88,233,104,187,123,155,140,141,159,132,161,137,143,146,127,158,109,189,93,234,69,351,54,472,47,562"/>
+<area shape="rect" id="Node000004" href="$da/de6/structexpression__dirichlet_1_1expression__dirichlet__t.html" title="Dirichlet condition &#160;on , where &#160;is a mathematical expression given in the case file." alt="" coords="148,169,321,209"/>
+<area shape="poly" id="edge27_Node000000_Node000004" title=" " alt="" coords="43,562,52,484,68,381,92,284,106,245,123,219,146,202,150,206,127,222,111,248,97,285,73,382,57,484,48,562"/>
+<area shape="rect" id="Node000005" href="$de/d15/structexpression__dirichlet__vector_1_1expression__dirichlet__vector__t.html" title="Vector valued Dirichlet condition, with one mathematical expression per component,..." alt="" coords="130,233,339,288"/>
+<area shape="poly" id="edge28_Node000000_Node000005" title=" " alt="" coords="40,562,44,508,56,438,66,401,81,364,100,330,123,299,138,286,142,290,127,303,104,333,86,367,71,403,61,439,49,509,45,562"/>
+<area shape="rect" id="Node000006" href="$d1/d1e/structfacet__normal_1_1facet__normal__t.html" title="Dirichlet condition in facet normal direction." alt="" coords="160,313,309,353"/>
+<area shape="poly" id="edge29_Node000000_Node000006" title=" " alt="" coords="42,562,49,519,63,465,87,410,104,385,124,363,140,351,159,342,161,347,143,355,127,367,108,388,92,413,68,467,54,520,48,563"/>
+<area shape="rect" id="Node000007" href="$d9/da8/structfield__dirichlet_1_1field__dirichlet__t.html" title="User defined dirichlet condition, for which the user can work with an entire field...." alt="" coords="161,377,308,417"/>
+<area shape="poly" id="edge30_Node000000_Node000007" title=" " alt="" coords="47,562,57,531,73,494,95,458,124,427,160,407,163,412,127,431,99,461,77,497,62,533,52,564"/>
+<area shape="rect" id="Node000008" href="$da/d70/structfield__dirichlet__vector_1_1field__dirichlet__vector__t.html" title="Extension of the user defined dirichlet condition field_dirichlet" alt="" coords="145,441,324,481"/>
+<area shape="poly" id="edge31_Node000000_Node000008" title=" " alt="" coords="56,562,85,525,124,490,147,478,149,483,127,495,89,529,60,565"/>
+<area shape="rect" id="Node000009" href="$df/dd4/structfield__neumann_1_1field__neumann__t.html" title="User defined neumann condition, for which the user can work with an entire field. The type stores a s..." alt="" coords="157,505,312,545"/>
+<area shape="poly" id="edge32_Node000000_Node000009" title=" " alt="" coords="85,568,124,554,162,542,164,547,126,559,87,573"/>
+<area shape="rect" id="Node000010" href="$df/df3/structfluid__pnpn__bc__template_1_1fluid__pnpn__bc__template__t.html" title="A user&#45;defined fluid Pn/Pn velocity boundary condition." alt="" coords="136,569,333,609"/>
+<area shape="poly" id="edge33_Node000000_Node000010" title=" " alt="" coords="91,586,136,586,136,591,91,591"/>
+<area shape="rect" id="Node000011" href="$d5/d8a/structinflow_1_1inflow__t.html" title="Dirichlet condition for inlet (vector valued)" alt="" coords="175,633,294,659"/>
+<area shape="poly" id="edge34_Node000000_Node000011" title=" " alt="" coords="86,604,126,618,176,631,175,637,125,623,84,609"/>
+<area shape="rect" id="Node000012" href="$d0/de5/structmixed__bc_1_1mixed__bc__t.html" title="Base type for mixed boundary conditions that need projector&#45;provided local&#45;basis data on the physical..." alt="" coords="151,683,318,708"/>
+<area shape="poly" id="edge35_Node000000_Node000012" title=" " alt="" coords="63,611,91,641,127,668,157,680,155,685,124,672,87,645,59,614"/>
+<area shape="rect" id="Node000017" href="$d5/d84/structneumann_1_1neumann__t.html" title="A Neumann boundary condition. Sets the flux of the field to the chosen values." alt="" coords="153,732,317,757"/>
+<area shape="poly" id="edge40_Node000000_Node000017" title=" " alt="" coords="54,613,81,667,102,694,127,717,154,731,151,735,124,722,98,698,77,669,49,615"/>
+<area shape="rect" id="Node000018" href="$d1/ddc/structnon__normal__aligned_1_1non__normal__aligned__t.html" title="Axis&#45;aligned mixed Dirichlet condition in the non&#45;normal direction." alt="" coords="147,782,322,822"/>
+<area shape="poly" id="edge41_Node000000_Node000018" title=" " alt="" coords="50,614,59,649,75,690,97,731,127,767,149,781,146,785,124,771,92,734,70,692,54,650,45,616"/>
+<area shape="rect" id="Node000019" href="$d9/db1/structoverset__interface_1_1overset__interface__t.html" title="Overset interface BC for a scalar field." alt="" coords="161,846,309,886"/>
+<area shape="poly" id="edge42_Node000000_Node000019" title=" " alt="" coords="47,615,52,661,65,720,89,780,106,808,127,832,143,844,161,852,159,857,140,848,124,836,102,811,84,783,60,721,47,662,41,615"/>
+<area shape="rect" id="Node000020" href="$d5/d64/structoverset__interface__vector_1_1overset__interface__vector__t.html" title="Extension of the user defined dirichlet condition overset_interface" alt="" coords="133,910,337,950"/>
+<area shape="poly" id="edge43_Node000000_Node000020" title=" " alt="" coords="44,615,46,672,57,748,67,788,82,827,102,864,127,896,142,908,139,912,123,900,97,867,77,829,62,790,51,749,41,673,39,615"/>
+<area shape="rect" id="Node000021" href="$da/d09/structscalar__pnpn__bc__template_1_1scalar__pnpn__bc__template__t.html" title="A user&#45;defined scalar Pn/Pn boundary condition." alt="" coords="131,974,339,1014"/>
+<area shape="poly" id="edge44_Node000000_Node000021" title=" " alt="" coords="48,615,57,694,73,797,96,896,111,934,127,960,141,972,138,976,123,964,106,937,91,898,68,799,51,695,42,615"/>
+<area shape="rect" id="Node000022" href="$d5/d3b/structsymmetry__aligned_1_1symmetry__aligned__t.html" title="Axis&#45;aligned symmetry boundary condition." alt="" coords="125,1038,344,1078"/>
+<area shape="poly" id="edge45_Node000000_Node000022" title=" " alt="" coords="47,615,54,707,69,829,79,891,93,947,109,993,127,1024,141,1036,137,1040,123,1028,104,995,87,949,74,892,63,830,49,707,41,616"/>
+<area shape="rect" id="Node000023" href="$d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html" title="Zero&#45;valued Dirichlet boundary condition. Used for no&#45;slip walls, but also for various auxillary cond..." alt="" coords="161,1102,308,1142"/>
+<area shape="poly" id="edge46_Node000000_Node000023" title=" " alt="" coords="46,615,51,718,64,860,75,932,89,998,106,1052,127,1088,143,1101,162,1110,160,1115,140,1106,123,1092,101,1054,84,999,70,933,59,861,46,719,41,615"/>
+<area shape="rect" id="Node000013" href="$da/d18/structnon__normal_1_1non__normal__t.html" title="Mixed Dirichlet condition constraining the tangential vector components." alt="" coords="392,625,588,651"/>
+<area shape="poly" id="edge36_Node000012_Node000013" title=" " alt="" coords="305,677,432,648,433,653,306,682"/>
+<area shape="rect" id="Node000014" href="$df/d63/structshear__stress_1_1shear__stress__t.html" title="A shear stress boundary condition." alt="" coords="416,675,564,715"/>
+<area shape="poly" id="edge37_Node000012_Node000014" title=" " alt="" coords="332,693,416,693,416,698,332,698"/>
+<area shape="rect" id="Node000016" href="$d1/d83/structsymmetry_1_1symmetry__t.html" title="Symmetry boundary condition constraining the normal vector component." alt="" coords="403,740,577,765"/>
+<area shape="poly" id="edge39_Node000012_Node000016" title=" " alt="" coords="308,708,345,717,435,737,433,743,343,722,306,714"/>
+<area shape="rect" id="Node000015" href="$d1/d49/structwall__model__bc_1_1wall__model__bc__t.html" title="A shear stress boundary condition, computing the stress values using a wall model." alt="" coords="636,675,791,715"/>
+<area shape="poly" id="edge38_Node000014_Node000015" title=" " alt="" coords="578,693,636,693,636,698,578,698"/>
+<area shape="rect" id="Node000024" href="$dc/d90/structno__slip_1_1no__slip__t.html" title=" " alt="" coords="423,1109,557,1135"/>
+<area shape="poly" id="edge47_Node000023_Node000024" title=" " alt="" coords="321,1119,423,1119,423,1125,321,1125"/>
 </map>

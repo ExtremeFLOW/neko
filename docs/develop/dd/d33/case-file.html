@@ -409,7 +409,11 @@ Numerics</h1>
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone"><code>oifs</code>   </td><td class="markdownTableBodyNone">Whether to apply the Operator-Integration-Factor-Splitting (OIFS).   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone"><code>oifs_target_cfl</code>   </td><td class="markdownTableBodyNone">The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>1.9</code>   </td></tr>
+<td class="markdownTableBodyNone"><code>oifs_target_cfl</code>   </td><td class="markdownTableBodyNone">The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.   </td><td class="markdownTableBodyNone">Positive real   </td><td class="markdownTableBodyNone"><code>1.9</code>    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone"><code>compress_geometric_factors</code>   </td><td class="markdownTableBodyNone">Whether the standard Helmholtz operators of the fluid, the scalars and the multigrid levels read the geometric factors from one copy per distinct element shape, which cuts their memory traffic on meshes of repeated shapes. The copies are held on top of the full factors. CPU, SX and device backends, not XSMM.   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone"><code>compress_geometric_factors_tolerance</code>   </td><td class="markdownTableBodyNone">Tolerance on the absolute difference of the geometric factors, summed over the quadrature points of an element with the off-diagonal factors counted twice, under which two elements share them. As it is absolute, it depends on the size of the elements.   </td><td class="markdownTableBodyNone">Non-negative real   </td><td class="markdownTableBodyNone"><code>1e-7</code>   </td></tr>
 </table>
 <h1><a class="anchor" id="case-file_fluid"></a>
 Fluid</h1>
@@ -2168,7 +2172,7 @@ Viscous regularization</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Wed Oct 7 2026 03:48:00 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 8 2026 03:49:04 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

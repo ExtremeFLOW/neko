@@ -5,6 +5,7 @@ var structmatrix_1_1matrix__t =
     [ "assignment", "da/d95/structmatrix_1_1matrix__t.html#a9792ca7b039e419af3db58bf91723c10", null ],
     [ "copy_from", "da/d95/structmatrix_1_1matrix__t.html#a3aa5eaf89f3de6824571c24052d279b1", null ],
     [ "free", "da/d95/structmatrix_1_1matrix__t.html#a40000632f82c2cd2a66dd7879f969cf7", null ],
+    [ "get_dims", "da/d95/structmatrix_1_1matrix__t.html#ad7a6c0d20354a8bc7fbf440589bd7591", null ],
     [ "get_ncols", "da/d95/structmatrix_1_1matrix__t.html#a76934e62fae0f8ebb67d08b0b8ef2b69", null ],
     [ "get_nrows", "da/d95/structmatrix_1_1matrix__t.html#a03d86125fb9c277f96bd595849602dba", null ],
     [ "init", "da/d95/structmatrix_1_1matrix__t.html#a6e72d705325f1e079bcb68d392e3ae98", null ],

@@ -13,6 +13,7 @@ var structtranslation__source__term_1_1translation__source__term__t =
     [ "coef", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html#a762808ffdb2bd97f7067516a7db72c88", null ],
     [ "domain_vel", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html#a29ad1a9a80c29e5b8e54c0c75be2d25a", null ],
     [ "end_time", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html#a2fa44c29c3d13f3ef0bb08560db851a8", null ],
+    [ "extrapolate", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html#a2f81050c15948b866c2e2b53ba32a559", null ],
     [ "fields", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html#aef4203c049e709cbc855edca89fa298e", null ],
     [ "start_time", "df/dd9/structtranslation__source__term_1_1translation__source__term__t.html#a27443e3344440dfb4d645750f885ccce", null ]
 ];

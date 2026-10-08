@@ -1,0 +1,10 @@
+var structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t =
+[
+    [ "compute", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#a3849b95f30178b73a6ea4c25370a295a", null ],
+    [ "compute", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#a258374981c12216d67c1601ccfc48e3d", null ],
+    [ "compute", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#ac94330c49f69bf0512577b5190580df6", null ],
+    [ "compute_vector", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#abaac9ebc7264e92a2900c0431f99e62b", null ],
+    [ "compute_vector", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#a0a498d3a14e521068f98441482c731a2", null ],
+    [ "compute_vector", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#aefbf1f213a23feefc7827ec127d95c68", null ],
+    [ "free", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#a69fca4e0adb811821249e10fe2b15fbf", null ]
+];

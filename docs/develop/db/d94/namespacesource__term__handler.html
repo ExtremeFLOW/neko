@@ -124,9 +124,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a8a171c65016067449377785c26e7b7a2" id="r_a8a171c65016067449377785c26e7b7a2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d94/namespacesource__term__handler.html#a8a171c65016067449377785c26e7b7a2">source_term_handler_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a8a171c65016067449377785c26e7b7a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="separator:a8a171c65016067449377785c26e7b7a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab058c78ea07110188c61387fd573a060" id="r_ab058c78ea07110188c61387fd573a060"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d94/namespacesource__term__handler.html#ab058c78ea07110188c61387fd573a060">source_term_handler_compute</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
-<tr class="memdesc:ab058c78ea07110188c61387fd573a060"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add all the source term to the passed right-hand side fields.  <br /></td></tr>
-<tr class="separator:ab058c78ea07110188c61387fd573a060"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5a8a3a923ddcf827c238f3be8642749" id="r_ac5a8a3a923ddcf827c238f3be8642749"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d94/namespacesource__term__handler.html#ac5a8a3a923ddcf827c238f3be8642749">source_term_handler_compute</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time, extrapolate, scale)</td></tr>
+<tr class="memdesc:ac5a8a3a923ddcf827c238f3be8642749"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add source terms to the right-hand side fields.  <br /></td></tr>
+<tr class="separator:ac5a8a3a923ddcf827c238f3be8642749"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad8ef12c196f30f0b2a63ed534376de57" id="r_ad8ef12c196f30f0b2a63ed534376de57"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d94/namespacesource__term__handler.html#ad8ef12c196f30f0b2a63ed534376de57">source_term_handler_count_unextrapolated</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:ad8ef12c196f30f0b2a63ed534376de57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Count the source terms that are not extrapolated in time.  <br /></td></tr>
+<tr class="separator:ad8ef12c196f30f0b2a63ed534376de57"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad34a0fc0bc6529303009b5492bf9fb87" id="r_ad34a0fc0bc6529303009b5492bf9fb87"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d94/namespacesource__term__handler.html#ad34a0fc0bc6529303009b5492bf9fb87">source_term_handler_add_json_source_terms</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, json, name)</td></tr>
 <tr class="memdesc:ad34a0fc0bc6529303009b5492bf9fb87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read from the json file and initialize the source terms.  <br /></td></tr>
 <tr class="separator:ad34a0fc0bc6529303009b5492bf9fb87"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -175,7 +178,17 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00187">187</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00252">252</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d94/namespacesource__term__handler_ad34a0fc0bc6529303009b5492bf9fb87_cgraph.png" border="0" usemap="#adb/d94/namespacesource__term__handler_ad34a0fc0bc6529303009b5492bf9fb87_cgraph" alt=""/></div>
+<map name="adb/d94/namespacesource__term__handler_ad34a0fc0bc6529303009b5492bf9fb87_cgraph" id="adb/d94/namespacesource__term__handler_ad34a0fc0bc6529303009b5492bf9fb87_cgraph">
+<area shape="rect" title="Read from the json file and initialize the source terms." alt="" coords="5,5,188,60"/>
+<area shape="rect" href="../../db/d94/namespacesource__term__handler.html#ad8ef12c196f30f0b2a63ed534376de57" title="Count the source terms that are not extrapolated in time." alt="" coords="236,5,407,60"/>
+<area shape="poly" title=" " alt="" coords="188,30,222,30,222,35,188,35"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -219,12 +232,22 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00245">245</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00312">312</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d94/namespacesource__term__handler_ae377433d10ad5c802bb3888db110ff68_cgraph.png" border="0" usemap="#adb/d94/namespacesource__term__handler_ae377433d10ad5c802bb3888db110ff68_cgraph" alt=""/></div>
+<map name="adb/d94/namespacesource__term__handler_ae377433d10ad5c802bb3888db110ff68_cgraph" id="adb/d94/namespacesource__term__handler_ae377433d10ad5c802bb3888db110ff68_cgraph">
+<area shape="rect" title="Add new source term to the list." alt="" coords="5,5,172,60"/>
+<area shape="rect" href="../../db/d94/namespacesource__term__handler.html#ad8ef12c196f30f0b2a63ed534376de57" title="Count the source terms that are not extrapolated in time." alt="" coords="220,5,391,60"/>
+<area shape="poly" title=" " alt="" coords="172,30,207,30,207,35,172,35"/>
+</map>
+</div>
 
 </div>
 </div>
-<a id="ab058c78ea07110188c61387fd573a060" name="ab058c78ea07110188c61387fd573a060"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab058c78ea07110188c61387fd573a060">&#9670;&#160;</a></span>source_term_handler_compute()</h2>
+<a id="ac5a8a3a923ddcf827c238f3be8642749" name="ac5a8a3a923ddcf827c238f3be8642749"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5a8a3a923ddcf827c238f3be8642749">&#9670;&#160;</a></span>source_term_handler_compute()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -242,7 +265,19 @@ Functions/Subroutines</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>time</em>&#160;</td>
+          <td class="paramname"><em>time</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>extrapolate</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>&#160;</td>
+          <td class="paramname"><em>scale</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -256,30 +291,88 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<dl class="params"><dt>Parameters</dt><dd>
+<p>The source terms whose <code>extrapolate</code> attribute equals <code>extrapolate</code> are summed and multiplied by the mass matrix and, if present, by <code>scale</code>. For <code>.true.</code> the result replaces the right-hand side, for <code>.false.</code> it is added to it. A scheme that extrapolates its explicit terms in time calls the <code>.true.</code> form before and the <code>.false.</code> form after the extrapolation, so that the latter terms enter the step as computed. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">time</td><td>The time state. </td></tr>
+    <tr><td class="paramname">extrapolate</td><td>Select the terms by their <code>extrapolate</code> attribute. </td></tr>
+    <tr><td class="paramname">scale</td><td>Field multiplying the contributions, e.g. the density. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00154">154</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../db/d94/namespacesource__term__handler_ab058c78ea07110188c61387fd573a060_cgraph.png" border="0" usemap="#adb/d94/namespacesource__term__handler_ab058c78ea07110188c61387fd573a060_cgraph" alt=""/></div>
-<map name="adb/d94/namespacesource__term__handler_ab058c78ea07110188c61387fd573a060_cgraph" id="adb/d94/namespacesource__term__handler_ab058c78ea07110188c61387fd573a060_cgraph">
-<area shape="rect" title="Add all the source term to the passed right&#45;hand side fields." alt="" coords="5,40,172,95"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="270,5,361,31"/>
-<area shape="poly" title=" " alt="" coords="172,47,256,28,257,33,173,52"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="220,55,411,80"/>
-<area shape="poly" title=" " alt="" coords="172,65,206,65,206,70,172,70"/>
-<area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="232,104,399,129"/>
-<area shape="poly" title=" " alt="" coords="173,83,243,98,242,104,172,88"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="459,67,616,107"/>
-<area shape="poly" title=" " alt="" coords="399,103,445,97,445,102,399,108"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="489,132,586,157"/>
-<area shape="poly" title=" " alt="" coords="399,125,475,134,475,140,399,130"/>
+<div class="center"><img src="../../db/d94/namespacesource__term__handler_ac5a8a3a923ddcf827c238f3be8642749_cgraph.png" border="0" usemap="#adb/d94/namespacesource__term__handler_ac5a8a3a923ddcf827c238f3be8642749_cgraph" alt=""/></div>
+<map name="adb/d94/namespacesource__term__handler_ac5a8a3a923ddcf827c238f3be8642749_cgraph" id="adb/d94/namespacesource__term__handler_ac5a8a3a923ddcf827c238f3be8642749_cgraph">
+<area shape="rect" title="Add source terms to the right&#45;hand side fields." alt="" coords="5,117,172,172"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="487,5,578,31"/>
+<area shape="poly" title=" " alt="" coords="114,115,160,75,188,56,219,41,285,22,354,12,419,9,474,10,474,16,419,14,355,17,287,27,221,46,191,61,163,79,117,119"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="437,57,628,83"/>
+<area shape="poly" title=" " alt="" coords="172,128,442,82,443,88,173,133"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a8ab404025f5d8cd75e11241fbb8735e3" title="Vector addition ." alt="" coords="220,157,387,183"/>
+<area shape="poly" title=" " alt="" coords="173,152,206,156,206,161,172,157"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a35c4acba25db9dc1e0193df356dc9dad" title="Vector multiplication ." alt="" coords="223,56,384,81"/>
+<area shape="poly" title=" " alt="" coords="166,115,253,83,255,88,167,120"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#aa5845ed239a9f547eade8d05338cfbad" title="Copy a vector ." alt="" coords="221,207,386,232"/>
+<area shape="poly" title=" " alt="" coords="161,170,221,191,246,200,245,205,219,197,159,175"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="220,313,387,339"/>
+<area shape="poly" title=" " alt="" coords="124,170,279,302,275,306,120,174"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="485,108,581,133"/>
+<area shape="poly" title=" " alt="" coords="362,155,471,131,472,136,364,160"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="435,157,631,183"/>
+<area shape="poly" title=" " alt="" coords="387,167,421,167,421,173,387,173"/>
+<area shape="poly" title=" " alt="" coords="361,53,473,28,474,33,362,58"/>
+<area shape="poly" title=" " alt="" coords="385,66,423,67,423,72,385,72"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="485,207,580,232"/>
+<area shape="poly" title=" " alt="" coords="386,217,472,217,472,222,386,222"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="435,256,630,281"/>
+<area shape="poly" title=" " alt="" coords="364,229,460,250,459,256,362,235"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="454,306,611,346"/>
+<area shape="poly" title=" " alt="" coords="387,323,440,323,440,329,387,329"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="484,371,581,396"/>
+<area shape="poly" title=" " alt="" coords="356,336,471,365,470,371,354,341"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ad8ef12c196f30f0b2a63ed534376de57" name="ad8ef12c196f30f0b2a63ed534376de57"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad8ef12c196f30f0b2a63ed534376de57">&#9670;&#160;</a></span>source_term_handler_count_unextrapolated()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> source_term_handler::source_term_handler_count_unextrapolated </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../dc/d80/structsource__term__handler_1_1source__term__handler__t.html">source_term_handler_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00236">236</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d94/namespacesource__term__handler_ad8ef12c196f30f0b2a63ed534376de57_icgraph.png" border="0" usemap="#adb/d94/namespacesource__term__handler_ad8ef12c196f30f0b2a63ed534376de57_icgraph" alt=""/></div>
+<map name="adb/d94/namespacesource__term__handler_ad8ef12c196f30f0b2a63ed534376de57_icgraph" id="adb/d94/namespacesource__term__handler_ad8ef12c196f30f0b2a63ed534376de57_icgraph">
+<area shape="rect" title="Count the source terms that are not extrapolated in time." alt="" coords="236,45,407,100"/>
+<area shape="rect" href="../../db/d94/namespacesource__term__handler.html#ad34a0fc0bc6529303009b5492bf9fb87" title="Read from the json file and initialize the source terms." alt="" coords="5,5,188,60"/>
+<area shape="poly" title=" " alt="" coords="222,58,188,52,189,46,223,52"/>
+<area shape="rect" href="../../db/d94/namespacesource__term__handler.html#ae377433d10ad5c802bb3888db110ff68" title="Add new source term to the list." alt="" coords="13,84,180,139"/>
+<area shape="poly" title=" " alt="" coords="223,92,181,100,180,94,222,87"/>
 </map>
 </div>
 
@@ -309,7 +402,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00130">130</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00134">134</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
 
 </div>
 </div>
@@ -365,7 +458,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00110">110</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d2/dc4/source__term__handler_8f90_source.html">source_term_handler.f90</a>.</p>
 
 </div>
 </div>
@@ -375,7 +468,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../db/d94/namespacesource__term__handler.html">source_term_handler</a></li>
-    <li class="footer">Generated on Wed Oct 7 2026 03:48:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 8 2026 03:49:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

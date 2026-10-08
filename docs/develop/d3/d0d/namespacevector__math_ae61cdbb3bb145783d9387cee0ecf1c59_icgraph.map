@@ -1,0 +1,7 @@
+<map id="vector_math::vector_rzero" name="vector_math::vector_rzero">
+<area shape="rect" id="Node000001" title="Zero a real vector." alt="" coords="464,5,617,45"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a4410135feb478e1fa4fbff32593eb7ac" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="450,28,416,28,416,23,450,23"/>
+<area shape="rect" id="Node000003" href="$d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="5,5,185,45"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="220,28,185,28,185,23,220,23"/>
+</map>

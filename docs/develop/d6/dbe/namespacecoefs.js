@@ -1,13 +1,15 @@
 var namespacecoefs =
 [
     [ "coef_t", "d0/dea/structcoefs_1_1coef__t.html", "d0/dea/structcoefs_1_1coef__t" ],
+    [ "coef_enable_geo_compression", "d6/dbe/namespacecoefs.html#a4b12817c197702957ed4eafd36e26150", null ],
     [ "coef_enable_lagged_mass", "d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21", null ],
     [ "coef_free", "d6/dbe/namespacecoefs.html#a20a95815e8ab1a9d5e513b959db5c3e7", null ],
+    [ "coef_free_geo_compr", "d6/dbe/namespacecoefs.html#a1c4224b967c6424ffb1e475ce832be24", null ],
     [ "coef_generate_area_and_normal", "d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484", null ],
     [ "coef_generate_cyclic_bc", "d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa", null ],
     [ "coef_generate_dxyzdrst", "d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e", null ],
     [ "coef_generate_geo", "d6/dbe/namespacecoefs.html#a1b615b359ab35faee3c6522857bdac33", null ],
-    [ "coef_generate_geo_compressed", "d6/dbe/namespacecoefs.html#acfa0af3d1e6b50af3fa7dbddd9e9d4cf", null ],
+    [ "coef_generate_geo_compr", "d6/dbe/namespacecoefs.html#a25beafcbb6727f7313c267d9da250acb", null ],
     [ "coef_generate_mass", "d6/dbe/namespacecoefs.html#af4bc052c7d759da9d20f84872216f462", null ],
     [ "coef_get_area", "d6/dbe/namespacecoefs.html#a3f7f96b151a2f17e768db3d5ad5b12c0", null ],
     [ "coef_get_normal", "d6/dbe/namespacecoefs.html#a4d34532e89acebdb72fddd6f72f8090d", null ],

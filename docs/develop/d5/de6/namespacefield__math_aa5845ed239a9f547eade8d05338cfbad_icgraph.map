@@ -1,21 +1,23 @@
 <map id="field_math::field_copy" name="field_math::field_copy">
-<area shape="rect" id="Node000001" title="Copy a vector ." alt="" coords="284,335,449,360"/>
+<area shape="rect" id="Node000001" title="Copy a vector ." alt="" coords="284,375,449,400"/>
 <area shape="rect" id="Node000002" href="$d7/d6b/namespaceartificial__viscosity.html#abcdc3fc1dfdc1f024dea3225b961efa5" title="Update the effective viscosity with artificial and physical viscosity." alt="" coords="47,5,195,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="358,322,344,270,320,203,284,133,261,101,234,73,215,60,194,50,196,45,218,55,238,69,265,98,289,131,325,201,349,268,363,320"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="359,362,348,303,326,225,309,184,289,144,264,106,234,73,216,60,194,50,196,45,218,55,238,69,268,103,293,141,314,182,331,223,353,301,365,361"/>
 <area shape="rect" id="Node000003" href="$d0/d7b/namespacebrinkman__source__term.html#a642671680ad9713699170537d417d410" title="The common constructor using a JSON object." alt="" coords="31,84,211,139"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="353,323,335,285,309,239,276,193,234,152,210,137,212,133,238,148,280,189,314,237,340,283,358,321"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="356,362,340,317,315,260,280,202,258,176,234,152,209,136,212,132,238,148,262,172,284,199,320,258,345,315,361,360"/>
 <area shape="rect" id="Node000004" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="20,163,221,217"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="344,326,297,278,267,253,235,231,213,220,216,215,237,226,270,249,300,274,348,322"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="349,364,303,298,271,262,234,231,215,220,218,215,238,226,275,258,308,295,354,361"/>
 <area shape="rect" id="Node000005" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="24,241,217,296"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="312,333,206,299,208,294,313,328"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="335,369,289,339,235,310,209,299,211,294,237,305,292,335,338,365"/>
 <area shape="rect" id="Node000006" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="13,320,228,375"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="270,350,228,350,228,345,270,345"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="274,375,228,367,228,362,275,370"/>
 <area shape="rect" id="Node000007" href="$d7/dff/namespacefluid__scheme__incompressible.html#a10bd65597fdbf95e50f22222c9699bfd" title="Call user material properties routine and update the values of mu if necessary." alt="" coords="5,399,236,453"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="313,367,208,401,206,396,312,362"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="272,405,236,411,236,405,271,400"/>
 <area shape="rect" id="Node000008" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="45,478,197,518"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="348,372,301,420,270,445,237,467,198,484,196,479,235,462,267,441,297,416,344,369"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="338,410,291,439,237,467,198,481,196,476,235,462,289,434,335,405"/>
 <area shape="rect" id="Node000009" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="36,543,205,597"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="356,373,338,409,312,451,278,494,238,532,207,550,204,545,234,528,274,491,307,448,333,406,352,371"/>
-<area shape="rect" id="Node000010" href="$d2/dd5/namespacespatial__average__output.html#a7c9a16eeecdcc358205d80567a127f64" title="Sample the current fields, spatially average, and write." alt="" coords="29,621,212,676"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="362,374,348,424,323,487,287,553,264,584,238,611,214,627,211,622,234,607,260,580,282,550,318,485,343,422,357,373"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="351,413,305,472,273,504,237,532,207,548,205,544,235,528,269,500,301,469,347,410"/>
+<area shape="rect" id="Node000010" href="$db/d94/namespacesource__term__handler.html#ac5a8a3a923ddcf827c238f3be8642749" title="Add source terms to the right&#45;hand side fields." alt="" coords="37,621,204,676"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="359,414,343,457,317,510,282,564,238,611,206,630,203,626,234,607,278,560,312,507,338,455,354,413"/>
+<area shape="rect" id="Node000011" href="$d2/dd5/namespacespatial__average__output.html#a7c9a16eeecdcc358205d80567a127f64" title="Sample the current fields, spatially average, and write." alt="" coords="29,700,212,755"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="364,414,352,471,328,544,312,583,291,622,267,657,238,689,214,706,211,702,234,685,263,654,287,619,307,581,323,542,346,469,359,413"/>
 </map>

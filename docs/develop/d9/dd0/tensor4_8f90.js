@@ -7,6 +7,7 @@ var tensor4_8f90 =
     [ "tensor4_assign_tensor4", "d9/dd0/tensor4_8f90.html#ae08744c85a855409f4f79012f9162f34", null ],
     [ "tensor4_copy_from", "d9/dd0/tensor4_8f90.html#a207f2862fb0e116d9955a2520662eeb9", null ],
     [ "tensor4_free", "d9/dd0/tensor4_8f90.html#a920e6c635def4e7163547933e78190aa", null ],
+    [ "tensor4_get_dims", "d9/dd0/tensor4_8f90.html#a3686a7783de40fa26c6e92c310367dc3", null ],
     [ "tensor4_init", "d9/dd0/tensor4_8f90.html#a5a0043aafe313c121301128eb9c2c999", null ],
     [ "tensor4_n1", "d9/dd0/tensor4_8f90.html#ac7820b5fdb902f58b6857c671b828960", null ],
     [ "tensor4_n2", "d9/dd0/tensor4_8f90.html#ac77fa2207ee3c56ec7d9f92492ea8b5a", null ],

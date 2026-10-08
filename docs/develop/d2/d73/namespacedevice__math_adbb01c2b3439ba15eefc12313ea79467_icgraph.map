@@ -1,15 +1,17 @@
 <map id="device_math::device_addcol4" name="device_math::device_addcol4">
-<area shape="rect" id="Node000001" title="Returns ." alt="" coords="263,200,420,240"/>
-<area shape="rect" id="Node000002" href="$d7/d82/namespaceax__helm__device.html#ad56c40a00d1f88ad58023eaa906cf9ad" title=" " alt="" coords="22,5,198,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="321,189,278,123,248,89,213,60,192,48,194,43,216,55,251,85,282,120,325,186"/>
-<area shape="rect" id="Node000003" href="$df/d21/namespaceax__helm__svv__one__sided__device.html#a79935bb64d5a825ec2e8e69b63607ca2" title="Compute the product." alt="" coords="5,70,215,125"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="300,194,259,166,213,140,187,127,189,122,216,135,262,162,303,190"/>
-<area shape="rect" id="Node000004" href="$d5/d74/namespaceax__helm__svv__one__sided__full__device.html#a7ce4300c649f61e5aa0428de2c215b3e" title="Compute the coupled one&#45;sided full&#45;stress SVV Helmholtz product." alt="" coords="9,149,211,219"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="249,208,211,202,212,197,250,203"/>
-<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#ad612dd1dce947f21a6bd1643cf6b51c6" title="Returns ." alt="" coords="17,243,203,269"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="249,237,192,246,191,241,249,232"/>
-<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#a324647e17305a68956bec972d7115fb9" title="Returns ." alt="" coords="31,293,189,333"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="291,248,216,282,179,296,177,291,214,278,289,244"/>
-<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#ad9fdf831a3f155f08e437a3d871ca068" title="Returns ." alt="" coords="33,357,187,397"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="318,253,274,301,246,326,216,348,188,361,186,356,213,343,243,322,271,298,315,249"/>
+<area shape="rect" id="Node000001" title="Returns ." alt="" coords="263,243,420,283"/>
+<area shape="rect" id="Node000002" href="$de/d26/namespaceax__helm__compr__device.html#a92c027adea48a2a12dd69c67cf539e78" title=" " alt="" coords="18,5,202,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="324,232,281,154,250,111,213,75,194,62,197,58,216,71,254,108,286,151,329,229"/>
+<area shape="rect" id="Node000003" href="$d7/d82/namespaceax__helm__device.html#ad56c40a00d1f88ad58023eaa906cf9ad" title=" " alt="" coords="22,85,198,125"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="315,234,271,185,243,160,213,139,189,127,192,122,216,134,247,156,275,181,319,231"/>
+<area shape="rect" id="Node000004" href="$df/d21/namespaceax__helm__svv__one__sided__device.html#a79935bb64d5a825ec2e8e69b63607ca2" title="Compute the product." alt="" coords="5,149,215,204"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="273,241,183,207,185,202,275,236"/>
+<area shape="rect" id="Node000005" href="$d5/d74/namespaceax__helm__svv__one__sided__full__device.html#a7ce4300c649f61e5aa0428de2c215b3e" title="Compute the coupled one&#45;sided full&#45;stress SVV Helmholtz product." alt="" coords="9,229,211,298"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="249,266,211,266,211,261,249,261"/>
+<area shape="rect" id="Node000006" href="$d5/de6/namespacefield__math.html#ad612dd1dce947f21a6bd1643cf6b51c6" title="Returns ." alt="" coords="17,323,203,348"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="278,291,215,313,169,325,168,320,214,307,276,286"/>
+<area shape="rect" id="Node000007" href="$dc/d12/namespacematrix__math.html#a324647e17305a68956bec972d7115fb9" title="Returns ." alt="" coords="31,373,189,413"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="310,295,267,329,216,362,185,375,183,370,213,357,264,325,307,291"/>
+<area shape="rect" id="Node000008" href="$d3/d0d/namespacevector__math.html#ad9fdf831a3f155f08e437a3d871ca068" title="Returns ." alt="" coords="33,437,187,477"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="325,297,282,363,251,397,216,427,188,442,185,437,213,422,248,393,277,359,321,294"/>
 </map>

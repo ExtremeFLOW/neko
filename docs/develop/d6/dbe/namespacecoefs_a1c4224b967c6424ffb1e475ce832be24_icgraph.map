@@ -1,0 +1,11 @@
+<map id="coefs::coef_free_geo_compr" name="coefs::coef_free_geo_compr">
+<area shape="rect" id="Node000001" title="Release the compressed geometric factors." alt="" coords="431,27,588,67"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a20a95815e8ab1a9d5e513b959db5c3e7" title="Deallocate coefficients." alt="" coords="240,5,367,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="417,37,366,30,367,24,417,32"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#a25beafcbb6727f7313c267d9da250acb" title="Compute processor&#45;local compressed versions of mappings Gij." alt="" coords="224,55,383,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="418,62,383,67,383,62,417,57"/>
+<area shape="rect" id="Node000004" href="$d6/dbe/namespacecoefs.html#a4b12817c197702957ed4eafd36e26150" title="Enable compressed geometric factors." alt="" coords="19,23,163,63"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="210,64,163,57,163,52,211,59"/>
+<area shape="rect" id="Node000005" href="$d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2" title="Recompute and update geometric factors (ALE)" alt="" coords="5,87,176,127"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="211,92,177,97,176,92,210,87"/>
+</map>

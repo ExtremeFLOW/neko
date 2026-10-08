@@ -106,12 +106,13 @@ $(document).ready(function(){initNavTree('d7/dda/namespacescratch__registry.html
 </div><!--header-->
 <div class="contents">
 
-<p>Defines a registry for storing and requesting temporary objects This can be used when you have a function that will be called often and you don't want to create temporary objects (work arrays) inside it on each call.  
+<p>Defines a registry for storing and requesting temporary objects This can be used when you have a function that will be called often and you do not want to create temporary objects (work arrays) inside it on each call.  
 </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Scratch registry type.  <a href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
@@ -125,6 +126,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a77fa8b45d2c2a73f02c6be62f5fef406" id="r_a77fa8b45d2c2a73f02c6be62f5fef406"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a77fa8b45d2c2a73f02c6be62f5fef406">scratch_registry_set_dofmap</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, dof)</td></tr>
 <tr class="memdesc:a77fa8b45d2c2a73f02c6be62f5fef406"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a dofmap to the scratch registry.  <br /></td></tr>
 <tr class="separator:a77fa8b45d2c2a73f02c6be62f5fef406"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a4517987be0f9f26af8469a31d79c5c" id="r_a9a4517987be0f9f26af8469a31d79c5c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a9a4517987be0f9f26af8469a31d79c5c">scratch_registry_set_expansion_size</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, expansion_size)</td></tr>
+<tr class="memdesc:a9a4517987be0f9f26af8469a31d79c5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a new expansion size to the scratch registry.  <br /></td></tr>
+<tr class="separator:a9a4517987be0f9f26af8469a31d79c5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c97b6ce925226311d62330a069d4536" id="r_a4c97b6ce925226311d62330a069d4536"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pure</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a4c97b6ce925226311d62330a069d4536">get_n_entries</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a4c97b6ce925226311d62330a069d4536"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the number of objects stored in the registry.  <br /></td></tr>
 <tr class="separator:a4c97b6ce925226311d62330a069d4536"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -140,68 +144,66 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a0a7fe7001be1606989150c6e17630414" id="r_a0a7fe7001be1606989150c6e17630414"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pure</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a0a7fe7001be1606989150c6e17630414">get_inuse</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index)</td></tr>
 <tr class="memdesc:a0a7fe7001be1606989150c6e17630414"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the inuse status for a given index.  <br /></td></tr>
 <tr class="separator:a0a7fe7001be1606989150c6e17630414"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9d3257380ebb7584c3795672471c9565" id="r_a9d3257380ebb7584c3795672471c9565"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a9d3257380ebb7584c3795672471c9565">expand</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
-<tr class="separator:a9d3257380ebb7584c3795672471c9565"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a68ad7eb7e444ec99369f1fa935802c0a" id="r_a68ad7eb7e444ec99369f1fa935802c0a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a68ad7eb7e444ec99369f1fa935802c0a">request_host_array</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, v, index, n, clear)</td></tr>
-<tr class="memdesc:a68ad7eb7e444ec99369f1fa935802c0a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a host array from the registry by assigning it to a pointer.  <br /></td></tr>
-<tr class="separator:a68ad7eb7e444ec99369f1fa935802c0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfea81da46d6f5c58a6a914ee18d6f5f" id="r_acfea81da46d6f5c58a6a914ee18d6f5f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#acfea81da46d6f5c58a6a914ee18d6f5f">request_device_array</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, v, index, n, clear)</td></tr>
-<tr class="memdesc:acfea81da46d6f5c58a6a914ee18d6f5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a device array from the registry by assigning it to a pointer.  <br /></td></tr>
-<tr class="separator:acfea81da46d6f5c58a6a914ee18d6f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb82d6f812046c663d7068b900e88998" id="r_abb82d6f812046c663d7068b900e88998"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#abb82d6f812046c663d7068b900e88998">request_vector</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, v, index, n, clear)</td></tr>
-<tr class="memdesc:abb82d6f812046c663d7068b900e88998"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a vector from the registry by assigning it to a pointer.  <br /></td></tr>
-<tr class="separator:abb82d6f812046c663d7068b900e88998"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab56e8bccbcc5ed446b6a1c0fab6979bb" id="r_ab56e8bccbcc5ed446b6a1c0fab6979bb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#ab56e8bccbcc5ed446b6a1c0fab6979bb">request_matrix</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, m, index, nrows, ncols, clear)</td></tr>
-<tr class="memdesc:ab56e8bccbcc5ed446b6a1c0fab6979bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a matrix from the registry by assigning it to a pointer.  <br /></td></tr>
-<tr class="separator:ab56e8bccbcc5ed446b6a1c0fab6979bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b8cf47bd6089863be86491e1ec7ca16" id="r_a0b8cf47bd6089863be86491e1ec7ca16"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a0b8cf47bd6089863be86491e1ec7ca16">request_tensor3</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, t, index, n, m, l, clear)</td></tr>
-<tr class="memdesc:a0b8cf47bd6089863be86491e1ec7ca16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a <a class="el" href="../../d5/d0e/namespacetensor3.html" title="Defines a rank-3 tensor.">tensor3</a> from the registry by assigning it to a pointer.  <br /></td></tr>
-<tr class="separator:a0b8cf47bd6089863be86491e1ec7ca16"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a703f2b145acc6459b266efe18e881fa4" id="r_a703f2b145acc6459b266efe18e881fa4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a703f2b145acc6459b266efe18e881fa4">request_tensor4</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, t, index, n, m, l, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">k</a>, clear)</td></tr>
-<tr class="memdesc:a703f2b145acc6459b266efe18e881fa4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a> from the registry by assigning it to a pointer.  <br /></td></tr>
-<tr class="separator:a703f2b145acc6459b266efe18e881fa4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af3a088033a406fc890afb53fa378506f" id="r_af3a088033a406fc890afb53fa378506f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#af3a088033a406fc890afb53fa378506f">request_field_stored_dof</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, f, index, clear)</td></tr>
-<tr class="memdesc:af3a088033a406fc890afb53fa378506f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a field from the registry by assigning it to a pointer.  <br /></td></tr>
-<tr class="separator:af3a088033a406fc890afb53fa378506f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a01e74b7f3e6220716608f72c7d1e41ca" id="r_a01e74b7f3e6220716608f72c7d1e41ca"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a01e74b7f3e6220716608f72c7d1e41ca">request_field_free_dof</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, f, index, dof, clear)</td></tr>
-<tr class="memdesc:a01e74b7f3e6220716608f72c7d1e41ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a field from the registry by assigning it to a pointer.  <br /></td></tr>
-<tr class="separator:a01e74b7f3e6220716608f72c7d1e41ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79ea7a7745e6bec2dd2b1909662e0355" id="r_a79ea7a7745e6bec2dd2b1909662e0355"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a79ea7a7745e6bec2dd2b1909662e0355">request_host_array</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scratch_entry</a>, index, n, clear)</td></tr>
+<tr class="memdesc:a79ea7a7745e6bec2dd2b1909662e0355"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a host array from the registry by assigning it to a pointer.  <br /></td></tr>
+<tr class="separator:a79ea7a7745e6bec2dd2b1909662e0355"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a459a4f4c8b1e33646cd5bd66f22a11f3" id="r_a459a4f4c8b1e33646cd5bd66f22a11f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a459a4f4c8b1e33646cd5bd66f22a11f3">relinquish_host_array_single</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index)</td></tr>
 <tr class="memdesc:a459a4f4c8b1e33646cd5bd66f22a11f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a <a class="el" href="../../d7/d87/namespacehost__array.html" title="Module containing host-only array type.">host_array</a> in the registry.  <br /></td></tr>
 <tr class="separator:a459a4f4c8b1e33646cd5bd66f22a11f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d8488cc6a17d85ca9705403fda34f55" id="r_a6d8488cc6a17d85ca9705403fda34f55"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a6d8488cc6a17d85ca9705403fda34f55">relinquish_host_array_multiple</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, indices)</td></tr>
 <tr class="memdesc:a6d8488cc6a17d85ca9705403fda34f55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple host_arrays in the registry.  <br /></td></tr>
 <tr class="separator:a6d8488cc6a17d85ca9705403fda34f55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a662d3b827ad6a0cb0ef885bfc77a153b" id="r_a662d3b827ad6a0cb0ef885bfc77a153b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a662d3b827ad6a0cb0ef885bfc77a153b">request_device_array</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scratch_entry</a>, index, n, clear)</td></tr>
+<tr class="memdesc:a662d3b827ad6a0cb0ef885bfc77a153b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a device array from the registry by assigning it to a pointer.  <br /></td></tr>
+<tr class="separator:a662d3b827ad6a0cb0ef885bfc77a153b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ebd8ce04f6ffb29fd2ba1e97091b13c" id="r_a9ebd8ce04f6ffb29fd2ba1e97091b13c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a9ebd8ce04f6ffb29fd2ba1e97091b13c">relinquish_device_array_single</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index)</td></tr>
 <tr class="memdesc:a9ebd8ce04f6ffb29fd2ba1e97091b13c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a <a class="el" href="../../d2/d01/namespacedevice__array.html" title="Module containing device only array type.">device_array</a> in the registry.  <br /></td></tr>
 <tr class="separator:a9ebd8ce04f6ffb29fd2ba1e97091b13c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e01b1c382c03be7669e0ac0cf62cb3a" id="r_a4e01b1c382c03be7669e0ac0cf62cb3a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a4e01b1c382c03be7669e0ac0cf62cb3a">relinquish_device_array_multiple</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, indices)</td></tr>
 <tr class="memdesc:a4e01b1c382c03be7669e0ac0cf62cb3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple device_arrays in the registry.  <br /></td></tr>
 <tr class="separator:a4e01b1c382c03be7669e0ac0cf62cb3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4410135feb478e1fa4fbff32593eb7ac" id="r_a4410135feb478e1fa4fbff32593eb7ac"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a4410135feb478e1fa4fbff32593eb7ac">request_vector</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scratch_entry</a>, index, n, clear)</td></tr>
+<tr class="memdesc:a4410135feb478e1fa4fbff32593eb7ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a vector from the registry by assigning it to a pointer.  <br /></td></tr>
+<tr class="separator:a4410135feb478e1fa4fbff32593eb7ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab25fa294d3423b75f9829beebda8a7ed" id="r_ab25fa294d3423b75f9829beebda8a7ed"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#ab25fa294d3423b75f9829beebda8a7ed">relinquish_vector_single</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index)</td></tr>
 <tr class="memdesc:ab25fa294d3423b75f9829beebda8a7ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a vector in the registry.  <br /></td></tr>
 <tr class="separator:ab25fa294d3423b75f9829beebda8a7ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a867466069feddb9c5d105cce6a85a40f" id="r_a867466069feddb9c5d105cce6a85a40f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a867466069feddb9c5d105cce6a85a40f">relinquish_vector_multiple</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, indices)</td></tr>
 <tr class="memdesc:a867466069feddb9c5d105cce6a85a40f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple vectors in the registry.  <br /></td></tr>
 <tr class="separator:a867466069feddb9c5d105cce6a85a40f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ea95d716e31d5b94c4132bb9919f57f" id="r_a9ea95d716e31d5b94c4132bb9919f57f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a9ea95d716e31d5b94c4132bb9919f57f">request_matrix</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scratch_entry</a>, index, nrows, ncols, clear)</td></tr>
+<tr class="memdesc:a9ea95d716e31d5b94c4132bb9919f57f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a matrix from the registry by assigning it to a pointer.  <br /></td></tr>
+<tr class="separator:a9ea95d716e31d5b94c4132bb9919f57f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a09704a6a3f7b0da5268bfd5aac15d9ff" id="r_a09704a6a3f7b0da5268bfd5aac15d9ff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a09704a6a3f7b0da5268bfd5aac15d9ff">relinquish_matrix_single</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index)</td></tr>
 <tr class="memdesc:a09704a6a3f7b0da5268bfd5aac15d9ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a matrix in the registry.  <br /></td></tr>
 <tr class="separator:a09704a6a3f7b0da5268bfd5aac15d9ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3e70dd138b7a86c4aa572c971175c302" id="r_a3e70dd138b7a86c4aa572c971175c302"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a3e70dd138b7a86c4aa572c971175c302">relinquish_matrix_multiple</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, indices)</td></tr>
 <tr class="memdesc:a3e70dd138b7a86c4aa572c971175c302"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple matrices in the registry.  <br /></td></tr>
 <tr class="separator:a3e70dd138b7a86c4aa572c971175c302"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2bf08d512779e41fe60eb8fe4f2c7b96" id="r_a2bf08d512779e41fe60eb8fe4f2c7b96"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a2bf08d512779e41fe60eb8fe4f2c7b96">request_tensor3</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scratch_entry</a>, index, n, m, l, clear)</td></tr>
+<tr class="memdesc:a2bf08d512779e41fe60eb8fe4f2c7b96"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a <a class="el" href="../../d5/d0e/namespacetensor3.html" title="Defines a rank-3 tensor.">tensor3</a> from the registry by assigning it to a pointer.  <br /></td></tr>
+<tr class="separator:a2bf08d512779e41fe60eb8fe4f2c7b96"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f5491654148b071dc46d9c1540225ae" id="r_a4f5491654148b071dc46d9c1540225ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a4f5491654148b071dc46d9c1540225ae">relinquish_tensor3_single</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index)</td></tr>
 <tr class="memdesc:a4f5491654148b071dc46d9c1540225ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a <a class="el" href="../../d5/d0e/namespacetensor3.html" title="Defines a rank-3 tensor.">tensor3</a> in the registry.  <br /></td></tr>
 <tr class="separator:a4f5491654148b071dc46d9c1540225ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7142dc3935ac34699af0149d0db9197b" id="r_a7142dc3935ac34699af0149d0db9197b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a7142dc3935ac34699af0149d0db9197b">relinquish_tensor3_multiple</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, indices)</td></tr>
 <tr class="memdesc:a7142dc3935ac34699af0149d0db9197b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple tensor3s in the registry.  <br /></td></tr>
 <tr class="separator:a7142dc3935ac34699af0149d0db9197b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95fb4d5ab1b7f9c83e6eb39cee394bfd" id="r_a95fb4d5ab1b7f9c83e6eb39cee394bfd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a95fb4d5ab1b7f9c83e6eb39cee394bfd">request_tensor4</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scratch_entry</a>, index, n, m, l, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">k</a>, clear)</td></tr>
+<tr class="memdesc:a95fb4d5ab1b7f9c83e6eb39cee394bfd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a> from the registry by assigning it to a pointer.  <br /></td></tr>
+<tr class="separator:a95fb4d5ab1b7f9c83e6eb39cee394bfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa2b12627b4f28e778b161bf10f7e0a33" id="r_aa2b12627b4f28e778b161bf10f7e0a33"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#aa2b12627b4f28e778b161bf10f7e0a33">relinquish_tensor4_single</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index)</td></tr>
 <tr class="memdesc:aa2b12627b4f28e778b161bf10f7e0a33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a> in the registry.  <br /></td></tr>
 <tr class="separator:aa2b12627b4f28e778b161bf10f7e0a33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afac80e9f1e4efb55b080eed14d6f4bf4" id="r_afac80e9f1e4efb55b080eed14d6f4bf4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#afac80e9f1e4efb55b080eed14d6f4bf4">relinquish_tensor4_multiple</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, indices)</td></tr>
 <tr class="memdesc:afac80e9f1e4efb55b080eed14d6f4bf4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple tensor4s in the registry.  <br /></td></tr>
 <tr class="separator:afac80e9f1e4efb55b080eed14d6f4bf4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7341e25acfe231651a6abc61de2681f" id="r_aa7341e25acfe231651a6abc61de2681f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#aa7341e25acfe231651a6abc61de2681f">request_field_stored_dof</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scratch_entry</a>, index, clear)</td></tr>
+<tr class="memdesc:aa7341e25acfe231651a6abc61de2681f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a field from the registry by assigning it to a pointer.  <br /></td></tr>
+<tr class="separator:aa7341e25acfe231651a6abc61de2681f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b40ead97e2cfaf48b62672476562bb8" id="r_a4b40ead97e2cfaf48b62672476562bb8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a4b40ead97e2cfaf48b62672476562bb8">request_field_free_dof</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">scratch_entry</a>, index, dof, clear)</td></tr>
+<tr class="memdesc:a4b40ead97e2cfaf48b62672476562bb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a field from the registry by assigning it to a pointer.  <br /></td></tr>
+<tr class="separator:a4b40ead97e2cfaf48b62672476562bb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d50ee2b1062ce3a2ead6f2f6569f66b" id="r_a6d50ee2b1062ce3a2ead6f2f6569f66b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a6d50ee2b1062ce3a2ead6f2f6569f66b">relinquish_field_single</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index)</td></tr>
 <tr class="memdesc:a6d50ee2b1062ce3a2ead6f2f6569f66b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of a field in the registry.  <br /></td></tr>
 <tr class="separator:a6d50ee2b1062ce3a2ead6f2f6569f66b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -214,6 +216,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ae15b3b45226082405590af6a0a41d47f" id="r_ae15b3b45226082405590af6a0a41d47f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#ae15b3b45226082405590af6a0a41d47f">relinquish_multiple</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, indices)</td></tr>
 <tr class="memdesc:ae15b3b45226082405590af6a0a41d47f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish the use of multiple objects in the registry.  <br /></td></tr>
 <tr class="separator:ae15b3b45226082405590af6a0a41d47f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0b951382df9e16ddd74b1c9121ba568" id="r_ad0b951382df9e16ddd74b1c9121ba568"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#ad0b951382df9e16ddd74b1c9121ba568">relinquish_type</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, index, type)</td></tr>
+<tr class="memdesc:ad0b951382df9e16ddd74b1c9121ba568"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relinquish a single index based on a specified type.  <br /></td></tr>
+<tr class="separator:ad0b951382df9e16ddd74b1c9121ba568"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d3257380ebb7584c3795672471c9565" id="r_a9d3257380ebb7584c3795672471c9565"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dda/namespacescratch__registry.html#a9d3257380ebb7584c3795672471c9565">expand</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a9d3257380ebb7584c3795672471c9565"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expand the registry by expansion_size.  <br /></td></tr>
+<tr class="separator:a9d3257380ebb7584c3795672471c9565"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -246,7 +254,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00294">294</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00968">968</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -274,7 +282,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00279">279</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00346">346</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -312,7 +320,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00287">287</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00354">354</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -358,7 +366,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00251">251</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00308">308</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -386,7 +394,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00259">259</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00318">318</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -414,7 +422,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00267">267</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00332">332</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -430,13 +438,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_device_array_multiple </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>indices</em>&#160;</td>
         </tr>
         <tr>
@@ -458,7 +466,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00809">809</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00502">502</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -484,13 +492,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_device_array_single </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -512,7 +520,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00794">794</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00493">493</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -538,13 +546,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_field_multiple </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>indices</em>&#160;</td>
         </tr>
         <tr>
@@ -566,7 +574,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00974">974</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00907">907</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -592,13 +600,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_field_single </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -620,7 +628,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00959">959</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00898">898</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -646,13 +654,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_host_array_multiple </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>indices</em>&#160;</td>
         </tr>
         <tr>
@@ -674,7 +682,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00776">776</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00429">429</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -700,13 +708,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_host_array_single </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -728,7 +736,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00761">761</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00420">420</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -754,13 +762,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_matrix_multiple </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>indices</em>&#160;</td>
         </tr>
         <tr>
@@ -782,7 +790,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00875">875</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00637">637</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -808,13 +816,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_matrix_single </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -836,7 +844,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00860">860</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00628">628</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -862,13 +870,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_multiple </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>indices</em>&#160;</td>
         </tr>
         <tr>
@@ -890,7 +898,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l01002">1002</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00934">934</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -916,13 +924,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_single </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -944,7 +952,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00992">992</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00922">922</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -970,13 +978,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_tensor3_multiple </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>indices</em>&#160;</td>
         </tr>
         <tr>
@@ -998,7 +1006,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00908">908</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00712">712</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1024,13 +1032,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_tensor3_single </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -1052,7 +1060,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00893">893</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00703">703</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1078,13 +1086,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_tensor4_multiple </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>indices</em>&#160;</td>
         </tr>
         <tr>
@@ -1106,7 +1114,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00941">941</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00788">788</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1132,13 +1140,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_tensor4_single </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -1160,7 +1168,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00926">926</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00779">779</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1171,6 +1179,57 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="220,35,185,35,185,30,220,30"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="ad0b951382df9e16ddd74b1c9121ba568" name="ad0b951382df9e16ddd74b1c9121ba568"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0b951382df9e16ddd74b1c9121ba568">&#9670;&#160;</a></span>relinquish_type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_type </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>type</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">index</td><td>The index of the object to free </td></tr>
+    <tr><td class="paramname">type</td><td>The type of the object to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00950">950</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -1186,13 +1245,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_vector_multiple </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>indices</em>&#160;</td>
         </tr>
         <tr>
@@ -1214,7 +1273,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00842">842</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00569">569</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1240,13 +1299,13 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::relinquish_vector_single </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
           <td class="paramname"><em>this</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
           <td class="paramname"><em>index</em>&#160;</td>
         </tr>
         <tr>
@@ -1268,7 +1327,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00827">827</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00560">560</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1282,8 +1341,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="acfea81da46d6f5c58a6a914ee18d6f5f" name="acfea81da46d6f5c58a6a914ee18d6f5f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acfea81da46d6f5c58a6a914ee18d6f5f">&#9670;&#160;</a></span>request_device_array()</h2>
+<a id="a662d3b827ad6a0cb0ef885bfc77a153b" name="a662d3b827ad6a0cb0ef885bfc77a153b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a662d3b827ad6a0cb0ef885bfc77a153b">&#9670;&#160;</a></span>request_device_array()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1301,7 +1360,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(c_ptr), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>v</em>, </td>
+          <td class="paramname"><em>scratch_entry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1335,7 +1394,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">v</td><td>Pointer to the requested device array. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Pointer to the requested device array. </td></tr>
     <tr><td class="paramname">index</td><td>Index of the device array in the registry (for relinquishing later). </td></tr>
     <tr><td class="paramname">n</td><td>Size of the requested device array. </td></tr>
     <tr><td class="paramname">clear</td><td>If true, the device array values are set to zero upon request. </td></tr>
@@ -1343,22 +1402,32 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00385">385</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00445">445</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a662d3b827ad6a0cb0ef885bfc77a153b_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a662d3b827ad6a0cb0ef885bfc77a153b_cgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a662d3b827ad6a0cb0ef885bfc77a153b_cgraph" id="ad7/dda/namespacescratch__registry_a662d3b827ad6a0cb0ef885bfc77a153b_cgraph">
+<area shape="rect" title="Get a device array from the registry by assigning it to a pointer." alt="" coords="5,5,188,45"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="236,5,393,45"/>
+<area shape="poly" title=" " alt="" coords="188,23,222,23,222,28,188,28"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_acfea81da46d6f5c58a6a914ee18d6f5f_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_acfea81da46d6f5c58a6a914ee18d6f5f_icgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_acfea81da46d6f5c58a6a914ee18d6f5f_icgraph" id="ad7/dda/namespacescratch__registry_acfea81da46d6f5c58a6a914ee18d6f5f_icgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a662d3b827ad6a0cb0ef885bfc77a153b_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a662d3b827ad6a0cb0ef885bfc77a153b_icgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a662d3b827ad6a0cb0ef885bfc77a153b_icgraph" id="ad7/dda/namespacescratch__registry_a662d3b827ad6a0cb0ef885bfc77a153b_icgraph">
 <area shape="rect" title="Get a device array from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429" title="Generic request procedure." alt="" coords="5,5,185,45"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="5,5,185,45"/>
 <area shape="poly" title=" " alt="" coords="220,28,185,28,185,23,220,23"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a01e74b7f3e6220716608f72c7d1e41ca" name="a01e74b7f3e6220716608f72c7d1e41ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a01e74b7f3e6220716608f72c7d1e41ca">&#9670;&#160;</a></span>request_field_free_dof()</h2>
+<a id="a4b40ead97e2cfaf48b62672476562bb8" name="a4b40ead97e2cfaf48b62672476562bb8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b40ead97e2cfaf48b62672476562bb8">&#9670;&#160;</a></span>request_field_free_dof()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1376,7 +1445,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td>
-          <td class="paramname"><em>f</em>, </td>
+          <td class="paramname"><em>scratch_entry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1410,7 +1479,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">f</td><td>Pointer to the requested field. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Pointer to the requested field. </td></tr>
     <tr><td class="paramname">index</td><td>Index of the field in the registry (for relinquishing later). </td></tr>
     <tr><td class="paramname">dof</td><td>Dofmap to use for the field. </td></tr>
     <tr><td class="paramname">clear</td><td>If true, the field values are set to zero upon request. </td></tr>
@@ -1418,24 +1487,38 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00711">711</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00854">854</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a4b40ead97e2cfaf48b62672476562bb8_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a4b40ead97e2cfaf48b62672476562bb8_cgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a4b40ead97e2cfaf48b62672476562bb8_cgraph" id="ad7/dda/namespacescratch__registry_a4b40ead97e2cfaf48b62672476562bb8_cgraph">
+<area shape="rect" title="Get a field from the registry by assigning it to a pointer." alt="" coords="5,35,188,75"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="236,42,403,67"/>
+<area shape="poly" title=" " alt="" coords="188,52,222,52,222,57,188,57"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="451,5,608,45"/>
+<area shape="poly" title=" " alt="" coords="403,40,437,36,437,41,404,46"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="481,70,578,95"/>
+<area shape="poly" title=" " alt="" coords="404,63,467,72,467,77,403,68"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_a01e74b7f3e6220716608f72c7d1e41ca_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a01e74b7f3e6220716608f72c7d1e41ca_icgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_a01e74b7f3e6220716608f72c7d1e41ca_icgraph" id="ad7/dda/namespacescratch__registry_a01e74b7f3e6220716608f72c7d1e41ca_icgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a4b40ead97e2cfaf48b62672476562bb8_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a4b40ead97e2cfaf48b62672476562bb8_icgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a4b40ead97e2cfaf48b62672476562bb8_icgraph" id="ad7/dda/namespacescratch__registry_a4b40ead97e2cfaf48b62672476562bb8_icgraph">
 <area shape="rect" title="Get a field from the registry by assigning it to a pointer." alt="" coords="236,37,419,77"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429" title="Generic request procedure." alt="" coords="7,5,187,45"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="7,5,187,45"/>
 <area shape="poly" title=" " alt="" coords="222,45,186,40,187,35,223,40"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a75c156f22666cc9b66a7b3538962cf64" title="Get a new scratch field." alt="" coords="5,69,188,109"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#aa71ff84903b2f66e66968339eda0530f" title="Get a new scratch field." alt="" coords="5,69,188,109"/>
 <area shape="poly" title=" " alt="" coords="223,74,189,79,188,74,222,69"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="af3a088033a406fc890afb53fa378506f" name="af3a088033a406fc890afb53fa378506f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af3a088033a406fc890afb53fa378506f">&#9670;&#160;</a></span>request_field_stored_dof()</h2>
+<a id="aa7341e25acfe231651a6abc61de2681f" name="aa7341e25acfe231651a6abc61de2681f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7341e25acfe231651a6abc61de2681f">&#9670;&#160;</a></span>request_field_stored_dof()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1453,7 +1536,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td>
-          <td class="paramname"><em>f</em>, </td>
+          <td class="paramname"><em>scratch_entry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1481,31 +1564,45 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">f</td><td>Pointer to the requested field. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Pointer to the requested field. </td></tr>
     <tr><td class="paramname">index</td><td>Index of the field in the registry (for relinquishing later). </td></tr>
     <tr><td class="paramname">clear</td><td>If true, the field values are set to zero upon request. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00659">659</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00802">802</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_aa7341e25acfe231651a6abc61de2681f_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_aa7341e25acfe231651a6abc61de2681f_cgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_aa7341e25acfe231651a6abc61de2681f_cgraph" id="ad7/dda/namespacescratch__registry_aa7341e25acfe231651a6abc61de2681f_cgraph">
+<area shape="rect" title="Get a field from the registry by assigning it to a pointer." alt="" coords="5,35,188,75"/>
+<area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="236,42,403,67"/>
+<area shape="poly" title=" " alt="" coords="188,52,222,52,222,57,188,57"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="451,5,608,45"/>
+<area shape="poly" title=" " alt="" coords="403,40,437,36,437,41,404,46"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="481,70,578,95"/>
+<area shape="poly" title=" " alt="" coords="404,63,467,72,467,77,403,68"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_af3a088033a406fc890afb53fa378506f_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_af3a088033a406fc890afb53fa378506f_icgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_af3a088033a406fc890afb53fa378506f_icgraph" id="ad7/dda/namespacescratch__registry_af3a088033a406fc890afb53fa378506f_icgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_aa7341e25acfe231651a6abc61de2681f_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_aa7341e25acfe231651a6abc61de2681f_icgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_aa7341e25acfe231651a6abc61de2681f_icgraph" id="ad7/dda/namespacescratch__registry_aa7341e25acfe231651a6abc61de2681f_icgraph">
 <area shape="rect" title="Get a field from the registry by assigning it to a pointer." alt="" coords="236,37,419,77"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429" title="Generic request procedure." alt="" coords="7,5,187,45"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="7,5,187,45"/>
 <area shape="poly" title=" " alt="" coords="222,45,186,40,187,35,223,40"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a75c156f22666cc9b66a7b3538962cf64" title="Get a new scratch field." alt="" coords="5,69,188,109"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#aa71ff84903b2f66e66968339eda0530f" title="Get a new scratch field." alt="" coords="5,69,188,109"/>
 <area shape="poly" title=" " alt="" coords="223,74,189,79,188,74,222,69"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a68ad7eb7e444ec99369f1fa935802c0a" name="a68ad7eb7e444ec99369f1fa935802c0a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a68ad7eb7e444ec99369f1fa935802c0a">&#9670;&#160;</a></span>request_host_array()</h2>
+<a id="a79ea7a7745e6bec2dd2b1909662e0355" name="a79ea7a7745e6bec2dd2b1909662e0355"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79ea7a7745e6bec2dd2b1909662e0355">&#9670;&#160;</a></span>request_host_array()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1523,7 +1620,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td>
-          <td class="paramname"><em>v</em>, </td>
+          <td class="paramname"><em>scratch_entry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1557,7 +1654,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">v</td><td>Pointer to the requested host array. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Pointer to the requested host array. </td></tr>
     <tr><td class="paramname">index</td><td>Index of the host array in the registry (for relinquishing later). </td></tr>
     <tr><td class="paramname">n</td><td>Size of the requested <a class="el" href="../../d7/d87/namespacehost__array.html" title="Module containing host-only array type.">host_array</a>. </td></tr>
     <tr><td class="paramname">clear</td><td>If true, the <a class="el" href="../../d7/d87/namespacehost__array.html" title="Module containing host-only array type.">host_array</a> values are set to zero upon request. </td></tr>
@@ -1565,12 +1662,12 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00329">329</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00372">372</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_a68ad7eb7e444ec99369f1fa935802c0a_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a68ad7eb7e444ec99369f1fa935802c0a_cgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_a68ad7eb7e444ec99369f1fa935802c0a_cgraph" id="ad7/dda/namespacescratch__registry_a68ad7eb7e444ec99369f1fa935802c0a_cgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a79ea7a7745e6bec2dd2b1909662e0355_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a79ea7a7745e6bec2dd2b1909662e0355_cgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a79ea7a7745e6bec2dd2b1909662e0355_cgraph" id="ad7/dda/namespacescratch__registry_a79ea7a7745e6bec2dd2b1909662e0355_cgraph">
 <area shape="rect" title="Get a host array from the registry by assigning it to a pointer." alt="" coords="5,5,188,45"/>
 <area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="236,13,333,38"/>
 <area shape="poly" title=" " alt="" coords="188,23,222,23,222,28,188,28"/>
@@ -1579,18 +1676,18 @@ Here is the call graph for this function:</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_a68ad7eb7e444ec99369f1fa935802c0a_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a68ad7eb7e444ec99369f1fa935802c0a_icgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_a68ad7eb7e444ec99369f1fa935802c0a_icgraph" id="ad7/dda/namespacescratch__registry_a68ad7eb7e444ec99369f1fa935802c0a_icgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a79ea7a7745e6bec2dd2b1909662e0355_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a79ea7a7745e6bec2dd2b1909662e0355_icgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a79ea7a7745e6bec2dd2b1909662e0355_icgraph" id="ad7/dda/namespacescratch__registry_a79ea7a7745e6bec2dd2b1909662e0355_icgraph">
 <area shape="rect" title="Get a host array from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429" title="Generic request procedure." alt="" coords="5,5,185,45"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="5,5,185,45"/>
 <area shape="poly" title=" " alt="" coords="220,28,185,28,185,23,220,23"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="ab56e8bccbcc5ed446b6a1c0fab6979bb" name="ab56e8bccbcc5ed446b6a1c0fab6979bb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab56e8bccbcc5ed446b6a1c0fab6979bb">&#9670;&#160;</a></span>request_matrix()</h2>
+<a id="a9ea95d716e31d5b94c4132bb9919f57f" name="a9ea95d716e31d5b94c4132bb9919f57f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ea95d716e31d5b94c4132bb9919f57f">&#9670;&#160;</a></span>request_matrix()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1608,7 +1705,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td>
-          <td class="paramname"><em>m</em>, </td>
+          <td class="paramname"><em>scratch_entry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1648,7 +1745,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">m</td><td>Pointer to the requested matrix. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Pointer to the requested matrix. </td></tr>
     <tr><td class="paramname">index</td><td>Index of the matrix in the registry (for relinquishing later). </td></tr>
     <tr><td class="paramname">nrows</td><td>Number of rows of the requested matrix. </td></tr>
     <tr><td class="paramname">ncols</td><td>Number of columns of the requested matrix. </td></tr>
@@ -1657,22 +1754,36 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00491">491</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00585">585</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a9ea95d716e31d5b94c4132bb9919f57f_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a9ea95d716e31d5b94c4132bb9919f57f_cgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a9ea95d716e31d5b94c4132bb9919f57f_cgraph" id="ad7/dda/namespacescratch__registry_a9ea95d716e31d5b94c4132bb9919f57f_cgraph">
+<area shape="rect" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="5,35,188,75"/>
+<area shape="rect" href="../../dc/d12/namespacematrix__math.html#ab3066e0abca1896f3366afebe892206e" title="Zero a real matrix ." alt="" coords="236,35,393,75"/>
+<area shape="poly" title=" " alt="" coords="188,52,222,52,222,57,188,57"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="441,5,599,45"/>
+<area shape="poly" title=" " alt="" coords="393,41,427,36,428,41,394,46"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="471,70,569,95"/>
+<area shape="poly" title=" " alt="" coords="394,63,458,72,457,77,393,68"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_ab56e8bccbcc5ed446b6a1c0fab6979bb_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_ab56e8bccbcc5ed446b6a1c0fab6979bb_icgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_ab56e8bccbcc5ed446b6a1c0fab6979bb_icgraph" id="ad7/dda/namespacescratch__registry_ab56e8bccbcc5ed446b6a1c0fab6979bb_icgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a9ea95d716e31d5b94c4132bb9919f57f_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a9ea95d716e31d5b94c4132bb9919f57f_icgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a9ea95d716e31d5b94c4132bb9919f57f_icgraph" id="ad7/dda/namespacescratch__registry_a9ea95d716e31d5b94c4132bb9919f57f_icgraph">
 <area shape="rect" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429" title="Generic request procedure." alt="" coords="5,5,185,45"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="5,5,185,45"/>
 <area shape="poly" title=" " alt="" coords="220,28,185,28,185,23,220,23"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a0b8cf47bd6089863be86491e1ec7ca16" name="a0b8cf47bd6089863be86491e1ec7ca16"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0b8cf47bd6089863be86491e1ec7ca16">&#9670;&#160;</a></span>request_tensor3()</h2>
+<a id="a2bf08d512779e41fe60eb8fe4f2c7b96" name="a2bf08d512779e41fe60eb8fe4f2c7b96"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2bf08d512779e41fe60eb8fe4f2c7b96">&#9670;&#160;</a></span>request_tensor3()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1690,7 +1801,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d2/d24/structtensor3_1_1tensor3__t.html">tensor3_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramname"><em>scratch_entry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1736,7 +1847,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">t</td><td>Pointer to the requested <a class="el" href="../../d5/d0e/namespacetensor3.html" title="Defines a rank-3 tensor.">tensor3</a>. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Pointer to the requested <a class="el" href="../../d5/d0e/namespacetensor3.html" title="Defines a rank-3 tensor.">tensor3</a>. </td></tr>
     <tr><td class="paramname">index</td><td>Index of the <a class="el" href="../../d5/d0e/namespacetensor3.html" title="Defines a rank-3 tensor.">tensor3</a> in the registry (for relinquishing later). </td></tr>
     <tr><td class="paramname">n</td><td>Number of rows of the requested <a class="el" href="../../d5/d0e/namespacetensor3.html" title="Defines a rank-3 tensor.">tensor3</a>. </td></tr>
     <tr><td class="paramname">m</td><td>Number of columns of the requested <a class="el" href="../../d5/d0e/namespacetensor3.html" title="Defines a rank-3 tensor.">tensor3</a>. </td></tr>
@@ -1746,22 +1857,34 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00544">544</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00654">654</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a2bf08d512779e41fe60eb8fe4f2c7b96_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a2bf08d512779e41fe60eb8fe4f2c7b96_cgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a2bf08d512779e41fe60eb8fe4f2c7b96_cgraph" id="ad7/dda/namespacescratch__registry_a2bf08d512779e41fe60eb8fe4f2c7b96_cgraph">
+<area shape="rect" title="Get a tensor3 from the registry by assigning it to a pointer." alt="" coords="5,35,188,75"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="236,5,393,45"/>
+<area shape="poly" title=" " alt="" coords="188,40,222,35,223,40,188,45"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="266,70,363,95"/>
+<area shape="poly" title=" " alt="" coords="188,64,253,72,252,77,188,69"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_a0b8cf47bd6089863be86491e1ec7ca16_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a0b8cf47bd6089863be86491e1ec7ca16_icgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_a0b8cf47bd6089863be86491e1ec7ca16_icgraph" id="ad7/dda/namespacescratch__registry_a0b8cf47bd6089863be86491e1ec7ca16_icgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a2bf08d512779e41fe60eb8fe4f2c7b96_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a2bf08d512779e41fe60eb8fe4f2c7b96_icgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a2bf08d512779e41fe60eb8fe4f2c7b96_icgraph" id="ad7/dda/namespacescratch__registry_a2bf08d512779e41fe60eb8fe4f2c7b96_icgraph">
 <area shape="rect" title="Get a tensor3 from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429" title="Generic request procedure." alt="" coords="5,5,185,45"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="5,5,185,45"/>
 <area shape="poly" title=" " alt="" coords="220,28,185,28,185,23,220,23"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="a703f2b145acc6459b266efe18e881fa4" name="a703f2b145acc6459b266efe18e881fa4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a703f2b145acc6459b266efe18e881fa4">&#9670;&#160;</a></span>request_tensor4()</h2>
+<a id="a95fb4d5ab1b7f9c83e6eb39cee394bfd" name="a95fb4d5ab1b7f9c83e6eb39cee394bfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95fb4d5ab1b7f9c83e6eb39cee394bfd">&#9670;&#160;</a></span>request_tensor4()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1779,7 +1902,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d2/de3/structtensor4_1_1tensor4__t.html">tensor4_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td>
-          <td class="paramname"><em>t</em>, </td>
+          <td class="paramname"><em>scratch_entry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1831,10 +1954,10 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">t</td><td>Pointer to the requested <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a>. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Pointer to the requested <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a>. </td></tr>
     <tr><td class="paramname">index</td><td>Index of the <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a> in the registry (for relinquishing later). </td></tr>
     <tr><td class="paramname">n</td><td>Number of rows of the requested <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a>. </td></tr>
-    <tr><td class="paramname">m</td><td>Number of columns of the requested <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a>. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Number of columns of the requested <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a>. </td></tr>
     <tr><td class="paramname">l</td><td>Number of layers of the requested <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a>. </td></tr>
     <tr><td class="paramname">k</td><td>Number of slices of the requested <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a>. </td></tr>
     <tr><td class="paramname">clear</td><td>If true, the <a class="el" href="../../df/d15/namespacetensor4.html" title="Defines a rank-4 tensor.">tensor4</a> values are set to zero upon request. </td></tr>
@@ -1842,22 +1965,34 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00603">603</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00730">730</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a95fb4d5ab1b7f9c83e6eb39cee394bfd_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a95fb4d5ab1b7f9c83e6eb39cee394bfd_cgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a95fb4d5ab1b7f9c83e6eb39cee394bfd_cgraph" id="ad7/dda/namespacescratch__registry_a95fb4d5ab1b7f9c83e6eb39cee394bfd_cgraph">
+<area shape="rect" title="Get a tensor4 from the registry by assigning it to a pointer." alt="" coords="5,35,188,75"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="236,5,393,45"/>
+<area shape="poly" title=" " alt="" coords="188,40,222,35,223,40,188,45"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="266,70,363,95"/>
+<area shape="poly" title=" " alt="" coords="188,64,253,72,252,77,188,69"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_a703f2b145acc6459b266efe18e881fa4_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a703f2b145acc6459b266efe18e881fa4_icgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_a703f2b145acc6459b266efe18e881fa4_icgraph" id="ad7/dda/namespacescratch__registry_a703f2b145acc6459b266efe18e881fa4_icgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a95fb4d5ab1b7f9c83e6eb39cee394bfd_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a95fb4d5ab1b7f9c83e6eb39cee394bfd_icgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a95fb4d5ab1b7f9c83e6eb39cee394bfd_icgraph" id="ad7/dda/namespacescratch__registry_a95fb4d5ab1b7f9c83e6eb39cee394bfd_icgraph">
 <area shape="rect" title="Get a tensor4 from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429" title="Generic request procedure." alt="" coords="5,5,185,45"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="5,5,185,45"/>
 <area shape="poly" title=" " alt="" coords="220,28,185,28,185,23,220,23"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="abb82d6f812046c663d7068b900e88998" name="abb82d6f812046c663d7068b900e88998"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#abb82d6f812046c663d7068b900e88998">&#9670;&#160;</a></span>request_vector()</h2>
+<a id="a4410135feb478e1fa4fbff32593eb7ac" name="a4410135feb478e1fa4fbff32593eb7ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4410135feb478e1fa4fbff32593eb7ac">&#9670;&#160;</a></span>request_vector()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1875,7 +2010,7 @@ Here is the caller graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td>
-          <td class="paramname"><em>v</em>, </td>
+          <td class="paramname"><em>scratch_entry</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1909,7 +2044,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">v</td><td>Pointer to the requested vector. </td></tr>
+    <tr><td class="paramname">scratch_entry</td><td>Pointer to the requested vector. </td></tr>
     <tr><td class="paramname">index</td><td>Index of the vector in the registry (for relinquishing later). </td></tr>
     <tr><td class="paramname">n</td><td>Size of the requested vector. </td></tr>
     <tr><td class="paramname">clear</td><td>If true, the vector values are set to zero upon request. </td></tr>
@@ -1917,14 +2052,28 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00440">440</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00517">517</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a4410135feb478e1fa4fbff32593eb7ac_cgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a4410135feb478e1fa4fbff32593eb7ac_cgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a4410135feb478e1fa4fbff32593eb7ac_cgraph" id="ad7/dda/namespacescratch__registry_a4410135feb478e1fa4fbff32593eb7ac_cgraph">
+<area shape="rect" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="5,35,188,75"/>
+<area shape="rect" href="../../d3/d0d/namespacevector__math.html#ae61cdbb3bb145783d9387cee0ecf1c59" title="Zero a real vector." alt="" coords="236,35,389,75"/>
+<area shape="poly" title=" " alt="" coords="188,52,222,52,222,57,188,57"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="437,5,595,45"/>
+<area shape="poly" title=" " alt="" coords="389,41,423,36,424,41,390,46"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="467,70,565,95"/>
+<area shape="poly" title=" " alt="" coords="390,63,454,72,453,77,389,68"/>
+</map>
+</div>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dda/namespacescratch__registry_abb82d6f812046c663d7068b900e88998_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_abb82d6f812046c663d7068b900e88998_icgraph" alt=""/></div>
-<map name="ad7/dda/namespacescratch__registry_abb82d6f812046c663d7068b900e88998_icgraph" id="ad7/dda/namespacescratch__registry_abb82d6f812046c663d7068b900e88998_icgraph">
+<div class="center"><img src="../../d7/dda/namespacescratch__registry_a4410135feb478e1fa4fbff32593eb7ac_icgraph.png" border="0" usemap="#ad7/dda/namespacescratch__registry_a4410135feb478e1fa4fbff32593eb7ac_icgraph" alt=""/></div>
+<map name="ad7/dda/namespacescratch__registry_a4410135feb478e1fa4fbff32593eb7ac_icgraph" id="ad7/dda/namespacescratch__registry_a4410135feb478e1fa4fbff32593eb7ac_icgraph">
 <area shape="rect" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="233,5,416,45"/>
-<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ad38cf57232f6a511f62dc7fe5a265429" title="Generic request procedure." alt="" coords="5,5,185,45"/>
+<area shape="rect" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#a9023a3b1be76605eb5700411294d028a" title="Generic request procedure." alt="" coords="5,5,185,45"/>
 <area shape="poly" title=" " alt="" coords="220,28,185,28,185,23,220,23"/>
 </map>
 </div>
@@ -1955,7 +2104,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00203">203</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00250">250</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -2012,9 +2161,9 @@ Here is the caller graph for this function:</div>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>If no DOF map is provided here, it must be set later using <a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ae53d05af3146fa540b5ef44a5e16a532" title="Assign a dofmap to the scratch registry.">scratch_registry_t::set_dofmap</a> before requesting fields. </dd></dl>
+<dl class="section note"><dt>Note</dt><dd>If no DOF map is provided here, it must be set later using <a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html#ae53d05af3146fa540b5ef44a5e16a532" title="Assign a dofmap to the scratch registry.">scratch_registry_t::set_dofmap</a> before requesting fields without specifying a DOF map. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00180">180</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00217">217</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -2059,7 +2208,51 @@ Here is the caller graph for this function:</div>
 </dl>
 <dl class="section note"><dt>Note</dt><dd>First check if a dofmap is already assigned, and throw an error, unless it's the same dofmap. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00236">236</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00279">279</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9a4517987be0f9f26af8469a31d79c5c" name="a9a4517987be0f9f26af8469a31d79c5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a4517987be0f9f26af8469a31d79c5c">&#9670;&#160;</a></span>scratch_registry_set_expansion_size()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> scratch_registry::scratch_registry_set_expansion_size </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>expansion_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">expansion_size</td><td>New expansion size to assign. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00295">295</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -2076,7 +2269,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00168">168</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html#l00201">201</a> of file <a class="el" href="../../dd/da7/scratch__registry_8f90_source.html">scratch_registry.f90</a>.</p>
 
 </div>
 </div>
@@ -2086,7 +2279,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d7/dda/namespacescratch__registry.html">scratch_registry</a></li>
-    <li class="footer">Generated on Wed Oct 7 2026 03:48:03 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 8 2026 03:49:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

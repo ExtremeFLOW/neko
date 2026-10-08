@@ -105,27 +105,28 @@ $(document).ready(function(){initNavTree('da/d8d/namespacecg__cpld.html','../../
 </div><!--header-->
 <div class="contents">
 
-<p>Defines a coupled Conjugate Gradient methods.  
+<p>Defines a coupled Conjugate Gradient method.  
 </p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html">cg_cpld_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coupled preconditioned conjugate gradient method.  <a href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">CPU implementation of the coupled preconditioned conjugate gradient method.  <a href="../../d7/d45/structcg__cpld_1_1cg__cpld__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aba8734453b71a6ade89124ca4b4b5103" id="r_aba8734453b71a6ade89124ca4b4b5103"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d8d/namespacecg__cpld.html#aba8734453b71a6ade89124ca4b4b5103">cg_cpld_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, max_iter, m, rel_tol, abs_tol, monitor)</td></tr>
-<tr class="memdesc:aba8734453b71a6ade89124ca4b4b5103"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a coupled PCG solver.  <br /></td></tr>
+<tr class="memdesc:aba8734453b71a6ade89124ca4b4b5103"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a coupled CPU PCG solver.  <br /></td></tr>
 <tr class="separator:aba8734453b71a6ade89124ca4b4b5103"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa5a1e54f99edb11e604f4895f4962c56" id="r_aa5a1e54f99edb11e604f4895f4962c56"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d8d/namespacecg__cpld.html#aa5a1e54f99edb11e604f4895f4962c56">cg_cpld_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
-<tr class="memdesc:aa5a1e54f99edb11e604f4895f4962c56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a coupled PCG solver.  <br /></td></tr>
+<tr class="memdesc:aa5a1e54f99edb11e604f4895f4962c56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a coupled CPU PCG solver.  <br /></td></tr>
 <tr class="separator:aa5a1e54f99edb11e604f4895f4962c56"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a57cd6672910549bdf93cf0f194c974f9" id="r_a57cd6672910549bdf93cf0f194c974f9"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d8d/namespacecg__cpld.html#a57cd6672910549bdf93cf0f194c974f9">cg_cpld_nop</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, f, n, coef, bc_projector, gs_h, niter)</td></tr>
+<tr class="memdesc:a57cd6672910549bdf93cf0f194c974f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reject scalar solves, which are not supported by this type.  <br /></td></tr>
 <tr class="separator:a57cd6672910549bdf93cf0f194c974f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6bd8dcf0ae175f5571fa071f4b3c0ce9" id="r_a6bd8dcf0ae175f5571fa071f4b3c0ce9"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(3)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d8d/namespacecg__cpld.html#a6bd8dcf0ae175f5571fa071f4b3c0ce9">cg_cpld_solve</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, y, z, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fx</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fy</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fz</a>, n, coef, bc_projector, gs_h, niter)</td></tr>
-<tr class="memdesc:a6bd8dcf0ae175f5571fa071f4b3c0ce9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coupled PCG solve.  <br /></td></tr>
+<tr class="memdesc:a6bd8dcf0ae175f5571fa071f4b3c0ce9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve a three-component coupled system with the CPU PCG method.  <br /></td></tr>
 <tr class="separator:a6bd8dcf0ae175f5571fa071f4b3c0ce9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
@@ -153,7 +154,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00125">125</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00141">141</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
 
 </div>
 </div>
@@ -212,8 +213,19 @@ Functions/Subroutines</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Number of degrees of freedom per component. </td></tr>
+    <tr><td class="paramname">max_iter</td><td>Maximum number of iterations. </td></tr>
+    <tr><td class="paramname">M</td><td>Optional preconditioner. An identity preconditioner is used if absent. </td></tr>
+    <tr><td class="paramname">rel_tol</td><td>Optional relative convergence tolerance. </td></tr>
+    <tr><td class="paramname">abs_tol</td><td>Optional absolute convergence tolerance. </td></tr>
+    <tr><td class="paramname">monitor</td><td>Optional switch for logging the residual at each iteration. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00076">76</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00105">105</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
 
 </div>
 </div>
@@ -292,8 +304,22 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Ax</td><td>Linear operator. </td></tr>
+    <tr><td class="paramname">x</td><td>Solution field. </td></tr>
+    <tr><td class="paramname">f</td><td>Right-hand side. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of degrees of freedom. </td></tr>
+    <tr><td class="paramname">coef</td><td>Spectral element coefficients and multiplicity weights. </td></tr>
+    <tr><td class="paramname">bc_projector</td><td>Projector for Dirichlet boundary nodes. </td></tr>
+    <tr><td class="paramname">gs_h</td><td>Gather-scatter handle used to assemble the operator result. </td></tr>
+    <tr><td class="paramname">niter</td><td>Optional maximum number of iterations. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Unused convergence information. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00182">182</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00165">165</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
 
 </div>
 </div>
@@ -396,6 +422,24 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The initial guesses are discarded. All inner products combine the three components, so the method advances one Krylov recurrence for the complete coupled system. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">Ax</td><td>Coupled linear operator. </td></tr>
+    <tr><td class="paramname">x</td><td>Solution field for the first component. </td></tr>
+    <tr><td class="paramname">y</td><td>Solution field for the second component. </td></tr>
+    <tr><td class="paramname">z</td><td>Solution field for the third component. </td></tr>
+    <tr><td class="paramname">fx</td><td>Right-hand side for the first component. </td></tr>
+    <tr><td class="paramname">fy</td><td>Right-hand side for the second component. </td></tr>
+    <tr><td class="paramname">fz</td><td>Right-hand side for the third component. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of degrees of freedom per component. </td></tr>
+    <tr><td class="paramname">coef</td><td>Spectral element coefficients and multiplicity weights. </td></tr>
+    <tr><td class="paramname">bc_projector</td><td>Projector for vector boundary nodes. </td></tr>
+    <tr><td class="paramname">gs_h</td><td>Gather-scatter handle used to assemble operator results. </td></tr>
+    <tr><td class="paramname">niter</td><td>Optional maximum number of iterations, overriding the configured value. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Identical combined convergence information for all components. </dd></dl>
 
 <p class="definition">Definition at line <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html#l00203">203</a> of file <a class="el" href="../../dd/dbf/cg__coupled_8f90_source.html">cg_coupled.f90</a>.</p>
 
@@ -407,7 +451,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/d8d/namespacecg__cpld.html">cg_cpld</a></li>
-    <li class="footer">Generated on Wed Oct 7 2026 03:48:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 8 2026 03:49:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

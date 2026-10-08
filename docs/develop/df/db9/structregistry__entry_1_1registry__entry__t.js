@@ -22,6 +22,7 @@ var structregistry__entry_1_1registry__entry__t =
     [ "init_tensor4", "df/db9/structregistry__entry_1_1registry__entry__t.html#a95b44ea095ee399c1d3f4a89130479ed", null ],
     [ "init_vector", "df/db9/structregistry__entry_1_1registry__entry__t.html#a2ff9e8e8644ed0334c25f65a6b74e80d", null ],
     [ "is_allocated", "df/db9/structregistry__entry_1_1registry__entry__t.html#a6b41d67b2440d0b391097041044178d0", null ],
+    [ "is_type", "df/db9/structregistry__entry_1_1registry__entry__t.html#a4a17024acbca9c166f525fb960118ed2", null ],
     [ "move_from", "df/db9/structregistry__entry_1_1registry__entry__t.html#a44392f83a26859f1460c43d07219fe81", null ],
     [ "allocated", "df/db9/structregistry__entry_1_1registry__entry__t.html#a443a41a6ce61cd3789dba1a90f4b6496", null ],
     [ "device_array_ptr", "df/db9/structregistry__entry_1_1registry__entry__t.html#a6d95b75176db0f34c6f14c709fca46a2", null ],

@@ -106,14 +106,14 @@ $(document).ready(function(){initNavTree('db/d98/structcg_1_1cg__t.html','../../
 </div><!--header-->
 <div class="contents">
 
-<p>Standard preconditioned conjugate gradient method.  
+<p>CPU implementation of the preconditioned conjugate gradient method.  
  <a href="../../db/d98/structcg_1_1cg__t.html#details">More...</a></p>
 <div class="dynheader">
 Inheritance diagram for cg::cg_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d0/d1d/structcg_1_1cg__t__inherit__graph.png" border="0" usemap="#acg_1_1cg__t_inherit__map" alt="Inheritance graph"/></div>
 <map name="acg_1_1cg__t_inherit__map" id="acg_1_1cg__t_inherit__map">
-<area shape="rect" title="Standard preconditioned conjugate gradient method." alt="" coords="22,79,94,104"/>
+<area shape="rect" title="CPU implementation of the preconditioned conjugate gradient method." alt="" coords="22,79,94,104"/>
 <area shape="rect" href="../../d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,5,111,31"/>
 <area shape="poly" title=" " alt="" coords="61,44,61,79,55,79,55,44"/>
 </map>
@@ -123,25 +123,29 @@ Collaboration diagram for cg::cg_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d2/d09/structcg_1_1cg__t__coll__graph.png" border="0" usemap="#acg_1_1cg__t_coll__map" alt="Collaboration graph"/></div>
 <map name="acg_1_1cg__t_coll__map" id="acg_1_1cg__t_coll__map">
-<area shape="rect" title="Standard preconditioned conjugate gradient method." alt="" coords="22,79,94,104"/>
-<area shape="rect" href="../../d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,5,111,31"/>
-<area shape="poly" title=" " alt="" coords="61,44,61,79,55,79,55,44"/>
+<area shape="rect" title="CPU implementation of the preconditioned conjugate gradient method." alt="" coords="43,181,115,207"/>
+<area shape="rect" href="../../d0/d3b/structkrylov_1_1ksp__t.html" title="Base abstract type for a canonical Krylov method, solving ." alt="" coords="5,93,111,119"/>
+<area shape="poly" title=" " alt="" coords="67,131,79,180,74,181,62,133"/>
+<area shape="rect" href="../../da/d95/structmatrix_1_1matrix__t.html" title=" " alt="" coords="135,93,263,119"/>
+<area shape="poly" title=" " alt="" coords="173,129,97,183,94,179,170,125"/>
+<area shape="rect" title=" " alt="" coords="172,5,227,31"/>
+<area shape="poly" title=" " alt="" coords="202,45,202,93,197,93,197,45"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:af92c867b1da094d122e512923c7c8e84" id="r_af92c867b1da094d122e512923c7c8e84"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#af92c867b1da094d122e512923c7c8e84">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a0604caa64f407001658d0678f200e426">max_iter</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a7e02bc45055956c25f0825ca6322051f">rel_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a2a27126d7e255eb318856063d2e4a9ab">abs_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a28a4c9b86fb1d7419f87185bcdff744d">monitor</a>)</td></tr>
-<tr class="memdesc:af92c867b1da094d122e512923c7c8e84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a standard PCG solver.  <br /></td></tr>
+<tr class="memdesc:af92c867b1da094d122e512923c7c8e84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a CPU PCG solver.  <br /></td></tr>
 <tr class="separator:af92c867b1da094d122e512923c7c8e84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6c3149eabae0ec84ebd45346a4b39fc" id="r_af6c3149eabae0ec84ebd45346a4b39fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#af6c3149eabae0ec84ebd45346a4b39fc">free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
-<tr class="memdesc:af6c3149eabae0ec84ebd45346a4b39fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a standard PCG solver.  <br /></td></tr>
+<tr class="memdesc:af6c3149eabae0ec84ebd45346a4b39fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free a CPU PCG solver.  <br /></td></tr>
 <tr class="separator:af6c3149eabae0ec84ebd45346a4b39fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac128946292e5e920f9604a38391947fd" id="r_ac128946292e5e920f9604a38391947fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#ac128946292e5e920f9604a38391947fd">solve</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, f, n, coef, bc_projector, gs_h, niter)</td></tr>
-<tr class="memdesc:ac128946292e5e920f9604a38391947fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard PCG solve.  <br /></td></tr>
+<tr class="memdesc:ac128946292e5e920f9604a38391947fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve a linear system with the standard PCG method.  <br /></td></tr>
 <tr class="separator:ac128946292e5e920f9604a38391947fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41cd5681090bd53e1ddafaec532045ad" id="r_a41cd5681090bd53e1ddafaec532045ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a41cd5681090bd53e1ddafaec532045ad">solve_coupled</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, y, <a class="el" href="../../db/d98/structcg_1_1cg__t.html#ab4292292892946b5ab7ea19bba3ae0cf">z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fx</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fy</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fz</a>, n, coef, bc_projector, gs_h, niter)</td></tr>
-<tr class="memdesc:a41cd5681090bd53e1ddafaec532045ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Standard PCG coupled solve.  <br /></td></tr>
+<tr class="memitem:a41cd5681090bd53e1ddafaec532045ad" id="r_a41cd5681090bd53e1ddafaec532045ad"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a41cd5681090bd53e1ddafaec532045ad">solve_coupled</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, y, <a class="el" href="../../db/d98/structcg_1_1cg__t.html#ae8a534ecb4c929c5b11f08dc363fc85b">z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fx</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fy</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fz</a>, n, coef, bc_projector, gs_h, niter)</td></tr>
+<tr class="memdesc:a41cd5681090bd53e1ddafaec532045ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve three independent systems with the standard PCG method.  <br /></td></tr>
 <tr class="separator:a41cd5681090bd53e1ddafaec532045ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a212e2f4ae22fc2b8b984a036ac549985" id="r_a212e2f4ae22fc2b8b984a036ac549985"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(ksp_init_intrf), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a212e2f4ae22fc2b8b984a036ac549985">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a0604caa64f407001658d0678f200e426">max_iter</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a7e02bc45055956c25f0825ca6322051f">rel_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a2a27126d7e255eb318856063d2e4a9ab">abs_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a28a4c9b86fb1d7419f87185bcdff744d">monitor</a>)</td></tr>
 <tr class="memdesc:a212e2f4ae22fc2b8b984a036ac549985"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
@@ -158,7 +162,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aad2d887bac63e4d47e7ece03d7266b1f" id="r_aad2d887bac63e4d47e7ece03d7266b1f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(ksp_method), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#aad2d887bac63e4d47e7ece03d7266b1f">solve</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, f, n, coef, bc_projector, gs_h, niter)</td></tr>
 <tr class="memdesc:aad2d887bac63e4d47e7ece03d7266b1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve the system.  <br /></td></tr>
 <tr class="separator:aad2d887bac63e4d47e7ece03d7266b1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9f817f04599272a4e9594b1b4bf20c47" id="r_a9f817f04599272a4e9594b1b4bf20c47"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(ksp_method_coupled), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a9f817f04599272a4e9594b1b4bf20c47">solve_coupled</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, y, <a class="el" href="../../db/d98/structcg_1_1cg__t.html#ab4292292892946b5ab7ea19bba3ae0cf">z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fx</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fy</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fz</a>, n, coef, bc_projector, gs_h, niter)</td></tr>
+<tr class="memitem:a9f817f04599272a4e9594b1b4bf20c47" id="r_a9f817f04599272a4e9594b1b4bf20c47"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(ksp_method_coupled), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a9f817f04599272a4e9594b1b4bf20c47">solve_coupled</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, ax, x, y, <a class="el" href="../../db/d98/structcg_1_1cg__t.html#ae8a534ecb4c929c5b11f08dc363fc85b">z</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fx</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fy</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">fz</a>, n, coef, bc_projector, gs_h, niter)</td></tr>
 <tr class="memdesc:a9f817f04599272a4e9594b1b4bf20c47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve the system (coupled version).  <br /></td></tr>
 <tr class="separator:a9f817f04599272a4e9594b1b4bf20c47"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1e58ddd50f07c06f09799dfc7e9933c" id="r_af1e58ddd50f07c06f09799dfc7e9933c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#af1e58ddd50f07c06f09799dfc7e9933c">monitor_start</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, name)</td></tr>
@@ -179,16 +183,21 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a73972db37a9c78b828c16f6f0d402688" id="r_a73972db37a9c78b828c16f6f0d402688"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a73972db37a9c78b828c16f6f0d402688">w</a></td></tr>
-<tr class="separator:a73972db37a9c78b828c16f6f0d402688"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a09065b284058c0d7bea08acae92ca4e5" id="r_a09065b284058c0d7bea08acae92ca4e5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a09065b284058c0d7bea08acae92ca4e5">r</a></td></tr>
-<tr class="separator:a09065b284058c0d7bea08acae92ca4e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ad63215ee8b50ac7295378d15797635" id="r_a5ad63215ee8b50ac7295378d15797635"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:,:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a5ad63215ee8b50ac7295378d15797635">p</a></td></tr>
-<tr class="separator:a5ad63215ee8b50ac7295378d15797635"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab4292292892946b5ab7ea19bba3ae0cf" id="r_ab4292292892946b5ab7ea19bba3ae0cf"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#ab4292292892946b5ab7ea19bba3ae0cf">z</a></td></tr>
-<tr class="separator:ab4292292892946b5ab7ea19bba3ae0cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a68ccbc38e875d53acd6afe5b2af28d" id="r_a9a68ccbc38e875d53acd6afe5b2af28d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a9a68ccbc38e875d53acd6afe5b2af28d">alpha</a></td></tr>
-<tr class="separator:a9a68ccbc38e875d53acd6afe5b2af28d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53afa7621fd8aaf24e6e2d2f9a8ecf37" id="r_a53afa7621fd8aaf24e6e2d2f9a8ecf37"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a53afa7621fd8aaf24e6e2d2f9a8ecf37">w</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
+<tr class="memdesc:a53afa7621fd8aaf24e6e2d2f9a8ecf37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Operator action \(w = A p\).  <br /></td></tr>
+<tr class="separator:a53afa7621fd8aaf24e6e2d2f9a8ecf37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2de2568ae1e3c08fb8a198b9a0a8cd12" id="r_a2de2568ae1e3c08fb8a198b9a0a8cd12"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a2de2568ae1e3c08fb8a198b9a0a8cd12">r</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
+<tr class="memdesc:a2de2568ae1e3c08fb8a198b9a0a8cd12"><td class="mdescLeft">&#160;</td><td class="mdescRight">Residual \(r = f - A x\).  <br /></td></tr>
+<tr class="separator:a2de2568ae1e3c08fb8a198b9a0a8cd12"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68abfeec3d3413576d73812a90ba6b2a" id="r_a68abfeec3d3413576d73812a90ba6b2a"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a68abfeec3d3413576d73812a90ba6b2a">p</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
+<tr class="memdesc:a68abfeec3d3413576d73812a90ba6b2a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rolling space of search directions \(p\).  <br /></td></tr>
+<tr class="separator:a68abfeec3d3413576d73812a90ba6b2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8a534ecb4c929c5b11f08dc363fc85b" id="r_ae8a534ecb4c929c5b11f08dc363fc85b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#ae8a534ecb4c929c5b11f08dc363fc85b">z</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
+<tr class="memdesc:ae8a534ecb4c929c5b11f08dc363fc85b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preconditioned residual \(z = M^{-1} r\).  <br /></td></tr>
+<tr class="separator:ae8a534ecb4c929c5b11f08dc363fc85b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a422b0287919bc64f9dc93274d616a322" id="r_a422b0287919bc64f9dc93274d616a322"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d98/structcg_1_1cg__t.html#a422b0287919bc64f9dc93274d616a322">alpha</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
+<tr class="memdesc:a422b0287919bc64f9dc93274d616a322"><td class="mdescLeft">&#160;</td><td class="mdescRight">Step lengths associated with the stored search directions.  <br /></td></tr>
+<tr class="separator:a422b0287919bc64f9dc93274d616a322"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a919f46cedba40962024d26a886ab31f9" id="r_a919f46cedba40962024d26a886ab31f9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a> =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td></tr>
 <tr class="memdesc:a919f46cedba40962024d26a886ab31f9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Preconditioner.  <br /></td></tr>
 <tr class="separator:a919f46cedba40962024d26a886ab31f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -209,8 +218,9 @@ Public Attributes</h2></td></tr>
 <tr class="separator:a28a4c9b86fb1d7419f87185bcdff744d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<div class="textblock"><p>Workspace pointers are associated with arrays and a matrix from the scratch registry only for the duration of a solve. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="af6c3149eabae0ec84ebd45346a4b39fc" name="af6c3149eabae0ec84ebd45346a4b39fc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af6c3149eabae0ec84ebd45346a4b39fc">&#9670;&#160;</a></span>free() <span class="overload">[1/2]</span></h2>
@@ -228,7 +238,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
@@ -316,7 +326,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
@@ -761,7 +771,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
@@ -937,7 +947,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
@@ -1070,19 +1080,19 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a9a68ccbc38e875d53acd6afe5b2af28d" name="a9a68ccbc38e875d53acd6afe5b2af28d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9a68ccbc38e875d53acd6afe5b2af28d">&#9670;&#160;</a></span>alpha</h2>
+<a id="a422b0287919bc64f9dc93274d616a322" name="a422b0287919bc64f9dc93274d616a322"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a422b0287919bc64f9dc93274d616a322">&#9670;&#160;</a></span>alpha</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> cg::cg_t::alpha</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a> cg::cg_t::alpha =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
@@ -1182,35 +1192,35 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a5ad63215ee8b50ac7295378d15797635" name="a5ad63215ee8b50ac7295378d15797635"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5ad63215ee8b50ac7295378d15797635">&#9670;&#160;</a></span>p</h2>
+<a id="a68abfeec3d3413576d73812a90ba6b2a" name="a68abfeec3d3413576d73812a90ba6b2a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a68abfeec3d3413576d73812a90ba6b2a">&#9670;&#160;</a></span>p</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:,:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> cg::cg_t::p</td>
+          <td class="memname">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a> cg::cg_t::p =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
-<a id="a09065b284058c0d7bea08acae92ca4e5" name="a09065b284058c0d7bea08acae92ca4e5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a09065b284058c0d7bea08acae92ca4e5">&#9670;&#160;</a></span>r</h2>
+<a id="a2de2568ae1e3c08fb8a198b9a0a8cd12" name="a2de2568ae1e3c08fb8a198b9a0a8cd12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2de2568ae1e3c08fb8a198b9a0a8cd12">&#9670;&#160;</a></span>r</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> cg::cg_t::r</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a> cg::cg_t::r =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
@@ -1238,35 +1248,35 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a73972db37a9c78b828c16f6f0d402688" name="a73972db37a9c78b828c16f6f0d402688"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a73972db37a9c78b828c16f6f0d402688">&#9670;&#160;</a></span>w</h2>
+<a id="a53afa7621fd8aaf24e6e2d2f9a8ecf37" name="a53afa7621fd8aaf24e6e2d2f9a8ecf37"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53afa7621fd8aaf24e6e2d2f9a8ecf37">&#9670;&#160;</a></span>w</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> cg::cg_t::w</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a> cg::cg_t::w =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
-<a id="ab4292292892946b5ab7ea19bba3ae0cf" name="ab4292292892946b5ab7ea19bba3ae0cf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab4292292892946b5ab7ea19bba3ae0cf">&#9670;&#160;</a></span>z</h2>
+<a id="ae8a534ecb4c929c5b11f08dc363fc85b" name="ae8a534ecb4c929c5b11f08dc363fc85b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae8a534ecb4c929c5b11f08dc363fc85b">&#9670;&#160;</a></span>z</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a> cg::cg_t::z</td>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pointer</a> cg::cg_t::z =&gt; <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">null</a>()</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d5/d60/cg_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d5/d60/cg_8f90_source.html">cg.f90</a>.</p>
 
 </div>
 </div>
@@ -1279,7 +1289,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d9/df6/namespacecg.html">cg</a></li><li class="navelem"><a class="el" href="../../db/d98/structcg_1_1cg__t.html">cg_t</a></li>
-    <li class="footer">Generated on Wed Oct 7 2026 03:48:01 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 8 2026 03:49:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

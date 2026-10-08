@@ -5,6 +5,7 @@ var structtensor3_1_1tensor3__t =
     [ "assignment", "d2/d24/structtensor3_1_1tensor3__t.html#a590a9c00f263ca98817518b66a098107", null ],
     [ "copy_from", "d2/d24/structtensor3_1_1tensor3__t.html#a21b1e48d03b5c3c96aa442ec21ffa60f", null ],
     [ "free", "d2/d24/structtensor3_1_1tensor3__t.html#a5221ec1f26b5ac32014a624fbe3396ad", null ],
+    [ "get_dims", "d2/d24/structtensor3_1_1tensor3__t.html#a4fbc8729e413d8daed66d7e696ef4c71", null ],
     [ "get_n1", "d2/d24/structtensor3_1_1tensor3__t.html#a12550e41287e54f7ecc2cd34a4f51132", null ],
     [ "get_n2", "d2/d24/structtensor3_1_1tensor3__t.html#ac0bec2cb249c82f0a54e1eea4942fc9e", null ],
     [ "get_n3", "d2/d24/structtensor3_1_1tensor3__t.html#a42c0e2396ae4751abd730965df873cbc", null ],

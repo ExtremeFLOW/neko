@@ -7,6 +7,7 @@ var namespacetensor3 =
     [ "tensor3_assign_tensor3", "d5/d0e/namespacetensor3.html#ae1b0f31e9efd7bd1097e947eda384f40", null ],
     [ "tensor3_copy_from", "d5/d0e/namespacetensor3.html#a894c422bcf5412aa7a947c9be5abf465", null ],
     [ "tensor3_free", "d5/d0e/namespacetensor3.html#aff914cd9a0a2dc1892c7bc62ba49611f", null ],
+    [ "tensor3_get_dims", "d5/d0e/namespacetensor3.html#a344971c1c8fc535233b886389a2cd72b", null ],
     [ "tensor3_init", "d5/d0e/namespacetensor3.html#a2db55989750324c262b5ec95d1806dea", null ],
     [ "tensor3_n1", "d5/d0e/namespacetensor3.html#ab9cef8f63a748c630a98efaa218a0529", null ],
     [ "tensor3_n2", "d5/d0e/namespacetensor3.html#a3e2c0037f31bdcc409a1eca8eaf9a426", null ],

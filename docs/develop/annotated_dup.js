@@ -72,6 +72,18 @@ var annotated_dup =
     [ "ax_helm", "d0/d35/namespaceax__helm.html", [
       [ "ax_helm_t", "d1/d58/structax__helm_1_1ax__helm__t.html", "d1/d58/structax__helm_1_1ax__helm__t" ]
     ] ],
+    [ "ax_helm_compr_cpu", "d0/dea/namespaceax__helm__compr__cpu.html", [
+      [ "ax_helm_compr_cpu_t", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html", "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t" ]
+    ] ],
+    [ "ax_helm_compr_device", "de/d26/namespaceax__helm__compr__device.html", [
+      [ "ax_helm_compr_device_t", "da/d91/structax__helm__compr__device_1_1ax__helm__compr__device__t.html", "da/d91/structax__helm__compr__device_1_1ax__helm__compr__device__t" ],
+      [ "hip_ax_helm_compr", "dd/dd7/interfaceax__helm__compr__device_1_1hip__ax__helm__compr.html", "dd/dd7/interfaceax__helm__compr__device_1_1hip__ax__helm__compr" ],
+      [ "hip_ax_helm_compr_vector", "dc/df5/interfaceax__helm__compr__device_1_1hip__ax__helm__compr__vector.html", "dc/df5/interfaceax__helm__compr__device_1_1hip__ax__helm__compr__vector" ],
+      [ "hip_ax_helm_vector_part2", "d9/d00/interfaceax__helm__compr__device_1_1hip__ax__helm__vector__part2.html", "d9/d00/interfaceax__helm__compr__device_1_1hip__ax__helm__vector__part2" ]
+    ] ],
+    [ "ax_helm_compr_sx", "d8/d80/namespaceax__helm__compr__sx.html", [
+      [ "ax_helm_compr_sx_t", "d5/d75/structax__helm__compr__sx_1_1ax__helm__compr__sx__t.html", "d5/d75/structax__helm__compr__sx_1_1ax__helm__compr__sx__t" ]
+    ] ],
     [ "ax_helm_cpu", "d5/de3/namespaceax__helm__cpu.html", [
       [ "ax_helm_cpu_t", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t.html", "d7/d70/structax__helm__cpu_1_1ax__helm__cpu__t" ]
     ] ],
@@ -2091,6 +2103,13 @@ var annotated_dup =
     [ "zero_dirichlet", "da/ddc/namespacezero__dirichlet.html", [
       [ "zero_dirichlet_t", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html", "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t" ]
     ] ],
+    [ "ax_helm_compr_dmma_dispatch", "da/d6e/structax__helm__compr__dmma__dispatch.html", "da/d6e/structax__helm__compr__dmma__dispatch" ],
+    [ "ax_helm_compr_dmma_tma_batch_dispatch", "da/d8f/structax__helm__compr__dmma__tma__batch__dispatch.html", "da/d8f/structax__helm__compr__dmma__tma__batch__dispatch" ],
+    [ "ax_helm_compr_dmma_tma_dispatch", "d7/dec/structax__helm__compr__dmma__tma__dispatch.html", "d7/dec/structax__helm__compr__dmma__tma__dispatch" ],
+    [ "ax_helm_compr_dmma_tma_vector_dispatch", "d6/deb/structax__helm__compr__dmma__tma__vector__dispatch.html", "d6/deb/structax__helm__compr__dmma__tma__vector__dispatch" ],
+    [ "ax_helm_compr_dmma_vector_dispatch", "d5/d97/structax__helm__compr__dmma__vector__dispatch.html", "d5/d97/structax__helm__compr__dmma__vector__dispatch" ],
+    [ "ax_helm_compr_mfma_dispatch", "d3/de5/structax__helm__compr__mfma__dispatch.html", "d3/de5/structax__helm__compr__mfma__dispatch" ],
+    [ "ax_helm_compr_mfma_vector_dispatch", "d0/dbe/structax__helm__compr__mfma__vector__dispatch.html", "d0/dbe/structax__helm__compr__mfma__vector__dispatch" ],
     [ "ax_helm_dmma_dispatch", "d7/dc9/structax__helm__dmma__dispatch.html", "d7/dc9/structax__helm__dmma__dispatch" ],
     [ "ax_helm_dmma_tma_batch_dispatch", "da/da4/structax__helm__dmma__tma__batch__dispatch.html", "da/da4/structax__helm__dmma__tma__batch__dispatch" ],
     [ "ax_helm_dmma_tma_dispatch", "d2/d5c/structax__helm__dmma__tma__dispatch.html", "d2/d5c/structax__helm__dmma__tma__dispatch" ],

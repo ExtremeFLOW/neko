@@ -1,11 +1,19 @@
 <map id="neko_mfma_candidates" name="neko_mfma_candidates">
-<area shape="rect" id="Node000001" title=" " alt="" coords="208,80,385,105"/>
-<area shape="rect" id="Node000002" href="$de/d11/ax__helm_8hip.html#afb4c4d97ea42bd24a727371cd9f84eac" title=" " alt="" coords="57,5,108,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,78,159,45,107,28,109,23,161,39,251,73"/>
-<area shape="rect" id="Node000003" href="$de/d11/ax__helm_8hip.html#a08725d38ae5955a49d9a8b463ba14fd5" title=" " alt="" coords="29,55,136,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="193,83,136,76,136,71,194,78"/>
-<area shape="rect" id="Node000004" href="$de/d11/ax__helm_8hip.html#aaca534b20fb02eb3de09f449bf029bb1" title=" " alt="" coords="33,104,132,129"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="194,107,132,114,132,109,194,102"/>
-<area shape="rect" id="Node000005" href="$de/d11/ax__helm_8hip.html#afd7b6aa27b4b11f8491b8abf19d131c7" title=" " alt="" coords="5,153,160,179"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="248,113,161,143,124,156,122,151,159,138,246,108"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="256,179,433,204"/>
+<area shape="rect" id="Node000002" href="$de/d11/ax__helm_8hip.html#afb4c4d97ea42bd24a727371cd9f84eac" title=" " alt="" coords="81,5,132,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="326,169,278,106,245,72,207,44,168,29,132,22,133,17,170,24,209,40,248,68,282,102,330,166"/>
+<area shape="rect" id="Node000003" href="$d1/d13/ax__helm__compr_8hip.html#a648183f379cafa54bea6159dbc149df3" title=" " alt="" coords="57,55,156,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="318,171,269,131,207,94,155,77,157,72,209,89,272,127,321,167"/>
+<area shape="rect" id="Node000004" href="$d1/d13/ax__helm__compr_8hip.html#aa2db044b5cd27a0d6199ddc3b7407f20" title=" " alt="" coords="29,104,184,129"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="299,176,207,143,166,132,167,127,209,138,301,171"/>
+<area shape="rect" id="Node000005" href="$d1/d13/ax__helm__compr_8hip.html#aef2610762bc28b51ab970327cd5b93be" title=" " alt="" coords="33,153,180,179"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="242,183,180,176,181,171,242,178"/>
+<area shape="rect" id="Node000006" href="$d1/d13/ax__helm__compr_8hip.html#a536becc723a1611aecc30e5fc84f2f09" title=" " alt="" coords="5,203,208,228"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="242,204,209,208,208,202,242,199"/>
+<area shape="rect" id="Node000007" href="$de/d11/ax__helm_8hip.html#a08725d38ae5955a49d9a8b463ba14fd5" title=" " alt="" coords="53,252,160,277"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="299,211,209,242,161,255,159,250,207,237,297,206"/>
+<area shape="rect" id="Node000008" href="$de/d11/ax__helm_8hip.html#aaca534b20fb02eb3de09f449bf029bb1" title=" " alt="" coords="57,301,156,327"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="321,215,271,254,209,291,157,308,155,303,207,286,268,250,318,211"/>
+<area shape="rect" id="Node000009" href="$de/d11/ax__helm_8hip.html#afd7b6aa27b4b11f8491b8abf19d131c7" title=" " alt="" coords="29,351,184,376"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="330,217,281,279,248,312,209,340,181,353,179,348,207,336,244,308,277,275,326,214"/>
 </map>

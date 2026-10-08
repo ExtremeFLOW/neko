@@ -1,0 +1,40 @@
+<map id="scratch_registry::scratch_registry_t::request" name="scratch_registry::scratch_registry_t::request">
+<area shape="rect" id="Node000001" title="Generic request procedure." alt="" coords="5,207,185,247"/>
+<area shape="rect" id="Node000002" href="$d7/dda/namespacescratch__registry.html#a662d3b827ad6a0cb0ef885bfc77a153b" title="Get a device array from the registry by assigning it to a pointer." alt="" coords="464,15,647,55"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,206,118,166,145,118,183,70,206,49,232,32,287,12,346,4,404,4,458,10,457,15,404,9,346,9,289,17,235,37,209,53,187,73,150,121,123,169,106,208"/>
+<area shape="rect" id="Node000004" href="$d7/dda/namespacescratch__registry.html#a4b40ead97e2cfaf48b62672476562bb8" title="Get a field from the registry by assigning it to a pointer." alt="" coords="233,111,416,151"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="136,204,232,160,251,153,253,158,234,165,138,209"/>
+<area shape="rect" id="Node000007" href="$d7/dda/namespacescratch__registry.html#aa7341e25acfe231651a6abc61de2681f" title="Get a field from the registry by assigning it to a pointer." alt="" coords="233,175,416,215"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="185,212,219,207,220,212,186,217"/>
+<area shape="rect" id="Node000008" href="$d7/dda/namespacescratch__registry.html#a79ea7a7745e6bec2dd2b1909662e0355" title="Get a host array from the registry by assigning it to a pointer." alt="" coords="233,404,416,444"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="112,245,161,312,196,350,235,383,255,396,252,400,232,388,192,353,157,315,107,248"/>
+<area shape="rect" id="Node000009" href="$d7/dda/namespacescratch__registry.html#a9ea95d716e31d5b94c4132bb9919f57f" title="Get a matrix from the registry by assigning it to a pointer." alt="" coords="233,239,416,279"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="186,237,220,242,219,247,185,242"/>
+<area shape="rect" id="Node000011" href="$d7/dda/namespacescratch__registry.html#a2bf08d512779e41fe60eb8fe4f2c7b96" title="Get a tensor3 from the registry by assigning it to a pointer." alt="" coords="464,283,647,323"/>
+<area shape="poly" id="edge15_Node000001_Node000011" title=" " alt="" coords="131,245,179,269,234,288,289,298,345,304,450,307,450,312,344,310,288,304,233,293,177,274,129,249"/>
+<area shape="rect" id="Node000012" href="$d7/dda/namespacescratch__registry.html#a95fb4d5ab1b7f9c83e6eb39cee394bfd" title="Get a tensor4 from the registry by assigning it to a pointer." alt="" coords="464,347,647,387"/>
+<area shape="poly" id="edge18_Node000001_Node000012" title=" " alt="" coords="123,245,172,280,234,312,288,330,344,343,451,358,450,363,344,348,287,335,232,317,170,285,120,249"/>
+<area shape="rect" id="Node000013" href="$d7/dda/namespacescratch__registry.html#a4410135feb478e1fa4fbff32593eb7ac" title="Get a vector from the registry by assigning it to a pointer." alt="" coords="233,47,416,87"/>
+<area shape="poly" id="edge21_Node000001_Node000013" title=" " alt="" coords="111,205,162,152,195,122,232,97,244,90,246,95,235,101,199,127,166,156,115,209"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="695,191,852,231"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="593,53,648,90,701,135,745,179,742,183,697,139,645,94,590,57"/>
+<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="472,169,639,194"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="417,148,484,163,483,168,416,153"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="639,190,681,196,681,201,638,195"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="725,258,822,283"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="615,192,648,204,672,222,696,240,718,251,716,256,693,245,669,227,645,209,613,197"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="416,187,458,184,459,190,416,192"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="416,431,470,431,529,427,589,416,646,396,680,375,710,348,755,293,759,296,714,351,683,379,648,401,590,421,530,433,470,437,416,436"/>
+<area shape="rect" id="Node000010" href="$dc/d12/namespacematrix__math.html#ab3066e0abca1896f3366afebe892206e" title="Zero a real matrix ." alt="" coords="477,219,634,259"/>
+<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="416,248,463,244,463,249,416,254"/>
+<area shape="poly" id="edge13_Node000010_Node000003" title=" " alt="" coords="634,226,681,220,681,225,635,231"/>
+<area shape="poly" id="edge14_Node000010_Node000006" title=" " alt="" coords="635,248,712,259,711,264,634,253"/>
+<area shape="poly" id="edge16_Node000011_Node000003" title=" " alt="" coords="616,280,646,268,693,244,714,234,717,239,696,249,648,273,618,285"/>
+<area shape="poly" id="edge17_Node000011_Node000006" title=" " alt="" coords="646,287,711,277,712,282,647,292"/>
+<area shape="poly" id="edge19_Node000012_Node000003" title=" " alt="" coords="628,344,645,333,662,312,669,291,676,268,693,245,704,236,707,240,697,249,681,271,674,292,666,314,648,337,631,349"/>
+<area shape="poly" id="edge20_Node000012_Node000006" title=" " alt="" coords="616,344,646,332,736,288,738,292,648,337,618,349"/>
+<area shape="rect" id="Node000014" href="$d3/d0d/namespacevector__math.html#ae61cdbb3bb145783d9387cee0ecf1c59" title="Zero a real vector." alt="" coords="479,104,632,144"/>
+<area shape="poly" id="edge22_Node000013_Node000014" title=" " alt="" coords="406,84,466,99,465,104,405,89"/>
+<area shape="poly" id="edge23_Node000014_Node000003" title=" " alt="" coords="616,142,648,154,716,183,714,188,646,159,614,147"/>
+<area shape="poly" id="edge24_Node000014_Node000006" title=" " alt="" coords="630,142,648,154,666,176,673,199,680,220,696,241,714,252,711,256,693,245,675,222,668,200,661,179,645,158,627,146"/>
+</map>

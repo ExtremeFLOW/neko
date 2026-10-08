@@ -16,14 +16,14 @@ var structcg_1_1cg__t =
     [ "solve_coupled", "db/d98/structcg_1_1cg__t.html#a41cd5681090bd53e1ddafaec532045ad", null ],
     [ "solve_coupled", "db/d98/structcg_1_1cg__t.html#a9f817f04599272a4e9594b1b4bf20c47", null ],
     [ "abs_tol", "db/d98/structcg_1_1cg__t.html#a2a27126d7e255eb318856063d2e4a9ab", null ],
-    [ "alpha", "db/d98/structcg_1_1cg__t.html#a9a68ccbc38e875d53acd6afe5b2af28d", null ],
+    [ "alpha", "db/d98/structcg_1_1cg__t.html#a422b0287919bc64f9dc93274d616a322", null ],
     [ "m", "db/d98/structcg_1_1cg__t.html#a919f46cedba40962024d26a886ab31f9", null ],
     [ "m_ident", "db/d98/structcg_1_1cg__t.html#aeec0dc845eecbf135d94945f24a937dd", null ],
     [ "max_iter", "db/d98/structcg_1_1cg__t.html#a0604caa64f407001658d0678f200e426", null ],
     [ "monitor", "db/d98/structcg_1_1cg__t.html#a28a4c9b86fb1d7419f87185bcdff744d", null ],
-    [ "p", "db/d98/structcg_1_1cg__t.html#a5ad63215ee8b50ac7295378d15797635", null ],
-    [ "r", "db/d98/structcg_1_1cg__t.html#a09065b284058c0d7bea08acae92ca4e5", null ],
+    [ "p", "db/d98/structcg_1_1cg__t.html#a68abfeec3d3413576d73812a90ba6b2a", null ],
+    [ "r", "db/d98/structcg_1_1cg__t.html#a2de2568ae1e3c08fb8a198b9a0a8cd12", null ],
     [ "rel_tol", "db/d98/structcg_1_1cg__t.html#a7e02bc45055956c25f0825ca6322051f", null ],
-    [ "w", "db/d98/structcg_1_1cg__t.html#a73972db37a9c78b828c16f6f0d402688", null ],
-    [ "z", "db/d98/structcg_1_1cg__t.html#ab4292292892946b5ab7ea19bba3ae0cf", null ]
+    [ "w", "db/d98/structcg_1_1cg__t.html#a53afa7621fd8aaf24e6e2d2f9a8ecf37", null ],
+    [ "z", "db/d98/structcg_1_1cg__t.html#ae8a534ecb4c929c5b11f08dc363fc85b", null ]
 ];

@@ -1,0 +1,7 @@
+<map id="coefs::coef_generate_geo_compr" name="coefs::coef_generate_geo_compr">
+<area shape="rect" id="Node000001" title="Compute processor&#45;local compressed versions of mappings Gij." alt="" coords="224,37,383,77"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a4b12817c197702957ed4eafd36e26150" title="Enable compressed geometric factors." alt="" coords="19,5,163,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,46,163,39,163,34,211,41"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2" title="Recompute and update geometric factors (ALE)" alt="" coords="5,69,176,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,74,177,79,176,74,210,69"/>
+</map>

@@ -5,6 +5,7 @@ var structtensor4_1_1tensor4__t =
     [ "assignment", "d2/de3/structtensor4_1_1tensor4__t.html#af2270b8eca066f2786e0d1c3850f82cf", null ],
     [ "copy_from", "d2/de3/structtensor4_1_1tensor4__t.html#a310a145c5eca7fe28b2057d9b6960026", null ],
     [ "free", "d2/de3/structtensor4_1_1tensor4__t.html#a1563fa3968f84b8449b2bd0f89104655", null ],
+    [ "get_dims", "d2/de3/structtensor4_1_1tensor4__t.html#ae5ef88b50b15980fd4ab8804eeea8af4", null ],
     [ "get_n1", "d2/de3/structtensor4_1_1tensor4__t.html#a5ae2f7e69b329ea82df0078e60a9098b", null ],
     [ "get_n2", "d2/de3/structtensor4_1_1tensor4__t.html#a90f7e67220c0b4232fbbab38e7844a9b", null ],
     [ "get_n3", "d2/de3/structtensor4_1_1tensor4__t.html#a0680b41613955fc0860dcd30fd39d3c2", null ],

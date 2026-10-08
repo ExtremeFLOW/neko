@@ -13,6 +13,7 @@ var structhpfrt__source__term_1_1hpfrt__source__term__t =
     [ "chi", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html#aa7aa846de5f4ce88b6c65823cc36fca5", null ],
     [ "coef", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html#a762808ffdb2bd97f7067516a7db72c88", null ],
     [ "end_time", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html#a2fa44c29c3d13f3ef0bb08560db851a8", null ],
+    [ "extrapolate", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html#a2f81050c15948b866c2e2b53ba32a559", null ],
     [ "fields", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html#aef4203c049e709cbc855edca89fa298e", null ],
     [ "filter", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html#a2ce23f97dbf2db337d4e9c25f745d6e1", null ],
     [ "filter_modes", "dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html#add65d197b97893379033342fe3e6f8f4", null ],

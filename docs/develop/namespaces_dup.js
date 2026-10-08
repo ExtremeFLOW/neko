@@ -23,6 +23,9 @@ var namespaces_dup =
     [ "artificial_viscosity_model", "d8/da1/namespaceartificial__viscosity__model.html", "d8/da1/namespaceartificial__viscosity__model" ],
     [ "avm_simcomp", "db/dc2/namespaceavm__simcomp.html", "db/dc2/namespaceavm__simcomp" ],
     [ "ax_helm", "d0/d35/namespaceax__helm.html", "d0/d35/namespaceax__helm" ],
+    [ "ax_helm_compr_cpu", "d0/dea/namespaceax__helm__compr__cpu.html", "d0/dea/namespaceax__helm__compr__cpu" ],
+    [ "ax_helm_compr_device", "de/d26/namespaceax__helm__compr__device.html", "de/d26/namespaceax__helm__compr__device" ],
+    [ "ax_helm_compr_sx", "d8/d80/namespaceax__helm__compr__sx.html", "d8/d80/namespaceax__helm__compr__sx" ],
     [ "ax_helm_cpu", "d5/de3/namespaceax__helm__cpu.html", "d5/de3/namespaceax__helm__cpu" ],
     [ "ax_helm_device", "d7/d82/namespaceax__helm__device.html", "d7/d82/namespaceax__helm__device" ],
     [ "ax_helm_full", "d5/d19/namespaceax__helm__full.html", "d5/d19/namespaceax__helm__full" ],
@@ -643,6 +646,7 @@ var namespaces_dup =
     [ "opencl_prgm_lib", "d0/dc0/namespaceopencl__prgm__lib.html", [
       [ "opencl_prgm_lib_release", "d0/dc0/namespaceopencl__prgm__lib.html#a78c01ae7f526303f5064048ada2d1529", null ],
       [ "ale_kinematics_program", "d0/dc0/namespaceopencl__prgm__lib.html#ab3f2cd48e544d2b10e53c73a0d723a53", null ],
+      [ "ax_helm_compr_program", "d0/dc0/namespaceopencl__prgm__lib.html#af73e46ea8c274fd46b26a3b3558ce4a0", null ],
       [ "ax_helm_full_program", "d0/dc0/namespaceopencl__prgm__lib.html#a3419a6dedabdc69207a8c54cd65e3fda", null ],
       [ "ax_helm_program", "d0/dc0/namespaceopencl__prgm__lib.html#a61cd844e7945c7a835ccfa0ead333084", null ],
       [ "bicgstab_program", "d0/dc0/namespaceopencl__prgm__lib.html#ac56d1df06535c5c682ba352ffbf9149c", null ],

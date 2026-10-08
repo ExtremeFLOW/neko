@@ -1,5 +1,7 @@
 <map id="cuda_ax_helm_vector_part2" name="cuda_ax_helm_vector_part2">
-<area shape="rect" id="Node000001" title=" " alt="" coords="229,13,393,53"/>
-<area shape="rect" id="Node000002" href="$d7/d82/namespaceax__helm__device.html#ad8f79b74811bcc8cc924f1dc961b6f6a" title=" " alt="" coords="5,5,181,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="216,35,182,35,182,30,216,30"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="237,53,401,93"/>
+<area shape="rect" id="Node000002" href="$de/d26/namespaceax__helm__compr__device.html#af182c0ec91861901e55f9867ff821b69" title=" " alt="" coords="5,5,189,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="223,58,189,52,190,47,224,53"/>
+<area shape="rect" id="Node000003" href="$d7/d82/namespaceax__helm__device.html#ad8f79b74811bcc8cc924f1dc961b6f6a" title=" " alt="" coords="9,84,185,139"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="224,92,186,99,185,93,223,87"/>
 </map>
