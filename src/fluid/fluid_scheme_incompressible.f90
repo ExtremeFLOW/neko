@@ -49,7 +49,7 @@ module fluid_scheme_incompressible
   use device_jacobi, only : device_jacobi_t
   use hsmg, only : hsmg_t
   use phmg, only : phmg_t
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_allocator
   use fluid_stats, only : fluid_stats_t
   use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
@@ -406,12 +406,12 @@ contains
     end if
 
     if (allocated(this%pc_vel)) then
-       call precon_destroy(this%pc_vel)
+       call this%pc_vel%free()
        deallocate(this%pc_vel)
     end if
 
     if (allocated(this%pc_prs)) then
-       call precon_destroy(this%pc_prs)
+       call this%pc_prs%free()
        deallocate(this%pc_prs)
     end if
 

@@ -41,7 +41,7 @@ module PDE_filter
   use coefs, only : coef_t
   use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_allocator
   use bc_list, only : bc_list_t
   use scalar_bc_projector, only : scalar_bc_projector_t
   use neumann, only : neumann_t
@@ -184,7 +184,7 @@ contains
     end if
 
     if (allocated(this%pc_filt)) then
-       call precon_destroy(this%pc_filt)
+       call this%pc_filt%free()
        deallocate(this%pc_filt)
     end if
 

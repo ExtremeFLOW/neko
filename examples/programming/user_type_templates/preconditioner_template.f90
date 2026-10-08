@@ -9,6 +9,7 @@ module preconditioner_template
    contains
      procedure :: solve => preconditioner_template_solve
      procedure :: update => preconditioner_template_update
+     procedure :: free => preconditioner_template_free
   end type preconditioner_template_t
 
   public :: preconditioner_template_register_types
@@ -27,6 +28,11 @@ contains
     class(preconditioner_template_t), intent(inout) :: this
     ! TODO: Update state after a change in geometry or operator coefficients.
   end subroutine preconditioner_template_update
+
+  subroutine preconditioner_template_free(this)
+    class(preconditioner_template_t), intent(inout) :: this
+    ! TODO: Release any resources held by the preconditioner.
+  end subroutine preconditioner_template_free
 
   subroutine preconditioner_template_register_types()
     procedure(precon_allocate), pointer :: allocator

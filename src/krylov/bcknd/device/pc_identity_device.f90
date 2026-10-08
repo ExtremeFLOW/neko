@@ -45,6 +45,7 @@ module device_identity
    contains
      procedure, pass(this) :: solve => device_ident_solve
      procedure, pass(this) :: update => device_ident_update
+     procedure, pass(this) :: free => device_ident_free
   end type device_ident_t
 
 contains
@@ -68,5 +69,10 @@ contains
   subroutine device_ident_update(this)
     class(device_ident_t), intent(inout) :: this
   end subroutine device_ident_update
+
+  !> Mandatory free routine (NOP)
+  subroutine device_ident_free(this)
+    class(device_ident_t), intent(inout) :: this
+  end subroutine device_ident_free
 
 end module device_identity

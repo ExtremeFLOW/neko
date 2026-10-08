@@ -41,6 +41,7 @@ module precon
    contains
      procedure(pc_solve), pass(this), deferred :: solve
      procedure(pc_update), pass(this), deferred :: update
+     procedure(pc_free), pass(this), deferred :: free
   end type pc_t
 
   !> Abstract interface for solving \f$ M z = r \f$
@@ -63,6 +64,11 @@ module precon
        implicit none
        class(pc_t), intent(inout) :: this
      end subroutine pc_update
+     subroutine pc_free(this)
+       import :: pc_t
+       implicit none
+       class(pc_t), intent(inout) :: this
+     end subroutine pc_free
   end interface
 
   interface
@@ -71,11 +77,6 @@ module precon
        class(pc_t), allocatable, intent(inout) :: pc
        character(len=*), intent(in) :: type_name
      end subroutine precon_allocator
-
-     !> Destroy a preconditioner
-     module subroutine precon_destroy(pc)
-       class(pc_t), allocatable, intent(inout) :: pc
-     end subroutine precon_destroy
   end interface
 
   !
@@ -112,6 +113,6 @@ module precon
   !> The size of the `precon_registry`.
   integer :: precon_registry_size = 0
 
-  public :: precon_allocator, precon_destroy, register_precon, precon_allocate
+  public :: precon_allocator, register_precon, precon_allocate
 
 end module precon

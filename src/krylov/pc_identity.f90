@@ -43,6 +43,7 @@ module identity
    contains
      procedure, pass(this) :: solve => ident_solve
      procedure, pass(this) :: update => ident_update
+     procedure, pass(this) :: free => ident_free
   end type ident_t
 
 contains
@@ -60,5 +61,10 @@ contains
   subroutine ident_update(this)
     class(ident_t), intent(inout) :: this
   end subroutine ident_update
+
+  !> Mandatory free routine (NOP)
+  subroutine ident_free(this)
+    class(ident_t), intent(inout) :: this
+  end subroutine ident_free
 
 end module identity

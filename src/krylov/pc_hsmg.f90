@@ -63,7 +63,7 @@ module hsmg
   use num_types, only : rp
   use math, only : copy, col2, add2
   use utils, only : neko_error
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_allocator
   use ax_product, only : ax_t, ax_helm_allocator
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
@@ -467,7 +467,7 @@ contains
     end if
 
     if (allocated(this%pc_crs)) then
-       call precon_destroy(this%pc_crs)
+       call this%pc_crs%free()
     end if
 
     if (c_associated(this%hsmg_event)) then

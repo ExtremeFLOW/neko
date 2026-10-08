@@ -40,7 +40,7 @@ module ale_manager
   use space, only : space_t
   use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_allocator
   use bc_list, only : bc_list_t
   use checkpoint, only : chkp_t
   use checkpoint_payload, only : checkpoint_payload_t
@@ -1156,7 +1156,7 @@ contains
        deallocate(ksp)
     end if
     if (allocated(pc)) then
-       call precon_destroy(pc)
+       call pc%free()
        deallocate(pc)
     end if
 

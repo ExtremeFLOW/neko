@@ -58,7 +58,7 @@ contains
     integer :: i
 
     if (allocated(pc)) then
-       call precon_destroy(pc)
+       call pc%free()
        deallocate(pc)
     end if
 
@@ -93,27 +93,6 @@ contains
     end select
 
   end subroutine precon_allocator
-
-  !> Destroy a preconditioner
-  module subroutine precon_destroy(pc)
-    class(pc_t), allocatable, intent(inout) :: pc
-
-    if (allocated(pc)) then
-       select type (pcp => pc)
-       type is (jacobi_t)
-          call pcp%free()
-       type is (sx_jacobi_t)
-          call pcp%free()
-       type is (device_jacobi_t)
-          call pcp%free()
-       type is (hsmg_t)
-          call pcp%free()
-       type is (phmg_t)
-          call pcp%free()
-       end select
-    end if
-
-  end subroutine precon_destroy
 
   !> Register a custom preconditioner allocator.
   !! Called in custom user modules inside the `module_name_register_types`
