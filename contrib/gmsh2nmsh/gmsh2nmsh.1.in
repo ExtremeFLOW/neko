@@ -84,7 +84,8 @@ characters must be given by tag.
 .TP
 .BI \-\-tol= value
 Absolute tolerance used to match periodic facets and vertices. The default
-is 1e-6 times the shortest facet edge of the pair.
+is 1e-6 times the shortest facet edge of the pair, but at least 1e-12 times
+the largest coordinate magnitude of the pair.
 .TP
 .BI \-\-curve\-tol= value
 Distance between an edge midpoint and the straight edge, relative to the

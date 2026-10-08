@@ -15,7 +15,8 @@ gmsh2nmsh mesh.msh [mesh.nmsh] [--periodic=PAIRS] [--tol=VALUE]
   by tag or name, for example `--periodic=1:2` or
   `--periodic=inlet:outlet,front:back`. The option can be repeated.
 - `--tol=VALUE` sets the absolute periodic matching tolerance. The default is
-  `1e-6` times the shortest facet edge of the pair.
+  `1e-6` times the shortest facet edge of the pair, but at least `1e-12` times
+  the largest coordinate magnitude of the pair.
 - `--curve-tol=VALUE` sets how far an edge midpoint, relative to the edge
   length, must be from the straight edge to be stored as curved. The default is
   `1e-4`.
