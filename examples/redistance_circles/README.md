@@ -53,10 +53,19 @@ $\varepsilon=\xi H$ with their $\xi=\{1,1.5\}/N$, so our $\xi$ is $N$ times thei
 `../../CDI_METHOD.md` §1) is a different quantity: it sets the CDI interface, not the sign
 function of Eq. (46).
 
+**The fixed $\varepsilon=0.25$ is intentional, and the author recommends it in general** (reply to
+our 2026-09-29 question). The Eq. (47) seed already carries the $H$ scaling, and an $H$-free sign
+function is meant to give a mesh-independent re-distancing distance. Their shared `lvlSet.f`
+divides $\psi$ by the smallest domain extent $L$ before the sign function, so their other cases
+use $0.25L$; this case sets $L=1$ (`gfac = 1.0`). It slows every near-interface rate by
+$0.25/(H/N)$, 3.75–40×, rather than speeding anything up, and it delays the drift past $\tau=6$. In
+a coupled solve it relies on his code's $25H$ budget, not the paper's $2.5H$
+(`../rider_kothe/README.md` §3.5).
+
 ## 3. How it works
 
 Neko's scalar solver is not used: its advecting velocity is an external field, and here
-$\mathbf w$ is a function of $\psi$ itself (`../../REDISTANCING.md` §9.0). The user file runs its
+$\mathbf w$ is a function of $\psi$ itself (`../../REDISTANCING.md` §5.1). The user file runs its
 own pseudo-time loop, `redistance_standalone`. One step $n\to n+1$ is Eqs. (34)–(35):
 
 $$F^m=\operatorname{sgn}(\psi^m)-\mathbf B^{-1}\mathbf C(\mathbf w^m)\psi^m,\qquad \hat\psi=\tfrac{1}{b_0}\Big(\textstyle\sum_j\beta_j\psi^{n+1-j}+\Delta\tau\sum_j a_jF^{n+1-j}\Big),\qquad \big(\mathbf B+\tfrac{\Delta\tau}{b_0}\mathbf D_\mu(\psi^n)\mathbf S_{vv}\big)\psi^{n+1}=\mathbf B\hat\psi$$
@@ -94,7 +103,7 @@ The paper's equations against the code:
 | Eq. (84), p. 19 | the global relative error | `ensure_psie`, `error_report` |
 | §4.4, p. 16–19 | $\Omega$, $r$, $a$, $H$, $N$, $\Delta\tau$, $\tau$, $N_{svv}$, $c_0$; "the entire domain" | the four committed `.case` files; no band |
 
-Routine by routine: `../../REDISTANCING.md` §9. The seventeen routines shared with the coupled
+Routine by routine: `../../REDISTANCING.md` §5. The seventeen routines shared with the coupled
 cases are unchanged.
 
 ## 4. Results
@@ -146,23 +155,10 @@ $N{=}7$ and 1.5× at $H{=}1/20$ $N{=}3$. Ours at $\tau=24$ equals theirs at $H{=
   - Started from their $\psi_0$ at the zero-set nodes (the `seed` runs in `logs/saini_case/`), our
     code gives their values exactly in every one of these; at $H{=}1/10$, $N{=}7$ it follows their
     run to $\tau=24$. Their code, run here, holds in all of them.
-  - Without the guard (dealiasing only) $H{=}1/5$ $N{=}4$ and $N{=}8$ hold, 9% and 0.6% from their
-    values.
 - **The field drifts.** Every signed distance function is a steady state of Eq. (44); nothing
   restores an interface's position, and the SVV beside the zero set moves it slowly. Dealiasing
   makes even a straight interface drift (without it, a tilted line is an exact discrete steady
   state).
-- **The fixed $\varepsilon=0.25$ is intentional** (the author's reply to our 2026-09-29 question):
-  the Eq. (47) seed already carries the $H$ scaling, and an $H$-free sign function is meant to give
-  a mesh-independent re-distancing distance. He recommends it in general. Their shared `lvlSet.f`
-  divides $\psi$ by the smallest domain extent before the sign function, so their other cases use
-  $0.25L$; this case overrides that to $L=1$ (`gfac = 1.0`). Tested in 1D (`eps_1d/README.md`):
-  0.25 slows every near-interface rate 3.75–40× rather than speeding anything up, and it delays the
-  drift past $\tau=6$. In the coupled solve it relies on the code's $25H$ budget, not the paper's
-  $2.5H$.
-- **1D re-initialization** (the Eq. (47) seed, then Eq. (44)): at $N{=}8$, $\psi$ at the walls
-  collapses to 0.06 after the front arrives (`evidence/anim4a_1d_reinit.mp4`). The coupled cases
-  are periodic.
 
 ## 6. Running it
 
@@ -206,7 +202,13 @@ Animations (scripts `logs/saini_case/anim_new/`, gitignored, local):
 - `anim4b_blowup_h10_n7.mp4`: $H{=}1/10$, $N{=}7$ after $\tau=6$: our mesh blows up, the seeded runs
   follow their code.
 - `anim4c_guard_n3.mp4`, `anim4c_guard_n8_apex.mp4`: the guard against none.
-- `talk/` (gitignored, local): the same stories for a presentation, one message per clip, with
-  stills of the key frames in `talk/snapshots/`.
 
 Their raster figures are not reproduced here (CC BY-NC-ND).
+
+## Appendix: other configurations
+
+| run (source) | how it differs from Saini | result | note |
+|---|---|---|---|
+| no guard, dealiasing only (`logs/saini_case/`) | his sign guard off | $H{=}1/5$, $N{=}4$ and 8 hold, 9% and 0.6% from his values | the guard is what makes these cells round-off sensitive on our mesh |
+| sign width $\varepsilon=H/N$ (archive §7) | the paper's phase-field width in Eq. (46), before his code was read | $E_r(6)$ 1.4–3.4× above his values | `archive/README_process_2026-09.md` |
+| 1D re-initialization (the Eq. (47) seed, then Eq. (44)) | a 1D replica with walls | at $N{=}8$, $\psi$ at the walls collapses to 0.06 after the front arrives (`evidence/anim4a_1d_reinit.mp4`) | the coupled cases are periodic |
