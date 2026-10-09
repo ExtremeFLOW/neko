@@ -24,9 +24,8 @@ makeneko advecting_slab_1d.f90
 
 cases=("$@")
 if [ ${#cases[@]} -eq 0 ]; then
-  # the four xi/normal runs, plus the gamma line at xi=1.0 that shows the
-  # method beats being switched off (gamma=0 is the null: no compression,
-  # no balancing diffusion, just advection)
+  # the four xi/normal runs, the gamma line at xi=1.0 (gamma=0 is the null:
+  # no compression, no balancing diffusion, just advection), and psi_xi28
   cases=(phi_xi10 psi_xi10 phi_xi05 psi_xi05 gamma0_xi10 gamma025_xi10 psi_xi28)
 fi
 

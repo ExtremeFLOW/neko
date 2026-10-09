@@ -1,35 +1,21 @@
 ! Saini et al. (2026) section 4.4, "Re-distancing around intersecting circles":
-! the TLS re-distancing equation, Eq. (44), run *standalone*. No transport, no
-! flow, no phase field, no CDI -- just the pseudo-time relaxation of a
-! deliberately skewed initial condition toward a known exact distance function,
-! against their published Table 2 and Fig. 12.
+! Eq. (44) run standalone (no flow, no phase field) from Eq. (83)'s skewed
+! initial condition toward a known distance, against his Table 2 and Figs.
+! 12-13. The record of the reproduction is README.md in this directory.
 !
-! It isolates our Eq. (44) solver from the coupled cases and checks it against
-! published numbers (their Table 2 and Fig. 12). See CDI_METHOD.md section 4.4.
+! Saini calls the distance field phi; here it is psi, the Neko scalar `psi`
+! (CDI_METHOD.md section 1). The analytic distance appears only as the error
+! reference and, skewed, as the problem's given initial condition.
 !
-! Naming: Saini call the *distance* field phi here. This repo calls the distance
-! field psi and the phase field phi, always -- so the Neko scalar below is `psi`
-! and their Table 2 E_r(phi) is our E_r(psi). CDI_METHOD.md section 1.
+! Saini's BDF2/EXT2 (Eqs. 34-35), with the three choices of his code that the
+! paper does not print (README section 2): epsilon = 0.25 in Eq. (46), C(w) psi
+! dealiased, and his sign guard.
 !
-! The analytic distance is used twice here, and both are legitimate uses that do
-! not resemble the crutch CLAUDE.md forbids: Eq. (83) is the *error reference*,
-! and Eq. (83) times the skew factor is the *given initial condition* of the
-! problem. Nothing seeds psi analytically in a run that then re-distances it.
-!
-! The shared block below -- the svv_t type, its seven routines, the backend
-! helpers, logval, ensure_mult_field, unit_normal, rd_sgn and rd_rhs, seventeen
-! routines in all -- is byte-identical to the copies in zalesak_disk.f90,
-! rider_kothe.f90 and advecting_slab_1d.f90. A fix to one must be made to all
-! four; check with examples/tools/check_shared_routines.py. svv_step_eq31 is
-! this case's own and is built on top of them without editing any.
-!
-! Eq. (44) is integrated with Saini's own scheme, BDF2/EXT2 with the SVV
-! unsplit in the Helmholtz operator (Eqs. 34-35), in redistance_standalone, and
-! with the three choices of his public code that the paper does not print
-! (nandu90/nekLS_Examples, jcp, intersectingCircles; README section 2):
-! epsilon = 0.25 in Eq. (46) (the .case files), C(w) psi dealiased, and his
-! sign guard. The shared rd_rhs is kept for byte-identity but unused here. The
-! record of this reproduction, equation by equation, is this case's README.md.
+! Seventeen routines (the SVV routines with ensure_mult_field, rd_sgn, rd_rhs,
+! unit_normal, logval and the backend helpers) are byte-identical, in-body
+! comments included, in the four user files: fix them in all four and check
+! with examples/tools/check_shared_routines.py. rd_rhs, svv_op, svv_apply_imp
+! and svv_step_imp are unused here; svv_step_eq31 is this case's own.
 module user
   use neko
   use adv_dealias, only : adv_dealias_t
@@ -40,13 +26,12 @@ module user
 
   integer, parameter :: RD_NITER_MAX = 50000
 
-  !> In-plane only: the mesh is one element thick in z with a z-invariant
-  !> field, so D_z psi = 0 and a third direction would buy nothing but a
-  !> tighter explicit stability bound.
+  !> In-plane only: the mesh is one element thick in z and the field is
+  !> z-invariant, so a third direction would only tighten the explicit limit.
   integer, parameter :: SVV_NDIR = 2
 
   !> Floor on |grad psi| in the shared unit_normal. It must sit above the ~1e-19
-  !> round-off gradient of a flat field (CDI_METHOD.md section 4.1).
+  !> round-off gradient of a flat field (CDI_METHOD.md section 3).
   real(kind=rp), parameter :: grad_floor = 1.0e-6_rp
 
   !> Two circles of radius r centred at (+/-a, 0), Saini Eq. (83).
@@ -56,8 +41,8 @@ module user
   logical :: mesh_ready = .false.
   real(kind=rp) :: mesh_hgll, mesh_helem, mesh_hn
 
-  !> Spectral vanishing viscosity, Saini Eqs. (24)-(29), as a derived type
-  !> because Saini set c0 and N_svv per equation.
+  !> Spectral vanishing viscosity, Saini Eqs. (24)-(29): one instance per
+  !> equation, each with its own c0 and N_svv.
   type :: svv_t
      character(len=24) :: tag = ""
      logical :: on = .false., ready = .false., imp = .false.
@@ -76,21 +61,17 @@ module user
      procedure, pass(this) :: step_imp => svv_step_imp
   end type svv_t
 
-  !> The only equation in this case is psi's re-distancing, so it is the only
-  !> SVV instance. There is no phi transport and no psi transport to stabilise.
+  !> The only SVV instance: Eq. (44)'s.
   type(svv_t) :: svv_rd
 
-  !> coef%mult as a field, so weighted inner products go through
-  !> field_math like everything else. Built once by ensure_mult_field.
   type(field_t) :: mult_f
   logical :: mult_ready = .false.
 
-  !> coef%B as a field, for the area integrals in the error norm.
   type(field_t) :: bmass_f
   logical :: bmass_ready = .false.
 
   !> The exact solution, Eq. (83), and Eq. (84)'s denominator int psi_e, built
-  !> once. int|psi_e| is kept only because the log line still carries it.
+  !> once.
   type(field_t) :: psie_f
   logical :: psie_ready = .false.
 
@@ -123,22 +104,18 @@ contains
     call json_get(params, "case.cdi.epsilon", eps)
     if (eps .le. 0.0_rp) call neko_error("case.cdi.epsilon must be > 0")
 
-    ! svv_init builds nu = c0*|c|*H/N, Saini Eq. (29), with |c| = 1; Eq. (31)'s
-    ! pointwise |c| = |sgn(psi)| is applied by svv_step_eq31 as D_mu. The coupled
-    ! user files pass the flow's u_max to the same instance instead.
+    ! nu = c0*|c|*H/N with |c| = 1 here; Eq. (31)'s pointwise |c| = |sgn(psi)|
+    ! is applied by svv_step_eq31 as D_mu.
     u_max = 1.0_rp
 
-    ! N_svv = N/6, c0 = 2 -- Saini's section 4.4 row, the strongest setting
-    ! anywhere in the paper. Their section 4.5 uses N/4, the default
-    ! the coupled cases inherit.
+    ! N_svv = N/6, c0 = 2: Saini's section 4.4 values (section 4.5 uses N/4).
     call svv_rd%read_params(params, "case.cdi.redistance.svv", &
          "psi re-distancing", 6.0_rp)
     ! svv_step_eq31 is implicit and uses the CG work fields, which svv_init
     ! allocates only for an implicit instance.
     svv_rd%imp = .true.
 
-    ! Saini fix the pseudo timestep for this study rather than deriving it, so
-    ! it is required rather than defaulted -- there is no `cfl` key here.
+    ! Saini fixes dtau for this study, so it is required; there is no `cfl` key.
     call json_get(params, "case.cdi.redistance.dtau", rd_dtau)
     if (rd_dtau .le. 0.0_rp) &
          call neko_error("case.cdi.redistance.dtau must be > 0")
@@ -204,7 +181,6 @@ contains
     end if
   end subroutine col2_raw
 
-  !> a = b, same pairing as col2_raw.
   subroutine copy_raw(a, b, b_d, n)
     type(field_t), intent(inout) :: a
     real(kind=rp), intent(in) :: b(n)
@@ -218,7 +194,6 @@ contains
     end if
   end subroutine copy_raw
 
-  !> a = sqrt(a), elementwise.
   subroutine field_sqrt(a, n)
     type(field_t), intent(inout) :: a
     integer, intent(in) :: n
@@ -230,7 +205,6 @@ contains
     end if
   end subroutine field_sqrt
 
-  !> Pull a field back to the host so a host loop can read it.
   subroutine to_host(a, n)
     type(field_t), intent(inout) :: a
     integer, intent(in) :: n
@@ -239,7 +213,6 @@ contains
          call device_memcpy(a%x, a%x_d, n, DEVICE_TO_HOST, sync = .true.)
   end subroutine to_host
 
-  !> Push a field the host has just written back to the device.
   subroutine to_device(a, n)
     type(field_t), intent(inout) :: a
     integer, intent(in) :: n
@@ -252,19 +225,11 @@ contains
   ! Geometry
   ! ------------------------------------------------------------------------
 
-  !> Saini Eq. (83): the exact signed distance to the zero isocontour of the
-  !> union of two circles of radius r centred at (+/-a, 0). Negative inside.
-  !>
-  !> The first branch is the corner-clamped case. It fires exactly where the
-  !> radial projection onto *both* circles would land inside the other circle,
-  !> so the nearest point of the union boundary is one of the two intersection
-  !> corners (0, +/-sqrt(r^2 - a^2)) rather than a point of either arc. That
-  !> clamping is what puts the kinks along the intersection line into the exact
-  !> solution, and the kinks are what makes this the paper's rigour test.
-  !>
-  !> Written as (a-x) >= (a/r)*d1 rather than Eq. (83)'s (a-x)/d1 >= a/r so that
-  !> a point sitting exactly on a circle centre, where d1 = 0, is not a division
-  !> by zero. The two forms agree everywhere else, d being non-negative.
+  !> Saini Eq. (83): the exact signed distance to the union of two circles of
+  !> radius r centred at (+/-a, 0), negative inside. The first branch clamps to
+  !> an intersection corner (0, +/-sqrt(r^2 - a^2)) where the radial projection
+  !> onto both circles lands inside the other one; that puts the kinks into the
+  !> exact solution. (a-x) >= (a/r)*d1 avoids Eq. (83)'s division when d1 = 0.
   pure function circle_distance(x, y) result(d)
     real(kind=rp), intent(in) :: x, y
     real(kind=rp) :: d, d1, d2, hc
@@ -280,11 +245,8 @@ contains
     end if
   end function circle_distance
 
-  !> Saini Eq. (83) second line: the initial condition, the exact distance
-  !> skewed by a strictly positive factor. Being strictly positive (>= 0.1) it
-  !> leaves the zero isocontour exactly where the exact solution has it, which
-  !> is what makes this a fair test of an equation whose sgn(psi) source pins
-  !> that contour.
+  !> Saini Eq. (83), second line: the exact distance times a factor >= 0.1,
+  !> which leaves the zero isocontour where the exact solution has it.
   pure function skewed_ic(x, y) result(d)
     real(kind=rp), intent(in) :: x, y
     real(kind=rp) :: d
@@ -297,9 +259,8 @@ contains
   ! Mesh, reporting
   ! ------------------------------------------------------------------------
 
-  !> Shortest distance between adjacent GLL nodes, the element edge, and the
-  !> nominal node spacing H/N -- measured rather than assumed, once. In-plane
-  !> only: the field is z-invariant, so the z spacing cannot limit anything.
+  !> The shortest GLL spacing, the element edge and H/N, measured once and
+  !> in-plane (the field is z-invariant).
   subroutine measure_mesh(dof)
     type(dofmap_t), intent(in) :: dof
     integer :: i, j, k, e
@@ -395,10 +356,9 @@ contains
   ! The normal
   ! ------------------------------------------------------------------------
 
-  !> n = grad(src)/|grad(src)|, made continuous the way the solver makes any
-  !> element-local quantity continuous -- gather-scatter the sum, then divide by
-  !> the node multiplicity -- before it is normalised. `w` comes back holding
-  !> |grad(src)| after the floor, which the callers reuse.
+  !> n = grad(src)/max(|grad(src)|, grad_floor), the gradient made continuous
+  !> first (gather-scatter the sum, divide by the node multiplicity). `w` returns
+  !> the floored |grad(src)|.
   subroutine unit_normal(coef, src, g1, g2, g3, w)
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(in) :: src
@@ -418,10 +378,8 @@ contains
     call col2_raw(g2, coef%mult, coef%mult_d, n)
     call col2_raw(g3, coef%mult, coef%mult_d, n)
 
-    ! |grad| via col3/addcol3 rather than field_vdot3: that routine declares
-    ! its result intent(out) on a field_t, which deallocates the field's own
-    ! storage on entry. Nothing in Neko calls it, so the defect is unexercised
-    ! upstream -- avoid it here rather than rely on it.
+    ! Not field_vdot3: its result is intent(out) on a field_t, which
+    ! deallocates the field's storage on entry.
     call field_col3(w, g1, g1, n)
     call field_addcol3(w, g2, g2, n)
     call field_addcol3(w, g3, g3, n)
@@ -436,11 +394,9 @@ contains
   ! Re-distancing: Saini et al. (2026) Eq. (44)
   ! ------------------------------------------------------------------------
 
-  !> sgn(psi) = tanh(psi/(2 eps)).
-  !>
-  !> The one operation in this file with no device counterpart, so it round-trips
-  !> through the host. It runs 3x per pseudo-step inside a re-distancing event
-  !> and not at all otherwise, which over a full run is seconds.
+  !> sgn(psi) = tanh(psi/(2 eps)), Saini Eq. (46), with eps the sign-function
+  !> width (0.25 in the committed cases). Neko has no device tanh, so it
+  !> round-trips through the host.
   subroutine rd_sgn(psifld, sgnfld, n)
     type(field_t), intent(inout) :: psifld, sgnfld
     integer, intent(in) :: n
@@ -453,12 +409,9 @@ contains
     call to_device(sgnfld, n)
   end subroutine rd_sgn
 
-  !> L(psi) = sgn(psi)*(1 - |grad psi|), the right-hand side of Saini Eq. (44).
-  !>
-  !> They write it as `-w.grad(psi) + sgn(psi)` with `w = sgn(psi)*n` and
-  !> `n = grad(psi)/|grad psi|`, so `w.grad(psi) = sgn(psi)*|grad psi|` and the
-  !> two forms are identical -- this one needs no convective operator. Evaluating
-  !> sgn at the current psi pins the zero level set: the source vanishes there.
+  !> L(psi) = sgn(psi)*(1 - |grad psi|), the non-dealiased right-hand side of
+  !> Saini Eq. (44) that the coupled cases use. Shared, but unused here:
+  !> redistance_standalone dealiases C(w) psi instead.
   subroutine rd_rhs(coef, psifld, lval, g1, g2, g3, w)
     type(coef_t), intent(inout) :: coef
     type(field_t), intent(inout) :: psifld, lval, g1, g2, g3, w
@@ -487,12 +440,8 @@ contains
     call field_col2(lval, w, n)
   end subroutine rd_rhs
 
-  !> min / mean / max of |grad psi| over the whole domain, and the node count.
-  !>
-  !> This is band_grad_stats with the phi(1-phi) mask removed -- there is no
-  !> phase field here, so there is no band and no reason to look at one. It is
-  !> also Eq. (44)'s own residual, sgn(psi)*(1 - |grad psi|), which the coupled
-  !> solver never checks (CDI_METHOD.md 4.3).
+  !> min/mean/max of |grad psi| over the whole domain, and the node count:
+  !> band_grad_stats without the band (there is no phase field here).
   subroutine grad_stats(coef, gmin, gmean, gmax)
     type(coef_t), intent(inout) :: coef
     real(kind=rp), intent(out) :: gmin, gmean, gmax
@@ -544,13 +493,8 @@ contains
   ! ------------------------------------------------------------------------
 
   !> Build psi_e once, and with it Eq. (84)'s denominator, int psi_e as printed.
-  !> The journal's own Fig. 13 integrates to its Fig. 12 E_r under that reading
-  !> (CDI_METHOD.md 4.4). int|psi_e| is still computed for the log line's second
-  !> column, which the committed run logs carry; nothing reads it.
-  !>
   !> Every integral is divided by the slab thickness: coef%B is a 3D mass matrix
-  !> and the paper's definitions are areas. It cancels in E_r, and is done
-  !> anyway so the logged integrals can be checked against a 2D quadrature.
+  !> and the paper's definitions are areas (it cancels in E_r).
   subroutine ensure_psie(coef)
     type(coef_t), intent(inout) :: coef
     type(field_t), pointer :: w
@@ -583,9 +527,8 @@ contains
     psie_ready = .true.
   end subroutine ensure_psie
 
-  !> Eq. (83) at five points whose values were derived by hand and confirmed
-  !> against a fine quadrature, plus the integrals. If this header is wrong
-  !> nothing downstream means anything, so it is printed before the solve.
+  !> Eq. (83) at five hand-derived points, plus the integrals, printed before
+  !> the solve as a check on everything downstream.
   subroutine report_exact(coef)
     type(coef_t), intent(inout) :: coef
     character(len=LOG_SIZE) :: mess
@@ -651,7 +594,7 @@ contains
     call neko_log%message(mess)
   end subroutine error_report
 
-  !> The standalone Eq. (44) relaxation to tau_end, in place, with Saini's own
+  !> The standalone Eq. (44) relaxation to tau_end, in place, with Saini's
   !> integrator: BDF2/EXT2, Eqs. (34)-(35), the Eq. (31) SVV unsplit in the
   !> Helmholtz operator, BDF1/EXT1 on the first step:
   !>
@@ -659,15 +602,14 @@ contains
   !>     psi_hat = (2 psi^n - psi^{n-1}/2 + dtau (2 F^n - F^{n-1})) / (3/2)
   !>     (B + dtau/(3/2) D_mu(psi^n) S_vv) psi^{n+1} = B psi_hat
   !>
-  !> w is not a velocity field. It is re-formed from each level's own psi and
-  !> applied to that psi only, so the lag holds the product F^{n-1}, never w:
-  !> w's sgn cancels the source's sgn'(psi) on the zero set, and a w decoupled
-  !> from the psi it multiplies leaves growth at up to 1/(2 eps) there.
+  !> w is not a velocity: it is re-formed from each level's own psi, so the lag
+  !> holds F^{n-1}, never w. A w decoupled from the psi it multiplies leaves
+  !> growth at up to 1/(2 eps) on the zero set.
   !>
-  !> As in Saini's code (README section 2): C is dealiased, so nodes on the
-  !> zero set can move and change sign; his sign guard (constrainTLSR) then keeps
-  !> psi^n at any node whose psi^n disagrees in sign with psi_0. With the guard,
-  !> low-N results depend on the round-off of psi_0 on the zero set.
+  !> As in Saini's code (README section 2), C is dealiased, so zero-set nodes
+  !> can move and change sign, and his sign guard (constrainTLSR) keeps psi^n at
+  !> any node whose psi^n disagrees in sign with psi_0; low-N results then
+  !> depend on psi_0's round-off on the zero set.
   subroutine redistance_standalone(coef)
     type(coef_t), intent(inout) :: coef
     type(field_t), pointer :: psifld
@@ -711,8 +653,7 @@ contains
       sgn0%x(i,1,1,1) = sign(1.0_rp, psifld%x(i,1,1,1))
     end do
 
-    ! The normal the relaxation starts from; ||dn|| below is how far the whole
-    ! solve moves it.
+    ! The starting normal, for ||dn||.
     call unit_normal(coef, psifld, n0x, n0y, n0z, w)
 
     do it = 1, rd_niter
@@ -763,8 +704,8 @@ contains
       call field_copy(p1, ref, n)
       call field_copy(f1, f0, n)
 
-      ! A trace, not just an endpoint: the paper calls tau = 6 quasi-steady, and
-      ! a relaxation that keeps drifting is only visible while it happens.
+      ! A trace, not just an endpoint: drift past tau = 6 shows only while it
+      ! happens.
       if (mod(it, report_every) .eq. 0) &
            call error_report(coef, real(it, rp)*rd_dtau)
     end do
@@ -797,10 +738,10 @@ contains
   !>
   !>     (B + dt*D_mu*S_vv) s_new = B s_old,   dt = dtau/b0
   !>
-  !> D_mu vanishes on the zero set, so this SVV cannot move a node sitting on
-  !> it; the shared svv_step_imp, with |c| = 1 inside the bilinear form, does
-  !> move it and drags the interface (CDI_METHOD.md section 4.4). It does not
-  !> conserve mass (1^T D_mu S_vv /= 0); a distance does not need to.
+  !> D_mu vanishes on the zero set, so this SVV cannot move a node on it; the
+  !> shared svv_step_imp, with nu inside the bilinear form, does (CDI_METHOD.md
+  !> section 5). It does not conserve mass (1^T D_mu S_vv /= 0); a distance does
+  !> not need to.
   !>
   !> The operator is not symmetric. s_new = s_old + D_mu z makes it so,
   !>
@@ -886,10 +827,10 @@ contains
   !> S_vv = D~^T G D~ with D~_l = B Q B^-1 D_l, restricted to the diagonal
   !> geometric factors -- exact on an orthogonal mesh, which init checks.
   !>
-  !> The viscosity sits *inside* the bilinear form rather than left-multiplying
-  !> the assembled operator as their Eq. (33) has it. Theirs is not
-  !> conservative; this is, exactly, because D annihilates constants -- and mass
-  !> conservation is one of the things this remedy is judged on.
+  !> nu sits inside the bilinear form, constant per instance. Saini's Eqs. (31)
+  !> and (33) left-multiply the assembled operator by a pointwise D_mu instead;
+  !> the two agree only for constant nu (svv_step_eq31 in redistance_circles.f90
+  !> is the printed form).
   !>
   !> tnsr3d's second and third matrices are the transposes of the operators they
   !> apply, so dyt and fht differentiate/filter while dy and fh in those slots
@@ -968,20 +909,9 @@ contains
   end subroutine svv_apply_imp
 
   !> One backward-Euler sub-step of the SVV term, Lie-split from the integrator
-  !> that carries everything else:
-  !>
-  !>     (B + dt*S_vv) phi_new = B phi_old
-  !>
-  !> The SEM mass matrix is diagonal, so B here is just the assembled Jacobian
-  !> weight. Being implicit this is unconditionally stable -- it removes the
-  !> dt*rho limit an explicit source term imposes -- at the price of treating
-  !> the stabilisation to first order in dt. Mass is conserved *exactly*, not
-  !> just to solver tolerance: 1^T S_vv = 0, so 1^T B phi_new = 1^T B phi_old
-  !> whatever the iteration does.
-  !>
-  !> Solved by mass-preconditioned CG. The condition number is 1 + dt*rho, so
-  !> the iteration count stays small precisely where the explicit treatment
-  !> would have failed.
+  !> that carries everything else: (B + dt*S_vv) s_new = B s_old. Unconditionally
+  !> stable and first order in dt; mass is conserved exactly (1^T S_vv = 0).
+  !> Mass-preconditioned CG, condition number 1 + dt*rho.
   subroutine svv_step_imp(this, coef, s, dt, iters)
     class(svv_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
@@ -995,7 +925,7 @@ contains
 
     n = coef%dof%size()
 
-    ! r = B*phi_old - A(phi_old), with phi_old itself as the initial guess
+    ! r = B*s_old - A(s_old), with s_old itself as the initial guess
     call this%apply_imp(coef, s, this%cg_r, dt)
     call field_col3(this%cg_q, this%bass, s, n)
     call field_sub2(this%cg_q, this%cg_r, n)
@@ -1023,11 +953,9 @@ contains
     end do
   end subroutine svv_step_imp
 
-  !> Build the operator once, check it, and refuse to run if it is too stiff.
-  !> Saini fold SVV into the Helmholtz operator (their Eq. 35); the explicit
-  !> path here goes through the source term instead, so BDF3/EXT3 has to carry
-  !> it on the real axis and dt*rho(B^-1 S_vv) is the binding constraint rather
-  !> than any CFL.
+  !> Build the operator once, check it (symmetry, nullspace, spectral radius),
+  !> and refuse to run if an explicit instance is too stiff. The one instance
+  !> here is implicit, used by svv_step_eq31.
   subroutine svv_init(this, coef, dt)
     class(svv_t), intent(inout) :: this
     type(coef_t), intent(inout), target :: coef
@@ -1045,8 +973,8 @@ contains
 
     call ensure_mult_field(coef)
 
-    ! The power kernel of Saini Eq. (24) as a modal transfer function; Neko's
-    ! elementwise filter builds V diag(sigma) V^-1 from it for us.
+    ! Saini Eq. (24)'s power kernel as a modal transfer function; Neko's
+    ! elementwise filter builds V diag(sigma) V^-1 from it.
     allocate(trans(lx))
     do i = 1, lx
       trans(i) = (real(i - 1, rp)/real(lx - 1, rp))**this%nsvv
@@ -1085,13 +1013,9 @@ contains
     if (goff .gt. 1.0e-10_rp*gdiag) call neko_error( &
          "svv_local drops G12/G13/G23, which this mesh is not entitled to")
 
-    ! nu = c0 |c| H / N, Saini Eq. (29), with |c| the module's u_max. Their
-    ! characteristic length is 2*jac^(1/d), which on this one-element-thick slab
-    ! would fold in a z extent that means nothing; the element edge is what they
-    ! use on a uniform mesh anyway. For re-distancing their |c| is the pointwise
-    ! |w| = |sgn psi| <= 1: redistance_circles sets u_max = 1 and applies
-    ! |sgn psi| as D_mu in svv_step_eq31, while the coupled files still pass the
-    ! flow's u_max to svv_rd.
+    ! nu = c0 |c| H / N, Saini Eq. (29), with |c| the module's u_max when the
+    ! instance is built. H is the element edge: his 2*jac^(1/d) with d = 3 would
+    ! fold in this one-element-thick slab's z extent.
     h_elem = 0.0_rp
     do e = 1, nel
       h_elem = max(h_elem, abs(coef%dof%x(lx,1,1,e) - coef%dof%x(1,1,1,e)))
@@ -1100,18 +1024,14 @@ contains
     h_elem = glmax(tmp, 1)
     call field_cfill(this%nu, this%c0*u_max*h_elem/real(lx - 1, rp), n)
 
-    ! The assembled mass, needed by the implicit split. The SEM mass matrix is
-    ! diagonal, so inverting coef%Binv recovers it exactly rather than
-    ! approximately.
+    ! The assembled mass for the implicit step: diagonal, so exactly 1/Binv.
     call copy_raw(this%bass, coef%Binv, coef%Binv_d, n)
     call field_invcol1(this%bass, n)
 
     this%ready = .true.
 
-    ! --- self-checks. Two continuous pseudo-random fields test symmetry (i.e.
-    ! that the tensor-product transposes above are the right way round), and a
-    ! constant tests the nullspace (i.e. conservation). These run on both
-    ! backends and are the main evidence that the device path is correct.
+    ! Self-checks, on both backends: two pseudo-random fields test symmetry
+    ! (the tnsr3d transposes), a constant tests the nullspace (conservation).
     call neko_scratch_registry%request_field(p, ind(1), .false.)
     call neko_scratch_registry%request_field(q, ind(2), .false.)
     call neko_scratch_registry%request_field(sp, ind(3), .false.)
@@ -1139,10 +1059,8 @@ contains
     call this%local(coef, q, sp)
     nul = max(abs(field_glmax(sp, n)), abs(field_glmin(sp, n)))
 
-    ! --- spectral radius of B^-1 S_vv by power iteration. The operator is
-    ! self-adjoint in the B inner product, so the Rayleigh quotient converges --
-    ! from below, which is why the iteration count is generous and the guard
-    ! below leaves margin.
+    ! rho(B^-1 S_vv) by power iteration. The operator is self-adjoint in the B
+    ! inner product, so the Rayleigh quotient converges from below; hence 300.
     do it = 1, 300
       call this%local(coef, p, sp)
       this%rho = field_glsc2(p, sp, n)/field_glsc3(p, bfld, p, n)
@@ -1163,9 +1081,7 @@ contains
     call logval("symmetry defect  : ", &
          abs(sym1 - sym2)/max(abs(sym1), abs(sym2)))
     call logval("rho(B^-1 S_vv)   : ", this%rho)
-    ! dt*rho means two different things depending on the path: a stability limit
-    ! when SVV rides on the explicit integrator, a condition number
-    ! (kappa ~ 1 + dt*rho) when it is solved implicitly.
+    ! dt*rho: a stability limit when explicit, kappa - 1 when implicit.
     if (this%imp) then
       call logval("dt*rho (kappa-1) : ", dt*this%rho)
     else
@@ -1179,9 +1095,7 @@ contains
          call neko_error( &
          "SVV operator is not symmetric -- check the tnsr3d transposes")
     ! BDF3/EXT3 carries a real negative eigenvalue explicitly up to
-    ! dt*rho = 0.952 (root of its characteristic polynomial); 0.4 leaves the
-    ! rest of that budget to the advection and compression terms. The implicit
-    ! split is unconditionally stable, so the limit does not apply to it.
+    ! dt*rho = 0.952; 0.4 leaves the rest to advection and compression.
     if (.not. this%imp .and. dt*this%rho .gt. 0.4_rp) call neko_error( &
          "SVV explicit stability dt*rho > 0.4 -- reduce the timestep or set " // &
          "the instance's implicit = true")
@@ -1213,13 +1127,11 @@ contains
   ! Hooks
   ! ------------------------------------------------------------------------
 
-  !> The whole case runs here, before the first timestep and before the first
-  !> output frame (src/simulation.f90 calls user%initialize then
-  !> output_controller%execute), so the single frame on disk holds the relaxed
-  !> field. It cannot live in initial_conditions: makeneko binds
-  !> neko_user_access only after neko_init returns, so coef is unreachable
-  !> there. The timestep that follows is a formality -- the fluid is frozen and
-  !> psi's diffusivity is 1e-16 -- and every number reported is taken here.
+  !> The whole case runs here, before the first timestep and the first output
+  !> (src/simulation.f90 calls user%initialize, then output_controller%execute),
+  !> so the one frame on disk is the relaxed field. Not in initial_conditions:
+  !> makeneko binds neko_user_access only after neko_init returns. The timestep
+  !> that follows is a formality (frozen fluid, psi's diffusivity 1e-16).
   subroutine initialize(time)
     type(time_state_t), intent(in) :: time
     type(coef_t), pointer :: coef
@@ -1255,10 +1167,9 @@ contains
     end if
   end subroutine material_properties
 
-  !> psi starts as Eq. (83)'s phi_0, the skewed exact distance (or psi_e itself
-  !> with case.cdi.ic = "exact", the drift control). This is the
-  !> problem's given initial condition, not a seeded analytic field: the solve
-  !> in initialize() has to recover the distance function from it.
+  !> psi starts as Eq. (83)'s psi_0, the skewed exact distance (or psi_e with
+  !> case.cdi.ic = "exact", the drift control): the problem's given initial
+  !> condition, which the solve in initialize() relaxes.
   subroutine initial_conditions(scheme_name, fields)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields

@@ -24,8 +24,8 @@ makeneko rider_kothe.f90
 
 cases=("$@")
 if [ ${#cases[@]} -eq 0 ]; then
-  # the recommended setting first; the upstream baseline is kept so the one
-  # prior run remains reproducible
+  # rider_kothe (xi 1.5, gamma 0.5: bounded to round-off), then rider_kothe_xi10
+  # (xi 1, Saini's width: the baseline the README compares against)
   cases=(rider_kothe rider_kothe_xi10)
 fi
 
