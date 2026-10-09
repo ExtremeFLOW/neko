@@ -45,8 +45,7 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(f%x, f%x_d, f%size(), &
-            HOST_TO_DEVICE, sync=.false.)
+       call f%copy_from(HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine mms_source_term
@@ -57,17 +56,19 @@ contains
     type(field_list_t), intent(inout) :: fields
     integer :: i, e, k, j
     real(kind=rp) :: x, y
-    type (field_t), pointer :: u, v, w, s
+    type (field_t), pointer :: u, v, w, s, p
     type(dofmap_t), pointer :: dof
 
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
 
        call field_rone(u)
        call field_rzero(v)
        call field_rzero(w)
+       call field_rzero(p)
     else !scalar
        s => fields%get("s")
        do i = 1, s%dof%size()
@@ -75,6 +76,10 @@ contains
           y = s%dof%y%x(i,1,1,1)
           s%x(i,1,1,1) = sin(x)
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call s%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     end if
   end subroutine initial_conditions
 

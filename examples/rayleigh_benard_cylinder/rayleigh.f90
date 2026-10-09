@@ -68,7 +68,7 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(s%x, s%x_d, s%size(), HOST_TO_DEVICE, sync=.false.)
+       call s%copy_from(HOST_TO_DEVICE, sync=.false.)
     end if
 
   end subroutine dirichlet_conditions
@@ -110,6 +110,10 @@ contains
           end do
        end do
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call s%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
 
   end subroutine initial_conditions
 end module user
