@@ -10,7 +10,7 @@ var namespacescalar__scheme =
     [ "scalar_scheme_wrapper_t", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t" ],
     [ "scalar_scheme_free", "da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b", null ],
     [ "scalar_scheme_init", "da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9", null ],
-    [ "scalar_scheme_precon_factory", "da/de3/namespacescalar__scheme.html#a4278b5ea1a27b4c90edd87e4f0866d02", null ],
+    [ "scalar_scheme_precon_factory", "da/de3/namespacescalar__scheme.html#ab4c8e192fe61bb325c7598193bb878a6", null ],
     [ "scalar_scheme_register_checkpoint", "da/de3/namespacescalar__scheme.html#aa2f488b99c645a710c5d753ddb926068", null ],
     [ "scalar_scheme_set_initial_condition", "da/de3/namespacescalar__scheme.html#afe219aba510b669da4f2c1042297e0d5", null ],
     [ "scalar_scheme_set_material_properties", "da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415", null ],

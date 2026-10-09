@@ -38,6 +38,7 @@ var index =
         [ "General considerations", "d9/df2/meshing.html#general-considerations", null ],
         [ "Constructing meshes", "d9/df2/meshing.html#constructing-meshes", [
           [ "Box meshes", "d9/df2/meshing.html#constructing-meshes-box", null ],
+          [ "Converting a Gmsh mesh", "d9/df2/meshing.html#constructing-meshes-gmsh", null ],
           [ "Converting a Nek5000 mesh", "d9/df2/meshing.html#constructing-meshes-nek5000", null ],
           [ "Experimental workflows", "d9/df2/meshing.html#constructing-meshes-experimental", null ]
         ] ],

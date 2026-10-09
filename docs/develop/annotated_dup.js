@@ -1540,6 +1540,8 @@ var annotated_dup =
       [ "point_zone_template_t", "da/da2/structpoint__zone__template_1_1point__zone__template__t.html", "da/da2/structpoint__zone__template_1_1point__zone__template__t" ]
     ] ],
     [ "precon", "d0/dbb/namespaceprecon.html", [
+      [ "pc_free", "da/d92/interfaceprecon_1_1pc__free.html", "da/d92/interfaceprecon_1_1pc__free" ],
+      [ "pc_init", "d3/def/interfaceprecon_1_1pc__init.html", "d3/def/interfaceprecon_1_1pc__init" ],
       [ "pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", "df/db4/interfaceprecon_1_1pc__solve" ],
       [ "pc_t", "d7/d3a/structprecon_1_1pc__t.html", "d7/d3a/structprecon_1_1pc__t" ],
       [ "pc_update", "d0/d0b/interfaceprecon_1_1pc__update.html", "d0/d0b/interfaceprecon_1_1pc__update" ],

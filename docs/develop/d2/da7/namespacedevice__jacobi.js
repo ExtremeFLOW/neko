@@ -6,7 +6,8 @@ var namespacedevice__jacobi =
     [ "metal_jacobi_update", "da/db9/interfacedevice__jacobi_1_1metal__jacobi__update.html", "da/db9/interfacedevice__jacobi_1_1metal__jacobi__update" ],
     [ "opencl_jacobi_update", "de/daf/interfacedevice__jacobi_1_1opencl__jacobi__update.html", "de/daf/interfacedevice__jacobi_1_1opencl__jacobi__update" ],
     [ "device_jacobi_free", "d2/da7/namespacedevice__jacobi.html#a0449982992f4fcbd66b8e69699672ab7", null ],
-    [ "device_jacobi_init", "d2/da7/namespacedevice__jacobi.html#a08dd6669e156ff25024b500bf81a5106", null ],
+    [ "device_jacobi_init", "d2/da7/namespacedevice__jacobi.html#ada9cd259b7023f8d86853255cf046398", null ],
+    [ "device_jacobi_init_from_components", "d2/da7/namespacedevice__jacobi.html#aa94e2d1677d854254663e966f01ad9f4", null ],
     [ "device_jacobi_solve", "d2/da7/namespacedevice__jacobi.html#af31a276a111dbeaf4661cfc33e996605", null ],
     [ "device_jacobi_update", "d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b", null ]
 ];

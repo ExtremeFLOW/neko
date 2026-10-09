@@ -4,7 +4,7 @@ var pc__hsmg_8f90 =
     [ "hsmg::hsmg_t", "dd/d81/structhsmg_1_1hsmg__t.html", "dd/d81/structhsmg_1_1hsmg__t" ],
     [ "hsmg_fill_grid", "d0/d84/pc__hsmg_8f90.html#ac9484fe847707b07cf9cfa347569ee8e", null ],
     [ "hsmg_free", "d0/d84/pc__hsmg_8f90.html#a74343fce57f519e87cbff9557ee65a27", null ],
-    [ "hsmg_init", "d0/d84/pc__hsmg_8f90.html#a09d637b40908c9c55c5f01bc366f8334", null ],
+    [ "hsmg_init", "d0/d84/pc__hsmg_8f90.html#a00402a723ca5643736b1bd2d9ac0b8a7", null ],
     [ "hsmg_init_from_components", "d0/d84/pc__hsmg_8f90.html#ab830dd9f45e2e8d9c22e36f8639af6ae", null ],
     [ "hsmg_set_h", "d0/d84/pc__hsmg_8f90.html#a25c9fa74d9a25ea39e51a25695e12cf3", null ],
     [ "hsmg_solve", "d0/d84/pc__hsmg_8f90.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0", null ]

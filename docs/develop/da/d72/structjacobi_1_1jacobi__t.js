@@ -1,7 +1,10 @@
 var structjacobi_1_1jacobi__t =
 [
     [ "free", "da/d72/structjacobi_1_1jacobi__t.html#a8700bc1a7be79a9bc689eb038bb0f94d", null ],
-    [ "init", "da/d72/structjacobi_1_1jacobi__t.html#a8b1a6b4477053d799d1180628a5ee31f", null ],
+    [ "free", "da/d72/structjacobi_1_1jacobi__t.html#a902ad9709b70a6b5f53397649e17a13d", null ],
+    [ "init", "da/d72/structjacobi_1_1jacobi__t.html#a61da4d46d886c561e3543147ee56707a", null ],
+    [ "init", "da/d72/structjacobi_1_1jacobi__t.html#a2b0aa2f350d5b46d6bdeecfa75d0f17d", null ],
+    [ "init_from_components", "da/d72/structjacobi_1_1jacobi__t.html#a0cf6393674bc8932e8c5984287fad668", null ],
     [ "solve", "da/d72/structjacobi_1_1jacobi__t.html#ab398e795a963c0817280e1e35f17b639", null ],
     [ "solve", "da/d72/structjacobi_1_1jacobi__t.html#a265fdd4ee86cb585d2531ecf861fd32f", null ],
     [ "update", "da/d72/structjacobi_1_1jacobi__t.html#a3434b41da9fea2458ff56854f6ea40b1", null ],

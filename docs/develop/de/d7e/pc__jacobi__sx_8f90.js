@@ -2,7 +2,8 @@ var pc__jacobi__sx_8f90 =
 [
     [ "sx_jacobi::sx_jacobi_t", "d4/d41/structsx__jacobi_1_1sx__jacobi__t.html", "d4/d41/structsx__jacobi_1_1sx__jacobi__t" ],
     [ "sx_jacobi_free", "de/d7e/pc__jacobi__sx_8f90.html#a0384f8f95aae197615d08bf4132f938d", null ],
-    [ "sx_jacobi_init", "de/d7e/pc__jacobi__sx_8f90.html#a8e0d95bbb8f2b6dc135d59f47b066669", null ],
+    [ "sx_jacobi_init", "de/d7e/pc__jacobi__sx_8f90.html#a51217460a4ec88d9d8dcb1e8e07ccc36", null ],
+    [ "sx_jacobi_init_from_components", "de/d7e/pc__jacobi__sx_8f90.html#a8e234324ce9773703f2c10d24809f4e4", null ],
     [ "sx_jacobi_solve", "de/d7e/pc__jacobi__sx_8f90.html#a15f2370155b0cfbc9f3ca8b66c9c9054", null ],
     [ "sx_jacobi_update", "de/d7e/pc__jacobi__sx_8f90.html#add1b1766274e20b0a12d2f36627adecb", null ],
     [ "sx_update_lx", "de/d7e/pc__jacobi__sx_8f90.html#ab7089db918359c18283b9cdac485342e", null ],

@@ -1,7 +1,10 @@
 var structdevice__jacobi_1_1device__jacobi__t =
 [
     [ "free", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a41eaf21d71ce988168e182a7556023fe", null ],
-    [ "init", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a6492d84f30025ef197d2a6a8d88aa8a9", null ],
+    [ "free", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a902ad9709b70a6b5f53397649e17a13d", null ],
+    [ "init", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#af782ee1bdf56d21587a3e3a67e179305", null ],
+    [ "init", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a2b0aa2f350d5b46d6bdeecfa75d0f17d", null ],
+    [ "init_from_components", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#afd68499164775348c3b25673d02b0068", null ],
     [ "solve", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#ae6ea581c8cca65e3c14b941e1ac9a17b", null ],
     [ "solve", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a265fdd4ee86cb585d2531ecf861fd32f", null ],
     [ "update", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html#a5f8d67d4e72fa9f40539e38b740454ef", null ],

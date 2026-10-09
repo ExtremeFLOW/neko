@@ -288,7 +288,7 @@ var searchData=
   ['hpfrt_5fsource_5fterm_5finit_5ffrom_5fjson_285',['hpfrt_source_term_init_from_json',['../d7/d3f/namespacehpfrt__source__term.html#af886b6c459cf12711c2c11a0338b38a5',1,'hpfrt_source_term']]],
   ['hsmg_5ffill_5fgrid_286',['hsmg_fill_grid',['../dd/dd1/namespacehsmg.html#ac9484fe847707b07cf9cfa347569ee8e',1,'hsmg']]],
   ['hsmg_5ffree_287',['hsmg_free',['../dd/dd1/namespacehsmg.html#a74343fce57f519e87cbff9557ee65a27',1,'hsmg']]],
-  ['hsmg_5finit_288',['hsmg_init',['../dd/dd1/namespacehsmg.html#a09d637b40908c9c55c5f01bc366f8334',1,'hsmg']]],
+  ['hsmg_5finit_288',['hsmg_init',['../dd/dd1/namespacehsmg.html#a00402a723ca5643736b1bd2d9ac0b8a7',1,'hsmg']]],
   ['hsmg_5finit_5ffrom_5fcomponents_289',['hsmg_init_from_components',['../dd/dd1/namespacehsmg.html#ab830dd9f45e2e8d9c22e36f8639af6ae',1,'hsmg']]],
   ['hsmg_5fset_5fh_290',['hsmg_set_h',['../dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3',1,'hsmg']]],
   ['hsmg_5fsolve_291',['hsmg_solve',['../dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0',1,'hsmg']]],

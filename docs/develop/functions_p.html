@@ -146,6 +146,8 @@ $(document).ready(function(){initNavTree('functions_p.html',''); initResizable()
 <li>pc&#160;:&#160;<a class="el" href="dd/ded/structscalar__scheme_1_1scalar__scheme__t.html#a166adb51fd861d560cb4a9d8788dadfa">scalar_scheme::scalar_scheme_t</a></li>
 <li>pc_crs&#160;:&#160;<a class="el" href="dd/d81/structhsmg_1_1hsmg__t.html#a84aad23d2d19aa504aa5a5a56269163e">hsmg::hsmg_t</a></li>
 <li>pc_filt&#160;:&#160;<a class="el" href="dc/d26/structpde__filter_1_1pde__filter__t.html#a54acbd05308498db37d3290e871c634d">pde_filter::pde_filter_t</a></li>
+<li>pc_free()&#160;:&#160;<a class="el" href="da/d92/interfaceprecon_1_1pc__free.html#a89c9a0e9e6d665c3c374e81caff18448">precon::pc_free</a></li>
+<li>pc_init()&#160;:&#160;<a class="el" href="d3/def/interfaceprecon_1_1pc__init.html#a816df0c429632d9ae2cec0ab14dbf4f9">precon::pc_init</a></li>
 <li>pc_prs&#160;:&#160;<a class="el" href="d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html#ac3e0ae9b392f7fd1c284ce2d70c287ed">fluid_scheme_incompressible::fluid_scheme_incompressible_t</a></li>
 <li>pc_solve()&#160;:&#160;<a class="el" href="df/db4/interfaceprecon_1_1pc__solve.html#a26f693115f4ad710fe4671339c87deb1">precon::pc_solve</a></li>
 <li>pc_update()&#160;:&#160;<a class="el" href="d0/d0b/interfaceprecon_1_1pc__update.html#a0168c71ec8bb90eed87cdb244c3de03d">precon::pc_update</a></li>
@@ -269,7 +271,7 @@ $(document).ready(function(){initNavTree('functions_p.html',''); initResizable()
 <li>pre_solving()&#160;:&#160;<a class="el" href="d5/dcf/structprojection_1_1projection__t.html#abad47071187c8d5515a4dab7c6ecff20">projection::projection_t</a>, <a class="el" href="d8/dfd/structprojection__vel_1_1projection__vel__t.html#a0ed4b3ea9655441baf92f933947fdf75">projection_vel::projection_vel_t</a></li>
 <li>precision&#160;:&#160;<a class="el" href="df/d0b/structhdf5__file_1_1hdf5__file__t.html#a8a6bc90628705fe7f4541c77b2f6ff21">hdf5_file::hdf5_file_t</a>, <a class="el" href="d0/d68/structvtkhdf__file_1_1vtkhdf__file__t.html#a9f266012bbb0f645c9ba6b0c27f43939">vtkhdf_file::vtkhdf_file_t</a></li>
 <li>precon_allocate()&#160;:&#160;<a class="el" href="d2/d3a/interfaceprecon_1_1precon__allocate.html#a210da681f02097774c569d8bd9187d7a">precon::precon_allocate</a></li>
-<li>precon_factory_()&#160;:&#160;<a class="el" href="d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html#ad97f5f3aa98a2f7d51587adfb00eecf3">fluid_scheme_incompressible::fluid_scheme_incompressible_t</a></li>
+<li>precon_factory_()&#160;:&#160;<a class="el" href="d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html#a61564cb9b5f4efc560be17a3a53a3deb">fluid_scheme_incompressible::fluid_scheme_incompressible_t</a></li>
 <li>precon_type_filt&#160;:&#160;<a class="el" href="dc/d26/structpde__filter_1_1pde__filter__t.html#a937b2eb677af4b4e0ad32f3e2ea675ba">pde_filter::pde_filter_t</a></li>
 <li>prep_checkpoint()&#160;:&#160;<a class="el" href="dd/d75/structale__manager_1_1ale__manager__t.html#a8e77eb8002a8279143d0bf12aab9014e">ale_manager::ale_manager_t</a></li>
 <li>preprocess()&#160;:&#160;<a class="el" href="d0/d38/structartificial__viscosity__model_1_1avm__t.html#a531d87f60e44dd196a680970d2837aca">artificial_viscosity_model::avm_t</a>, <a class="el" href="da/d80/structentropy__viscosity_1_1entropy__viscosity__t.html#a256c2f78c0ff9ce033304039b2d6275e">entropy_viscosity::entropy_viscosity_t</a>, <a class="el" href="d6/d7d/structlpt_1_1lpt__t.html#a0455aad49939fb8c25ea5513d60af536">lpt::lpt_t</a>, <a class="el" href="da/d5d/structneko__api__user_1_1api__user__cb.html#a1b6ad248d1106f01d752068af327dfe8">neko_api_user::api_user_cb</a>, <a class="el" href="de/d74/structsimcomp__executor_1_1simcomp__executor__t.html#ad6c647b554df949c1034710de1023a33">simcomp_executor::simcomp_executor_t</a>, <a class="el" href="dc/d0d/structsimulation__component_1_1simulation__component__t.html#a6885b522092cb5a27728f28748391969">simulation_component::simulation_component_t</a>, <a class="el" href="d7/da0/structuser__intf_1_1user__t.html#a61cc61ba502a9afb50766cf68e5405ad">user_intf::user_t</a></li>
@@ -317,7 +319,7 @@ $(document).ready(function(){initNavTree('functions_p.html',''); initResizable()
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Thu Oct 8 2026 03:49:08 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Fri Oct 9 2026 03:48:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

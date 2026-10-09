@@ -958,6 +958,8 @@ var hierarchy =
     [ "parmetis::parmetis_v3_partmeshkway", "da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html", null ],
     [ "expression::parser_t", "da/d23/structexpression_1_1parser__t.html", null ],
     [ "particles::particles_t", "d7/d84/structparticles_1_1particles__t.html", null ],
+    [ "precon::pc_free", "da/d92/interfaceprecon_1_1pc__free.html", null ],
+    [ "precon::pc_init", "d3/def/interfaceprecon_1_1pc__init.html", null ],
     [ "precon::pc_solve", "df/db4/interfaceprecon_1_1pc__solve.html", null ],
     [ "precon::pc_t", "d7/d3a/structprecon_1_1pc__t.html", [
       [ "device_identity::device_ident_t", "dd/ddc/structdevice__identity_1_1device__ident__t.html", null ],

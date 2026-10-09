@@ -373,7 +373,7 @@ var searchData=
   ['hsmg_5fevent_370',['hsmg_event',['../dd/d81/structhsmg_1_1hsmg__t.html#a6d1bc4aa6695cc2bb4c2bbdf6bb5a903',1,'hsmg::hsmg_t']]],
   ['hsmg_5ffill_5fgrid_371',['hsmg_fill_grid',['../dd/dd1/namespacehsmg.html#ac9484fe847707b07cf9cfa347569ee8e',1,'hsmg']]],
   ['hsmg_5ffree_372',['hsmg_free',['../dd/dd1/namespacehsmg.html#a74343fce57f519e87cbff9557ee65a27',1,'hsmg']]],
-  ['hsmg_5finit_373',['hsmg_init',['../dd/dd1/namespacehsmg.html#a09d637b40908c9c55c5f01bc366f8334',1,'hsmg']]],
+  ['hsmg_5finit_373',['hsmg_init',['../dd/dd1/namespacehsmg.html#a00402a723ca5643736b1bd2d9ac0b8a7',1,'hsmg']]],
   ['hsmg_5finit_5ffrom_5fcomponents_374',['hsmg_init_from_components',['../dd/dd1/namespacehsmg.html#ab830dd9f45e2e8d9c22e36f8639af6ae',1,'hsmg']]],
   ['hsmg_5fset_5fh_375',['hsmg_set_h',['../dd/dd1/namespacehsmg.html#a25c9fa74d9a25ea39e51a25695e12cf3',1,'hsmg']]],
   ['hsmg_5fsolve_376',['hsmg_solve',['../dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0',1,'hsmg']]],

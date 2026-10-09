@@ -1,7 +1,9 @@
 var structphmg_1_1phmg__t =
 [
+    [ "free", "d8/d4e/structphmg_1_1phmg__t.html#a902ad9709b70a6b5f53397649e17a13d", null ],
     [ "free", "d8/d4e/structphmg_1_1phmg__t.html#aceddb4c5eab67a3279e0eb7c0f622df2", null ],
-    [ "init", "d8/d4e/structphmg_1_1phmg__t.html#acef4a4b71da836be454d2ce6d663ce43", null ],
+    [ "init", "d8/d4e/structphmg_1_1phmg__t.html#a2b0aa2f350d5b46d6bdeecfa75d0f17d", null ],
+    [ "init", "d8/d4e/structphmg_1_1phmg__t.html#a70dc8a6e993fdc1a83b963d7e47de668", null ],
     [ "init_from_components", "d8/d4e/structphmg_1_1phmg__t.html#ae1ee15791d6181caf64865b2d857be40", null ],
     [ "mg_cycle", "d8/d4e/structphmg_1_1phmg__t.html#a05bc14994e7d80eff3820ef9313b6181", null ],
     [ "solve", "d8/d4e/structphmg_1_1phmg__t.html#a265fdd4ee86cb585d2531ecf861fd32f", null ],
