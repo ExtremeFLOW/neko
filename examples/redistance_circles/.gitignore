@@ -16,4 +16,3 @@ chain*.log
 box*.nmsh
 logs/
 evidence/talk/
-eps_1d/*.pkl

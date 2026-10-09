@@ -3,11 +3,9 @@
 **This file is a snapshot**, trimmed to what the three `visualize.ipynb`
 notebooks in this repo actually use. The living version is
 `../neko-multiphase/examples/saini_benchmarks/norms.py`; if the two drift, that
-repo is the source of truth. Same convention as
-`references/saini_2026_test_cases.md`.
+repo is the source of truth.
 
-See `references/saini_2026_test_cases.md` section 2 for what each norm measures
-and why `E_r` and `E_v` decouple.
+The root `README.md` ("Results") defines each norm.
 
 Naming, fixed project-wide and deliberately *not* Saini's: **`phi` is the phase
 field** (0-1, tanh profile) and **`psi` is the signed-distance field**. Saini use

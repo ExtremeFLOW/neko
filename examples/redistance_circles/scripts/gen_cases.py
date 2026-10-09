@@ -4,7 +4,7 @@ Usage: gen_cases.py <outdir> <eps-rule> <Hden>:<N>[:<ratio>] ...
 
 <eps-rule> is mandatory and has no default. It is the width of the sign function,
 Eq. (46). `0.25` (absolute) is what the committed cells carry: the authors' value,
-from their code (`signls`; README.md section 2). `HN:1` is the reading of the
+from their code (`signls`; ../README.md section 2). `HN:1` is the reading of the
 paper's Eq. (36), eps = xi*H with their xi = 1/N. Forms:
 
     HN:1         C * H/N        (the paper's Eq. 36 at C = 1)
