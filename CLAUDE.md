@@ -1,341 +1,217 @@
 # CLAUDE.md
 
-This repo is a **showcase**, not an investigation: Neko plus demo cases for CDI
-with the compression normal taken from a separately transported signed-distance
-field $\psi$. The forensic work — why CDI needs a `psi`-normal at all, what was
-tried and failed, every measured number behind the decisions in `CDI_METHOD.md`
-— lives in the sibling repo `../neko-multiphase/`. Link to it; don't re-derive
-it here. Read `README.md` and `CDI_METHOD.md` before touching a case's `.f90`.
+This repo is a **showcase**: Neko plus four cases for CDI with the compression normal taken from a
+separately transported signed distance $\psi$.
+- **What comes from where.** The $\psi$ machinery is meant to be Saini & Tomboulides' (JCP 2026) as
+  published. The $\phi$ equation is Neko's CDI, which is the one intended difference.
+- **Attribution.** It is not "Saini's approach". The transported-distance normal predates him
+  (Al-Salami et al.), and Eq. (44) is classical TLS re-distancing. Cite him for the equation forms
+  and parameters we validate against.
+- **The investigation lives elsewhere.** Why CDI needs a $\psi$-normal at all, and what failed, is in
+  `../neko-multiphase/`. Link to it; don't re-derive it.
+
+Read `README.md` and `CDI_METHOD.md` before touching any `.f90`.
 
 ## Where things are
 
 | file | holds | read it when |
 |---|---|---|
-| `README.md` | the cases, their status table, recommended settings, build/run | always, first |
-| `examples/redistance_circles/README.md` | the §4.4 case on its own: the problem, its configuration and where each setting comes from, how the code works (paper-against-code table), results against Saini, limitations, running, evidence | **before any §4.4 work, first** |
-| `examples/redistance_circles/archive/README_process_2026-09.md` | the archived process record: the audit, the ε = H/N work (drift, capture, apex, N/4 arms), eliminated hypotheses, the study of the authors' code, dated history | when a question is about how or why, or needs an old number |
-| `CDI_METHOD.md` | the method: equations, naming, every design decision. §1 $\xi$ and the notation clash with Saini, §4 redistancing, §4.4 the method lessons of the circles case, §5 SVV, §7 what is actually validated | before touching any `.f90` or making a method claim |
-| `REDISTANCING.md` | when to redistance, and **§9: what the Fortran computes for Eq. (44), routine by routine** | before touching `rd_*`, `unit_normal`, the SVV steps |
-| `NEXT_SESSION.md` | the Rider–Kothe redistancing plan (which events path to carry, why the rebuilt normal is worse than transport's, the thin tail), Saini §4.5's reference values beside his code's, and the parked items for the other cases | working on the coupled cases |
-| `examples/<case>/README.md` | exact parameters and results of that case | before quoting any number |
-| `references/` | the JCP PDF (gitignored) and a frozen snapshot of the test-case notes | see "Writing docs" |
-| `../neko-multiphase/references/` | the older ANL report (PDF) and its reading notes, the source of truth for the notes | only for implementation detail |
+| `README.md` | the cases, the results table, recommended settings, build/run | always, first |
+| `CDI_METHOD.md` | the method; §5 SVV; **§6 Saini's configuration against ours** | before a method claim or a `.f90` change |
+| `REDISTANCING.md` | maintaining $\psi$: terms, what is known, rules; §5 the code for Eq. (44), routine by routine | before touching `rd_*`, `unit_normal`, the SVV steps or the events path |
+| `NEXT_SESSION.md` | what is open, including the Rider–Kothe porting spec | before working on the coupled cases |
+| `examples/<case>/README.md` | exact parameters, results, and an appendix of runs in other configurations | before quoting any number |
+| `examples/redistance_circles/README.md` | the §4.4 record, with its paper-against-code table | before any §4.4 work |
+| `examples/redistance_circles/archive/README_process_2026-09.md` | the frozen §4.4 process record | for an old number, or a how or why |
+| `examples/<case>/logs/` | gitignored, local: run records (`PREREGISTERED.txt`), scratch user files, measurement and figure scripts | when a number's source matters |
+| `examples/tools/check_shared_routines.py`, `examples/norms.py` | the shared-routine checker; the error norms | |
+| `references/` | the JCP PDF and Saini's email of 2026-09 (both gitignored) | through `paper-lookup` |
+| `../neko-multiphase/references/` | the older ANL report and the reading notes on Saini's test cases (don't copy them here) | for implementation detail |
 
-Plans hold plans; settled results go into the case READMEs and `CDI_METHOD.md`;
-standing rules go here. **Saini §4.4 facts go into `examples/redistance_circles/README.md`
-first**; `CDI_METHOD.md` §4.4, `REDISTANCING.md` §9 and the root README summarise it
-and point there. The README describes the case as it is; process and history go to its
-archive, not into the README. Don't grow parallel copies. When an item in a plan is finished, move it out rather
-than letting the plan grow.
+## Writing and placing docs
 
-## Method invariants — settled, don't relitigate
+- **Results live in the case READMEs only.** §4.4 facts go in the circles README first.
+  `README.md` summarises, and the method docs point. Don't grow parallel copies.
+- **Plans live in `NEXT_SESSION.md`.** A finished item leaves it.
+- **Delete superseded text**; don't archive or date it. Git is the record, and the circles archive is
+  frozen.
+- **Non-Saini runs go in the appendix.** A run in a configuration Saini doesn't use becomes one row
+  of its case README's appendix table, with no discussion.
+- **No dated narrative.** Dates appear only as the provenance of a number or a status.
+  - Say where every number comes from: file, log, or notebook output.
+  - Name configurations by content ("Saini's settings, our $\Delta\tau$"), not by run label.
+- **Write equations in LaTeX** (`$...$`, `$$...$$`), not ASCII.
+- **$\xi$ means $\varepsilon N/H$ here**, which is $N$ times Saini's $\xi$. His field names are
+  transposed: his $\psi$ is our $\phi$. Never compare the bare symbols.
+- **$E_r$.**
+  - `redistance_circles` uses Eq. (84) with $\int\psi_e$ only.
+  - Saini's Rider–Kothe $E_r$ divides by the area *outside* the disk, about 13× ours. Recompute on
+    his dumps with `norms.E_r` before comparing.
+- **Don't quote Rider–Kothe numbers from before 2026-10-02** (frozen diffusion). Mark those from
+  before 2026-10-05 as "before the velocity fix".
 
-- **SVV is a `psi`-only knob. There is no `svv_phi`: the code has none, and the
-  three coupled files stop at startup if `case.cdi.svv_phi` is present.** The architecture is fixed: **`phi` carries the CDI
-  equation** (transport + compression + the physical diffusion
-  `eps*gamma*u_max`); **`psi` carries transport plus SVV**. **Every run that
-  transports `psi` for the normal (`normal = "psi"`) has `svv_psi` on, `c0 > 0`**
-  (user, 2026-10-02). SVV-off is not a configuration of this method, so don't
-  run it, not even as a baseline row. Saini does the same: SVV on every scalar
-  equation, his TLS transport Eq. (43) included. The three coupled files stop at
-  startup if `normal = "psi"` and `svv_psi` is off. The value is $N_{svv}=N/2$ with
-  `c0` 0.1, his TLS-transport value (§4.5, his §5 default), used by Rider–Kothe and
-  the slab's sweep cases (its SVV and redistancing variants keep 1). Zalesak still ships `c0` 1, which comes from his §4.3 setting for the
-  *CLS* transport (our $\phi$), not the TLS; whether to change that is open
-  (`NEXT_SESSION.md`). The only SVV knob that ever varies is
-  `case.cdi.svv_psi.c0`. Don't propose an `svv_phi` arm —
-  not as an ablation, and not when comparing against a paper that puts SVV on
-  the phase field (Saini et al.'s naming is transposed, so their SVV sits where
-  `svv_phi` would; we do not adopt that placement). Nor may SVV replace or merge
-  with `phi`'s diffusion: that term is equilibrium-defining, not numerical
-  seasoning. See `CDI_METHOD.md` §5.
-- **Where the SVV viscosity sits is not a detail for Eq. (44).** `svv_local`
-  applies `nu` *inside* the bilinear form, with $|\mathbf c|=1$. Saini's
-  Eqs. (7), (31) and (33) instead left-multiply the *assembled* operator by a
-  pointwise $\mathbf D_\mu$. For Eq. (44) that is $|\operatorname{sgn}\psi|$, which
-  vanishes on the zero set. The two forms agree only for constant $\nu$. The
-  printed form is what stops the SVV dragging the interface in
-  `redistance_circles` (`CDI_METHOD.md` §4.4).
-  - Don't make `nu` vary inside `svv_local` and call it Eq. (31).
-  - `redistance_circles` uses the printed form and nothing else, in its own
-    `svv_step_eq31`, built on the 17 shared routines without editing them. It is
-    how that equation is solved, not a `.case` option; don't reintroduce a
-    toggle for the old $|\mathbf c|=1$ form. On Rider–Kothe the $|\mathbf c|=1$ form is what
-    makes the coupled events' spurious zero sets (D5, `CDI_METHOD.md` §4.1d item 5); moving the
-    coupled files to the printed form is the user's decision (`NEXT_SESSION.md`).
-  - The sign convention of an IC (negative vs positive inside) cannot matter to
-    Eq. (44): the equation and the scheme are exactly odd in $\psi$, checked bit
-    for bit.
-- **In Eq. (44), $\mathbf w=\operatorname{sgn}(\psi)\nabla\psi/|\nabla\psi|$ is a function of
-  $\psi$, not a velocity field.**
-  - Re-form it from each time level's own $\psi$, and apply it only to that $\psi$. In
-    BDF/EXT the lags hold the products $\operatorname{sgn}(\psi^m)-\mathbf C(\mathbf w^m)\psi^m$, never $\mathbf w$.
-  - Its sign term cancels the source's $\operatorname{sgn}'(\psi)\delta$ on the zero set. A frozen,
-    lagged, extrapolated or subcycled $\mathbf w$ leaves growth at up to $1/2\varepsilon$: frozen
-    diverges, and a lag of 0.05 in $\tau$ is 6× worse.
-  - So Eq. (44) never goes through Neko's scalar solver, whose velocity is an external
-    field. In `redistance_circles` (D4, 2026-09-29) $\mathbf C(\mathbf w)$ is **dealiased** on
-    $\lfloor 3(N+1)/2\rfloor$ Gauss points (`adv_dealias_t`), as in Saini's code (`convect_new`),
-    together with his sign guard: a node whose $\psi^n$ disagrees in sign with $\psi_0$ keeps
-    $\psi^n$. Dealiasing moves zero-set nodes and breaks a flat interface's exact steady state.
-    The coupled cases keep the non-dealiased GLL form (`conv1`, then B, gather-scatter, Binv,
-    equal to $\operatorname{sgn}(\psi)|\nabla\psi|$ to 1e-14); every D5 run kept it too.
-    D6 (2026-10-07/08, scratch user file) added Saini's dealiasing with his guard on Rider–Kothe:
-    it reproduces his settings and costs about 18% in $E_r(8)$ (`CDI_METHOD.md` §4.1d item 6).
-  - `redistance_circles` integrates it with Saini's own BDF2/EXT2 (Eqs. 34–35), its
-    only scheme since 2026-09-26. At $\varepsilon=H/N$ (2026-09-26) BDF2 and BDF3 agree with RK3
-    within 1.9% in the Table 2 cells to $\tau=24$
-    (`examples/redistance_circles/archive/README_process_2026-09.md` §7.4), and BDF2 within
-    2.2% over the whole Fig. 12 grid (§7.2). So the
-    integrator is not a suspect. The exception is the weaker
-    $N_{svv}=N/4$ at $H{=}1/5$, $N{=}7$: only RK3's Lie-split damping held the apex
-    there (§7.5). The coupled cases still use SSP-RK3 with `svv_step_imp`; on Rider–Kothe one
-    event with BDF2 and the printed SVV matches RK3 with it within 1% in the band means (D5).
-- **Never seed `psi` from an analytic distance in any run that redistances.**
-  `case.cdi.psi_init` has two values: `"exact"` (the analytic periodic distance,
-  the default, and what the validated no-redistancing results use) and
-  `"redistance"` (Saini's Algorithm 1 line 2 — build `psi` by the Eq. (44) solve
-  from the `r_f(phi-0.5)` seed). Redistancing on top of an analytic `psi` is the
-  incoherent pairing that confounded the first ablation (`CDI_METHOD.md` §4);
-  more importantly, **the analytic distance is a crutch that does not exist in
-  the applications this method is for**, so anything built on it does not carry
-  over. With `psi_init = "redistance"` the analytic distance function must not
-  be *evaluated at all* for `psi` — in all three coupled user files its one call
-  site sits in the `else` branch of that check, inside `initial_conditions`.
-  Keep it that way; don't "helpfully" seed the analytic field first and
-  overwrite it.
-- **`redistance.band` coverage is a quality knob, not a stability one.** The
-  compression term reads the normal out to $9.21\varepsilon = 9.21\xi H/N$ while
-  redistancing rebuilds `psi` only within `band`$\times H$, so `band >= 9.21*xi/N`
-  ($N >= 3.68\xi$ at the default 2.5) is what makes the built field cover the
-  interface — it measurably improves the build (band mean 1.259 -> 1.027 at
-  `N=3`). **It does not fix arm C.** With the history bug (2026-09), raising the band
-  made `N=3` diverge *sooner*, and `N=5` diverged while satisfying the bound; the
-  band-4.0 run has not been repeated since. (An earlier version of this
-  rule claimed otherwise.) Re-run with the history restart (2026-10-02): `N=3`
-  still diverges ($t=11.2$), `N=5` completes 17× worse than arm B, and `N=7`
-  diverges. The cause is $\phi$'s contour fragmenting, with each reseed sustaining
-  the fragments (`CDI_METHOD.md` §4.1c).
-- **The `unit_normal` gradient floor must stay above the round-off gradient of a
-  flat field (~1e-19); 1e-6 is load-bearing.** A banded `psi` is flat over most
-  of the domain, and a floor below round-off makes `unit_normal` hand the
-  compression term a *random unit vector* there, which diverges the run. It was
-  once 1e-30 and its own comment claimed to guard exactly this case
-  (`CDI_METHOD.md` §4.1). The three coupled files read it as
-  `case.cdi.grad_floor` (default 1e-6); `redistance_circles` fixes it as a
-  parameter. Don't lower it, and don't assume `|grad psi|` is order 1 just
-  because it is inside the interface band.
-- **"Redistancing" and "reinitialization" are not the same operation** — and
-  **Saini's usage differs from this repo's**. For them, Eq. (44) is the
-  "re-distancing *equation*" and the *operation* is "re-initialization", which
-  is **always** the Eq. (47) reseed followed by the Eq. (44) solve; Algorithm 1
-  has no in-place mode. This repo splits them: `seed="phi"` is Saini's
-  operation, `seed="psi"` (relax in place, no reseed) is our own. With the
-  event's history restart, neither costs anything on the 1D slab. The old "the
-  reseed is the entire cost" was the history bug. On Zalesak the reseed sustains
-  $\phi$'s contour fragments (`CDI_METHOD.md` §4, §4.1c). Use the two words
-  precisely, and say whose sense you mean when it could matter.
-- **Attribution:** don't describe this method as "Saini's approach". Neko's CDI
-  equation is structurally different from Saini et al.'s split CLS scheme
-  (`CDI_METHOD.md` §2), and even the transported-signed-distance-normal idea the
-  two share is, by their own account, adopted from earlier work (Salami et al.,
-  classical TLS redistancing). Cite Saini et al. (2026) only for the specific
-  equation forms/parameters this repo's implementation was validated against.
+## Method rules — settled, don't relitigate
+
+- **SVV is a $\psi$-only knob.** $\phi$ carries the CDI equation: transport, compression, and the
+  physical diffusion $\varepsilon\gamma u_{\max}$. $\psi$ carries transport plus SVV.
+  - There is no `svv_phi`; the coupled files stop at startup if `case.cdi.svv_phi` is present. Don't
+    propose one, not as an ablation, and not when comparing with Saini's SVV on his phase field.
+  - SVV never replaces or merges with $\phi$'s diffusion.
+- **`svv_psi` is always on for `normal = "psi"`.** $c_0>0$ is enforced at startup.
+  - The value is $N/2$, $c_0=0.1$, Saini's $\psi$-transport value. Zalesak still ships 1.0, his
+    phase-field value; that is open.
+  - **Never run SVV-off**; old SVV-off results are appendix rows.
+  - $c_0$ is the per-case knob. $|\mathbf c|$ is the flow's $u_{\max}$ in the committed files and the
+    local $|\mathbf u|$ in Saini's.
+- **Eq. (44)'s SVV is the printed Eq. (31) form.** A pointwise
+  $\mathbf D_\mu=|\operatorname{sgn}\psi|$ left-multiplies the assembled operator (`svv_step_eq31`).
+  - Don't make $\nu$ vary inside `svv_local` and call it Eq. (31).
+  - No toggle back to the uniform form. The coupled files still use `svv_step_imp`; moving them is
+    `NEXT_SESSION.md` item 1.
+- **$\mathbf w=\operatorname{sgn}(\psi)\nabla\psi/|\nabla\psi|$ is a function of $\psi$, not a
+  velocity.**
+  - Re-form it from each level's own $\psi$. BDF/EXT lags hold the products, never $\mathbf w$.
+  - So Eq. (44) never goes through Neko's scalar solver.
+  - An IC's sign convention cannot matter: Eq. (44) and the scheme are odd in $\psi$.
+- **The integrator is not a suspect.** BDF2, BDF3 and RK3 agree within 2.2% on §4.4. The exception:
+  at $N_{svv}=N/4$ only RK3's split damping held an apex.
+- **No analytic seed when redistancing.** `psi_init` is `"exact"` (analytic; the validated runs) or
+  `"redistance"` (Algorithm 1, line 2).
+  - With `"redistance"` the analytic distance is never evaluated. Its one call site stays in the
+    `else` branch of `initial_conditions`; don't seed it first and overwrite it.
+  - Never pair `"exact"` with events.
+- **`grad_floor` is $10^{-6}$ and load-bearing.** It must stay above a flat field's round-off
+  gradient, about $10^{-19}$. The coupled files read `case.cdi.grad_floor`; `redistance_circles` fixes
+  it as a parameter.
+  - Don't lower it.
+  - Don't assume $|\nabla\psi|\sim1$ inside the band.
+- **Band coverage $N\ge3.68\xi$** (at band 2.5) is a build-quality bound, not a stability fix.
+- **Redistancing and reinitialization are different words.**
+  - Saini's "re-distancing" names Eq. (44); his operation, "re-initialization", is the Eq. (47)
+    reseed plus Eq. (44), and he has no in-place mode.
+  - Ours: `seed = "phi"` is his operation, `seed = "psi"` our in-place relaxation.
+  - Say whose sense you mean.
+- **The $\psi$ target is Saini's configuration** (`CDI_METHOD.md` §6). A deviation is a work item, not
+  an alternative.
 
 ## Repo conventions — keep the showcase minimal
 
-- No diagnostic CSV output, no raw/ungathered diagnostic fields, no comparison
-  variants beyond `zalesak_disk`'s one sanctioned ablation, no session-log
-  markdown files. If you're tempted to add one, it belongs in `neko-multiphase`
-  (or a fresh `neko-multiphase-*` sandbox). The one deliberate exception per
-  case is its `visualize.ipynb` — a short pysemtools notebook (load two
-  snapshots, one plot). Don't grow it into a multi-part diagnostic notebook.
-- **A validated fix becomes *the* code, not an option.** Validate it against the
-  reference (temporary bit-identity scaffolding is fine), then remove the
-  switch rather than defaulting it, and clean up after it: docs, stale files,
-  the notebook, dead toggles. Old results survive only as history in the docs.
-- Generated sweep or diagnostic `.case` files go in the session scratchpad (or
-  a `scripts/gen_cases.py` output dir), never next to the shipped cases.
-- `examples/zalesak_disk/` is the one exception to "one settled `.case` per
-  case": a small, labelled ablation set whose **primary is redistancing off**
-  (the validated configuration — don't invert this, an earlier draft of these
-  docs did), plus two variants that *add* redistancing (`seed="psi"` in place,
-  `seed="phi"` reinit+redistance). The two variants build $\psi$ by Eq. (44)
-  (`psi_init = "redistance"`) and fire on the timer; their recorded numbers predate
-  that configuration and are not citable until re-run. Understanding that distinction
-  (`CDI_METHOD.md` §4) is part of what this repo is for. Don't let the pattern
-  spread, and don't grow the set beyond those three without a specific reason.
-  (`advecting_slab_1d` ships a $\xi$/$\gamma$/$N$ sweep because its operating
-  envelope is what it demonstrates; see its README.)
-- `examples/redistance_circles/` is a benchmark reproduction, not a showcase
-  case, so the one-`.case` rule does not apply: it ships Saini Table 2's four
-  cells, and `scripts/gen_cases.py` generates the rest of the Fig. 12 grid on demand
-  (ε rule `0.25`). Its committed cases carry $\varepsilon = 0.25$ in Eq. (46), the value
-  in Saini's own code (`signls`, `nandu90/nekLS_Examples@jcp`); the paper's $\xi H/N$ is
-  the phase field's width, not the sign function's. Don't change it back. Its status is
-  **reproduced** (2026-09-29): with his configuration the code gives his `plot.py` values,
-  and every remaining difference is zero-set round-off under his guard (runs seeded with
-  his zero-set $\psi_0$ match exactly). Its README must say plainly that low-N cells can
-  fail on our mesh for that reason. That README describes the case on its own; its §3 table
-  maps every printed equation to a routine. Keep it in step with the code. How we got here is
-  archived in `archive/README_process_2026-09.md`.
-- `examples/rider_kothe/` is complete with redistancing off. Its tables are from the
-  2026-10-05/06 re-runs with the velocity fix (transport-only $E_r$ 0.0452); every number before
-  2026-10-02 had the frozen diffusion, so don't quote one. With the diffusion and history fixes,
-  Saini's full periodic-reseed configuration (scratch user file) completes ($E_r$ 0.0407 vs
-  0.0446 transport only, both before the velocity fix).
-  But its $\psi$ normal is 4–8° off where transport's is 0.6–0.8°. D5 (scratch user file
-  `logs/d5_2026-10-06/rider_kothe_0c.f90`, 2026-10-06/07): with BDF2, the printed Eq. (31) SVV and
-  Saini's width 0.25 with $25H$, the reseed beats transport on $\phi$'s shape ($E_r(8)$ 0.0342 vs
-  0.0452; 0.0085 vs 0.0104 at $H=1/128$). Its $\psi$ is not a distance in the band, though, and its
-  normal is further from the exact interface than transport's from $t\approx2$ on, as its $\phi$'s
-  own normal is. D6 (`logs/d6_2026-10-07/rider_kothe_d6.f90`, 2026-10-07/08) adds Saini's
-  dealiasing with his sign guard: 0.0402, reproducing his settings' 0.0407 (older build), so the pair
-  accounts for the gap between the two. None of the reseed configurations
-  is a validated alternative yet, and none is in `rider_kothe.f90`; say so plainly.
-- **Saini's Rider–Kothe $E_r$ is not on our scale:** his code divides by the area
-  *outside* the disk (his CLS is 1 outside), ~13× ours. Recompute on his dumps with
-  `norms.E_r` before comparing (`examples/rider_kothe/README.md`).
-- Each case's `evidence/` holds the figures and animations produced by this
-  repo's own runs: by its `visualize.ipynb`, or for `redistance_circles` by its
-  gitignored `logs/saini_case/figs44.py evidence` and `logs/saini_case/anim_new/`. They are meant to be committed, since they are
-  the demonstration this repo exists to show. Don't add a placeholder
-  `evidence/` to a case that has produced no figures (`CDI_METHOD.md` §8).
-- `references/saini_2026_test_cases.md` is a carried-over snapshot of reading
-  notes from `neko-multiphase`, not this repo's living document. See its
-  disclaimer before editing. If it drifts, `neko-multiphase` is the source of
-  truth.
+- **No diagnostics in the repo.** No diagnostic CSV output, no raw or ungathered diagnostic fields,
+  no session-log markdown. Those belong in `neko-multiphase` or a scratch sandbox.
+- **One short `visualize.ipynb` per case.** Don't grow it into a diagnostic notebook.
+- **A validated fix becomes the code, not an option.**
+  1. Validate it; temporary bit-identity scaffolding is fine.
+  2. Remove the switch.
+  3. Clean up the docs, stale files, the notebook and dead toggles.
+- **Generated `.case` files** go in the session scratchpad or the case's gitignored `logs/`, never
+  beside the shipped cases.
+- **Shipped `.case` sets.** Don't grow them without a specific reason.
+  - **Zalesak, 8:** the primary with redistancing **off** (don't invert this), its $\phi$-normal
+    baseline, four resolution cases, and two variants that *add* redistancing. The variants' old
+    numbers are not citable.
+  - **Rider–Kothe, 8:** the $\xi$/$\gamma$ cross and the $h$-series.
+  - **Slab, 28:** its $\xi$/$\gamma$/$N$ envelope is what it demonstrates, plus the redistancing
+    testbed.
+  - **Circles, 4:** Table 2. `scripts/gen_cases.py` generates the rest of the Fig. 12 grid.
+- **`redistance_circles` is a reproduction.**
+  - Its cases use $\varepsilon=0.25$ in Eq. (46), as Saini's code does (`signls`); don't change it
+    back.
+  - Its README must say that low-$N$ cells can fail on our mesh, through zero-set round-off under the
+    guard.
+  - Keep its §3 paper-to-code table in step with the code.
+- **`rider_kothe` re-initialization** configurations exist only as scratch user files under `logs/`.
+  None is in `rider_kothe.f90`.
+- **`evidence/`** holds figures and animations from this repo's own runs, made by the notebook or,
+  for circles and Rider–Kothe, by local scripts under `logs/`. Commit them.
+  - Use the kthviz style (Figtree, the KTH palette, `cmap('phase')` for $\phi$), and ship every
+    animation as a GIF too.
+  - Don't add a placeholder `evidence/`.
 
 ## The four user files
 
-- **The shared machinery exists four times**: `svv_t` and its ~375 lines (the
-  power iteration in `svv_init`, the implicit CG, `svv_report`) plus the
-  redistancing primitives (`rd_sgn`, `rd_rhs`, `unit_normal`) are in
-  `zalesak_disk.f90`, `rider_kothe.f90`, `advecting_slab_1d.f90` and
-  `redistance_circles.f90`. The event-driven wrapper (`redistance`,
-  `band_grad_stats`) is in the three *coupled* cases only; `redistance_circles`
-  solves Eq. (44) standalone with its own `redistance_standalone`/`grad_stats`.
-  The duplication is deliberate: it keeps each case to one self-contained user
-  file. But **a fix to a shared routine must be made in all four**. Each file
-  says so in a comment. **Seventeen** routines are byte-identical; check with
-  `python3 examples/tools/check_shared_routines.py <the four .f90 files>`.
-  A project hook runs this after every edit to one of the four and names any
-  shared routine that has drifted (see "Agents and hooks").
-- An **explicit** SVV instance is initialised lazily by its own source-term
-  hook, so a scalar with no `"source_terms": [{"type": "user"}]` entry in the
-  `.case` silently never gets its SVV term, while the startup header still
-  reports it as on (the header reports what was *requested*). All three coupled
-  files raise a hard error after step 1 if an explicit `svv_psi` was requested
-  but its source hook never fired. Keep that guard in any new case built from
-  them.
-- Inline comments in the `.f90` files should be rare and explain only
-  genuinely non-obvious physics/numerics (e.g. a sign convention, why SSP-RK3
-  is required for the redistancing pseudo-time step), not restate the code.
-- Fortran: `use neko` brings a lot of names into scope. Avoid module-level
-  names that collide with it (`file`, `field`, `vector`, `math`, `space`,
-  `csv_file`, …).
-- Neko gotchas worth not rediscovering:
-  - `field_vdot3` is **broken**: it declares its result `intent(out)`, which
-    deallocates the field's storage on entry. Nothing in Neko calls it, so it is
-    unexercised upstream. Use `field_col3` + two `field_addcol3`.
-  - The CUDA kernels cap at `lx = 10` (`opr_dudxyz`, `opr_cfl`, `opr_conv1`),
-    i.e. `polynomial_order` <= 9, so `advecting_slab_1d` ($N=10$) is CPU-only.
-  - `makeneko` fails with "Text file busy" if a running `neko` still holds the
-    binary: move it aside first.
-  - `LOG_SIZE` is 79 characters. A longer `write(mess, ...)` dies at runtime
-    with "End of record", possibly thousands of steps in.
-  - `neko_log%message` indents by three spaces, so grep log lines as `'^ *tag'`.
-  - **A time-varying scalar conductivity must also fill `<name>_lambda_tot`.** The
-    solve reads `lambda_tot`, which Neko copies from `lambda` only at
-    initialisation unless a turbulence model is set. Filling only `s_lambda` froze
-    Rider–Kothe's CDI diffusion at its $t=0$ value until 2026-10-02 and dissolved
-    the filament (`CDI_METHOD.md` §4.1d).
-  - **A prescribed velocity goes in `preprocess`, at `time%tlag(1)`.** The scalar step applies
-    advection and its source terms to $s^n$ and extrapolates, so the velocity must be $u(t_n)$;
-    `compute` runs after the step and leaves step 1 at the case file's $u=0$. `time%t` in
-    `preprocess` is already $t_{n+1}$. Fixed in Rider–Kothe and Zalesak 2026-10-05 (`CDI_METHOD.md` §4.1d).
-  - **A user hook that replaces a scalar field must restart its time history.**
-    `compute()` runs after the scalar step's `slag%update()`, so the BDF lags still
-    hold the old field, and BDF3 settles at old + 11/6 (new − old). Set
-    `neko_user_access%case%fluid%ext_bdf%nadv = 0` and `%ndiff = 0` after the
-    replacement (next step BDF1/EXT1, as Saini's `ireset_ls`). The redistancing events
-    of the coupled cases lacked this until 2026-10-02; all three now have it
-    (`CDI_METHOD.md` §4.1d). A small change
-    (an implicit SVV sub-step) is an O(Δt) split and needs no restart.
+- **The shared machinery exists four times**: `zalesak_disk.f90`, `rider_kothe.f90`,
+  `advecting_slab_1d.f90`, `redistance_circles.f90`. It keeps each case to one self-contained file.
+  - **17 routines are byte-identical, in-body comments included**, so a fix to one is made in all
+    four.
+  - A hook runs `examples/tools/check_shared_routines.py` after every edit to one of these files and
+    names any routine that has drifted. Mid-propagation it lists the files still to update.
+  - The `!>` doc blocks above those routines are not checked. Keep them identical by hand, except
+    where `redistance_circles` uses a routine differently.
+  - `redistance`, `band_grad_stats` and `initialize` are identical across the three coupled files,
+    also by hand.
+- **An explicit SVV instance is initialised lazily** by its own source-term hook. A scalar without
+  `"source_terms": [{"type": "user"}]` never gets its SVV term, while the header still reports it as
+  on. The coupled files stop after step 1 when that happens; keep the guard in any new case.
+- **The knobs are read from `case.cdi`**, not from `case.scalar(s)`.
+- **Inline comments are rare.** Only non-obvious physics or numerics; no restating the code, no
+  history.
+- **`use neko` brings many names into scope.** Avoid module-level names such as `file`, `field`,
+  `vector`, `math`, `space` and `csv_file`.
+
+**Neko gotchas worth not rediscovering:**
+- **`field_vdot3` is broken.** Its result is `intent(out)`, which deallocates the field's storage. Use
+  `field_col3` and two `field_addcol3`.
+- **The CUDA kernels cap at `lx = 10`** (`polynomial_order` $\le9$), so `advecting_slab_1d`
+  ($N=10$) is CPU-only.
+- **`makeneko` fails with "Text file busy"** if a running `neko` holds the binary. Move it aside
+  first.
+- **`LOG_SIZE` is 79.** A longer `write(mess, ...)` dies at runtime with "End of record".
+- **`neko_log%message` indents by three spaces**, so grep log lines as `'^ *tag'`.
+- **A time-varying scalar conductivity must also fill `<name>_lambda_tot`.** Neko copies it from
+  `lambda` only at initialisation unless a turbulence model is set.
+- **A prescribed velocity goes in `preprocess`, at `time%tlag(1)`** ($t_n$). `compute` runs after the
+  scalar step, and `time%t` in `preprocess` is already $t_{n+1}$.
+- **A hook that replaces a scalar field must restart its history:**
+  `neko_user_access%case%fluid%ext_bdf%nadv = 0` and `%ndiff = 0`, so the next step is BDF1/EXT1, as
+  Saini's `ireset_ls`.
+  - Without it BDF3 settles at old + 11/6 (new − old).
+  - A small change, such as an implicit SVV sub-step, needs no restart.
 
 ## Running things
 
-- The `configure`/`make install` build is run manually by the user, not
-  automated here. `source setup-env.sh` (CPU) or `setup-env-cuda.sh` (GPU)
-  selects which `neko` runs. Each case's `run.sh` runs `makeneko`, then its
+- **The `configure`/`make install` build is run by the user.** `source setup-env.sh` (CPU) or
+  `setup-env-cuda.sh` (GPU) picks which `neko` runs. Each case's `run.sh` runs `makeneko`, then its
   cases.
-- **One GPU.** Check it is free before launching
-  (`nvidia-smi --query-compute-apps=pid`; don't count `neko` processes, since a
-  CPU run of `advecting_slab_1d` is one). Launch long chains detached:
-  `setsid nohup ./run.sh ... > chain.log 2>&1 < /dev/null &`.
-- To stop a run, kill by PID from
-  `ps -eo comm,args --no-headers | awk '$1=="neko"{print}'`. A `pkill -f`
-  pattern matches the calling shell and kills the wrong thing.
-- **`advecting_slab_1d` is the 4-minute regression testbed.** Check any change
-  to the shared machinery there before spending hours on Zalesak or
-  Rider–Kothe.
-- **Run logs are huge**: `run_*.log` reaches 620 MB (7.6M lines). Never `cat` or
-  `Read` one. Grep anchored tags with `-m`/`tail`, or hand a multi-log question
-  to the `log-probe` agent.
-- Python is `python3` (there is no `python`). Notebooks and figure scripts use
-  the `venv-neko` kernel at `/lscratch/sieburgh/local/venv-neko`.
-  `pdftotext`/`pdftoppm` are installed.
+- **There is one GPU.** Check it is free first (`nvidia-smi --query-compute-apps=pid`). Don't count
+  `neko` processes: a CPU slab run is one.
+- **Launch long chains detached:** `setsid nohup ./run.sh ... > chain.log 2>&1 < /dev/null &`.
+- **Stop a run by PID**, from `ps -eo comm,args --no-headers | awk '$1=="neko"{print}'`. A `pkill -f`
+  pattern also matches the calling shell.
+- **`advecting_slab_1d` is the 4-minute regression testbed.** Check shared-machinery changes there
+  before Zalesak or Rider–Kothe.
+- **Run logs reach 620 MB.** Never `cat` or `Read` one. Grep anchored tags with `-m` or `tail`, or use
+  `log-probe`.
+- **Python is `python3`.** Notebooks and figure scripts use the `venv-neko` kernel at
+  `/lscratch/sieburgh/local/venv-neko`. `pdftotext` and `pdftoppm` are installed.
 
 ## Research practice — each of these was paid for once
 
-- **Vary one thing at a time.** Three conclusions were drawn and retracted on
-  2026-09-08 because a run changed two variables at once.
-- **A one-shot test does not reveal repeated-event instability.** That is how a
-  pseudo-timestep that is fine for one build and unstable under 40 events
-  nearly became the default (`CDI_METHOD.md` §4.2).
-- **The band minimum of $|\nabla\psi|$ diagnoses nothing.** It is
-  $7.5\times10^{-14}$ for the exact analytic $\psi$ in a run that is clean.
-  Watch the band mean.
-- **Don't judge by one number at one time.** Run long enough to see whether a
-  minimum is transient; for `redistance_circles` judge by the curve shapes and
-  the Fig. 13 map split, not only $E_r(6)$.
-- **Compare two implementations from the same $\psi_0$** before calling a
-  late-time difference a bug. Round-off on zero-set nodes alone moves results.
-- **Neko is not a suspect** when a result doesn't reproduce a Nek5000 paper: the
-  two are near-identical. Look at our user file's scheme choices.
-- **Treat any "Done"/status claim in these docs as provisional.** An earlier
-  pass overclaimed by trusting prior summaries over the case files and notebook
-  *outputs* (`CDI_METHOD.md` verification note and §7). When a status claim
-  matters, check the primary source (or run `claim-auditor`) before repeating
-  it.
-- **Ask the user before:** changing Neko itself (`src/`); changing any of the
-  17 shared routines; changing a committed `.case` file's parameters or the
-  Fortran's log line formats (the notebooks and `logs/*.py` parse them);
-  reading Nek5000's source; contacting the paper's authors.
-
-## Writing docs
-
-- Write equations in markdown as LaTeX (`$...$` inline, `$$...$$` block), not
-  ASCII pseudo-equations. Exception: `references/saini_2026_test_cases.md` is a
-  frozen verbatim snapshot; don't reformat it in place.
-- **$\xi$ means $\varepsilon N/H$ here, which is $N$ times Saini's $\xi$**
-  (`CDI_METHOD.md` §1). Their field names are also transposed: their $\psi$ is
-  our $\phi$. Never compare the bare symbols across the two.
-- Quote $E_r$ for `redistance_circles` with Eq. (84)'s printed denominator
-  $\int\psi_e$ only. The $\int|\psi_e|$ reading is dropped.
-- Use absolute dates. Say where a number comes from (file, log, notebook
-  output).
+- **Vary one thing at a time.**
+- **A one-shot test does not reveal repeated-event instability.**
+- **The band minimum of $|\nabla\psi|$ diagnoses nothing.** Watch the band mean.
+- **Don't judge by one number at one time.** For `redistance_circles`, judge by the curve shapes and
+  the Fig. 13 split, not only $E_r(6)$.
+- **Compare two implementations from the same $\psi_0$** before calling a late-time difference a bug.
+  Zero-set round-off alone moves results.
+- **Neko is not a suspect** when a Nek5000 result doesn't reproduce. Look at our user file's scheme
+  choices.
+- **Treat any "done" or status claim in the docs as provisional.** Check the primary source, or run
+  `claim-auditor`, before repeating one.
+- **Ask the user before:**
+  - changing Neko itself (`src/`);
+  - changing any of the 17 shared routines;
+  - changing a committed `.case` file's parameters, or the Fortran's log line formats (the notebooks
+    and `logs/*.py` parse them);
+  - reading Nek5000's source (Saini's fork, `nandu90/Nek5000@nekLS` and `nandu90/nekLS_Examples@jcp`,
+    is allowed);
+  - contacting the paper's authors.
 
 ## Agents and hooks
 
-Local to this checkout (upstream Neko's `.gitignore` ignores `.claude/`).
-
-- A **hook** runs `examples/tools/check_shared_routines.py` after every edit to one of the four user files
-  and names any of the 17 shared routines that has drifted. Silent when all is
-  well; mid-propagation it is the list of files still to update.
-- **Delegate reading, not thinking.** PDF lookups go to `paper-lookup`,
-  multi-log summaries to `log-probe`, status-claim checks to `claim-auditor`.
-  Keep planning, experiment design and Fortran edits in the main thread: they
-  need the plan's context and the constraints above. When an equation's exact form
-  matters, ask `paper-lookup` to read the **rendered** PDF pages, not the text
-  cache, which garbles math.
+These are local to this checkout; upstream Neko's `.gitignore` ignores `.claude/`.
+- **The hook** runs the shared-routine check after every edit to one of the four user files.
+- **Delegate reading, not thinking.**
+  - PDF lookups go to `paper-lookup`. Ask it to read the rendered pages when an equation's form
+    matters, not the text cache, which garbles math.
+  - Multi-log summaries go to `log-probe`, and status-claim checks to `claim-auditor`.
+  - Planning, experiment design and Fortran edits stay in the main thread.

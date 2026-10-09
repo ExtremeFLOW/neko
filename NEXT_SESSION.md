@@ -1,122 +1,106 @@
 # What is open
 
-The focus is redistancing on Rider–Kothe: whether a $\psi$ maintained by Eq. (44) can give the
-compression term a better normal than the transported one. Settled results live in the case
-READMEs and `CDI_METHOD.md`, standing rules in `CLAUDE.md`. When an item is finished, its result
-goes there and the item leaves this file. The records with every prediction and verdict so far are
-`examples/rider_kothe/logs/d5/PREREGISTERED.txt` and
-`examples/zalesak_disk/logs/armC_2026-10-02/PREREGISTERED.txt` (gitignored, local).
+Settled results live in the case READMEs and the method docs, and standing rules in `CLAUDE.md`. When
+an item here is finished, its result goes there and the item leaves this file.
 
-## Rider–Kothe redistancing
+**Records** (gitignored, local). These hold every prediction and verdict so far:
+- `examples/rider_kothe/logs/d5/PREREGISTERED.txt`;
+- `examples/rider_kothe/logs/vel_fix_2026-10-05/PREREGISTERED.txt`;
+- `examples/zalesak_disk/logs/armC_2026-10-02/PREREGISTERED.txt`.
 
-D5 and D6 are done (`CDI_METHOD.md` §4.1d items 5–6; settings, tables and findings in
-`examples/rider_kothe/README.md`, "Redistancing"). They ran on the scratch user files
-`examples/rider_kothe/logs/d5_2026-10-06/rider_kothe_0c.f90` and
-`examples/rider_kothe/logs/d6_2026-10-07/rider_kothe_d6.f90`. With their keys at the defaults both
-reproduce the committed file's output byte for byte to $t=0.56$ (the README says what was compared).
+The measurement scripts are in `examples/rider_kothe/logs/`:
+- `d5/rd_quality.py` and `d5/gamma_sweep.py`;
+- `d5_2026-10-06/{full_measures,frag_first,phi_normal_exact}.py`;
+- `d6_2026-10-07/measure.sh`;
+- `figs/figs_rk.py` and `anim/anim_rk.py`.
 
-1. **Which events path should the coupled files carry?** A decision for the user; it touches the
-   shared routines.
-   - **BDF2/EXT2 with the printed Eq. (31) SVV** (`svv_step_eq31`) in place of SSP-RK3 with
-     `svv_step_imp`. It removes the event-made zero sets ($E_r(8)$ 0.835 → 0.0960). Adopting it
-     makes `svv_step_eq31` and the BDF2 loop part of the three coupled files, so the shared-routine
-     set changes. Check it on `advecting_slab_1d` first, then on Zalesak arm C (§4.1c).
-   - **Saini's sign width 0.25 with $25H$** on top of that: 0.0342 against transport's 0.0452
-     ($H=1/64$), 0.0085 against 0.0104 ($H=1/128$). But $\psi$ is then not a distance in the band;
-     it is a smoothed copy of $\phi$'s interface, refreshed every 0.5. That is a method decision,
-     not a knob.
-   - **Saini's dealiasing with his sign guard** on top of that reproduces his settings (0.0402,
-     against `rk_eLf`'s 0.0407 on the older build) and costs 18% against 0.0342, with $\psi$'s normal 2.4–4.2× further
-     off at $t=2$–5. Being faithful to his code is worse here. Which of the two carries the cost is
-     not measured; they ran as a pair.
-2. **Why the rebuilt $\psi$'s normal is worse than transport's** against the exact interface, in
-   every events configuration (with 0.25 and $25H$: 1.0–2.6° at $t=2$–5, 29° at $t=8$; transport
-   0.6–0.8° and 1.3°). Against $\phi$'s own contour it is closer than transport's, and $\phi$'s own
-   normal is off the exact interface by about as much (1.4–2.3° at $t=3$–5, 27° at $t=8$;
-   transport-only $\phi$ 0.9–1.0°, 2.0°). So the question is why $\phi$ drifts from the exact
-   interface once $\psi$ follows it. Where, measured by region: the tail tip, where $\phi$'s contour
-   retreats behind the exact one (visible in `evidence/rider_redistancing_events.mp4`)? The
-   end-time rise, which every 0.25/$25H$ run and Saini's own code share?
-   - Measured on every frame for run 2 and Run A (2026-10-08, `evidence/rider_redistancing_during.png`,
-     README item 7): from $t=1$ to 5 each event raises $\psi$'s error and transport lowers it again
-     before the next; from $t\approx6$ it grows between events. The troughs rise with $\phi$'s own
-     error. Not separated: the event from the transport after it (frames 0.08 apart). A candidate
-     next variable is $\Delta t_{tls}$: one event at 0.5 and none after, or 1.0 instead of 0.5.
-3. **The thin tail.** Where the filament is thinner than $2\varepsilon$ (5–6% of its length at
-   maximum stretch), $\phi$ has no 0.5 contour, so no reseed setting can rebuild $\psi$ there. Each
-   candidate is a change to the method, not a knob:
-   - a compression flux masked to the interface band;
-   - the monotone transform $\psi \leftarrow L\tanh(\psi/L)$ (`REDISTANCING.md` §8).
-4. **A convergence measure for the $\tau$ solve:** a residual on the compression band, not the
-   build band (`CDI_METHOD.md` §4.3).
+Run them with `/lscratch/sieburgh/local/venv-neko/bin/python`.
+
+## Rider–Kothe: re-initialization as Saini does it
+
+The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery, unchanged.
+`examples/rider_kothe/README.md` §2 has his settings, and §3.4–§3.5 what is already known.
+
+1. **Put Saini's configuration in the coupled files.**
+   - **The checklist** is the "coupled files" column of `CDI_METHOD.md` §6. Every row that differs
+     from his becomes his:
+     - BDF2/EXT2 in pseudo-time with the printed Eq. (31) SVV (`svv_step_eq31`);
+     - dealiased $\mathbf C(\mathbf w)\psi$ and his sign guard against $\phi-\tfrac12$;
+     - sign width 0.25, extent $25H$, $\Delta\tau=H/(N{+}1)$;
+     - local $|\mathbf u|$, left-multiplied, for `svv_psi`;
+     - BDF2 in physical time. The paper prints BDF3/EXT3 at $H=1/128$, but his shipped
+       $H=1/128$ case uses BDF2 too;
+     - the $t=0$ build (`psi_init = "redistance"`) and events every 0.5.
+   - **Most of it exists already** on the scratch file `examples/rider_kothe/logs/d6_2026-10-07/rider_kothe_d6.f90`
+     Its diffs: `logs/d5_2026-10-06/rider_kothe_0c.diff` against the committed file, then
+     `logs/d6_2026-10-07/rider_kothe_d6.diff` on top.
+     - The keys: `case.cdi.redistance.{sgn_eps, band, scheme, svv_form, dealias, guard}` and
+       `case.cdi.svv_psi_local`. `dealias` and `guard` need `scheme = "bdf2"`.
+     - With every key at its default it reproduces the committed events run byte for byte in frames
+       f00000–f00007 (to $t=0.56$; against `logs/events_2026-10-05/output_rk_events`). With `bdf2`
+       and `eq31` set it reproduces `logs/d5_2026-10-06/output_bdf2_e2post` over all 14 frames.
+     - Run B (`logs/d6_2026-10-07/runB_s025_25H_dg_local.case`: dealiasing, guard and local
+       $|\mathbf c|$) is prepared but has never run.
+   - **Caveats.**
+     - **The settings land as the code, not as options** (`CLAUDE.md`). They change the
+       shared-routine set, so the user decides, and the change is checked on `advecting_slab_1d`
+       first.
+     - **$\Delta\tau=H/(N{+}1)$ goes only with width 0.25.** At width $\varepsilon$ it fails
+       (`examples/advecting_slab_1d/README.md` §3.5).
+     - **Saini scales the sign width and the seed by $L$, the smallest domain extent.** Our meshes
+       are 0.1 thick in $z$, so $L$ must be the in-plane extent (1 here).
+     - **Neko's `time_order: 2` is BDF2 with a modified EXT3.** His code also extrapolates with
+       Nek's EXT3 coefficients.
+     - **The Rider–Kothe `.case` files have no `redistance` block**, and `svv_rd`'s $c_0$ defaults to
+       0 (off). Adding the block is a committed-`.case` change, so ask first.
+     - **Local $|\mathbf c|$ must left-multiply the assembled operator.** Never make $\nu$ vary
+       inside `svv_local`.
+     - **BDF2 at $N_{svv}=N/4$ once lost an apex that RK3 held** (§4.4, $H=1/5$, $N=7$; archive §7.5).
+       §4.5 uses $N/4$ for Eq. (44), so watch for it.
+2. **If the rebuilt $\psi$ is not good enough**, check in this order:
+   - **(a) Pseudo-time.** The extent must be $25H$ at width 0.25. The step count over that extent
+     barely matters (150 or 2129 steps give 0.0407 and 0.0402).
+   - **(b) Re-initialization frequency.** It has never been varied. Try $\Delta t_{tls}=1.0$, a single
+     event at 0.5 and none after, and 0.25.
+     - A single event needs a new key (e.g. `redistance.max_events`); nothing limits the count today.
+     - Measure every frame with `rd_quality.py`, and compare with transport (0.0452) and the
+       Saini-configuration run (0.0402).
+   - **(c) Dealiasing against the guard.** They have only ever run as a pair, which costs about 18%.
+3. **Replicate his Figs. 17–18:** $E_r$ (Fig. 17), and the $L^1$ norm, $|E_v|$ and $E_s$ (Fig. 18),
+   at $t=8$ over $H\in\{1/32,1/64,1/128\}\times N\in\{4,5,6\}$. Expect a shallower slope with re-initialization
+   (his p. 21).
+4. **A convergence measure for the $\tau$ solve:** a residual on the compression band, not the build
+   band.
 5. **Housekeeping.**
-   - `rider_h192.case` ships but has never run: run it or remove it.
-   - Run $\xi=0.75$ under strain (~30 min) to see whether the cross turns over.
-   - The $H=1/64$ runs end at $t=8.00008$ (100001 steps; Neko's summed time is a round-off below 8
-     after 100000), so $E_r(8)$ is one step past the reversal. Decide whether to stop exactly at 8.
+   - `rider_h192.case` and `zalesak_h150.case` ship but have never run: run or remove them.
+   - `rider_kothe_xi10` ends at $t=8.00008$, one step past the reversal: decide whether to stop
+     exactly at 8.
+   - When item 1 lands, mark `examples/rider_kothe/logs/d6_2026-10-07/HANDOFF.md` as done.
 
-## Saini §4.5, for reference
+## Parked
 
-From the paper (rendered p. 21, checked 2026-10-05). Their field names are transposed: their
-$\phi$ is our $\psi$ (`CDI_METHOD.md` §1).
-
-| | Saini §4.5 | his `circVortex` at $H=1/64$, $N=5$ (`logs/d5/saini/cv64n5`) |
-|---|---|---|
-| velocity, time | Eqs. (85)–(86), $T=8$ | same |
-| domain, disk | $\Omega=[0,1]^2$, centre $(0.5,0.75)$, $r=0.15$ | same |
-| $\xi$ | their $1/N$, i.e. our $\xi=1$ | same |
-| mesh, order | $H\in\{1/32,1/64,1/128\}$, $N\in\{4,5,6\}$ | |
-| $\Delta t$ | $\{8,4,2\}\times10^{-4}$ (CFL $\approx0.4$ at $N=6$); BDF3/EXT3 at $H=1/128$, else BDF2/EXT2 | $4\times10^{-4}$, BDF2 |
-| SVV, CLS and TLS advection, CLS re-initialization Eq. (39) | $N_{svv}=N/2$, $c_0=0.1$; $|\mathbf c|$ not stated per equation | same; $|\mathbf c|$ the local $|\mathbf u|$, and $|\mathbf n|=1$ for Eq. (39) |
-| SVV, TLS re-distancing Eq. (44) | $N_{svv}=N/4$, $c_0=2.0$ | same; $|\mathbf c|=|\operatorname{sgn}\psi|$ at each node |
-| $\Delta t_{tls}$ | 0.5, "including at the initial step" | same |
-| $\Delta\tau_{tls}$, steps | $H/(N{+}1)$, $N_{tls}=2.5H/\Delta\tau_{tls}$ (§3.4) | $H/(N{+}1)$, 150 steps |
-| re-distancing extent | $2.5H$ from the interface | $25H$ |
-| $\Delta t_{cls}$ | 0.05; no counterpart here (CDI is fused) | 0.05, also at $t=0$ |
-| $\Delta\tau_{cls}$, steps | $0.1H/(N{+}1)$, $N_{cls}=\varepsilon/\Delta\tau_{cls}$ | same, 12 steps |
-| pseudo-CFL | $\approx0.24$ at $N=6$, one number for both equations | Nek's CFL of the Eq. (39) step at $|\mathbf c|=1$: 0.2006 at $N=5$, which scales to 0.24 at $N=6$; the Eq. (44) step at $|\mathbf c|=1$ would be 10× that |
-
-His §5.1 defaults differ from §4.5: CLS re-initialization $N/4$, $c_0=1.0$; TLS re-distancing $N/6$,
-$c_0=1.0$.
-
-What his figures measure:
-- Fig. 16: $\phi$ (his CLS) and $\psi$ (his TLS) along $y=0.75$ at $t=8$, $H=1/128$, $N=4$–6.
-- Figs. 17–18: $E_r$, $|E_v|$, $E_s$ at $t=8$ under $h$- and $p$-refinement.
-- Fig. 19: mean interface thickness $l_{avg}/l_0$ against $t$ (Eq. 87).
-- Fig. 20: $L_\infty$ of the CLS (boundedness) against $t$.
-- Fig. 21: the 0.5 isocontours at $t=8$ against the exact one.
-- Fig. 22: $|E_v|$ against $t$.
-- Table 3: pairs at equal GLL count, $N=3$ against $N=7$.
-
-His $E_r$ divides by the area outside the disk (`CLAUDE.md`); recompute it with `norms.E_r`
-before comparing. He remarks (p. 21) that TLS re-distancing "slows down the convergence rate of the
-coupled algorithm", so a shallower slope with redistancing is expected.
-
-## Parked (not Rider–Kothe)
-
-- **Zalesak arm C with the printed Eq. (31) SVV.** Its first spurious pieces are $\psi$ loops
-  that the $t=0$ build leaves beside the slot's top corners (`CDI_METHOD.md` §4.1c). Whether the
-  printed form removes them there, as it does on Rider–Kothe, is not measured.
-- **Zalesak `svv_psi` $c_0$:** 1.0 is Saini's CLS value, 0.1 his TLS value; moving it means
-  re-running Zalesak's tables.
-- **SVV cost at large $\xi$ in 1D:** $E_r$ 0.00001 → 0.00005 at $\xi=2$ and 0.00003 → 0.00042 at
-  $\xi=2.8$ (`examples/advecting_slab_1d/README.md`); the mechanism is not measured.
-- **Regenerate the slab and Zalesak evidence.** The slab's $\psi$ panels are archived SVV-off runs,
-  and its notebook samples every 10th frame, which aliases with the elements: sample every frame.
-  Zalesak needs the style only.
-- **Re-run the two Zalesak redistancing variants**, now `psi_init = "redistance"` with the timer.
-  Their README numbers are from the analytic-$\psi$ and grad-trigger configuration and are not
-  citable. Note that $\xi=2.8$ at $N=5$ violates $N\ge3.68\xi$ (`CDI_METHOD.md` §4.1b).
-- **Audit every comparison against Saini's $E_r$** for the outside-area denominator: the Zalesak
-  §4.3 numbers; `redistance_circles` is likely unaffected.
-- **The compression guard's 0.05 is not a measured boundary** (`CDI_METHOD.md` §2).
-- **Queued run:** ten rotations on $(\xi,\gamma)=(1.5,0.25)$ and $(2,0.25)$ against $(2.8,1)$
-  (~4 h).
-- **Open questions:** is a small boundedness violation acceptable for better shape ($\xi=1$,
-  $\gamma=0.5$: $E_r$ 0.00240 at a $5.9\times10^{-6}$ violation, `examples/zalesak_disk/README.md`)?
-  Should `zalesak.case` stay at $\xi=2.8$?
-- **Why the build does not converge at $N=3$** (24% residual). Untested cause: `svv_rd` at
-  $N_{svv}=0.75$ gives mode 1 a kernel weight of 0.44.
-- **A possible second email to the authors:** the guard's round-off sensitivity at low $N$; his
-  reversed with/without-guard pair; $25H$ against the printed $2.5H$; the outside-area
-  normalization of `ls_relerr`.
+- **Zalesak.**
+  - `svv_psi` $c_0$ is 1.0, Saini's phase-field value; his $\psi$ value is 0.1. Moving it means
+    re-running the tables.
+  - Re-run the two redistancing variants once the coupled files carry Saini's path. The old arm C
+    used the committed path.
+  - Should `zalesak.case` move from $\xi=2.8$ to 1.5?
+- **Audit every comparison against Saini's $E_r$** for his outside-area denominator. That means
+  Zalesak's §4.3 numbers; `redistance_circles` is likely unaffected.
+- **Regenerate the slab and Zalesak evidence.** The slab's $\psi$ panels are SVV-off runs, and its
+  notebook samples every 10th frame, which aliases with the elements. Zalesak needs the style only.
+- **The compression guard's 0.05** is not a measured stability boundary (`CDI_METHOD.md` §2).
+- **The CDI side.**
+  - Queued: ten rotations on $(\xi,\gamma)=(1.5,0.25)$ and $(2,0.25)$ against $(2.8,1)$, about 4 h.
+  - Run $\xi=0.75$ under strain, to see whether the Rider–Kothe cross turns over.
+  - The SVV cost at large $\xi$ in 1D: the mechanism is not measured.
+  - Is a small violation acceptable for a better shape? On Zalesak, $\xi=1$, $\gamma=0.5$ gives
+    $E_r$ 0.00240 at $5.9\times10^{-6}$.
+- **The $\psi$ build at $N=3$ stops short of a distance** (24% residual, Zalesak). Saini's Table 3
+  compares $N=3$ with $N=7$. An untested cause: `svv_rd` at $N_{svv}=0.75$ gives mode 1 a weight of
+  0.44.
+- **A possible second email to the authors:**
+  - the guard's round-off sensitivity at low $N$;
+  - his reversed with/without-guard pair;
+  - $25H$ against the printed $2.5H$;
+  - the outside-area normalisation of `ls_relerr`.

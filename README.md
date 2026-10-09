@@ -1,149 +1,84 @@
 # neko-multiphase-psi-transport
 
-Neko, plus three demo cases showcasing Neko's CDI (Conservative Diffuse
-Interface) method for two-phase flow once its compression term is given a
-usable interface normal: computed from a **separately transported
-signed-distance field** (`psi`) rather than straight from the sharp phase
-field's own gradient.
+Neko, plus four cases for its Conservative Diffuse Interface (CDI) method with the compression
+term's interface normal taken from a **separately transported signed-distance field** $\psi$, not
+from the phase field $\phi$'s own gradient.
+- **What comes from where.** The $\psi$ machinery (transport with SVV; re-initialization by
+  Eqs. 44–47) follows Saini & Tomboulides (JCP 2026). The $\phi$ equation is Neko's fused CDI.
+- **What the cases do.** They replicate Saini §4.2–§4.5 with that combination.
+- **The sibling repo.** Why the $\phi$-gradient normal fails on a spectral element method is the
+  investigation in `../neko-multiphase/`. Neko's own README is
+  [`UPSTREAM_README.md`](UPSTREAM_README.md).
 
-**All three validated results use transport alone.** `psi` is seeded once from the
-exact signed distance and then simply advected — no reinitialization, no
-redistancing. The method supports periodic redistancing, and `zalesak_disk`
-carries an ablation that switches it on, but nothing in the validated
-configurations needs it. See `CDI_METHOD.md` §3–§4, which keeps
-*redistancing* (pseudo-time relaxation of an existing field) and
-*reinitialization* (discarding it and rebuilding from `phi`) distinct. See `UPSTREAM_README.md` for Neko's own
-README (citations, publications, general build docs).
+## Results
 
-**Start with [`CDI_METHOD.md`](CDI_METHOD.md)** for the equations, the
-naming convention, and why this repo is named the way it is (not after any
-one paper — see that file's opening note). This repo is a clean showcase of
-a working result; the forensic investigation that found it — why the naive
-`phi`-gradient normal fails on a spectral element method, and the evidence
-behind every design decision here — lives in the sibling repo
-`../neko-multiphase/` (`CDI_IN_SEM.md` is its standing conclusion).
+All validated results transport $\psi$ from the exact distance, with no re-initialization.
 
-[`REDISTANCING.md`](REDISTANCING.md) is the companion on redistancing: why the
-validated results transport `psi` without it, why a `psi` *built* by Saini's
-Eq. (44) is the path that carries over to geometries with no analytic distance,
-and, in its §9, how the Fortran solves Eq. (44) routine by routine.
+| Saini | case | configuration | $E_r$ | worst violation | Saini, our normalisation | status |
+|---|---|---|---|---|---|---|
+| §4.2 | [`advecting_slab_1d`](examples/advecting_slab_1d/README.md) | $\psi$-normal, $\xi=1$, $\gamma=1$, $N=10$, $t=20$ | 0.00006 | $1.2\times10^{-10}$ | no $E_r$ in §4.2 | validated |
+| | | the same at $\xi=1.5$ | 0.00001 | 0 | | |
+| | | $\phi$-normal, $\xi=1$ | $\approx1.2$ | $3.1\times10^{-2}$ | | direction only |
+| §4.3 | [`zalesak_disk`](examples/zalesak_disk/README.md) | $\xi=1$, $H=1/50$, $N=3/5/7$, ten rotations | 0.1012 / 0.0208 / 0.0040 | $\le9.5\times10^{-6}$ | not compared yet | validated |
+| | | shipped: $\xi=2.8$, $N=5$, ten rotations | 0.0221 | 0 | | validated |
+| | | the same, $\phi$-normal | 1.07 | $6.3\times10^{-3}$ | | direction only |
+| §4.4 | [`redistance_circles`](examples/redistance_circles/README.md) | Eq. (44) alone, his configuration, Table 2's four cells, $\tau=6$ | $1.3$–$6.6\times10^{-3}$ | — | ours/his 0.978–1.011 | reproduced |
+| §4.5 | [`rider_kothe`](examples/rider_kothe/README.md) | transport only, $\xi=1$, $H=1/64$, $N=5$, $t=8$ | 0.0452 | $2.6\times10^{-3}$ | 0.0410 | validated |
+| | | the same at $H=1/128$ | 0.0104 | $2.4\times10^{-3}$ | 0.0258 (his $N=3$) | validated |
+| | | re-initialization in his configuration, our $\Delta\tau$ (scratch file) | 0.0402 | $7.1\times10^{-4}$ | 0.0410 | not in the code yet |
 
-## Demo cases
+**The norms.** These are Saini's Eqs. (79)–(81), computed by `examples/norms.py`; `redistance_circles`
+uses his Eq. (84), $\int|\psi-\psi_e|/\int\psi_e$.
+- $E_r=\int|\phi-\phi_e|\,/\int\phi_e$ is the relative $L^1$ error.
+- $E_v=(\int\phi-\int\phi_0)/\int\phi_e$ is the volume error.
+- $E_s$ is the shape error: the area that crossed the 0.5 contour, over twice the exact perimeter
+  times the enclosed area.
 
-Three of the four are the showcase. `redistance_circles` is listed with them
-because it shares the machinery, but it is a **reproduced published benchmark**,
-not a showcase result. Its [`README.md`](examples/redistance_circles/README.md)
-describes it: configuration, the paper against the code, results and limitations.
+**Worst violation** is $\max(\phi-1,-\phi,0)$ over the output frames: every 0.05 on the slab and the
+Zalesak primary, and every 0.08 on Rider–Kothe (0.04 at $H=1/96$ and 1/128). Zalesak's $\xi=1$ row
+is from the solver's step log (every 200 steps). The primary's 0 holds in the frames; its step log
+has a $2.3\times10^{-8}$ transient at step 1.
 
-| Directory | What it shows | Status |
-|---|---|---|
-| `examples/advecting_slab_1d/` | 1D advection. Swapping the normal from $\nabla\phi$ to $\nabla\psi$ takes $E_r$ from $\approx1.2$ to 0.00006 (at $\xi=0.5$ the $\phi$-normal diverges). $\xi$/$\gamma$ sweeps locate the exactly-bounded envelope, and a p-sweep — where there is no geometry to under-resolve — shows ψ converging 27× while φ saturates at $E_r\approx1.2$. | Validated; swept in $\xi$, $\gamma$ and $N$ |
-| `examples/zalesak_disk/` | The main 2D result so far: slotted disk, ten rotations, $E_r = 0.022$ with **zero** boundedness violations. Single-variable $\phi\to\psi$ is **1.07 → 0.022**. SVV on ψ is **what makes $p$-refinement work**: with it $E_r$ falls 25× from $N=3$ to 7, without it $E_r$ *rises* — the on/off gap grows 9× → 47× → **256×**. Under refinement ψ improves and stays exactly bounded while φ degrades. A $5\times4$ $(\xi,\gamma)$ map locates the stability boundary between $\xi=1$ and $\xi=0.5$ and shows $\gamma$ is **not** neutral on an isometry. Carries the repo's one sanctioned ablation, two variants that add redistancing; their recorded numbers predate the current configuration and wait for a re-run. | Validated; SVV, resolution and $(\xi,\gamma)$ studies complete |
-| `examples/redistance_circles/` | **A benchmark reproduction, not a showcase result.** Saini et al. §4.4, their own rigour test for the Eq. (44) redistancing PDE, solved standalone, with the authors' configuration from their public case: sign-function $\varepsilon=0.25$ in Eq. (46), dealiased $\mathbf C(\mathbf w)$, their sign guard, BDF2/EXT2 and the Eq. (31) SVV. 12 of the 18 Fig. 12 cells are within 0.1% of their values, four more within 2.2%. Two cells ($H{=}1/5$, $N{=}4$ and 8) fail on our mesh through zero-set round-off; started from their zero-set $\psi_0$ they match exactly. | Reproduced (2026-09-29) |
-| `examples/rider_kothe/` | Vortex-in-a-box — the only case with real strain, and so the only one that can settle the open questions. $\|\nabla\psi\|$ drifts to about 8× at maximum stretch and **returns to 1.008**, while $\psi$'s normal stays within 0.6–1.3° of the exact interface. Periodic reseeding with BDF2/EXT2, the printed Eq. (31) SVV and Saini's sign width and extent (scratch user file) beats transport on $\phi$'s shape ($E_r(8)$ 0.0342 against 0.0452; 0.0085 against 0.0104 at $H=1/128$), but its $\psi$ is not a distance and from $t\approx2$ its normal, like its $\phi$'s, is further from the exact interface. Adding his dealiasing and sign guard reproduces his own settings (0.0402) and costs 18%. Which events path the code should carry is open (`NEXT_SESSION.md`). Strain **inverts** the $\xi$ recommendation: it trades shape accuracy against boundedness. $h$-refinement converges at about second order ($E_r$ 0.0452 → 0.0104 over $H=1/64$ → 1/128); at $H=1/64$ it is level with Saini's own code (0.041). | Validated, re-run 2026-10-02 after the diffusion fix and 2026-10-05/06 after the velocity fix; $\xi$/$\gamma$ cross and $h$-series complete |
+**Saini's Rider–Kothe values** are his own code's $t=8$ dumps, rescored with `norms.E_r`: his code
+divides by the area *outside* the disk. His 0.0410 includes his phase-field re-sharpening (Eq. 39);
+without it his code gives 0.208.
 
-The $\phi$-normal runs predate the `grad_floor` fix (`CDI_METHOD.md` §4.1) and were not re-run; read them for direction only.
+**The $\phi$-normal rows** mostly predate the `grad_floor` fix. Read them for direction only.
 
-### Results at a glance
-
-$E_r$ is the relative error against the exact solution at the end time given, Saini's Eqs.
-(79)–(81) as `examples/norms.py` computes them (`CDI_METHOD.md` §7); `redistance_circles` uses his
-Eq. (84). The Rider–Kothe runs at $H=1/64$ end one step past $t=8$, at 8.00008. "Worst violation"
-is $\max(\phi-1,-\phi,0)$ over the run's output frames (every 0.05 on the slab, 0.2 on Zalesak,
-0.08 on Rider–Kothe). Zalesak's $\xi=1$, $N=7$ value is from the solver's step log; the step log of
-the $\xi=2.8$ run's re-run on the velocity-fix build shows a $2.3\times10^{-8}$ transient at step 1
-that the frames miss.
-
-| case | configuration | $E_r$ | worst violation | $\phi$-normal, same settings | Saini et al., our normalisation |
-|---|---|---|---|---|---|
-| `advecting_slab_1d` | $\psi$-normal, $\xi=1$, $\gamma=1$, $N=10$, $t=20$ | 0.00006 | $1.2\times10^{-10}$ | $\approx1.2$ | no $E_r$ in Saini's §4.2 |
-| | the same at $\xi=1.5$ | 0.00001 | 0 | | |
-| `zalesak_disk` | $\psi$-normal, $\xi=2.8$, $\gamma=1$, $H=1/50$, $N=5$, ten rotations | 0.022 | 0 | 1.07 | not compared yet (`NEXT_SESSION.md`) |
-| | $\xi=1$, $N=7$ | 0.0040 | $9.5\times10^{-6}$ | | |
-| `rider_kothe` | $\psi$-normal, transport only, $\xi=1$, $\gamma=1$, $H=1/64$, $N=5$, $t=8$ | 0.0452 | $2.6\times10^{-3}$ | not run | 0.0410 |
-| | $H=1/128$ | 0.0104 | $2.4\times10^{-3}$ | | 0.0258 (his $N=3$; ours $N=5$) |
-| | redistancing, run 2 (scratch user file): BDF2, Eq. (31) SVV, width 0.25, $25H$ | 0.0342 | $6.2\times10^{-4}$ | | |
-| | the same at $H=1/128$ | 0.0085 | $1.3\times10^{-3}$ | | |
-| | run 2 + dealiasing + sign guard: Saini's redistancing settings with our $\Delta\tau$, without his Eq. (39) re-sharpening (scratch) | 0.0402 | $7.1\times10^{-4}$ | | 0.0410 |
-| `redistance_circles` | Eq. (44) alone, Saini Table 2's four cells, $\tau=6$ | $1.3\times10^{-3}$–$6.6\times10^{-3}$ | — | — | ours/theirs 0.978–1.011 |
-
-- **Validated** are the slab, Zalesak and transport-only Rider–Kothe rows; `redistance_circles` is
-  a reproduction. The redistancing rows ran on scratch user files and are not in the code
-  (`examples/rider_kothe/README.md`, "Redistancing").
-- On Rider–Kothe the redistanced $\psi$'s normal is further from the exact interface than the
-  transported one's from $t\approx2$ on (4–8° against 0.6–0.8° at $t=2$–5 in the Run A row; 1.0–2.6°
-  in run 2), although run 2's $\phi$ is better.
-- The $\phi$-normal column predates the `grad_floor` fix; read it for direction only.
-- Saini's values: on Rider–Kothe, his own code's dumps rescored with our `norms.E_r` (his code
-  divides by the area outside the disk). His 0.0410 includes his Eq. (39) phase-field
-  re-sharpening; without it his code gives 0.208. On `redistance_circles` they are his `plot.py`
-  values. The Zalesak comparison waits for the same denominator audit.
-
-Each case is self-contained: one `.f90` user file, its `.case` configs, a
-`run.sh`, and a `README.md` with its exact parameters and results.
-Each adds a `visualize.ipynb` and an `evidence/` folder holding the animations
-and figures that notebook produces — all from this repo's own runs, not carried
-over. The notebooks ship executed, so the numbers are visible without rerunning
-them. `rider_kothe`'s convergence and redistancing figures and its animations, like
-`redistance_circles`' figures, come from scripts under the case's gitignored `logs/`.
-
-The showcase cases carry more than one `.case` on purpose:
-`advecting_slab_1d` ships a $\xi$ and $\gamma$ sweep (the operating envelope is
-part of what the case demonstrates — see its README), `zalesak_disk` ships
-its single-variable $\phi$-normal baseline plus the sanctioned redistancing
-ablation, and `rider_kothe` its $\xi$/$\gamma$ cross and $h$-series. Files are named for the parameter they vary. See `CLAUDE.md` for the
-conventions, and `CDI_METHOD.md` §7 for what each status claim is (and isn't)
-backed by.
-
-**$\xi$, used throughout:** $\xi = \varepsilon N/H$ — the interface width
-$\varepsilon$ in units of $H/N$ (element edge over polynomial order), so
-$\varepsilon = \xi H/N$. It is **$N$ times Saini et al.'s $\xi$**, and coincides
-with the numerator of their $\xi = c/N$. `CDI_METHOD.md` §1 is the canonical
-definition and carries the full comparison; never compare the bare symbol across
-the two.
+Runs in other configurations are in each case README's appendix.
 
 ## Recommended settings
 
-**Regime-dependent, and deliberately not a single number.**
+Boundedness comes first: an unbounded phase field, coupled to a flow solver, corrupts densities and
+viscosities. Speed comes last.
+- **Without strain** (rigid rotation, uniform advection): $\xi\approx1.5$ and a low $\gamma$
+  (0.25–0.5).
+  - $\xi\ge1.5$ is bounded to round-off at every $\gamma$.
+  - $\gamma$ is not neutral: on Zalesak $E_r$ rises 1.5–2× from $\gamma=0.25$ to 2
+    (`examples/zalesak_disk/README.md` §3.5).
+- **With strain**, $\xi$ trades shape against boundedness (`examples/rider_kothe/README.md` §3.2).
+  - $\xi\approx1$ gives the best shape at a violation of $2$–$3\times10^{-3}$.
+  - $\xi\ge1.5$ is bounded to round-off, at about 40% worse $E_r$.
+- **SVV on $\psi$ is always on**: $c_0=0.1$, $N_{svv}=N/2$, Saini's value for his $\psi$ transport.
+  Without it $p$-refinement reverses (`CDI_METHOD.md` §5). There is no SVV on $\phi$.
+- **Refine if you can.** At fixed $\xi$, $h$-refinement improves shape and filament retention
+  together.
 
-- **No strain** (rigid rotation, uniform advection): $\xi \approx 1.5$ and the
-  **low end of $\gamma$**. A full $(\xi,\gamma)$ map on Zalesak (one rotation,
-  $N=7$; see that case's README) shows every $\xi \ge 1.5$ cell bounded to
-  round-off across $\gamma \in [0.25, 2]$ — the good region is broad — while
-  $\xi=1$ is bounded only to $\sim10^{-5}$ and $\xi=0.5$ fails outright.
-  Within that region $\gamma$ is **not** neutral, contrary to what an isometry
-  argument predicts: $E_r$ rises monotonically with $\gamma$, about $2\times$
-  from 0.25 to 2, because $\gamma$ scales the whole CDI relaxation and a rigid
-  rotation's exact solution contains no relaxation at all. That row was re-run
-  at **fixed $\Delta t$** to rule out the $\Delta t \propto 1/\gamma$ coupling:
-  $\Delta t$ moves $E_r$ by at most 5% over a $6.8\times$ change, $\gamma$ by
-  $2.06\times$. Best exactly-bounded
-  cell: $\xi=1.5,\ \gamma=0.25$, at $2.1\times$ better $E_r$ than
-  $\xi=2.8,\ \gamma=1$. (Over *ten* rotations at $N=5$, $\xi=1.5$ and
-  $\xi=2.8$ tie at $E_r \approx 0.022$, both exactly bounded — so the
-  $\xi$ preference is settled and the $\gamma$ one is so far a one-rotation
-  result.)
-- **With strain**: $\xi$ **trades shape accuracy against boundedness**.
-  - $\xi \approx 1.0$ recovers the shape best ($E_r$ 0.0452 on Rider–Kothe at $H=1/64$) at a
-    violation of $2.4$–$3.0\times10^{-3}$, which does not shrink under $h$-refinement.
-  - $\xi \gtrsim 1.5$ is exactly bounded, at about 40% worse $E_r$ (0.063).
-  - The reason: a filament $d$ thick holds a core of $1-e^{-d/2\varepsilon}$ at CDI equilibrium,
-    so a smaller $\varepsilon$ keeps more of it above 0.5. That is the opposite of the
-    strain-free conclusion.
-- **SVV on $\psi$ is not optional, and the code enforces it.** A $\psi$-normal run with
-  `svv_psi` off stops at startup. It is the largest single effect measured here: on Zalesak,
-  without it $E_r$ is 9–256× worse and, decisively, *$p$-refinement reverses*, so a higher-order
-  run becomes a worse one. In 1D it buys seven orders of boundedness. Use $c_0=0.1$, $N/2$,
-  Saini's TLS-transport value. There is no SVV on $\phi$; SVV is a $\psi$-only knob. See
-  `CDI_METHOD.md` §5.
-- **Refine if you can.** At fixed $\xi$, $h$-refinement shrinks $\varepsilon$ and
-  the mesh together and improves shape, boundedness and filament representation
-  simultaneously. It is the only lever with no downside.
+$\xi=\varepsilon N/H$ is the interface width in units of $H/N$. It is **$N$ times Saini's $\xi$**
+(`CDI_METHOD.md` §1).
 
-Boundedness is the first criterion, not one of several: an unbounded phase field
-is unphysical and, coupled to a flow solver, propagates into densities and
-viscosities where the damage is neither local nor recoverable. **Speed ranks
-last.** See `CDI_METHOD.md`.
+## The docs
+
+| file | holds |
+|---|---|
+| [`CDI_METHOD.md`](CDI_METHOD.md) | the method: notation, the $\phi$ equation, $\psi$ and the normal, SVV, and **§6, Saini's configuration against ours** |
+| [`REDISTANCING.md`](REDISTANCING.md) | maintaining $\psi$: the terms, when it is needed, what is known, and how the code solves Eq. (44) |
+| `examples/<case>/README.md` | each case: problem, configuration, results, limitations, running, evidence, other runs |
+| [`NEXT_SESSION.md`](NEXT_SESSION.md) | what is open: Rider–Kothe in Saini's configuration first |
+| [`CLAUDE.md`](CLAUDE.md) | the rules this repo is maintained by |
+
+Each case is one `.f90` user file, its `.case` files, a `run.sh`, a `visualize.ipynb` (shipped
+executed) and an `evidence/` folder from this repo's own runs.
 
 ## Building Neko
 
@@ -156,8 +91,7 @@ source setup-env.sh
 make -j install
 ```
 
-GPU build (CUDA, out-of-tree — this workstation has an RTX 3090, compute
-capability 8.6/`sm_86`; adjust `CUDA_ARCH` for a different GPU, e.g. via
+GPU build (CUDA, out-of-tree; `sm_86` is this workstation's RTX 3090, so check yours with
 `nvidia-smi --query-gpu=compute_cap --format=csv,noheader`):
 
 ```bash
@@ -167,29 +101,19 @@ mkdir -p build-cuda && cd build-cuda
 make -j install
 ```
 
-`configure` refuses to run in-tree while an out-of-tree build (or vice versa)
-already has generated Makefiles there — if you need to reconfigure the
-in-tree CPU build after building CUDA (or vice versa), `make distclean` in
-the repo root first. The two builds install to separate prefixes and don't
-otherwise conflict (see `setup-env.sh` / `setup-env-cuda.sh` for the exact prefixes).
-The user files are backend-agnostic and the 2D cases run unmodified on either
-build — whichever `neko` is first on `PATH` (i.e. whichever `setup-env*.sh` you
-sourced) is the one that runs. CPU and GPU were checked against each other on
-`zalesak_disk` and agree to 1.1e-9 in `phi` after 4000 steps, with GPU ~8.8x
-faster.
-
-**`advecting_slab_1d` is CPU-only**, and that is a Neko limit rather than
-anything about this repo: its CUDA kernels (`opr_dudxyz`, `opr_cfl`,
-`opr_conv1`) cap at `lx = 10`, i.e. `polynomial_order` <= 9, and that case is
-settled at `N = 10`.
+- **Switching between the two.** `configure` refuses to run in-tree while an out-of-tree build has
+  generated Makefiles there, and vice versa. Run `make distclean` in the repo root before switching.
+- **Which `neko` runs.** The two builds install to separate prefixes. Whichever `setup-env*.sh` you
+  sourced decides which `neko` runs.
+- **`advecting_slab_1d` is CPU-only.** Neko's CUDA kernels cap at `polynomial_order` $\le9$.
 
 ## Running a case
 
 ```bash
-source setup-env.sh        # CPU, or setup-env-cuda.sh for GPU — once per shell
+source setup-env.sh        # or setup-env-cuda.sh, once per shell
 cd examples/<case>
-genmeshbox <args...>  # once per case; exact command commented in run.sh
-./run.sh
+genmeshbox <args...>       # once per case; the command is in run.sh and the case README
+./run.sh                   # or ./run.sh <case> for one .case
 ```
 
 ## Visualizing a result
@@ -198,17 +122,5 @@ genmeshbox <args...>  # once per case; exact command commented in run.sh
 jupyter notebook examples/<case>/visualize.ipynb
 ```
 
-Uses the shared `venv-neko` kernel (pysemtools/matplotlib/mpi4py) at
-`/lscratch/sieburgh/local/venv-neko` — same as `../neko-multiphase/`. Open
-via an actual Jupyter server, not by opening the `.ipynb` directly in a
-browser.
-
-## If you're picking this up fresh
-
-Read `CDI_METHOD.md` first. [`NEXT_SESSION.md`](NEXT_SESSION.md) is the Rider–Kothe
-redistancing plan, with Saini §4.5's reference values and the items parked for the
-other cases.
-
-**For the Saini §4.4 reproduction, read
-[`examples/redistance_circles/README.md`](examples/redistance_circles/README.md)
-first.** It is the single record of that work.
+It uses the `venv-neko` kernel at `/lscratch/sieburgh/local/venv-neko` (pysemtools, matplotlib,
+mpi4py). Open it through a Jupyter server, not as a file in a browser.
