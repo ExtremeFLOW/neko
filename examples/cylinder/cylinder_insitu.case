@@ -1,7 +1,7 @@
 {
     "version": 1.0,
     "case": {
-        "mesh_file": "cylinder_refined_3d.nmsh",
+        "mesh_file": "cylinder.nmsh",
         "output_at_end": true,
         "output_boundary": true,
         "output_checkpoints": false,
@@ -16,7 +16,7 @@
         },
         "numerics": {
             "time_order": 3,
-            "polynomial_order": 9,
+            "polynomial_order": 5,
             "dealias": true
         },
         "fluid": {
@@ -76,7 +76,7 @@
         [
           {
             "name": "strm_update_freq",
-            "value": 10
+            "value": 50
           } 
         ],
         "simulation_components":
@@ -89,14 +89,31 @@
             {
                 "comment": "Stored in scalar 1,2,3. Changes order if simcomp is added before lambda2",
                 "type": "curl",
-                "computed_field": "omega",
                 "fields": [ "u", "v", "w" ],
                 "compute_control": "tsteps",
                 "compute_value": "strm_update_freq"
             },
             {
-                "type": "data_streamer",
-                "fields": ["lambda2", "omega_z", "p", "u", "v", "w"],
+                "type": "force_torque",
+                "compute_control": "tsteps",
+                "compute_value": 10,
+                "zone_id": 7,
+                "zone_name": "Cylinder",
+                "center": [ 0.0, 0.0, 0.0 ]
+            },
+            {
+                "type": "fluid_stats",
+                "output_control": "never",
+                "output_value": 10.0,
+                "start_time": 20.0,
+                "compute_control": "tsteps",
+                "compute_value": "strm_update_freq",
+                "avg_direction": "z",
+                "set_of_stats": "basic"
+            },
+            {
+                "type": "data_streamer", 
+                "fields": ["u", "omega_z", "fluid_stats/mean_u"],
                 "stream_mesh": true,
                 "compute_control": "tsteps",
                 "compute_value": "strm_update_freq"
