@@ -1,5 +1,11 @@
 # Changelog
 
+## Breaking changes
+
+- PR#2831 User initial conditions are no longer copied from the host to the
+  device after the user routine, so on GPUs the routine must leave the values in
+  the device arrays itself, e.g. with `device_memcpy`.
+
 ## Develop
 
 - *BREAKING* User initial conditions are no longer copied from the host to the
