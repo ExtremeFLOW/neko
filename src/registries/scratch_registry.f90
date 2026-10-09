@@ -305,7 +305,7 @@ contains
   end subroutine scratch_registry_set_expansion_size
 
   !> Get the number of objects stored in the registry
-  pure function get_n_entries(this) result(n)
+  function get_n_entries(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
@@ -315,7 +315,7 @@ contains
   end function get_n_entries
 
   !> Get the number of objects currently in use
-  pure function get_n_inuse(this) result(n)
+  function get_n_inuse(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
@@ -329,7 +329,7 @@ contains
   end function get_n_inuse
 
   !> Get the size of the objects array
-  pure function get_size(this) result(n)
+  function get_size(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
@@ -351,7 +351,7 @@ contains
   end function get_expansion_size
 
   !> Get the inuse status for a given index
-  pure logical function get_inuse(this, index)
+  logical function get_inuse(this, index)
     class(scratch_registry_t), target, intent(in) :: this
     integer, intent(in) :: index
 
