@@ -528,7 +528,7 @@ contains
        call device_sync()
        t(i) = MPI_Wtime() - t(i)
     end do
-    call report('col2 ', 'device_math', lx, n, n_glb, t)
+    call report('col2 ', 'math       ', lx, n, n_glb, t)
 #endif
 
     ! --- field_math -------------------------------------------------------
@@ -636,7 +636,7 @@ contains
        call device_sync()
        t(i) = MPI_Wtime() - t(i)
     end do
-    call report('add3 ', 'device_math', lx, n, n_glb, t)
+    call report('add3 ', 'math       ', lx, n, n_glb, t)
 #endif
 
     ! --- field_math -------------------------------------------------------
@@ -749,7 +749,7 @@ contains
        call device_sync()
        t(i) = MPI_Wtime() - t(i)
     end do
-    call report('2add3', 'device_math', lx, n, n_glb, t)
+    call report('2add3', 'math       ', lx, n, n_glb, t)
 
 #endif
 
@@ -858,7 +858,7 @@ contains
        s = device_glsc3(da_d, db_d, dc_d, n)
        t(i) = MPI_Wtime() - t(i)
     end do
-    call report('glsc3', 'device_math', lx, n, n_glb, t)
+    call report('glsc3', 'math       ', lx, n, n_glb, t)
 #endif
 
     ! --- field_math -------------------------------------------------------

@@ -2,6 +2,7 @@ import reframe as rfm
 import reframe.utility.sanity as sn
 import os
 import csv
+import statistics
 import string
 import json
 
@@ -9,6 +10,24 @@ def get_gpu_device(partition):
     for device in partition.devices:
         if device.type == 'gpu':
             return device
+
+def set_reference(test, name, ref):
+    '''Attach a reference value for `name` on the test's current partition.
+
+    Use this rather than `test.reference.setdefault(partition, {})[name] =
+    ref`. `reference` is a ScopedDict: it flattens a nested {scope: {var:
+    ref}} mapping into 'scope:var' keys when the whole mapping is *assigned*,
+    but mutating the plain dict that setdefault hands back merely stores a
+    nested dict under the scope key. check_performance looks up 'scope:var',
+    never finds it, falls back to (0, None, None) -- no bounds at all -- and
+    the variable then passes unconditionally.
+
+    A gate written the setdefault way therefore appears in the performance
+    report and enforces nothing. Confirmed 2026-09-06 by regressing
+    field_add2 on purpose: the measured wrapper overhead went to 1.64x
+    against a 1.30 cap and ReFrame still reported 'pass'.
+    '''
+    test.reference[f'{test.current_partition.fullname}:{name}'] = ref
 
 class NekoError(Exception):
     pass
@@ -28,9 +47,19 @@ class OutOfSourceAutotools(rfm.core.buildsystems.ConfigureBasedBuildSystem):
     2. Invoke ``configure`` to configure the project by setting the
        corresponding flags for compilers and compiler flags.
     3. Issue ``make`` to compile the code.
-    '''
 
-    configuredir = variable(str, value='.')
+    ReFrame 4.8 added :attr:`configuredir` to ConfigureBasedBuildSystem
+    itself, so redefining it here is now a hard load error -- ReFrame skips
+    the whole file with 'variable configuredir is already defined', reports
+    'Found 0 check(s)' and still exits 0, which is why this went unnoticed:
+    the CI job stayed green while running nothing at all.
+
+    That also makes this class largely redundant: the stock Autotools build
+    system supports out-of-source builds since 4.8. Swapping to it would
+    change behaviour for every test here, including on Cray systems that
+    cannot be exercised from this workspace, so it is left as a follow-up
+    rather than folded into this fix.
+    '''
 
     def emit_build_commands(self, environ):
         prepare_cmd = []
@@ -123,6 +152,19 @@ class BuildNeko(rfm.CompileOnlyRegressionTest):
             config = ''
             if self.gpu_device.arch == 'amd':
                 config = '--with-hip="$HIP_PATH"'
+            elif self.gpu_device.arch == 'nvidia':
+                config = '--with-cuda="$CUDA_HOME"'
+                # CUDA_ARCH is substituted verbatim into the nvcc command
+                # line (src/Makefile.am), so it has to carry its own flag:
+                # '-arch=sm_86', not 'sm_86'. A bare value makes nvcc fail
+                # with 'A single input file is required for a non-link
+                # phase'. The compute capability is a property of the
+                # machine, so it lives in the partition's extras next to
+                # select_device rather than being hardcoded here.
+                cuda_arch = self.current_partition.extras.get('cuda_arch')
+                if cuda_arch:
+                    self.build_system.config_opts.append(
+                        f'CUDA_ARCH="{cuda_arch}"')
             else:
                 raise NekoError(f'Unknown gpu arch {self.gpu_device.arch}')
 
@@ -132,9 +174,9 @@ class BuildNeko(rfm.CompileOnlyRegressionTest):
     def validate_build(self):
         config = os.path.join(self.stagedir, 'src', 'config', 'neko_config.f90')
         if self.backend == 'cpu':
-            return sn.assert_not_found('NEKO_BCKND_\w+ = 1', config)
+            return sn.assert_not_found(r'NEKO_BCKND_\w+ = 1', config)
         else:
-            return sn.assert_found('NEKO_BCKND_\w+ = 1', config)
+            return sn.assert_found(r'NEKO_BCKND_\w+ = 1', config)
 
 # Use this for children of NekoTestBase that don't need makeneko
 class DummyBuildSystem(rfm.core.buildsystems.BuildSystem):
@@ -328,9 +370,17 @@ class Tgv8(TgvBase):
                 },
             }
 
-            # For all systems
-            ref = self.reference.setdefault(self.current_partition.fullname, {})
-            ref['enstrophy_error'] = (33.48, -0.01, 0.01, '%')
+            # For all systems.
+            #
+            # NOTE: this reference was previously attached with
+            # `self.reference.setdefault(...)[...] = ...`, which silently
+            # attaches nothing -- see set_reference() above. The accuracy
+            # gate has therefore been inert, so this is the first time it is
+            # actually enforced. If a run starts failing on
+            # enstrophy_error, the value below is the thing to re-measure,
+            # not the mechanism.
+            set_reference(self, 'enstrophy_error',
+                          (33.48, -0.01, 0.01, '%'))
 
 @rfm.simple_test
 class Tgv32(TgvBase):
@@ -350,9 +400,9 @@ class Tgv32(TgvBase):
                 }
             }
 
-            # For all systems
-            ref = self.reference.setdefault(self.current_partition.fullname, {})
-            ref['enstrophy_error'] = (6.73, -0.01, 0.01, '%')
+            # For all systems. Inert until now for the same reason as Tgv8's
+            # -- see the note there and set_reference() above.
+            set_reference(self, 'enstrophy_error', (6.73, -0.01, 0.01, '%'))
 
 @rfm.simple_test
 class MiniHemi(NekoTestBase):
@@ -398,3 +448,271 @@ class MiniRB(NekoTestBase):
     def set_num_tasks(self):
         if self.neko_build.backend == 'cpu':
             self.num_tasks = 2
+
+# ---------------------------------------------------------------------------
+# math_ops: throughput of math/device_math, and the cost of the wrappers
+# ---------------------------------------------------------------------------
+
+@sn.deferrable
+def _fmean(values):
+    return statistics.fmean(sn.evaluate(values))
+
+@sn.deferrable
+def _fstdev(values):
+    return statistics.stdev(sn.evaluate(values))
+
+class MakeBench(rfm.core.buildsystems.BuildSystem):
+    '''Build a tests/bench driver against the fixture's Neko install.
+
+    MakeNeko cannot be used for these: makeneko refuses any input without a
+    `module user` or a type-injecting module, and it generates its own
+    program, whereas the bench drivers are standalone programs of their own.
+    The committed bench Makefile resolves the compiler, flags and libraries
+    through pkg-config, so pointing PKG_CONFIG_PATH at the install is the
+    whole of the integration.
+
+    `make clean` runs first because ReFrame copies the source directory
+    verbatim into the stage dir. Build products there are gitignored, so a
+    developer who has built the benchmark by hand would otherwise ship stale
+    objects into the test and never see it.
+    '''
+
+    def __init__(self, neko_build):
+        self.pkgconfig = os.path.join(neko_build.install_dir, 'lib',
+                                      'pkgconfig')
+
+    def emit_build_commands(self, environ):
+        return [
+            'make clean',
+            f'PKG_CONFIG_PATH={self.pkgconfig}:$PKG_CONFIG_PATH make'
+        ]
+
+class MathOpsBase(rfm.RegressionTest):
+    '''Shared setup for the tests/bench/math_ops benchmark.
+
+    Does not derive from NekoTestBase: that class builds a case file from a
+    template and asserts 'Normal end.', which simulation.f90 prints and this
+    driver never does. Only the BuildNeko fixture is shared.
+    '''
+
+    valid_systems = ['*']
+    valid_prog_environs = ['PrgEnv-cray', 'PrgEnv-gnu', 'PrgEnv-intel',
+                           'default']
+    neko_build = fixture(BuildNeko, scope='environment')
+
+    sourcesdir = os.path.join('..', 'bench', 'math_ops')
+    executable = './mathbench'
+
+    #: Fixed deliberately -- the glsc3 references below are values *of this
+    #: mesh*, so changing it invalidates them. Relative to tests/.
+    mesh_file = 'bench/nekbone/data/512.nmsh'
+
+    #: Must match lx_sweep in tests/bench/math_ops/driver.f90.
+    lx_sweep = [2, 3, 4, 6, 8, 12]
+    ops = ['add2', 'col2', 'glsc3']
+    wrappers = ['field_math', 'vector_math', 'matrix_math']
+
+    #: Iterations per timed loop; 0 means verify only.
+    niter = variable(int, value=0)
+
+    @run_after('setup')
+    def set_build(self):
+        self.build_system = MakeBench(self.neko_build)
+
+    @run_before('compile')
+    def copy_mesh_file(self):
+        src = os.path.join(self.prefix, '..', self.mesh_file)
+        self.postbuild_cmds += [f'cp "{src}" mesh.nmsh']
+
+    @run_before('run')
+    def set_executable_opts(self):
+        self.executable_opts = ['mesh.nmsh', str(self.niter)]
+
+    @run_before('run')
+    def set_runtime_libs(self):
+        # Neko links json-fortran as a shared library, so the run needs its
+        # directory on LD_LIBRARY_PATH even though the build resolved it
+        # through pkg-config. Derived from the .pc file rather than
+        # hardcoded, since the dependency prefixes differ per machine.
+        pkgconfig = os.path.join(self.neko_build.install_dir, 'lib',
+                                 'pkgconfig')
+        self.prerun_cmds += [
+            f'export PKG_CONFIG_PATH={pkgconfig}:$PKG_CONFIG_PATH',
+            'export LD_LIBRARY_PATH='
+            '$(pkg-config --libs-only-L neko | sed -e "s/-L//g" '
+            '-e "s/ \\+/:/g"):$LD_LIBRARY_PATH'
+        ]
+
+    @sanity_function
+    def validate_run(self):
+        # The driver aborts on any cross-path disagreement, so reaching the
+        # end of the sweep is itself the correctness result. The backend
+        # assertion catches a device build that silently ran on the host --
+        # that would satisfy every numerical check and prove nothing.
+        expected_bcknd = 1 if self.neko_build.backend == 'device' else 0
+        return sn.all([
+            sn.assert_eq(sn.count(sn.findall(r'# verify OK', self.stdout)),
+                         len(self.lx_sweep)),
+            sn.assert_found(rf'# bcknd_dev : {expected_bcknd}', self.stdout)
+        ])
+
+@rfm.simple_test
+class MathOpsVerify(MathOpsBase):
+    descr = 'math_ops cross-path and rank-count verification'
+    niter = 0
+    nranks = parameter([1, 2, 4])
+
+    #: Reduced glsc3 by lx, for mesh_file at dp, measured 2026-09-06.
+    #:
+    #: The fill is a function of the dofmap's global coordinates, so the
+    #: global multiset of values -- and hence this reduction -- does not
+    #: depend on how the mesh is partitioned. Pinning the values therefore
+    #: gates rank-count invariance, which no single run can check against
+    #: itself. Observed spread across -np 1/2/4/8 is <= 2.4e-14 relative,
+    #: from floating-point reduction not being associative; the 1e-12
+    #: tolerance below leaves roughly 40x headroom for a different compiler
+    #: or vectorisation.
+    #:
+    #: Regenerate after any change to the mesh, the fill, or the sweep:
+    #:   cd tests/bench/math_ops && make
+    #:   mpirun -np 1 ./mathbench ../nekbone/data/512.nmsh 0 | grep GLSC3
+    glsc3_ref = {
+        2: 0.3464241394253017e+06,
+        3: 0.1168359770472830e+07,
+        4: 0.2769006114889988e+07,
+        6: 0.9344507979646834e+07,
+        8: 0.2214916174351548e+08,
+        12: 0.7475118853765911e+08,
+    }
+    glsc3_tol = 1e-12
+
+    @run_before('run')
+    def set_num_tasks(self):
+        self.num_tasks = self.nranks
+        # OpenMPI refuses to start more ranks than cores; srun has no such
+        # flag, so this must not be applied blindly.
+        launcher = getattr(self.job.launcher, 'registered_name', None)
+        processor = self.current_partition.processor
+        ncpus = getattr(processor, 'num_cpus', None)
+        if launcher == 'mpirun' and ncpus and self.num_tasks > ncpus:
+            self.job.launcher.options += ['--oversubscribe']
+
+    @run_before('performance')
+    def set_glsc3_perf(self):
+        for lx in self.lx_sweep:
+            patt = rf'GLSC3 lx={lx} value=\s*(\S+)'
+            name = f'glsc3_lx{lx}'
+            self.perf_variables[name] = sn.make_performance_function(
+                sn.extractsingle(patt, self.stdout, 1, float), ''
+            )
+            # sp reproduces a different number entirely, and to far fewer
+            # digits -- logged for history, not gated.
+            if self.neko_build.real == 'dp':
+                set_reference(self, name, (self.glsc3_ref[lx],
+                                           -self.glsc3_tol,
+                                           self.glsc3_tol, ''))
+
+@rfm.simple_test
+class MathOpsPerf(MathOpsBase):
+    '''Throughput of math/device_math, and what the wrappers cost on top.
+
+    Single-rank on purpose: the question is dispatch cost, and glsc3's
+    Allreduce would otherwise dominate it. Rank-count behaviour is
+    MathOpsVerify's job.
+    '''
+
+    descr = 'math_ops wrapper dispatch overhead and math workrate'
+    niter = 200
+    num_tasks = 1
+
+    #: Cap on the mean of the per-lx ratio t_wrapper/t_math, as an excess
+    #: over parity: 0.30 means the wrappers may not average more than 1.30x
+    #: the direct call. Calibrated 2026-09-06 on a -g -O2 build: 8 idle runs
+    #: peaked at 1.033, and 6 runs pinned to 2 cores against 2 competing
+    #: busy loops peaked at 1.117. The gate is deliberately loose relative to
+    #: those, because the regressions it can actually resolve are gross ones
+    #: -- an added copy or allocation in a wrapper roughly doubles the ratio,
+    #: while a lost inline is a few nanoseconds against a 8 us call and is
+    #: invisible at any threshold. Preferring a loose gate that never flakes
+    #: over a tight one that cries wolf is the deliberate trade.
+    overhead_mean_max = 0.30
+
+    #: Absolute cap on the stddev of the per-lx ratio. Same runs: 0.062 idle,
+    #: 0.218 contended. This catches a regression confined to a single size,
+    #: which widens the spread while barely moving the mean.
+    overhead_spread_cap = 0.35
+
+    def ratios(self, op, wrapper):
+        patt = (rf'RATIO op={op} path={wrapper} lx=\d+ value=\s*(\S+)'
+                r' value_mean=')
+        return sn.extractall(patt, self.stdout, 1, float)
+
+    @sanity_function
+    def validate_run(self):
+        # Assert the record counts explicitly, because nothing downstream
+        # will. ReFrame catches any exception from evaluating a performance
+        # variable, logs 'skipping evaluation of performance variable' at
+        # warning level and *continues* (pipeline.py, check_performance), so
+        # a regex that stops matching does not fail the test -- the metric
+        # just silently disappears from the report and the gate stops
+        # existing. This was not hypothetical: it swallowed a broken
+        # workrate pattern here during development, and the run went green.
+        nbench = len(self.ops) * (len(self.wrappers) + 1) * len(self.lx_sweep)
+        nratios = len(self.ops) * len(self.wrappers) * len(self.lx_sweep)
+        return sn.all([
+            super().validate_run(),
+            sn.assert_eq(sn.count(sn.findall(r'^BENCH ', self.stdout)),
+                         nbench),
+            sn.assert_eq(sn.count(sn.findall(r'^RATIO ', self.stdout)),
+                         nratios)
+        ])
+
+    @run_before('performance')
+    def set_overhead_perf(self):
+        for op in self.ops:
+            for wrapper in self.wrappers:
+                r = self.ratios(op, wrapper)
+                mean_name = f'overhead_mean_{op}_{wrapper}'
+                spread_name = f'overhead_spread_{op}_{wrapper}'
+                self.perf_variables[mean_name] = \
+                    sn.make_performance_function(_fmean(r), '')
+                self.perf_variables[spread_name] = \
+                    sn.make_performance_function(_fstdev(r), '')
+                # Ratios cancel machine speed, compiler and precision, so
+                # unlike the absolute workrate below these are gated
+                # everywhere, including on shared CI runners.
+                #
+                # ReFrame thresholds are relative to the reference, so
+                # (1.0, None, 0.30) means 'at most 1.30x, no lower bound' --
+                # a wrapper coming out faster is not a regression. The
+                # spread has no natural reference value, so it is expressed
+                # as an absolute cap: (cap, None, 0.0) means 'at most cap'.
+                set_reference(self, mean_name,
+                              (1.0, None, self.overhead_mean_max, ''))
+                set_reference(self, spread_name,
+                              (self.overhead_spread_cap, None, 0.0, ''))
+
+    @run_before('performance')
+    def set_workrate_perf(self):
+        # The driver always labels the direct path 'math'; which module
+        # actually ran is fixed by the build, so name the variable after the
+        # backend to keep a perflog row self-describing.
+        backend = ('device_math' if self.neko_build.backend == 'device'
+                   else 'math')
+        for op in self.ops:
+            for lx in self.lx_sweep:
+                # Every \s* is load-bearing: the driver writes these with an
+                # e17.10 edit descriptor, which left-pads a positive value
+                # with a blank, so 'min=\S+' does not match 'min= 0.43E-03'.
+                patt = (rf'BENCH op={op} path=math lx={lx} n=\d+ '
+                        r'min=\s*\S+ mean=\s*\S+ sd=\s*\S+ mdofs=\s*(\S+)')
+                self.perf_variables[f'workrate_{backend}_{op}_lx{lx}'] = \
+                    sn.make_performance_function(
+                        sn.extractsingle(patt, self.stdout, 1, float),
+                        'Mdofs/s/pe')
+
+        # No references are set for these. Absolute throughput is a property
+        # of the machine, so a reference is only meaningful on a dedicated
+        # one -- Dardel, as with Tgv8/Tgv32's total_runtime. Those numbers
+        # have to be measured there; they are deliberately not guessed here.
+        # See tests/reframe/README.md for how to fill them in.
