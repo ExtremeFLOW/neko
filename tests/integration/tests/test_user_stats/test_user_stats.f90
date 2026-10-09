@@ -15,16 +15,18 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
 
-    type (field_t), pointer :: u, v, w, s
+    type (field_t), pointer :: u, v, w, p, s
 
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
 
        call field_rzero(u)
        call field_rzero(v)
        call field_rzero(w)
+       call field_rzero(p)
     else
        s => fields%get("s")
 
