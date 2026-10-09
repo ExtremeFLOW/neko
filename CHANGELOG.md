@@ -2,7 +2,8 @@
 
 ## Develop
 
-
+- Fix OpenMP deadlock in the scratch registry. Nested operations checked the
+  same critical section.
 - Added `gmsh2nmsh` under `contrib`, which converts Gmsh `.msh` meshes
   directly to `.nmsh` without going through `.re2`. Physical groups become
   labeled zones, group pairs can be made periodic, and curved second order
