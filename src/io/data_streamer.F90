@@ -32,7 +32,7 @@
 !
 !> Implements type data_streamer_t.
 module data_streamer
-  use num_types, only : rp, c_rp
+  use num_types, only : rp, c_rp, dp, c_dp
   use mesh, only : mesh_t
   use space, only : space_t
   use coefs, only : coef_t
@@ -71,6 +71,8 @@ module data_streamer
      procedure, pass(this) :: free => data_streamer_free
      !> Stream data
      procedure, pass(this) :: stream => data_streamer_stream
+     !> Stream the current time and time step
+     procedure, pass(this) :: stream_time => data_streamer_stream_time
      !> Stream back the data
      procedure, pass(this) :: recieve => data_streamer_recieve
 
@@ -148,6 +150,26 @@ contains
 #endif
 
   end subroutine data_streamer_stream
+
+  !> Stream the current time and time step
+  !! @param time Current simulation time (always double precision)
+  !! @param tstep Current time step
+  subroutine data_streamer_stream_time(this, time, tstep)
+    class(data_streamer_t), intent(inout) :: this
+    real(kind=dp), intent(in) :: time
+    integer, intent(in) :: tstep
+
+#ifdef HAVE_ADIOS2
+    call neko_log%message("Streaming time and time step", lvl = NEKO_LOG_DEBUG)
+    call fortran_adios2_stream_time(time, tstep)
+    call neko_log%message("Done streaming time and time step", &
+         lvl = NEKO_LOG_DEBUG)
+#else
+    call neko_warning('Is not being built with ADIOS2 support.')
+    call neko_warning('Not able to use stream/compression functionality')
+#endif
+
+  end subroutine data_streamer_stream_time
 
   !> reciever
   !! @param fld array of shape field%x
@@ -283,6 +305,34 @@ contains
 
     call c_adios2_stream(fld)
   end subroutine fortran_adios2_stream
+
+  !> Interface to adios2_stream_time in c++.
+  !! @details This routine streams the current time and time step as
+  !! standalone variables, in their own step. The time is always passed
+  !! in double precision.
+  !! @param time current simulation time
+  !! @param tstep current time step
+  subroutine fortran_adios2_stream_time(time, tstep)
+    use, intrinsic :: ISO_C_BINDING
+    implicit none
+    real(kind=dp), intent(in) :: time
+    integer, intent(in) :: tstep
+
+    interface
+       !> C-definition is: void adios2_stream_time_(const double *time,
+       !! const int *tstep)
+       subroutine c_adios2_stream_time(time, tstep) &
+            bind(C, name = "adios2_stream_time_")
+         use, intrinsic :: ISO_C_BINDING
+         import c_dp
+         implicit none
+         real(kind=c_dp), intent(IN) :: time
+         integer(kind=C_INT), intent(IN) :: tstep
+       end subroutine c_adios2_stream_time
+    end interface
+
+    call c_adios2_stream_time(time, tstep)
+  end subroutine fortran_adios2_stream_time
 
   !> Interface to adios2_recieve in ci++.
   !! @details This routine communicates the data to a global array that

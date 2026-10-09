@@ -888,9 +888,12 @@ The simcomp is controlled by the following keywords:
 - `"stream_mesh"`: Whether or not to stream mesh coordinates, in the order
   `x`, `y`, `z`. The mesh coordinates will always be streamed first, in
   that exact order, before the fields in `"fields"`.
+- `"start_time"`: Time after which the streaming starts. Before this time,
+  the simcomp streams nothing. Defaults to `-1.0`, i.e. streaming from the
+  beginning of the simulation.
 
 See the `cylinder` or `turb_pipe` examples for more details on how this
-simcomp cam be coupled to Python scripts for in-situ data processing.
+simcomp can be coupled to Python scripts for in-situ data processing.
 
 @note This simcomp requires configuration of Neko with the ADIOS2 library
 (`--with-adios2=DIR`).
@@ -905,6 +908,37 @@ simcomp cam be coupled to Python scripts for in-situ data processing.
    "compute_value": 10
  }
  ~~~~~~~~~~~~~~~
+
+#### Streaming procedure and payload {#simcomp_data_streamer_payload}
+
+The data is streamed with the ADIOS2 `SST` engine through the stream named
+`globalArray_f2py`, which the reading side opens in read mode. The stream
+consists of a sequence of ADIOS2 steps, each written in its own
+`BeginStep()`/`EndStep()` pair, and each containing exactly one of the
+payloads below. A reader consuming the stream one step at a time therefore
+receives the payloads in the following order:
+
+1. **Header**, written once during initialisation. Contains the scalar
+   variables `global_elements` (`int`, the global number of elements),
+   `points_per_element` (`int`, the number of points per element, i.e.
+   \f$ lx \cdot ly \cdot lz \f$) and `problem_dimension` (`int`, the
+   dimension of the problem, 2 or 3).
+2. **Mesh coordinates**, written once during initialisation, but only if
+   `"stream_mesh": true`. One step per coordinate direction, in the order
+   `x`, `y`, `z`.
+3. **Time and time step**, written once per execution of the simcomp, as
+   soon as `time >= start_time`. Contains the scalar variables `time`
+   (always streamed in `double` precision) and `tstep` (`int`, the current time step).
+4. **Fields**, written after the time and time step on each execution of
+   the simcomp. One step per field, in the order given by the `"fields"`
+   keyword.
+
+All mesh coordinate and field payloads are streamed as the same global
+array variable `f2py_field`: a one-dimensional array of size
+`global_elements * points_per_element`, in the precision of the build.
+The stream does not carry the identity of the streamed field, so the
+reader must rely on the order above to know which payload a given step
+contains.
 
 ### Field subsampler {#simcomp_field_subsampler}
 
