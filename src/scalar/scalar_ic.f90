@@ -42,7 +42,7 @@ module scalar_ic
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask
-  use field_math, only : field_cfill
+  use field_math, only : field_cfill, field_glmin
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, &
