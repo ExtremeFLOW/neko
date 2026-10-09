@@ -46,7 +46,7 @@ module flow_ic
   use coefs, only : coef_t
   use math, only : col2, cfill, cfill_mask, abscmp
   use device_math, only : device_col2
-  use field_math, only : field_cfill
+  use field_math, only : field_cfill, field_glmin
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
   use json_utils, only : json_get, json_get_or_default, &
@@ -146,7 +146,7 @@ contains
 
   end subroutine set_flow_ic_int
 
-  !> Set intial flow condition (user defined)
+  !> Set initial flow condition (user defined)
   !! @note No data is copied between the host and the device. The user routine
   !! must leave the values where the backend operates on them, i.e. on the
   !! device when running on GPUs.
@@ -159,7 +159,7 @@ contains
     type(gs_t), intent(inout) :: gs
     procedure(user_initial_conditions_intf) :: user_proc
     character(len=*), intent(in) :: scheme_name
-
+    real(kind=rp) :: um, vm, wm, pm, init
     type(field_list_t) :: fields
 
     call neko_log%message("Type: user")
@@ -170,13 +170,29 @@ contains
     call fields%assign_to_field(3, w)
     call fields%assign_to_field(4, p)
 
+    init = -huge(1.0_rp)
+    call field_cfill(u, init)
+    call field_cfill(v, init)
+    call field_cfill(w, init)
+    call field_cfill(p, init)
+
     call user_proc(scheme_name, fields)
+
+    um = field_glmin(u)
+    vm = field_glmin(v)
+    wm = field_glmin(w)
+    pm = field_glmin(p)
+
+    if (abscmp(um, init)) call neko_error('Initial condition did not set u')
+    if (abscmp(vm, init)) call neko_error('Initial condition did not set v')
+    if (abscmp(wm, init)) call neko_error('Initial condition did not set w')
+    if (abscmp(pm, init)) call neko_error('Initial condition did not set p')
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
   end subroutine set_flow_ic_usr
 
-  !> Set intial flow condition (user defined)
+  !> Set initial flow condition (user defined)
   !> for compressible flows
   !! @note No data is copied between the host and the device. The user routine
   !! must leave the values where the backend operates on them, i.e. on the
@@ -192,6 +208,7 @@ contains
     type(gs_t), intent(inout) :: gs
     procedure(user_initial_conditions_intf) :: user_proc
     character(len=*), intent(in) :: scheme_name
+    real(kind=rp) :: rhom, um, vm, wm, pm, init
     type(field_list_t) :: fields
 
     call neko_log%message("Type: user (compressible flows)")
@@ -202,7 +219,27 @@ contains
     call fields%assign_to_field(3, v)
     call fields%assign_to_field(4, w)
     call fields%assign_to_field(5, p)
+
+    init = -huge(1.0_rp)
+    call field_cfill(rho, init)
+    call field_cfill(u, init)
+    call field_cfill(v, init)
+    call field_cfill(w, init)
+    call field_cfill(p, init)
+
     call user_proc(scheme_name, fields)
+
+    rhom = field_glmin(rho)
+    um = field_glmin(u)
+    vm = field_glmin(v)
+    wm = field_glmin(w)
+    pm = field_glmin(p)
+
+    if (abscmp(rhom, init)) call neko_error('Initial condition did not set rho')
+    if (abscmp(um, init)) call neko_error('Initial condition did not set u')
+    if (abscmp(vm, init)) call neko_error('Initial condition did not set v')
+    if (abscmp(wm, init)) call neko_error('Initial condition did not set w')
+    if (abscmp(pm, init)) call neko_error('Initial condition did not set p')
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 

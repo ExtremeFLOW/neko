@@ -168,6 +168,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
     procedure(user_initial_conditions_intf) :: user_proc
+    real(kind=rp) :: sm, init
     type(field_list_t) :: fields
 
     call neko_log%message("Type: user")
@@ -175,7 +176,14 @@ contains
     call fields%init(1)
     call fields%assign_to_field(1, s)
 
+    init = -huge(1.0_rp)
+    call field_cfill(s, init)
+
     call user_proc(scheme_name, fields)
+
+    sm = field_glmin(s)
+    if (abscmp(sm, init)) call neko_error('Initial condition did not set s')
+
     call set_scalar_ic_common(s, coef, gs)
 
   end subroutine set_scalar_ic_usr
