@@ -41,7 +41,7 @@ module scalar_ic
   use utils, only : neko_error, filename_chsuffix, filename_suffix, &
        neko_warning, NEKO_FNAME_LEN, extract_fld_file_index
   use coefs, only : coef_t
-  use math, only : col2, cfill, cfill_mask
+  use math, only : col2, cfill, cfill_mask, abscmp
   use field_math, only : field_cfill, field_glmin
   use user_intf, only : user_initial_conditions_intf
   use json_module, only : json_file
