@@ -243,7 +243,11 @@ side with the `filter` object, which takes the same keywords as the
 [filters](@ref filter) elsewhere in Neko. An `elementwise` filter of Boyd type
 on the two or three highest modes damps the element-scale oscillations the
 forcing excites at high Reynolds number, at the cost of a slightly thicker
-interface. A `PDE` filter smooths over a chosen length instead.
+interface. It matters most for the adjoint spread, whose footprint is a single
+element. Use the `transfer` object rather than a `transfer_function` list, so
+that the filter does not have to be rewritten when the polynomial order
+changes; its defaults keep the modes that carry the element integral of the
+forcing. A `PDE` filter smooths over a chosen length instead.
 
 ## Force on the body {#direct-forcing_force}
 
@@ -366,8 +370,7 @@ drag and lift coefficients:
 ~~~~~~~~~~~~~~~
 
 The same body at a high Reynolds number with the energy-stable pairing, a
-reduced gain and a filter on the two highest modes of a seventh-order
-discretisation:
+reduced gain and an order-independent Boyd filter:
 
 ~~~~~~~~~~~~~~~{.json}
 "source_terms": [
@@ -381,7 +384,7 @@ discretisation:
       "filter": {
          "type": "elementwise",
          "elementwise_filter_type": "Boyd",
-         "transfer_function": [1, 1, 1, 1, 1, 1, 0.5, 0.0]
+         "transfer": { "cutoff": 0.4, "strength": 3.5, "order": 1 }
       },
       "objects": [
          {

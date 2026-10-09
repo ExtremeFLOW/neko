@@ -51,11 +51,7 @@ module source_term
      !> End time for adding the source term.
      real(kind=rp) :: end_time = huge(0.0_rp)
      !> Whether the owning scheme may extrapolate this term in time together
-     !! with its other explicit terms. A term that feeds the solution back
-     !! with a gain of order 1/dt, such as direct immersed-boundary forcing,
-     !! is unstable under that extrapolation and sets this to false; the
-     !! scheme then adds it after the extrapolation, see
-     !! `source_term_handler_t%compute`.
+     !! with its other explicit terms.
      logical :: extrapolate = .true.
    contains
      !> Constructor for the source_term_t (base) type.
@@ -220,6 +216,7 @@ contains
 
     call this%fields%free()
     nullify(this%coef)
+    this%extrapolate = .true.
   end subroutine source_term_free_base
 
   !> Destructor for the `source_term_wrapper_t` type.

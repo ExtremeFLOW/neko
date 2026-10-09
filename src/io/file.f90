@@ -101,9 +101,7 @@ contains
 
     call filename_suffix(fname, suffix)
 
-    if (allocated(this%file_type)) then
-       deallocate(this%file_type)
-    end if
+    call this%free()
 
     select case (trim(suffix))
     case ("rea")
@@ -160,6 +158,11 @@ contains
     class(file_t), intent(inout) :: this
 
     if (allocated(this%file_type)) then
+       ! Release the (device mapped) output mask of an fld file
+       select type (ft => this%file_type)
+       class is (fld_file_t)
+          call ft%set_mask()
+       end select
        deallocate(this%file_type)
     end if
 

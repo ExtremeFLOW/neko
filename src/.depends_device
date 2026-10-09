@@ -13,6 +13,7 @@ math/bcknd/device/hip/opr_lambda2.lo : math/bcknd/device/hip/opr_lambda2.hip mat
 math/bcknd/device/hip/opr_cfl.lo : math/bcknd/device/hip/opr_cfl.hip math/bcknd/device/hip/cfl_kernel.h device/hip/buffer.lo
 math/bcknd/device/hip/opr_rotate_cyc.lo : math/bcknd/device/hip/opr_rotate_cyc.hip math/bcknd/device/hip/rotate_kernel.h
 math/bcknd/device/hip/ax_helm.lo : math/bcknd/device/hip/ax_helm.hip math/bcknd/device/hip/ax_helm_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h math/bcknd/device/hip/mfma_kernel.h
+math/bcknd/device/hip/ax_helm_compr.lo : math/bcknd/device/hip/ax_helm_compr.hip math/bcknd/device/hip/ax_helm_compr_kernel.h math/bcknd/device/hip/elem_block.h math/bcknd/device/hip/elem_block_tune.h math/bcknd/device/hip/mfma_kernel.h
 math/bcknd/device/hip/ax_helm_svv_one_sided.lo : math/bcknd/device/hip/ax_helm_svv_one_sided.hip math/bcknd/device/hip/ax_helm_svv_one_sided_kernel.h
 math/bcknd/device/hip/ax_helm_svv_one_sided_full.lo : math/bcknd/device/hip/ax_helm_svv_one_sided_full.hip math/bcknd/device/hip/ax_helm_svv_one_sided_full_kernel.h
 math/bcknd/device/hip/ax_helm_full.lo : math/bcknd/device/hip/ax_helm_full.hip math/bcknd/device/hip/ax_helm_full_kernel.h
@@ -74,6 +75,7 @@ math/bcknd/device/cuda/opr_lambda2.lo : math/bcknd/device/cuda/opr_lambda2.cu ma
 math/bcknd/device/cuda/opr_cfl.lo : math/bcknd/device/cuda/opr_cfl.cu math/bcknd/device/cuda/cfl_kernel.h device/cuda/buffer.lo
 math/bcknd/device/cuda/opr_rotate_cyc.lo : math/bcknd/device/cuda/opr_rotate_cyc.cu math/bcknd/device/cuda/rotate_kernel.h
 math/bcknd/device/cuda/ax_helm.lo : math/bcknd/device/cuda/ax_helm.cu math/bcknd/device/cuda/ax_helm_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h math/bcknd/device/cuda/dmma_kernel.h math/bcknd/device/cuda/dmma_tma_kernel.h
+math/bcknd/device/cuda/ax_helm_compr.lo : math/bcknd/device/cuda/ax_helm_compr.cu math/bcknd/device/cuda/ax_helm_compr_kernel.h math/bcknd/device/cuda/elem_block.h math/bcknd/device/cuda/elem_block_tune.h math/bcknd/device/cuda/dmma_kernel.h math/bcknd/device/cuda/dmma_tma_kernel.h
 math/bcknd/device/cuda/ax_helm_svv_one_sided.lo : math/bcknd/device/cuda/ax_helm_svv_one_sided.cu math/bcknd/device/cuda/ax_helm_svv_one_sided_kernel.h
 math/bcknd/device/cuda/ax_helm_svv_one_sided_full.lo : math/bcknd/device/cuda/ax_helm_svv_one_sided_full.cu math/bcknd/device/cuda/ax_helm_svv_one_sided_full_kernel.h
 math/bcknd/device/cuda/ax_helm_full.lo : math/bcknd/device/cuda/ax_helm_full.cu math/bcknd/device/cuda/ax_helm_full_kernel.h
@@ -137,6 +139,7 @@ math/bcknd/device/opencl/opr_lambda2.lo : math/bcknd/device/opencl/opr_lambda2.c
 math/bcknd/device/opencl/opr_cfl.lo : math/bcknd/device/opencl/opr_cfl.c math/bcknd/device/opencl/cfl_kernel.cl.h
 math/bcknd/device/opencl/opr_rotate_cyc.lo : math/bcknd/device/opencl/opr_rotate_cyc.c math/bcknd/device/opencl/rotate_kernel.cl.h
 math/bcknd/device/opencl/ax_helm.lo : math/bcknd/device/opencl/ax_helm.c math/bcknd/device/opencl/ax_helm_kernel.cl.h
+math/bcknd/device/opencl/ax_helm_compr.lo : math/bcknd/device/opencl/ax_helm_compr.c math/bcknd/device/opencl/ax_helm_compr_kernel.cl.h
 math/bcknd/device/opencl/ax_helm_full.lo : math/bcknd/device/opencl/ax_helm_full.c math/bcknd/device/opencl/ax_helm_full_kernel.cl.h
 krylov/bcknd/device/opencl/bicgstab.lo : krylov/bcknd/device/opencl/bicgstab.c krylov/bcknd/device/opencl/bicgstab_kernel.cl.h device/opencl/buffer.lo
 krylov/bcknd/device/opencl/pc_jacobi.lo : krylov/bcknd/device/opencl/pc_jacobi.c krylov/bcknd/device/opencl/jacobi_kernel.cl.h
@@ -202,6 +205,7 @@ device/metal/metal.lo : device/metal/metal.m device/metal/check.h
 device/metal/neko_metallib.lo : device/metal/neko_metallib.c
 math/bcknd/device/metal/math.lo : math/bcknd/device/metal/math.m
 math/bcknd/device/metal/ax_helm.lo : math/bcknd/device/metal/ax_helm.m
+math/bcknd/device/metal/ax_helm_compr.lo : math/bcknd/device/metal/ax_helm_compr.m
 math/bcknd/device/metal/ax_helm_full.lo : math/bcknd/device/metal/ax_helm_full.m device/metal/check.h
 gs/bcknd/device/metal/gs.lo : gs/bcknd/device/metal/gs.m
 sem/bcknd/device/metal/coef.lo : sem/bcknd/device/metal/coef.m

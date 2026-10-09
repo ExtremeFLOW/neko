@@ -63,7 +63,7 @@ module hsmg
   use num_types, only : rp
   use math, only : copy, col2, add2
   use utils, only : neko_error
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_allocator
   use ax_product, only : ax_t, ax_helm_allocator
   use gather_scatter, only : gs_t, GS_OP_ADD
   use interpolation, only : interpolator_t
@@ -146,11 +146,11 @@ module hsmg
 
 contains
 
-  subroutine hsmg_init(this, coef, bclst, hsmg_params)
+  subroutine hsmg_init(this, coef, bclst, json)
     class(hsmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
-    type(json_file), intent(inout) :: hsmg_params
+    type(json_file), intent(inout) :: json
     character(len=:), allocatable :: crs_solver, crs_pc
     logical :: crs_monitor
     integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
@@ -158,31 +158,31 @@ contains
     ! Exract coarse grid parameters
 
     ! Common parameters for the coarse grid
-    call json_get_or_default(hsmg_params, 'coarse_grid.solver', &
+    call json_get_or_default(json, 'coarse_grid.solver', &
          crs_solver, "cg")
 
     !
     ! Parameters for a Krylov based coarse grid solverthis
     !
-    call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
+    call json_get_or_default(json, 'coarse_grid.iterations', &
          this%niter, 10)
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.preconditioner', &
+    call json_get_or_default(json, 'coarse_grid.preconditioner', &
          crs_pc, "jacobi")
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.monitor', &
+    call json_get_or_default(json, 'coarse_grid.monitor', &
          crs_monitor, .false.)
 
     !
     ! Parameters for a tree-amg based coarse grid solver
     !
-    call json_get_or_default(hsmg_params, 'coarse_grid.levels', &
+    call json_get_or_default(json, 'coarse_grid.levels', &
          crs_tamg_lvls, 3)
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.iterations', &
+    call json_get_or_default(json, 'coarse_grid.iterations', &
          crs_tamg_itrs, 1)
 
-    call json_get_or_default(hsmg_params, 'coarse_grid.cheby_degree', &
+    call json_get_or_default(json, 'coarse_grid.cheby_degree', &
          crs_tamg_cheby_degree, 4)
 
     call this%init_from_components(coef, bclst, crs_solver, crs_pc, &
@@ -284,8 +284,15 @@ contains
     call this%e_mg%init(this%dm_mg, 'work midl')
     call this%c_mg%init(this%gs_mg, COEF_OPERATOR)
 
-    ! Create backend specific Ax operator
-    call ax_helm_allocator(this%ax, type_name = "standard")
+    ! Create backend specific Ax operator. The coarse levels compress their
+    ! geometric factors when the fine level does
+    if (coef%geo_compression) then
+       call this%c_crs%enable_geo_compression(coef%geo_compression_tol)
+       call this%c_mg%enable_geo_compression(coef%geo_compression_tol)
+       call ax_helm_allocator(this%ax, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%ax, type_name = "standard")
+    end if
 
     call this%bc_crs%init_base(this%c_crs)
     call this%bc_mg%init_base(this%c_mg)
@@ -347,11 +354,11 @@ contains
 
        select type (pc => this%pc_crs)
        type is (jacobi_t)
-          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+          call pc%init_from_components(this%c_crs, this%dm_crs, this%gs_crs)
        type is (sx_jacobi_t)
-          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+          call pc%init_from_components(this%c_crs, this%dm_crs, this%gs_crs)
        type is (device_jacobi_t)
-          call pc%init(this%c_crs, this%dm_crs, this%gs_crs)
+          call pc%init_from_components(this%c_crs, this%dm_crs, this%gs_crs)
        end select
 
        call krylov_solver_factory(this%crs_solver, &
@@ -460,7 +467,7 @@ contains
     end if
 
     if (allocated(this%pc_crs)) then
-       call precon_destroy(this%pc_crs)
+       call this%pc_crs%free()
     end if
 
     if (c_associated(this%hsmg_event)) then

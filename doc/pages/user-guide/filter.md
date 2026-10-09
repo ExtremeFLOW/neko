@@ -57,6 +57,48 @@ One could set up the elementwise_filter in the following way for polynomial orde
 ~~~~~~~~~~~~~~~
 One could also refer to `dynamic_smagorinsky.f90` for an example of using `elementwise_filter_t` in the neko code.
 
+A list given in `transfer_function` is tied to one polynomial order and must
+be changed with it. As an alternative, the optional `transfer` object builds
+the transfer function from parameters given on the normalised mode number
+\f$ k/N \f$, so the same case file works at every order. With \f$ N \f$ the
+polynomial order, the modes up to \f$ k_c = \max(2, \mathrm{nint}(c\, N)) \f$
+are kept and the higher ones are damped as
+\f[
+   \sigma(k) = \exp\left(-\alpha \left(\frac{k - k_c}{N - k_c}\right)^p\right),
+   \qquad k > k_c ,
+\f]
+where \f$ c \f$ is `cutoff`, \f$ \alpha \f$ is `strength` and \f$ p \f$ is
+`order`. The modes 0, 1 and 2 are never damped. In the Boyd basis they are the
+only modes with a nonzero element integral, so the filter preserves the
+element means of the filtered field. Give either `transfer_function` or
+`transfer`, not both.
+
+| Name                | Description                                                      | Admissible values | Default value |
+| ------------------- | ---------------------------------------------------------------- | ----------------- | ------------- |
+| `transfer.cutoff`   | Fraction of the spectrum that is kept.                           | Real in [0, 1]    | `0.4`         |
+| `transfer.strength` | Damping exponent \f$ \alpha \f$ at the highest mode.             | Real, \f$ \ge 0 \f$ | `3.5`       |
+| `transfer.order`    | Shape of the roll-off, 1 for exponential, 2 for Gaussian.        | Real, \f$ > 0 \f$ | `1.0`         |
+
+The defaults give the following transfer functions.
+
+| Order | Transfer function |
+| ----- | ----------------- |
+| 5     | 1, 1, 1, 0.31, 0.10, 0.03 |
+| 7     | 1, 1, 1, 1, 0.42, 0.17, 0.07, 0.03 |
+| 9     | 1, 1, 1, 1, 1, 0.50, 0.25, 0.12, 0.06, 0.03 |
+
+~~~~~~~~~~~~~~~{.json}
+"filter": {
+    "type": "elementwise",
+    "elementwise_filter_type": "Boyd",
+    "transfer": {
+        "cutoff": 0.4,
+        "strength": 3.5,
+        "order": 1
+    }
+}
+~~~~~~~~~~~~~~~
+
 ## High-pass filter relaxation source term {#filter_hpfrt}
 
 The high-pass filter relaxation source term uses the elementwise filter as a

@@ -90,12 +90,26 @@ contains
     type(coef_t), intent(in), target :: coef
     real(kind=rp), allocatable :: transfer(:)
     character(len=:), allocatable :: filter_type
+    real(kind=rp) :: cutoff, strength, order
 
     call json_get_or_default(json, "elementwise_filter_type", &
          filter_type, "nonBoyd")
 
+    ! The transfer function is either given mode by mode, which ties it to
+    ! one polynomial order, or built from the order-independent parameters
+    ! of the `transfer` object
     if (json%valid_path('transfer_function')) then
+       if (json%valid_path('transfer')) then
+          call neko_error("Elementwise filter: give either " // &
+               "transfer_function or transfer, not both")
+       end if
        call json_get(json, 'transfer_function', transfer)
+    else if (json%valid_path('transfer')) then
+       call json_get_or_default(json, 'transfer.cutoff', cutoff, 0.4_rp)
+       call json_get_or_default(json, 'transfer.strength', strength, 3.5_rp)
+       call json_get_or_default(json, 'transfer.order', order, 1.0_rp)
+       call elementwise_filter_transfer(transfer, coef%Xh%lx - 1, cutoff, &
+            strength, order)
     end if
 
     if (allocated(transfer)) then
@@ -114,6 +128,44 @@ contains
     end if
 
   end subroutine elementwise_filter_init_from_json
+
+  !> Exponential transfer function on the normalised mode number, the same
+  !! shape at every polynomial order. Modes up to
+  !! \f$ k_c = \max(2, \mathrm{nint}(\texttt{cutoff}\, N)) \f$ are kept,
+  !! higher ones are scaled by
+  !! \f$ \exp(-\texttt{strength}\, ((k - k_c)/(N - k_c))^{\texttt{order}}) \f$.
+  !! The floor of 2 keeps the modes with a nonzero element integral in the
+  !! Boyd basis (0, 1 and 2), so the filter preserves element means.
+  !! @param transfer Transfer function, one entry per mode 0..N.
+  !! @param N Polynomial order.
+  !! @param cutoff Fraction of the spectrum that is kept.
+  !! @param strength Damping exponent at the highest mode.
+  !! @param order Shape of the roll-off (1 exponential, 2 Gaussian).
+  subroutine elementwise_filter_transfer(transfer, N, cutoff, strength, order)
+    real(kind=rp), allocatable, intent(inout) :: transfer(:)
+    integer, intent(in) :: N
+    real(kind=rp), intent(in) :: cutoff, strength, order
+    integer :: k, kc
+
+    if (cutoff .lt. 0.0_rp .or. cutoff .gt. 1.0_rp) then
+       call neko_error("Elementwise filter: transfer.cutoff must be " // &
+            "in [0, 1]")
+    end if
+    if (strength .lt. 0.0_rp .or. order .le. 0.0_rp) then
+       call neko_error("Elementwise filter: transfer.strength must be " // &
+            "non-negative and transfer.order positive")
+    end if
+
+    if (allocated(transfer)) deallocate(transfer)
+    allocate(transfer(N + 1))
+    transfer = 1.0_rp
+    kc = max(2, nint(cutoff * real(N, rp)))
+    do k = kc + 1, N
+       transfer(k + 1) = exp(-strength * (real(k - kc, rp) / &
+            real(N - kc, rp))**order)
+    end do
+
+  end subroutine elementwise_filter_transfer
 
   !> Actual Constructor.
   !! @param coef SEM coefficients.
@@ -282,6 +334,9 @@ contains
 
     call copy (fh, pht%x, nx*nx)
     call trsp (fht, nx, fh, nx)
+
+    call phi%free()
+    call pht%free()
 
   end subroutine build_1d_cpu
 
