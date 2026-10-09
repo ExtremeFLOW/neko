@@ -82,7 +82,9 @@ module gs_interp
      ! size of nhang_el + 1
      integer, allocatable, dimension(:) :: hang_fcs_off
      !> Global grid point multiplicity
-     real(rp), allocatable, dimension(:, :, :, :) :: mult
+     real(rp), allocatable, dimension(:, :, :, :) :: mult_h1
+     real(rp), allocatable, dimension(:, :, :, :) :: mult_jt
+     real(rp), allocatable, dimension(:, :, :, :) :: mult_ji
    contains
      !> Initialise base type
      procedure, pass(this) :: init_base => gs_interp_init_base
@@ -142,19 +144,15 @@ module gs_interp
      !> Remove multiplicity for J^T
      procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_jt_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_jt_r4
-     generic :: remove_mult_jt => remove_mult_jt_fld, remove_mult_jt_r4
+     procedure(gs_interp_apply_r1), pass(this), deferred :: remove_mult_jt_r1
+     generic :: remove_mult_jt => remove_mult_jt_fld, remove_mult_jt_r4, &
+          remove_mult_jt_r1
      !> Remove multiplicity for J^-1
      procedure(gs_interp_apply_fld), pass(this), deferred :: remove_mult_ji_fld
      procedure(gs_interp_apply_r4), pass(this), deferred :: remove_mult_ji_r4
-     generic :: remove_mult_ji => remove_mult_ji_fld, remove_mult_ji_r4
-     !> Add multiplicity for J^T
-     procedure(gs_interp_apply_fld), pass(this), deferred :: add_mult_jt_fld
-     procedure(gs_interp_apply_r4), pass(this), deferred :: add_mult_jt_r4
-     generic :: add_mult_jt => add_mult_jt_fld, add_mult_jt_r4
-     !> Add multiplicity for J^-1
-     procedure(gs_interp_apply_fld), pass(this), deferred :: add_mult_ji_fld
-     procedure(gs_interp_apply_r4), pass(this), deferred :: add_mult_ji_r4
-     generic :: add_mult_ji => add_mult_ji_fld
+     procedure(gs_interp_apply_r1), pass(this), deferred :: remove_mult_ji_r1
+     generic :: remove_mult_ji => remove_mult_ji_fld, remove_mult_ji_r4, &
+          remove_mult_ji_r1
      !> AMR restart of a base type
      procedure, pass(this) :: amr_restart_base => gs_interp_amr_restart_base
   end type gs_interp_t
@@ -420,7 +418,9 @@ contains
   subroutine gs_interp_free_mult(this)
     class(gs_interp_t), intent(inout) :: this
 
-    if (allocated(this%mult)) deallocate(this%mult)
+    if (allocated(this%mult_h1)) deallocate(this%mult_h1)
+    if (allocated(this%mult_jt)) deallocate(this%mult_jt)
+    if (allocated(this%mult_ji)) deallocate(this%mult_ji)
 
   end subroutine gs_interp_free_mult
 

@@ -623,7 +623,12 @@ contains
     if (present(cscale_f) .and. present(cscale_e)) then
        call gs%interp%scale_children(t1, ns, cscale_f, cscale_e)
     end if
-    call gs%op_inv(t1, ns, GS_OP_ADD)
+    
+    !call gs%op_inv(t1, ns, GS_OP_ADD)
+    call gs%interp%apply_ji(t1, ns)
+    call gs%gs_op_vector(t1, ns, GS_OP_ADD)
+    call gs%interp%apply_j(t1, ns)
+    
 
     ! t2 = J gs (Z work) : children receive J(sum of non-child contributions)
     call gs%interp%zero_children(t2, ns)

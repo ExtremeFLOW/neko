@@ -401,20 +401,19 @@ contains
        mult_h1%x(:, :, :, :) = 1.0_rp
        call gs%interp%zero_children(mult_h1)
        call gs%gs_op_vector(mult_h1%x, itmp, GS_OP_ADD)
-       
+
        call mult_jt%init(gs%dofmap)
        mult_jt%x(:, :, :, :) = 1.0_rp
-!       call gs%interp%apply_jt(mult_jt)
        call gs%gs_op_vector(mult_jt%x, itmp, GS_OP_ADD)
-       
+
        call mult_ji%init(gs%dofmap)
        mult_ji%x(:, :, :, :) = 1.0_rp
-       call gs%interp%apply_ji(mult_ji)
+       call gs%interp%scale_children(mult_ji, 0.25_rp, 0.5_rp)
        call gs%gs_op_vector(mult_ji%x, itmp, GS_OP_ADD)
-       
+
        call gs%interp%init_mult(mult_h1%x, mult_jt%x, mult_ji%x)
+
        call mult_h1%free()
-       
        call mult_jt%free()
        call mult_ji%free()
     end if
@@ -1287,15 +1286,7 @@ contains
        call gs_op_vector(gs, u%x, n, op)
     end if
 
-    if (allocated(gs%interp)) then
-       
-!       call gs%interp%remove_mult_jt(u)
-       
-       call gs%interp%apply_j(u)
-       
-!       call gs%interp%add_mult_jt(u)
-       
-    end if
+    if (allocated(gs%interp)) call gs%interp%apply_j(u)
 
   end subroutine gs_op_fld
 
@@ -1336,13 +1327,8 @@ contains
     end if
 
     if (allocated(gs%interp)) then
-       
-!       call gs%interp%remove_mult_ji(u)
-       
+       call gs%interp%remove_mult_ji(u)
        call gs%interp%apply_j(u)
-       
-!       call gs%interp%add_mult_ji(u)
-       
     end if
 
   end subroutine gs_op_fld_inv
@@ -1363,15 +1349,7 @@ contains
        call gs_op_vector(gs, u, n, op)
     end if
 
-    if (allocated(gs%interp)) then
-       
-!       call gs%interp%remove_mult_jt(u)
-       
-       call gs%interp%apply_j(u)
-       
-!       call gs%interp%add_mult_jt(u)
-       
-    end if
+    if (allocated(gs%interp)) call gs%interp%apply_j(u)
 
   end subroutine gs_op_r4
 
@@ -1412,13 +1390,8 @@ contains
     end if
 
     if (allocated(gs%interp)) then
-       
-!       call gs%interp%remove_mult_ji(u)
-       
+       call gs%interp%remove_mult_ji(u)
        call gs%interp%apply_j(u)
-       
-!       call gs%interp%add_mult_ji(u)
-       
     end if
 
   end subroutine gs_op_r4_inv
@@ -1447,13 +1420,7 @@ contains
     if (allocated(gs%interp)) then
        up(1 : gs%interp%lx, 1 : gs%interp%lx, 1 : gs%interp%lx, &
             1 : gs%interp%nel) => u(:)
-       
-!       call gs%interp%remove_mult_jt(up)
-       
        call gs%interp%apply_j(up)
-       
-!       call gs%interp%add_mult_jt(up)
-       
     end if
 
   end subroutine gs_op_r1
@@ -1511,13 +1478,8 @@ contains
     if (allocated(gs%interp)) then
        up(1 : gs%interp%lx, 1 : gs%interp%lx, 1 : gs%interp%lx, &
             1 : gs%interp%nel) => u(:)
-       
-!       call gs%interp%remove_mult_ji(up)
-       
+       call gs%interp%remove_mult_ji(up)
        call gs%interp%apply_j(up)
-       
-!       call gs%interp%add_mult_ji(up)
-       
     end if
 
   end subroutine gs_op_r1_inv
