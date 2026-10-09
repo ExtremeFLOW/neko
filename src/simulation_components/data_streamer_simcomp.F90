@@ -208,10 +208,6 @@ contains
     if (.not. this%checked) call neko_error("Simcomp not checked!")
 
     if (time%t .ge. this%start_time) then
-
-       ! Send time/tstep information to the data streamer.
-       call this%dstream%stream_time(time%t, time%tstep)
-
        do i = 1, size(this%field_names)
 
           ! Sync from GPU to CPU
