@@ -37,7 +37,48 @@ module device_local_interpolation
   implicit none
   private
 
-  public :: device_find_rst_legendre
+  public :: device_find_rst_legendre, device_compute_weights, &
+       device_compute_weights_3arrays
+
+#if defined(HAVE_CUDA) || defined(HAVE_HIP) || defined(HAVE_OPENCL) || defined(HAVE_METAL)
+  interface
+#ifdef HAVE_CUDA
+     subroutine backend_compute_weights(rst, zg, wr, ws, wt, lx, n) &
+          bind(c, name='cuda_local_interpolation_compute_weights')
+#elif HAVE_HIP
+     subroutine backend_compute_weights(rst, zg, wr, ws, wt, lx, n) &
+          bind(c, name='hip_local_interpolation_compute_weights')
+#elif HAVE_OPENCL
+     subroutine backend_compute_weights(rst, zg, wr, ws, wt, lx, n) &
+          bind(c, name='opencl_local_interpolation_compute_weights')
+#elif HAVE_METAL
+     subroutine backend_compute_weights(rst, zg, wr, ws, wt, lx, n) &
+          bind(c, name='metal_local_interpolation_compute_weights')
+#endif
+       import c_ptr, c_int
+       type(c_ptr), value :: rst, zg, wr, ws, wt
+       integer(c_int), intent(in) :: lx, n
+     end subroutine backend_compute_weights
+
+#ifdef HAVE_CUDA
+     subroutine backend_compute_weights_3arrays(r, s, t, zg, wr, ws, wt, &
+          lx, n) bind(c, name='cuda_local_interpolation_compute_weights_3arrays')
+#elif HAVE_HIP
+     subroutine backend_compute_weights_3arrays(r, s, t, zg, wr, ws, wt, &
+          lx, n) bind(c, name='hip_local_interpolation_compute_weights_3arrays')
+#elif HAVE_OPENCL
+     subroutine backend_compute_weights_3arrays(r, s, t, zg, wr, ws, wt, &
+          lx, n) bind(c, name='opencl_local_interpolation_compute_weights_3arrays')
+#elif HAVE_METAL
+     subroutine backend_compute_weights_3arrays(r, s, t, zg, wr, ws, wt, &
+          lx, n) bind(c, name='metal_local_interpolation_compute_weights_3arrays')
+#endif
+       import c_ptr, c_int
+       type(c_ptr), value :: r, s, t, zg, wr, ws, wt
+       integer(c_int), intent(in) :: lx, n
+     end subroutine backend_compute_weights_3arrays
+  end interface
+#endif
 
 #ifdef HAVE_HIP
   interface
@@ -119,6 +160,32 @@ module device_local_interpolation
 #endif
 
 contains
+
+  subroutine device_compute_weights(rst_d, zg_d, wr_d, ws_d, wt_d, lx, n)
+    type(c_ptr), intent(in) :: rst_d, zg_d, wr_d, ws_d, wt_d
+    integer, intent(in) :: lx, n
+
+    if (n .eq. 0) return
+#if defined(HAVE_CUDA) || defined(HAVE_HIP) || defined(HAVE_OPENCL) || defined(HAVE_METAL)
+    call backend_compute_weights(rst_d, zg_d, wr_d, ws_d, wt_d, lx, n)
+#else
+    call neko_error('No local interpolation device backend configured')
+#endif
+  end subroutine device_compute_weights
+
+  subroutine device_compute_weights_3arrays(r_d, s_d, t_d, zg_d, &
+       wr_d, ws_d, wt_d, lx, n)
+    type(c_ptr), intent(in) :: r_d, s_d, t_d, zg_d, wr_d, ws_d, wt_d
+    integer, intent(in) :: lx, n
+
+    if (n .eq. 0) return
+#if defined(HAVE_CUDA) || defined(HAVE_HIP) || defined(HAVE_OPENCL) || defined(HAVE_METAL)
+    call backend_compute_weights_3arrays(r_d, s_d, t_d, zg_d, &
+         wr_d, ws_d, wt_d, lx, n)
+#else
+    call neko_error('No local interpolation device backend configured')
+#endif
+  end subroutine device_compute_weights_3arrays
 
   subroutine device_find_rst_legendre(rst_d, pt_x_d, pt_y_d, pt_z_d, &
        x_hat_d, y_hat_d, z_hat_d, &

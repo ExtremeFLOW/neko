@@ -288,8 +288,7 @@ contains
        call neko_error('Wall sampler destination has an invalid size')
     end if
 
-    call this%interpolator%evaluate(values%x, field%x, &
-         NEKO_BCKND_DEVICE .eq. 0)
+    call this%interpolator%evaluate(values, field)
   end subroutine wall_distance_sampler_sample
 
   !> Release sampler resources.
