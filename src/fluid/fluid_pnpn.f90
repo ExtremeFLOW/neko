@@ -519,7 +519,7 @@ contains
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
          solver_type, solver_maxiter, abs_tol, monitor)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
+         this%c_Xh, this%bcs_prs, &
          precon_type, precon_params)
     call neko_log%end_section()
 
