@@ -305,7 +305,7 @@ contains
   end subroutine scratch_registry_set_expansion_size
 
   !> Get the number of objects stored in the registry
-  pure function get_n_entries(this) result(n)
+  function get_n_entries(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
@@ -315,7 +315,7 @@ contains
   end function get_n_entries
 
   !> Get the number of objects currently in use
-  pure function get_n_inuse(this) result(n)
+  function get_n_inuse(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
@@ -329,7 +329,7 @@ contains
   end function get_n_inuse
 
   !> Get the size of the objects array
-  pure function get_size(this) result(n)
+  function get_size(this) result(n)
     class(scratch_registry_t), intent(in) :: this
     integer :: n
 
@@ -351,7 +351,7 @@ contains
   end function get_expansion_size
 
   !> Get the inuse status for a given index
-  pure logical function get_inuse(this, index)
+  logical function get_inuse(this, index)
     class(scratch_registry_t), target, intent(in) :: this
     integer, intent(in) :: index
 
@@ -400,7 +400,7 @@ contains
     if (index .gt. this%n_entries) then
        this%n_entries = this%n_entries + 1
 
-       if (this%n_entries .gt. this%get_size()) call this%expand()
+       if (this%n_entries .gt. size(this%entries)) call this%expand()
        call this%entries(this%n_entries)%init_host_array(n)
        ptr => this%entries(this%n_entries)%get_host_array()
 
@@ -473,7 +473,7 @@ contains
     if (index .gt. this%n_entries) then
        this%n_entries = this%n_entries + 1
 
-       if (this%n_entries .gt. this%get_size()) call this%expand()
+       if (this%n_entries .gt. size(this%entries)) call this%expand()
        call this%entries(this%n_entries)%init_device_array(n)
        ptr => this%entries(this%n_entries)%get_device_array()
 
@@ -542,7 +542,7 @@ contains
     if (index .gt. this%n_entries) then
        this%n_entries = this%n_entries + 1
 
-       if (this%n_entries .gt. this%get_size()) call this%expand()
+       if (this%n_entries .gt. size(this%entries)) call this%expand()
        call this%entries(this%n_entries)%init_vector(n)
        scratch_entry => this%entries(this%n_entries)%get_vector()
 
@@ -610,7 +610,7 @@ contains
     if (index .gt. this%n_entries) then
        this%n_entries = this%n_entries + 1
 
-       if (this%n_entries .gt. this%get_size()) call this%expand()
+       if (this%n_entries .gt. size(this%entries)) call this%expand()
        call this%entries(this%n_entries)%init_matrix(nrows, ncols)
        scratch_entry => this%entries(this%n_entries)%get_matrix()
 
@@ -679,7 +679,7 @@ contains
     if (index .gt. this%n_entries) then
        this%n_entries = this%n_entries + 1
 
-       if (this%n_entries .gt. this%get_size()) call this%expand()
+       if (this%n_entries .gt. size(this%entries)) call this%expand()
        call this%entries(this%n_entries)%init_tensor3(n, m, l)
        scratch_entry => this%entries(this%n_entries)%get_tensor3()
 
@@ -755,7 +755,7 @@ contains
     if (index .gt. this%n_entries) then
        this%n_entries = this%n_entries + 1
 
-       if (this%n_entries .gt. this%get_size()) call this%expand()
+       if (this%n_entries .gt. size(this%entries)) call this%expand()
        call this%entries(this%n_entries)%init_tensor4(n, m, l, k)
        scratch_entry => this%entries(this%n_entries)%get_tensor4()
 
@@ -832,7 +832,7 @@ contains
     if (index .gt. this%n_entries) then
        this%n_entries = this%n_entries + 1
 
-       if (this%n_entries .gt. this%get_size()) call this%expand()
+       if (this%n_entries .gt. size(this%entries)) call this%expand()
        write(name, "(A3,I0.3)") "wrk", this%n_entries
        call this%entries(this%n_entries)%init_field(this%dof, name)
        scratch_entry => this%entries(this%n_entries)%get_field()
@@ -880,7 +880,7 @@ contains
     if (index .gt. this%n_entries) then
        this%n_entries = this%n_entries + 1
 
-       if (this%n_entries .gt. this%get_size()) call this%expand()
+       if (this%n_entries .gt. size(this%entries)) call this%expand()
        write(name, "(A3,I0.3)") "wrk", this%n_entries
        call this%entries(this%n_entries)%init_field(dof, name)
        scratch_entry => this%entries(this%n_entries)%get_field()
@@ -971,7 +971,7 @@ contains
     logical, allocatable :: temp2(:)
     integer :: i, n
 
-    n = this%get_size()
+    n = size(this%entries)
     if (n .gt. 0) then
        call move_alloc(this%entries, temp)
        call move_alloc(this%inuse, temp2)
