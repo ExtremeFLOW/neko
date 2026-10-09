@@ -57,6 +57,9 @@ contains
     w => fields%get_by_name("w")
     p => fields%get_by_name("p")
 
+    ! Initialize pressure field to zero
+    call field_rzero(p)
+
     ntot = dof%size()
     do i = 1, ntot
        uvw = tgv_ic(u%dof%x%x(i,1,1,1),u%dof%y%x(i,1,1,1),u%dof%z%x(i,1,1,1))
@@ -64,6 +67,12 @@ contains
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
 
     call field_rzero(p)
 

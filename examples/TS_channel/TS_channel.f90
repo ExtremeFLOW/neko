@@ -60,11 +60,15 @@ contains
     type(map_1d_t) :: map_1d
     type(gs_t) :: gs_h
     type(coef_t) :: coef
-    type (field_t), pointer :: u, v, w
+    type (field_t), pointer :: u, v, w, p
 
     u => fields%items(1)%ptr
     v => fields%items(2)%ptr
     w => fields%items(3)%ptr
+    p => fields%items(4)%ptr
+
+    ! Initialize pressure field to zero
+    call field_rzero(p)
 
     !Init these only for the initial condition...
     call gs_h%init(u%dof)
@@ -130,6 +134,12 @@ contains
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
 
   end subroutine initial_conditions
 

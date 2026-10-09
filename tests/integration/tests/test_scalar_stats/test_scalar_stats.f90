@@ -29,16 +29,18 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
 
-    type (field_t), pointer :: u, v, w, s
+    type (field_t), pointer :: u, v, w, p, s
 
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
 
        call field_cfill(u, U0 + U1 * cos(omega * 0.0_rp))
        call field_cfill(v, V0 + V1 * cos(omega * 0.0_rp + phi))
        call field_cfill(w, W0 + W1 * cos(omega * 0.0_rp + psi))
+       call field_cfill(p, 0.0_rp)
     else
        s => fields%get("s")
        call field_cfill(s, S0 + S1 * sin(omega * 0.0_rp + xi))

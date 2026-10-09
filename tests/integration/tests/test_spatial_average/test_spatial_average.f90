@@ -15,7 +15,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
 
-    type(field_t), pointer :: u, v, w, s
+    type(field_t), pointer :: u, v, w, s, p
     integer :: i, n
     real(kind=rp) :: x, y, z
 
@@ -23,6 +23,10 @@ contains
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
+
+       ! Initialize pressure field to zero
+       call field_rzero(p)
 
        n = u%size()
        do i = 1, n
@@ -34,6 +38,12 @@ contains
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     else
        s => fields%get("s")
 
@@ -45,6 +55,10 @@ contains
 
           s%x(i,1,1,1) = 2.0_rp * x - y + 0.5_rp * z
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call s%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     end if
   end subroutine initial_conditions
 

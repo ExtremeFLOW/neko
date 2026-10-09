@@ -1,9 +1,24 @@
 # Changelog
 
+## Breaking changes
+
+- PR#2831 User initial conditions are no longer copied from the host to the
+  device after the user routine, so on GPUs the routine must leave the values in
+  the device arrays itself, e.g. with `device_memcpy`.
+- PR#2831 User initial conditions are can no longer assume that the arrays
+  are zeroed on entry. The user routine must set all values, e.g. with
+  `field_cfill`.
+
 ## Develop
 
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
+- *BREAKING* User initial conditions are no longer copied from the host to the
+  device after the user routine, so on GPUs the routine must leave the values in
+  the device arrays itself, e.g. with `device_memcpy`.
+- *BREAKING* User initial conditions are can no longer assume that the arrays
+  are zeroed on entry. The user routine must set all values, e.g. with
+  `field_cfill`.
 - Added `gmsh2nmsh` under `contrib`, which converts Gmsh `.msh` meshes
   directly to `.nmsh` without going through `.re2`. Physical groups become
   labeled zones, group pairs can be made periodic, and curved second order
