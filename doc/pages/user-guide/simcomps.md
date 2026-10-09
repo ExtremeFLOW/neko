@@ -932,6 +932,10 @@ variable `f2py_field`, of size `global_elements * points_per_element` and
 in the precision of the build. The stream does not identify which field a
 step carries, so the reader must rely on the order above.
 
+@note When reading the stream with `pySEMTools`, the header is already read
+by the `DataStreamer` constructor, so it does not need to be consumed
+manually.
+
 ### Field subsampler {#simcomp_field_subsampler}
 
 Creates sub-sections of the domain from a `point_zone` and/or at a lower
