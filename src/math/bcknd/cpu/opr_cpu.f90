@@ -173,9 +173,12 @@ contains
 
     if (allocated(c_Xh%gs_h%interp)) then
        if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_Xh)
-       call c_Xh%gs_h%op_h1(w1, n, GS_OP_ADD)
-       call c_Xh%gs_h%op_h1(w2, n, GS_OP_ADD)
-       call c_Xh%gs_h%op_h1(w3, n, GS_OP_ADD)
+       call c_Xh%gs_h%op_inv(w1, n, GS_OP_ADD)
+       call c_Xh%gs_h%op_inv(w2, n, GS_OP_ADD)
+       call c_Xh%gs_h%op_inv(w3, n, GS_OP_ADD)
+!       call c_Xh%gs_h%op_h1(w1, n, GS_OP_ADD)
+!       call c_Xh%gs_h%op_h1(w2, n, GS_OP_ADD)
+!       call c_Xh%gs_h%op_h1(w3, n, GS_OP_ADD)
        if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_Xh)
     else
        call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
