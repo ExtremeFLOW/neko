@@ -60,11 +60,15 @@ contains
     type(map_1d_t) :: map_1d
     type(gs_t) :: gs_h
     type(coef_t) :: coef
-    type (field_t), pointer :: u, v, w
+    type (field_t), pointer :: u, v, w, p
 
     u => fields%items(1)%ptr
     v => fields%items(2)%ptr
     w => fields%items(3)%ptr
+    p => fields%items(4)%ptr
+
+    ! Initialize pressure field to zero
+    call field_rzero(p)
 
     !Init these only for the initial condition...
     call gs_h%init(u%dof)

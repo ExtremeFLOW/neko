@@ -15,7 +15,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
 
-    type(field_t), pointer :: u, v, w, s
+    type(field_t), pointer :: u, v, w, s, p
     integer :: i, n
     real(kind=rp) :: x, y, z
 
@@ -23,6 +23,10 @@ contains
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
+
+       ! Initialize pressure field to zero
+       call field_rzero(p)
 
        n = u%size()
        do i = 1, n

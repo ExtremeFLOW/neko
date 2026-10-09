@@ -56,17 +56,19 @@ contains
     type(field_list_t), intent(inout) :: fields
     integer :: i, e, k, j
     real(kind=rp) :: x, y
-    type (field_t), pointer :: u, v, w, s
+    type (field_t), pointer :: u, v, w, s, p
     type(dofmap_t), pointer :: dof
 
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
 
        call field_rone(u)
        call field_rzero(v)
        call field_rzero(w)
+       call field_rzero(p)
     else !scalar
        s => fields%get("s")
        do i = 1, s%dof%size()

@@ -20,7 +20,7 @@ contains
   subroutine user_ic(scheme_name, fields)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
-    type(field_t), pointer :: u, v, w, s
+    type(field_t), pointer :: u, v, w, s, p
     type(field_t), pointer :: p
     type(dofmap_t), pointer :: dof
     integer :: i
@@ -56,6 +56,10 @@ contains
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
+
+       ! Initialize pressure field to zero
+       call field_rzero(p)
 
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = u_geo

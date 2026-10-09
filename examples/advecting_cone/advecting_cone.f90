@@ -18,13 +18,17 @@ contains
     real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta
 
     type(dofmap_t), pointer :: dof
-    type (field_t), pointer :: u, v, w, s
+    type (field_t), pointer :: u, v, w, s, p
 
     dof => fields%dof(1)
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
+
+       ! Initialize pressure field to zero
+       call field_rzero(p)
 
        do i = 1, u%dof%size()
           x = u%dof%x%x(i,1,1,1)

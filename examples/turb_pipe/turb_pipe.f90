@@ -16,11 +16,15 @@ contains
     type(field_list_t), intent(inout) :: fields
     integer :: i
     real(kind=rp) :: uvw(3), x, y, z
-    type (field_t), pointer :: u, v, w
+    type (field_t), pointer :: u, v, w, p
 
     u => fields%get("u")
     v => fields%get("v")
     w => fields%get("w")
+    p => fields%get("p")
+
+    ! Initialize pressure field to zero
+    call field_rzero(p)
 
     do i = 1, u%size()
        x = u%dof%x%x(i,1,1,1)

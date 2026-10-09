@@ -80,7 +80,7 @@ contains
     type(dofmap_t ), pointer :: dof
     integer :: i, msk_ind
     real(kind=rp) :: x, y, z
-    type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: u, v, w, p
 
     ! Only do this at the first time step since our BCs are constants.
     if (time%tstep .ne. 1) return
@@ -93,6 +93,10 @@ contains
     u => fields%get("u")
     v => fields%get("v")
     w => fields%get("w")
+    p => fields%get("p")
+
+    ! Initialize pressure field to zero
+    call field_rzero(p)
 
     ! We use the bc mask to loop over the boundary nodes. msk(0) holds the
     ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.

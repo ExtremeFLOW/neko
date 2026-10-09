@@ -57,6 +57,9 @@ contains
     w => fields%get_by_name("w")
     p => fields%get_by_name("p")
 
+    ! Initialize pressure field to zero
+    call field_rzero(p)
+
     ntot = dof%size()
     do i = 1, ntot
        uvw = tgv_ic(u%dof%x%x(i,1,1,1),u%dof%y%x(i,1,1,1),u%dof%z%x(i,1,1,1))
