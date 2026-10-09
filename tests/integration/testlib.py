@@ -38,6 +38,20 @@ def get_genmeshbox():
             raise FileNotFoundError("The genmeshbox executable could not be found")
         return cmd
 
+def get_gmsh2nmsh():
+    """
+    Returns the path to the gmsh2nmsh executable, via the environmental
+    variable GMSH2NMSH_EXEC, or returns the path to the first gmsh2nmsh
+    executable in the PATH environment variable.
+    """
+    if os.getenv("GMSH2NMSH_EXEC"):
+        return os.getenv("GMSH2NMSH_EXEC")
+    else:
+        cmd = which_command("gmsh2nmsh")
+        if cmd is None:
+            raise FileNotFoundError("The gmsh2nmsh executable could not be found")
+        return cmd
+
 def get_neko():
     """
     Returns the path to the turboneko executable via the environmental variable

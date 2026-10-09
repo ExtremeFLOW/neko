@@ -34,6 +34,9 @@
 module identity
   use math, only : copy
   use precon, only : pc_t
+  use coefs, only : coef_t
+  use bc_list, only : bc_list_t
+  use json_module, only : json_file
   use num_types, only : rp
   implicit none
   private
@@ -41,11 +44,21 @@ module identity
   !> Defines a canonical Krylov preconditioner
   type, public, extends(pc_t) :: ident_t
    contains
+     procedure, pass(this) :: init => ident_init
      procedure, pass(this) :: solve => ident_solve
      procedure, pass(this) :: update => ident_update
+     procedure, pass(this) :: free => ident_free
   end type ident_t
 
 contains
+
+  !> Mandatory init routine (NOP)
+  subroutine ident_init(this, coef, bclst, json)
+    class(ident_t), intent(inout), target :: this
+    type(coef_t), intent(in), target :: coef
+    type(bc_list_t), intent(inout), target :: bclst
+    type(json_file), intent(inout) :: json
+  end subroutine ident_init
 
   !> The (default) naive preconditioner \f$ I z = r \f$
   subroutine ident_solve(this, z, r, n)
@@ -60,5 +73,10 @@ contains
   subroutine ident_update(this)
     class(ident_t), intent(inout) :: this
   end subroutine ident_update
+
+  !> Mandatory free routine (NOP)
+  subroutine ident_free(this)
+    class(ident_t), intent(inout) :: this
+  end subroutine ident_free
 
 end module identity

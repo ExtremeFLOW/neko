@@ -426,7 +426,11 @@ contains
     end if
 
     ! Setup Ax for the pressure
-    call ax_helm_allocator(this%Ax_prs, type_name = "standard")
+    if (this%c_Xh%geo_compression) then
+       call ax_helm_allocator(this%Ax_prs, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%Ax_prs, type_name = "standard")
+    end if
 
 
     ! Setup backend dependent summation of AB/BDF
@@ -515,7 +519,7 @@ contains
     call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
          solver_type, solver_maxiter, abs_tol, monitor)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
+         this%c_Xh, this%bcs_prs, &
          precon_type, precon_params)
     call neko_log%end_section()
 
@@ -580,6 +584,9 @@ contains
           class is (ax_helm_svv_t)
              operator%svv => this%svv
           end select
+       else if (this%c_Xh%geo_compression) then
+          call ax_helm_allocator(this%Ax_vel, &
+               type_name = "standard_compr")
        else
           call ax_helm_allocator(this%Ax_vel, type_name = "standard")
        end if

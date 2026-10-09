@@ -512,6 +512,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/boundary_operation/Makefile\
         tests/unit/checkpoint_payload/Makefile\
         tests/unit/wall_sampling/Makefile\
+        tests/unit/geo_compression/Makefile\
         tests/unit/templates/serial/Makefile])
 
 if test "x${enable_contrib}" = xyes; then
@@ -530,6 +531,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/psnr/Makefile\
 		    contrib/rea2nbin/rea2nbin.1\
 		    contrib/prepart/prepart.1])
+   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
