@@ -14,10 +14,6 @@ adios2::Engine reader_st;
 adios2::Variable<real> f2py_field;
 adios2::Variable<real> py2f_field;
 
-// Other variables
-adios2::Variable<double> time_;
-adios2::Variable<int> tstep_;
-
 // Global C variables
 int rank, size;
 unsigned int reader_start;
@@ -58,10 +54,6 @@ extern "C" void adios2_initialize_(
     // If the process is asynchronous, define the relevant variables for writer_st
     f2py_field = io_asynchronous.DefineVariable<real>("f2py_field", {gn}, {start}, {n});
     
-    // Time-related variables
-    time_ = io_asynchronous.DefineVariable<double>("time"); 
-    tstep_ = io_asynchronous.DefineVariable<int>("tstep");
-
     // If asynchronous execution, open the global array
     writer_st = io_asynchronous.Open("globalArray_f2py", adios2::Mode::Write);
     reader_st = io_asynchronous.Open("globalArray_py2f", adios2::Mode::Read);
@@ -83,16 +75,6 @@ extern "C" void adios2_initialize_(
 extern "C" void adios2_finalize_(){
     writer_st.Close();
     reader_st.Close();
-}
-
-extern "C" void adios2_stream_time_(
-    const double *time,
-    const int *tstep
-){
-    writer_st.BeginStep();
-    writer_st.Put<double>(time_, static_cast<double> (*time));
-    writer_st.Put<int>(tstep_, static_cast<int> (*tstep));
-    writer_st.EndStep();
 }
 
 extern "C" void adios2_stream_(
