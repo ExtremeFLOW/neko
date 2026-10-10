@@ -177,7 +177,7 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Finalize scalar initial condition by distributing the initial condition across elements and multiplying by the coefficient (if any). </p><dl class="params"><dt>Parameters</dt><dd>
+<p>Finalize scalar initial condition by distributing the initial condition across elements and multiplying by the coefficient (if any). Operates on the device array when running on GPUs, so the caller must make sure the values are there. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">s</td><td>Scalar field. </td></tr>
     <tr><td class="paramname">coef</td><td>Coefficient. </td></tr>
@@ -186,7 +186,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00188">188</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00199">199</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -243,7 +243,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00240">240</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00244">244</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -333,7 +333,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00300">300</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00306">306</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -422,7 +422,7 @@ Here is the caller graph for this function:</div>
 </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 
 </div>
 </div>
@@ -481,17 +481,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00259">259</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d8/ddf/namespacescalar__ic_a1c59efdb48873bad7bf1521a344c1a67_cgraph.png" border="0" usemap="#ad8/ddf/namespacescalar__ic_a1c59efdb48873bad7bf1521a344c1a67_cgraph" alt=""/></div>
-<map name="ad8/ddf/namespacescalar__ic_a1c59efdb48873bad7bf1521a344c1a67_cgraph" id="ad8/ddf/namespacescalar__ic_a1c59efdb48873bad7bf1521a344c1a67_cgraph">
-<area shape="rect" title="Point zone initial condition." alt="" coords="5,5,159,45"/>
-<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a09ded6a29d28776765c85df12aca2a67" title="Uniform initial condition." alt="" coords="207,5,360,45"/>
-<area shape="poly" title=" " alt="" coords="159,23,193,23,193,28,159,28"/>
-</map>
-</div>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00264">264</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -546,18 +536,15 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00214">214</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00222">222</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/ddf/namespacescalar__ic_a09ded6a29d28776765c85df12aca2a67_icgraph.png" border="0" usemap="#ad8/ddf/namespacescalar__ic_a09ded6a29d28776765c85df12aca2a67_icgraph" alt=""/></div>
 <map name="ad8/ddf/namespacescalar__ic_a09ded6a29d28776765c85df12aca2a67_icgraph" id="ad8/ddf/namespacescalar__ic_a09ded6a29d28776765c85df12aca2a67_icgraph">
-<area shape="rect" title="Uniform initial condition." alt="" coords="411,5,564,45"/>
+<area shape="rect" title="Uniform initial condition." alt="" coords="209,5,363,45"/>
 <area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)" alt="" coords="5,5,161,45"/>
-<area shape="poly" title=" " alt="" coords="397,25,363,24,209,24,162,25,162,20,209,19,363,19,397,19"/>
-<area shape="rect" href="../../d8/ddf/namespacescalar__ic.html#a1c59efdb48873bad7bf1521a344c1a67" title="Point zone initial condition." alt="" coords="209,33,363,73"/>
-<area shape="poly" title=" " alt="" coords="397,41,363,45,362,40,397,35"/>
-<area shape="poly" title=" " alt="" coords="195,44,161,39,162,33,196,38"/>
+<area shape="poly" title=" " alt="" coords="195,28,162,28,162,23,195,23"/>
 </map>
 </div>
 
@@ -624,8 +611,9 @@ Here is the caller graph for this function:</div>
   </table>
   </dd>
 </dl>
+<dl class="section note"><dt>Note</dt><dd>No data is copied between the host and the device. The user routine must leave the values where the backend operates on them, i.e. on the device when running on GPUs. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 
 </div>
 </div>
@@ -635,7 +623,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/ddf/namespacescalar__ic.html">scalar_ic</a></li>
-    <li class="footer">Generated on Fri Oct 9 2026 03:48:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 10 2026 03:47:47 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

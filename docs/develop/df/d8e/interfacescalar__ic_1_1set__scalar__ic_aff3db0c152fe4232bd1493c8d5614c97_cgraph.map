@@ -10,7 +10,6 @@
 <area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="162,195,196,200,195,206,161,200"/>
 <area shape="rect" id="Node000006" href="$d8/ddf/namespacescalar__ic.html#a1c59efdb48873bad7bf1521a344c1a67" title="Point zone initial condition." alt="" coords="209,261,363,301"/>
 <area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="123,203,210,247,224,253,222,258,208,252,121,208"/>
-<area shape="rect" id="Node000007" href="$d8/ddf/namespacescalar__ic.html#a09ded6a29d28776765c85df12aca2a67" title="Uniform initial condition." alt="" coords="411,291,564,331"/>
-<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="99,204,117,231,143,261,174,289,210,311,256,325,305,331,352,331,397,326,397,332,353,336,304,336,255,330,208,316,171,294,139,264,113,234,95,207"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="363,290,398,295,397,300,363,295"/>
+<area shape="rect" id="Node000007" href="$d8/ddf/namespacescalar__ic.html#a09ded6a29d28776765c85df12aca2a67" title="Uniform initial condition." alt="" coords="209,325,363,365"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="102,204,148,256,178,285,211,311,220,317,217,321,208,316,174,289,144,260,98,207"/>
 </map>

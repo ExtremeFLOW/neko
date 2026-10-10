@@ -111,15 +111,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aa5c900e30a45a6ed61c876b4ce368b50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (builtin)  <br /></td></tr>
 <tr class="separator:aa5c900e30a45a6ed61c876b4ce368b50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ae0362448781bf4610527ffa9d6e081" id="r_a3ae0362448781bf4610527ffa9d6e081"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#a3ae0362448781bf4610527ffa9d6e081">set_flow_ic_usr</a> (u, v, w, p, coef, gs, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">user_proc</a>, scheme_name)</td></tr>
-<tr class="memdesc:a3ae0362448781bf4610527ffa9d6e081"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set intial flow condition (user defined)  <br /></td></tr>
+<tr class="memdesc:a3ae0362448781bf4610527ffa9d6e081"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (user defined)  <br /></td></tr>
 <tr class="separator:a3ae0362448781bf4610527ffa9d6e081"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae6bfdcf866e2e550dd48ae1e4b29d7fd" id="r_ae6bfdcf866e2e550dd48ae1e4b29d7fd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html#ae6bfdcf866e2e550dd48ae1e4b29d7fd">set_compressible_flow_ic_usr</a> (rho, u, v, w, p, coef, gs, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">user_proc</a>, scheme_name)</td></tr>
-<tr class="memdesc:ae6bfdcf866e2e550dd48ae1e4b29d7fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set intial flow condition (user defined) for compressible flows.  <br /></td></tr>
+<tr class="memdesc:ae6bfdcf866e2e550dd48ae1e4b29d7fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (user defined) for compressible flows.  <br /></td></tr>
 <tr class="separator:ae6bfdcf866e2e550dd48ae1e4b29d7fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="ae6bfdcf866e2e550dd48ae1e4b29d7fd" name="ae6bfdcf866e2e550dd48ae1e4b29d7fd"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae6bfdcf866e2e550dd48ae1e4b29d7fd">&#9670;&#160;</a></span>set_compressible_flow_ic_usr()</h2>
@@ -188,15 +188,16 @@ Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>No data is copied between the host and the device. The user routine must leave the values where the backend operates on them, i.e. on the device when running on GPUs. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00196">196</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00200">200</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d5/d04/interfaceflow__ic_1_1set__flow__ic_ae6bfdcf866e2e550dd48ae1e4b29d7fd_cgraph.png" border="0" usemap="#ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae6bfdcf866e2e550dd48ae1e4b29d7fd_cgraph" alt=""/></div>
 <map name="ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae6bfdcf866e2e550dd48ae1e4b29d7fd_cgraph" id="ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae6bfdcf866e2e550dd48ae1e4b29d7fd_cgraph">
-<area shape="rect" title="Set intial flow condition (user defined) for compressible flows." alt="" coords="5,5,184,60"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title=" " alt="" coords="232,13,379,53"/>
+<area shape="rect" title="Set initial flow condition (user defined) for compressible flows." alt="" coords="5,5,184,60"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="232,13,379,53"/>
 <area shape="poly" title=" " alt="" coords="184,30,218,30,218,35,184,35"/>
 </map>
 </div>
@@ -265,7 +266,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -276,7 +277,7 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="88,196,130,128,162,89,198,55,206,50,209,54,202,59,165,93,134,131,92,199"/>
 <area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="212,69,359,109"/>
 <area shape="poly" title=" " alt="" coords="99,195,143,157,199,119,211,113,213,117,201,124,147,161,103,199"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title=" " alt="" coords="212,133,359,173"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="212,133,359,173"/>
 <area shape="poly" title=" " alt="" coords="143,195,207,175,208,180,145,200"/>
 <area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aa12cfd84289d6030cd1376644fd98ca2" title="Set the initial condition from one mathematical expression per velocity component." alt="" coords="212,197,359,237"/>
 <area shape="poly" title=" " alt="" coords="152,215,198,215,198,220,152,220"/>
@@ -284,9 +285,8 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="152,235,226,256,225,261,151,240"/>
 <area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a336762f1b72735e67d1066d53d13697f" title="Set the initial condition of the flow based on a point zone." alt="" coords="212,312,359,352"/>
 <area shape="poly" title=" " alt="" coords="108,235,151,266,201,296,217,304,215,309,199,301,148,270,105,240"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a6b4c73702cac8cb46dd2a803491ea0ac" title="Uniform initial condition." alt="" coords="419,341,565,381"/>
-<area shape="poly" title=" " alt="" coords="92,237,108,267,132,302,163,336,201,362,251,378,304,385,356,384,405,378,405,384,357,389,304,390,250,383,199,366,160,340,128,305,104,269,87,239"/>
-<area shape="poly" title=" " alt="" coords="360,340,406,346,405,352,359,345"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a6b4c73702cac8cb46dd2a803491ea0ac" title="Uniform initial condition." alt="" coords="212,376,359,416"/>
+<area shape="poly" title=" " alt="" coords="94,236,137,298,167,332,202,362,209,367,206,371,198,366,163,336,133,301,90,239"/>
 </map>
 </div>
 
@@ -353,15 +353,16 @@ Here is the call graph for this function:</div>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>No data is copied between the host and the device. The user routine must leave the values where the backend operates on them, i.e. on the device when running on GPUs. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00153">153</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d5/d04/interfaceflow__ic_1_1set__flow__ic_a3ae0362448781bf4610527ffa9d6e081_cgraph.png" border="0" usemap="#ad5/d04/interfaceflow__ic_1_1set__flow__ic_a3ae0362448781bf4610527ffa9d6e081_cgraph" alt=""/></div>
 <map name="ad5/d04/interfaceflow__ic_1_1set__flow__ic_a3ae0362448781bf4610527ffa9d6e081_cgraph" id="ad5/d04/interfaceflow__ic_1_1set__flow__ic_a3ae0362448781bf4610527ffa9d6e081_cgraph">
-<area shape="rect" title="Set intial flow condition (user defined)" alt="" coords="5,5,152,45"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title=" " alt="" coords="200,5,347,45"/>
+<area shape="rect" title="Set initial flow condition (user defined)" alt="" coords="5,5,152,45"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="200,5,347,45"/>
 <area shape="poly" title=" " alt="" coords="152,23,186,23,186,28,152,28"/>
 </map>
 </div>
@@ -377,7 +378,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/d13/namespaceflow__ic.html">flow_ic</a></li><li class="navelem"><a class="el" href="../../d5/d04/interfaceflow__ic_1_1set__flow__ic.html">set_flow_ic</a></li>
-    <li class="footer">Generated on Fri Oct 9 2026 03:48:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 10 2026 03:47:46 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
