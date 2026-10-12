@@ -21,7 +21,6 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
     type(field_t), pointer :: u, v, w, s, p
-    type(field_t), pointer :: p
     type(dofmap_t), pointer :: dof
     integer :: i
     real(kind=rp) :: x, y, z
