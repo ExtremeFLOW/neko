@@ -11,6 +11,9 @@
 
 ## Develop
 
+- Modified `legendre_rst_finder_init` to apply the `tnsr3d` operation
+  on device, when running on device. Exposed `max_iterations` to case file
+  for the Newton iterations in `global_interpolation`.
 - Fixed the scalar debug log computing its norms from stale host arrays on
   GPUs and running its global reductions every step at any log level.
 - *BREAKING* User initial conditions are no longer copied from the host to the

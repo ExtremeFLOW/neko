@@ -61,14 +61,15 @@ The `global_interpolation_t` type encapsulates the functionality for global inte
 #### Configuration
 - `tol`: Tolerance for Newton iterations to find `rst` coordinates.
 - `padding`: Padding for bounding boxes used in element and process finding.
+- `max_iterations`: Maximum number of Newton iterations.
 
 ---
 
 ### Methods
 
 #### Initialization
-- `init_xyz(x, y, z, gdim, nelv, Xh, comm, tol, pad)`: Initializes the global interpolation object using coordinates and mesh information.
-- `init_dof(dofmap, comm, tol, pad)`: Initializes the object using a `dofmap_t` instance.
+- `init_xyz(x, y, z, gdim, nelv, Xh, comm, tol, pad, max_iter)`: Initializes the global interpolation object using coordinates and mesh information.
+- `init_dof(dofmap, comm, tol, pad, mask, max_iter)`: Initializes the object using a `dofmap_t` instance.
 - `init_json_xyz(x, y, z, gdim, nelv, Xh, params_subdict, comm)`: Initializes the global interpolation object using coordinates and mesh information, and a JSON subdict for parameters.
 - `init_json_dof(dofmap, params_subdict, comm, mask)`: Initializes the object using a `dofmap_t` instance, a JSON subdict for parameters, and an optional mask.
 
@@ -99,7 +100,7 @@ type(space_t) :: Xh
 type(dofmap_t) :: dof
 
 ! Initialize global interpolation object
-call glob_interp%init_dof(dof, NEKO_COMM, tol=1e-6, pad=1e-2)
+call glob_interp%init_dof(dof, NEKO_COMM, tol=1e-6, pad=1e-2, max_iter=10)
 ```
 
 #### Finding Points
