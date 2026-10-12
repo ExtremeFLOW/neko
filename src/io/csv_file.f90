@@ -127,9 +127,9 @@ contains
 
     ! Delete file if overwrite is enabled and header hasn't been written yet
     if (f%overwrite .and. .not. f%header_is_written) then
-       open(unit = 999, file = trim(f%get_fname()), status = "old", &
+       open(newunit = file_unit, file = trim(f%get_fname()), status = "old", &
             iostat = ierr)
-       if (ierr == 0) close(999, status = "delete")
+       if (ierr == 0) close(file_unit, status = "delete")
     end if
 
     open(file = trim(f%get_fname()), position = "append", iostat = ierr, &
@@ -168,9 +168,9 @@ contains
 
     ! Delete file if overwrite is enabled and header hasn't been written yet
     if (f%overwrite .and. .not. f%header_is_written) then
-       open(unit = 999, file = trim(f%get_fname()), status = "old", &
+       open(newunit = file_unit, file = trim(f%get_fname()), status = "old", &
             iostat = ierr)
-       if (ierr == 0) close(999, status = "delete")
+       if (ierr == 0) close(file_unit, status = "delete")
     end if
 
     open(file = trim(f%get_fname()), position = "append", iostat = ierr, &

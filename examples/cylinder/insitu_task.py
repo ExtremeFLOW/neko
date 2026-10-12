@@ -92,13 +92,6 @@ def init_plot(save_output_path):
 
 log.write("info", "Starting insitu task")
 
-dtype_string = "double"
-backend = "numpy"
-if dtype_string == "single":
-    dtype = np.float32
-else:
-    dtype = np.float64
-
 output_path = get_output_directory("cylinder_insitu.case")
 log.write("info", f"Outputting insitu snapshots to folder {output_path}")
 
@@ -114,9 +107,9 @@ ds = DataStreamer(comm)
 #=========================================
 
 log.write("info", "Receiving mesh...")
-x = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-y = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-z = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
+x = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv) 
+y = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv) 
+z = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv) 
 log.write("info", "Data received")
 
 log.write("info", "Initializing mesh...")
@@ -168,9 +161,9 @@ while stream_data:
 
     log.write("info", "Waiting for data from Neko...")
     # Get the data
-    u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-    curl_z = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
-    avg_u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv).astype(dtype) 
+    u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv) 
+    curl_z = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv) 
+    avg_u = get_fld_from_ndarray(ds.recieve(), ds.lx, ds.ly, ds.lz, ds.nelv) 
     log.write("info", "Data received")
 
     # Check if data was recieved or if the stream ended

@@ -338,12 +338,16 @@ neko_fortran_SOURCES = \
 	math/bcknd/cpu/ax_helm_svv_one_sided_full_cpu.f90\
 	math/bcknd/cpu/ax_helm_vector_cpu.f90\
 	math/bcknd/cpu/ax_helm_full_cpu.f90\
+	math/bcknd/cpu/ax_helm_compr_cpu.f90\
+	math/bcknd/cpu/ax_helm_compr_vector_cpu.f90\
 	math/bcknd/sx/ax_helm_sx.f90\
+	math/bcknd/sx/ax_helm_compr_sx.f90\
 	math/bcknd/xsmm/ax_helm_xsmm.F90\
 	math/bcknd/device/ax_helm_device.F90\
 	math/bcknd/device/ax_helm_svv_one_sided_device.F90\
 	math/bcknd/device/ax_helm_svv_one_sided_full_device.F90\
 	math/bcknd/device/ax_helm_full_device.F90\
+	math/bcknd/device/ax_helm_compr_device.F90\
 	common/projection.f90\
 	common/projection_vel.f90\
 	common/bcknd/device/device_projection.F90\
@@ -557,6 +561,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/opr_cfl.hip\
 	math/bcknd/device/hip/opr_rotate_cyc.hip\
 	math/bcknd/device/hip/ax_helm.hip\
+	math/bcknd/device/hip/ax_helm_compr.hip\
 	math/bcknd/device/hip/ax_helm_svv_one_sided.hip\
 	math/bcknd/device/hip/ax_helm_svv_one_sided_full.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
@@ -630,6 +635,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/opr_cfl.cu\
 	math/bcknd/device/cuda/opr_rotate_cyc.cu\
 	math/bcknd/device/cuda/ax_helm.cu\
+	math/bcknd/device/cuda/ax_helm_compr.cu\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided.cu\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided_full.cu\
 	math/bcknd/device/cuda/ax_helm_full.cu\
@@ -743,6 +749,7 @@ libneko_la_SOURCES += \
 	math/bcknd/device/opencl/opr_cfl.c\
 	math/bcknd/device/opencl/opr_rotate_cyc.c\
 	math/bcknd/device/opencl/ax_helm.c\
+	math/bcknd/device/opencl/ax_helm_compr.c\
 	math/bcknd/device/opencl/ax_helm_full.c\
 	krylov/bcknd/device/opencl/bicgstab.c\
 	krylov/bcknd/device/opencl/pc_jacobi.c\
@@ -807,6 +814,7 @@ METAL_OBJS = \
 	device/metal/metal.lo\
 	math/bcknd/device/metal/math.lo\
 	math/bcknd/device/metal/ax_helm.lo\
+	math/bcknd/device/metal/ax_helm_compr.lo\
 	math/bcknd/device/metal/ax_helm_full.lo\
 	math/bcknd/device/metal/tensor.lo\
 	math/bcknd/device/metal/opr_cfl.lo\
@@ -871,6 +879,7 @@ dist_noinst_DATA = \
 	device/metal/metal.m\
 	math/bcknd/device/metal/math.m\
 	math/bcknd/device/metal/ax_helm.m\
+	math/bcknd/device/metal/ax_helm_compr.m\
 	math/bcknd/device/metal/ax_helm_full.m\
 	math/bcknd/device/metal/tensor.m\
 	math/bcknd/device/metal/opr_cfl.m\
@@ -932,6 +941,7 @@ dist_noinst_DATA = \
 METAL_KERNELS = \
 	math/bcknd/device/metal/math_kernel.metal\
 	math/bcknd/device/metal/ax_helm_kernel.metal\
+	math/bcknd/device/metal/ax_helm_compr_kernel.metal\
 	math/bcknd/device/metal/ax_helm_full_kernel.metal\
 	math/bcknd/device/metal/tensor_kernel.metal\
 	math/bcknd/device/metal/cfl_kernel.metal\
@@ -1029,7 +1039,7 @@ if ENABLE_ADIOS2
 # Now, use libtools to wrap everything
 
 io/nek_adios2.lo: io/nek_adios2.cpp
-	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(CXXFLAGS) $(CPPFLAGS) -I@top_builddir@/src -I@top_srcdir@/src -c $< -o $@
 
 libneko_la_LIBADD += \
         io/nek_adios2.lo
@@ -1129,6 +1139,7 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/cfl_kernel.h\
 	math/bcknd/device/cuda/rotate_kernel.h\
 	math/bcknd/device/cuda/ax_helm_kernel.h\
+	math/bcknd/device/cuda/ax_helm_compr_kernel.h\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided_kernel.h\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided_full_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
@@ -1191,6 +1202,7 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/cfl_kernel.h\
 	math/bcknd/device/hip/rotate_kernel.h\
 	math/bcknd/device/hip/ax_helm_kernel.h\
+	math/bcknd/device/hip/ax_helm_compr_kernel.h\
 	math/bcknd/device/hip/ax_helm_svv_one_sided_kernel.h\
 	math/bcknd/device/hip/ax_helm_svv_one_sided_full_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
@@ -1254,6 +1266,7 @@ EXTRA_DIST = \
 	math/bcknd/device/opencl/mathops_kernel.cl\
 	math/bcknd/device/opencl/dudxyz_kernel.cl\
 	math/bcknd/device/opencl/ax_helm_kernel.cl\
+	math/bcknd/device/opencl/ax_helm_compr_kernel.cl\
 	math/bcknd/device/opencl/ax_helm_full_kernel.cl\
 	math/bcknd/device/opencl/cdtp_kernel.cl\
 	math/bcknd/device/opencl/opgrad_kernel.cl\
@@ -1305,6 +1318,7 @@ EXTRA_DIST = \
 	device/metal/kernel_utils.h\
 	math/bcknd/device/metal/math_kernel.metal\
 	math/bcknd/device/metal/ax_helm_kernel.metal\
+	math/bcknd/device/metal/ax_helm_compr_kernel.metal\
 	math/bcknd/device/metal/ax_helm_full_kernel.metal\
 	math/bcknd/device/metal/tensor_kernel.metal\
 	math/bcknd/device/metal/cfl_kernel.metal\

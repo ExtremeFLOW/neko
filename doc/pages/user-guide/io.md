@@ -13,12 +13,14 @@ Neko, and is used in some of the examples, for example `advecting_cone`. The
 usage is straightforward, and is well described by the help string provided when
 running the utility.
 
-The main way of obtaining a `.nmsh` is converting a Nek5000 `.re2` mesh file
-using the `rea2nbin` utility. Nek5000, in turn, has several converters among its
-tools, such as `gmsh2nek`. The latter is also available under the `contrib`
-directory in Neko. The workflow is thus to export your mesh into a format, which
-can be converted to `.re2`, and then convert the `.re2` to `.nmsh`. Of course
-one can also use native Nek5000 tools to produce the `.re2`, such as `genbox`.
+Gmsh `.msh` meshes can be converted directly to `.nmsh` with the `gmsh2nmsh`
+utility, see the [meshing guide](@ref constructing-meshes-gmsh). The other main
+way of obtaining a `.nmsh` is converting a Nek5000 `.re2` mesh file using the
+`rea2nbin` utility. Nek5000, in turn, has several converters among its tools,
+such as `gmsh2nek`. The workflow is then to export your mesh into a format
+which can be converted to `.re2`, and then convert the `.re2` to `.nmsh`. Of
+course one can also use native Nek5000 tools to produce the `.re2`, such as
+`genbox`.
 In the future, native support for other formats than `.nmsh` will be added for
 convenience.
 

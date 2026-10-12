@@ -38,6 +38,14 @@ contains
        rho%x(i,1,1,1) = 1.4
        p%x(i,1,1,1) = 1.0
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call rho%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call p%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine initial_conditions
 
 end module user
