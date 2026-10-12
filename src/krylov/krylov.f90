@@ -39,7 +39,7 @@ module krylov
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error, neko_warning, NEKO_TYPENAME_LEN
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t
   use identity, only : ident_t
@@ -264,7 +264,7 @@ module krylov
 
   !> A name-allocator pair for user-defined Krylov solver types.
   type krylov_allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(krylov_allocate), pointer, nopass :: allocator
   end type krylov_allocator_entry
 
