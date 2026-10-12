@@ -33,15 +33,36 @@
 !> Krylov preconditioner
 module precon
   use num_types, only : rp
+  use coefs, only : coef_t
+  use bc_list, only : bc_list_t
+  use json_module, only : json_file
   implicit none
   private
 
   !> Defines a canonical Krylov preconditioner
   type, public, abstract :: pc_t
    contains
+     procedure(pc_init), pass(this), deferred :: init
      procedure(pc_solve), pass(this), deferred :: solve
      procedure(pc_update), pass(this), deferred :: update
+     procedure(pc_free), pass(this), deferred :: free
   end type pc_t
+
+  !> Abstract interface for initializing a preconditioner from the case file.
+  !!
+  !! @param coef SEM coefficients of the space the preconditioner acts on.
+  !! @param bclst Boundary conditions of the system being preconditioned.
+  !! @param json The preconditioner's dictionary from the case file.
+  abstract interface
+     subroutine pc_init(this, coef, bclst, json)
+       import :: pc_t, coef_t, bc_list_t, json_file
+       implicit none
+       class(pc_t), intent(inout), target :: this
+       type(coef_t), intent(in), target :: coef
+       type(bc_list_t), intent(inout), target :: bclst
+       type(json_file), intent(inout) :: json
+     end subroutine pc_init
+  end interface
 
   !> Abstract interface for solving \f$ M z = r \f$
   !!
@@ -63,6 +84,11 @@ module precon
        implicit none
        class(pc_t), intent(inout) :: this
      end subroutine pc_update
+     subroutine pc_free(this)
+       import :: pc_t
+       implicit none
+       class(pc_t), intent(inout) :: this
+     end subroutine pc_free
   end interface
 
   interface
@@ -72,10 +98,14 @@ module precon
        character(len=*), intent(in) :: type_name
      end subroutine precon_allocator
 
-     !> Destroy a preconditioner
-     module subroutine precon_destroy(pc)
-       class(pc_t), allocatable, intent(inout) :: pc
-     end subroutine precon_destroy
+     !> Allocate and initialize a preconditioner
+     module subroutine precon_factory(pc, type_name, coef, bclst, json)
+       class(pc_t), allocatable, intent(inout), target :: pc
+       character(len=*), intent(in) :: type_name
+       type(coef_t), intent(in), target :: coef
+       type(bc_list_t), intent(inout), target :: bclst
+       type(json_file), intent(inout) :: json
+     end subroutine precon_factory
   end interface
 
   !
@@ -112,6 +142,6 @@ module precon
   !> The size of the `precon_registry`.
   integer :: precon_registry_size = 0
 
-  public :: precon_allocator, precon_destroy, register_precon, precon_allocate
+  public :: precon_allocator, precon_factory, register_precon, precon_allocate
 
 end module precon

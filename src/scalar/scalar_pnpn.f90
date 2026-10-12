@@ -55,8 +55,8 @@ module scalar_pnpn
   use device_math, only : device_add2s2, device_col2
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
-  use math, only : glsc2, col2, add2s2
-  use field_math, only : field_col2, field_col3
+  use math, only : col2, add2s2
+  use field_math, only : field_col2, field_col3, field_glsc2
   use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
@@ -252,6 +252,8 @@ contains
        class is (ax_helm_svv_t)
           operator%svv => this%svv
        end select
+    else if (this%c_Xh%geo_compression) then
+       call ax_helm_allocator(this%ax, type_name = "standard_compr")
     else
        call ax_helm_allocator(this%ax, type_name = "standard")
     end if
@@ -472,7 +474,7 @@ contains
          makeext => this%makeext, makebdf => this%makebdf, &
          t => time%t, tstep => time%tstep, dt => time%dt)
 
-      ! Logs extra information the log level is NEKO_LOG_DEBUG or above.
+      ! Logs extra information if the log level is NEKO_LOG_DEBUG or above.
       call print_debug(this)
 
       ! Update material properties and their pointwise product.
@@ -484,8 +486,8 @@ contains
          call this%svv%update(rho_cp, tstep)
       end if
 
-      ! Compute the source terms
-      call this%source_term%compute(time)
+      ! Compute the source terms that are extrapolated in time below
+      call this%source_term%compute(time, extrapolate = .true.)
 
       if (oifs) then
          ! The fluid step has already advanced u, v, and w to the new time.
@@ -520,6 +522,12 @@ contains
               rho_cp, real(dt, kind=rp), ext_bdf%diffusion_coeffs%x, &
               ext_bdf%ndiff, n)
       end if
+
+      ! Source terms that must not be extrapolated in time are added as
+      ! computed, weighted by the mass matrix and rho * cp like the
+      ! extrapolated terms above.
+      call this%source_term%compute(time, extrapolate = .false., &
+           scale = rho_cp)
 
       call slag%update()
 
@@ -566,18 +574,18 @@ contains
   subroutine print_debug(this)
     class(scalar_pnpn_t), intent(inout) :: this
     character(len=LOG_SIZE) :: log_buf
-    integer :: n
 
-    n = this%dm_Xh%size()
+    ! The norms are global reductions, so skip them unless they are logged.
+    if (neko_log%level() .lt. NEKO_LOG_DEBUG) return
 
     write(log_buf, '(A, A, E15.7, A, E15.7, A, E15.7)') 'Scalar debug', &
-         ' l2norm s', glsc2(this%s%x, this%s%x, n), &
-         ' slag1', glsc2(this%slag%lf(1)%x, this%slag%lf(1)%x, n), &
-         ' slag2', glsc2(this%slag%lf(2)%x, this%slag%lf(2)%x, n)
+         ' l2norm s', field_glsc2(this%s, this%s), &
+         ' slag1', field_glsc2(this%slag%lf(1), this%slag%lf(1)), &
+         ' slag2', field_glsc2(this%slag%lf(2), this%slag%lf(2))
     call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
     write(log_buf, '(A, A, E15.7, A, E15.7)') 'Scalar debug2', &
-         ' l2norm abx1', glsc2(this%abx1%x, this%abx1%x, n), &
-         ' abx2', glsc2(this%abx2%x, this%abx2%x, n)
+         ' l2norm abx1', field_glsc2(this%abx1, this%abx1), &
+         ' abx2', field_glsc2(this%abx2, this%abx2)
     call neko_log%message(log_buf, lvl = NEKO_LOG_DEBUG)
   end subroutine print_debug
 

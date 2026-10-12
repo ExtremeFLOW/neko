@@ -18,6 +18,7 @@ SUBDIRS = tuple\
 	  ax\
 	  krylov\
 	  bc\
+	  fluid_pnpn_bc\
 	  signal\
 	  jobctrl\
 	  device\
@@ -48,6 +49,7 @@ SUBDIRS = tuple\
 	  boundary_operation\
 	  checkpoint_payload\
 	  wall_sampling\
+	  geo_compression\
 	  restart_consistency\
 	  templates/serial
 
@@ -73,6 +75,7 @@ TESTS = device/device_test\
 	ax/ax_test\
 	krylov/krylov_test\
 	bc/bc_test\
+	fluid_pnpn_bc/fluid_pnpn_bc_test\
 	signal/signal_test\
 	jobctrl/jobctrl_test\
 	device_math/device_math_test\
@@ -101,6 +104,7 @@ TESTS = device/device_test\
 	boundary_operation/boundary_operation_test\
 	checkpoint_payload/checkpoint_payload_test\
 	wall_sampling/wall_sampling_test\
+	geo_compression/geo_compression_test\
 	restart_consistency/restart_consistency_test\
 	templates/serial/serial_test
 
@@ -116,6 +120,7 @@ EXTRA_DIST = \
 	tri/test_tri.pf\
 	bc/test_bc.pf\
 	bc/bc_test\
+	fluid_pnpn_bc/test_fluid_pnpn_bc.pf\
 	tuple/test_tuple.pf\
 	point/test_point.pf\
 	signal/test_signal.pf\
@@ -199,6 +204,8 @@ EXTRA_DIST = \
 	wall_sampling/test_gll.pf\
 	wall_sampling/test_distance.pf\
 	wall_sampling/wall_sampling_test\
+	geo_compression/test_geo_compression_parallel.pf\
+	geo_compression/geo_compression_test\
 	restart_consistency/test_restart_consistency.pf\
 	restart_consistency/restart_consistency_test\
 	templates/parallel/test_parallel.pf\

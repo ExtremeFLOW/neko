@@ -68,6 +68,9 @@ extern void *gs_program;
 /** Device Ax helm kernels */
 extern void *ax_helm_program;
 
+/** Device Ax helm kernels on compressed geometric factors */
+extern void *ax_helm_compr_program;
+
 /** Device Ax helm full kernels */
 extern void *ax_helm_full_program;
 

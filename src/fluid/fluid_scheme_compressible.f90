@@ -46,7 +46,8 @@ module fluid_scheme_compressible
   use space, only : GLL
   use user_intf, only : user_t, user_material_properties_intf, &
        dummy_user_material_properties
-  use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
+  use json_utils, only : json_get_or_default, json_get_or_lookup, &
+       json_get_or_lookup_or_default
   use mpi_f08
   use operators, only : cfl_compressible
   use device, only : device_memcpy, HOST_TO_DEVICE
@@ -141,6 +142,8 @@ contains
     character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
     type(user_t), target, intent(in) :: user
+    logical :: compress_geo
+    real(kind=rp) :: compress_tol
 
     !
     ! SEM simulation fundamentals
@@ -242,6 +245,21 @@ contains
     ! Log solver information
     !
     call this%log_solver_info(params, scheme, lx)
+
+    ! Compressed geometric factors, read by the standard Helmholtz operator
+    call json_get_or_default(params, &
+         'case.numerics.compress_geometric_factors', compress_geo, .false.)
+    if (compress_geo) then
+       if (params%valid_path( &
+            'case.numerics.compress_geometric_factors_tolerance')) then
+          call json_get_or_lookup(params, &
+               'case.numerics.compress_geometric_factors_tolerance', &
+               compress_tol)
+          call this%c_Xh%enable_geo_compression(compress_tol)
+       else
+          call this%c_Xh%enable_geo_compression()
+       end if
+    end if
   end subroutine fluid_scheme_compressible_init
 
   !> Free allocated memory and cleanup resources
@@ -567,6 +585,11 @@ contains
 
     call json_get_or_default(params, 'case.numerics.time_order', integer_val, 4)
     write(log_buf, '(A, I0)') 'RK order   : ', integer_val
+    call neko_log%message(log_buf)
+
+    call json_get_or_default(params, &
+         'case.numerics.compress_geometric_factors', logical_val, .false.)
+    write(log_buf, '(A, L1)') 'Compress G : ', logical_val
     call neko_log%message(log_buf)
 
     ! Physical viscosity and conductivity. For user-defined properties the
