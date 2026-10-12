@@ -11,6 +11,8 @@
 
 ## Develop
 
+- Added probes support for moving mesh (ALE) simulations, with `fixed`
+  and `body_attached` modes.
 - Fixed the scalar debug log computing its norms from stale host arrays on
   GPUs and running its global reductions every step at any log level.
 - *BREAKING* User initial conditions are no longer copied from the host to the
