@@ -429,6 +429,14 @@ norms are in his normalisation: ours divided by 13.147.
   - At $t=4$ (the whole spiral, and the tail zoomed), his contour reaches the tail tip and ours stops
     5.7–7.8$H$ short.
   - At $t=8$ ours is ragged across the top-left of the disk.
+- **`rider_saini45_h128.mp4`:** $H=1/128$, $N=5$, every 0.04 in every column: ours at $\gamma=0.5$, ours at
+  $\gamma=1$, and his code. Top row $\phi$, bottom row $\psi$ with its zero contour; dashed is the exact
+  interface.
+  - His code was rerun with a dump every 0.04 (`logs/d5/saini/cv128n5_d04`), otherwise unchanged. Its
+    $t=8$ $E_r$ and $E_s$ equal the original run's to every logged digit.
+  - Made by `logs/anim/anim_rk.py`, which reads his dumps with `saini=<dir>`.
+  - The positions agree at every frame. Ours loses the tail tip at $t\approx4$ where his keeps it.
+  - His $\phi$ leaves $[0,1]$ over much of the domain: $[-0.048,\,1.010]$ at $t=4$.
 - **`rider_saini45_fig17.png`:** his Fig. 17, $E_r$, $|E_v|$ and $E_s$ at $t=8$ against $N$, one curve
   per $H$. Ours solid, his dotted, his $N=3$ at $H=1/128$ included.
 - **`rider_saini45_fig20.png`:** his Fig. 20 as the worst violation against $t$, per $H$ and $N$, on a
