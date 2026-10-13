@@ -215,6 +215,10 @@ probe of §3.5 (`tables/event_psi_s1_h64.txt`).
   $|\nabla\psi|$ after each event is 1.64–1.66 at $H=1/64$ and 2.54–2.69 at $H=1/128$.
 - **The thin tail.** At $t=3.5$–4.5 the exact filament is thinner than $2\varepsilon$ over 5–6% of its
   length. There $\phi$ has no 0.5 contour for a reseed to start from.
+  - At $t=4$, $H=1/128$, our 0.5 contour stops $5.7H$ ($\gamma=0.5$) and $7.8H$ ($\gamma=1$) short of
+    the exact tail tip. His stops $0.8H$ short (`logs/s45_2026-10-12/tables/tail_tip_t4_h128.txt`,
+    `evidence/rider_saini45_tail_h128.png`).
+  - Whether the missing tail is what drives our late $E_s$ is open.
 
 ### 3.5 The knobs on Saini's configuration
 
@@ -379,7 +383,8 @@ normalisation.
 ## 4. Limitations and open items
 
 - **Shape.** In Saini's configuration at $\gamma=1$, our $E_s$ is 1.5× his at $H=1/64$ and 2.8× at
-  $H=1/128$. At $\gamma=0.5$ it is 0.94× and 2.0× (§3.4–§3.5).
+  $H=1/128$. At $\gamma=0.5$ it is 0.94× and 2.0× (§3.4–§3.5). At $H=1/128$ our thin tail stops
+  5.7–7.8$H$ short of the tip at $t=4$, where his reaches it (§3.4).
 - **$p$-refinement.** In Saini's configuration $N=6$ loses boundedness and is no better than $N=5$;
   at $H=1/32$ it diverges. The cause is open (§3.7).
 - **The coarsest mesh**, $H=1/32$, is unbounded late in the run at every $N$ (§3.7).
@@ -409,7 +414,7 @@ genmeshbox 0 1 0 1 -0.1 0 64 64 1 .true. .true. .true.   # box.nmsh, H = 1/64
 
 Every animation also ships as a GIF.
 
-**Saini's configuration against his code, over his grid** (`logs/s45_2026-10-12/figs_saini45.py`; §3.7).
+**Saini's configuration against his code, over his grid** (`logs/s45_2026-10-12/figs_saini45.py`; §3.4, §3.7).
 Ours is CDI with his $\psi$ configuration at $\gamma=0.5$. His is his own code on the same cell. Error
 norms are in his normalisation: ours divided by 13.147.
 - **`rider_saini45_map.png`:** where our method does well. Ours over his for $E_r$, $E_s$, $|E_v|$ and
@@ -419,6 +424,11 @@ norms are in his normalisation: ours divided by 13.147.
   - $E_s$ is 0.94–3.2× his.
   - $|E_v|$ is at our solver tolerance.
   - $H=1/32$, $N=6$ diverged.
+- **`rider_saini45_tail_h128.png`:** the open problem. $\phi=0.5$ at $H=1/128$, $N=5$ against the exact
+  interface, for ours at $\gamma=0.5$ and 1 and his code.
+  - At $t=4$ (the whole spiral, and the tail zoomed), his contour reaches the tail tip and ours stops
+    5.7–7.8$H$ short.
+  - At $t=8$ ours is ragged across the top-left of the disk.
 - **`rider_saini45_fig17.png`:** his Fig. 17, $E_r$, $|E_v|$ and $E_s$ at $t=8$ against $N$, one curve
   per $H$. Ours solid, his dotted, his $N=3$ at $H=1/128$ included.
 - **`rider_saini45_fig20.png`:** his Fig. 20 as the worst violation against $t$, per $H$ and $N$, on a

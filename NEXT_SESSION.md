@@ -68,6 +68,15 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - **BDF2 at $N_{svv}=N/4$ once lost an apex that RK3 held** (§4.4, $H=1/5$, $N=7$; archive §7.5).
        §4.5 uses $N/4$ for Eq. (44), so watch for it.
 2. **The shape gap to Saini.** His $E_s$ is 2–2.8× lower than ours at $H=1/128$.
+   - **Start here (the user's observation).** At $H=1/128$ our $\phi$ does not capture the thin tail;
+     his does.
+     - At $t=4$ our 0.5 contour stops $5.7H$ ($\gamma=0.5$) and $7.8H$ ($\gamma=1$) short of the exact
+       tip; his stops $0.8H$ short.
+     - Sources: `examples/rider_kothe/logs/s45_2026-10-12/tables/tail_tip_t4_h128.txt` and
+       `examples/rider_kothe/evidence/rider_saini45_tail_h128.png`.
+     - The missing tail may be what drives our late $E_s$.
+     - The user has ideas for a fix; think them through together before running anything.
+     - The $H=1/128$ outputs are kept in `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}`.
    - Part of the gap is there before the first event, so the phase field itself contributes.
    - Part is the event coupling: at $t=2$–4 the rebuilt $\psi$ is worse than its seed, and CDI reads
      it at once. $\gamma$ already moves this.
