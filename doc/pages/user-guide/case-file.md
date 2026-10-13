@@ -437,6 +437,8 @@ required `power_coefficient` controls the modal transfer function; larger
 values confine the added dissipation to modes nearer the polynomial cut-off.
 The `direction` selects the reference-element directions
 in which the modal filter is applied and defaults to `rst`.
+Other options such as `r` or `rs` is applicable but only designated for
+cases where the solution needs not regularization in certain directions.
 The SVV viscosity `nu` is multiplied by density internally and may be
 either a constant `value` or a registered `field`. A field configuration uses
 `field_name`:
