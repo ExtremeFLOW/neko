@@ -58,7 +58,7 @@ submodule (ax_product) ax_helm_fctry
   implicit none
 
   ! List of all possible types created by the allocator routine
-  character(len=20) :: AX_HELM_KNOWN_TYPES(6) = [character(len=20) :: &
+  character(len=20) :: AX_HELM_KNOWN_TYPES(7) = [character(len=20) :: &
        "standard", &
        "full", &
        "one_sided_svv", &
