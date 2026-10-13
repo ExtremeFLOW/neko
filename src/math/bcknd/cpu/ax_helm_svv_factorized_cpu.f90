@@ -56,8 +56,6 @@ contains
   !! @param coef Coefficients.
   !! @param msh Mesh.
   !! @param Xh Function space \f$ X_h \f$.
-  !! @note Since this is a performance-crtical routine, it is implemented in
-  !! several kernels corresponding to different polynmial orders.
   subroutine ax_helm_svv_factorized_compute(this, w, u, coef, msh, Xh)
     class(ax_helm_svv_factorized_cpu_t), intent(in) :: this
     type(mesh_t), intent(in) :: msh
