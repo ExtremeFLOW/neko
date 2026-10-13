@@ -10,6 +10,7 @@ var structlogger_1_1log__t =
     [ "header", "d0/d7b/structlogger_1_1log__t.html#a02484fb6a6b0dcaf283056eebd494f2b", null ],
     [ "indent", "d0/d7b/structlogger_1_1log__t.html#ac8679bd7c7b18a2c68b5e1d25c02c26a", null ],
     [ "init", "d0/d7b/structlogger_1_1log__t.html#aa912109c5a280f6ff189a8d6271db3ed", null ],
+    [ "level", "d0/d7b/structlogger_1_1log__t.html#a5db437704c62bde55ad6b4049e051afa", null ],
     [ "message", "d0/d7b/structlogger_1_1log__t.html#aff78e8ea68edb3feea1f437afcf5d1c8", null ],
     [ "newline", "d0/d7b/structlogger_1_1log__t.html#a3814550804c14f88373bea7328b13a6b", null ],
     [ "print_section_header", "d0/d7b/structlogger_1_1log__t.html#a21c3620f969d837d2766b0de9a0a2696", null ],
