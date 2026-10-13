@@ -259,6 +259,7 @@ contains
     integer, allocatable :: np_i(:), nm_i(:), cnt_shr(:,:)
     character(len=LOG_SIZE) :: log_buf
     real(kind=dp) :: aabb_padding,dx_max, dy_max, dz_max, ds_max, ds_min
+    integer, allocatable :: gids(:)
     real(kind=dp) :: diam_min, dxe, dye, dze, pad_need
     real(kind=rp) :: reach
     type(stack_i4_t) :: overlaps
@@ -331,10 +332,15 @@ contains
 
     ! Gain on the forcing.
     call json_get_or_default(json, "spread_gain", this%spread_gain, 1.0_rp)
-    ! Adjoint spread parameters.
-    if (this%adjoint_spread) then
+    ! Floor of the per-marker one-sided normalisation: the adjoint spread
+    ! and the one-sided spectral interpolation with the kernel spread
+    if (this%adjoint_spread .or. &
+         (this%one_sided .and. .not. this%idw_interp)) then
        call json_get_or_default(json, "one_sided_min_weight", this%cmin, &
             0.25_rp)
+    end if
+    ! Adjoint spread parameters.
+    if (this%adjoint_spread) then
        call json_get_or_default(json, "mask_band", this%mask_band, 0.1_rp)
     else
        call json_get_or_default(json, "mask_band", this%mask_band, 0.0_rp)
@@ -370,6 +376,10 @@ contains
     else
        write(log_buf, '(A,f5.2)') ' `-rmax    : ', this%rmax
        call neko_log%message(log_buf)
+       if (this%one_sided .and. .not. this%idw_interp) then
+          write(log_buf, '(A,f5.2)') ' `-min wgt : ', this%cmin
+          call neko_log%message(log_buf)
+       end if
        write(log_buf, '(A,f5.2)') ' `-power   : ', this%pwr_param
        call neko_log%message(log_buf)
        write(log_buf, '(A,f5.2)') ' `-gain    : ', this%spread_gain
@@ -620,19 +630,15 @@ contains
     end if
     call neko_log%message(log_buf)
 
-    allocate(this%xyz(3, lagrangian_points%size()))
-    allocate(this%fu_ib(lagrangian_points%size()))
-    allocate(this%fv_ib(lagrangian_points%size()))
-    allocate(this%fw_ib(lagrangian_points%size()))
-    allocate(this%fum_ib(lagrangian_points%size()))
-    allocate(this%fvm_ib(lagrangian_points%size()))
-    allocate(this%fwm_ib(lagrangian_points%size()))
-    allocate(this%lag_pts(lagrangian_points%size()))
-    allocate(this%lag_nrm(lagrangian_normals%size()))
+    n_lags = lagrangian_points%size()
+    allocate(this%xyz(3, n_lags))
+    allocate(this%lag_pts(n_lags))
+    allocate(this%lag_nrm(n_lags))
+    allocate(gids(n_lags))
 
     select type(pt => lagrangian_points%data)
       type is (point_t)
-       do i = 1, lagrangian_points%size()
+       do i = 1, n_lags
           this%xyz(1, i) = pt(i)%x(1)
           this%xyz(2, i) = pt(i)%x(2)
           this%xyz(3, i) = pt(i)%x(3)
@@ -642,12 +648,20 @@ contains
 
     select type(pt => lagrangian_normals%data)
       type is (point_t)
-       do i = 1, lagrangian_normals%size()
+       do i = 1, n_lags
           this%lag_nrm(i) = pt(i)
        end do
     end select
 
-    n_lags = lagrangian_points%size()
+    select type (gd => lagrangian_gids%data)
+      type is (integer)
+       gids = gd(1:n_lags)
+    end select
+
+    ! A body that sticks out of the domain seeds markers in the padding
+    ! band outside the mesh; they are dropped here, before the search
+    call df_drop_outside_markers(this, gids, gid_offset, coef%msh)
+    n_lags = size(this%lag_pts)
 
     ! The Shepard (idw) interpolation never evaluates through the global
     ! (rst-based) interpolation, so the global search is only set up for
@@ -656,20 +670,29 @@ contains
        call this%global_interp%init(coef%dof, NEKO_COMM)
        call this%global_interp%find_points_xyz(this%xyz, n_lags)
        call df_nudge_bad_markers(this, n_lags)
+       ! A marker the search cannot place reads a zero velocity and only
+       ! dilutes the spread around it
+       call df_drop_unplaced_markers(this, gids)
+       n_lags = size(this%lag_pts)
     else
        allocate(this%shared_slot(n_lags))
        this%shared_slot = 0
-       select type (gd => lagrangian_gids%data)
-         type is (integer)
-          call idw_build_shared_slots(gd(1:n_lags), gid_offset, &
-               this%shared_slot, this%n_shared_glb)
-       end select
+       call idw_build_shared_slots(gids, gid_offset, this%shared_slot, &
+            this%n_shared_glb)
        write(log_buf, '(A,I9)') 'Shared mrks: ', this%n_shared_glb
        call neko_log%message(log_buf)
     end if
+    deallocate(gids)
+
+    allocate(this%fu_ib(n_lags))
+    allocate(this%fv_ib(n_lags))
+    allocate(this%fw_ib(n_lags))
+    allocate(this%fum_ib(n_lags))
+    allocate(this%fvm_ib(n_lags))
+    allocate(this%fwm_ib(n_lags))
 
     ! Construct list of overlapping elements for each lagrangian particle
-    allocate(this%lag_el(lagrangian_points%size()))
+    allocate(this%lag_el(n_lags))
     call overlaps%init()
     do i = 1, size(this%lag_pts)
        call this%lag_el(i)%init()
@@ -709,6 +732,11 @@ contains
 
     call df_assemble(this%gs, this%pmsk, coef%mult)
     call df_assemble(this%gs, this%mmsk, coef%mult)
+
+    if (this%one_sided .and. .not. this%idw_interp .and. &
+         .not. this%adjoint_spread) then
+       call df_spectral_one_sided_weights(this)
+    end if
 
     if (this%adjoint_spread) then
        call df_assemble(this%gs, this%winv, coef%mult)
@@ -885,6 +913,183 @@ contains
     end if
 
   end subroutine df_assemble
+
+  !> Drop the markers seeded outside the mesh. A marker is seeded wherever
+  !! a padded element box contains it, so a body that sticks out of the
+  !! domain seeds markers in the padding band outside the mesh. A marker
+  !! inside an element on some rank must stay on every rank that holds it
+  !! (the ranks next to it need it for their stencils), so the decision is
+  !! made per global id: kept if the unpadded box of an element of any
+  !! rank contains it.
+  subroutine df_drop_outside_markers(this, gids, n_gid_glb, msh)
+    class(direct_forcing_source_term_t), intent(inout) :: this
+    integer, allocatable, intent(inout) :: gids(:)
+    integer, intent(in) :: n_gid_glb
+    type(mesh_t), intent(in) :: msh
+    integer, allocatable :: inside(:)
+    logical, allocatable :: keep(:)
+    type(stack_i4_t) :: overlaps
+    type(aabb_t) :: box
+    character(len=LOG_SIZE) :: log_buf
+    integer :: i, j, e, n_lag, n_drop
+
+    n_lag = size(this%lag_pts)
+
+    ! Per global id: 0 not held, 1 held in the padding band only, 2 held
+    ! inside an element; the maximum over the ranks decides
+    allocate(inside(n_gid_glb))
+    inside = 0
+    call overlaps%init()
+    do i = 1, n_lag
+       inside(gids(i)) = max(inside(gids(i)), 1)
+       call this%intersect%overlap(this%lag_pts(i), overlaps)
+       select type (el => overlaps%data)
+         type is (integer)
+          do j = 1, overlaps%size()
+             e = el(j)
+             box = get_aabb(msh%elements(e)%e)
+             ! Single-precision STL vertices put a surface meant to touch
+             ! the boundary a few ulp outside it
+             call box%add_padding(1.0e-5_dp)
+             if (box%contains_point(this%lag_pts(i)%x)) then
+                inside(gids(i)) = 2
+                exit
+             end if
+          end do
+       end select
+       call overlaps%clear()
+    end do
+    call overlaps%free()
+    call MPI_Allreduce(MPI_IN_PLACE, inside, n_gid_glb, MPI_INTEGER, &
+         MPI_MAX, NEKO_COMM)
+
+    n_drop = count(inside .eq. 1)
+    write(log_buf, '(A,I0,A)') 'Outside msh: ', n_drop, ' dropped'
+    call neko_log%message(log_buf)
+
+    if (n_drop .gt. 0) then
+       allocate(keep(n_lag))
+       do i = 1, n_lag
+          keep(i) = inside(gids(i)) .eq. 2
+       end do
+       call df_compact_markers(this, keep, gids)
+       deallocate(keep)
+    end if
+    deallocate(inside)
+
+  end subroutine df_drop_outside_markers
+
+  !> Drop the markers the point search could not place after the nudge
+  !! (in a gap the padding does not reach, or outside a curved boundary
+  !! but inside its box) and search the remaining ones again.
+  subroutine df_drop_unplaced_markers(this, gids)
+    class(direct_forcing_source_term_t), intent(inout) :: this
+    integer, allocatable, intent(inout) :: gids(:)
+    logical, allocatable :: keep(:)
+    character(len=LOG_SIZE) :: log_buf
+    integer :: i, n_lag, n_drop
+
+    n_lag = size(this%lag_pts)
+    allocate(keep(n_lag))
+    do i = 1, n_lag
+       keep(i) = this%global_interp%el_owner0(i) .ge. 0
+    end do
+    n_drop = count(.not. keep)
+    call MPI_Allreduce(MPI_IN_PLACE, n_drop, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM)
+    write(log_buf, '(A,I0,A)') 'Unplaced   : ', n_drop, ' dropped'
+    call neko_log%message(log_buf)
+
+    ! The search is collective, and the count is the same on every rank
+    if (n_drop .gt. 0) then
+       call df_compact_markers(this, keep, gids)
+       call this%global_interp%find_points_xyz(this%xyz, size(this%lag_pts))
+    end if
+    deallocate(keep)
+
+  end subroutine df_drop_unplaced_markers
+
+  !> Keep the markers flagged in `keep`: compact the coordinates, the
+  !! normals and the global ids.
+  subroutine df_compact_markers(this, keep, gids)
+    class(direct_forcing_source_term_t), intent(inout) :: this
+    logical, intent(in) :: keep(:)
+    integer, allocatable, intent(inout) :: gids(:)
+    type(point_t), allocatable :: pts(:), nrm(:)
+    real(kind=rp), allocatable :: xyz(:,:)
+    integer, allocatable :: idx(:), gid(:)
+    integer :: i, k, n
+
+    n = count(keep)
+    allocate(idx(n))
+    k = 0
+    do i = 1, size(keep)
+       if (keep(i)) then
+          k = k + 1
+          idx(k) = i
+       end if
+    end do
+
+    allocate(pts(n), nrm(n), xyz(3, n), gid(n))
+    do k = 1, n
+       pts(k) = this%lag_pts(idx(k))
+       nrm(k) = this%lag_nrm(idx(k))
+       xyz(:, k) = this%xyz(:, idx(k))
+       gid(k) = gids(idx(k))
+    end do
+    call move_alloc(pts, this%lag_pts)
+    call move_alloc(nrm, this%lag_nrm)
+    call move_alloc(xyz, this%xyz)
+    call move_alloc(gid, gids)
+    deallocate(idx)
+
+  end subroutine df_compact_markers
+
+  !> Per-marker normalisation of the one-sided spectral interpolation
+  !! with the kernel spread. The masked interpolation `I(msk u)` of a
+  !! constant returns the partial sum of the basis values on that side,
+  !! anywhere between 0 and 1 for a surface cutting an element (0.26 on
+  !! the upstream side of a plate a tenth of an element from a face), so
+  !! each side is scaled with s = 1 / I(msk 1), clamped at `cmin` as for
+  !! the adjoint spread. The adjoint spread has its own normalisation.
+  subroutine df_spectral_one_sided_weights(this)
+    class(direct_forcing_source_term_t), intent(inout) :: this
+    type(field_t), pointer :: wrk
+    real(kind=rp), allocatable :: c(:)
+    integer :: scr_idx(1)
+    integer :: n_lag, nv
+
+    n_lag = size(this%lag_pts)
+    nv = max(n_lag, 1)
+    allocate(this%sp_mark(nv), this%sm_mark(nv), c(n_lag))
+    this%sp_mark = 0.0_rp
+    this%sm_mark = 0.0_rp
+
+    ! Host arrays throughout: the masks are host-valid after their assembly
+    call neko_scratch_registry%request_field(wrk, scr_idx(1), .false.)
+    wrk%x = this%pmsk%x
+    c = 0.0_rp
+    call this%global_interp%evaluate(c, wrk%x, .true.)
+    call df_adjoint_normalisation(c, this%sp_mark, this%cmin, &
+         this%lag_pts, 'Interp + side')
+    wrk%x = this%mmsk%x
+    c = 0.0_rp
+    call this%global_interp%evaluate(c, wrk%x, .true.)
+    call df_adjoint_normalisation(c, this%sm_mark, this%cmin, &
+         this%lag_pts, 'Interp - side')
+    call neko_scratch_registry%relinquish_field(scr_idx)
+    deallocate(c)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%sp_mark, this%sp_mark_d, nv)
+       call device_memcpy(this%sp_mark, this%sp_mark_d, nv, &
+            HOST_TO_DEVICE, sync = .false.)
+       call device_map(this%sm_mark, this%sm_mark_d, nv)
+       call device_memcpy(this%sm_mark, this%sm_mark_d, nv, &
+            HOST_TO_DEVICE, sync = .true.)
+    end if
+
+  end subroutine df_spectral_one_sided_weights
 
   !> Markers in a degenerate position with respect to the mesh are moved
   !! by a small step and searched again.
@@ -2020,6 +2225,16 @@ contains
             this%fvm_ib, nt)
        call idw_interp_masked(this%global_interp, wrk, w, this%mmsk, &
             this%fwm_ib, nt)
+       ! Normalised per marker, so that each side reproduces a constant
+       ! velocity; same queue as the evaluation, so stream order suffices
+       if (n_lag .gt. 0) then
+          call device_col2(this%fu_ib_d, this%sp_mark_d, n_lag)
+          call device_col2(this%fv_ib_d, this%sp_mark_d, n_lag)
+          call device_col2(this%fw_ib_d, this%sp_mark_d, n_lag)
+          call device_col2(this%fum_ib_d, this%sm_mark_d, n_lag)
+          call device_col2(this%fvm_ib_d, this%sm_mark_d, n_lag)
+          call device_col2(this%fwm_ib_d, this%sm_mark_d, n_lag)
+       end if
     else
        ! Unmasked barycentric interpolation, evaluated on the device straight
        ! into the device buffers of the marker arrays
@@ -2283,6 +2498,15 @@ contains
 
             call field_col3(tmp, w, this%mmsk, tmp%size())
             call global_interp%evaluate(fwm_ib, tmp%x, .true.)
+
+            ! Normalised per marker, so that each side reproduces a
+            ! constant velocity
+            fu_ib = this%sp_mark(1:size(fu_ib)) * fu_ib
+            fv_ib = this%sp_mark(1:size(fv_ib)) * fv_ib
+            fw_ib = this%sp_mark(1:size(fw_ib)) * fw_ib
+            fum_ib = this%sm_mark(1:size(fum_ib)) * fum_ib
+            fvm_ib = this%sm_mark(1:size(fvm_ib)) * fvm_ib
+            fwm_ib = this%sm_mark(1:size(fwm_ib)) * fwm_ib
          else
             call global_interp%evaluate(fu_ib, u%x, .true.)
             call global_interp%evaluate(fv_ib, v%x, .true.)

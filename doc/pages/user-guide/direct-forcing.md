@@ -54,8 +54,13 @@ markers.
   interpolation that probes and particles use. It is exact for the
   discrete velocity and introduces no smoothing. Markers are located
   with a point search at start-up; markers that fall exactly on an element
-  face or outside the mesh are moved slightly, see
-  [marker placement](@ref direct-forcing_markers).
+  face are moved slightly and markers outside the mesh are dropped, see
+  [marker placement](@ref direct-forcing_markers). With `one_sided` the
+  interpolation on each side is scaled per marker so that a constant
+  velocity is reproduced on that side (the plain masked interpolation of
+  a surface cutting an element returns only a fraction of it, which
+  depends on where the surface sits); the scaling is clamped at
+  `one_sided_min_weight`.
 - `idw`: Shepard (inverse distance weighted) interpolation from the nodes
   within a radius `interpolation_rmax` local grid spacings of the marker,
   with the kernel of the spread below. It smooths the velocity over the
@@ -196,7 +201,9 @@ vertices, and the triangle is split into \f$ n^2 \f$ sub-triangles with
 \f]
 
 with one marker at the centroid of each sub-triangle. Sub-triangles outside
-the fluid mesh are dropped. The refinement is what keeps a coarse STL from
+the fluid mesh are dropped, and so are the markers that a body sticking out
+of the domain seeds in the search padding just outside the mesh (`Outside
+msh` in the log). The refinement is what keeps a coarse STL from
 leaking: a triangle larger than the elements it crosses would otherwise be
 represented by a single marker and force only a disc around its centre. With
 `refinement` set to `local` (the default) every triangle uses its own
@@ -216,7 +223,8 @@ coordinates, or that lies on an element face while the surface runs along
 that face is moved and searched again, up to three times. Unplaced and outside
 markers are moved along the surface by `nudge` times the smallest grid
 spacing, then inward. Markers on a face are pushed outward along the normal by
-`face_nudge` local grid spacings. A marker exactly on a face is a degenerate
+`face_nudge` local grid spacings. Markers that are still unplaced after the
+last pass are dropped (`Unplaced` in the log). A marker exactly on a face is a degenerate
 point for the adjoint spread: its basis function is a Kronecker delta on the
 face, the wall it builds is one node thick, and the flow leaks through it as a
 jet. A displacement of a few per cent of a grid spacing removes the
@@ -295,6 +303,12 @@ parameters that apply to them, followed by
   zero-weight markers, the momentum ratio between the physical and the
   intended forcing, and the clamped or switched-off one-sided
   normalisations.
+- `Interp +/- side: weight sum clamped, switched off` (one-sided
+  `spectral` interpolation with the kernel spread): markers whose side
+  carries little or no weight in the masked interpolation.
+- `Outside msh`: markers seeded outside the mesh and dropped, and for the
+  spectral interpolation `Unplaced`: markers the point search could not
+  place after the nudge, also dropped.
 - `Padding needed for the kernel stencils`: see
   [padding](@ref direct-forcing_padding).
 
