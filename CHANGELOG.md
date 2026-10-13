@@ -11,6 +11,8 @@
 
 ## Develop
 
+- Fixed restarted 3D statistics skipping velocity, pressure, temperature fields 
+  on output.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on
