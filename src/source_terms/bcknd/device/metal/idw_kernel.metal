@@ -166,8 +166,8 @@ kernel void idw_gather_one_sided(device float * fu [[ buffer(0) ]],
  * reduce them in threadgroup memory. Mirrors idw_interp_shepard_partials()
  * in direct_forcing_source_term.f90: with adjoint != 0 the weight of a node is
  * K * mult / (Binv * w_side), zero where |w_side| <= wtol, Binv being the
- * inverse of the assembled mass matrix (coef%Binv) and w_p / w_m the
- * assembled spread weights. The threadgroup
+ * inverse of the inner-product weight (the element-lumped mass) and
+ * w_p / w_m the assembled spread weights. The threadgroup
  * size must be 256.
  */
 kernel void idw_interp_partials(device float * part [[ buffer(0) ]],

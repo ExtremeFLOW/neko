@@ -149,8 +149,8 @@ __kernel void idw_gather_one_sided(__global real * __restrict__ fu,
  * and reduce them in local memory. Mirrors idw_interp_shepard_partials()
  * in direct_forcing_source_term.f90: with adjoint != 0 the weight of a node is
  * K * mult / (Binv * w_side), zero where |w_side| <= wtol, Binv being the
- * inverse of the assembled mass matrix (coef%Binv) and w_p / w_m the
- * assembled spread weights. The work-group
+ * inverse of the inner-product weight (the element-lumped mass) and
+ * w_p / w_m the assembled spread weights. The work-group
  * size must be 256.
  */
 __kernel void idw_interp_partials(__global real * __restrict__ part,

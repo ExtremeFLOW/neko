@@ -330,15 +330,16 @@ contains
     end do
   end subroutine setup_spread_weights
 
-  !> (g) With `adjoint` the interpolation is the mass-weighted transpose of
-  !! the spread: for any marker vector g and field u, per side,
+  !> (g) With `adjoint` the interpolation is the transpose of the spread in
+  !! the inner product with weight B (passed as its inverse `winv`): for any
+  !! marker vector g and field u, per side,
   !! sum_i g_i (part numerator)_i = sum_x B_x u_x (S g)_x, where the spread
   !! (S g)_x = sum_i K_xi g_i / w_x is rebuilt here from the kernel. Checked
-  !! with a non-uniform mass matrix and three markers.
+  !! with a non-uniform weight and three markers.
   @test
   subroutine test_adjoint_is_transpose_of_spread()
     real(kind=rp), dimension(lx,lx,lx,ne) :: x, y, z, ds, mult, pmsk, u, v, w
-    real(kind=rp), dimension(lx,lx,lx,ne) :: B, sw_p, sw_m, sg_p, sg_m
+    real(kind=rp), dimension(lx,lx,lx,ne) :: B, Binv, sw_p, sw_m, sg_p, sg_m
     real(kind=rp) :: part(8, 3), g_p(3), g_m(3)
     real(kind=rp) :: lhs_p, lhs_m, rhs_p, rhs_m, err_p, err_m, r, kern
     real(kind=rp), parameter :: rmax = 2.0_rp, p = 0.5_rp
@@ -357,7 +358,7 @@ contains
     g_p = (/ 0.7_rp, -1.3_rp, 2.1_rp /)
     g_m = (/ -0.4_rp, 0.9_rp, 1.6_rp /)
 
-    ! Non-uniform mass matrix and a smooth, non-constant field
+    ! Non-uniform weight and a smooth, non-constant field
     do l = 1, lx
        do k = 1, lx
           do j = 1, lx
@@ -366,6 +367,7 @@ contains
           end do
        end do
     end do
+    Binv = 1.0_rp / B
     v = 0.0_rp
     w = 0.0_rp
 
@@ -397,7 +399,7 @@ contains
     end do
 
     call idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, pmsk, &
-         mult, x, y, z, ds, rmax, p, lx, ne, adjoint = .true., B = B, &
+         mult, x, y, z, ds, rmax, p, lx, ne, adjoint = .true., winv = Binv, &
          sw_p = sw_p, sw_m = sw_m)
 
     lhs_p = sum(g_p * part(1, :))
@@ -422,7 +424,7 @@ contains
   @test
   subroutine test_adjoint_constant_reproduction()
     real(kind=rp), dimension(lx,lx,lx,ne) :: x, y, z, ds, mult, pmsk, u, v, w
-    real(kind=rp), dimension(lx,lx,lx,ne) :: B, sw_p, sw_m
+    real(kind=rp), dimension(lx,lx,lx,ne) :: B, Binv, sw_p, sw_m
     real(kind=rp) :: fu(1), fv(1), fw(1), fum(1), fvm(1), fwm(1)
     type(point_t) :: lag_pts(1)
     type(stack_i4_t) :: lag_el(1)
@@ -437,6 +439,7 @@ contains
           end do
        end do
     end do
+    Binv = 1.0_rp / B
     call setup_spread_weights(lag_pts, x, y, z, ds, pmsk, 2.0_rp, 0.5_rp, &
          sw_p, sw_m)
     u = 3.14_rp
@@ -445,7 +448,7 @@ contains
 
     call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el, &
          u, v, w, pmsk, mult, x, y, z, ds, 2.0_rp, 0.5_rp, lx, ne, &
-         adjoint = .true., B = B, sw_p = sw_p, sw_m = sw_m)
+         adjoint = .true., winv = Binv, sw_p = sw_p, sw_m = sw_m)
 
     @assertEqual(3.14_rp, fu(1), tolerance = 1e-12_rp)
     @assertEqual(-2.71_rp, fv(1), tolerance = 1e-12_rp)
