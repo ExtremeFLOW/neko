@@ -45,8 +45,8 @@ Read `README.md` and `CDI_METHOD.md` before touching any `.f90`.
   transposed: his $\psi$ is our $\phi$. Never compare the bare symbols.
 - **$E_r$.**
   - `redistance_circles` uses Eq. (84) with $\int\psi_e$ only.
-  - Saini's Rider–Kothe $E_r$ divides by the area *outside* the disk, about 13× ours. Recompute on
-    his dumps with `norms.E_r` before comparing.
+  - Saini's Rider–Kothe $E_r$, $E_s$ and $E_v$ divide by the area *outside* the disk, about 13× ours.
+    Recompute on his dumps with `norms.py` before comparing.
 - **Don't quote Rider–Kothe numbers from before 2026-10-02** (frozen diffusion). Mark those from
   before 2026-10-05 as "before the velocity fix".
 

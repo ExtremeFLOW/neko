@@ -195,7 +195,7 @@ counts) are in each case README.
 | sign guard | `constrainTLSR`: a node whose $\psi^n$ disagrees in sign with $\phi-\tfrac12$ keeps $\psi^n$ (email; `lvlSet.f`) | none | the same, against the sign of $\psi_0$ |
 | convergence test | none; a fixed step count | none; a fixed `rd_niter` | none |
 | history after an event | restarted (`ireset_ls`) | restarted (§2) | — |
-| $E_r$ on Rider–Kothe | his `ls_relerr` divides by the area *outside* the disk, about 13× ours; recompute on his dumps with `examples/norms.py` | Eqs. (79)–(81) as printed | Eq. (84), $\int\psi_e$ |
+| $E_r$, $E_s$, $E_v$ on Rider–Kothe | his code divides all three by the area *outside* the disk, about 13× ours ($E_r$ and $E_s$ checked on his whole Fig. 17 grid, $E_v$ at $H\ge1/64$; his $H=1/128$ dumps are single precision); recompute on his dumps with `examples/norms.py` | Eqs. (79)–(81) as printed | Eq. (84), $\int\psi_e$ |
 
 `redistance_circles` uses his configuration and reproduces his §4.4 values in 16 of the 18 Fig. 12
 cells; two low-$N$ cells fail on our mesh through zero-set round-off (its README §5). The coupled files'

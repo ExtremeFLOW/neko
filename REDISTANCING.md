@@ -63,44 +63,49 @@ cadence is a timer, as in Saini's code.
 **§4.4, Eq. (44) alone.** Saini's configuration reproduces his values
 ([`examples/redistance_circles/README.md`](examples/redistance_circles/README.md)).
 
-**Rider–Kothe, Saini's re-initialization settings** (`examples/rider_kothe/README.md` §3).
-- **The settings.** Sign width 0.25, $25H$, BDF2/EXT2, the Eq. (31) SVV, dealiasing and the sign
-  guard. They ran on scratch user files and are not in `rider_kothe.f90`.
-- **The result.** $E_r(8)$ is 0.0402 with our $\Delta\tau$. Transport only gives 0.0452, and his own
-  code 0.0410 in our normalisation. A run with his $\Delta\tau$, on an older build, gave 0.0407.
-- **Not yet his:** local $|\mathbf c|$ on `svv_psi`, BDF2 in physical time, and any run at
-  $H=1/128$.
-- **$\psi$ is not a distance in the band.** Its band-mean $|\nabla\psi|$ is 1.65–1.66 after each event
-  (1.61 after the last), against 1.64 in his own code after its build. At width 0.25 the pseudo-velocity
-  $|\operatorname{sgn}\psi|$ is below about 0.1 in the band, so $\psi$ there relaxes only slowly from
-  the steep seed.
-- **Its normal is 4–8° off** the exact interface at $t=2$–5, against 0.6–0.8° for transport. Two
-  causes:
-  1. **The reseed takes $\phi$'s 0.5 contour as the interface.** Once $\psi$ follows $\phi$, nothing
-     corrects $\phi$'s own drift. $\phi$'s normal is 3.0–5.5° off at $t=3$–5, against 0.9–1.0°
-     under transport.
-  2. **Dealiasing moves nodes across zero, and the guard freezes them where they land.** Without the
-     pair, the same run's normal is 1.0–2.6° off and $E_r(8)$ is 0.0342, so the pair costs about
-     18%. Which of the two carries the cost is not measured.
+**Rider–Kothe in Saini's configuration** (`examples/rider_kothe/README.md` §3.4–§3.6; scratch user file
+`examples/rider_kothe/logs/s45_2026-10-12/rider_kothe_s45.f90`).
+- **The settings are his** on the $\psi$ side:
+  - sign width 0.25, $25H$, $\Delta\tau=H/(N{+}1)$;
+  - BDF2 with the printed Eq. (31) SVV, dealiased $\mathbf C(\mathbf w)\psi$ and the sign guard;
+  - local $|\mathbf u|$ on `svv_psi`, BDF2 in physical time, a $t=0$ build and events every 0.5.
+  - **Not his:** `svv_psi` is explicit. Eq. (44) extrapolates with EXT2. With his EXT3 coefficients,
+    $\psi$'s normal is the same to 0.05° through $t=6$, and the $t=8$ errors are at the edge of the
+    noise band.
+- **The result in his three metrics** ($\gamma=1$, $N=5$; ours against his code at the same cell):
+  - $H=1/64$: $E_r$ 0.0379 against 0.0410, $E_s$ 0.0182 against 0.0121.
+  - $H=1/128$: $E_r$ 0.0085 against 0.0119, $E_s$ 0.0046 against 0.0016.
+  - Our phase field stays within about $10^{-3}$ of $[0,1]$; his leaves it by 5–9%.
+  - Repeats with physically negligible changes scatter by about ±4% in $E_r$ and ±3% in $E_s$.
+- **$\psi$ is not a distance in the band.** Band-mean $|\nabla\psi|$ after each event is 1.64–1.66 at
+  $H=1/64$, against 1.64 after his own build.
+  - At width 0.25 the pseudo-velocity $|\operatorname{sgn}\psi|$ is below about 0.1 in the band, so
+    $25H$ leaves the steep seed only partly relaxed.
+  - Carried on past $25H$, $|\nabla\psi|$ reaches 1.09 by $75H$.
+  - The band normal then barely moves at $t\le0.5$ (0.2°), but turns 5–9° under strain at $t=2$–5.
+  - The steady state is, by construction, the distance to $\phi$'s 0.5 contour. Whether the turn
+    heads there, or towards the exact interface, was not measured.
+  - From $75$–$100H$ the far field goes unstable; the likely cause, untested, is EXT2 at
+    $\Delta\tau=H/6$.
+  - The extent stays $25H$, as his code has it.
+- **Under strain the rebuild is worse than its seed.** At the event instants at $t=2$–4, $\psi$'s normal
+  is 4.3–8.6° off the exact interface while $\phi$'s own is 0.6–4.1°, and $\phi$ follows within a
+  frame. At $H=1/128$ the error after events is 1.3–2.6°.
 - **The thin tail.** Where the filament is thinner than $2\varepsilon$ (5–6% of its length at
   maximum stretch), $\phi$ has no 0.5 contour, and no reseed can rebuild $\psi$ there.
-- **The end of the run.** $\psi$'s normal rises to 16.1–16.5° at $t=7.52$ and 29° at $t=8$, against
-  1.4° and 1.3° for transport. Saini's own code shows the same rise (12–17° at $t=7.5$–8).
+- **The end of the run.** From $t\approx7$, $\phi$'s own normal is the worse (8.9–24°), and $\psi$,
+  rebuilt from it, tracks it. Saini's own code shows the same late rise (12–17° at $t=7.5$–8).
+- **Re-initialization frequency** (non-Saini intervals; case README appendix):
+  - 1.0 is mildly better in $E_s$ (−10%).
+  - 0.25 diverges at $t=5.69$ after 22 events. A $\phi$ undershoot near the interface grows over
+    about 0.2 in $t$. A one-shot or short test would not have shown it.
+- **The CDI rate $\gamma$ moves more than any $\psi$ setting.** $\gamma=0.5$ lowers $E_r$ and $E_s$ by
+  about 30% at $H=1/64$ and 1/128, at an unchanged worst violation. With a weaker pull, $\phi$ takes in
+  the degraded post-event normal more slowly.
 
-**The two knobs to check when the rebuilt $\psi$ is not good enough.**
-- **Pseudo-time extent matters.**
-  - At width 0.25 the printed $2.5H$ leaves $\psi$ as the seed: its normal is 37° off by $t=0.5$,
-    and $\phi$ is 57% thicker before the first event.
-  - His code's $25H$ is what the results above use.
-- **The step size barely matters.**
-  - Over $25H$, 2129 steps of $0.1\,h_{\text{GLL,min}}$ and 150 of $H/(N{+}1)$ give 0.0402 and 0.0407.
-    The second run also differs in build and file.
-  - $H/(N{+}1)$ is safe only with width 0.25, where the pseudo-velocity near the interface is small.
-    At width $\varepsilon$ it is a pseudo-CFL of 2.75 on the slab, and 40 events destroy the run.
-- **Re-initialization frequency has never been varied.** It is $\Delta t_{tls}=0.5$ in every run.
-  - At $t=1$–5 each event raises $\psi$'s normal error (×1.4–6.5 with dealiasing and the guard), and
-    transport brings it back to 0.23–0.86 of that before the next event.
-  - The first event lowers the error. From $t\approx6$ it grows between events.
+**The step size within the $25H$ extent.** $H/(N{+}1)$ is safe only with width 0.25, where the
+pseudo-velocity near the interface is small. At width $\varepsilon$ it is a pseudo-CFL of 2.75 on the
+slab, and 40 events destroy the run.
 
 **Zalesak.** Saini does not re-initialize on §4.3. Our only events runs on it used the committed
 path.

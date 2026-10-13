@@ -6,8 +6,10 @@ to a disk at $t=8$. It is the only case with real strain.
 **Status.**
 - **Transport only** (the shipped `.case` files, no re-initialization) is validated on the current
   build. The tables are from the re-runs of 2026-10-05/06, after the velocity fix. Don't quote
-  Rider–Kothe numbers from before 2026-10-02.
-- **Re-initialization in Saini's configuration** ran on scratch user files only, and is not in
+  Rider–Kothe numbers from before 2026-10-02. It works here only because the flow is time-reversible
+  on a periodic box: $\psi$ starts as the exact distance and is carried back to it. It is not an
+  option for a general flow.
+- **Re-initialization in Saini's configuration** (§3.4) ran on a scratch user file and is not in
   `rider_kothe.f90`. Adopting it is `../../NEXT_SESSION.md` item 1.
 
 $\xi=\varepsilon N/H$ (`../../CDI_METHOD.md` §1). Paths under `logs/` are gitignored and local.
@@ -62,14 +64,14 @@ $u_{\max}(t)=|\cos(\pi t/8)|$:
 | | Saini §4.5 (paper) | his `circVortex`, $H=1/64$, $N=5$ | ours |
 |---|---|---|---|
 | $\xi$ | his $1/N$ (our 1) | same | 1 (baseline, $h$-series); 1.5–2 (cross) |
-| mesh, order | $H\in\{1/32,1/64,1/128\}$, $N\in\{4,5,6\}$ | | $H\in\{1/64,1/96,1/128\}$, $N=5$ |
+| mesh, order | $H\in\{1/32,1/64,1/128\}$, $N\in\{4,5,6\}$ | | $H\in\{1/64,1/96,1/128\}$, $N=5$; his configuration also $H\in\{1/64,1/128\}$, $N=5$ |
 | $\Delta t$ | $\{8,4,2\}\times10^{-4}$ (CFL $\approx0.4$ at $N=6$) | $4\times10^{-4}$ | $8\times10^{-5}$ at $H=1/64$, $4.1\times10^{-5}$ at $1/128$ |
-| time scheme | BDF3/EXT3 at $H=1/128$, else BDF2/EXT2 | BDF2 (his shipped $H=1/128$ case too), extrapolated with EXT3 coefficients | BDF3/EXT3 |
+| time scheme | BDF3/EXT3 at $H=1/128$, else BDF2/EXT2 | BDF2 (his shipped $H=1/128$ case too), extrapolated with EXT3 coefficients | BDF3/EXT3; his configuration: BDF2 with Neko's modified EXT3 |
 | phase-field re-sharpening, Eq. (39) | every $\Delta t_{cls}=0.05$, $\Delta\tau_{cls}=0.1H/(N{+}1)$, $N_{cls}=\varepsilon/\Delta\tau_{cls}$ | same, also at $t=0$; 12 steps | none: the CDI compression acts every step |
-| re-initialization interval $\Delta t_{tls}$ | 0.5, "including at the initial step" | same | none in the shipped cases; 0.5 on the scratch files |
-| $\Delta\tau_{tls}$, steps | $H/(N{+}1)$, $N_{tls}=2.5H/\Delta\tau_{tls}$ (§3.4) | $H/(N{+}1)$, 150 steps | scratch: $0.1\,h_{\text{GLL,min}}$ (2129 steps) or $H/(N{+}1)$ |
-| pseudo-time extent | $2.5H$ | $25H$ | scratch: $25H$ |
-| Eq. (44) SVV | $N/4$, $c_0=2$ | same, $\lvert\mathbf c\rvert=\lvert\operatorname{sgn}\psi\rvert$ | scratch: the same, printed form |
+| re-initialization interval $\Delta t_{tls}$ | 0.5, "including at the initial step" | same | none in the shipped cases; his configuration: 0.5, and a $t=0$ build |
+| $\Delta\tau_{tls}$, steps | $H/(N{+}1)$, $N_{tls}=2.5H/\Delta\tau_{tls}$ (§3.4) | $H/(N{+}1)$, 150 steps | his configuration: $H/(N{+}1)$, 150 steps (151 at $H=1/128$) |
+| pseudo-time extent | $2.5H$ | $25H$ | his configuration: $25H$ |
+| Eq. (44) SVV | $N/4$, $c_0=2$ | same, $\lvert\mathbf c\rvert=\lvert\operatorname{sgn}\psi\rvert$ | his configuration: the same, printed form |
 | pseudo-CFL | $\approx0.24$ at $N=6$ | 0.20 at $N=5$ for Eq. (39); Eq. (44) at $\lvert\mathbf c\rvert=1$ would be 10× | — |
 
 ## 3. Results
@@ -77,11 +79,15 @@ $u_{\max}(t)=|\cos(\pi t/8)|$:
 $E_r$, $E_s$ and $E_v$ are Saini's Eqs. (79)–(81) as `../norms.py` computes them, at $t=8$.
 - **Over every output frame** (every 0.08, or 0.04 at $H=1/96$ and 1/128): the worst violation, the
   mass drift and the areas.
-- **Sources:** `logs/d5/gamma_sweep.py`, collected in `logs/table_velfix_2026-10-06.txt`. $E_s$ comes
-  from `logs/d5_2026-10-06/tables/full_*.txt` and `logs/d6_2026-10-07/tables/summary_*.txt`.
-- **End times:** `rider_kothe_xi10` ends one step past the reversal, at $t=8.00008$, because Neko's
-  summed time is a round-off below 8 after 100000 steps. The other runs end within $4\times10^{-5}$
-  of 8.
+- **Sources, transport only:** `logs/d5/gamma_sweep.py`, collected in `logs/table_velfix_2026-10-06.txt`.
+  $E_s$ comes from `logs/d5_2026-10-06/tables/full_*.txt` and `logs/d6_2026-10-07/tables/summary_*.txt`.
+- **Sources, re-initialization (§3.4–§3.6):** `logs/s45_2026-10-12/measure.sh` on every frame, and
+  `logs/s45_2026-10-12/tables/`. Its `PREREGISTERED.txt` holds every prediction and verdict.
+- **$|E_v|$** is reported at $t=8$ and as the maximum over the run. Below about $10^{-5}$ it reflects
+  our solver tolerance (an absolute residual of $10^{-6}$), not the method.
+- **End times:** `rider_kothe_xi10` and the $H=1/64$ re-initialization runs at $\Delta t=8\times10^{-5}$
+  end one step past the reversal, at $t=8.00008$, because Neko's summed time is a round-off below 8 after 100000 steps. The
+  other runs end within $4\times10^{-5}$ of 8.
 
 ### 3.1 Transport only, $\xi=1$
 
@@ -148,84 +154,140 @@ $\xi=1$, $\gamma=1$, $N=5$:
 
 ### 3.4 Re-initialization in Saini's configuration
 
-**The scratch settings.**
-- Sign width 0.25 and extent $25H$; BDF2/EXT2 with the printed Eq. (31) SVV ($N/4$, $c_0=2$);
-  dealiased $\mathbf C(\mathbf w)\psi$ and his sign guard.
-- Reseed every 0.5, and a $t=0$ build.
-- **Still not his:**
-  - the uniform $|\mathbf c|$ on `svv_psi`;
-  - BDF3 in physical time;
-  - EXT2 rather than his EXT3 coefficients in pseudo-time;
-  - the CDI $\Delta t$.
-- The angle columns give $\psi$'s normal against the exact interface on the frames right after the
-  events at $t=2$–5, $\phi(1-\phi)$-weighted over the compression band.
+**The configuration.** The scratch user file is `logs/s45_2026-10-12/rider_kothe_s45.f90`; the rows are
+`../../CDI_METHOD.md` §6.
+- $\psi$ is built at $t=0$ by Eq. (44) from the Eq. (47) seed, then reseeded and relaxed every 0.5.
+- Eq. (44):
+  - sign width 0.25 and extent $25H$;
+  - $\Delta\tau=H/(N{+}1)$, 150 steps (151 in the $H=1/128$ cases, whose $\Delta\tau$ is written a hair
+    below $H/6$);
+  - BDF2 with the printed Eq. (31) SVV ($N/4$, $c_0=2$);
+  - dealiased $\mathbf C(\mathbf w)\psi$ and his sign guard.
+- `svv_psi`: $N/2$, $c_0=0.1$, local $|\mathbf u|$ left of the operator.
+- BDF2 in physical time (`time_order` 2, which extrapolates with Neko's modified EXT3, as his code does).
+- **Still not his**, besides the intended CDI $\phi$ and CDI $\Delta t$:
+  - `svv_psi` is explicit; his is implicit.
+  - Eq. (44) extrapolates with EXT2 rather than his EXT3 coefficients. With EXT3 (`s6_ext3`) the same
+    run gives $\psi$'s normal to 0.05° through $t=6$. At $t=8$ its errors are at the edge of the noise
+    band below: $E_r$ 0.0408, $E_s$ 0.0188, but a worst violation of $2.0\times10^{-3}$.
 
-| configuration (source) | $E_r(8)$ | $E_s(8)$ | worst violation | $\phi$ pieces, $t=3$–6 | angle, $t=2$–5 | at $t=8$ |
-|---|---|---|---|---|---|---|
-| transport only (`rider_kothe_xi10`) | 0.0452 | 0.0237 | $2.6\times10^{-3}$ | 1–2 | 0.6–0.8° | 1.3° |
-| **Saini's settings, our $\Delta\tau$** (`d6_2026-10-07/runA_s025_25H_dg`) | **0.0402** | 0.0173 | $7.1\times10^{-4}$ | 2–3 | 4.3–8.2° | 29° |
-| the same, his $\Delta\tau=H/(N{+}1)$, build before the velocity fix (`d5/rk_eLf`) | 0.0407 | 0.0179 | $8.9\times10^{-4}$ | 3 | 4.3–8.2° | 29° |
-| his own code (`d5/saini/cv64n5`), our normalisation | 0.0410 | 0.0121 | $8.6\times10^{-2}$ | | | |
+**Saini's three metrics at $t=8$**, $\xi=1$, $\gamma=1$, $N=5$. His values are his code's dumps
+rescored with `../norms.py` (§3.6).
 
-There is no run of his configuration at $H=1/128$ yet. The records are `logs/d5/PREREGISTERED.txt`
-and `logs/d6_2026-10-07/tables/`.
+| $H$ | run (source) | $E_r$ | $E_s$ | $\lvert E_v\rvert$ at $t=8$ / max | worst violation |
+|---|---|---|---|---|---|
+| 1/64 | ours (`s1_h64`) | 0.0379 | 0.0182 | $4.3\times10^{-6}$ / $8.1\times10^{-6}$ | $9.2\times10^{-4}$ |
+| 1/64 | his code (`d5/saini/cv64n5`) | 0.0410 | **0.0121** | $1.5\times10^{-6}$ / $2.0\times10^{-6}$ | $8.6\times10^{-2}$ |
+| 1/128 | ours (`s2_h128`) | **0.00852** | $4.60\times10^{-3}$ | $3.5\times10^{-7}$ / $1.8\times10^{-6}$ | $9.3\times10^{-4}$ |
+| 1/128 | his code (`d5/saini/cv128n5`) | 0.0119 | $\mathbf{1.63\times10^{-3}}$ | $1.9\times10^{-8}$ / $3.5\times10^{-8}$ | $4.8\times10^{-2}$ |
 
-- **Against transport** it is lower in $E_r$, $E_s$ and the worst violation.
-- **Against his code** its $E_r$ is level. His $E_s$ is lower, and his worst violation far higher:
-  his phase field is unbounded.
-- **$\psi$ is not a distance in the band.** Its band-mean $|\nabla\psi|$ is 1.65–1.66 after each
-  event (1.61 after the last), against 1.64 in his code right after its build (2.32 at $H=1/128$, $N=3$).
-- **Its normal is 4–8° off**, against 0.6–0.8° for transport. Two causes:
-  1. **The reseed takes $\phi$'s 0.5 contour as the interface.** $\phi$'s own normal is 3.0–5.5° off at
-     $t=3$–5 (0.9–1.0° under transport). Once $\psi$ follows $\phi$, nothing pulls $\phi$ back,
-     whereas a transported $\psi$ is independent of $\phi$ and keeps correcting it.
-  2. **Dealiasing moves nodes across zero, and the guard freezes them where they land.** It does not
-     put them back.
-     - After the second event ($t=1.00016$) $\psi$ is one piece but 18 nodes stay crossed: its zero set is
-       up to $0.41\varepsilon$ from $\phi$'s contour, and its normal 1.30° off.
-     - Without the pair: 0 nodes, $0.29\varepsilon$, 0.74°.
-     - Over the run, without the pair, $E_r(8)$ is 0.0342 and the normal 1.0–2.6° off. So the pair
-       costs about 18%, and which of the two carries it is not measured.
-- **The thin tail.** At $t=3.5$–4.5 the exact filament is thinner than $2\varepsilon$ over 5–6% of
-  its length. There even transport-only $\phi$ has a core of only 0.33–0.35, so there is no 0.5
-  contour to reseed from. In `rk_eLf`, $\psi$'s normal across that tail is wrong at 76–79% of points.
-- **Each event at $t=1$–5 raises $\psi$'s normal error**, by ×1.4–6.5, and transport brings it back
-  to 0.23–0.86 of that by the next event.
-  - The first event lowers it: 1.07° → 0.49°.
-  - From $t\approx6$ it grows between events, to 16.1–16.5° at $t=7.52$ and 29° at $t=8$ (transport
-    1.4° and 1.3°). His TLS shows the same rise, 12–17° at $t=7.5$–8.
-  - Each event resets the band $|\nabla\psi|$ to 1.65–1.66 (1.61 at the last).
+Sources: `logs/s45_2026-10-12/tables/full_*.txt` and `summary_all_h64.txt`.
+- **The noise band.** Two repeats of the $H=1/64$ run change nothing physical: $\Delta t=7.99\times10^{-5}$
+  (`n1_dt`) and $r_f=0.1001$ (`n2_rf`). With the run itself they give $E_r$ 0.0379–0.0407 and $E_s$
+  0.0182–0.0192, about ±4% and ±3%. Smaller differences are not results.
+- **$E_r$** is 7.6% below his at $H=1/64$, at the edge of the band, and 28% lower at $H=1/128$.
+- **$E_s$** is 1.5× his at $H=1/64$ and 2.8× at $H=1/128$. His falls 7.4× per doubling, ours 4.0×.
+- **$|E_v|$** is at our solver tolerance (an absolute residual of $10^{-6}$). His solves converge to
+  $10^{-8}$.
+- **Boundedness.** Ours stays within about $10^{-3}$ of $[0,1]$: $9.2\times10^{-4}$–$2.0\times10^{-3}$
+  over the repeats. His phase field leaves it by 5–14% at every resolution (§3.6).
 
-### 3.5 The two knobs: pseudo-time and frequency
+**Where the shape is lost.** These are $E_s$ against the marker-advected exact interface at every
+frame (`logs/s45_2026-10-12/es_t.py`, tables `es_t_*`).
+- **From the start.** Ours is already 1.3–3.0× his up to $t=2$ at $H=1/64$, including before the
+  first event, and 1.5–3.2× his throughout at $H=1/128$. Part of the gap is the phase field itself.
+- **Mid-run, at some events.** $E_s$ steps up at some events, by +30% across $t=3$ at $H=1/64$.
+- **Late, between events.** From $t\approx7$ it climbs between events, about +50% per half
+  interval at $t=7$–8, while $\psi$ is rebuilt from an already degraded $\phi$.
 
-- **Extent matters.** At width 0.25 the seed's sign function is
-  $\operatorname{sgn}(\psi_0)\approx0.2(\phi-\tfrac12)\le0.1$, so its characteristics move at about
-  0.1, not the 1 that §3.4 of the paper assumes.
-  - With the printed $2.5H$, $\psi$ stays the seed: its normal is 37° off by $t=0.5$, and $\phi$ is
-    57% thicker before the first event. An earlier full run at these settings
-    (`logs/d5/run_rk_a.log`, before the velocity fix) diverged at $t=7.8$.
-  - His code's $25H$, ten times the time at a tenth of the speed, gives roughly the paper's reach.
-  - In 1D the slope at $\psi=0$ then follows the logistic law
-    $\dot y=\tfrac{1}{2\varepsilon}y(1-y)$ from the seed's 19.1 to 2.79, whatever the SVV.
-  - In 1D the reach in units of $H$ shrinks with refinement (2.1$H$ → 1.5$H$ from $H=1/40$ to
-    1/80).
-  - 0.25 slows every near-interface process by $0.25/(H/N)$: 80 here at $H=1/64$, $N=5$.
-    That is 3.75–40 on the §4.4 grid.
-  - Source for the 1D facts: `git show 80201cf13e6:examples/redistance_circles/eps_1d/README.md`, §4–5.
-- **Step size barely matters.** 2129 steps ($0.1\,h_{\text{GLL,min}}$) and 150 ($H/(N{+}1)$) over
-  $25H$ give 0.0402 and 0.0407, though the two runs also differ in build and file. $H/(N{+}1)$ is
-  safe at width 0.25 because $|\mathbf w|$ is small near the interface (in 1D within $4\times10^{-4}$
-  of a fine-$\Delta\tau$ run). At width $\varepsilon$ it is not: on the slab it is a pseudo-CFL of
-  2.75, and 40 events destroy the run (`../advecting_slab_1d/README.md` §3).
-- **Frequency has never been varied.** $\Delta t_{tls}=0.5$ in every production run. The per-event pattern of
-  §3.4 is what makes it the next thing to try (`../../NEXT_SESSION.md`).
+**$\psi$ at the event instant**, $H=1/64$. This is the $25H$ field as the run uses it, written by the
+probe of §3.5 (`tables/event_psi_s1_h64.txt`).
+- **Under strain the rebuild is worse than its seed.** At $t=2$–4, $\psi$'s normal is 4.3–8.6° off the
+  exact interface, while $\phi$'s own is 0.6–4.1°. Against $\phi$'s 0.5 contour, $\psi$'s normal is
+  4.3–7.7° off.
+- **$\phi$ follows within a frame.** At $t=3.5$, $\phi$'s normal is 2.3° at the event and 6.3° at the
+  next frame, 0.02 later.
+- **Late in the run the cause reverses.** From $t\approx7$, $\phi$'s own normal is the worse
+  (8.9–24°), and $\psi$ tracks it.
+- **Refinement shrinks the event error.** At $H=1/128$, $\psi$'s normal on the frames after events is
+  1.3–2.6° at $t=2$–5, and 7.0° at $t=8$.
+- **$\psi$ is not a distance in the band**, as in his code (1.64 after his build at $H=1/64$). Band
+  $|\nabla\psi|$ after each event is 1.64–1.66 at $H=1/64$ and 2.54–2.69 at $H=1/128$.
+- **The thin tail.** At $t=3.5$–4.5 the exact filament is thinner than $2\varepsilon$ over 5–6% of its
+  length. There $\phi$ has no 0.5 contour for a reseed to start from.
+
+### 3.5 The knobs on Saini's configuration
+
+**$\gamma$, the CDI rate.** It is dimensionless: the applied rate is $\Gamma(t)=\gamma\,u_{\max}(t)$, with
+$u_{\max}$ the flow's peak speed at $t=0$ times $|\cos(\pi t/8)|$. It scales both halves of the $\phi$
+equation, and so sets how fast $\phi$ relaxes to the profile that $\psi$'s normal asks for. It is our
+parameter; Saini has none. $\Delta t$ is kept at $8\times10^{-5}$ at $H=1/64$ ($\gamma=2$ needs
+$4\times10^{-5}$) and at $4.1\times10^{-5}$ at $H=1/128$.
+
+| $H$ | $\gamma$ (source) | $E_r$ | $E_s$ | $\lvert E_v\rvert$ at $t=8$ / max | worst violation |
+|---|---|---|---|---|---|
+| 1/64 | 0.25 (`s7_g025`) | 0.0177 | 0.0080 | $7.2\times10^{-6}$ / $9.8\times10^{-6}$ | $2.9\times10^{-3}$ |
+| 1/64 | 0.5 (`s7_g05`) | **0.0268** | **0.0114** | $4.6\times10^{-6}$ / $5.7\times10^{-6}$ | $9.7\times10^{-4}$ |
+| 1/64 | 1 (`s1_h64`) | 0.0379 | 0.0182 | $4.3\times10^{-6}$ / $8.1\times10^{-6}$ | $9.2\times10^{-4}$ |
+| 1/64 | 2 (`s7_g20`) | 0.0475 | 0.0222 | $3.2\times10^{-6}$ / $6.0\times10^{-6}$ | $1.7\times10^{-2}$ |
+| 1/128 | 0.5 (`s8_g05_h128`) | **0.00575** | $\mathbf{3.25\times10^{-3}}$ | $1.6\times10^{-6}$ / $2.5\times10^{-6}$ | $1.0\times10^{-3}$ |
+| 1/128 | 1 (`s2_h128`) | 0.00852 | $4.60\times10^{-3}$ | $3.5\times10^{-7}$ / $1.8\times10^{-6}$ | $9.3\times10^{-4}$ |
+
+- **$\gamma=0.5$ beats $\gamma=1$ in $E_r$ and $E_s$ at both resolutions:** −29% and −38% at $H=1/64$,
+  −33% and −29% at $H=1/128$. That is 7–12× the noise band measured at $H=1/64$, at an unchanged worst
+  violation.
+- **Against his code at $\gamma=0.5$:** its $E_s$ at $H=1/64$ is below his (0.0114 against 0.0121). At
+  $H=1/128$ it is still 2.0× his.
+- **A weaker pull hurts less.** With a lower $\gamma$, $\phi$ takes in the degraded post-event normal
+  more slowly.
+- **$\gamma=2$ is worse on every measure but $|E_v|$.** Its worst violation is 18× larger.
+- **Boundedness at $\gamma<1$.** Exact boundedness is not required, but it is nice to have. $\gamma<1$
+  means $\Gamma<\max|\mathbf u|$, below the sufficient condition usually quoted for CDI.
+  - In this repo boundedness against $\gamma$ depends on $\xi$. The slab needs $\gamma\ge1.5$ at $\xi=1$
+    for exact boundedness, and on Zalesak the trend changes sign with $\xi$ (their READMEs).
+  - Here, $\gamma=0.5$ stays within about $10^{-3}$ at $N=5$, $H\ge1/64$. It does not on the $H=1/32$
+    mesh or at $N=6$ (§3.7), but no $\gamma=1$ run exists at those cells to blame $\gamma$; the
+    $\gamma=1$ run at $H=1/32$, $N=6$ diverges too.
+- **$\gamma=0.25$ trades boundedness for shape.** $E_r$ and $E_s$ fall further, by another 34% and
+  30%. But the worst violation triples, and the maximum $|E_v|$ reaches $10^{-5}$. $\phi$ also sheds
+  more short pieces: up to 9 at $t=3$–6, against 6–7 at $\gamma=0.5$–1.
+
+**The extent is his $25H$, and a $25H$ solve is not converged under strain.** The probe
+(`logs/s45_2026-10-12/probe/`) repeats the $H=1/64$ run of §3.4 with every Eq. (44) solve carried on
+to $400H$ and logged every $25H$, with the $25H$ field restored afterwards. Its output is
+byte-identical to that run's.
+(`tables/probe_s1p_h64.txt`)
+- **$|\nabla\psi|$** in the band goes from 1.66 at $25H$ to 1.22 at $50H$ and 1.09 at $75H$, at every
+  event.
+- **The band normal barely moves on the near-circle:** 0.14° and 0.19° from the $25H$ one at
+  $t\le0.5$.
+- **Under strain it does move:** 3.1–5.8° by $50H$ and 4.9–8.8° by $75H$, at $t=2$–5.
+- **The steady state** is, by construction, the distance to $\phi$'s 0.5 contour, not the exact
+  interface. Whether the turn moves the normal towards it, or towards the exact interface, was not
+  measured.
+- **From $75$–$100H$** the far field goes unstable: from $75H$ at the events from $t=5$, from $100H$
+  before. The likely cause, not tested, is EXT2 at $\Delta\tau=H/6$ once $|\operatorname{sgn}\psi|$
+  grows.
+- **Why his code needs $25H$ rather than the printed $2.5H$.** At width 0.25 the seed's sign function
+  is $\operatorname{sgn}(\psi_0)\approx0.2(\phi-\tfrac12)\le0.1$, so characteristics move at about 0.1,
+  not 1. With the printed $2.5H$, $\psi$ stays the seed: its normal is 37° off by $t=0.5$, and an
+  earlier full run diverged at $t=7.8$ (`logs/d5/run_rk_a.log`, before the velocity fix).
+
+**From our earlier scratch settings to his.** The earlier settings were our $\Delta\tau$, uniform
+$|\mathbf c|$ on `svv_psi` and BDF3. Changing them one at a time (appendix):
+- local $|\mathbf c|$ gives +11% in $E_r$;
+- then his $\Delta\tau$ gives −16%, just below the band;
+- then BDF2 gives +1%.
+
+The net is −6%, at the band's edge. The two large steps are not explained by what they change.
+
+Re-initialization intervals other than 0.5 are in the appendix: 1.0 is mildly better, and 0.25
+diverges at $t=5.69$.
 
 ### 3.6 Saini's own code on this problem
 
 His fork (`nandu90/Nek5000@nekLS` 5e9b0ae; a local copy is in `logs/d5/saini/`) reproduces his
-paper:
-- as shipped ($H=1/128$, $N=3$): $E_r$ 1.966e-3, against Table 3's 1.96e-3;
-- at our resolution ($H=1/64$, $N=5$, $\Delta t=4\times10^{-4}$): 3.13e-3, against Fig. 17's ≈3.3e-3.
+paper over his whole grid (below), and his Table 3's $H=1/128$, $N=3$ value (1.966e-3 against 1.96e-3).
 
 **His $E_r$ is not on our scale.** `ls_relerr` divides by $\int\psi_e$ with $\psi_e=1$ *outside* the
 disk: 0.929, against our disk area of 0.0707. With `norms.E_r` on his $t=8$ dumps he gets **0.0410**
@@ -245,13 +307,90 @@ disk: 0.929, against our disk area of 0.0707. With `norms.E_r` on his $t=8$ dump
   - Its slope near 1 is at $t=8$. Right after his build his code's band mean is 2.32 ($H=1/128$,
     $N=3$), and at $t=8$ it is 0.94.
 
+**His code over his whole grid.** These are his shipped case at each $H$ and $N$ of his Figs. 17–18,
+changing only $H$, `lx1` and his paper's $\Delta t$ ($\{8,4,2\}\times10^{-4}$). They are rescored in our
+normalisation at $\varepsilon=H/N$ (`logs/d5/saini/mk_saini_grid.sh`, `logs/s45_2026-10-12/tables/full_saini_cv*.txt`;
+$H=1/64$, $N=5$ in `logs/d5_2026-10-06/tables/full_saini_cv64n5.txt`).
+
+| $H$ | $N$ | $E_r$ | $E_s$ | $\lvert E_v\rvert$ at $t=8$ | worst violation |
+|---|---|---|---|---|---|
+| 1/32 | 4, 5, 6 | 0.272, 0.182, 0.186 | 0.096, 0.062, 0.050 | $3.3\times10^{-4}$, $3.7\times10^{-5}$, $4.3\times10^{-5}$ | 0.08–0.14 |
+| 1/64 | 4, 5, 6 | 0.0550, 0.0410, 0.0317 | 0.0156, 0.0121, 0.0075 | $1.0\times10^{-5}$, $1.5\times10^{-6}$, $9.4\times10^{-7}$ | 0.06–0.09 |
+| 1/128 | 4, 5, 6 | 0.0159, 0.0119, 0.0099 | 0.0024, 0.0016, 0.0010 | $3\times10^{-9}$–$2\times10^{-8}$ | 0.05 |
+
+- **They reproduce his Fig. 17a.** His logged $E_r$, in his normalisation, matches the plotted values
+  within 3% in every cell but $H=1/32$, $N=6$ (5%).
+- **His $E_s$ shares his $E_r$'s denominator.** Ours over his plotted values is 12.4–13.3× for $E_r$
+  and 12.0–14.4× for $E_s$, in every cell. That is the outside-to-inside area ratio of 13.15, so his
+  printed $E_s$ is not comparable to ours either.
+- **His Fig. 18a plots $E_{L1}$, not $E_r$.** He doesn't define it; it is about 0.91–0.95× his $E_r$.
+- **His Table 3 pairs equal GLL counts:** $(1/64,N{=}3)$ with $(1/32,N{=}7)$, and $(1/128,N{=}3)$ with
+  $(1/64,N{=}7)$.
+
+### 3.7 His Figs. 17–18 grid
+
+Ours is Saini's configuration at $\gamma=0.5$, against his code at the same cell, both in our
+normalisation.
+- $\Delta t$ per cell is the one that gives a compression CFL of about 0.0436 at $\gamma=1$, kept at
+  $\gamma=0.5$: from $2.35\times10^{-4}$ at $H=1/32$, $N=4$ down to $2.88\times10^{-5}$ at $H=1/128$,
+  $N=6$.
+- $\varepsilon=H/N$.
+- $\Delta\tau=H/(N{+}1)$, with $25(N{+}1)$ steps (151 in the $H=1/128$, $N=5$ cell). Sources: `logs/s45_2026-10-12/tables/full_gd*_g05.txt`
+(and `full_s7_g05`, `full_s8_g05_h128` for $N=5$), his cells as §3.6. Figure:
+`logs/s45_2026-10-12/figs/s45_grid.png` (local).
+
+| $H$ | $N$ | $E_r$ ours / his | $E_s$ ours / his | $\lvert E_v\rvert$ at $t=8$ / max, ours | worst violation, ours / his |
+|---|---|---|---|---|---|
+| 1/32 | 4 | 0.249 / 0.272 | 0.091 / 0.096 | $2.0\times10^{-6}$ / $5.3\times10^{-6}$ | 0.39 / 0.084 |
+| 1/32 | 5 | 0.146 / 0.182 | 0.061 / 0.062 | $5.9\times10^{-6}$ / $8.1\times10^{-6}$ | 0.036 / 0.14 |
+| 1/32 | 6 | diverged at $t=7.28$ / 0.186 | — / 0.050 | | above $10^{-2}$ from $t=5.3$ / 0.079 |
+| 1/64 | 4 | 0.0392 / 0.0550 | 0.0202 / 0.0156 | $2.2\times10^{-6}$ / $3.5\times10^{-6}$ | $6.4\times10^{-4}$ / 0.059 |
+| 1/64 | 5 | 0.0268 / 0.0410 | 0.0114 / 0.0121 | $4.6\times10^{-6}$ / $5.7\times10^{-6}$ | $9.7\times10^{-4}$ / 0.086 |
+| 1/64 | 6 | 0.0336 / 0.0317 | 0.0137 / 0.0075 | $3.2\times10^{-6}$ / $8.3\times10^{-6}$ | 0.071 / 0.056 |
+| 1/128 | 4 | 0.0078 / 0.0159 | 0.0038 / 0.0024 | $3.3\times10^{-7}$ / $1.1\times10^{-6}$ | $8.8\times10^{-4}$ / 0.049 |
+| 1/128 | 5 | 0.0057 / 0.0119 | 0.0033 / 0.0016 | $1.6\times10^{-6}$ / $2.5\times10^{-6}$ | $1.0\times10^{-3}$ / 0.048 |
+| 1/128 | 6 | 0.0065 / 0.0099 | 0.0032 / 0.0010 | $2.8\times10^{-6}$ / $3.4\times10^{-6}$ | $6.1\times10^{-3}$ / 0.052 |
+
+- **$h$-refinement works wherever the runs complete.** $E_r$ and $E_s$ fall with $H$ at $N=4$ and 5
+  from $H=1/32$, and at $N=6$ from $H=1/64$ (it diverges at 1/32).
+- **Our $E_r$ is below his** except at $H=1/64$, $N=6$ and the diverged cell. At $H=1/128$ it is about
+  half his at $N=4$–5.
+- **Our $E_s$ is level with or below his at $H=1/32$** and at $H=1/64$, $N=5$, and above it elsewhere:
+  1.6×, 2.0× and 3.2× at $H=1/128$, $N=4$–6. His falls faster under refinement.
+- **$p$-refinement stops at $N=5$.** At $N=6$, $E_r$ is worse than at $N=5$ at $H=1/64$ and 1/128, $E_s$
+  does not improve, and boundedness is lost: $7.1\times10^{-2}$ at $H=1/64$, $6.1\times10^{-3}$ at
+  1/128, and divergence at 1/32. His $E_s$ falls monotonically in $N$, and so does his $E_r$ at
+  $H=1/64$ and 1/128.
+- **The coarsest mesh is unbounded at every $N$**, late in the run: 0.39 at $N=4$ (from $t\approx6.6$),
+  0.036 at $N=5$ (from $t=7.6$).
+- **No single change fixes $N=6$** (at $H=1/32$, one change each from the diverged cell):
+  - EXT3 in pseudo-time diverges at $t=7.04$;
+  - $\gamma=1$ diverges at $t=6.08$;
+  - half the $\Delta t$ diverges at $t=6.16$;
+  - the Eq. (44) SVV at $N/6$ diverges later, at $t=7.84$.
+
+  The explicit terms are far inside their stability limits at $N=4$, 5 and 6: `svv_psi` $\Delta t\rho$
+  0.011–0.013 against 0.4, compression CFL 0.022, advective CFL 0.043.
+
+  In every run the violation passes $10^{-3}$ at $t=1.28$–1.36, long before the divergence. In the two
+  frames located (late in the run, at $H=1/64$ and 1/32), the worst values sit within about 1.5$H$ of
+  the interface, where $|\nabla\psi|$ is ordinary. The mechanism is open (`../../NEXT_SESSION.md`).
+
 ## 4. Limitations and open items
 
-- **Boundedness.** Transport at $\xi=1$ is bounded only to $2$–$3\times10^{-3}$, at every $H$.
-- **Re-initialization.** The committed events path is not Saini's (appendix, first row), and his
-  configuration is not in the code yet; that is the next step (`../../NEXT_SESSION.md`).
-- **$\psi$ under re-initialization.** The rebuilt $\psi$'s normal is worse than the transported one's
-  (§3.4).
+- **Shape.** In Saini's configuration at $\gamma=1$, our $E_s$ is 1.5× his at $H=1/64$ and 2.8× at
+  $H=1/128$. At $\gamma=0.5$ it is 0.94× and 2.0× (§3.4–§3.5).
+- **$p$-refinement.** In Saini's configuration $N=6$ loses boundedness and is no better than $N=5$;
+  at $H=1/32$ it diverges. The cause is open (§3.7).
+- **The coarsest mesh**, $H=1/32$, is unbounded late in the run at every $N$ (§3.7).
+- **Re-initialization interval.** At $\Delta t_{tls}=0.25$, inside his range of 0.01–0.5, the run
+  diverges at $t=5.69$ after 22 events (appendix).
+- **$\psi$ under re-initialization.** Under strain the rebuilt $\psi$'s normal is worse than that of
+  the $\phi$ it is seeded from (§3.4).
+- **Not in the code.** Saini's configuration runs only on the scratch file. The committed events path
+  is not his (appendix, first row). Porting it is `../../NEXT_SESSION.md` item 1.
+- **Boundedness of the shipped cases.** Transport at $\xi=1$ is bounded only to $2$–$3\times10^{-3}$,
+  at every $H$.
 - **Housekeeping.** `rider_h192` has never run. `rider_kothe_xi10` ends at $t=8.00008$.
 
 ## 5. Running
@@ -270,6 +409,30 @@ genmeshbox 0 1 0 1 -0.1 0 64 64 1 .true. .true. .true.   # box.nmsh, H = 1/64
 
 Every animation also ships as a GIF.
 
+**Saini's configuration against his code, over his grid** (`logs/s45_2026-10-12/figs_saini45.py`; §3.7).
+Ours is CDI with his $\psi$ configuration at $\gamma=0.5$. His is his own code on the same cell. Error
+norms are in his normalisation: ours divided by 13.147.
+- **`rider_saini45_map.png`:** where our method does well. Ours over his for $E_r$, $E_s$, $|E_v|$ and
+  the worst violation, per cell of $H\in\{1/32,1/64,1/128\}\times N\in\{4,5,6\}$.
+  - $E_r$ is 0.48–0.92× his in seven of eight cells.
+  - The worst violation is 0.01–0.02× his at $H\ge1/64$, $N\le5$.
+  - $E_s$ is 0.94–3.2× his.
+  - $|E_v|$ is at our solver tolerance.
+  - $H=1/32$, $N=6$ diverged.
+- **`rider_saini45_fig17.png`:** his Fig. 17, $E_r$, $|E_v|$ and $E_s$ at $t=8$ against $N$, one curve
+  per $H$. Ours solid, his dotted, his $N=3$ at $H=1/128$ included.
+- **`rider_saini45_fig20.png`:** his Fig. 20 as the worst violation against $t$, per $H$ and $N$, on a
+  log scale. His figure plots $\max|\psi|$, overshoot only.
+  - At $N=4$–5, $H\ge1/64$, ours has a per-frame median of $10^{-11}$–$10^{-8}$ and a maximum of about
+    $10^{-3}$.
+  - At $N=6$, 40% of frames exceed $10^{-3}$ at $H=1/64$, and 19% at $H=1/128$. At $H=1/32$ the
+    violation grows late in the run.
+  - His sits at $10^{-2}$–$10^{-1}$ throughout.
+  - Source: `logs/s45_2026-10-12/tables/full_*.txt`, column 3.
+- **`rider_saini45_fig21.png`:** his Fig. 21, the 0.5 contour at $t=8$ for $H=1/32$, 1/64 and 1/128
+  against the exact circle, per $N$. Ours is on top, his below; ours at $H=1/64$, $N=6$ is the ragged
+  one.
+
 **From `visualize.ipynb`** (`rider_kothe_xi10`, `rider_h128`):
 - **`rider_snapshots.png`:** $\phi$ and $\psi$ at $t=4$ and $t=8$, $H=1/64$, against the
   marker-advected exact interface (dashed).
@@ -279,39 +442,26 @@ Every animation also ships as a GIF.
 - **`rider_grad_psi.png`:** band $|\nabla\psi|$ against $t$ at $H=1/64$ and 1/128 (mean, and the
   5–95% range shaded).
 
-**From `logs/anim/anim_rk.py` and `logs/figs/figs_rk.py`** (local). In these legends, "run 2" is
-Saini's re-initialization settings without dealiasing and guard (appendix), "Run A" is §3.4's
-"Saini's settings, our $\Delta\tau$", and "run 1" is BDF2 with the printed SVV at width $\varepsilon$
-(appendix).
-- **`rider_transport.mp4`:** transport only, $H=1/64$ and 1/128 side by side, every 0.08. Yellow
-  marks anything below 0; the patch at $H=1/128$ from $t\approx6.7$ is below $10^{-6}$.
-- **`rider_convergence.png`:** $E_r(8)$ against $H$ (with run 2 beside it), and against $\xi$ with
-  each point's worst violation.
-- **`rider_redistancing_normals.png`:** $\psi$'s normal against the exact interface on ten frames
-  next to events, and $E_r(8)$, for transport only and four events runs.
-- **`rider_redistancing_during.png`:** $\psi$'s normal at every frame, and the band-mean
-  $|\nabla\psi|$ before and after each event, for transport only, run 2 and Run A.
-- **`rider_redistancing_contours.png`:** $\phi=0.5$ against the exact interface at $t=4$ (whole domain
-  and the tail, whose tip no run reaches) and at $t=8$, for transport only, run 2 and Run A.
-- **`rider_redistancing_dealias.mp4`:** transport only, run 2 and Run A. At $t=4$ Run A's $\psi=0$
-  wiggles along the outer arm; at $t=8$ both rebuilt zero contours are ragged across the top of the
-  disk.
-- **`rider_redistancing_events.mp4`:** transport only, the committed events path, run 1 and run 2.
-  The top row is $\phi$; the bottom row is $\psi$, with its zero contour solid. At the tail tip the
-  rebuilt zero contour stops where $\phi$'s does, while transport's follows the exact interface.
-
 ## Appendix: other configurations
 
-These runs are not in Saini's configuration. Scratch user files: `logs/d5_2026-10-06/rider_kothe_0c.f90`
-and `logs/d6_2026-10-07/rider_kothe_d6.f90`. Columns: $E_r$, $E_s$, worst violation, $\phi$ pieces
-at $t=3$–6, and $\psi$'s normal at $t=2$–5 / $t=8$.
+These runs are not in Saini's configuration. Scratch user files: `logs/d5_2026-10-06/rider_kothe_0c.f90`,
+`logs/d6_2026-10-07/rider_kothe_d6.f90` and `logs/s45_2026-10-12/rider_kothe_s45.f90`. Columns:
+$E_r$, $E_s$, $|E_v|$ at $t=8$, worst violation, $\phi$ pieces at $t=3.04$, 4, 5.04 and 6, and
+$\psi$'s normal on those frames' events at $t=2$–5 / $t=8$. Rows without $|E_v|$ predate its
+measurement. $H=1/64$, $\xi=1$, $\gamma=1$ unless stated.
 
 | run (source) | how it differs from Saini | numbers | note |
 |---|---|---|---|
-| committed events path (`events_2026-10-05/rk_events`) | SSP-RK3, uniform-$\lvert\mathbf c\rvert$ SVV (`svv_step_imp`), width $\varepsilon$, $2.5H$, $\Delta\tau=0.1h_{\text{GLL,min}}$, no dealiasing or guard | 0.835, 0.340, 0.41, 9–60, 12–47° / 86° | its SVV step makes $\psi$'s spurious zero sets; each reseed copies $\phi$'s fragments (98 pieces at $t=8$) |
-| run 1 (`d5_2026-10-06/rider_bdf2_eq31`) | BDF2 and the printed Eq. (31), but width $\varepsilon$, $2.5H$, no dealiasing or guard | 0.0960, 0.0367, $6.4\times10^{-3}$, 2–7, 5.7–12° / 54° | $\phi$'s thin tail breaks from $t\approx2.5$; the reseeds copy the breaks |
-| run 2 (`d5_2026-10-06/rider_bdf2_eq31_s025_25H`) | Saini's settings without dealiasing and guard | 0.0342, 0.0147, $6.2\times10^{-4}$, 2–3, 1.0–2.6° / 29° | the best $\phi$ of all runs; $\psi$'s band $\lvert\nabla\psi\rvert$ 1.66 |
-| run 2 at $H=1/128$ (`d5_2026-10-06/rider_h128_bdf2_eq31_s025_25H`) | the same | 0.0085, 0.0045, $1.3\times10^{-3}$, 1, 0.5–1.1° / 7.3° | transport: 0.0104; band $\lvert\nabla\psi\rvert$ 2.7 |
+| $\Delta t_{tls}=1.0$ (`s45_2026-10-12/s3_tls10`) | 8 events instead of 16 | 0.0358, 0.0163, $8.7\times10^{-7}$, $9.3\times10^{-4}$, 1–2, 4.4–7.8° / 21° | $E_s$ −10% against 0.5, outside the ±3% noise band |
+| $\Delta t_{tls}=0.25$ (`s45_2026-10-12/s3_tls025`) | 32 events | diverged at $t=5.69$ after 22 events | a $\phi$ undershoot within $0.01$ of the exact interface at (0.26, 0.155) grows from $-0.11$ at $t=5.52$ to $-2.1$ at 5.68 |
+| our $\Delta\tau$, uniform $\lvert\mathbf c\rvert$, BDF3 (`d6_2026-10-07/runA_s025_25H_dg`) | $\Delta\tau=0.1h_{\text{GLL,min}}$ (2129 steps), uniform $\lvert\mathbf c\rvert$ on `svv_psi`, BDF3 | 0.0402, 0.0173, $3.4\times10^{-6}$, $7.1\times10^{-4}$, 2–3, 4.3–8.2° / 29° | |
+| the same, local $\lvert\mathbf c\rvert$ (`s45_2026-10-12/r1_runB`) | our $\Delta\tau$, BDF3 | 0.0446, 0.0210, $3.3\times10^{-8}$, $9.9\times10^{-4}$, 3–4, 4.3–8.5° / 30° | outside the noise band |
+| the same, his $\Delta\tau$ (`s45_2026-10-12/r2_runB_dtau`) | BDF3 | 0.0374, 0.0178, $1.1\times10^{-8}$, $9.9\times10^{-4}$, 3, 4.3–8.6° / 25° | just below the band |
+| his $\Delta\tau$, uniform $\lvert\mathbf c\rvert$, BDF3 (`d5/rk_eLf`) | as the first of these three, with his $\Delta\tau$ | 0.0407, 0.0179, $3.6\times10^{-6}$, $8.9\times10^{-4}$, 3, 4.3–8.2° / 29° | before the velocity fix |
+| committed events path (`events_2026-10-05/rk_events`) | SSP-RK3, uniform-$\lvert\mathbf c\rvert$ SVV (`svv_step_imp`), width $\varepsilon$, $2.5H$, $\Delta\tau=0.1h_{\text{GLL,min}}$, no dealiasing or guard | 0.835, 0.340, $1.0\times10^{-5}$, 0.41, 9–60, 12–47° / 86° | its SVV step makes $\psi$'s spurious zero sets; each reseed copies $\phi$'s fragments (98 pieces at $t=8$) |
+| run 1 (`d5_2026-10-06/rider_bdf2_eq31`) | BDF2 and the printed Eq. (31), but width $\varepsilon$, $2.5H$, no dealiasing or guard | 0.0960, 0.0367, $1.4\times10^{-5}$, $6.4\times10^{-3}$, 2–7, 5.7–12° / 54° | $\phi$'s thin tail breaks from $t\approx2.5$; the reseeds copy the breaks |
+| run 2 (`d5_2026-10-06/rider_bdf2_eq31_s025_25H`) | Saini's settings without dealiasing and guard | 0.0342, 0.0147, $3.4\times10^{-6}$, $6.2\times10^{-4}$, 2–3, 1.0–2.6° / 29° | the best $\phi$ of all runs; $\psi$'s band $\lvert\nabla\psi\rvert$ 1.66 |
+| run 2 at $H=1/128$ (`d5_2026-10-06/rider_h128_bdf2_eq31_s025_25H`) | the same | 0.0085, 0.0045, $1.2\times10^{-7}$, $1.3\times10^{-3}$, 1, 0.5–1.1° / 7.3° | band $\lvert\nabla\psi\rvert$ 2.7 |
 | width 0.25 at the printed $2.5H$ | extent | normal 37° off by $t=0.5$; 9.5° and 19 crossed nodes after event 2 | the measured runs stop at $t\approx1$; an earlier full run (before the velocity fix) diverged at $t=7.8$ |
 | after event 2 ($t=1.00016$): committed path | as above | 3 $\psi$ pieces, 228 crossed nodes, zero set up to $3.2\varepsilon$ from $\phi$'s, 6.3° | |
 | after event 2: SSP-RK3 + printed Eq. (31) | | 1, 8, $0.41\varepsilon$, 4.3° | the printed SVV form cuts the crossings from 228 to 8 |

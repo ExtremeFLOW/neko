@@ -12,7 +12,9 @@ from the phase field $\phi$'s own gradient.
 
 ## Results
 
-All validated results transport $\psi$ from the exact distance, with no re-initialization.
+All validated results transport $\psi$ from the exact distance, with no re-initialization. On
+Rider–Kothe that works only because the flow is reversible on a periodic box; Saini's
+re-initialization (scratch file) is the configuration for general flows.
 
 | Saini | case | configuration | $E_r$ | worst violation | Saini, our normalisation | status |
 |---|---|---|---|---|---|---|
@@ -25,7 +27,25 @@ All validated results transport $\psi$ from the exact distance, with no re-initi
 | §4.4 | [`redistance_circles`](examples/redistance_circles/README.md) | Eq. (44) alone, his configuration, Table 2's four cells, $\tau=6$ | $1.3$–$6.6\times10^{-3}$ | — | ours/his 0.978–1.011 | reproduced |
 | §4.5 | [`rider_kothe`](examples/rider_kothe/README.md) | transport only, $\xi=1$, $H=1/64$, $N=5$, $t=8$ | 0.0452 | $2.6\times10^{-3}$ | 0.0410 | validated |
 | | | the same at $H=1/128$ | 0.0104 | $2.4\times10^{-3}$ | 0.0258 (his $N=3$) | validated |
-| | | re-initialization in his configuration, our $\Delta\tau$ (scratch file) | 0.0402 | $7.1\times10^{-4}$ | 0.0410 | not in the code yet |
+| | | re-initialization in his configuration, $\xi=1$, $\gamma=1$, $H=1/64$, $N=5$ (scratch file) | 0.0379 | $9.2\times10^{-4}$ | 0.0410 | not in the code yet |
+| | | the same at $H=1/128$ | 0.0085 | $9.3\times10^{-4}$ | 0.0119 (his $N=5$) | not in the code yet |
+| | | the same at $\gamma=0.5$, $H=1/64$ / $1/128$ | 0.0268 / 0.0058 | $9.7\times10^{-4}$ / $1.0\times10^{-3}$ | | not in the code yet |
+
+**Rider–Kothe in Saini's three metrics**, his configuration, ours against his code at the same $H$ and
+$N=5$ (`examples/rider_kothe/README.md` §3.4–§3.5):
+
+| $H$ | ours, $\gamma=1$: $E_r$ / $E_s$ / $\lvert E_v\rvert$ | ours, $\gamma=0.5$ | his code |
+|---|---|---|---|
+| 1/64 | 0.0379 / 0.0182 / $4.3\times10^{-6}$ | 0.0268 / 0.0114 / $4.6\times10^{-6}$ | 0.0410 / 0.0121 / $1.5\times10^{-6}$ |
+| 1/128 | 0.0085 / 0.0046 / $3.5\times10^{-7}$ | 0.0058 / 0.0033 / $1.6\times10^{-6}$ | 0.0119 / 0.0016 / $1.9\times10^{-8}$ |
+
+Our $E_r$ is level with or below his, and our phase field stays within about $10^{-3}$ of $[0,1]$ where his
+leaves it by about 5–9%. His shape error is lower: 1.5× lower at $H=1/64$, $\gamma=1$ (level at
+$\gamma=0.5$), and 2–2.8× lower at $H=1/128$. Our $|E_v|$ is at our solver tolerance.
+
+Over his whole Figs. 17–18 grid (`examples/rider_kothe/README.md` §3.7), $h$-refinement works wherever the
+runs complete, but $p$-refinement stops at $N=5$: at $N=6$ our phase field loses boundedness, and at $H=1/32$ it
+diverges. The cause is open.
 
 **The norms.** These are Saini's Eqs. (79)–(81), computed by `examples/norms.py`; `redistance_circles`
 uses his Eq. (84), $\int|\psi-\psi_e|/\int\psi_e$.
@@ -39,8 +59,8 @@ Zalesak primary, and every 0.08 on Rider–Kothe (0.04 at $H=1/96$ and 1/128). Z
 is from the solver's step log (every 200 steps). The primary's 0 holds in the frames; its step log
 has a $2.3\times10^{-8}$ transient at step 1.
 
-**Saini's Rider–Kothe values** are his own code's $t=8$ dumps, rescored with `norms.E_r`: his code
-divides by the area *outside* the disk. His 0.0410 includes his phase-field re-sharpening (Eq. 39);
+**Saini's Rider–Kothe values** are his own code's $t=8$ dumps, rescored with `norms.py`: his code
+divides $E_r$, $E_s$ and $E_v$ by the area *outside* the disk, about 13× ours. His 0.0410 includes his phase-field re-sharpening (Eq. 39);
 without it his code gives 0.208.
 
 **The $\phi$-normal rows** mostly predate the `grad_floor` fix. Read them for direction only.
@@ -49,8 +69,10 @@ Runs in other configurations are in each case README's appendix.
 
 ## Recommended settings
 
-Boundedness comes first: an unbounded phase field, coupled to a flow solver, corrupts densities and
-viscosities. Speed comes last.
+Exact boundedness is not a requirement, but it is nice to have. A phase field that leaves $[0,1]$,
+coupled to a flow solver, corrupts densities and viscosities, so the worst violation is reported next
+to the error norms. Small violations, around $10^{-3}$, are acceptable when they buy shape. Speed
+comes last.
 - **Without strain** (rigid rotation, uniform advection): $\xi\approx1.5$ and a low $\gamma$
   (0.25–0.5).
   - $\xi\ge1.5$ is bounded to round-off at every $\gamma$.
@@ -63,6 +85,12 @@ viscosities. Speed comes last.
   Without it $p$-refinement reverses (`CDI_METHOD.md` §5). There is no SVV on $\phi$.
 - **Refine if you can.** At fixed $\xi$, $h$-refinement improves shape and filament retention
   together.
+- **With Saini's re-initialization** (Rider–Kothe, scratch file), $\gamma=0.5$ beats $\gamma=1$ by
+  29–38% in $E_r$ and $E_s$ at $H=1/64$ and 1/128, at the same worst violation. $\gamma=2$ is worse
+  (`examples/rider_kothe/README.md` §3.5).
+  - $\gamma$ is relative to the flow's peak speed, $\Gamma=\gamma u_{\max}$.
+  - Boundedness against $\gamma$ depends on $\xi$ and the flow (above). On Rider–Kothe, $\gamma=0.5$
+    holds about $10^{-3}$ at $N=5$, $H\ge1/64$, and $\gamma=0.25$ triples the worst violation.
 
 $\xi=\varepsilon N/H$ is the interface width in units of $H/N$. It is **$N$ times Saini's $\xi$**
 (`CDI_METHOD.md` §1).
