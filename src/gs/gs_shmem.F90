@@ -180,8 +180,17 @@ contains
          NEKO_COMM, ierr)
 
     ! Sized for up to GS_VEC_NC components so the fused vector path can
-    ! reuse the same symmetric buffer; the scalar path uses the first
-    ! max_total elements.
+    ! reuse the same symmetric buffer. Peer i's slab starts at
+    ! GS_VEC_NC*offset(i) for EVERY round type: a scalar round uses its
+    ! first ndofs(i) entries, a fused nc-component round its first
+    ! nc*ndofs(i). The slabs have to be disjoint across peers regardless
+    ! of the round type because the per-peer ack only protects the acking
+    ! peer's own slab: a peer that has been acked may already be putting
+    ! its next round while slabs from slower peers are still being
+    ! reduced. Scalar rounds at 1*offset and fused rounds at nc*offset,
+    ! as this backend first did, let peer i's fused slab overlap peer j's
+    ! scalar slab and corrupted the halo whenever the two round types
+    ! alternated on one instance (fluid_pnpn does so every step).
     sz = c_sizeof(rp_dummy) * int(max(GS_VEC_NC*this%max_total, 1), c_size_t)
     this%buf_ptr = shmem_malloc(sz)
     if (.not. c_associated(this%buf_ptr)) then
@@ -275,6 +284,11 @@ contains
 
     this%iter = 0
     this%vec_supported = .true.
+    ! The vector slabs are part of the symmetric/registered allocation
+    ! made above, which every rank has to take part in, so they cannot
+    ! be deferred to the first fused exchange: a rank with no shared
+    ! dofs never reaches it. See gs_comm_t%vec_ready.
+    this%vec_ready = .true.
 
     ! Ensure all PEs have completed symmetric allocation before any
     ! one-sided communication is issued.
@@ -343,7 +357,7 @@ contains
     call c_f_pointer(this%send_buf%buf_ptr, send_data, &
          [max(this%send_buf%max_total, 1)])
     call c_f_pointer(this%recv_buf%buf_ptr, recv_data, &
-         [max(this%recv_buf%max_total, 1)])
+         [max(GS_VEC_NC*this%recv_buf%max_total, 1)])
     call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
     call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
@@ -374,7 +388,7 @@ contains
           nbytes = int(ndst, c_size_t) * c_sizeof(rp_dummy)
           ! Put data + signal dst's data_signals[my_rank].
           call shmem_putmem_signal_nbi( &
-               c_loc(recv_data(this%send_buf%remote_offset(i) + 1)), &
+               c_loc(recv_data(GS_VEC_NC*this%send_buf%remote_offset(i) + 1)), &
                c_loc(send_data(base + 1)), &
                nbytes, &
                c_loc(data_signals(pe_rank + 1)), &
@@ -415,7 +429,7 @@ contains
           !$omp master
           nbytes = int(ndst, c_size_t) * c_sizeof(rp_dummy)
           call shmem_putmem_signal_nbi( &
-               c_loc(recv_data(this%send_buf%remote_offset(i) + 1)), &
+               c_loc(recv_data(GS_VEC_NC*this%send_buf%remote_offset(i) + 1)), &
                c_loc(send_data(base + 1)), &
                nbytes, &
                c_loc(data_signals(pe_rank + 1)), &
@@ -451,7 +465,7 @@ contains
 #ifdef HAVE_OPENSHMEM
 
     call c_f_pointer(this%recv_buf%buf_ptr, recv_data, &
-         [max(this%recv_buf%max_total, 1)])
+         [max(GS_VEC_NC*this%recv_buf%max_total, 1)])
     call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
     call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
@@ -462,7 +476,8 @@ contains
     ! parallelism within the slab instead.
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
-       base = this%recv_buf%offset(i)
+       ! Slab at the GS_VEC_NC stride whatever the round type, see buf_init
+       base = GS_VEC_NC*this%recv_buf%offset(i)
        nsrc = this%recv_buf%ndofs(i)
 
        ! Wait for data from src; data_signals[src] is set by src's put.
@@ -562,7 +577,7 @@ contains
     call c_f_pointer(this%send_buf%buf_ptr, send_data, &
          [max(nc*this%send_buf%max_total, 1)])
     call c_f_pointer(this%recv_buf%buf_ptr, recv_data, &
-         [max(nc*this%recv_buf%max_total, 1)])
+         [max(GS_VEC_NC*this%recv_buf%max_total, 1)])
     call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
     call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
@@ -588,7 +603,7 @@ contains
 
           nbytes = int(nc*ndst, c_size_t) * c_sizeof(rp_dummy)
           call shmem_putmem_signal_nbi( &
-               c_loc(recv_data(nc*this%send_buf%remote_offset(i) + 1)), &
+               c_loc(recv_data(GS_VEC_NC*this%send_buf%remote_offset(i) + 1)), &
                c_loc(send_data(nc*base + 1)), &
                nbytes, &
                c_loc(data_signals(pe_rank + 1)), &
@@ -619,7 +634,7 @@ contains
           !$omp master
           nbytes = int(nc*ndst, c_size_t) * c_sizeof(rp_dummy)
           call shmem_putmem_signal_nbi( &
-               c_loc(recv_data(nc*this%send_buf%remote_offset(i) + 1)), &
+               c_loc(recv_data(GS_VEC_NC*this%send_buf%remote_offset(i) + 1)), &
                c_loc(send_data(nc*base + 1)), &
                nbytes, &
                c_loc(data_signals(pe_rank + 1)), &
@@ -653,7 +668,7 @@ contains
 #ifdef HAVE_OPENSHMEM
 
     call c_f_pointer(this%recv_buf%buf_ptr, recv_data, &
-         [max(nc*this%recv_buf%max_total, 1)])
+         [max(GS_VEC_NC*this%recv_buf%max_total, 1)])
     call c_f_pointer(this%data_signals_ptr, data_signals, [pe_size])
     call c_f_pointer(this%ack_signals_ptr, ack_signals, [pe_size])
 
@@ -661,7 +676,8 @@ contains
     ! lists); parallelism is taken within each slab. See gs_shmem_nbwait.
     do i = 1, size(this%recv_pe)
        src = this%recv_pe(i)
-       base = this%recv_buf%offset(i)
+       ! Slab at the GS_VEC_NC stride whatever nc is, see buf_init
+       base = GS_VEC_NC*this%recv_buf%offset(i)
        nsrc = this%recv_buf%ndofs(i)
 
        !$omp master
@@ -677,7 +693,7 @@ contains
           do j = 1, nsrc
              do c = 1, nc
                 u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) + &
-                     recv_data(nc*base + (c-1)*nsrc + j)
+                     recv_data(base + (c-1)*nsrc + j)
              end do
           end do
           !$omp end do
@@ -686,7 +702,7 @@ contains
           do j = 1, nsrc
              do c = 1, nc
                 u((c-1)*n + sp(j)) = u((c-1)*n + sp(j)) * &
-                     recv_data(nc*base + (c-1)*nsrc + j)
+                     recv_data(base + (c-1)*nsrc + j)
              end do
           end do
           !$omp end do
@@ -695,7 +711,7 @@ contains
           do j = 1, nsrc
              do c = 1, nc
                 u((c-1)*n + sp(j)) = min(u((c-1)*n + sp(j)), &
-                     recv_data(nc*base + (c-1)*nsrc + j))
+                     recv_data(base + (c-1)*nsrc + j))
              end do
           end do
           !$omp end do
@@ -704,7 +720,7 @@ contains
           do j = 1, nsrc
              do c = 1, nc
                 u((c-1)*n + sp(j)) = max(u((c-1)*n + sp(j)), &
-                     recv_data(nc*base + (c-1)*nsrc + j))
+                     recv_data(base + (c-1)*nsrc + j))
              end do
           end do
           !$omp end do

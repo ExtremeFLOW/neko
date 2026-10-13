@@ -1,0 +1,222 @@
+/*
+ Copyright (c) 2026, The Neko Authors
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+
+   * Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+
+   * Redistributions in binary form must reproduce the above
+     copyright notice, this list of conditions and the following
+     disclaimer in the documentation and/or other materials provided
+     with the distribution.
+
+   * Neither the name of the authors nor the names of its
+     contributors may be used to endorse or promote products derived
+     from this software without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#include <stdio.h>
+#include "bicgstab_kernel.h"
+#include <device/device_config.h>
+#include <device/cuda/check.h>
+#include <device/cuda/buffer.h>
+
+#ifdef HAVE_NVSHMEM
+#include <nvshmem.h>
+#include <nvshmemx.h>
+#endif
+
+extern "C" {
+
+#include <math/bcknd/device/device_mpi_reduce.h>
+#include <math/bcknd/device/device_mpi_op.h>
+
+#ifdef HAVE_NCCL
+#include <math/bcknd/device/device_nccl_reduce.h>
+#include <math/bcknd/device/device_nccl_op.h>
+#endif
+
+  /**
+   * Reduction buffer, owned by the device layer and released on
+   * device teardown (cuda_buffer_free_all in cuda_finalize)
+   */
+  cuda_buffer_t bicgstab_redbuf = CUDA_BUFFER_INIT_SYMM;
+
+  /**
+   * Sum @a count contiguous values across all ranks and stage the result
+   * in the pinned host buffer
+   */
+  static void bicgstab_reduce(real_xp *host, real_xp *dev, const int count,
+                              cudaStream_t stream) {
+#ifdef HAVE_NCCL
+    device_nccl_allreduce(dev, dev, count, sizeof(real_xp),
+                          DEVICE_NCCL_SUM, stream);
+    CUDA_CHECK(cudaMemcpyAsync(host, dev, count * sizeof(real_xp),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_NVSHMEM
+    if (sizeof(real_xp) == sizeof(float)) {
+      nvshmemx_float_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD, (float *) dev,
+                                          (float *) dev, count, stream);
+    }
+    else if (sizeof(real_xp) == sizeof(double)) {
+      nvshmemx_double_sum_reduce_on_stream(NVSHMEM_TEAM_WORLD, (double *) dev,
+                                           (double *) dev, count, stream);
+    }
+    CUDA_CHECK(cudaMemcpyAsync(host, dev, count * sizeof(real_xp),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#elif HAVE_DEVICE_MPI
+    cudaStreamSynchronize(stream);
+    device_mpi_allreduce(dev, host, count, sizeof(real_xp), DEVICE_MPI_SUM);
+#else
+    CUDA_CHECK(cudaMemcpyAsync(host, dev, count * sizeof(real_xp),
+                               cudaMemcpyDeviceToHost, stream));
+    cudaStreamSynchronize(stream);
+#endif
+  }
+
+  /**
+   * Fortran wrapper for the BiCGStab search direction update
+   * \f$ p = r + \beta (p - \omega v) \f$
+   */
+  void cuda_bicgstab_update_p(void *p, void *r, void *v, real *beta,
+                              real *omega, int *n) {
+
+    if (*n <= 0)
+      return;
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    bicgstab_update_p_kernel<real>
+      <<<nblcks, nthrds, 0, stream>>>((real *) p, (real *) r, (real *) v,
+                                      *beta, *omega, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
+  /**
+   * Fortran wrapper for a weighted inner product and squared norm,
+   * \f$ (a^T M b, b^T M b) \f$
+   */
+  void cuda_bicgstab_product_and_norm(void *a, void *b, void *mult,
+                                      real_xp *res, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1) / 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    cuda_buffer_reserve(&bicgstab_redbuf,
+                        2 * (nb > 1 ? nb : 1) * sizeof(real_xp));
+    real_xp *host = (real_xp *) bicgstab_redbuf.host;
+    real_xp *dev = (real_xp *) bicgstab_redbuf.dev;
+
+    if (*n > 0) {
+      bicgstab_product_and_norm_kernel<real, real_xp>
+        <<<nblcks, nthrds, 0, stream>>>((real *) a, (real *) b, (real *) mult,
+                                        dev, *n);
+      CUDA_CHECK(cudaGetLastError());
+      glsc3_reduce_kernel<real_xp><<<2, 1024, 0, stream>>>(dev, nb, 2);
+      CUDA_CHECK(cudaGetLastError());
+    }
+    else {
+      CUDA_CHECK(cudaMemsetAsync(dev, 0, 2 * sizeof(real_xp), stream));
+    }
+
+    bicgstab_reduce(host, dev, 2, stream);
+    res[0] = host[0];
+    res[1] = host[1];
+  }
+
+  /**
+   * Fortran wrapper for BiCGStab part 1, \f$ s = r - \alpha v \f$,
+   * returning \f$ s^T M s \f$
+   */
+  real_xp cuda_bicgstab_part1(void *s, void *r, void *v, void *mult,
+                              real *alpha, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1) / 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    cuda_buffer_reserve(&bicgstab_redbuf,
+                        2 * (nb > 1 ? nb : 1) * sizeof(real_xp));
+    real_xp *host = (real_xp *) bicgstab_redbuf.host;
+    real_xp *dev = (real_xp *) bicgstab_redbuf.dev;
+
+    if (*n > 0) {
+      bicgstab_part1_kernel<real, real_xp>
+        <<<nblcks, nthrds, 0, stream>>>((real *) s, (real *) r, (real *) v,
+                                        (real *) mult, dev, *alpha, *n);
+      CUDA_CHECK(cudaGetLastError());
+      reduce_kernel<real_xp><<<1, 1024, 0, stream>>>(dev, nb);
+      CUDA_CHECK(cudaGetLastError());
+    }
+    else {
+      CUDA_CHECK(cudaMemsetAsync(dev, 0, sizeof(real_xp), stream));
+    }
+
+    bicgstab_reduce(host, dev, 1, stream);
+    return host[0];
+  }
+
+  /**
+   * Fortran wrapper for BiCGStab part 2,
+   * \f$ x = x + \alpha \hat{p} + \omega \hat{s} \f$ and
+   * \f$ r = s - \omega t \f$, returning
+   * \f$ (r^T M r, f^T M r) \f$
+   */
+  void cuda_bicgstab_part2(void *x, void *r, void *p_hat, void *s_hat,
+                           void *s, void *t, void *f, void *mult,
+                           real *alpha, real *omega, real_xp *res, int *n) {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1) / 1024;
+    const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+    cuda_buffer_reserve(&bicgstab_redbuf,
+                        2 * (nb > 1 ? nb : 1) * sizeof(real_xp));
+    real_xp *host = (real_xp *) bicgstab_redbuf.host;
+    real_xp *dev = (real_xp *) bicgstab_redbuf.dev;
+
+    if (*n > 0) {
+      bicgstab_part2_kernel<real, real_xp>
+        <<<nblcks, nthrds, 0, stream>>>((real *) x, (real *) r,
+                                        (real *) p_hat, (real *) s_hat,
+                                        (real *) s, (real *) t, (real *) f,
+                                        (real *) mult, dev,
+                                        *alpha, *omega, *n);
+      CUDA_CHECK(cudaGetLastError());
+      glsc3_reduce_kernel<real_xp><<<2, 1024, 0, stream>>>(dev, nb, 2);
+      CUDA_CHECK(cudaGetLastError());
+    }
+    else {
+      CUDA_CHECK(cudaMemsetAsync(dev, 0, 2 * sizeof(real_xp), stream));
+    }
+
+    bicgstab_reduce(host, dev, 2, stream);
+    res[0] = host[0];
+    res[1] = host[1];
+  }
+}

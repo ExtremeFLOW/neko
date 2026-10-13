@@ -26,9 +26,13 @@ The templates cover every type currently supported by factory-based injection:
 - `krylov_solver_template.f90` — `ksp_t`
 - `ax_helm_template.f90` — `ax_t` Helmholtz matrix-vector product
 - `scalar_scheme_template.f90` — `scalar_scheme_t`
+- `scalar_pnpn_bc_template.f90` — scalar Pn/Pn `bc_t`
+- `fluid_pnpn_bc_template.f90` — fluid Pn/Pn velocity `bc_t` (pressure
+  conditions register through `register_fluid_pnpn_pressure_bc`)
 
 The executable bodies are safe, minimal starting points rather than useful
 models: the LES and wall-model templates produce zero additional effects; the
-preconditioner and Ax templates are identities; and the Krylov template stops
-with an explicit error until its solve routine is implemented. Replace the
-marked `TODO` sections with the actual algorithm.
+preconditioner and Ax templates are identities; and the Krylov, scalar Pn/Pn
+and fluid Pn/Pn boundary-condition templates stop with an explicit error until their solve and
+apply routines are implemented. Replace the marked `TODO` sections with the
+actual algorithm.

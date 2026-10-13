@@ -148,7 +148,7 @@ contains
     class(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: omega(3)
     real(kind=rp), intent(in) :: u_geo(3)
-    type(coef_t) :: coef
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
 

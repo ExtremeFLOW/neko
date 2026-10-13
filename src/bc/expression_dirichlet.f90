@@ -33,7 +33,7 @@
 !> Defines a Dirichlet condition prescribed by a mathematical expression
 module expression_dirichlet
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use coefs, only : coef_t
   use expression, only : expression_t, expression_check_finite
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -122,6 +122,7 @@ contains
 
     call this%free()
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     if (len_trim(str) .eq. 0) then
        call neko_error("An expression boundary condition needs a non-empty " &
@@ -337,8 +338,8 @@ contains
     real(kind=rp), intent(inout) :: ym(:)
     real(kind=rp), intent(inout) :: zm(:)
 
-    call gather_coords(bc%msk, bc%msk(0), bc%dof%x, bc%dof%y, bc%dof%z, &
-         size(bc%dof%x), xm, ym, zm)
+    call gather_coords(bc%msk, bc%msk(0), bc%dof%x%x, bc%dof%y%x, bc%dof%z%x, &
+         bc%dof%size(), xm, ym, zm)
 
   end subroutine expression_mask_coords
 

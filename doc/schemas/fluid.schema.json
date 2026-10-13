@@ -535,6 +535,9 @@
         "advection": {
           "type": "boolean"
         },
+        "svv": {
+          "$ref": "urn:neko:schema:common#/$defs/svv"
+        },
         "schwarz_iterations": {
           "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"
         },

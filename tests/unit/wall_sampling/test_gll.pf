@@ -98,7 +98,7 @@ contains
     type(coef_t), intent(in) :: coef
 
     call field%init(coef%dof)
-    field%x = coef%dof%x
+    field%x = coef%dof%x%x
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call field%copy_from(HOST_TO_DEVICE, sync = .true.)
     end if
@@ -179,8 +179,8 @@ contains
 
     @assertEqual(sampler%n_nodes, 2)
     @assertEqual(sampler%n_samples, 2)
-    @assertEqual(values%x(1), coef%dof%x(2, 2, 2, 1), tolerance=tol)
-    @assertEqual(values%x(4), coef%dof%x(3, 3, 2, 1), tolerance=tol)
+    @assertEqual(values%x(1), coef%dof%x%x(2, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(4), coef%dof%x%x(3, 3, 2, 1), tolerance=tol)
 
     call values%free()
     call h%free()
@@ -235,10 +235,10 @@ contains
     end if
 
     ! Values are ordered `(node 1, sample 1..2), (node 2, sample 1..2)`.
-    @assertEqual(values%x(1), coef%dof%x(2, 2, 2, 1), tolerance=tol)
-    @assertEqual(values%x(2), coef%dof%x(3, 2, 2, 1), tolerance=tol)
-    @assertEqual(values%x(3), coef%dof%x(2, 3, 2, 1), tolerance=tol)
-    @assertEqual(values%x(4), coef%dof%x(3, 3, 2, 1), tolerance=tol)
+    @assertEqual(values%x(1), coef%dof%x%x(2, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(2), coef%dof%x%x(3, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(3), coef%dof%x%x(2, 3, 2, 1), tolerance=tol)
+    @assertEqual(values%x(4), coef%dof%x%x(3, 3, 2, 1), tolerance=tol)
     expected_h = values%x(1) - 1.0_rp
     @assertEqual(sampler%h%x(1), expected_h, tolerance=tol)
 
@@ -291,10 +291,10 @@ contains
     end if
 
     ! The callback reverses the two indices for the second wall node.
-    @assertEqual(values%x(1), coef%dof%x(2, 2, 2, 1), tolerance=tol)
-    @assertEqual(values%x(2), coef%dof%x(3, 2, 2, 1), tolerance=tol)
-    @assertEqual(values%x(3), coef%dof%x(3, 3, 2, 1), tolerance=tol)
-    @assertEqual(values%x(4), coef%dof%x(2, 3, 2, 1), tolerance=tol)
+    @assertEqual(values%x(1), coef%dof%x%x(2, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(2), coef%dof%x%x(3, 2, 2, 1), tolerance=tol)
+    @assertEqual(values%x(3), coef%dof%x%x(3, 3, 2, 1), tolerance=tol)
+    @assertEqual(values%x(4), coef%dof%x%x(2, 3, 2, 1), tolerance=tol)
 
     call sampler%free()
     call values%free()

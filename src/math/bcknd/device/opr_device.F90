@@ -1068,22 +1068,22 @@ contains
 
 #ifdef HAVE_HIP
     call hip_rotate_cyc(vx_d, vy_d, vz_d, &
-         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
          ncyc, idir)
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
-         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
          ncyc, idir)
 #elif HAVE_OPENCL
     call opencl_rotate_cyc(vx_d, vy_d, vz_d, &
-         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
          ncyc, idir)
 #elif HAVE_METAL
     call metal_rotate_cyc(vx_d, vy_d, vz_d, &
-         coef%dof%x_d, coef%dof%y_d, coef%dof%z_d, &
+         coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
          coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
          ncyc, idir)
 #else

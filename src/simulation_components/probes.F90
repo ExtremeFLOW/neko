@@ -465,9 +465,9 @@ contains
        idx = zone%mask%get(i)
 
        nlindex = nonlinear_index(idx, lx, lx, lx)
-       x = dof%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       y = dof%y(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
-       z = dof%z(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       x = dof%x%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       y = dof%y%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
+       z = dof%z%x(nlindex(1), nlindex(2), nlindex(3), nlindex(4))
 
        point_list(:, i) = [x, y, z]
     end do
@@ -862,7 +862,7 @@ contains
        end select
 
        !! Register the execution of the activity
-       call this%output_controller%register_execution()
+       call this%output_controller%register_execution(time)
     end if
 
   end subroutine probes_evaluate_and_write
@@ -934,6 +934,8 @@ contains
        call mat_in2%init(3, n_global_probes)
        call f%read(mat_in)
        call trsp(xyz, 3, mat_in%x, n_global_probes)
+       call mat_in%free()
+       call mat_in2%free()
     else
        n_local_probes = 0
        allocate(xyz(3, n_local_probes))

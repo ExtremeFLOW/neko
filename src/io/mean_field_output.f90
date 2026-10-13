@@ -186,9 +186,11 @@ contains
             call this%map_1d%average_planes(avg_output_1d, &
                  this%fields)
             call this%file_%write(avg_output_1d, t)
+            call avg_output_1d%free()
          else if (this%output_dim .eq. 2) then
             call this%map_2d%average(output_2d, this%fields)
             call this%file_%write(output_2d, t)
+            call output_2d%free()
          else
             call this%file_%write(this%fields, t)
          end if

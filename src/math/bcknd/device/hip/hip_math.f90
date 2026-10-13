@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -454,6 +454,14 @@ module hip_math
        real(c_rp) :: ninf
        integer(c_int) :: n
      end function hip_glmax
+
+     real(c_rp) function hip_glamax(a_d, n, strm) &
+          bind(c, name = 'hip_glamax')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: n
+     end function hip_glamax
 
      real(c_rp) function hip_glmin(a_d, pinf, n, strm) &
           bind(c, name = 'hip_glmin')

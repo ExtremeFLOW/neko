@@ -43,6 +43,8 @@ submodule (krylov) krylov_fctry
   use fusedcg_device, only : fusedcg_device_t
   use fusedcg_cpld_device, only : fusedcg_cpld_device_t
   use bicgstab, only : bicgstab_t
+  use bicgstab_cpld, only : bicgstab_cpld_t
+  use bicgstab_device, only : bicgstab_device_t
   use gmres, only : gmres_t
   use cheby, only : cheby_t
   use cheby_device, only : cheby_device_t
@@ -55,7 +57,7 @@ submodule (krylov) krylov_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
+  character(len=20) :: KSP_KNOWN_TYPES(10) = [character(len=20) :: &
        "cg", &
        "pipecg", &
        "fused_cg", &
@@ -63,6 +65,7 @@ submodule (krylov) krylov_fctry
        "gmres", &
        "cheby", &
        "bicgstab", &
+       "coupled_bicgstab", &
        "fused_coupled_cg", &
        "coupled_cg"]
 
@@ -174,7 +177,18 @@ contains
        end if
 
     case ('bicgstab')
-       allocate(bicgstab_t::object)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(bicgstab_device_t::object)
+       else
+          allocate(bicgstab_t::object)
+       end if
+
+    case ('coupled_bicgstab')
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error('Coupled BiCGStab is not supported on devices')
+       else
+          allocate(bicgstab_cpld_t::object)
+       end if
 
     case default
        do i = 1, krylov_registry_size

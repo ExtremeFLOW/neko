@@ -107,8 +107,11 @@ static void compressible_res_dispatch(id<MTLCommandBuffer> cmdBuf,
 /**
  * Viscous part of the compressible residual on the Metal GPU.
  */
-void compressible_res_part_visc_metal(void *rhs, void *Binv, void *lap_sol,
-                               void *effective_visc, int *n) {
+void compressible_res_part_visc_metal(void *rhs_rho, void *rhs_m_x,
+                               void *rhs_m_y, void *rhs_m_z, void *rhs_E,
+                               void *visc_rho, void *visc_m_x, void *visc_m_y,
+                               void *visc_m_z, void *visc_E,
+                               void *Binv, void *h1, int *n) {
 
   if (*n <= 0)
     return;
@@ -121,11 +124,19 @@ void compressible_res_part_visc_metal(void *rhs, void *Binv, void *lap_sol,
 
   [enc setComputePipelineState:pso_visc];
 
-  [enc setBuffer:(__bridge id<MTLBuffer>)rhs            offset:0 atIndex:0];
-  [enc setBuffer:(__bridge id<MTLBuffer>)Binv           offset:0 atIndex:1];
-  [enc setBuffer:(__bridge id<MTLBuffer>)lap_sol        offset:0 atIndex:2];
-  [enc setBuffer:(__bridge id<MTLBuffer>)effective_visc offset:0 atIndex:3];
-  [enc setBytes:n length:sizeof(int) atIndex:4];
+  [enc setBuffer:(__bridge id<MTLBuffer>)rhs_rho  offset:0 atIndex:0];
+  [enc setBuffer:(__bridge id<MTLBuffer>)rhs_m_x  offset:0 atIndex:1];
+  [enc setBuffer:(__bridge id<MTLBuffer>)rhs_m_y  offset:0 atIndex:2];
+  [enc setBuffer:(__bridge id<MTLBuffer>)rhs_m_z  offset:0 atIndex:3];
+  [enc setBuffer:(__bridge id<MTLBuffer>)rhs_E    offset:0 atIndex:4];
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_rho offset:0 atIndex:5];
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_m_x offset:0 atIndex:6];
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_m_y offset:0 atIndex:7];
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_m_z offset:0 atIndex:8];
+  [enc setBuffer:(__bridge id<MTLBuffer>)visc_E   offset:0 atIndex:9];
+  [enc setBuffer:(__bridge id<MTLBuffer>)Binv     offset:0 atIndex:10];
+  [enc setBuffer:(__bridge id<MTLBuffer>)h1       offset:0 atIndex:11];
+  [enc setBytes:n length:sizeof(int) atIndex:12];
 
   compressible_res_dispatch(cmdBuf, enc, *n);
 }

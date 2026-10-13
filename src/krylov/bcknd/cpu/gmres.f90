@@ -30,7 +30,7 @@
 ! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 ! POSSIBILITY OF SUCH DAMAGE.
 !
-!> Defines various GMRES methods
+!> Implements `gmres_t`.
 module gmres
   !$ use omp_lib
   use krylov, only : ksp_t, ksp_monitor_t
@@ -43,6 +43,8 @@ module gmres
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t, &
        vector_bc_projector_components
+  use matrix, only : matrix_t
+  use scratch_registry, only : neko_scratch_registry
   use math, only : glsc3, rzero, copy, sub2, cmult2, abscmp
   use neko_config, only : NEKO_BLK_SIZE
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
@@ -50,30 +52,46 @@ module gmres
   implicit none
   private
 
-  !> Standard preconditioned generalized minimal residual method
+  !> CPU implementation of the preconditioned standard GMRES method.
+  !!
+  !! The large working vectors and Krylov bases are associated with arrays
+  !! and matrices from the scratch registry only for the duration of a solve.
+  !! The small extra-precision reduction arrays remain owned by the solver.
   type, public, extends(ksp_t) :: gmres_t
+     !> Maximum dimension of the Krylov basis before restarting.
      integer :: lgmres = 30
-     real(kind=rp), allocatable :: w(:)
-     real(kind=rp), allocatable :: r(:)
-     real(kind=rp), allocatable :: z(:,:)
-     real(kind=rp), allocatable :: v(:,:)
-     !> reduction variables, extra prec
+     !> Operator action used during Arnoldi orthogonalisation.
+     real(kind=rp), pointer :: w(:) => null()
+     !> Residual at the start of a restart cycle.
+     real(kind=rp), pointer :: r(:) => null()
+     !> Preconditioned Krylov basis.
+     type(matrix_t), pointer :: z => null()
+     !> Krylov basis.
+     type(matrix_t), pointer :: v => null()
+     !> Upper-Hessenberg matrix in extra precision.
      real(kind=xp), allocatable :: h(:,:)
+     !> Sines of the Givens rotations in extra precision.
      real(kind=xp), allocatable :: s(:)
+     !> Rotated residual vector in extra precision.
      real(kind=xp), allocatable :: gam(:)
+     !> Cosines of the Givens rotations and solution coefficients.
      real(kind=xp), allocatable :: c(:)
-     !> Per-thread partial-sum buffer
+     !> Per-thread inner-product buffer in extra precision.
      real(kind=xp), allocatable :: hp(:,:)
    contains
+     !> Initialise a standard GMRES solver.
      procedure, pass(this) :: init => gmres_init
+     !> Free a standard GMRES solver.
      procedure, pass(this) :: free => gmres_free
+     !> Solve a linear system with the standard GMRES method.
      procedure, pass(this) :: solve => gmres_solve
+     !> Solve three independent systems with the standard GMRES method.
      procedure, pass(this) :: solve_coupled => gmres_solve_coupled
   end type gmres_t
 
 contains
 
-  !> Initialise a standard GMRES solver
+  !> Initialise a standard GMRES solver.
   subroutine gmres_init(this, n, max_iter, M, rel_tol, abs_tol, monitor)
     class(gmres_t), target, intent(inout) :: this
     integer, intent(in) :: n
@@ -90,15 +108,9 @@ contains
        this%M => M
     end if
 
-    allocate(this%w(n))
-    allocate(this%r(n))
-
     allocate(this%c(this%lgmres))
     allocate(this%s(this%lgmres))
     allocate(this%gam(this%lgmres + 1))
-
-    allocate(this%z(n, this%lgmres))
-    allocate(this%v(n, this%lgmres))
 
     allocate(this%h(this%lgmres, this%lgmres))
 
@@ -126,35 +138,26 @@ contains
 
   end subroutine gmres_init
 
-  !> Deallocate a standard GMRES solver
+  !> Free a standard GMRES solver.
   subroutine gmres_free(this)
     class(gmres_t), intent(inout) :: this
 
     call this%ksp_free()
 
-    if (allocated(this%w)) then
-       deallocate(this%w)
-    end if
+    nullify(this%w)
 
     if (allocated(this%c)) then
        deallocate(this%c)
     end if
 
-    if (allocated(this%r)) then
-       deallocate(this%r)
-    end if
-
-    if (allocated(this%z)) then
-       deallocate(this%z)
-    end if
+    nullify(this%r)
+    nullify(this%z)
 
     if (allocated(this%h)) then
        deallocate(this%h)
     end if
 
-    if (allocated(this%v)) then
-       deallocate(this%v)
-    end if
+    nullify(this%v)
 
     if (allocated(this%s)) then
        deallocate(this%s)
@@ -173,7 +176,7 @@ contains
 
   end subroutine gmres_free
 
-  !> Standard GMRES solve
+  !> Solve a linear system with the standard GMRES method.
   function gmres_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
        result(ksp_results)
     class(gmres_t), intent(inout) :: this
@@ -189,9 +192,11 @@ contains
     integer :: iter, max_iter
     integer :: i, j, k, l, ierr, tid, nthrds
     real(kind=xp) :: w_plus(NEKO_BLK_SIZE), x_plus(NEKO_BLK_SIZE)
+    real(kind=xp) :: hl(this%lgmres)
     real(kind=xp) :: alpha, lr, alpha2, norm_fac, tmp, acc
     real(kind=rp) :: temp, rnorm
     logical :: conv
+    integer :: temp_indices(4)
 
     conv = .false.
     iter = 0
@@ -206,8 +211,16 @@ contains
     nthrds = 1
     !$ nthrds = omp_get_max_threads()
 
-    associate(w => this%w, c => this%c, r => this%r, z => this%z, h => this%h, &
-         v => this%v, s => this%s, gam => this%gam, hp => this%hp)
+    call neko_scratch_registry%request(this%w, temp_indices(1), n, .false.)
+    call neko_scratch_registry%request(this%r, temp_indices(2), n, .false.)
+    call neko_scratch_registry%request(this%z, temp_indices(3), &
+         n, this%lgmres, .false.)
+    call neko_scratch_registry%request(this%v, temp_indices(4), &
+         n, this%lgmres, .false.)
+
+    associate(w => this%w, c => this%c, r => this%r, z => this%z%x, &
+         h => this%h, v => this%v%x, s => this%s, gam => this%gam, &
+         hp => this%hp)
 
       norm_fac = 1.0_rp / sqrt(coef%volume)
       call rzero(x%x, n)
@@ -248,36 +261,40 @@ contains
             call bc_projector%apply(w, n)
 
             ! Classical Gram-Schmidt orthogonalization: accumulate
-            ! <w, v_l>_mult for l=1..j into per-thread columns of hp,
-            ! merge across threads, then one MPI_Allreduce of length j.
-            !$omp parallel private(i, k, l, tid, acc)
+            ! <w, v_l>_mult for l=1..j in a thread-private array hl,
+            ! publish it once per thread into a column of hp, merge
+            ! across threads, then one MPI_Allreduce of length j.
+            !$omp parallel private(i, k, l, tid, acc, hl)
             tid = 1
             !$ tid = omp_get_thread_num() + 1
             do l = 1, j
-               hp(l,tid) = 0.0_xp
+               hl(l) = 0.0_xp
             end do
             !$omp do
             do i = 0, n-1, NEKO_BLK_SIZE
                if (i + NEKO_BLK_SIZE .le. n) then
                   do l = 1, j
-                     acc = hp(l,tid)
+                     acc = hl(l)
                      !$omp simd reduction(+:acc)
                      do k = 1, NEKO_BLK_SIZE
                         acc = acc + &
                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
-                     hp(l,tid) = acc
+                     hl(l) = acc
                   end do
                else
                   do l = 1, j
                      do k = 1, n - i
-                        hp(l,tid) = hp(l,tid) + &
+                        hl(l) = hl(l) + &
                              w(i+k) * v(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
                   end do
                end if
             end do
-            !$omp end do
+            !$omp end do nowait
+            do l = 1, j
+               hp(l,tid) = hl(l)
+            end do
             !$omp end parallel
 
             ! Cross-thread merge into hp(:, 1), then one Allreduce of j.
@@ -311,6 +328,7 @@ contains
                         w_plus(k) = w_plus(k) - h(l,j) * v(i+k,l)
                      end do
                   end do
+                  !$omp simd reduction(+:alpha2)
                   do k = 1, NEKO_BLK_SIZE
                      w(i+k) = w(i+k) + w_plus(k)
                      alpha2 = alpha2 + w(i+k)**2 * coef%mult(i+k,1,1,1)
@@ -405,6 +423,8 @@ contains
       end do
 
     end associate
+    nullify(this%w, this%r, this%z, this%v)
+    call neko_scratch_registry%relinquish(temp_indices)
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter
@@ -412,7 +432,7 @@ contains
 
   end function gmres_solve
 
-  !> Standard GMRES coupled solve
+  !> Solve three independent systems with the standard GMRES method.
   function gmres_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
        n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(gmres_t), intent(inout) :: this

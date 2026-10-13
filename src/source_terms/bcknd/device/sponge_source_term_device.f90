@@ -1,0 +1,95 @@
+! Copyright (c) 2026, The Neko Authors
+! All rights reserved.
+!
+! Redistribution and use in source and binary forms, with or without
+! modification, are permitted provided that the following conditions
+! are met:
+!
+!   * Redistributions of source code must retain the above copyright
+!     notice, this list of conditions and the following disclaimer.
+!
+!   * Redistributions in binary form must reproduce the above
+!     copyright notice, this list of conditions and the following
+!     disclaimer in the documentation and/or other materials provided
+!     with the distribution.
+!
+!   * Neither the name of the authors nor the names of its
+!     contributors may be used to endorse or promote products derived
+!     from this software without specific prior written permission.
+!
+! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+! "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+! LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+! FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+! COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+! INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+! BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+! LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+! CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+! LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+! ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+! POSSIBILITY OF SUCH DAMAGE.
+!
+!> Implements the device kernel for the `sponge_source_term_t` type.
+module sponge_source_term_device
+  use num_types, only : rp
+  use field_list, only : field_list_t
+  use field, only : field_t
+  use device_math, only : device_sub3, device_col2, device_add2s2
+  use scratch_registry, only : neko_scratch_registry
+  use, intrinsic :: iso_c_binding
+  implicit none
+  private
+
+  public :: sponge_source_term_compute_device
+
+contains
+
+  !> Computes the sponge source term on the device.
+  !! @param u The x component of velocity.
+  !! @param v The y component of velocity.
+  !! @param w The z component of velocity.
+  !! @param u_bf The x component of the baseflow.
+  !! @param v_bf The y component of the baseflow.
+  !! @param w_bf The z component of the baseflow.
+  !! @param fringe The fringe field
+  !! @param a_x The amplitude in the x-direction
+  !! @param a_y The amplitude in the y-direction
+  !! @param a_z The amplitude in the z-direction
+  subroutine sponge_source_term_compute_device(fields, u, v, w, &
+       u_bf, v_bf, w_bf, fringe, a_x, a_y, a_z)
+    type(field_list_t), intent(inout) :: fields
+    type(field_t), intent(in) :: u, v, w, fringe, u_bf, v_bf, w_bf
+    real(kind=rp), intent(in) :: a_x, a_y, a_z
+    integer :: n
+    type(field_t), pointer :: fu, fv, fw
+    integer :: tmp_index
+    type(c_ptr) :: wk
+    ! The RHS components
+    fu => fields%get_by_index(1)
+    fv => fields%get_by_index(2)
+    fw => fields%get_by_index(3)
+
+    n = fu%size()
+    call neko_scratch_registry%request(wk, tmp_index, n, .false.)
+
+    ! wk = u_bf - u
+    call device_sub3(wk, u_bf%x_d, u%x_d, n)
+    ! wk = fringe * wk = fringe * (u_bf - u)
+    call device_col2(wk, fringe%x_d, n)
+    ! fu = fu + a_x*wk = fu + a_x*fringe*(u_bf - u)
+    call device_add2s2(fu%x_d, wk, a_x, n)
+
+    call device_sub3(wk, v_bf%x_d, v%x_d, n)
+    call device_col2(wk, fringe%x_d, n)
+    call device_add2s2(fv%x_d, wk, a_y, n)
+
+    call device_sub3(wk, w_bf%x_d, w%x_d, n)
+    call device_col2(wk, fringe%x_d, n)
+    call device_add2s2(fw%x_d, wk, a_z, n)
+
+    call neko_scratch_registry%relinquish(tmp_index)
+
+  end subroutine sponge_source_term_compute_device
+
+end module sponge_source_term_device

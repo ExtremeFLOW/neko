@@ -8,6 +8,9 @@ module test_bc
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
   use dirichlet, only : dirichlet_t
+  use expression_dirichlet, only : expression_dirichlet_t
+  use expression_dirichlet_vector, only : expression_dirichlet_vector_t
+  use bc, only : BC_DIRICHLET
   use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
@@ -275,7 +278,7 @@ contains
   @test(npes=[1])
   subroutine test_bc_duplicate_facet_node_msk(this)
     class(bc_test_case), intent(inout) :: this
-    type(dirichlet_t) :: bc
+    type(dirichlet_t) :: bc, bc_single
     integer :: n, i, masked_count
     real(kind=rp), allocatable :: x(:)
 
@@ -287,6 +290,13 @@ contains
     call bc%mark_facet(2, 1)
     call bc%finalize()
 
+    ! Reference case marking the same facet only once, so the assertions below
+    ! do not depend on the connected-dof count of the current mesh
+    ! connectivity implementation.
+    call bc_single%init_from_components(this%coef, 4.25_rp)
+    call bc_single%mark_facet(2, 1)
+    call bc_single%finalize()
+
     ! Each raw facet contributes lx^2 face points, so marking the same facet
     ! twice is visible in facet_node_msk and facet.
     @assertEqual(2 * lx_test**2, bc%facet_node_msk(0))
@@ -294,13 +304,16 @@ contains
 
     ! The resolved mask is built from field values after gather-scatter. It may
     ! include connected dofs beyond the marked face, but it should contain each
-    ! constrained local dof once even if the same facet was pushed twice into
-    ! marked_facet.
+    ! constrained local dof once, so marking the same facet twice must produce
+    ! exactly the same mask as marking it once.
     @assertTrue(bc%msk(0) > lx_test**2)
-    @assertTrue(bc%msk(0) < bc%facet_node_msk(0))
+    @assertEqual(bc_single%msk(0), bc%msk(0))
     do i = 1, bc%msk(0)
        @assertEqual(1, mask_count(bc%msk, bc%msk(i)))
+       @assertTrue(mask_contains(bc_single%msk, bc%msk(i)))
     end do
+
+    call bc_single%free()
 
     n = this%dof%size()
     allocate(x(n))
@@ -464,6 +477,23 @@ contains
 
     deallocate(x, y, z)
   end subroutine test_bc_apply_vector_weak_noop
+
+  !> Every Dirichlet-family condition must report BC_DIRICHLET, since the
+  !! solvers only mark conditions of that type in their bc projectors.
+  @test(npes=[1])
+  subroutine test_bc_expression_dirichlet_type(this)
+    class(bc_test_case), intent(inout) :: this
+    type(expression_dirichlet_t) :: bc_s
+    type(expression_dirichlet_vector_t) :: bc_v
+
+    call bc_s%init_from_components(this%coef, "x + y")
+    @assertEqual(BC_DIRICHLET, bc_s%bc_type)
+    call bc_s%free()
+
+    call bc_v%init_from_components(this%coef, "1", "0", "z")
+    @assertEqual(BC_DIRICHLET, bc_v%bc_type)
+    call bc_v%free()
+  end subroutine test_bc_expression_dirichlet_type
 
   subroutine build_test_fixture(msh, Xh, dof, gs, coef)
     type(mesh_t), intent(inout) :: msh

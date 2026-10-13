@@ -118,6 +118,7 @@ contains
     if (strong_) then
        m = this%resolved_msk%size()
 
+       !$omp do
        do i = 1, m
           k = this%resolved_msk%get(i)
           normal = this%n%x(:,i)
@@ -127,6 +128,7 @@ contains
           y(k) = y(k) - u_n * normal(2)
           z(k) = z(k) - u_n * normal(3)
        end do
+       !$omp end do
     else
        call this%neumann_x%apply_scalar(x, n, strong = .false.)
        call this%neumann_y%apply_scalar(y, n, strong = .false.)

@@ -147,7 +147,7 @@ contains
        call neko_error('Wall sampler distances have an invalid size')
     end if
 
-    call this%h%free()
+    call this%h%init(h%size())
     this%n_nodes = n_nodes
     this%n_samples = n_samples
     this%user_values = .false.

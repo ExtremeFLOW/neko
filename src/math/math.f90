@@ -102,7 +102,8 @@ module math
   end interface relcmp
 
   public :: abscmp, rzero, izero, row_zero, rone, copy, cmult, cadd, cfill, &
-       glsum, glmax, glmin, chsign, vlmax, vlmin, invcol1, invcol3, invers2, &
+       glsum, glmax, glmin, glamax, chsign, vlmax, vlmin, vlamax, &
+       invcol1, invcol3, invers2, &
        vcross, vdot2, vdot3, vlsc3, vlsc2, add2, add3, add4, sub2, sub3, &
        add2s1, add2s2, addsqr2s2, cmult2, invcol2, col2, col3, subcol3, &
        add3s2, add4s3, add5s4, subcol4, addcol3, addcol4, addcol3s2, ascol5, &
@@ -667,6 +668,26 @@ contains
 
   end function glmax
 
+  !>Max of the absolute value of a vector of length n
+  !! @details Returns \f$ \max_i |a_i| \f$ reduced over all ranks.
+  function glamax(a, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n) :: a
+    real(kind=rp) :: tmp, glamax
+    integer :: i, ierr
+
+    tmp = 0.0_rp
+    !$omp parallel do reduction(max:tmp)
+    do i = 1, n
+       tmp = max(tmp, abs(a(i)))
+    end do
+    !$omp end parallel do
+
+    call MPI_Allreduce(tmp, glamax, 1, &
+         MPI_REAL_PRECISION, MPI_MAX, NEKO_COMM, ierr)
+
+  end function glamax
+
   !>Max of an integer vector of length n
   function glimax(a, n)
     integer, intent(in) :: n
@@ -737,6 +758,21 @@ contains
     !$omp end parallel do
 
   end subroutine chsign
+
+  !> maximum absolute value of a vector of length @a n, rank-local
+  function vlamax(vec,n) result(tamax)
+    integer :: n, i
+    real(kind=rp), intent(in) :: vec(n)
+    real(kind=rp) :: tamax
+
+    tamax = 0.0_rp
+    !$omp parallel do reduction(max:tamax)
+    do i = 1, n
+       tamax = max(tamax, abs(vec(i)))
+    end do
+    !$omp end parallel do
+
+  end function vlamax
 
   !> maximum value of a vector of length @a n
   function vlmax(vec,n) result(tmax)
@@ -1907,6 +1943,11 @@ contains
   end subroutine power
 
   !> Eigenvalues of a symmetric 2x2 matrix, descending
+  !! @param a11 Diagonal entry (1,1).
+  !! @param a22 Diagonal entry (2,2).
+  !! @param a12 Off-diagonal entry.
+  !! @param e1 The larger eigenvalue.
+  !! @param e2 The smaller eigenvalue.
   pure subroutine eig_sym2(a11, a22, a12, e1, e2)
     real(kind=dp), intent(in) :: a11, a22, a12
     real(kind=dp), intent(out) :: e1, e2
@@ -1942,6 +1983,22 @@ contains
   !! build the same amplification against \f$ \epsilon_{sp} \f$ would put a
   !! 6% error on \f$ \kappa \f$ at 1e6 and lose it entirely near 1e7,
   !! exactly where the answer matters most.
+  !!
+  !! @note Both call sites in coef_metric_condition() pass a matrix scaled to
+  !! unit magnitude: the geometric factors divided by their largest entry, and
+  !! the same factors Jacobi scaled to a unit diagonal. The latter is exactly
+  !! the identity for an orthogonal element, which is why the isotropic branch
+  !! above is not merely defensive.
+  !!
+  !! @param a11 Diagonal entry (1,1).
+  !! @param a22 Diagonal entry (2,2).
+  !! @param a33 Diagonal entry (3,3).
+  !! @param a12 Off-diagonal entry (1,2).
+  !! @param a13 Off-diagonal entry (1,3).
+  !! @param a23 Off-diagonal entry (2,3).
+  !! @param e1 The largest eigenvalue.
+  !! @param e2 The intermediate eigenvalue.
+  !! @param e3 The smallest eigenvalue.
   pure subroutine eig_sym3(a11, a22, a33, a12, a13, a23, e1, e2, e3)
     real(kind=dp), intent(in) :: a11, a22, a33, a12, a13, a23
     real(kind=dp), intent(out) :: e1, e2, e3

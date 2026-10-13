@@ -144,7 +144,7 @@ contains
     this%gs_h => gs_h
     this%msh => dof%msh
 
-    call swap_lengths(this, dof%x, dof%y, dof%z, dof%msh%nelv, dof%msh%gdim)
+    call swap_lengths(this, dof%x%x, dof%y%x, dof%z%x, dof%msh%nelv, dof%msh%gdim)
 
     call fdm_setup_fast(this, ah, bh, nl, n)
 

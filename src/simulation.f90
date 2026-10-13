@@ -106,7 +106,7 @@ contains
          output_at_end, .true.)
     call C%output_controller%execute(C%time, output_at_end)
 
-    if (.not. (output_at_end) .and. C%time%t .lt. C%time%end_time) then
+    if (.not. (output_at_end) .and. .not. C%time%is_done()) then
        call simulation_joblimit_chkp(C, C%time%t)
     end if
 
@@ -316,10 +316,12 @@ contains
     else
        format_str = '.chkp'
     end if
-    call chkpf%init(C%output_directory // 'joblimit'//trim(format_str))
-    call chkpf%write(C%chkp, t)
+    call chkpf%init(C%output_directory // 'joblimit' // trim(format_str))
     write(log_buf, '(A)') '! saving checkpoint >>>'
     call neko_log%message(log_buf)
+    call neko_log%flush()
+    call chkpf%write(C%chkp, t)
+    call neko_log%flush()
 
   end subroutine simulation_joblimit_chkp
 

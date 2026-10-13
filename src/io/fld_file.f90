@@ -307,9 +307,9 @@ contains
     end select
     ! Fix things for pointers that do not exist in all data types...
     if (associated(dof)) then
-       x%ptr => dof%x(:,1,1,1)
-       y%ptr => dof%y(:,1,1,1)
-       z%ptr => dof%z(:,1,1,1)
+       x%ptr => dof%x%x(:,1,1,1)
+       y%ptr => dof%y%x(:,1,1,1)
+       z%ptr => dof%z%x(:,1,1,1)
        msh => dof%msh
        Xh => dof%Xh
     end if
@@ -739,9 +739,9 @@ contains
     end select
     ! Fix things for pointers that do not exist in all data types...
     if (associated(dof)) then
-       x%ptr => dof%x(:,1,1,1)
-       y%ptr => dof%y(:,1,1,1)
-       z%ptr => dof%z(:,1,1,1)
+       x%ptr => dof%x%x(:,1,1,1)
+       y%ptr => dof%y%x(:,1,1,1)
+       z%ptr => dof%z%x(:,1,1,1)
        msh => dof%msh
        Xh => dof%Xh
     end if
@@ -1621,6 +1621,8 @@ contains
                (int(lxyz, i8) * &
                int(FLD_DATA_SIZE, i8))
        end do
+
+       call MPI_File_close(fh, ierr)
 
        call device_sync()
        call this%increment_counter()

@@ -44,11 +44,11 @@
         "oifs_target_cfl": {
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
-        "c_avisc_low": {
-          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        "compress_geometric_factors": {
+          "type": "boolean"
         },
-        "c_avisc_entropy": {
-          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        "compress_geometric_factors_tolerance": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
         }
       },
       "additionalProperties": false

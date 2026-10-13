@@ -474,4 +474,31 @@ DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(14)
 DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(15)
 DEFINE_AX_HELM_KERNEL_VECTOR_KSTEP(16)
 
+/**
+ * Apply the mass term \f$ h_2 B u \f$ to all three components at once.
+ * Reading h2 and B once for the three components rather than once each,
+ * as three separate addcol4 calls would.
+ */
+__kernel
+void ax_helm_kernel_vector_part2(__global real * __restrict__ au,
+                                 __global real * __restrict__ av,
+                                 __global real * __restrict__ aw,
+                                 __global const real * __restrict__ u,
+                                 __global const real * __restrict__ v,
+                                 __global const real * __restrict__ w,
+                                 __global const real * __restrict__ h2,
+                                 __global const real * __restrict__ B,
+                                 const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  for (int i = idx; i < n; i += str) {
+    au[i] = au[i] + h2[i] * B[i] * u[i];
+    av[i] = av[i] + h2[i] * B[i] * v[i];
+    aw[i] = aw[i] + h2[i] * B[i] * w[i];
+  }
+
+}
+
 #endif // __MATH_AX_HELM_KERNEL_CL__

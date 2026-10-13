@@ -80,7 +80,7 @@ contains
     type(dofmap_t ), pointer :: dof
     integer :: i, msk_ind
     real(kind=rp) :: x, y, z
-    type(field_t), pointer :: u, v, w
+    type(field_t), pointer :: u, v, w, p
 
     ! Only do this at the first time step since our BCs are constants.
     if (time%tstep .ne. 1) return
@@ -93,14 +93,18 @@ contains
     u => fields%get("u")
     v => fields%get("v")
     w => fields%get("w")
+    p => fields%get("p")
+
+    ! Initialize pressure field to zero
+    call field_rzero(p)
 
     ! We use the bc mask to loop over the boundary nodes. msk(0) holds the
     ! number of nodes in the mask, and msk(1:msk(0)) holds the indices.
     do i = 1, bc%msk(0)
        msk_ind = bc%msk(i)
-       x = dof%x(msk_ind, 1, 1, 1)
-       y = dof%y(msk_ind, 1, 1, 1)
-       z = dof%z(msk_ind, 1, 1, 1)
+       x = dof%x%x(msk_ind, 1, 1, 1)
+       y = dof%y%x(msk_ind, 1, 1, 1)
+       z = dof%z%x(msk_ind, 1, 1, 1)
 
        !   Two different bcs (inflow & cyl) have are of type 'user_velocity'
        !   Let us compute the distance from the (0,0) in the x-y plane
@@ -148,9 +152,9 @@ contains
     end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(u%x, u%x_d, u%size(), HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(v%x, v%x_d, v%size(), HOST_TO_DEVICE, sync=.false.)
-       call device_memcpy(w%x, w%x_d, w%size(), HOST_TO_DEVICE, sync=.false.)
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.false.)
     end if
   end subroutine dirichlet_conditions
 
@@ -168,11 +172,17 @@ contains
     w => fields%get_by_name("w")
 
     do i = 1, u%dof%size()
-       y = u%dof%y(i,1,1,1)
+       y = u%dof%y%x(i,1,1,1)
        u%x(i,1,1,1) = ucl*y**pw
        v%x(i,1,1,1) = 0.0_rp
        w%x(i,1,1,1) = 0.0_rp
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine initial_conditions
 
   ! Another example of using user specified dirichlet bcs
@@ -238,8 +248,8 @@ contains
          !
 
          do i = 1, bc%msk(0)
-            y = bc%dof%y(bc%msk(i), 1, 1, 1)
-            z = bc%dof%z(bc%msk(i), 1, 1, 1)
+            y = bc%dof%y%x(bc%msk(i), 1, 1, 1)
+            z = bc%dof%z%x(bc%msk(i), 1, 1, 1)
             s%x(bc%msk(i), 1, 1, 1) = sin(y)*sin(z)
          end do
 

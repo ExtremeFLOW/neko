@@ -234,7 +234,7 @@ __device__ void cdtp_mfma_elem(T * __restrict__ dtx,
      block covering EB elements, see the note in mfma_kernel.h. At LX = 4 the
      contraction offers one column group, so WPE is 1 and every wavefront gets
      an element of its own rather than idling. */
-  enum { EB = NEKO_MFMA_EB_N(NWF, LX),
+  enum { EB = NEKO_MFMA_EB_N(NWF, LX, sizeof(T)),
          WPE = NWF / EB };
   static_assert(WPE * EB == NWF,
                 "wavefronts per block must split evenly over the elements");
