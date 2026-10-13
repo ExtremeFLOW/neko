@@ -11,6 +11,9 @@
 
 ## Develop
 
+- A factorized SVV formulation is added, with the old "standard" formulation
+  renamed to "one-sided" formulation. And the default is set to the new
+  factorized formulation.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on
