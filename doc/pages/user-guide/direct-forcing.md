@@ -49,7 +49,7 @@ itself and needs no setting in the case file.
 The `interpolation` keyword selects how the velocity is evaluated at the
 markers.
 
-- `spectral` (default): the velocity is evaluated through the polynomial
+- `spectral`: the velocity is evaluated through the polynomial
   basis of the element that contains the marker, i.e. the same global
   interpolation that probes and particles use. It is exact for the
   discrete velocity and introduces no smoothing. Markers are located
@@ -60,7 +60,7 @@ markers.
   within a radius `interpolation_rmax` local grid spacings of the marker,
   with the kernel of the spread below. It smooths the velocity over the
   stencil and needs no point search.
-- `adjoint`: Shepard interpolation with the weights modified so that the
+- `adjoint` (default): Shepard interpolation with the weights modified so that the
   interpolation is the mass-weighted transpose of the kernel spread. With
   this choice the composite operator \f$ S I \f$ is symmetric and
   positive semi-definite in the mass inner product with all eigenvalues in
@@ -114,14 +114,14 @@ mesh.
 
 | Interpolation | Spread    | Gain of \f$ S I \f$       | Interface width       | Use                                                                 |
 | ------------- | --------- | ------------------------- | --------------------- | ------------------------------------------------------------------- |
-| `spectral`    | `idw`     | \f$ g \f$ on the constant mode | about `rmax` spacings | Default. Robust, good general-purpose choice.                      |
-| `adjoint`     | `idw`     | exactly \f$ g \f$         | about `rmax` spacings | Energy-stable. High Reynolds numbers, cases where the default rings. |
+| `spectral`    | `idw`     | \f$ g \f$ on the constant mode | about `rmax` spacings | Robust, good general-purpose choice; can ring at high Reynolds numbers. |
+| `adjoint`     | `idw`     | exactly \f$ g \f$         | about `rmax` spacings | Default. Energy-stable, also at high Reynolds numbers.             |
 | `idw`         | `idw`     | not controlled            | about `rmax` spacings | No point search; cheapest start-up. Smooths the interpolated velocity. |
 | `spectral`    | `adjoint` | at most \f$ g \f$, about \f$ 0.3 g \f$ on the constant mode | one element | Sharpest interface. Needs the face nudge; see the notes below. |
 
 Start with the default pairing. If the velocity or pressure oscillates around
-the interface at high Reynolds number, switch the interpolation to `adjoint`,
-reduce `spread_gain` to about 0.5 and consider an elementwise filter. Use the
+the interface at high Reynolds number, reduce `spread_gain` to about 0.5 and
+consider an elementwise filter. Use the
 adjoint spread when the interface thickness of the kernel is the limiting
 factor, for instance for thin bodies or coarse meshes relative to the body.
 
@@ -298,14 +298,6 @@ parameters that apply to them, followed by
 - `Padding needed for the kernel stencils`: see
   [padding](@ref direct-forcing_padding).
 
-With `marker_output` set to `true` every rank writes its markers to
-`df_markers_<rank>.csv` with the coordinates, normals, the lumped weights and
-constant-mode gains of both sides, and the one-sided weight sums, which can be
-loaded into ParaView as a point cloud. With the adjoint spread the fields
-`ib_response_plus`, `ib_response_minus`, `ib_mask_plus` and `ib_mask_minus`
-are also registered, and the [field writer](@ref simcomp_field_writer) can
-write them.
-
 ## Troubleshooting {#direct-forcing_troubleshooting}
 
 - **Flow leaks through the body.** Check the markers line in the log: with
@@ -406,7 +398,6 @@ And the sharp-interface pairing:
       "spread": "adjoint",
       "spread_gain": 1.0,
       "face_nudge": 0.02,
-      "marker_output": true,
       "objects": [
          {
             "type": "boundary_mesh",

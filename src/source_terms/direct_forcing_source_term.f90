@@ -70,7 +70,7 @@ module direct_forcing_source_term
   use PDE_filter, only : PDE_filter_t
   use filter, only : filter_t
   use device_math, only : device_col2, device_glsc2, device_col3, &
-       device_cmult, device_add2, device_rzero
+       device_cmult, device_addcol3, device_addcol4, device_rzero
   use device_mathops, only : device_opcolv
   use mathops, only : opcolv
   use profiler, only : profiler_start_region, profiler_end_region
@@ -179,12 +179,8 @@ module direct_forcing_source_term
      !> Lumped marker weights D of the adjoint spread, + and - side
      real(kind=rp), allocatable :: dp_mark(:)
      real(kind=rp), allocatable :: dm_mark(:)
-     !> Constant-mode gain per marker, (G D 1)_m, + and - side (diagnostic)
-     real(kind=rp), allocatable :: gp_mark(:)
-     real(kind=rp), allocatable :: gm_mark(:)
-     !> One-sided interpolation weight sums c_m = I(swp 1), I(swm 1) and the
-     !! per-marker normalisation s_m = 1 / max(c_m, cmin) (0 for c_m <= 0)
-     real(kind=rp), allocatable :: cp_mark(:), cm_mark(:)
+     !> One-sided per-marker normalisation s_m = 1 / max(c_m, cmin) (0 for
+     !! c_m <= 0) from the weight sums c_m = I(swp 1), I(swm 1)
      real(kind=rp), allocatable :: sp_mark(:), sm_mark(:)
      !> Deposit weights D_m s_m handed to the transpose
      real(kind=rp), allocatable :: dsp_mark(:), dsm_mark(:)
@@ -210,9 +206,6 @@ module direct_forcing_source_term
      real(kind=rp) :: face_tol = 0.02_rp
      !> Outward step of a marker on a face, in local grid spacings per pass
      real(kind=rp) :: face_nudge = 0.02_rp
-     !> Write the marker csv and register the diagnostic fields
-     !! ib_response_plus/minus and ib_mask_plus for the field output
-     logical :: marker_output = .false.
      !> Gain factor on the lumped weights of the adjoint spread
      real(kind=rp) :: spread_gain = 1.0_rp
      !> Scaled marker values -D u_m / dt handed to the transpose
@@ -296,7 +289,7 @@ contains
     call json_get_or_default(json, "one_sided", this%one_sided, .true.)
 
     call json_get_or_default(json, "interpolation", interp_scheme, &
-         "spectral")
+         "adjoint")
     select case (trim(interp_scheme))
     case ("spectral")
        this%idw_interp = .false.
@@ -346,8 +339,6 @@ contains
     else
        call json_get_or_default(json, "mask_band", this%mask_band, 0.0_rp)
     end if
-    call json_get_or_default(json, 'marker_output', this%marker_output, &
-         .false.)
     call json_get_or_default(json, 'nudge', this%nudge, 0.5_rp)
     ! The face nudge is for the adjoint spread's thin-wall problem; the
     ! kernel spread has a finite footprint on both sides of a face
@@ -750,10 +741,6 @@ contains
        call df_adjoint_spread_weights(this)
     end if
 
-    if (this%marker_output) then
-       call df_write_markers(this)
-    end if
-
     if (this%idw_interp) then
        ! Per-marker local stencil counts; the counts of markers held by
        ! several ranks are then summed over their holders so the diagnostic
@@ -1020,45 +1007,6 @@ contains
 
   end subroutine df_nudge_bad_markers
 
-  !> Write the markers held by this rank to `df_markers_<rank>.csv`:
-  !! x, y, z, nx, ny, nz, d_plus, d_minus, gain_plus, gain_minus (the
-  !! lumped weights of the adjoint spread and its constant-mode gain per
-  !! marker, zero for the kernel spread) and the one-sided weight sums.
-  !! Markers held by several ranks appear in every holder's file.
-  subroutine df_write_markers(this)
-    class(direct_forcing_source_term_t), intent(inout) :: this
-    character(len=64) :: fname
-    real(kind=rp) :: dp_m, dm_m, gp_m, gm_m, cp_m, cm_m
-    integer :: i, unit, n_lag
-
-    n_lag = size(this%lag_pts)
-    write(fname, '(A,I0,A)') 'df_markers_', pe_rank, '.csv'
-    open(newunit = unit, file = trim(fname), status = 'replace', &
-         action = 'write')
-    write(unit, '(A)') 'x,y,z,nx,ny,nz,d_plus,d_minus,gain_plus,' // &
-         'gain_minus,c_plus,c_minus'
-    do i = 1, n_lag
-       dp_m = 0.0_rp
-       dm_m = 0.0_rp
-       gp_m = 0.0_rp
-       gm_m = 0.0_rp
-       cp_m = 0.0_rp
-       cm_m = 0.0_rp
-       if (allocated(this%dp_mark)) dp_m = this%dp_mark(i)
-       if (allocated(this%dm_mark)) dm_m = this%dm_mark(i)
-       if (allocated(this%gp_mark)) gp_m = this%gp_mark(i)
-       if (allocated(this%gm_mark)) gm_m = this%gm_mark(i)
-       if (allocated(this%cp_mark)) cp_m = this%cp_mark(i)
-       if (allocated(this%cm_mark)) cm_m = this%cm_mark(i)
-       write(unit, '(11(ES16.8,","),ES16.8)') this%lag_pts(i)%x(1), &
-            this%lag_pts(i)%x(2), this%lag_pts(i)%x(3), &
-            this%lag_nrm(i)%x(1), this%lag_nrm(i)%x(2), &
-            this%lag_nrm(i)%x(3), dp_m, dm_m, gp_m, gm_m, cp_m, cm_m
-    end do
-    close(unit)
-
-  end subroutine df_write_markers
-
   !> Gather-scatter sum of a field without the multiplicity scaling, on
   !! the host array (the device mirror is used for the exchange on device
   !! builds)
@@ -1078,6 +1026,36 @@ contains
 
   end subroutine df_assemble_sum
 
+  !> Gather-scatter sum of three fields in one vector halo exchange,
+  !! without the multiplicity scaling. With `on_host` the host arrays are
+  !! summed (through the device mirrors on device builds, as in
+  !! df_assemble_sum), otherwise the device arrays.
+  subroutine df_assemble_sum3(gs, f1, f2, f3, on_host)
+    type(gs_t), intent(inout) :: gs
+    type(field_t), intent(inout) :: f1, f2, f3
+    logical, intent(in) :: on_host
+    integer :: n
+
+    n = f1%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       if (on_host) then
+          call device_memcpy(f1%x, f1%x_d, n, HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(f2%x, f2%x_d, n, HOST_TO_DEVICE, sync = .false.)
+          call device_memcpy(f3%x, f3%x_d, n, HOST_TO_DEVICE, sync = .true.)
+       end if
+       call gs%op(f1%x, f2%x, f3%x, n, GS_OP_ADD, glb_cmd_event)
+       call device_event_sync(glb_cmd_event)
+       if (on_host) then
+          call device_memcpy(f1%x, f1%x_d, n, DEVICE_TO_HOST, sync = .false.)
+          call device_memcpy(f2%x, f2%x_d, n, DEVICE_TO_HOST, sync = .false.)
+          call device_memcpy(f3%x, f3%x_d, n, DEVICE_TO_HOST, sync = .true.)
+       end if
+    else
+       call gs%op(f1%x, f2%x, f3%x, n, GS_OP_ADD)
+    end if
+
+  end subroutine df_assemble_sum3
+
   !> One side of the adjoint spectral spread: `out += msk * W^-1 *
   !! gs_add(I^T vals)`, the adjoint of the masked interpolation
   !! `I (msk * u)` in the inner product with weight W, so that for every
@@ -1087,31 +1065,69 @@ contains
   !! Without `msk` the unmasked operator. With `on_host` false on a device
   !! build everything runs on the device (`vals` device-mapped); the point
   !! values still travel through the host inside the transpose. `wrk` is a
-  !! work field (scratch registry) that holds the assembled deposit.
+  !! work field (scratch registry) that holds the assembled deposit. The
+  !! per-step spread runs the three stages itself, to assemble the three
+  !! components of a side in one vector exchange.
   subroutine df_adjoint_apply(this, vals, out, wrk, on_host, msk)
     class(direct_forcing_source_term_t), intent(inout) :: this
     real(kind=rp), intent(inout) :: vals(:)
     type(field_t), intent(inout) :: out, wrk
     logical, intent(in) :: on_host
     type(field_t), intent(in), optional :: msk
+
+    call df_adjoint_deposit(this, vals, wrk, on_host)
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       call this%gs%op(wrk, GS_OP_ADD)
+    else
+       call df_assemble_sum(this%gs, wrk)
+    end if
+    call df_adjoint_finish(this, out, wrk, on_host, msk)
+
+  end subroutine df_adjoint_apply
+
+  !> Unassembled deposit of the adjoint spread, `wrk = I^T vals`
+  !! (`vals` device-mapped when `on_host` is false on a device build)
+  subroutine df_adjoint_deposit(this, vals, wrk, on_host)
+    class(direct_forcing_source_term_t), intent(inout) :: this
+    real(kind=rp), intent(inout) :: vals(:)
+    type(field_t), intent(inout) :: wrk
+    logical, intent(in) :: on_host
+
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       call device_rzero(wrk%x_d, wrk%size())
+       call this%global_interp%evaluate_transpose(vals, wrk%x, .false.)
+    else
+       wrk%x = 0.0_rp
+       call this%global_interp%evaluate_transpose(vals, wrk%x, .true.)
+    end if
+
+  end subroutine df_adjoint_deposit
+
+  !> Weight, mask and accumulate an assembled deposit, `out += msk * W^-1
+  !! * wrk`, in the same order on the host and the device
+  subroutine df_adjoint_finish(this, out, wrk, on_host, msk)
+    class(direct_forcing_source_term_t), intent(inout) :: this
+    type(field_t), intent(inout) :: out, wrk
+    logical, intent(in) :: on_host
+    type(field_t), intent(in), optional :: msk
+    type(c_ptr) :: w_d
     integer :: n
 
     n = wrk%size()
     if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
-       call device_rzero(wrk%x_d, n)
-       call this%global_interp%evaluate_transpose(vals, wrk%x, .false.)
-       call this%gs%op(wrk, GS_OP_ADD)
        if (this%adjoint_mass) then
-          call device_col2(wrk%x_d, this%coef%Binv_d, n)
+          w_d = this%coef%Binv_d
        else
-          call device_col2(wrk%x_d, this%winv%x_d, n)
+          w_d = this%winv%x_d
        end if
-       if (present(msk)) call device_col2(wrk%x_d, msk%x_d, n)
-       call device_add2(out%x_d, wrk%x_d, n)
+       ! Weight, mask and accumulate in one pass, (wrk * W) * msk in the
+       ! order of the host branch
+       if (present(msk)) then
+          call device_addcol4(out%x_d, wrk%x_d, w_d, msk%x_d, n)
+       else
+          call device_addcol3(out%x_d, wrk%x_d, w_d, n)
+       end if
     else
-       wrk%x = 0.0_rp
-       call this%global_interp%evaluate_transpose(vals, wrk%x, .true.)
-       call df_assemble_sum(this%gs, wrk)
        if (this%adjoint_mass) then
           wrk%x = this%coef%Binv * wrk%x
        else
@@ -1124,7 +1140,7 @@ contains
        end if
     end if
 
-  end subroutine df_adjoint_apply
+  end subroutine df_adjoint_finish
 
 
 
@@ -1134,7 +1150,7 @@ contains
   !> Lumped marker weights of the adjoint spectral spread.
   subroutine df_adjoint_spread_weights(this)
     class(direct_forcing_source_term_t), intent(inout) :: this
-    real(kind=rp), allocatable :: ones(:), rowsum(:)
+    real(kind=rp), allocatable :: ones(:), rowsum(:), cp(:), cm(:)
     type(field_t), pointer :: out, wrk
     integer :: scr_idx(2)
     integer :: n_lag, nv, n
@@ -1149,18 +1165,14 @@ contains
     nv = max(n_lag, 1)
     n = wrk%size()
     allocate(this%dp_mark(n_lag), this%dm_mark(n_lag))
-    allocate(this%gp_mark(n_lag), this%gm_mark(n_lag))
-    allocate(this%cp_mark(n_lag), this%cm_mark(n_lag))
     allocate(this%sp_mark(nv), this%sm_mark(nv))
     allocate(this%dsp_mark(nv), this%dsm_mark(nv))
-    allocate(ones(n_lag), rowsum(n_lag))
+    allocate(ones(n_lag), rowsum(n_lag), cp(n_lag), cm(n_lag))
     ones = 1.0_rp
+    cp = 0.0_rp
+    cm = 0.0_rp
     this%dp_mark = 0.0_rp
     this%dm_mark = 0.0_rp
-    this%gp_mark = 0.0_rp
-    this%gm_mark = 0.0_rp
-    this%cp_mark = 0.0_rp
-    this%cm_mark = 0.0_rp
     this%sp_mark = 0.0_rp
     this%sm_mark = 0.0_rp
     this%dsp_mark = 0.0_rp
@@ -1192,32 +1204,29 @@ contains
     ! flow the wrong way). The scaling is a per-marker factor on both the
     ! interpolation and the deposit, so the pair stays adjoint.
     wrk%x = this%swp%x
-    call this%global_interp%evaluate(this%cp_mark, wrk%x, .true.)
-    call df_adjoint_normalisation(this%cp_mark, this%sp_mark, this%cmin, &
+    call this%global_interp%evaluate(cp, wrk%x, .true.)
+    call df_adjoint_normalisation(cp, this%sp_mark, this%cmin, &
          this%lag_pts, 'Adj. spread + side')
     if (this%one_sided) then
        wrk%x = this%swm%x
-       call this%global_interp%evaluate(this%cm_mark, wrk%x, .true.)
-       call df_adjoint_normalisation(this%cm_mark, this%sm_mark, &
+       call this%global_interp%evaluate(cm, wrk%x, .true.)
+       call df_adjoint_normalisation(cm, this%sm_mark, &
             this%cmin, this%lag_pts, 'Adj. spread - side')
     end if
 
     if (this%one_sided) then
        call df_adjoint_lump(this, ones, rowsum, this%dp_mark, &
             'Adj. spread + side', this%sp_mark, out, wrk, this%swp)
-       this%gp_mark = rowsum * this%dp_mark
        call df_adjoint_lump(this, ones, rowsum, this%dm_mark, &
             'Adj. spread - side', this%sm_mark, out, wrk, this%swm)
-       this%gm_mark = rowsum * this%dm_mark
     else
        call df_adjoint_lump(this, ones, rowsum, this%dp_mark, &
             'Adj. spread', this%sp_mark, out, wrk)
-       this%gp_mark = rowsum * this%dp_mark
     end if
     this%dsp_mark(1:n_lag) = this%dp_mark * this%sp_mark(1:n_lag)
     this%dsm_mark(1:n_lag) = this%dm_mark * this%sm_mark(1:n_lag)
 
-    deallocate(ones, rowsum)
+    deallocate(ones, rowsum, cp, cm)
 
     ! Device mirrors: the interpolation scaling and the deposit weights
     ! are read by the per-step path, the scaled values are handed to the
@@ -1318,9 +1327,7 @@ contains
   !! healthy, orders of magnitude above one blows a run up in its first
   !! step. The device result must match the host one to round-off; a
   !! difference points at the device data flow (deposit kernel, CSR
-  !! mirrors, marker exchange), not at the method. With `marker_output`
-  !! the response and the side weight are kept as the registry fields
-  !! ib_response_plus/minus and ib_mask_plus/minus.
+  !! mirrors, marker exchange), not at the method.
   subroutine df_adjoint_check_response(this, d, scal, label, out, wrk, msk)
     class(direct_forcing_source_term_t), intent(inout) :: this
     real(kind=rp), intent(in) :: d(:), scal(:)
@@ -1329,13 +1336,8 @@ contains
     type(field_t), intent(in), optional :: msk
     real(kind=rp), allocatable :: vals(:), du_host(:,:,:,:)
     character(len=LOG_SIZE) :: log_buf
-    character(len=6) :: suffix
-    type(field_t), pointer :: fld
     real(kind=rp) :: m(3)
     integer :: n_lag, n, nv
-
-    suffix = '_plus'
-    if (index(label, '- side') .gt. 0) suffix = '_minus'
 
     n_lag = size(d)
     nv = max(n_lag, 1)
@@ -1358,28 +1360,6 @@ contains
     m(1) = maxval(abs(out%x))
     m(2) = m(1)
     m(3) = 0.0_rp
-
-    ! Keep the response as a registry field for the field output: a wall
-    ! node on this side should show a value near one, a hole shows zero
-    if (this%marker_output) then
-       call neko_registry%add_field(this%coef%dof, 'ib_response' // suffix, &
-            ignore_existing = .true.)
-       fld => neko_registry%get_field('ib_response' // suffix)
-       fld%x = out%x
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(fld%x, fld%x_d, n, HOST_TO_DEVICE, sync = .true.)
-       end if
-       if (present(msk)) then
-          call neko_registry%add_field(this%coef%dof, 'ib_mask' // suffix, &
-               ignore_existing = .true.)
-          fld => neko_registry%get_field('ib_mask' // suffix)
-          fld%x = msk%x
-          if (NEKO_BCKND_DEVICE .eq. 1) then
-             call device_memcpy(fld%x, fld%x_d, n, HOST_TO_DEVICE, &
-                  sync = .true.)
-          end if
-       end if
-    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        du_host = out%x
@@ -1624,87 +1604,95 @@ contains
   !! normalised marker velocities `fu_ib` (+ side) and `fum_ib` (- side)
   !! interpolated before. The result is continuous (assembled inside the
   !! operator). With `on_host` false the marker velocities are read from
-  !! their device buffers and the deposit runs on the device.
+  !! their device buffers and the deposit runs on the device. The three
+  !! components of a side are deposited into `wrk` and two scratch fields
+  !! and assembled in one vector halo exchange.
   subroutine df_spread_adjoint(this, fx, fy, fz, wrk, dt, on_host)
     class(direct_forcing_source_term_t), intent(inout) :: this
     type(field_t), intent(inout) :: fx, fy, fz, wrk
     real(kind=dp), intent(in) :: dt
     logical, intent(in) :: on_host
+    type(field_t), pointer :: wy, wz
     real(kind=rp) :: idt
-    integer :: n_lag
+    integer :: scr_idx(2)
 
-    n_lag = size(this%fu_ib)
     idt = -1.0_rp / real(dt, kind=rp)
+
+    call neko_scratch_registry%request_field(wy, scr_idx(1), .false.)
+    call neko_scratch_registry%request_field(wz, scr_idx(2), .false.)
 
     ! The marker velocities fu_ib etc. are already normalised (s I(sw u));
     ! the deposit carries d s, so the pair interp/spread stays adjoint
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
-       call df_spread_adjoint_side(this, this%fu_ib_d, this%dsp_mark_d, &
-            fx, wrk, idt, n_lag, this%one_sided, this%swp)
-       call df_spread_adjoint_side(this, this%fv_ib_d, this%dsp_mark_d, &
-            fy, wrk, idt, n_lag, this%one_sided, this%swp)
-       call df_spread_adjoint_side(this, this%fw_ib_d, this%dsp_mark_d, &
-            fz, wrk, idt, n_lag, this%one_sided, this%swp)
-       if (this%one_sided) then
-          call df_spread_adjoint_side(this, this%fum_ib_d, &
-               this%dsm_mark_d, fx, wrk, idt, n_lag, .true., this%swm)
-          call df_spread_adjoint_side(this, this%fvm_ib_d, &
-               this%dsm_mark_d, fy, wrk, idt, n_lag, .true., this%swm)
-          call df_spread_adjoint_side(this, this%fwm_ib_d, &
-               this%dsm_mark_d, fz, wrk, idt, n_lag, .true., this%swm)
-       end if
-    else if (this%one_sided) then
-       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fu_ib
-       call df_adjoint_apply(this, this%vals_adj, fx, wrk, .true., &
-            this%swp)
-       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fv_ib
-       call df_adjoint_apply(this, this%vals_adj, fy, wrk, .true., &
-            this%swp)
-       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fw_ib
-       call df_adjoint_apply(this, this%vals_adj, fz, wrk, .true., &
-            this%swp)
+    call df_spread_adjoint_deposit(this, this%fu_ib, this%fu_ib_d, &
+         this%dsp_mark, this%dsp_mark_d, wrk, idt, on_host)
+    call df_spread_adjoint_deposit(this, this%fv_ib, this%fv_ib_d, &
+         this%dsp_mark, this%dsp_mark_d, wy, idt, on_host)
+    call df_spread_adjoint_deposit(this, this%fw_ib, this%fw_ib_d, &
+         this%dsp_mark, this%dsp_mark_d, wz, idt, on_host)
+    call df_spread_adjoint_side(this, fx, fy, fz, wrk, wy, wz, on_host, &
+         this%one_sided, this%swp)
 
-       this%vals_adj(1:n_lag) = idt * this%dsm_mark(1:n_lag) * this%fum_ib
-       call df_adjoint_apply(this, this%vals_adj, fx, wrk, .true., &
-            this%swm)
-       this%vals_adj(1:n_lag) = idt * this%dsm_mark(1:n_lag) * this%fvm_ib
-       call df_adjoint_apply(this, this%vals_adj, fy, wrk, .true., &
-            this%swm)
-       this%vals_adj(1:n_lag) = idt * this%dsm_mark(1:n_lag) * this%fwm_ib
-       call df_adjoint_apply(this, this%vals_adj, fz, wrk, .true., &
-            this%swm)
-    else
-       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fu_ib
-       call df_adjoint_apply(this, this%vals_adj, fx, wrk, .true.)
-       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fv_ib
-       call df_adjoint_apply(this, this%vals_adj, fy, wrk, .true.)
-       this%vals_adj(1:n_lag) = idt * this%dsp_mark(1:n_lag) * this%fw_ib
-       call df_adjoint_apply(this, this%vals_adj, fz, wrk, .true.)
+    if (this%one_sided) then
+       call df_spread_adjoint_deposit(this, this%fum_ib, this%fum_ib_d, &
+            this%dsm_mark, this%dsm_mark_d, wrk, idt, on_host)
+       call df_spread_adjoint_deposit(this, this%fvm_ib, this%fvm_ib_d, &
+            this%dsm_mark, this%dsm_mark_d, wy, idt, on_host)
+       call df_spread_adjoint_deposit(this, this%fwm_ib, this%fwm_ib_d, &
+            this%dsm_mark, this%dsm_mark_d, wz, idt, on_host)
+       call df_spread_adjoint_side(this, fx, fy, fz, wrk, wy, wz, on_host, &
+            .true., this%swm)
     end if
+
+    call neko_scratch_registry%relinquish_field(scr_idx)
 
   end subroutine df_spread_adjoint
 
-  !> One component and side of the device adjoint spread: scale the
-  !! marker velocities `u_d` by `idt * d_d` into the mapped scratch and
-  !! apply the (masked) adjoint.
-  subroutine df_spread_adjoint_side(this, u_d, d_d, out, wrk, idt, n_lag, &
+  !> One component and side of the adjoint spread: scale the marker
+  !! velocities `u` by `idt * d` into the mapped scratch `vals_adj` and
+  !! deposit them, unassembled, into `wrk`. The host arrays are read with
+  !! `on_host`, the device buffers `u_d`, `d_d` otherwise.
+  subroutine df_spread_adjoint_deposit(this, u, u_d, d, d_d, wrk, idt, &
+       on_host)
+    class(direct_forcing_source_term_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: u(:), d(:)
+    type(c_ptr), intent(in) :: u_d, d_d
+    type(field_t), intent(inout) :: wrk
+    real(kind=rp), intent(in) :: idt
+    logical, intent(in) :: on_host
+    integer :: n_lag
+
+    n_lag = size(u)
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. .not. on_host) then
+       if (n_lag .gt. 0) then
+          call device_col3(this%vals_adj_d, d_d, u_d, n_lag)
+          call device_cmult(this%vals_adj_d, idt, n_lag)
+       end if
+    else
+       this%vals_adj(1:n_lag) = idt * d(1:n_lag) * u
+    end if
+    call df_adjoint_deposit(this, this%vals_adj, wrk, on_host)
+
+  end subroutine df_spread_adjoint_deposit
+
+  !> One side of the adjoint spread: assemble the three deposits in one
+  !! vector exchange, then weight, mask (with `masked`) and accumulate
+  !! them into the forcing components.
+  subroutine df_spread_adjoint_side(this, fx, fy, fz, wx, wy, wz, on_host, &
        masked, msk)
     class(direct_forcing_source_term_t), intent(inout) :: this
-    type(c_ptr), intent(in) :: u_d, d_d
-    type(field_t), intent(inout) :: out, wrk
-    real(kind=rp), intent(in) :: idt
-    integer, intent(in) :: n_lag
-    logical, intent(in) :: masked
+    type(field_t), intent(inout) :: fx, fy, fz, wx, wy, wz
+    logical, intent(in) :: on_host, masked
     type(field_t), intent(in) :: msk
 
-    if (n_lag .gt. 0) then
-       call device_col3(this%vals_adj_d, d_d, u_d, n_lag)
-       call device_cmult(this%vals_adj_d, idt, n_lag)
-    end if
+    call df_assemble_sum3(this%gs, wx, wy, wz, on_host)
     if (masked) then
-       call df_adjoint_apply(this, this%vals_adj, out, wrk, .false., msk)
+       call df_adjoint_finish(this, fx, wx, on_host, msk)
+       call df_adjoint_finish(this, fy, wy, on_host, msk)
+       call df_adjoint_finish(this, fz, wz, on_host, msk)
     else
-       call df_adjoint_apply(this, this%vals_adj, out, wrk, .false.)
+       call df_adjoint_finish(this, fx, wx, on_host)
+       call df_adjoint_finish(this, fy, wy, on_host)
+       call df_adjoint_finish(this, fz, wz, on_host)
     end if
 
   end subroutine df_spread_adjoint_side
@@ -2094,10 +2082,6 @@ contains
 
     if (allocated(this%dp_mark)) deallocate(this%dp_mark)
     if (allocated(this%dm_mark)) deallocate(this%dm_mark)
-    if (allocated(this%gp_mark)) deallocate(this%gp_mark)
-    if (allocated(this%gm_mark)) deallocate(this%gm_mark)
-    if (allocated(this%cp_mark)) deallocate(this%cp_mark)
-    if (allocated(this%cm_mark)) deallocate(this%cm_mark)
     if (allocated(this%sp_mark)) deallocate(this%sp_mark)
     if (allocated(this%sm_mark)) deallocate(this%sm_mark)
     if (allocated(this%dsp_mark)) deallocate(this%dsp_mark)

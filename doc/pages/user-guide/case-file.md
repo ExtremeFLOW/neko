@@ -1512,7 +1512,7 @@ before the markers are seeded.
 
 | Name                    | Description                                                                                            | Admissible values                      | Default value                                  |
 | ----------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------- | ---------------------------------------------- |
-| `interpolation`         | Velocity interpolation onto the markers.                                                               | `spectral`, `idw`, `adjoint`           | `spectral`                                     |
+| `interpolation`         | Velocity interpolation onto the markers.                                                               | `spectral`, `idw`, `adjoint`           | `adjoint`                                      |
 | `spread`                | Distribution of the marker forces onto the mesh. The adjoint spreads require `spectral` interpolation. | `idw`, `adjoint`, `adjoint_mass`       | `idw`                                          |
 | `rmax`                  | Radius of the inverse distance kernel, in local grid spacings.                                         | Real                                   | `1.2`                                          |
 | `power_parameter`       | Exponent of the inverse distance kernel.                                                               | Real                                   | `0.5`                                          |
@@ -1525,7 +1525,6 @@ before the markers are seeded.
 | `nudge`                 | Step of the marker nudge for unplaced or outside markers, in units of the smallest grid spacing.       | Real                                   | `0.5`                                          |
 | `face_tolerance`        | Distance to an element face, in reference coordinates, below which a marker counts as on the face. `0` disables. | Real                         | `0.02` (adjoint spread), `0.0` (kernel spread) |
 | `face_nudge`            | Outward step of a marker on a face, in local grid spacings per pass.                                   | Real                                   | `0.02`                                         |
-| `marker_output`         | Write the markers to `df_markers_<rank>.csv` and register the diagnostic fields.                       | `true` or `false`                      | `false`                                        |
 | `filter.type`           | Filter applied to the assembled forcing, see [filters](@ref filter) for the other keywords.            | `none`, `elementwise`, `PDE`           | `none`                                         |
 | `objects`               | Array of JSON objects defining the immersed surfaces.                                                  | Each object must specify a `type`      | -                                              |
 | `force_output`          | Optional JSON object enabling the force output, see below.                                             | -                                      | -                                              |
