@@ -82,6 +82,7 @@ module logger
      procedure, pass(this) :: deprecated => log_deprecated
      procedure, pass(this) :: end_section => log_end_section
      procedure, pass(this) :: flush => log_flush
+     procedure, pass(this) :: level => log_level
 
      procedure, private, pass(this) :: print_section_header => &
           log_print_section_header
@@ -193,6 +194,15 @@ contains
     end if
 
   end subroutine log_flush
+
+  !> Return the log level. Messages with a level above it are not written.
+  pure function log_level(this) result(lvl)
+    class(log_t), intent(in) :: this
+    integer :: lvl
+
+    lvl = this%level_
+
+  end function log_level
 
   !> Increase indention level
   subroutine log_begin(this)
