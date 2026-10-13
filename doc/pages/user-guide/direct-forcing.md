@@ -61,18 +61,13 @@ markers.
   with the kernel of the spread below. It smooths the velocity over the
   stencil and needs no point search.
 - `adjoint` (default): Shepard interpolation with the weights modified so that the
-  interpolation is the transpose of the kernel spread in the inner product
-  weighted with the element-lumped mass, the same weight as the adjoint
-  spread below. With this choice the composite operator \f$ S I \f$ is
-  symmetric and positive semi-definite in that inner product with all
-  eigenvalues in \f$ [0, 1] \f$: the forcing can never add energy in the
-  lumped-mass norm, which is the kinetic energy up to the quadrature
-  weights, and the gain of the composite is exactly `spread_gain`. The
-  lumped mass weights every node of an element alike; with the pointwise
-  GLL mass the nodes on element faces and edges, where that mass is small,
-  would hardly be forced and the flow would leak through the surface along
-  the element boundaries. The interpolation radius is tied to the spread
-  radius `rmax`. Only valid with the `idw` spread.
+  interpolation is the mass-weighted transpose of the kernel spread. With
+  this choice the composite operator \f$ S I \f$ is symmetric and
+  positive semi-definite in the mass inner product with all eigenvalues in
+  \f$ [0, 1] \f$: the forcing can never add kinetic energy to the fluid, and
+  the gain of the composite is exactly `spread_gain`. The interpolation
+  radius is tied to the spread radius `rmax`. Only valid with the `idw`
+  spread.
 
 ## Spread {#direct-forcing_spread}
 

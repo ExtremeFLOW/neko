@@ -150,8 +150,8 @@ __global__ void idw_gather_one_sided_kernel(T * __restrict__ fu,
  * reduce them in shared memory. Mirrors idw_interp_shepard_partials() in
  * direct_forcing_source_term.f90: with adjoint != 0 the weight of a node is
  * K * mult / (Binv * w_side), zero where |w_side| <= wtol, Binv being the
- * inverse of the inner-product weight (the element-lumped mass) and
- * w_p / w_m the assembled spread weights.
+ * inverse of the assembled mass matrix (coef%Binv) and w_p / w_m the
+ * assembled spread weights.
  */
 template< typename T, int NT >
 __global__ void idw_interp_partials_kernel(T * __restrict__ part,

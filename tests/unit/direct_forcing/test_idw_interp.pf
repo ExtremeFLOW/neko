@@ -331,7 +331,7 @@ contains
   end subroutine setup_spread_weights
 
   !> (g) With `adjoint` the interpolation is the transpose of the spread in
-  !! the inner product with weight B (passed as its inverse `winv`): for any
+  !! the inner product with weight B (passed as its inverse `Binv`): for any
   !! marker vector g and field u, per side,
   !! sum_i g_i (part numerator)_i = sum_x B_x u_x (S g)_x, where the spread
   !! (S g)_x = sum_i K_xi g_i / w_x is rebuilt here from the kernel. Checked
@@ -399,7 +399,7 @@ contains
     end do
 
     call idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, pmsk, &
-         mult, x, y, z, ds, rmax, p, lx, ne, adjoint = .true., winv = Binv, &
+         mult, x, y, z, ds, rmax, p, lx, ne, adjoint = .true., Binv = Binv, &
          sw_p = sw_p, sw_m = sw_m)
 
     lhs_p = sum(g_p * part(1, :))
@@ -448,7 +448,7 @@ contains
 
     call idw_interp_shepard(fu, fv, fw, fum, fvm, fwm, lag_pts, lag_el, &
          u, v, w, pmsk, mult, x, y, z, ds, 2.0_rp, 0.5_rp, lx, ne, &
-         adjoint = .true., winv = Binv, sw_p = sw_p, sw_m = sw_m)
+         adjoint = .true., Binv = Binv, sw_p = sw_p, sw_m = sw_m)
 
     @assertEqual(3.14_rp, fu(1), tolerance = 1e-12_rp)
     @assertEqual(-2.71_rp, fv(1), tolerance = 1e-12_rp)

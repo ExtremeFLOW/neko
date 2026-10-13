@@ -244,14 +244,14 @@ contains
   !> Shepard / adjoint interpolation partial sums on the device: one thread
   !! block per Lagrangian point, 8 sums per point written to `part`
   !! (plus side u, v, w, weight; minus side u, v, w, weight), the layout of
-  !! idw_interp_shepard_partials. `winv` is the inverse of the inner-product
-  !! weight (the element-lumped mass) and `w_p`/`w_m` the assembled spread
-  !! weights, read only with `adjoint`.
+  !! idw_interp_shepard_partials. `Binv` is the inverse of the assembled
+  !! mass matrix (coef%Binv) and `w_p`/`w_m` the assembled spread weights,
+  !! read only with `adjoint`.
   subroutine device_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
-       mult, winv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+       mult, Binv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
        rmax_i, pwr, eps, wtol, adjoint)
     type(c_ptr) :: part, u, v, w
-    type(c_ptr) :: x, y, z, ds, pmsk, mult, winv, w_p, w_m
+    type(c_ptr) :: x, y, z, ds, pmsk, mult, Binv, w_p, w_m
     type(c_ptr) :: lpx, lpy, lpz, lag_off, lag_els
     integer, intent(in) :: n_lag, lx3
     real(kind=rp), intent(in) :: rmax_i, pwr, eps, wtol
@@ -262,19 +262,19 @@ contains
 
 #ifdef HAVE_HIP
     call hip_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
-         mult, winv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+         mult, Binv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
          rmax_i, pwr, eps, wtol, adj)
 #elif HAVE_CUDA
     call cuda_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
-         mult, winv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+         mult, Binv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
          rmax_i, pwr, eps, wtol, adj)
 #elif HAVE_OPENCL
     call opencl_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
-         mult, winv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+         mult, Binv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
          rmax_i, pwr, eps, wtol, adj, glb_cmd_queue)
 #elif HAVE_METAL
     call metal_idw_interp_partials(part, u, v, w, x, y, z, ds, pmsk, &
-         mult, winv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
+         mult, Binv, w_p, w_m, lpx, lpy, lpz, lag_off, lag_els, n_lag, lx3, &
          rmax_i, pwr, eps, wtol, adj)
 #else
     call neko_error('No device backend configured')

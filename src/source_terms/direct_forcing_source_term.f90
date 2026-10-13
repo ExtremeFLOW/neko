@@ -160,10 +160,9 @@ module direct_forcing_source_term
      !> Use Shepard IDW interpolation onto the markers instead of the
      !! global (rst-based) interpolation
      logical :: idw_interp = .false.
-     !> Shepard weights K W mult / w with W the element-lumped mass
-     !! (`winv`), which make the interpolation the adjoint of the spread in
-     !! the lumped-mass inner product so that the forcing never adds energy
-     !! in that norm (implies `idw_interp`, and `interp_rmax` = `rmax`)
+     !> Shepard weights K B mult / w, which make the interpolation the
+     !! mass-weighted adjoint of the spread so that the forcing never adds
+     !! kinetic energy (implies `idw_interp`, and `interp_rmax` = `rmax`)
      logical :: adjoint_interp = .false.
      !> Spread the marker forcing with the mass-weighted adjoint of the
      !! spectral interpolation, f = -(1/dt) mask Binv gs_add(I^T D u_m),
@@ -175,8 +174,7 @@ module direct_forcing_source_term
      logical :: adjoint_mass = .false.
      !> Inverse of the element-lumped mass (element volume over node
      !! count, averaged over the copies of a shared node), the weight of
-     !! the inner product the adjoint spread and the adjoint interpolation
-     !! are taken in
+     !! the inner product the adjoint spread is taken in
      type(field_t) :: winv
      !> Lumped marker weights D of the adjoint spread, + and - side
      real(kind=rp), allocatable :: dp_mark(:)
@@ -386,13 +384,10 @@ contains
     write(log_buf, '(A,f5.2)') 'Padding    : ', aabb_padding
     call neko_log%message(log_buf)
 
-    ! Element-lumped mass for the adjoint spread and the adjoint
-    ! interpolation: the local mass of an element spread evenly over its
-    ! nodes, then averaged over the copies of a shared node so that the
-    ! weight is the same on every copy. Unlike the pointwise GLL mass it
-    ! does not shrink on element faces and edges, which an adjoint taken
-    ! in the GLL mass would then barely force.
-    if (this%adjoint_spread .or. this%adjoint_interp) then
+    ! Element-lumped mass for the adjoint spread: the local mass of an
+    ! element spread evenly over its nodes, then averaged over the copies
+    ! of a shared node so that the weight is the same on every copy
+    if (this%adjoint_spread) then
        call this%winv%init(coef%dof, "ib_winv")
        do e = 1, coef%msh%nelv
           this%winv%x(:,:,:,e) = sum(coef%B(:,:,:,e)) / real(coef%Xh%lxyz, rp)
@@ -715,7 +710,7 @@ contains
     call df_assemble(this%gs, this%pmsk, coef%mult)
     call df_assemble(this%gs, this%mmsk, coef%mult)
 
-    if (this%adjoint_spread .or. this%adjoint_interp) then
+    if (this%adjoint_spread) then
        call df_assemble(this%gs, this%winv, coef%mult)
        this%winv%x = 1.0_rp / this%winv%x
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -1980,20 +1975,11 @@ contains
     type(field_t), intent(inout) :: fu, fv, fw, wrk
     type(field_t), intent(inout) :: u, v, w
     type(time_state_t), intent(in) :: time
-    type(c_ptr) :: winv_d
     integer :: n_lag, nt
     real(kind=rp) :: wtol
 
     n_lag = size(this%fu_ib)
     nt = wrk%size()
-
-    ! The partials kernel reads the inverse weight only with the adjoint
-    ! interpolation; any mapped array stands in for it otherwise
-    if (this%adjoint_interp) then
-       winv_d = this%winv%x_d
-    else
-       winv_d = this%coef%Binv_d
-    end if
 
     this%fu_ib = 0.0_rp
     this%fv_ib = 0.0_rp
@@ -2006,7 +1992,7 @@ contains
        if (n_lag > 0) then
           call device_idw_interp_partials(this%part_d, u%x_d, v%x_d, w%x_d, &
                this%w%dof%x%x_d, this%w%dof%y%x_d, this%w%dof%z%x_d, &
-               this%ds%x_d, this%pmsk%x_d, this%coef%mult_d, winv_d, &
+               this%ds%x_d, this%pmsk%x_d, this%coef%mult_d, this%coef%Binv_d, &
                this%w%x_d, this%wm%x_d, this%lpx_d, this%lpy_d, this%lpz_d, &
                this%lag_off_d, this%lag_els_d, n_lag, this%lx3, &
                this%interp_rmax, this%pwr_param, NEKO_EPS, 1.0e-10_rp, &
@@ -2264,20 +2250,14 @@ contains
          end if
       else
          ! Interpolation stage: velocity at the Lagrangian points
-         if (this%idw_interp .and. this%adjoint_interp) then
+         if (this%idw_interp) then
             call idw_interp_shepard(fu_ib, fv_ib, fw_ib, &
                  fum_ib, fvm_ib, fwm_ib, lag_pts, this%lag_el, &
                  u%x, v%x, w%x, this%pmsk%x, this%coef%mult, x, y, z, ds, &
                  this%interp_rmax, this%pwr_param, lx, this%coef%msh%nelv, &
                  this%shared_slot, this%n_shared_glb, &
-                 adjoint = .true., winv = this%winv%x, &
+                 adjoint = this%adjoint_interp, Binv = this%coef%Binv, &
                  sw_p = this%w%x, sw_m = this%wm%x)
-         else if (this%idw_interp) then
-            call idw_interp_shepard(fu_ib, fv_ib, fw_ib, &
-                 fum_ib, fvm_ib, fwm_ib, lag_pts, this%lag_el, &
-                 u%x, v%x, w%x, this%pmsk%x, this%coef%mult, x, y, z, ds, &
-                 this%interp_rmax, this%pwr_param, lx, this%coef%msh%nelv, &
-                 this%shared_slot, this%n_shared_glb)
          else if (this%adjoint_spread) then
             ! Side-weighted interpolation normalised per marker, s I(sw u)
             call df_interp_adjoint_host(this, wrk, u, v, w)
@@ -2492,14 +2472,14 @@ contains
   !! normalization, so every copy computes the full-stencil value. The
   !! reduction is collective: all ranks in NEKO_COMM must call this routine.
   !!
-  !! With `adjoint` set (and `winv`, `sw_p`, `sw_m` passed) every weight is
-  !! multiplied by the inner-product weight W = 1/`winv` and divided by the
-  !! assembled spread weight of the node's side, so that with `rmax_i`
-  !! equal to the spread radius the interpolation is the adjoint of the
-  !! spread in the W inner product.
+  !! With `adjoint` set (and `Binv`, `sw_p`, `sw_m` passed) every weight is
+  !! multiplied by the mass matrix (1/`Binv`) and divided by the assembled
+  !! spread weight of the node's side, so that with `rmax_i` equal to the
+  !! spread radius the interpolation is the mass-weighted adjoint of the
+  !! spread.
   subroutine idw_interp_shepard(fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, fwm_ib, &
        lag_pts, lag_el, u, v, w, pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne, &
-       shared_slot, n_shared, adjoint, winv, sw_p, sw_m)
+       shared_slot, n_shared, adjoint, Binv, sw_p, sw_m)
     real(kind=rp), intent(inout) :: fu_ib(:), fv_ib(:), fw_ib(:)
     real(kind=rp), intent(inout) :: fum_ib(:), fvm_ib(:), fwm_ib(:)
     type(point_t), intent(in) :: lag_pts(:)
@@ -2511,12 +2491,12 @@ contains
     integer, intent(in), optional :: shared_slot(:)
     integer, intent(in), optional :: n_shared
     logical, intent(in), optional :: adjoint
-    real(kind=rp), dimension(lx,lx,lx,ne), intent(in), optional :: winv, sw_p, sw_m
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in), optional :: Binv, sw_p, sw_m
     real(kind=rp), allocatable :: part(:,:)
 
     allocate(part(8, size(lag_pts)))
     call idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, pmsk, &
-         mult, x, y, z, ds, rmax_i, p, lx, ne, adjoint, winv, sw_p, sw_m)
+         mult, x, y, z, ds, rmax_i, p, lx, ne, adjoint, Binv, sw_p, sw_m)
     call idw_interp_shepard_finalize(fu_ib, fv_ib, fw_ib, fum_ib, fvm_ib, &
          fwm_ib, part, shared_slot, n_shared)
     deallocate(part)
@@ -2570,16 +2550,15 @@ contains
   !! contribution carries the dof multiplicity weight, the partials of one
   !! marker are exactly summable over the ranks holding a copy of it.
   !!
-  !! With `adjoint` set the weight of a node is K W mult / sw, where W is
-  !! the inner-product weight (1/winv, identical on every copy of a dof;
-  !! the source term passes the element-lumped mass) and sw the assembled
-  !! spread weight of the node's side (`sw_p` where pmsk > 0, `sw_m`
-  !! elsewhere); nodes the spread leaves untouched (sw below the spread's
-  !! tolerance) get weight zero. Summed over the stencil elements this is
-  !! exactly the transpose of the spread in the W inner product, including
-  !! the markers listed by only some of a dof's elements.
+  !! With `adjoint` set the weight of a node is K B mult / sw, where B is
+  !! the assembled mass matrix (1/Binv, identical on every copy of a dof)
+  !! and sw the assembled spread weight of the node's side (`sw_p` where
+  !! pmsk > 0, `sw_m` elsewhere); nodes the spread leaves untouched (sw
+  !! below the spread's tolerance) get weight zero. Summed over the stencil
+  !! elements this is exactly the transpose of the spread in the mass inner
+  !! product, including the markers listed by only some of a dof's elements.
   subroutine idw_interp_shepard_partials(part, lag_pts, lag_el, u, v, w, &
-       pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne, adjoint, winv, sw_p, sw_m)
+       pmsk, mult, x, y, z, ds, rmax_i, p, lx, ne, adjoint, Binv, sw_p, sw_m)
     real(kind=rp), intent(inout) :: part(:,:)
     type(point_t), intent(in) :: lag_pts(:)
     type(stack_i4_t), intent(inout) :: lag_el(:)
@@ -2588,7 +2567,7 @@ contains
     real(kind=rp), dimension(lx,lx,lx,ne), intent(in) :: pmsk, mult, x, y, z, ds
     real(kind=rp), intent(in) :: rmax_i, p
     logical, intent(in), optional :: adjoint
-    real(kind=rp), dimension(lx,lx,lx,ne), intent(in), optional :: winv, sw_p, sw_m
+    real(kind=rp), dimension(lx,lx,lx,ne), intent(in), optional :: Binv, sw_p, sw_m
     real(kind=rp), parameter :: wtol = 1e-10_rp
     integer :: i, j, k, l, e, ee
     real(kind=rp) :: r, wgt, acc(8)
@@ -2598,10 +2577,10 @@ contains
     use_adjoint = .false.
     if (present(adjoint)) use_adjoint = adjoint
     if (use_adjoint) then
-       if (.not. (present(winv) .and. present(sw_p) .and. present(sw_m))) &
+       if (.not. (present(Binv) .and. present(sw_p) .and. present(sw_m))) &
             then
           call neko_error('idw_interp_shepard_partials: adjoint weights &
-               &need winv, sw_p and sw_m')
+               &need Binv, sw_p and sw_m')
        end if
     end if
 
@@ -2630,7 +2609,7 @@ contains
                       if (pmsk(j,k,l,e) .gt. 0.0_rp) then
                          if (use_adjoint) then
                             if (abs(sw_p(j,k,l,e)) .gt. wtol) then
-                               wgt = wgt / (winv(j,k,l,e) * sw_p(j,k,l,e))
+                               wgt = wgt / (Binv(j,k,l,e) * sw_p(j,k,l,e))
                             else
                                wgt = 0.0_rp
                             end if
@@ -2642,7 +2621,7 @@ contains
                       else
                          if (use_adjoint) then
                             if (abs(sw_m(j,k,l,e)) .gt. wtol) then
-                               wgt = wgt / (winv(j,k,l,e) * sw_m(j,k,l,e))
+                               wgt = wgt / (Binv(j,k,l,e) * sw_m(j,k,l,e))
                             else
                                wgt = 0.0_rp
                             end if
