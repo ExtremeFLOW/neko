@@ -42,7 +42,7 @@ neko_fortran_SOURCES = \
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
 	sem/local_interpolation.f90 \
-	math/math.f90\
+	math/math.F90\
 	math/mathops.f90\
 	math/fast3d.f90\
 	sem/space.f90\
@@ -134,7 +134,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/cpu/tensor_cpu.f90\
 	math/bcknd/sx/tensor_sx.f90\
 	math/bcknd/xsmm/tensor_xsmm.F90\
-	math/fdm.f90\
+	math/fdm.F90\
 	math/bcknd/cpu/fdm_cpu.f90\
 	math/bcknd/sx/fdm_sx.f90\
 	math/bcknd/xsmm/fdm_xsmm.f90\
