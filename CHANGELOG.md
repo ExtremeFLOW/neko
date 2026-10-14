@@ -11,6 +11,9 @@
 
 ## Develop
 
+- Fixed `map_1d` leaving elements without a level when the propagated
+  minimum coordinate differs from the global minimum by roundoff, as with
+  the default floating point model of ifx in single precision.
 - Added an agent skill for writing pFUnit unit tests, rewrote the testing
   guide, and brought older unit-test suites in line with the templates.
 - Fixed restarted 3D statistics skipping velocity, pressure, temperature fields 
