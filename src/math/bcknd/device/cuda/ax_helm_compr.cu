@@ -173,8 +173,8 @@ extern "C" {
       <<<NEKO_DMMA_NBLCKS(*nelv, LX), NEKO_DMMA_NTHRDS(C), 0, stream>>>         \
                           ((real *) w, (real *) u,                              \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
-                           (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,            \
-                           (real_xp *) g12, (real_xp *) g13, (real_xp *) g23,            \
+                           (real *) g11, (real *) g22, (real *) g33,            \
+                           (real *) g12, (real *) g13, (real *) g23,            \
                            (const int *) ind, *nelv);                           \
       CUDA_CHECK(cudaGetLastError());
 
@@ -197,8 +197,8 @@ extern "C" {
       <<<NEKO_DMMA_NBLCKS(*nelv, LX), NEKO_DMMA_NTHRDS(C), 0, stream>>>         \
                           ((real *) w, (real *) u,                              \
                            (real *) dx, (real *) dy, (real *) dz, (real *) h1,  \
-                           (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,            \
-                           (real_xp *) g12, (real_xp *) g13, (real_xp *) g23,            \
+                           (real *) g11, (real *) g22, (real *) g33,            \
+                           (real *) g12, (real *) g13, (real *) g23,            \
                            (const int *) ind);                                  \
       CUDA_CHECK(cudaGetLastError());
 
@@ -384,9 +384,9 @@ extern "C" {
                                     ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
-                                     (real *) h1, (real_xp *) g11, (real_xp *) g22,  \
-                                     (real_xp *) g33, (real_xp *) g12, (real_xp *) g13, \
-                                     (real_xp *) g23,                             \
+                                     (real *) h1, (real *) g11, (real *) g22,  \
+                                     (real *) g33, (real *) g12, (real *) g13, \
+                                     (real *) g23,                             \
                                      (const int *) ind);                       \
     CUDA_CHECK(cudaGetLastError());
 
@@ -406,9 +406,9 @@ extern "C" {
                                     ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
-                                     (real *) h1, (real_xp *) g11, (real_xp *) g22,  \
-                                     (real_xp *) g33, (real_xp *) g12, (real_xp *) g13, \
-                                     (real_xp *) g23,                             \
+                                     (real *) h1, (real *) g11, (real *) g22,  \
+                                     (real *) g33, (real *) g12, (real *) g13, \
+                                     (real *) g23,                             \
                                      (const int *) ind);                       \
     CUDA_CHECK(cudaGetLastError());
 
@@ -435,9 +435,9 @@ extern "C" {
                                     ((real *) au, (real *) av, (real *) aw,    \
                                      (real *) u, (real *) v, (real *) w,       \
                                      (real *) dx, (real *) dy, (real *) dz,    \
-                                     (real *) h1, (real_xp *) g11, (real_xp *) g22,  \
-                                     (real_xp *) g33, (real_xp *) g12, (real_xp *) g13, \
-                                     (real_xp *) g23,                             \
+                                     (real *) h1, (real *) g11, (real *) g22,  \
+                                     (real *) g33, (real *) g12, (real *) g13, \
+                                     (real *) g23,                             \
                                      (const int *) ind);                       \
     CUDA_CHECK(cudaGetLastError());
 
