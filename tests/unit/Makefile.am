@@ -51,6 +51,7 @@ SUBDIRS = tuple\
 	  wall_sampling\
 	  geo_compression\
 	  restart_consistency\
+	  crystal_router\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -106,6 +107,7 @@ TESTS = device/device_test\
 	wall_sampling/wall_sampling_test\
 	geo_compression/geo_compression_test\
 	restart_consistency/restart_consistency_test\
+	crystal_router/crystal_router_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -211,6 +213,9 @@ EXTRA_DIST = \
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
 	checkpoint_payload/test_checkpoint_payload.pf\
+	crystal_router/test_crystal_router_parallel.pf\
+	crystal_router/crystal_router_test\
+	fixtures/mesh_fixture.f90\
 	templates/serial/test_serial.pf
 
 if ENABLE_HDF5

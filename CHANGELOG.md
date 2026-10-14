@@ -11,6 +11,8 @@
 
 ## Develop
 
+- Added an agent skill for writing pFUnit unit tests, rewrote the testing
+  guide, and brought older unit-test suites in line with the templates.
 - Fixed restarted 3D statistics skipping velocity, pressure, temperature fields 
   on output.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
