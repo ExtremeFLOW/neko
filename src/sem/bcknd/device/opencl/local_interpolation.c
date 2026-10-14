@@ -49,6 +49,72 @@
 
 #include "local_interpolation_kernel.cl.h"
 
+void opencl_local_interpolation_compute_weights(
+    void *rst, void *zg, void *wr, void *ws, void *wt,
+    const int *lx, const int *n) {
+  if (*n <= 0) return;
+  if (*lx < 1 || *lx > 16) {
+    fprintf(stderr, "Unsupported interpolation order: %d\n", *lx);
+    exit(1);
+  }
+  if (find_rst_legendre_program == NULL)
+    opencl_kernel_jit(local_interpolation_kernel,
+                      (cl_program *) &find_rst_legendre_program);
+  cl_int err;
+  cl_kernel kernel = clCreateKernel(find_rst_legendre_program,
+                                    "local_interpolation_compute_weights_kernel",
+                                    &err);
+  CL_CHECK(err);
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), &rst));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), &zg));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), &wr));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), &ws));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), &wt));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(int), lx));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(int), n));
+  const size_t local_size = 256;
+  const size_t global_size = (((size_t)*n + local_size - 1) /
+                              local_size)*local_size;
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue)glb_cmd_queue, kernel,
+                                  1, NULL, &global_size, &local_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
+void opencl_local_interpolation_compute_weights_3arrays(
+    void *r, void *s, void *t, void *zg, void *wr, void *ws, void *wt,
+    const int *lx, const int *n) {
+  if (*n <= 0) return;
+  if (*lx < 1 || *lx > 16) {
+    fprintf(stderr, "Unsupported interpolation order: %d\n", *lx);
+    exit(1);
+  }
+  if (find_rst_legendre_program == NULL)
+    opencl_kernel_jit(local_interpolation_kernel,
+                      (cl_program *) &find_rst_legendre_program);
+  cl_int err;
+  cl_kernel kernel = clCreateKernel(find_rst_legendre_program,
+                                    "local_interpolation_compute_weights_3arrays_kernel",
+                                    &err);
+  CL_CHECK(err);
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), &r));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), &s));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), &t));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), &zg));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), &wr));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), &ws));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), &wt));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), lx));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), n));
+  const size_t local_size = 256;
+  const size_t global_size = (((size_t)*n + local_size - 1) /
+                              local_size)*local_size;
+  CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue)glb_cmd_queue, kernel,
+                                  1, NULL, &global_size, &local_size,
+                                  0, NULL, NULL));
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
 /**
  * Fortran wrapper for local interpolation
  */

@@ -842,7 +842,7 @@ contains
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = plist_id)
        call rzero(fld%x, fld%dof%size())
-       call layout%global_interp%evaluate(fld%x, checkpoint_data, .true.)
+       call layout%global_interp%evaluate_host(fld%x, checkpoint_data)
        deallocate(checkpoint_data)
     else if (layout%Xh%lxyz .ne. fld%Xh%lxyz) then
        allocate(checkpoint_data(int(dcount(1))))
