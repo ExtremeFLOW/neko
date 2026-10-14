@@ -427,7 +427,7 @@ contains
   subroutine field_add2s2(a, b, c1, n)
     integer, intent(in), optional :: n
     type(field_t), intent(inout) :: a
-    type(field_t), intent(in) :: b
+    type(field_t), intent(inout) :: b
     real(kind=rp), intent(in) :: c1
     integer :: size
 

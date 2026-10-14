@@ -229,42 +229,4 @@ contains
 
   end subroutine test_mean_field_update_dot3
 
-  !> Checks that update_field averages the field passed to it, not the field
-  !! the mean was initialized with.
-  @test(npes=[1])
-  subroutine test_mean_field_update_field(this)
-    class (test_mean_field), intent(inout) :: this
-    type(space_t) :: Xh
-    type(mesh_t) :: msh
-    integer, parameter :: LX = 4
-    type(field_t) :: f, g
-    type(mean_field_t) :: mf
-    integer :: i
-
-    call test_mean_field_gen_msh(msh)
-    call Xh%init(GLL, lx, lx, lx)
-    call f%init(msh, Xh, 'test_upd_field_f')
-    call g%init(msh, Xh, 'test_upd_field_g')
-
-    ! The mean is initialized with f, but sampled from g. Mean of i over
-    ! i = 1..10 is 5.5, whereas averaging f would give 100.
-    f = 100.0_rp
-    call mf%init(f, "update_field_mean")
-
-    do i = 1, 10
-       g = real(i, rp)
-       call mf%update_field(1.0_rp, g)
-    end do
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(mf%mf%x, mf%mf%x_d, size(mf%mf%x), &
-            DEVICE_TO_HOST, sync=.true.)
-    end if
-
-    @assertEqual(5.5_rp, maxval(mf%mf%x), tolerance=100*NEKO_EPS)
-    @assertEqual(5.5_rp, minval(mf%mf%x), tolerance=100*NEKO_EPS)
-    @assertEqual(10.0_rp, mf%time)
-
-  end subroutine test_mean_field_update_field
-
 end module test_mean_field_parallel

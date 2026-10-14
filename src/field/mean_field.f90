@@ -58,8 +58,6 @@ module mean_field
      procedure, pass(this) :: free => mean_field_free
      !> Updates the mean value with a new sample.
      procedure, pass(this) :: update => mean_field_update
-     !> Updates the mean value with a given field as the sample.
-     procedure, pass(this) :: update_field => mean_field_update_field
      !> Updates the mean value with the product of two fields as the sample.
      procedure, pass(this) :: update_col3 => mean_field_update_col3
      !> Updates the mean value with the sum of three products as the sample.
@@ -125,26 +123,12 @@ contains
     class(mean_field_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
 
-    call this%update_field(k, this%f)
-
-  end subroutine mean_field_update
-
-  !> Update the mean field using @a f as the sample instead of the field
-  !! passed at initialization. Useful when the sample only exists temporarily,
-  !! e.g. in a scratch field.
-  !! @param k Time since last sample.
-  !! @param f The sample.
-  subroutine mean_field_update_field(this, k, f)
-    class(mean_field_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: k
-    type(field_t), intent(in) :: f
-
     call field_cmult(this%mf, this%time, size(this%mf%x))
-    call field_add2s2(this%mf, f, k, size(this%mf%x))
+    call field_add2s2(this%mf, this%f, k, size(this%mf%x))
     this%time = this%time + k
     call field_cmult(this%mf, 1.0_rp / this%time, size(this%mf%x))
 
-  end subroutine mean_field_update_field
+  end subroutine mean_field_update
 
   !> Update the mean field using the pointwise product \f$ a b \f$ as the
   !! sample, without the need for a work field holding the product.
