@@ -8,7 +8,7 @@ set -eu
 # The normalized <pf_name> must be the bare stem.
 
 usage() {
-    echo "Usage: contrib/add_unit_test/add_file_to_unit_test.sh <suite_name> <pf_name>" >&2
+    echo "Usage: contrib/add_unit_test/add_pf_to_unit_test.sh <suite_name> <pf_name>" >&2
 }
 
 if [ "$#" -ne 2 ]; then
@@ -27,5 +27,11 @@ esac
 case "$pf_name" in
     test_*) pf_name=${pf_name#test_} ;;
 esac
+
+# add_unit_test.py needs Python 3.7 or newer.
+if ! python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 7) else 1)' 2>/dev/null; then
+    echo "error: python3 must be version 3.7 or newer" >&2
+    exit 1
+fi
 
 exec python3 "${script_dir}/add_unit_test.py" add-file "$suite_name" "$pf_name"

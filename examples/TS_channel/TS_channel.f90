@@ -42,6 +42,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
     integer :: i, j, i_y
+    integer :: file_unit
     real(kind=rp) :: uvw(3)
 
     real(kind=dp), dimension(num_rows, num_columns) :: data_mode_cheb_2D
@@ -59,11 +60,15 @@ contains
     type(map_1d_t) :: map_1d
     type(gs_t) :: gs_h
     type(coef_t) :: coef
-    type (field_t), pointer :: u, v, w
+    type (field_t), pointer :: u, v, w, p
 
     u => fields%items(1)%ptr
     v => fields%items(2)%ptr
     w => fields%items(3)%ptr
+    p => fields%items(4)%ptr
+
+    ! Initialize pressure field to zero
+    call field_rzero(p)
 
     !Init these only for the initial condition...
     call gs_h%init(u%dof)
@@ -76,17 +81,17 @@ contains
     allocate(TS2D_GLL(num_ygll, num_columns-1))
     allocate(TS3D_GLL(num_ygll, num_columns-1))
     ! data reading
-    open(unit = 10, file = 'TSwave_cheb_2D.bin', form = 'unformatted', &
-         access = 'stream')
-    read(10) data_mode_cheb_2D
-    close(10)
+    open(newunit = file_unit, file = 'TSwave_cheb_2D.bin', &
+         form = 'unformatted', access = 'stream')
+    read(file_unit) data_mode_cheb_2D
+    close(file_unit)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
-    open(unit = 10, file = 'TSwave_cheb_3D.bin', form = 'unformatted', &
-         access = 'stream')
-    read(10) data_mode_cheb_3D
-    close(10)
+    open(newunit = file_unit, file = 'TSwave_cheb_3D.bin', &
+         form = 'unformatted', access = 'stream')
+    read(file_unit) data_mode_cheb_3D
+    close(file_unit)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
 
     ! alternative of point zone
@@ -129,6 +134,12 @@ contains
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
 
   end subroutine initial_conditions
 

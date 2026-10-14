@@ -28,32 +28,15 @@ This benchmark problem is useful for validating numerical schemes for compressib
 
 ## Mesh generation
 
-Read `step.geo` in `gmsh`
+Generate the mesh with `gmsh` and convert it with `gmsh2nmsh`, making the front
+and back surfaces a periodic pair:
 
 ```bash
-gmsh step.geo
+gmsh step.geo -3 -o step.msh
+gmsh2nmsh step.msh --periodic=front:back
 ```
 
-Generate a mesh and export it to `step.msh` in a format compatible with `gmsh2nek`, see [this](https://nek5000.github.io/NekDoc/tools/gmsh2nek.html).
-
-Run `gmsh2nek` which will output `step.re2`.
-
-```bash
- ******************************************************
- Fluid mesh boundary info summary
- BoundaryName     BoundaryID
- inlet           1
- outlet           2
- top_wall           3
- bottom_wall           4
- front           5
- back           6
- ******************************************************
-```
-
-Make (5, 6) a period pair.
-
-Run `rea2nbin step.re2` which will output `step.nmsh`.
+The inlet, outlet, top wall and bottom wall become labeled zones 1 to 4.
 
 ## Run the case
 

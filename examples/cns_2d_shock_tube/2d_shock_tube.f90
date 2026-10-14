@@ -89,6 +89,14 @@ contains
           p%x(i, 1, 1, 1) = 1.2_rp / gamma
        end if
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call rho%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call p%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine initial_conditions
 
   !> Set dynamic viscosity and thermal conductivity.
