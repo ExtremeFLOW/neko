@@ -66,6 +66,9 @@ module user_intf
   !> Abstract interface for user defined initial conditions
   !! @param scheme_name The name of the scheme calling the routine.
   !! @param fields The fields to be initialized packed in a list.
+  !! @note Neko does not copy the fields between the host and the device after
+  !! the call. When running on GPUs, the routine must leave the values in the
+  !! device arrays, e.g. by setting `%x` and calling `device_memcpy`.
   abstract interface
      subroutine user_initial_conditions_intf(scheme_name, fields)
        import field_list_t

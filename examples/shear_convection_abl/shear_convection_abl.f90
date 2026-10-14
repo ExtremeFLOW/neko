@@ -20,8 +20,7 @@ contains
   subroutine user_ic(scheme_name, fields)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
-    type(field_t), pointer :: u, v, w, s
-    type(field_t), pointer :: p
+    type(field_t), pointer :: u, v, w, s, p
     type(dofmap_t), pointer :: dof
     integer :: i
     real(kind=rp) :: x, y, z
@@ -56,6 +55,10 @@ contains
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
+
+       ! Initialize pressure field to zero
+       call field_rzero(p)
 
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = u_geo
@@ -73,6 +76,12 @@ contains
                   - eps*(gamma * cos(gamma*x)*sin(delta*y))
           endif
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     else !scalars
        s => fields%get(scheme_name)
        if (scheme_name .eq. 'temperature') then
@@ -96,6 +105,10 @@ contains
              endif
           end do
        endif
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call s%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     endif
   end subroutine user_ic
 
