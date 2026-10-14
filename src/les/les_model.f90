@@ -49,7 +49,7 @@ module les_model
   use device, only : device_memcpy, HOST_TO_DEVICE
   use math, only : col2
   use device_math, only : device_col2
-  use utils, only : neko_type_error, neko_error, neko_warning
+  use utils, only : neko_type_error, neko_error, neko_warning, NEKO_TYPENAME_LEN
   use comm, only : pe_rank
   implicit none
   private
@@ -178,7 +178,7 @@ module les_model
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(les_model_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
