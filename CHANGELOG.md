@@ -1,10 +1,66 @@
 # Changelog
 
+## Breaking changes
+
+- PR#2831 User initial conditions are no longer copied from the host to the
+  device after the user routine, so on GPUs the routine must leave the values in
+  the device arrays itself, e.g. with `device_memcpy`.
+- PR#2831 User initial conditions are can no longer assume that the arrays
+  are zeroed on entry. The user routine must set all values, e.g. with
+  `field_cfill`.
+
 ## Develop
 
 - Fixed `map_1d` leaving elements without a level when the propagated
   minimum coordinate differs from the global minimum by roundoff, as with
   the default floating point model of ifx in single precision.
+- Added an agent skill for writing pFUnit unit tests, rewrote the testing
+  guide, and brought older unit-test suites in line with the templates.
+- Fixed restarted 3D statistics skipping velocity, pressure, temperature fields 
+  on output.
+- Fix OpenMP deadlock in the scratch registry. Nested operations checked the
+  same critical section.
+- Fixed the scalar debug log computing its norms from stale host arrays on
+  GPUs and running its global reductions every step at any log level.
+- *BREAKING* User initial conditions are no longer copied from the host to the
+  device after the user routine, so on GPUs the routine must leave the values in
+  the device arrays itself, e.g. with `device_memcpy`.
+- *BREAKING* User initial conditions are can no longer assume that the arrays
+  are zeroed on entry. The user routine must set all values, e.g. with
+  `field_cfill`.
+- Added `gmsh2nmsh` under `contrib`, which converts Gmsh `.msh` meshes
+  directly to `.nmsh` without going through `.re2`. Physical groups become
+  labeled zones, group pairs can be made periodic, and curved second order
+  edges are kept. It builds without the Neko library or MPI. The copy of
+  Nek5000's `gmsh2nek` under `contrib` has been removed, and the examples
+  that used it now use `gmsh2nmsh`.
+- Added deferred `init(coef, bclst, json)` and `free` to `pc_t`, so
+  user-registered preconditioners are initialized and freed like the built-in
+  ones.
+- Fixed several OpenMP races in the scratch registry.
+- Added `source_term_t%extrapolate` and the `extrapolate` and optional
+  `scale` arguments to `source_term_handler_t%compute`, letting a source term
+  be added after the EXT extrapolation of the Pn-Pn fluid and scalar schemes
+  instead of through it. Feedback terms with a gain of order `1/dt` are
+  unstable when extrapolated with EXT3 and stable when applied as computed.
+  Callers of `compute` must now pass `extrapolate`.
+- Changed the CPU CG, coupled CG and GMRES solvers to obtain their large work
+  arrays from the scratch registry for each solve instead of retaining
+  dedicated storage.
+- Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
+  ranks have zero points.
+- Fixed device memory leaking on every write of a spatially averaged
+  statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
+  `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
+  temporary 1D and 2D output data were never freed. `map_2d_t%free` now also
+  releases its work fields and its internal `map_1d_t`.
+- Fixed memory leaks in several free routines and temporary objects,
+  including reused JSON objects, `.fld` output masks, the point zone and
+  constant registries, and user source term fields.
+- Fixed `field_vdot3` deallocating its output field on entry.
+- Fixed the CPU dynamic Smagorinsky model not relinquishing its scratch
+  fields, which grew the memory every time step and caused an error at
+  shutdown.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
@@ -15,7 +71,6 @@
   their mesh and function space, while generic arrays retain a fixed logical
   extent. The `.chkp` format remains available through a single-scalar
   compatibility view, and existing flat HDF5 checkpoints remain readable.
-
 - Added a setup-time conditioning diagnostic for the geometric factors, on
   `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
   metric condition number over the mesh, the worst for its Jacobi scaled

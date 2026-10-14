@@ -207,6 +207,7 @@ contains
     class(scalar_stats_simcomp_t), intent(inout) :: this
     call this%free_base()
     call this%stats%free()
+    call this%stats_output%free()
   end subroutine scalar_stats_simcomp_free
 
   subroutine scalar_stats_simcomp_restart(this, time)

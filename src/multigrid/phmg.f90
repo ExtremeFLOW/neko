@@ -131,51 +131,51 @@ module phmg
 
 contains
 
-  subroutine phmg_init(this, coef, bclst, phmg_params)
+  subroutine phmg_init(this, coef, bclst, json)
     class(phmg_t), intent(inout), target :: this
     type(coef_t), intent(in), target :: coef
     type(bc_list_t), intent(inout), target :: bclst
-    type(json_file), intent(inout) :: phmg_params
+    type(json_file), intent(inout) :: json
     integer :: crs_tamg_lvls, crs_tamg_itrs, crs_tamg_cheby_degree
     integer :: smoother_itrs
     character(len=:), allocatable :: cheby_acc
     integer, allocatable :: pcrs_sched(:)
     logical :: update_enabled
 
-    call json_get_or_default(phmg_params, 'smoother_iterations', &
+    call json_get_or_default(json, 'smoother_iterations', &
          smoother_itrs, 3)
 
-    call json_get_or_default(phmg_params, 'smoother_cheby_acc', &
+    call json_get_or_default(json, 'smoother_cheby_acc', &
          cheby_acc, "jacobi")
 
-    call json_get_or_default(phmg_params, 'coarse_grid.levels', &
+    call json_get_or_default(json, 'coarse_grid.levels', &
          crs_tamg_lvls, 3)
 
-    call json_get_or_default(phmg_params, 'coarse_grid.iterations', &
+    call json_get_or_default(json, 'coarse_grid.iterations', &
          crs_tamg_itrs, 1)
 
-    call json_get_or_default(phmg_params, 'coarse_grid.cheby_degree', &
+    call json_get_or_default(json, 'coarse_grid.cheby_degree', &
          crs_tamg_cheby_degree, 4)
 
-    if (phmg_params%valid_path('pcoarsening_schedule')) then
-       call json_get(phmg_params, 'pcoarsening_schedule', pcrs_sched)
+    if (json%valid_path('pcoarsening_schedule')) then
+       call json_get(json, 'pcoarsening_schedule', pcrs_sched)
     else
        allocate(pcrs_sched(2))
        pcrs_sched(1) = 3
        pcrs_sched(2) = 1
     end if
 
-    call json_get_or_default(phmg_params, 'update.enabled', &
+    call json_get_or_default(json, 'update.enabled', &
          update_enabled, .false.)
 
     ! Control the eigenvalue re-estimation; geometry always refreshes.
-    call json_get_or_default(phmg_params, 'update.eigs.enabled', &
+    call json_get_or_default(json, 'update.eigs.enabled', &
          this%refresh_eigs, .true.)
-    call json_get_or_default(phmg_params, 'update.eigs.frequency', &
+    call json_get_or_default(json, 'update.eigs.frequency', &
          this%refresh_eigs_frequency, 20)
-    call json_get_or_default(phmg_params, 'update.eigs.warm_start', &
+    call json_get_or_default(json, 'update.eigs.warm_start', &
          this%eigs_warm_start, .true.)
-    call json_get_or_default(phmg_params, 'update.eigs.warm_start_iterations', &
+    call json_get_or_default(json, 'update.eigs.warm_start_iterations', &
          this%power_its_refresh, 20)
 
     call this%init_from_components(coef, bclst, smoother_itrs, &
@@ -283,12 +283,12 @@ contains
        end if
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call this%phmg_hrchy%lvl(i)%device_jacobi%init(&
+          call this%phmg_hrchy%lvl(i)%device_jacobi%init_from_components(&
                this%phmg_hrchy%lvl(i)%coef, &
                this%phmg_hrchy%lvl(i)%dm_Xh, &
                this%phmg_hrchy%lvl(i)%gs_h)
        else
-          call this%phmg_hrchy%lvl(i)%jacobi%init(&
+          call this%phmg_hrchy%lvl(i)%jacobi%init_from_components(&
                this%phmg_hrchy%lvl(i)%coef, &
                this%phmg_hrchy%lvl(i)%dm_Xh, &
                this%phmg_hrchy%lvl(i)%gs_h)
@@ -332,8 +332,18 @@ contains
 
     call print_phmg_info(this%nlvls, st, this%phmg_hrchy)
 
-    ! Create backend specific Ax operator
-    call ax_helm_allocator(this%ax, type_name = "standard")
+    ! Create backend specific Ax operator. The coarse levels compress their
+    ! geometric factors when the fine level does, and keep them in step
+    ! with a moving mesh through recompute_metrics()
+    if (coef%geo_compression) then
+       do i = 1, this%nlvls - 1
+          call this%phmg_hrchy%lvl(i)%coef%enable_geo_compression( &
+               coef%geo_compression_tol)
+       end do
+       call ax_helm_allocator(this%ax, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%ax, type_name = "standard")
+    end if
 
     ! Interpolator Fine + mg levels
     allocate(this%intrp(this%nlvls - 1))

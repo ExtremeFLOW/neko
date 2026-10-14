@@ -266,7 +266,7 @@ contains
     integer, intent(in), optional :: n
     type(field_t), intent(in) :: u1, u2, u3
     type(field_t), intent(in) :: v1, v2, v3
-    type(field_t), intent(out) :: dot
+    type(field_t), intent(inout) :: dot
     integer :: size
 
     if (present(n)) then

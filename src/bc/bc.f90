@@ -700,6 +700,9 @@ contains
     call dump_file%init(file_name)
     call dump_file%write(bdry_field)
 
+    call dump_file%free()
+    call bdry_field%free()
+
   end subroutine bc_debug_mask
 
 end module bc

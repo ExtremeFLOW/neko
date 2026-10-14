@@ -221,7 +221,11 @@ contains
     end if
 
     ! Initialize the diffusion operators
-    call ax_helm_allocator(this%Ax, type_name = "standard")
+    if (this%c_Xh%geo_compression) then
+       call ax_helm_allocator(this%Ax, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%Ax, type_name = "standard")
+    end if
     call ax_helm_allocator(this%Ax_stress, type_name = "full")
 
     ! Initialize the velocity BC projector. The coupled projector builds the
@@ -270,6 +274,7 @@ contains
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
+    call this%rk_scheme%free()
 
     if (allocated(this%viscous_regularization)) then
        call this%viscous_regularization%free()

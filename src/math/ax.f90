@@ -32,6 +32,7 @@
 !
 !> Defines a Matrix-vector product
 module ax_product
+  use utils, only : NEKO_TYPENAME_LEN
   use num_types, only : rp
   use coefs, only : coef_t
   use space, only : space_t
@@ -82,7 +83,7 @@ module ax_product
 
   !> A name-allocator pair for user-defined matrix-vector product types.
   type ax_helm_allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(ax_helm_allocate), pointer, nopass :: allocator
   end type ax_helm_allocator_entry
 
