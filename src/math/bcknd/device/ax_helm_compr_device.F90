@@ -33,7 +33,7 @@
 !> Device Helmholtz matrix-vector product on compressed geometric factors
 module ax_helm_compr_device
   use ax_helm_device, only : ax_helm_device_t
-  use num_types, only : rp
+  use num_types, only : rp, xp, sp
   use coefs, only : coef_t
   use space, only : space_t
   use mesh, only : mesh_t
@@ -269,6 +269,13 @@ contains
          coef%G12_compr_d, coef%G13_compr_d, coef%G23_compr_d, &
          coef%compression_inds_d, msh%nelv, Xh%lx)
 #elif HAVE_METAL
+    ! Metal has no fp64: the geometric factors arrive as xp and the kernels
+    ! consume them as float, so the backend requires xp = sp, i.e. a build
+    ! configured with --enable-real=ssp.
+    if (xp .ne. sp) then
+       call neko_error('The Metal backend requires xp = sp (no fp64 on ' // &
+            'Metal GPUs). Configure with --enable-real=ssp.')
+    end if
     call metal_ax_helm_compr(w_d, u_d, Xh%dx_d, Xh%dy_d, Xh%dz_d, &
          Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
          coef%G11_compr_d, coef%G22_compr_d, coef%G33_compr_d, &
@@ -334,6 +341,13 @@ contains
          coef%G12_compr_d, coef%G13_compr_d, coef%G23_compr_d, &
          coef%compression_inds_d, msh%nelv, Xh%lx)
 #elif HAVE_METAL
+    ! Metal has no fp64: the geometric factors arrive as xp and the kernels
+    ! consume them as float, so the backend requires xp = sp, i.e. a build
+    ! configured with --enable-real=ssp.
+    if (xp .ne. sp) then
+       call neko_error('The Metal backend requires xp = sp (no fp64 on ' // &
+            'Metal GPUs). Configure with --enable-real=ssp.')
+    end if
     call metal_ax_helm_compr_vector(au_d, av_d, aw_d, u_d, v_d, w_d, &
          Xh%dx_d, Xh%dy_d, Xh%dz_d, Xh%dxt_d, Xh%dyt_d, Xh%dzt_d, coef%h1_d, &
          coef%G11_compr_d, coef%G22_compr_d, coef%G33_compr_d, &

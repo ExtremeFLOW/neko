@@ -62,12 +62,12 @@ __global__ void ax_helm_compr_kernel_1d(T * __restrict__ w,
                                         const T * __restrict__ dyt,
                                         const T * __restrict__ dzt,
                                         const T * __restrict__ h1,
-                                        const T * __restrict__ g11,
-                                        const T * __restrict__ g22,
-                                        const T * __restrict__ g33,
-                                        const T * __restrict__ g12,
-                                        const T * __restrict__ g13,
-                                        const T * __restrict__ g23,
+                                        const real_xp * __restrict__ g11,
+                                        const real_xp * __restrict__ g22,
+                                        const real_xp * __restrict__ g33,
+                                        const real_xp * __restrict__ g12,
+                                        const real_xp * __restrict__ g13,
+                                        const real_xp * __restrict__ g23,
                                         const int * __restrict__ ind) {
 
   __shared__ T shdx[LX*LX];
@@ -118,12 +118,12 @@ __global__ void ax_helm_compr_kernel_1d(T * __restrict__ w,
     const int k = jk/LX;
     const int j = jk-k*LX;
     if (i<LX && j<LX && k<LX && ijk < LX*LX*LX){
-      const T G00 = g11[ijk+ec*LX*LX*LX];
-      const T G11 = g22[ijk+ec*LX*LX*LX];
-      const T G22 = g33[ijk+ec*LX*LX*LX];
-      const T G01 = g12[ijk+ec*LX*LX*LX];
-      const T G02 = g13[ijk+ec*LX*LX*LX];
-      const T G12 = g23[ijk+ec*LX*LX*LX];
+      const real_xp G00 = g11[ijk+ec*LX*LX*LX];
+      const real_xp G11 = g22[ijk+ec*LX*LX*LX];
+      const real_xp G22 = g33[ijk+ec*LX*LX*LX];
+      const real_xp G01 = g12[ijk+ec*LX*LX*LX];
+      const real_xp G02 = g13[ijk+ec*LX*LX*LX];
+      const real_xp G12 = g23[ijk+ec*LX*LX*LX];
       const T H1 = h1[ijk+e*LX*LX*LX];
       T rtmp = 0.0;
       T stmp = 0.0;
@@ -170,12 +170,12 @@ ax_helm_compr_kernel_kstep(T * __restrict__ w,
                            const T * __restrict__ dy,
                            const T * __restrict__ dz,
                            const T * __restrict__ h1,
-                           const T * __restrict__ g11,
-                           const T * __restrict__ g22,
-                           const T * __restrict__ g33,
-                           const T * __restrict__ g12,
-                           const T * __restrict__ g13,
-                           const T * __restrict__ g23,
+                           const real_xp * __restrict__ g11,
+                           const real_xp * __restrict__ g22,
+                           const real_xp * __restrict__ g33,
+                           const real_xp * __restrict__ g12,
+                           const real_xp * __restrict__ g13,
+                           const real_xp * __restrict__ g23,
                            const int * __restrict__ ind,
                            const int nelv) {
 
@@ -236,12 +236,12 @@ ax_helm_compr_kernel_kstep(T * __restrict__ w,
 #pragma unroll
   for (int k = 0; k < LX; ++k){
     const int ijk = ij + k*LX*LX;
-    const T G00 = g11[ijk+gele];
-    const T G11 = g22[ijk+gele];
-    const T G22 = g33[ijk+gele];
-    const T G01 = g12[ijk+gele];
-    const T G02 = g13[ijk+gele];
-    const T G12 = g23[ijk+gele];
+    const real_xp G00 = g11[ijk+gele];
+    const real_xp G11 = g22[ijk+gele];
+    const real_xp G22 = g33[ijk+gele];
+    const real_xp G01 = g12[ijk+gele];
+    const real_xp G02 = g13[ijk+gele];
+    const real_xp G12 = g23[ijk+gele];
     const T H1  = h1[ijk+ele];
     T ttmp = 0.0;
     shu[sh + ij] = ru[k];
@@ -303,12 +303,12 @@ ax_helm_compr_kernel_kstep_padded(T * __restrict__ w,
                                   const T * __restrict__ dy,
                                   const T * __restrict__ dz,
                                   const T * __restrict__ h1,
-                                  const T * __restrict__ g11,
-                                  const T * __restrict__ g22,
-                                  const T * __restrict__ g33,
-                                  const T * __restrict__ g12,
-                                  const T * __restrict__ g13,
-                                  const T * __restrict__ g23,
+                                  const real_xp * __restrict__ g11,
+                                  const real_xp * __restrict__ g22,
+                                  const real_xp * __restrict__ g33,
+                                  const real_xp * __restrict__ g12,
+                                  const real_xp * __restrict__ g13,
+                                  const real_xp * __restrict__ g23,
                                   const int * __restrict__ ind,
                                   const int nelv) {
 
@@ -368,12 +368,12 @@ ax_helm_compr_kernel_kstep_padded(T * __restrict__ w,
 #pragma unroll
   for (int k = 0; k < LX; ++k){
     const int ijk = ij + k*LX*LX;
-    const T G00 = g11[ijk+gele];
-    const T G11 = g22[ijk+gele];
-    const T G22 = g33[ijk+gele];
-    const T G01 = g12[ijk+gele];
-    const T G02 = g13[ijk+gele];
-    const T G12 = g23[ijk+gele];
+    const real_xp G00 = g11[ijk+gele];
+    const real_xp G11 = g22[ijk+gele];
+    const real_xp G22 = g33[ijk+gele];
+    const real_xp G01 = g12[ijk+gele];
+    const real_xp G02 = g13[ijk+gele];
+    const real_xp G12 = g23[ijk+gele];
     const T H1  = h1[ijk+ele];
     T ttmp = 0.0;
     shu[sh_p + ij_p] = ru[k];
@@ -485,12 +485,12 @@ __device__ void ax_helm_compr_mfma_elem(T * __restrict__ w,
                                         const T * __restrict__ dy,
                                         const T * __restrict__ dz,
                                         const T * __restrict__ h1,
-                                        const T * __restrict__ g11,
-                                        const T * __restrict__ g22,
-                                        const T * __restrict__ g33,
-                                        const T * __restrict__ g12,
-                                        const T * __restrict__ g13,
-                                        const T * __restrict__ g23,
+                                        const real_xp * __restrict__ g11,
+                                        const real_xp * __restrict__ g22,
+                                        const real_xp * __restrict__ g33,
+                                        const real_xp * __restrict__ g12,
+                                        const real_xp * __restrict__ g13,
+                                        const real_xp * __restrict__ g23,
                                         const int * __restrict__ ind,
                                         const int nelv) {
   const int LX2 = LX * LX;
@@ -599,8 +599,8 @@ __device__ void ax_helm_compr_mfma_elem(T * __restrict__ w,
    * for the same reason: it is derived from the wavefront count rather than
    * swept, so two neighbouring candidates can differ in more than block shape.
    */
-  T rG00[NG], rG11[NG], rG22[NG];
-  T rG01[NG], rG02[NG], rG12[NG];
+  real_xp rG00[NG], rG11[NG], rG22[NG];
+  real_xp rG01[NG], rG02[NG], rG12[NG];
   T rH1[NG];
 
   if (GREG) {
@@ -633,7 +633,7 @@ __device__ void ax_helm_compr_mfma_elem(T * __restrict__ w,
   for (int q = 0; q < SPT; q++) {
     if (goff[q] >= 0) {
       const int sl = sh + gtid + q * GNTHR;
-      T G00, G11, G22, G01, G02, G12, H1;
+      real_xp G00, G11, G22, G01, G02, G12; T H1;
       if (GREG) {
         /* GREG is a compile time constant, so only one of these two bodies is
            emitted; the clamp keeps the index inside the NG == 1 array that the
@@ -756,12 +756,12 @@ ax_helm_compr_kernel_mfma(T * __restrict__ w,
                           const T * __restrict__ dy,
                           const T * __restrict__ dz,
                           const T * __restrict__ h1,
-                          const T * __restrict__ g11,
-                          const T * __restrict__ g22,
-                          const T * __restrict__ g33,
-                          const T * __restrict__ g12,
-                          const T * __restrict__ g13,
-                          const T * __restrict__ g23,
+                          const real_xp * __restrict__ g11,
+                          const real_xp * __restrict__ g22,
+                          const real_xp * __restrict__ g33,
+                          const real_xp * __restrict__ g12,
+                          const real_xp * __restrict__ g13,
+                          const real_xp * __restrict__ g23,
                           const int * __restrict__ ind,
                           const int nelv) {
 
@@ -787,12 +787,12 @@ ax_helm_compr_kernel_vector_kstep(T * __restrict__ au,
                                   const T * __restrict__ dy,
                                   const T * __restrict__ dz,
                                   const T * __restrict__ h1,
-                                  const T * __restrict__ g11,
-                                  const T * __restrict__ g22,
-                                  const T * __restrict__ g33,
-                                  const T * __restrict__ g12,
-                                  const T * __restrict__ g13,
-                                  const T * __restrict__ g23,
+                                  const real_xp * __restrict__ g11,
+                                  const real_xp * __restrict__ g22,
+                                  const real_xp * __restrict__ g33,
+                                  const real_xp * __restrict__ g12,
+                                  const real_xp * __restrict__ g13,
+                                  const real_xp * __restrict__ g23,
                                   const int * __restrict__ ind,
                                   const int nelv) {
 
@@ -878,12 +878,12 @@ ax_helm_compr_kernel_vector_kstep(T * __restrict__ au,
 #pragma unroll
   for (int k = 0; k < LX; ++k){
     const int ijk = ij + k*LX*LX;
-    const T G00 = g11[ijk+gele];
-    const T G11 = g22[ijk+gele];
-    const T G22 = g33[ijk+gele];
-    const T G01 = g12[ijk+gele];
-    const T G02 = g13[ijk+gele];
-    const T G12 = g23[ijk+gele];
+    const real_xp G00 = g11[ijk+gele];
+    const real_xp G11 = g22[ijk+gele];
+    const real_xp G22 = g33[ijk+gele];
+    const real_xp G01 = g12[ijk+gele];
+    const real_xp G02 = g13[ijk+gele];
+    const real_xp G12 = g23[ijk+gele];
     const T H1  = h1[ijk+ele];
     T uttmp = 0.0;
     T vttmp = 0.0;
@@ -1003,12 +1003,12 @@ ax_helm_compr_kernel_vector_kstep_padded(T * __restrict__ au,
                                          const T * __restrict__ dy,
                                          const T * __restrict__ dz,
                                          const T * __restrict__ h1,
-                                         const T * __restrict__ g11,
-                                         const T * __restrict__ g22,
-                                         const T * __restrict__ g33,
-                                         const T * __restrict__ g12,
-                                         const T * __restrict__ g13,
-                                         const T * __restrict__ g23,
+                                         const real_xp * __restrict__ g11,
+                                         const real_xp * __restrict__ g22,
+                                         const real_xp * __restrict__ g33,
+                                         const real_xp * __restrict__ g12,
+                                         const real_xp * __restrict__ g13,
+                                         const real_xp * __restrict__ g23,
                                          const int * __restrict__ ind,
                                          const int nelv) {
 
@@ -1096,12 +1096,12 @@ ax_helm_compr_kernel_vector_kstep_padded(T * __restrict__ au,
 #pragma unroll
   for (int k = 0; k < LX; ++k){
     const int ijk = ij + k*LX*LX;
-    const T G00 = g11[ijk+gele];
-    const T G11 = g22[ijk+gele];
-    const T G22 = g33[ijk+gele];
-    const T G01 = g12[ijk+gele];
-    const T G02 = g13[ijk+gele];
-    const T G12 = g23[ijk+gele];
+    const real_xp G00 = g11[ijk+gele];
+    const real_xp G11 = g22[ijk+gele];
+    const real_xp G22 = g33[ijk+gele];
+    const real_xp G01 = g12[ijk+gele];
+    const real_xp G02 = g13[ijk+gele];
+    const real_xp G12 = g23[ijk+gele];
     const T H1  = h1[ijk+ele];
     T uttmp = 0.0;
     T vttmp = 0.0;
@@ -1256,12 +1256,12 @@ __device__ void ax_helm_compr_mfma_vector_elem(T * __restrict__ au,
                                                const T * __restrict__ dy,
                                                const T * __restrict__ dz,
                                                const T * __restrict__ h1,
-                                               const T * __restrict__ g11,
-                                               const T * __restrict__ g22,
-                                               const T * __restrict__ g33,
-                                               const T * __restrict__ g12,
-                                               const T * __restrict__ g13,
-                                               const T * __restrict__ g23,
+                                               const real_xp * __restrict__ g11,
+                                               const real_xp * __restrict__ g22,
+                                               const real_xp * __restrict__ g33,
+                                               const real_xp * __restrict__ g12,
+                                               const real_xp * __restrict__ g13,
+                                               const real_xp * __restrict__ g23,
                                                const int * __restrict__ ind,
                                                const int nelv) {
   const int LX2 = LX * LX;
@@ -1343,8 +1343,8 @@ __device__ void ax_helm_compr_mfma_vector_elem(T * __restrict__ au,
   /* The geometric factors, read once and reused by all three components. The
      pointwise pass below strides the slots the same way, so the value for slot
      gtid + q * GNTHR stays in slot q and no index array is needed */
-  T rG00[NG], rG11[NG], rG22[NG];
-  T rG01[NG], rG02[NG], rG12[NG];
+  real_xp rG00[NG], rG11[NG], rG22[NG];
+  real_xp rG01[NG], rG02[NG], rG12[NG];
   T rH1[NG];
 
   if (GREG) {
@@ -1398,7 +1398,7 @@ __device__ void ax_helm_compr_mfma_vector_elem(T * __restrict__ au,
     for (int q = 0; q < SPT; q++) {
       if (goff[q] >= 0) {
         const int sl = sh + gtid + q * GNTHR;
-        T G00, G11, G22, G01, G02, G12, H1;
+        real_xp G00, G11, G22, G01, G02, G12; T H1;
         if (GREG) {
           /* GREG is a compile time constant, so only one of these two bodies
              is emitted; the clamp keeps the index inside the NG == 1 array
@@ -1538,12 +1538,12 @@ ax_helm_compr_kernel_mfma_vector(T * __restrict__ au,
                                  const T * __restrict__ dy,
                                  const T * __restrict__ dz,
                                  const T * __restrict__ h1,
-                                 const T * __restrict__ g11,
-                                 const T * __restrict__ g22,
-                                 const T * __restrict__ g33,
-                                 const T * __restrict__ g12,
-                                 const T * __restrict__ g13,
-                                 const T * __restrict__ g23,
+                                 const real_xp * __restrict__ g11,
+                                 const real_xp * __restrict__ g22,
+                                 const real_xp * __restrict__ g33,
+                                 const real_xp * __restrict__ g12,
+                                 const real_xp * __restrict__ g13,
+                                 const real_xp * __restrict__ g23,
                                  const int * __restrict__ ind,
                                  const int nelv) {
 

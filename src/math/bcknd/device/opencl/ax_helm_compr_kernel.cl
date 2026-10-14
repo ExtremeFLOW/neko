@@ -55,12 +55,12 @@ __kernel void ax_helm_compr_lx##LX(__global real * __restrict__ w,             \
                                    __global const real * __restrict__ dyt,     \
                                    __global const real * __restrict__ dzt,     \
                                    __global const real * __restrict__ h1,      \
-                                   __global const real * __restrict__ g11,     \
-                                   __global const real * __restrict__ g22,     \
-                                   __global const real * __restrict__ g33,     \
-                                   __global const real * __restrict__ g12,     \
-                                   __global const real * __restrict__ g13,     \
-                                   __global const real * __restrict__ g23,     \
+                                   __global const real_xp * __restrict__ g11,     \
+                                   __global const real_xp * __restrict__ g22,     \
+                                   __global const real_xp * __restrict__ g33,     \
+                                   __global const real_xp * __restrict__ g12,     \
+                                   __global const real_xp * __restrict__ g13,     \
+                                   __global const real_xp * __restrict__ g23,     \
                                    __global const int * __restrict__ ind) {    \
                                                                                \
   __local real shdx[LX*LX];                                                    \
@@ -174,12 +174,12 @@ void ax_helm_compr_kstep_lx##LX(__global real * __restrict__ w,                \
                                 __global const real * __restrict__ dy,         \
                                 __global const real * __restrict__ dz,         \
                                 __global const real * __restrict__ h1,         \
-                                __global const real * __restrict__ g11,        \
-                                __global const real * __restrict__ g22,        \
-                                __global const real * __restrict__ g33,        \
-                                __global const real * __restrict__ g12,        \
-                                __global const real * __restrict__ g13,        \
-                                __global const real * __restrict__ g23,        \
+                                __global const real_xp * __restrict__ g11,        \
+                                __global const real_xp * __restrict__ g22,        \
+                                __global const real_xp * __restrict__ g33,        \
+                                __global const real_xp * __restrict__ g12,        \
+                                __global const real_xp * __restrict__ g13,        \
+                                __global const real_xp * __restrict__ g23,        \
                                 __global const int * __restrict__ ind) {       \
                                                                                \
   __local real shdx[LX * LX];                                                  \
@@ -215,12 +215,12 @@ void ax_helm_compr_kstep_lx##LX(__global real * __restrict__ w,                \
                                                                                \
   for (int k = 0; k < LX; ++k){                                                \
     const int ijk = ij + k*LX*LX;                                              \
-    const real G00 = g11[ijk+cele];                                            \
-    const real G11 = g22[ijk+cele];                                            \
-    const real G22 = g33[ijk+cele];                                            \
-    const real G01 = g12[ijk+cele];                                            \
-    const real G02 = g13[ijk+cele];                                            \
-    const real G12 = g23[ijk+cele];                                            \
+    const real_xp G00 = g11[ijk+cele];                                            \
+    const real_xp G11 = g22[ijk+cele];                                            \
+    const real_xp G22 = g33[ijk+cele];                                            \
+    const real_xp G01 = g12[ijk+cele];                                            \
+    const real_xp G02 = g13[ijk+cele];                                            \
+    const real_xp G12 = g23[ijk+cele];                                            \
     const real H1  = h1[ijk+ele];                                              \
     real ttmp = 0.0;                                                           \
     shu[ij] = ru[k];                                                           \
@@ -300,12 +300,12 @@ ax_helm_compr_vector_kstep_lx##LX(__global real * __restrict__ au,             \
                                   __global const real * __restrict__ dy,       \
                                   __global const real * __restrict__ dz,       \
                                   __global const real * __restrict__ h1,       \
-                                  __global const real * __restrict__ g11,      \
-                                  __global const real * __restrict__ g22,      \
-                                  __global const real * __restrict__ g33,      \
-                                  __global const real * __restrict__ g12,      \
-                                  __global const real * __restrict__ g13,      \
-                                  __global const real * __restrict__ g23,      \
+                                  __global const real_xp * __restrict__ g11,      \
+                                  __global const real_xp * __restrict__ g22,      \
+                                  __global const real_xp * __restrict__ g33,      \
+                                  __global const real_xp * __restrict__ g12,      \
+                                  __global const real_xp * __restrict__ g13,      \
+                                  __global const real_xp * __restrict__ g23,      \
                                   __global const int * __restrict__ ind) {     \
                                                                                \
   __local real shdx[LX * LX];                                                  \
@@ -363,12 +363,12 @@ ax_helm_compr_vector_kstep_lx##LX(__global real * __restrict__ au,             \
                                                                                \
   for (int k = 0; k < LX; ++k){                                                \
     const int ijk = ij + k*LX*LX;                                              \
-    const real G00 = g11[ijk+cele];                                            \
-    const real G11 = g22[ijk+cele];                                            \
-    const real G22 = g33[ijk+cele];                                            \
-    const real G01 = g12[ijk+cele];                                            \
-    const real G02 = g13[ijk+cele];                                            \
-    const real G12 = g23[ijk+cele];                                            \
+    const real_xp G00 = g11[ijk+cele];                                            \
+    const real_xp G11 = g22[ijk+cele];                                            \
+    const real_xp G22 = g33[ijk+cele];                                            \
+    const real_xp G01 = g12[ijk+cele];                                            \
+    const real_xp G02 = g13[ijk+cele];                                            \
+    const real_xp G12 = g23[ijk+cele];                                            \
     const real H1  = h1[ijk+ele];                                              \
     real uttmp = 0.0;                                                          \
     real vttmp = 0.0;                                                          \

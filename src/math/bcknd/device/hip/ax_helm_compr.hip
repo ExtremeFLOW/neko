@@ -115,8 +115,8 @@ extern "C" {
                        (real *) w, (real *) u,                                  \
                        (real *) dx, (real *) dy, (real *) dz,                   \
                        (real *) dxt, (real *) dyt, (real *) dzt, (real *) h1,   \
-                       (real *) g11, (real *) g22, (real *) g33,                \
-                       (real *) g12, (real *) g13, (real *) g23, (int *) ind);  \
+                       (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,                \
+                       (real_xp *) g12, (real_xp *) g13, (real_xp *) g23, (int *) ind);  \
     HIP_CHECK(hipGetLastError());
 
 /* Runtime dispatch onto the tuned chunk candidate */
@@ -136,8 +136,8 @@ extern "C" {
                         (hipStream_t) glb_cmd_queue,                            \
                         (real *) w, (real *) u,                                 \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
-                        (real *) g11, (real *) g22, (real *) g33,               \
-                        (real *) g12, (real *) g13, (real *) g23,               \
+                        (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,               \
+                        (real_xp *) g12, (real_xp *) g13, (real_xp *) g23,               \
                         (int *) ind, *nelv);                                    \
     HIP_CHECK(hipGetLastError());
 
@@ -149,8 +149,8 @@ extern "C" {
                         (hipStream_t) glb_cmd_queue,                            \
                         (real *) w, (real *) u,                                 \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
-                        (real *) g11, (real *) g22, (real *) g33,               \
-                        (real *) g12, (real *) g13, (real *) g23,               \
+                        (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,               \
+                        (real_xp *) g12, (real_xp *) g13, (real_xp *) g23,               \
                         (int *) ind, *nelv);                                    \
     HIP_CHECK(hipGetLastError());
 
@@ -162,8 +162,8 @@ extern "C" {
                         (hipStream_t) glb_cmd_queue,                            \
                         (real *) w, (real *) u,                                 \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
-                        (real *) g11, (real *) g22, (real *) g33,               \
-                        (real *) g12, (real *) g13, (real *) g23,               \
+                        (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,               \
+                        (real_xp *) g12, (real_xp *) g13, (real_xp *) g23,               \
                         (int *) ind, *nelv);                                    \
     HIP_CHECK(hipGetLastError());
 
@@ -324,8 +324,8 @@ static_assert(NEKO_MFMA_CANDIDATES == 10,
                         (real *) au, (real *) av, (real *) aw,                  \
                         (real *) u, (real *) v, (real *) w,                     \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
-                        (real *) g11, (real *) g22, (real *) g33,               \
-                        (real *) g12, (real *) g13, (real *) g23,               \
+                        (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,               \
+                        (real_xp *) g12, (real_xp *) g13, (real_xp *) g23,               \
                         (int *) ind, *nelv);                                    \
     HIP_CHECK(hipGetLastError());
 
@@ -338,8 +338,8 @@ static_assert(NEKO_MFMA_CANDIDATES == 10,
                         (real *) au, (real *) av, (real *) aw,                  \
                         (real *) u, (real *) v, (real *) w,                     \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
-                        (real *) g11, (real *) g22, (real *) g33,               \
-                        (real *) g12, (real *) g13, (real *) g23,               \
+                        (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,               \
+                        (real_xp *) g12, (real_xp *) g13, (real_xp *) g23,               \
                         (int *) ind, *nelv);                                    \
     HIP_CHECK(hipGetLastError());
 
@@ -354,8 +354,8 @@ static_assert(NEKO_MFMA_CANDIDATES == 10,
                         (real *) au, (real *) av, (real *) aw,                  \
                         (real *) u, (real *) v, (real *) w,                     \
                         (real *) dx, (real *) dy, (real *) dz,  (real *) h1,    \
-                        (real *) g11, (real *) g22, (real *) g33,               \
-                        (real *) g12, (real *) g13, (real *) g23,               \
+                        (real_xp *) g11, (real_xp *) g22, (real_xp *) g33,               \
+                        (real_xp *) g12, (real_xp *) g13, (real_xp *) g23,               \
                         (int *) ind, *nelv);                                    \
     HIP_CHECK(hipGetLastError());
 
