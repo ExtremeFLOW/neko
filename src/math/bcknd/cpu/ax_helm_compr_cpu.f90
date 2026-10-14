@@ -321,7 +321,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -472,7 +472,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -650,7 +650,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -821,7 +821,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -986,7 +986,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -1145,7 +1145,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -1298,7 +1298,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -1445,7 +1445,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -1586,7 +1586,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -1721,7 +1721,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -1850,7 +1850,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -1973,7 +1973,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -2090,7 +2090,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
@@ -2201,7 +2201,7 @@ contains
           ut(i,1,1) = h1(i,1,1,e) &
                * ( G13(i,1,1,c) * wur(i,1,1) &
                + G23(i,1,1,c) * wus(i,1,1) &
-               + G33(i,1,1,e) * wut(i,1,1) )
+               + G33(i,1,1,c) * wut(i,1,1) )
        end do
 
        ! Transpose stage: Dxt, Dyt and Dzt are rp while ur, us and ut
