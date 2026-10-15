@@ -11,6 +11,9 @@
 
 ## Develop
 
+- Remove the averaging of the LES filter width on element interfaces.
+- Fixed Mij computation in dynamic Smagorinsky SGS model 
+  for variable filter width.
 - Fixed `map_1d` leaving elements without a level when the propagated
   minimum coordinate differs from the global minimum by roundoff, as with
   the default floating point model of ifx in single precision.
