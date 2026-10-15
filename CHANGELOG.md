@@ -11,6 +11,7 @@
 
 ## Develop
 
+- Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 
   for variable filter width.
