@@ -62,6 +62,7 @@ __kernel void sigma_nut_compute_kernel(__global const real * __restrict__ g11,
   const real pi_3 = (real) 4.0 / (real) 3.0 * atan(one);
 
   real sigG11, sigG12, sigG13, sigG22, sigG23, sigG33;
+  real sigG_scale, sigma_scale;
   real sigma1, sigma2, sigma3;
   real Invariant1, Invariant2, Invariant3;
   real alpha1, alpha2, alpha3;
@@ -87,6 +88,19 @@ __kernel void sigma_nut_compute_kernel(__global const real * __restrict__ g11,
     sigG12 = g11_r * g12_r + g21_r * g22_r + g31_r * g32_r;
     sigG13 = g11_r * g13_r + g21_r * g23_r + g31_r * g33_r;
     sigG23 = g12_r * g13_r + g22_r * g23_r + g32_r * g33_r;
+
+    sigG_scale = max(max(sigG11, sigG22), sigG33);
+    if (sigG_scale > zero) {
+      sigma_scale = sqrt(sigG_scale);
+      sigG11 /= sigG_scale;
+      sigG12 /= sigG_scale;
+      sigG13 /= sigG_scale;
+      sigG22 /= sigG_scale;
+      sigG23 /= sigG_scale;
+      sigG33 /= sigG_scale;
+    } else {
+      sigma_scale = zero;
+    }
 
     if (fabs(sigG11) < eps) {
       sigG11 = zero;
@@ -130,19 +144,25 @@ __kernel void sigma_nut_compute_kernel(__global const real * __restrict__ g11,
 
       alpha1 = max(alpha1, zero);
 
-      alpha2 = Invariant1 * Invariant1 * Invariant1 / (real) 27.0 -
-        Invariant1 * Invariant2 / (real) 6.0 + Invariant3 / two;
-
-      tmp1 = alpha2 / sqrt(alpha1 * alpha1 * alpha1);
+      if (alpha1 <= eps) {
+        alpha1 = zero;
+        tmp1 = one;
+      } else {
+        alpha2 = Invariant1 * Invariant1 * Invariant1 / (real) 27.0 -
+          Invariant1 * Invariant2 / (real) 6.0 + Invariant3 / two;
+        tmp1 = alpha2 / sqrt(alpha1 * alpha1 * alpha1);
+        tmp1 = clamp(tmp1, -one, one);
+      }
 
       if (tmp1 <= -one) {
         sigma1 = sqrt(max(Invariant1 / (real) 3.0 + sqrt(alpha1), zero));
         sigma2 = sigma1;
-        sigma3 = sqrt(Invariant1 / (real) 3.0 - two * sqrt(alpha1));
+        sigma3 = sqrt(max(Invariant1 / (real) 3.0 -
+                          two * sqrt(alpha1), zero));
 
       } else if (tmp1 >= one) {
         sigma1 = sqrt(max(Invariant1 / (real) 3.0 + two * sqrt(alpha1), zero));
-        sigma2 = sqrt(Invariant1 / (real) 3.0 - sqrt(alpha1));
+        sigma2 = sqrt(max(Invariant1 / (real) 3.0 - sqrt(alpha1), zero));
         sigma3 = sigma2;
 
       } else {
@@ -156,8 +176,8 @@ __kernel void sigma_nut_compute_kernel(__global const real * __restrict__ g11,
         } else {
           sigma1 = sqrt(max(Invariant1 / (real) 3.0 +
                             two * sqrt(alpha1) * cos(alpha3), zero));
-          sigma2 = sqrt(Invariant1 / (real) 3.0 -
-                        two * sqrt(alpha1) * cos(pi_3 + alpha3));
+          sigma2 = sqrt(max(Invariant1 / (real) 3.0 -
+                        two * sqrt(alpha1) * cos(pi_3 + alpha3), zero));
           sigma3 = sqrt(fabs(Invariant1 -
                              sigma1 * sigma1 - sigma2 * sigma2));
         }
@@ -171,7 +191,7 @@ __kernel void sigma_nut_compute_kernel(__global const real * __restrict__ g11,
       Dsigma = zero;
     }
 
-    Dsigma = max(Dsigma, zero);
+    Dsigma = max(Dsigma, zero) * sigma_scale;
 
     nut[i] = (c * delta_r) * (c * delta_r) * Dsigma * mult[i];
   }

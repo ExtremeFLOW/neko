@@ -60,6 +60,7 @@ __global__ void sigma_nut_compute(const T * __restrict__ g11,
   const int str = blockDim.x * gridDim.x;
 
   T sigG11, sigG12, sigG13, sigG22, sigG23, sigG33;
+  T sigG_scale, sigma_scale;
   T sigma1, sigma2, sigma3;
   T Invariant1, Invariant2, Invariant3;
   T alpha1, alpha2, alpha3;
@@ -92,6 +93,19 @@ __global__ void sigma_nut_compute(const T * __restrict__ g11,
     sigG23 = g12_r*g13_r + \
              g22_r*g23_r + \
              g32_r*g33_r;
+
+    sigG_scale = max(max(sigG11, sigG22), sigG33);
+    if (sigG_scale > 0.0) {
+        sigma_scale = sqrt(sigG_scale);
+        sigG11 /= sigG_scale;
+        sigG12 /= sigG_scale;
+        sigG13 /= sigG_scale;
+        sigG22 /= sigG_scale;
+        sigG23 /= sigG_scale;
+        sigG33 /= sigG_scale;
+    } else {
+        sigma_scale = 0.0;
+    }
 
     if (abs(sigG11) < eps) {
         sigG11 = 0.0;
@@ -135,19 +149,24 @@ __global__ void sigma_nut_compute(const T * __restrict__ g11,
 
         alpha1 = max(alpha1, 0.0);
 
-        alpha2 = Invariant1*Invariant1*Invariant1/27.0 - \
-            Invariant1*Invariant2/6.0 + Invariant3/2.0;
-
-        tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1);
+        if (alpha1 <= eps) {
+            alpha1 = 0.0;
+            tmp1 = 1.0;
+        } else {
+            alpha2 = Invariant1*Invariant1*Invariant1/27.0 - \
+                Invariant1*Invariant2/6.0 + Invariant3/2.0;
+            tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1);
+            tmp1 = max(-1.0, min(1.0, tmp1));
+        }
 
         if (tmp1 <= -1.0) {
             sigma1 = sqrt(max(Invariant1/3.0 + sqrt(alpha1), 0.0));
             sigma2 = sigma1;
-            sigma3 = sqrt(Invariant1/3.0 - 2.0*sqrt(alpha1));
+            sigma3 = sqrt(max(Invariant1/3.0 - 2.0*sqrt(alpha1), 0.0));
 
         } else if (tmp1 >= 1.0) {
             sigma1 = sqrt(max(Invariant1/3.0 + 2.0*sqrt(alpha1), 0.0));
-            sigma2 = sqrt(Invariant1/3.0 - sqrt(alpha1));
+            sigma2 = sqrt(max(Invariant1/3.0 - sqrt(alpha1), 0.0));
             sigma3 = sigma2;
 
         } else {
@@ -161,8 +180,8 @@ __global__ void sigma_nut_compute(const T * __restrict__ g11,
             } else {
                 sigma1 = sqrt(max(Invariant1/3.0 + \
                             2.0*sqrt(alpha1)*cos(alpha3), 0.0));
-                sigma2 = sqrt(Invariant1/3.0 - \
-                            2.0*sqrt(alpha1)*cos(pi_3 + alpha3));
+                sigma2 = sqrt(max(Invariant1/3.0 - \
+                            2.0*sqrt(alpha1)*cos(pi_3 + alpha3), 0.0));
                 sigma3 = sqrt(abs(Invariant1 - \
                                 sigma1*sigma1-sigma2*sigma2));
             }
@@ -175,7 +194,7 @@ __global__ void sigma_nut_compute(const T * __restrict__ g11,
         Dsigma = 0.0;
     }
 
-    Dsigma = max(Dsigma, 0.0);
+    Dsigma = max(Dsigma, 0.0) * sigma_scale;
 
     nut[i] = (c*delta_r)*(c*delta_r) * Dsigma * mult[i];
   }

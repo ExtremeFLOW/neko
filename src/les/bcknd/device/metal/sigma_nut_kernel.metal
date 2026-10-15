@@ -64,6 +64,7 @@ kernel void sigma_nut_compute_kernel(device const float *g11 [[ buffer(0) ]],
   const float pi_3 = 4.0f / 3.0f * atan(1.0f);
 
   float sigG11, sigG12, sigG13, sigG22, sigG23, sigG33;
+  float sigG_scale, sigma_scale;
   float sigma1, sigma2, sigma3;
   float Invariant1, Invariant2, Invariant3;
   float alpha1, alpha2, alpha3;
@@ -87,6 +88,19 @@ kernel void sigma_nut_compute_kernel(device const float *g11 [[ buffer(0) ]],
   sigG12 = g11_r * g12_r + g21_r * g22_r + g31_r * g32_r;
   sigG13 = g11_r * g13_r + g21_r * g23_r + g31_r * g33_r;
   sigG23 = g12_r * g13_r + g22_r * g23_r + g32_r * g33_r;
+
+  sigG_scale = max(max(sigG11, sigG22), sigG33);
+  if (sigG_scale > 0.0f) {
+    sigma_scale = sqrt(sigG_scale);
+    sigG11 /= sigG_scale;
+    sigG12 /= sigG_scale;
+    sigG13 /= sigG_scale;
+    sigG22 /= sigG_scale;
+    sigG23 /= sigG_scale;
+    sigG33 /= sigG_scale;
+  } else {
+    sigma_scale = 0.0f;
+  }
 
   if (fabs(sigG11) < eps) {
     sigG11 = 0.0f;
@@ -130,19 +144,25 @@ kernel void sigma_nut_compute_kernel(device const float *g11 [[ buffer(0) ]],
 
     alpha1 = max(alpha1, 0.0f);
 
-    alpha2 = Invariant1 * Invariant1 * Invariant1 / 27.0f -
-      Invariant1 * Invariant2 / 6.0f + Invariant3 / 2.0f;
-
-    tmp1 = alpha2 / sqrt(alpha1 * alpha1 * alpha1);
+    if (alpha1 <= eps) {
+      alpha1 = 0.0f;
+      tmp1 = 1.0f;
+    } else {
+      alpha2 = Invariant1 * Invariant1 * Invariant1 / 27.0f -
+        Invariant1 * Invariant2 / 6.0f + Invariant3 / 2.0f;
+      tmp1 = alpha2 / sqrt(alpha1 * alpha1 * alpha1);
+      tmp1 = clamp(tmp1, -1.0f, 1.0f);
+    }
 
     if (tmp1 <= -1.0f) {
       sigma1 = sqrt(max(Invariant1 / 3.0f + sqrt(alpha1), 0.0f));
       sigma2 = sigma1;
-      sigma3 = sqrt(Invariant1 / 3.0f - 2.0f * sqrt(alpha1));
+      sigma3 = sqrt(max(Invariant1 / 3.0f -
+                        2.0f * sqrt(alpha1), 0.0f));
 
     } else if (tmp1 >= 1.0f) {
       sigma1 = sqrt(max(Invariant1 / 3.0f + 2.0f * sqrt(alpha1), 0.0f));
-      sigma2 = sqrt(Invariant1 / 3.0f - sqrt(alpha1));
+      sigma2 = sqrt(max(Invariant1 / 3.0f - sqrt(alpha1), 0.0f));
       sigma3 = sigma2;
 
     } else {
@@ -156,8 +176,8 @@ kernel void sigma_nut_compute_kernel(device const float *g11 [[ buffer(0) ]],
       } else {
         sigma1 = sqrt(max(Invariant1 / 3.0f +
                           2.0f * sqrt(alpha1) * cos(alpha3), 0.0f));
-        sigma2 = sqrt(Invariant1 / 3.0f -
-                      2.0f * sqrt(alpha1) * cos(pi_3 + alpha3));
+        sigma2 = sqrt(max(Invariant1 / 3.0f -
+                      2.0f * sqrt(alpha1) * cos(pi_3 + alpha3), 0.0f));
         sigma3 = sqrt(fabs(Invariant1 -
                            sigma1 * sigma1 - sigma2 * sigma2));
       }
@@ -171,7 +191,7 @@ kernel void sigma_nut_compute_kernel(device const float *g11 [[ buffer(0) ]],
     Dsigma = 0.0f;
   }
 
-  Dsigma = max(Dsigma, 0.0f);
+  Dsigma = max(Dsigma, 0.0f) * sigma_scale;
 
   nut[i] = (c * delta_r) * (c * delta_r) * Dsigma * mult[i];
 }
