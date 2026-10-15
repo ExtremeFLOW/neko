@@ -67,6 +67,28 @@ def test_rejects_known_ignored_properties(tmp_path, property_path):
     assert result.returncode != 0
 
 
+@pytest.mark.parametrize(
+    "property_name", ["c_avisc_low", "c_avisc_entropy"]
+)
+def test_rejects_legacy_artificial_viscosity_parameters(
+    tmp_path, property_name
+):
+    with (EXAMPLES_DIR / "tgv" / "tgv.case").open(encoding="utf-8") as handle:
+        data = json5.load(handle)
+
+    data["case"]["numerics"][property_name] = 0.5
+    case_file = tmp_path / "invalid.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+    assert property_name in result.stdout
+
+
 def test_allows_user_extension_properties(tmp_path):
     with (EXAMPLES_DIR / "tgv" / "tgv.case").open(encoding="utf-8") as handle:
         data = json5.load(handle)

@@ -747,7 +747,7 @@ contains
        call ft%close()
     end select
 
-    call this%output_controller%register_execution()
+    call this%output_controller%register_execution(time)
 
   end subroutine boundary_data_writer_compute
 

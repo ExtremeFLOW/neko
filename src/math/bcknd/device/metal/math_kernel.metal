@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2025, The Neko Authors
+ Copyright (c) 2025-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -219,15 +219,95 @@ kernel void cwrap_kernel(device float *a[[ buffer(0) ]],
     a[idx] = min_val + fmod(fmod(a[idx] - min_val, l) + l, l);
 }
 
+/*
+ * Threads per threadgroup of masked_atomic_reduction_kernel, also the number
+ * of threadgroup bins. Must match MASKED_ATOMIC_RED_BLOCK in math.m.
+ */
+#define MASKED_ATOMIC_RED_BLOCK 256
+
+/*
+ * Float add on threadgroup memory, which has no atomic_float; a CAS loop on
+ * the bits, where every round lets one contender through
+ */
+static inline void tg_atomic_add(threadgroup atomic_uint *p, float v) {
+    uint old = atomic_load_explicit(p, memory_order_relaxed);
+    while (!atomic_compare_exchange_weak_explicit(p, &old,
+               as_type<uint>(as_type<float>(old) + v),
+               memory_order_relaxed, memory_order_relaxed)) {
+    }
+}
+
+/*
+ * Masked atomic update, a(mask(i)) += b(i)
+ */
 kernel void masked_atomic_reduction_kernel(
     device atomic_float *a[[ buffer(0) ]],
     device const float *b[[ buffer(1) ]],
     device const int *mask[[ buffer(2) ]],
     constant int &n_mask[[ buffer(3) ]],
-    uint idx [[ thread_position_in_grid ]]) {
-    if (idx >= (uint)n_mask) return;
-    atomic_fetch_add_explicit(&a[mask[idx + 1] - 1], b[idx],
-                              memory_order_relaxed);
+    uint tid [[ thread_index_in_threadgroup ]],
+    uint tg_id [[ threadgroup_position_in_grid ]],
+    uint lane [[ thread_index_in_simdgroup ]]) {
+
+    threadgroup atomic_uint bins[MASKED_ATOMIC_RED_BLOCK];
+
+    /* The bins cover the targets around the threadgroup's first one; every
+       thread reads that entry itself, a broadcast load */
+    const int base = (int) tg_id * MASKED_ATOMIC_RED_BLOCK;
+    const int kbase = mask[base + 1] - 1 - MASKED_ATOMIC_RED_BLOCK / 2;
+
+    atomic_store_explicit(&bins[tid], 0u, memory_order_relaxed);
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    const int i = base + (int) tid;
+    int key = -1;
+    float val = 0.0f;
+    if (i < n_mask) {
+        key = mask[i + 1] - 1;
+        val = b[i];
+    }
+
+    /* A run starts where the target changes and ends in the lane before
+       the next run's head (32 wide simdgroups, as the reductions assume) */
+    const int key_prev = simd_shuffle_up(key, 1);
+    const bool head = (lane == 0) || (key != key_prev);
+    const ulong heads = static_cast<simd_vote::vote_t>(simd_ballot(head));
+
+    if (heads == 0xffffffffUL) {
+        /* No two neighbouring lanes share a target, so there is nothing
+           to combine: scatter directly. The ballot is the same in every
+           lane, so the branch is simdgroup-uniform. */
+        if (key >= 0)
+            atomic_fetch_add_explicit(&a[key], val, memory_order_relaxed);
+    }
+    else {
+        const ulong next = heads & ~((2UL << lane) - 1UL);
+        const int run_end = next ? (int) ctz(next) - 1 : 31;
+
+        /* Segmented suffix sum, the head ends up with the sum of its run */
+        for (ushort off = 1; off < 32; off *= 2) {
+            const float tmp = simd_shuffle_down(val, off);
+            if ((int) lane + off <= run_end)
+                val += tmp;
+        }
+
+        if (head && key >= 0) {
+            const int s = key - kbase;
+            if (s >= 0 && s < MASKED_ATOMIC_RED_BLOCK)
+                tg_atomic_add(&bins[s], val);
+            else
+                atomic_fetch_add_explicit(&a[key], val,
+                                          memory_order_relaxed);
+        }
+    }
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    /* Flush the bins, one per thread */
+    const float sum = as_type<float>(atomic_load_explicit(&bins[tid],
+                                                          memory_order_relaxed));
+    if (sum != 0.0f)
+        atomic_fetch_add_explicit(&a[kbase + (int) tid], sum,
+                                  memory_order_relaxed);
 }
 
 kernel void add2_kernel(device float *a[[ buffer(0) ]],
@@ -725,6 +805,35 @@ kernel void glmax_kernel(device const float *a[[ buffer(0) ]],
     uint num_simd = (tg_size + 31) / 32;
     if (simd_id == 0) {
         val = (simd_lane < num_simd) ? shared[simd_lane] : -HUGE_VALF;
+        val = simd_max(val);
+        if (simd_lane == 0) buf[tg_id] = val;
+    }
+}
+
+kernel void glamax_kernel(device const float *a[[ buffer(0) ]],
+                          device float *buf[[ buffer(1) ]],
+                          constant int &n[[ buffer(2) ]],
+                          uint gid [[ thread_position_in_grid ]],
+                          uint tid [[ thread_index_in_threadgroup ]],
+                          uint tg_id [[ threadgroup_position_in_grid ]],
+                          uint tg_size [[ threads_per_threadgroup ]],
+                          uint simd_lane [[ thread_index_in_simdgroup ]],
+                          uint simd_id [[ simdgroup_index_in_threadgroup ]],
+                          uint num_tg [[ threadgroups_per_grid ]]) {
+    float val = 0.0f;
+    for (uint i = gid; i < (uint)n; i += tg_size * num_tg) {
+        val = max(val, fabs(a[i]));
+    }
+
+    val = simd_max(val);
+
+    threadgroup float shared[32];
+    if (simd_lane == 0) shared[simd_id] = val;
+    threadgroup_barrier(mem_flags::mem_threadgroup);
+
+    uint num_simd = (tg_size + 31) / 32;
+    if (simd_id == 0) {
+        val = (simd_lane < num_simd) ? shared[simd_lane] : 0.0f;
         val = simd_max(val);
         if (simd_lane == 0) buf[tg_id] = val;
     }

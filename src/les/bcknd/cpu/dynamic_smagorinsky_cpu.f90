@@ -247,6 +247,8 @@ contains
     call test_filter%apply(fv, fu)
     call sub2(lij(6)%x, fv%x, n)
 
+    call neko_scratch_registry%relinquish_field(temp_indices)
+
   end subroutine compute_lij_cpu
 
   !> Compute M_ij on the CPU.
@@ -358,6 +360,8 @@ contains
        mij(6)%x(i,1,1,1) = mij(6)%x(i,1,1,1) * delta2
     end do
     !$omp end parallel do
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine compute_mij_cpu
 

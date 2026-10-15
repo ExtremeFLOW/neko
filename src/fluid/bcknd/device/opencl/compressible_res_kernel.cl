@@ -36,17 +36,31 @@
 #define __FLUID_EULER_RES_KERNEL__
 
 __kernel 
-void compressible_res_part_visc_kernel(__global real * __restrict__ rhs,
+void compressible_res_part_visc_kernel(__global real * __restrict__ rhs_rho,
+                                __global real * __restrict__ rhs_m_x,
+                                __global real * __restrict__ rhs_m_y,
+                                __global real * __restrict__ rhs_m_z,
+                                __global real * __restrict__ rhs_E,
+                                __global const real * __restrict__ visc_rho,
+                                __global const real * __restrict__ visc_m_x,
+                                __global const real * __restrict__ visc_m_y,
+                                __global const real * __restrict__ visc_m_z,
+                                __global const real * __restrict__ visc_E,
                                 __global const real * __restrict__ Binv,
-                                __global const real * __restrict__ lap_sol,
-                                __global const real * __restrict__ effective_visc,
+                                __global real * __restrict__ h1,
                                 const int n) {
-  
+
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
-  
+
   for (int i = idx; i < n; i += str) {
-    rhs[i] =  -rhs[i] - effective_visc[i] * Binv[i] * lap_sol[i];
+    const real Bi = Binv[i];
+    rhs_rho[i] = -rhs_rho[i] - Bi * visc_rho[i];
+    rhs_m_x[i] = -rhs_m_x[i] - Bi * visc_m_x[i];
+    rhs_m_y[i] = -rhs_m_y[i] - Bi * visc_m_y[i];
+    rhs_m_z[i] = -rhs_m_z[i] - Bi * visc_m_z[i];
+    rhs_E[i] = -rhs_E[i] - Bi * visc_E[i];
+    h1[i] = 1.0;
   }
 }
 

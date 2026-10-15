@@ -35,6 +35,7 @@
 module scalar_scheme
   use gather_scatter, only : gs_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use num_types, only : rp
   use field, only : field_t
   use field_list, only : field_list_t
@@ -42,13 +43,9 @@ module scalar_scheme
   use dofmap, only : dofmap_t
   use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
   use coefs, only : coef_t
-  use jacobi, only : jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
-  use hsmg, only : hsmg_t
   use bc_list, only : bc_list_t
   use bc, only : bc_t
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_factory
   use mesh, only : mesh_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
@@ -269,11 +266,8 @@ module scalar_scheme
      !! @param ulag, vlag, wlag The lagged velocity fields.
      !! @param time_scheme The time scheme controller.
      !! @param rho The density field.
-     !! @param checkpoint_index Position of the scalar in checkpoint storage.
-     !! @param n_scalars Total number of scalar schemes.
      module subroutine scalar_scheme_factory(object, msh, coef, gs, params, &
-          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho, &
-          checkpoint_index, n_scalars)
+          numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
        class(scalar_scheme_t), allocatable, intent(inout) :: object
        type(mesh_t), target, intent(in) :: msh
        type(coef_t), target, intent(in) :: coef
@@ -285,8 +279,6 @@ module scalar_scheme
        type(field_series_t), target, intent(in) :: ulag, vlag, wlag
        type(time_scheme_controller_t), target, intent(in) :: time_scheme
        type(field_t), target, intent(in) :: rho
-       integer, intent(in) :: checkpoint_index
-       integer, intent(in) :: n_scalars
      end subroutine scalar_scheme_factory
   end interface
 
@@ -478,7 +470,7 @@ contains
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
          solver_type, integer_val, solver_abstol, logical_val)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, &
+         this%c_Xh, this%bcs, &
          solver_precon, precon_params)
 
     call neko_log%end_section()
@@ -513,16 +505,14 @@ contains
 
   !> Register this scalar scheme with the checkpoint.
   !! @param chkp Checkpoint object to register with.
-  !! @param index Position of the scalar in checkpoint storage.
-  !! @param n_scalars Total number of scalar schemes.
-  subroutine scalar_scheme_register_checkpoint(this, chkp, index, n_scalars)
+  subroutine scalar_scheme_register_checkpoint(this, chkp)
     class(scalar_scheme_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    integer, intent(in) :: index
-    integer, intent(in) :: n_scalars
+    type(checkpoint_payload_t), pointer :: payload
 
-    call chkp%add_scalar(this%s, this%slag, index = index, &
-         n_scalars = n_scalars)
+    payload => chkp%add_payload("scalars/" // trim(this%name))
+    call payload%add_field(this%s)
+    call payload%add_series(this%slag)
 
   end subroutine scalar_scheme_register_checkpoint
 
@@ -556,7 +546,7 @@ contains
     end if
 
     if (allocated(this%pc)) then
-       call precon_destroy(this%pc)
+       call this%pc%free()
        deallocate(this%pc)
     end if
 
@@ -657,29 +647,16 @@ contains
   end subroutine scalar_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
-       pctype, pcparams)
+  subroutine scalar_scheme_precon_factory(pc, ksp, coef, bclst, &
+       pctype, json)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
-    type(dofmap_t), target, intent(in) :: dof
-    type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
-    type(json_file), intent(inout) :: pcparams
+    type(json_file), intent(inout) :: json
 
-    call precon_allocator(pc, pctype)
-
-    select type (pcp => pc)
-    type is (jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (sx_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (device_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (hsmg_t)
-       call pcp%init(coef, bclst, pcparams)
-    end select
+    call precon_factory(pc, pctype, coef, bclst, json)
 
     call ksp%set_pc(pc)
 
@@ -841,8 +818,7 @@ contains
 
   !> Constructor. Initializes the object.
   subroutine scalar_scheme_wrapper_init(this, msh, coef, gs, params, &
-       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho, &
-       checkpoint_index, n_scalars)
+       numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     class(scalar_scheme_wrapper_t), intent(inout) :: this
     type(mesh_t), target, intent(in) :: msh
     type(coef_t), target, intent(in) :: coef
@@ -854,13 +830,10 @@ contains
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     type(field_t), target, intent(in) :: rho
-    integer, intent(in) :: checkpoint_index
-    integer, intent(in) :: n_scalars
 
     call this%free()
     call scalar_scheme_factory(this%scalar, msh, coef, gs, params, &
-         numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho, &
-         checkpoint_index, n_scalars)
+         numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
 
   end subroutine scalar_scheme_wrapper_init
 

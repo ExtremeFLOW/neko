@@ -73,9 +73,9 @@ contains
     !$omp parallel do private(i, rx, ry, rz, cx, cy, cz)
     do i = 1, n
        ! displacement with respect to reference point
-       rx = dof%x(i,1,1,1) - ref_point(1)
-       ry = dof%y(i,1,1,1) - ref_point(2)
-       rz = dof%z(i,1,1,1) - ref_point(3)
+       rx = dof%x%x(i,1,1,1) - ref_point(1)
+       ry = dof%y%x(i,1,1,1) - ref_point(2)
+       rz = dof%z%x(i,1,1,1) - ref_point(3)
 
        ! Omega x r
        cx = (omega(2) * rz - omega(3) * ry)

@@ -194,21 +194,34 @@ static int neko_tune_iters()
     }                                                                         \
   } while (0)
 
-/* Report every measured candidate of both sweeps, not just the winner */
-#define NEKO_TUNE_LOG(LX, T1, T2)                                               \
+/* Report every measured candidate of one sweep, not just the winner. Split
+   per formulation because the vector operator has no 1d variant and so wants
+   the kstep half on its own */
+#define NEKO_TUNE_LOG_1D(LX, T1)                                              \
   do {                                                                        \
     for (int c = 0; c < NEKO_CHUNKS_CANDIDATES; c++) {                        \
-      if ((T1)[c] >= NEKO_TUNE_INIT) { continue; }                         \
+      if ((T1)[c] >= NEKO_TUNE_INIT) { continue; }                            \
       sprintf(neko_log_buf, "1D    ch=%-4d: %9.2f us/call",                   \
               NEKO_CHUNKS_SEL(LX, c), NEKO_TUNE_US((T1)[c], iters));          \
       log_message(neko_log_buf);                                              \
     }                                                                         \
+  } while (0)
+
+#define NEKO_TUNE_LOG_KSTEP(LX, T2)                                           \
+  do {                                                                        \
     for (int c = 0; c < NEKO_EB_CANDIDATES; c++) {                            \
-      if ((T2)[c] >= NEKO_TUNE_INIT) { continue; }                         \
+      if ((T2)[c] >= NEKO_TUNE_INIT) { continue; }                            \
       sprintf(neko_log_buf, "KSTEP eb=%-4d: %9.2f us/call",                   \
               NEKO_EB_SEL(LX, c), NEKO_TUNE_US((T2)[c], iters));              \
       log_message(neko_log_buf);                                              \
     }                                                                         \
+  } while (0)
+
+/* Both sweeps, for the operators that have a 1d variant */
+#define NEKO_TUNE_LOG(LX, T1, T2)                                             \
+  do {                                                                        \
+    NEKO_TUNE_LOG_1D(LX, T1);                                                 \
+    NEKO_TUNE_LOG_KSTEP(LX, T2);                                              \
   } while (0)
 
 #endif // __MATH_ELEM_BLOCK_TUNE_H__

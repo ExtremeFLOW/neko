@@ -458,6 +458,7 @@ contains
     end if
 
     call core%print_to_string(ptr, buffer)
+    call output%destroy()
     call output%initialize(strict_type_checking = .true.)
     call output%load_from_string(buffer)
 
@@ -476,6 +477,7 @@ contains
     character(len=:), allocatable :: buffer
 
     ! Initialize empty object to return
+    call output%destroy()
     call output%initialize(strict_type_checking = .true.)
 
     call json%get_core(core)
@@ -653,6 +655,7 @@ contains
 
     call core%get_child(array, i, ptr, found)
     call core%print_to_string(ptr, buffer)
+    call item%destroy()
     call item%initialize(strict_type_checking = .true.)
     call item%load_from_string(buffer)
 
@@ -684,6 +687,7 @@ contains
 
     call core%get_child(array, i, ptr, found)
     call core%print_to_string(ptr, buffer)
+    call item%destroy()
     call item%initialize(strict_type_checking = .true.)
     call item%load_from_string(buffer)
 

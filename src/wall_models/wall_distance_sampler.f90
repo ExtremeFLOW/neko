@@ -251,11 +251,11 @@ contains
           else
              distance = this%distances(j)
           end if
-          this%xyz(1,p) = coef%dof%x(linear,1,1,1) - &
+          this%xyz(1,p) = coef%dof%x%x(linear,1,1,1) - &
                distance * n_x%x(i)
-          this%xyz(2,p) = coef%dof%y(linear,1,1,1) - &
+          this%xyz(2,p) = coef%dof%y%x(linear,1,1,1) - &
                distance * n_y%x(i)
-          this%xyz(3,p) = coef%dof%z(linear,1,1,1) - &
+          this%xyz(3,p) = coef%dof%z%x(linear,1,1,1) - &
                distance * n_z%x(i)
           this%h%x(p) = distance
        end do

@@ -50,6 +50,9 @@ module source_term
      real(kind=rp) :: start_time = 0.0_rp
      !> End time for adding the source term.
      real(kind=rp) :: end_time = huge(0.0_rp)
+     !> Whether the owning scheme may extrapolate this term in time together
+     !! with its other explicit terms.
+     logical :: extrapolate = .true.
    contains
      !> Constructor for the source_term_t (base) type.
      procedure, pass(this) :: init_base => source_term_init_base
@@ -213,6 +216,7 @@ contains
 
     call this%fields%free()
     nullify(this%coef)
+    this%extrapolate = .true.
   end subroutine source_term_free_base
 
   !> Destructor for the `source_term_wrapper_t` type.

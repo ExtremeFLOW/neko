@@ -166,11 +166,11 @@ contains
     n = this%dof%size()
 
     if (dir .eq. 1) then
-       line => this%dof%x
+       line => this%dof%x%x
     else if (dir .eq. 2) then
-       line => this%dof%y
+       line => this%dof%y%x
     else if (dir .eq. 3) then
-       line => this%dof%z
+       line => this%dof%z%x
     else
        call neko_error('Invalid dir for geopmetric comm')
     end if
@@ -399,9 +399,9 @@ contains
     !ugly way of getting coordinates, computes average
     n = this%dof%size()
     do i = 1, n
-       if (this%dir .eq. 1) coord = this%dof%x(i,1,1,1)
-       if (this%dir .eq. 2) coord = this%dof%y(i,1,1,1)
-       if (this%dir .eq. 3) coord = this%dof%z(i,1,1,1)
+       if (this%dir .eq. 1) coord = this%dof%x%x(i,1,1,1)
+       if (this%dir .eq. 2) coord = this%dof%y%x(i,1,1,1)
+       if (this%dir .eq. 3) coord = this%dof%z%x(i,1,1,1)
        avg_planes%x(this%pt_lvl(i,1,1,1), 1) = &
             avg_planes%x(this%pt_lvl(i,1,1,1), 1) + &
             coord * this%coef%B(i,1,1,1) / &
@@ -443,9 +443,9 @@ contains
 
     n = this%dof%size()
     do i = 1, n
-       if (this%dir .eq. 1) coord = this%dof%x(i,1,1,1)
-       if (this%dir .eq. 2) coord = this%dof%y(i,1,1,1)
-       if (this%dir .eq. 3) coord = this%dof%z(i,1,1,1)
+       if (this%dir .eq. 1) coord = this%dof%x%x(i,1,1,1)
+       if (this%dir .eq. 2) coord = this%dof%y%x(i,1,1,1)
+       if (this%dir .eq. 3) coord = this%dof%z%x(i,1,1,1)
        avg_planes%x(this%pt_lvl(i,1,1,1), 1) = &
             avg_planes%x(this%pt_lvl(i,1,1,1), 1) + &
             coord * this%coef%B(i,1,1,1) / &

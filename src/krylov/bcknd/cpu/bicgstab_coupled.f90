@@ -41,7 +41,6 @@ module bicgstab_cpld
   use gather_scatter, only : gs_t, GS_OP_ADD
   use scalar_bc_projector, only : scalar_bc_projector_t
   use vector_bc_projector, only : vector_bc_projector_t
-  use host_array, only : host_array_t
   use scratch_registry, only : neko_scratch_registry
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -212,8 +211,8 @@ contains
     ! r^T r, s^T s, f^T v, v^T v, s^T t, t^T t
     real(kind=rp) :: rtr, sts, ftv, vtv, stt, ttt
     real(kind=xp) :: norm_sum
-    type(host_array_t), pointer :: p_tmp, p_hat_tmp, r_tmp
-    type(host_array_t), pointer :: s_hat_tmp, t_tmp, v_tmp
+    real(kind=rp), pointer, dimension(:) :: p_tmp, p_hat_tmp, r_tmp
+    real(kind=rp), pointer, dimension(:) :: s_hat_tmp, t_tmp, v_tmp
     integer :: temp_indices(6)
 
     if (present(niter)) then
@@ -223,25 +222,19 @@ contains
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 
-    call neko_scratch_registry%request_host_array(p_tmp, temp_indices(1), &
-         3 * n, .false.)
-    call neko_scratch_registry%request_host_array(p_hat_tmp, &
-         temp_indices(2), 3 * n, .false.)
-    call neko_scratch_registry%request_host_array(r_tmp, temp_indices(3), &
-         3 * n, .false.)
-    call neko_scratch_registry%request_host_array(s_hat_tmp, &
-         temp_indices(4), 3 * n, .false.)
-    call neko_scratch_registry%request_host_array(t_tmp, temp_indices(5), &
-         3 * n, .false.)
-    call neko_scratch_registry%request_host_array(v_tmp, temp_indices(6), &
-         3 * n, .false.)
+    call neko_scratch_registry%request(p_tmp, temp_indices(1), 3 * n, .false.)
+    call neko_scratch_registry%request(p_hat_tmp, temp_indices(2), 3 * n, .false.)
+    call neko_scratch_registry%request(r_tmp, temp_indices(3), 3 * n, .false.)
+    call neko_scratch_registry%request(s_hat_tmp, temp_indices(4), 3 * n, .false.)
+    call neko_scratch_registry%request(t_tmp, temp_indices(5), 3 * n, .false.)
+    call neko_scratch_registry%request(v_tmp, temp_indices(6), 3 * n, .false.)
 
-    this%p(1:n, 1:3) => p_tmp%x
-    this%p_hat(1:n, 1:3) => p_hat_tmp%x
-    this%r(1:n, 1:3) => r_tmp%x
-    this%s_hat(1:n, 1:3) => s_hat_tmp%x
-    this%t(1:n, 1:3) => t_tmp%x
-    this%v(1:n, 1:3) => v_tmp%x
+    this%p(1:n, 1:3) => p_tmp
+    this%p_hat(1:n, 1:3) => p_hat_tmp
+    this%r(1:n, 1:3) => r_tmp
+    this%s_hat(1:n, 1:3) => s_hat_tmp
+    this%t(1:n, 1:3) => t_tmp
+    this%v(1:n, 1:3) => v_tmp
 
     associate(p => this%p, p_hat => this%p_hat, r => this%r, &
          s_hat => this%s_hat, t => this%t, v => this%v)

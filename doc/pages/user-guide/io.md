@@ -13,12 +13,14 @@ Neko, and is used in some of the examples, for example `advecting_cone`. The
 usage is straightforward, and is well described by the help string provided when
 running the utility.
 
-The main way of obtaining a `.nmsh` is converting a Nek5000 `.re2` mesh file
-using the `rea2nbin` utility. Nek5000, in turn, has several converters among its
-tools, such as `gmsh2nek`. The latter is also available under the `contrib`
-directory in Neko. The workflow is thus to export your mesh into a format, which
-can be converted to `.re2`, and then convert the `.re2` to `.nmsh`. Of course
-one can also use native Nek5000 tools to produce the `.re2`, such as `genbox`.
+Gmsh `.msh` meshes can be converted directly to `.nmsh` with the `gmsh2nmsh`
+utility, see the [meshing guide](@ref constructing-meshes-gmsh). The other main
+way of obtaining a `.nmsh` is converting a Nek5000 `.re2` mesh file using the
+`rea2nbin` utility. Nek5000, in turn, has several converters among its tools,
+such as `gmsh2nek`. The workflow is then to export your mesh into a format
+which can be converted to `.re2`, and then convert the `.re2` to `.nmsh`. Of
+course one can also use native Nek5000 tools to produce the `.re2`, such as
+`genbox`.
 In the future, native support for other formats than `.nmsh` will be added for
 convenience.
 
@@ -104,12 +106,19 @@ respectively.  Separately, it is recommended to check for compression errors
 from lossy compressors in the specific quantities of interest in postprocessing
 and visualisation.
 
-## Checkpoint files
-Simulations cannot be restarted from `.fld` files (although you can use an `fld`
-to provide initial conditions). Instead, separate checkpoint files can be output
-for the purpose of restarts. These contain additional information allowing a
-clean restart, with, e.g., the correct time integration order. A separate file
-format, `.chkp` is adopted for the checkpoint files.
+## Checkpoint files {#checkpoint-files}
+
+Simulations cannot be restarted from `.fld` files, although an `.fld` file can
+provide initial conditions. Instead, separate checkpoint files can be written
+for restarts. These contain additional information that allows a clean restart,
+including the time-integration history.
+
+The default `.chkp` format supports the fluid, ALE state, and at most one
+scalar. HDF5 checkpoints use the `.h5` suffix and support multiple scalars as
+well as ALE state. Both formats support restarting from the same mesh with a
+different polynomial order. Select HDF5 with `"checkpoint_format": "hdf5"` in
+the [case file](@ref case-file). HDF5 checkpointing requires Neko to be built
+with HDF5 support.
 
 ## VTKHDF output {#vtkhdf-output}
 

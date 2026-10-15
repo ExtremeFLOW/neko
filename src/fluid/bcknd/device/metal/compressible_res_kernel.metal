@@ -44,14 +44,28 @@ using namespace metal;
 /**
  * Device kernel for the viscous part of the compressible residual
  */
-kernel void compressible_res_part_visc_kernel(device float *rhs[[ buffer(0) ]],
-                                       device const float *Binv[[ buffer(1) ]],
-                                       device const float *lap_sol[[ buffer(2) ]],
-                                       device const float *effective_visc[[ buffer(3) ]],
-                                       constant int &n[[ buffer(4) ]],
+kernel void compressible_res_part_visc_kernel(device float *rhs_rho[[ buffer(0) ]],
+                                       device float *rhs_m_x[[ buffer(1) ]],
+                                       device float *rhs_m_y[[ buffer(2) ]],
+                                       device float *rhs_m_z[[ buffer(3) ]],
+                                       device float *rhs_E[[ buffer(4) ]],
+                                       device const float *visc_rho[[ buffer(5) ]],
+                                       device const float *visc_m_x[[ buffer(6) ]],
+                                       device const float *visc_m_y[[ buffer(7) ]],
+                                       device const float *visc_m_z[[ buffer(8) ]],
+                                       device const float *visc_E[[ buffer(9) ]],
+                                       device const float *Binv[[ buffer(10) ]],
+                                       device float *h1[[ buffer(11) ]],
+                                       constant int &n[[ buffer(12) ]],
                                        uint idx [[ thread_position_in_grid ]]) {
   if (idx >= (uint)n) return;
-  rhs[idx] = -rhs[idx] - effective_visc[idx] * Binv[idx] * lap_sol[idx];
+  const float Bi = Binv[idx];
+  rhs_rho[idx] = -rhs_rho[idx] - Bi * visc_rho[idx];
+  rhs_m_x[idx] = -rhs_m_x[idx] - Bi * visc_m_x[idx];
+  rhs_m_y[idx] = -rhs_m_y[idx] - Bi * visc_m_y[idx];
+  rhs_m_z[idx] = -rhs_m_z[idx] - Bi * visc_m_z[idx];
+  rhs_E[idx] = -rhs_E[idx] - Bi * visc_E[idx];
+  h1[idx] = 1.0f;
 }
 
 /**

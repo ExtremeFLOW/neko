@@ -51,6 +51,8 @@ module boundary_operation
        vector_glsum, vector_glmin, vector_glmax, &
        vector_face_masked_gather_copy_0
   use time_based_controller, only : time_based_controller_t
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   implicit none
   private
 
@@ -174,7 +176,7 @@ contains
     character(len=:), allocatable :: csv_header
     character(len=LOG_SIZE) :: log_buf
     integer :: i
-    integer :: n_pts
+    integer :: n_pts, glb_n_pts, ierr
 
     this%name = name
     this%log = log
@@ -229,6 +231,8 @@ contains
     call this%bc%finalize()
 
     n_pts = this%bc%facet_node_msk(0)
+    call MPI_Allreduce(n_pts, glb_n_pts, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+         ierr)
     if (n_pts .gt. 0) then
        call this%areas%init(n_pts)
        call this%surface_values%init(n_pts)
@@ -260,8 +264,7 @@ contains
     end do
     write(log_buf, '(A,*(I0,:,", "))') "Zone indices: ", this%zone_indices
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I0)') "Marked boundary quadrature points: ", &
-         this%bc%facet_node_msk(0)
+    write(log_buf, '(A,I0)') "Marked boundary quadrature points: ", glb_n_pts
     call neko_log%message(log_buf)
     call neko_log%end_section()
   end subroutine boundary_operation_init_common
@@ -484,7 +487,7 @@ contains
              output_col = output_col + 1
           end do
           call this%csv_output%write(this%csv_row)
-          call this%output_controller%register_execution()
+          call this%output_controller%register_execution(time)
        end if
     end if
   end subroutine boundary_operation_compute
