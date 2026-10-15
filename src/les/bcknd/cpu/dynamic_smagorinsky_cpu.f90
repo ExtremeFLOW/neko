@@ -290,29 +290,45 @@ contains
     !! The first term:
     !!                      _____ ____
     !! (delta_test/delta)^2 s_abs*s_ij
-    call test_filter%apply(fs_abs, s_abs)
-
     call test_filter%apply(fs11, s11)
+    call test_filter%apply(fs22, s22)
+    call test_filter%apply(fs33, s33)
+    call test_filter%apply(fs12, s12)
+    call test_filter%apply(fs13, s13)
+    call test_filter%apply(fs23, s23)
+
+    ! Compute the strain magnitude from the test-filtered strain tensor.
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
+    do i = 1, n
+       fs_abs%x(i,1,1,1) = sqrt(2.0_rp * &
+            (fs11%x(i,1,1,1)*fs11%x(i,1,1,1) + &
+            fs22%x(i,1,1,1)*fs22%x(i,1,1,1) + &
+            fs33%x(i,1,1,1)*fs33%x(i,1,1,1)) + &
+            4.0_rp * (fs12%x(i,1,1,1)*fs12%x(i,1,1,1) + &
+            fs13%x(i,1,1,1)*fs13%x(i,1,1,1) + &
+            fs23%x(i,1,1,1)*fs23%x(i,1,1,1)))
+    end do
+    !$omp end parallel do
+
     call col3(mij(1)%x, fs_abs%x, fs11%x, n)
     call cmult(mij(1)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs22, s22)
     call col3(mij(2)%x, fs_abs%x, fs22%x, n)
     call cmult(mij(2)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs33, s33)
     call col3(mij(3)%x, fs_abs%x, fs33%x, n)
     call cmult(mij(3)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs12, s12)
     call col3(mij(4)%x, fs_abs%x, fs12%x, n)
     call cmult(mij(4)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs13, s13)
     call col3(mij(5)%x, fs_abs%x, fs13%x, n)
     call cmult(mij(5)%x, delta_ratio2, n)
 
-    call test_filter%apply(fs23, s23)
     call col3(mij(6)%x, fs_abs%x, fs23%x, n)
     call cmult(mij(6)%x, delta_ratio2, n)
 
