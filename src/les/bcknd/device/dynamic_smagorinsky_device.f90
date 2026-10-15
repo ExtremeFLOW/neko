@@ -241,8 +241,8 @@ contains
     integer, intent(in) :: n
 
     real(kind=rp) :: delta_ratio2
-    integer :: tmp_indices(13)
-    type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs, &
+    integer :: tmp_indices(12)
+    type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, &
          fsabss11, fsabss22, fsabss33, &
          fsabss12, fsabss13, fsabss23
 
@@ -260,12 +260,9 @@ contains
     call neko_scratch_registry%request_field(fsabss12, tmp_indices(10), .false.)
     call neko_scratch_registry%request_field(fsabss13, tmp_indices(11), .false.)
     call neko_scratch_registry%request_field(fsabss23, tmp_indices(12), .false.)
-    call neko_scratch_registry%request_field(fs_abs, tmp_indices(13), .false.)
 
     !! Compute M_ij
-    !!         _____     ____
-    !! Compute s_abs and s_ij
-    call test_filter%apply(fs_abs, s_abs)
+    !! Compute the test-filtered strain tensor
     call test_filter%apply(fs11, s11)
     call test_filter%apply(fs22, s22)
     call test_filter%apply(fs33, s33)
@@ -273,19 +270,18 @@ contains
     call test_filter%apply(fs13, s13)
     call test_filter%apply(fs23, s23)
 
-    !!                              _____ ____
-    !! Compute (delta_test/delta)^2 s_abs*s_ij and s_abs*s_ij
+    !! Compute delta_test**2 |S_test| S_ij_test and delta**2 |S| S_ij
     call device_mij_compute_part1(mij(1)%x_d, mij(2)%x_d, mij(3)%x_d, &
          mij(4)%x_d, mij(5)%x_d, mij(6)%x_d, &
          s_abs%x_d, s11%x_d, s22%x_d, s33%x_d, &
          s12%x_d, s13%x_d, s23%x_d, &
-         fs_abs%x_d, fs11%x_d, fs22%x_d, fs33%x_d, &
+         delta%x_d, fs11%x_d, fs22%x_d, fs33%x_d, &
          fs12%x_d, fs13%x_d, fs23%x_d, &
          fsabss11%x_d, fsabss22%x_d, fsabss33%x_d, &
          fsabss12%x_d, fsabss13%x_d, fsabss23%x_d, &
          delta_ratio2, n)
 
-    !! Filter s_abs*s_ij by the test filter
+    !! Filter delta**2 |S| S_ij by the test filter
     call test_filter%apply(fsabss11, fsabss11)
     call test_filter%apply(fsabss22, fsabss22)
     call test_filter%apply(fsabss33, fsabss33)
