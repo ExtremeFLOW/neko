@@ -84,7 +84,7 @@ contains
     integer :: i
 
     if (tstep .eq. 1) then
-       alpha = 1.0_rp
+       alpha = 0.0_rp
     else
        alpha = 0.9_rp
     end if
