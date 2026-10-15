@@ -449,47 +449,39 @@ $(document).ready(function(){initNavTree('d2/d0e/dynamic__smagorinsky__cpu_8f90_
 <div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: alpha</div>
 <div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
 <div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span> </div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">dimension(n)</span> :: num_curr, den_curr</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: num_curr, den_curr</div>
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span> </div>
 <div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
 <div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>    <span class="comment">!DIR$ CONCURRENT</span></div>
 <div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    <span class="comment">!DIR$ IVDEP</span></div>
 <div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>    <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    <span class="comment">!$omp parallel do</span></div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>    <span class="comment">!$omp parallel do private(i, num_curr, den_curr)</span></div>
 <div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>       num_curr(i) = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span>       num_curr = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>            mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>            mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span>            2.0_rp*(mij(4)%x(i,1,1,1)*lij(4)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span>            mij(5)%x(i,1,1,1)*lij(5)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00395" name="l00395"></a><span class="lineno">  395</span>            mij(6)%x(i,1,1,1)*lij(6)%x(i,1,1,1))</div>
-<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>       den_curr(i) = mij(1)%x(i,1,1,1)*mij(1)%x(i,1,1,1) + &amp;</div>
+<div class="line"><a id="l00396" name="l00396"></a><span class="lineno">  396</span>       den_curr = mij(1)%x(i,1,1,1)*mij(1)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00397" name="l00397"></a><span class="lineno">  397</span>            mij(2)%x(i,1,1,1)*mij(2)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00398" name="l00398"></a><span class="lineno">  398</span>            mij(3)%x(i,1,1,1)*mij(3)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00399" name="l00399"></a><span class="lineno">  399</span>            2.0_rp*(mij(4)%x(i,1,1,1)*mij(4)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00400" name="l00400"></a><span class="lineno">  400</span>            mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &amp;</div>
 <div class="line"><a id="l00401" name="l00401"></a><span class="lineno">  401</span>            mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))</div>
-<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>    <span class="comment">!$omp end parallel do</span></div>
-<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span> </div>
-<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>    <span class="comment">! running average over time</span></div>
-<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span>    <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
-<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    <span class="comment">!DIR$ CONCURRENT</span></div>
-<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span>    <span class="comment">!DIR$ IVDEP</span></div>
-<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>    <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span>    <span class="comment">!$omp parallel do</span></div>
-<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span>    <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span>       num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr(i)</div>
-<div class="line"><a id="l00413" name="l00413"></a><span class="lineno">  413</span>       den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr(i)</div>
-<div class="line"><a id="l00414" name="l00414"></a><span class="lineno">  414</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00415" name="l00415"></a><span class="lineno">  415</span>    <span class="comment">!$omp end parallel do</span></div>
-<div class="line"><a id="l00416" name="l00416"></a><span class="lineno">  416</span> </div>
+<div class="line"><a id="l00402" name="l00402"></a><span class="lineno">  402</span> </div>
+<div class="line"><a id="l00403" name="l00403"></a><span class="lineno">  403</span>       <span class="comment">! running average over time</span></div>
+<div class="line"><a id="l00404" name="l00404"></a><span class="lineno">  404</span>       num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr</div>
+<div class="line"><a id="l00405" name="l00405"></a><span class="lineno">  405</span>       den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr</div>
+<div class="line"><a id="l00406" name="l00406"></a><span class="lineno">  406</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00407" name="l00407"></a><span class="lineno">  407</span>    <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00408" name="l00408"></a><span class="lineno">  408</span> </div>
 </div>
-<div class="line"><a id="l00417" name="l00417"></a><span class="lineno">  417</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">compute_num_den_cpu</a></div>
-<div class="line"><a id="l00418" name="l00418"></a><span class="lineno">  418</span> </div>
-<div class="line"><a id="l00419" name="l00419"></a><span class="lineno">  419</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../da/def/namespacedynamic__smagorinsky__cpu.html">dynamic_smagorinsky_cpu</a></div>
-<div class="line"><a id="l00420" name="l00420"></a><span class="lineno">  420</span> </div>
+<div class="line"><a id="l00409" name="l00409"></a><span class="lineno">  409</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">compute_num_den_cpu</a></div>
+<div class="line"><a id="l00410" name="l00410"></a><span class="lineno">  410</span> </div>
+<div class="line"><a id="l00411" name="l00411"></a><span class="lineno">  411</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../da/def/namespacedynamic__smagorinsky__cpu.html">dynamic_smagorinsky_cpu</a></div>
+<div class="line"><a id="l00412" name="l00412"></a><span class="lineno">  412</span> </div>
 <div class="ttc" id="ainterfaceoperators_1_1strain__rate_html"><div class="ttname"><a href="../../db/d20/interfaceoperators_1_1strain__rate.html">operators::strain_rate</a></div><div class="ttdoc">Compute the strain rate tensor of a vector field.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00120">operators.f90:120</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacedynamic__smagorinsky__cpu_html"><div class="ttname"><a href="../../da/def/namespacedynamic__smagorinsky__cpu.html">dynamic_smagorinsky_cpu</a></div><div class="ttdoc">Implements the CPU kernel for the dynamic_smagorinsky_t type.</div><div class="ttdef"><b>Definition</b> <a href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00034">dynamic_smagorinsky_cpu.f90:34</a></div></div>
@@ -527,7 +519,7 @@ $(document).ready(function(){initNavTree('d2/d0e/dynamic__smagorinsky__cpu_8f90_
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../dir_599240cb2473dd34d041fb3ead8fcd0b.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_ee8f11d8cee760fc642c696cb0e96a7e.html">cpu</a></li><li class="navelem"><a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90.html">dynamic_smagorinsky_cpu.f90</a></li>
-    <li class="footer">Generated on Wed Oct 14 2026 03:43:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 15 2026 03:43:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -1,5 +1,7 @@
 var structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t =
 [
+    [ "configure_file", "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a37000f9484f9a502f7ee1c81a1d67b15", null ],
+    [ "configure_file", "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#aa07346cb15cf6da390c4049e3d431d0a", null ],
     [ "free", "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#aaa2b400cbc57484459d3e37d5ad0fe2c", null ],
     [ "free", "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#afad4dead28dfaa72609ed3a4bd723812", null ],
     [ "free_base", "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a1525d15484f840f09a5585a8127b1d62", null ],

@@ -144,7 +144,7 @@ $(document).ready(function(){initNavTree('d2/dd9/wale__cpu_8f90_source.html','..
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d7/dda/namespacescratch__registry.html">scratch_registry</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../de/d1f/namespaceregistry.html">registry</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../de/d1f/namespaceregistry.html#a0a9e34b6767a995829f03d12e4b4d63c">neko_registry</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>, <a class="code hl_interface" href="../../db/d20/interfaceoperators_1_1strain__rate.html">strain_rate</a></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d18/namespacegs__ops.html">gs_ops</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b">col2</a>, <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a></div>
@@ -168,14 +168,14 @@ $(document).ready(function(){initNavTree('d2/dd9/wale__cpu_8f90_source.html','..
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="comment">! the velocity gradient tensor</span></div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: g11, g12, g13, g21, g22, g23, g31, g32, g33</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    <span class="comment">! strain rate tensor</span></div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: s11, s22, s33, s12, s13, s23</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: s11, s22, s33, s12, s13, s23</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: gsqr_11, gsqr_12, gsqr_13, gsqr_21, gsqr_22, gsqr_23, gsqr_31, gsqr_32, gsqr_33</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: sd11, sd22, sd33, sd12, sd13, sd23</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: sdij_sdij</div>
 <div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: sij_sij</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: op_wale</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordtype">integer</span> :: temp_indices(15)</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordtype">integer</span> :: temp_indices(9)</div>
 <div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keywordtype">integer</span> :: e, i</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
 <div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
@@ -199,121 +199,110 @@ $(document).ready(function(){initNavTree('d2/dd9/wale__cpu_8f90_source.html','..
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(g32, temp_indices(8), .false.)</div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(g33, temp_indices(9), .false.)</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(s11, temp_indices(10), .false.)</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(s22, temp_indices(11), .false.)</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(s33, temp_indices(12), .false.)</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(s12, temp_indices(13), .false.)</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(s13, temp_indices(14), .false.)</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(s23, temp_indices(15), .false.)</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="comment">! Compute the velocity gradient tensor g</span></div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keyword">call </span>coef%gs_h%op(g11, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keyword">call </span>coef%gs_h%op(g12, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    <span class="keyword">call </span>coef%gs_h%op(g13, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keyword">call </span>coef%gs_h%op(g21, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="keyword">call </span>coef%gs_h%op(g22, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keyword">call </span>coef%gs_h%op(g23, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="keyword">call </span>coef%gs_h%op(g31, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keyword">call </span>coef%gs_h%op(g32, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keyword">call </span>coef%gs_h%op(g33, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    <span class="comment">! Compute components of the strain rate tensor</span></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d20/interfaceoperators_1_1strain__rate.html">strain_rate</a>(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &amp;</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>         u%x, v%x, w%x, coef)</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    <span class="keyword">call </span>coef%gs_h%op(s11, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    <span class="keyword">call </span>coef%gs_h%op(s22, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    <span class="keyword">call </span>coef%gs_h%op(s33, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    <span class="keyword">call </span>coef%gs_h%op(s12, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    <span class="keyword">call </span>coef%gs_h%op(s13, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    <span class="keyword">call </span>coef%gs_h%op(s23, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    <span class="comment">! Compute the velocity gradient tensor g</span></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g21%x, v%x, coef%drdx, coef%dsdx, coef%dtdx, coef)</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g22%x, v%x, coef%drdy, coef%dsdy, coef%dtdy, coef)</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g23%x, v%x, coef%drdz, coef%dsdz, coef%dtdz, coef)</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g31%x, w%x, coef%drdx, coef%dsdx, coef%dtdx, coef)</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keyword">call </span><a class="code hl_interface" href="../../db/d5a/interfaceoperators_1_1dudxyz.html">dudxyz</a>(g33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    <span class="keyword">call </span>coef%gs_h%op(g11, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    <span class="keyword">call </span>coef%gs_h%op(g12, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keyword">call </span>coef%gs_h%op(g13, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    <span class="keyword">call </span>coef%gs_h%op(g21, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keyword">call </span>coef%gs_h%op(g22, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    <span class="keyword">call </span>coef%gs_h%op(g23, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keyword">call </span>coef%gs_h%op(g31, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    <span class="keyword">call </span>coef%gs_h%op(g32, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keyword">call </span>coef%gs_h%op(g33, <a class="code hl_variable" href="../../dd/d18/namespacegs__ops.html#a9e2bcfac9de4f1625cfa4281c4eacba8">gs_op_add</a>)</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    <span class="comment">!$omp parallel do private(e, i, gsqr_11, gsqr_12, gsqr_13, gsqr_21, &amp;</span></div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="comment">!$omp&amp; gsqr_22, gsqr_23, gsqr_31, gsqr_32, gsqr_33, sd11, sd22, sd33, &amp;</span></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="comment">!$omp&amp; sd12, sd13, sd23, s11, s22, s33, s12, s13, s23, Sdij_Sdij, Sij_Sij, &amp;</span></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="comment">!$omp&amp; OP_wale)</span></div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>       <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>       <span class="comment">!DIR$ CONCURRENT</span></div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>       <span class="comment">!DIR$ IVDEP</span></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>       <span class="comment">!GCC$ ivdep</span></div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>       <span class="keywordflow">do</span> i = 1, coef%Xh%lxyz</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>          <span class="comment">! sij, the symmetric part of gij</span></div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>          s11 = g11%x(i,1,1,e)</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>          s22 = g22%x(i,1,1,e)</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>          s33 = g33%x(i,1,1,e)</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>          s12 = 0.5_rp * (g12%x(i,1,1,e) + g21%x(i,1,1,e))</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>          s13 = 0.5_rp * (g13%x(i,1,1,e) + g31%x(i,1,1,e))</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>          s23 = 0.5_rp * (g23%x(i,1,1,e) + g32%x(i,1,1,e))</div>
 <div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span> </div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    <span class="comment">!$omp parallel do private(e, i, gsqr_11, gsqr_12, gsqr_13, gsqr_21, &amp;</span></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    <span class="comment">!$omp&amp; gsqr_22, gsqr_23, gsqr_31, gsqr_32, gsqr_33, sd11, sd22, sd33, &amp;</span></div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    <span class="comment">!$omp&amp; sd12, sd13, sd23, Sdij_Sdij, Sij_Sij, OP_wale)</span></div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="keywordflow">do</span> e = 1, coef%msh%nelv</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>       <span class="comment">!OCL NORECURRENCE, NOVREC, NOALIAS</span></div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>       <span class="comment">!DIR$ CONCURRENT</span></div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>       <span class="comment">!DIR$ IVDEP</span></div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>       <span class="comment">!GCC$ ivdep</span></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>       <span class="keywordflow">do</span> i = 1, coef%Xh%lxyz</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>          <span class="comment">! gij^2 = g_ik * g_kj</span></div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>          gsqr_11 = g11%x(i,1,1,e)*g11%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>               g12%x(i,1,1,e)*g21%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>               g13%x(i,1,1,e)*g31%x(i,1,1,e)</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>          gsqr_12 = g11%x(i,1,1,e)*g12%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>               g12%x(i,1,1,e)*g22%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>               g13%x(i,1,1,e)*g32%x(i,1,1,e)</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>          gsqr_13 = g11%x(i,1,1,e)*g13%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>               g12%x(i,1,1,e)*g23%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>               g13%x(i,1,1,e)*g33%x(i,1,1,e)</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>          gsqr_21 = g21%x(i,1,1,e)*g11%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>               g22%x(i,1,1,e)*g21%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>               g23%x(i,1,1,e)*g31%x(i,1,1,e)</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>          gsqr_22 = g21%x(i,1,1,e)*g12%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>               g22%x(i,1,1,e)*g22%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>               g23%x(i,1,1,e)*g32%x(i,1,1,e)</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>          gsqr_23 = g21%x(i,1,1,e)*g13%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>               g22%x(i,1,1,e)*g23%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>               g23%x(i,1,1,e)*g33%x(i,1,1,e)</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>          gsqr_31 = g31%x(i,1,1,e)*g11%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>               g32%x(i,1,1,e)*g21%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>               g33%x(i,1,1,e)*g31%x(i,1,1,e)</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>          gsqr_32 = g31%x(i,1,1,e)*g12%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>               g32%x(i,1,1,e)*g22%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>               g33%x(i,1,1,e)*g32%x(i,1,1,e)</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>          gsqr_33 = g31%x(i,1,1,e)*g13%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>               g32%x(i,1,1,e)*g23%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>               g33%x(i,1,1,e)*g33%x(i,1,1,e)</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>          <span class="comment">! sdij components</span></div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>          sd11 = gsqr_11 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>          sd22 = gsqr_22 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>          sd33 = gsqr_33 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>          sd12 = 0.5_rp * (gsqr_12 + gsqr_21)</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>          sd13 = 0.5_rp * (gsqr_13 + gsqr_31)</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>          sd23 = 0.5_rp * (gsqr_23 + gsqr_32)</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>          <span class="comment">! Sdij*Sdij</span></div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>          sdij_sdij = sd11*sd11 + sd22*sd22 + sd33*sd33 + &amp;</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>               2.0_rp * (sd12*sd12 + sd13*sd13 + sd23*sd23)</div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>          <span class="comment">! Sij*Sij</span></div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>          sij_sij = s11%x(i,1,1,e)*s11%x(i,1,1,e) + s22%x(i,1,1,e)*s22%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>               s33%x(i,1,1,e)*s33%x(i,1,1,e) + 2.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &amp;</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>               s13%x(i,1,1,e)*s13%x(i,1,1,e) + s23%x(i,1,1,e)*s23%x(i,1,1,e))</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>          <span class="comment">! gij^2 = g_ik * g_kj</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>          gsqr_11 = g11%x(i,1,1,e)*g11%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>               g12%x(i,1,1,e)*g21%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>               g13%x(i,1,1,e)*g31%x(i,1,1,e)</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>          gsqr_12 = g11%x(i,1,1,e)*g12%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>               g12%x(i,1,1,e)*g22%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>               g13%x(i,1,1,e)*g32%x(i,1,1,e)</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>          gsqr_13 = g11%x(i,1,1,e)*g13%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>               g12%x(i,1,1,e)*g23%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>               g13%x(i,1,1,e)*g33%x(i,1,1,e)</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>          gsqr_21 = g21%x(i,1,1,e)*g11%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>               g22%x(i,1,1,e)*g21%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>               g23%x(i,1,1,e)*g31%x(i,1,1,e)</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>          gsqr_22 = g21%x(i,1,1,e)*g12%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>               g22%x(i,1,1,e)*g22%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>               g23%x(i,1,1,e)*g32%x(i,1,1,e)</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>          gsqr_23 = g21%x(i,1,1,e)*g13%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>               g22%x(i,1,1,e)*g23%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>               g23%x(i,1,1,e)*g33%x(i,1,1,e)</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>          gsqr_31 = g31%x(i,1,1,e)*g11%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>               g32%x(i,1,1,e)*g21%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>               g33%x(i,1,1,e)*g31%x(i,1,1,e)</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>          gsqr_32 = g31%x(i,1,1,e)*g12%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>               g32%x(i,1,1,e)*g22%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>               g33%x(i,1,1,e)*g32%x(i,1,1,e)</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>          gsqr_33 = g31%x(i,1,1,e)*g13%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>               g32%x(i,1,1,e)*g23%x(i,1,1,e) + &amp;</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>               g33%x(i,1,1,e)*g33%x(i,1,1,e)</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>          <span class="comment">! sdij components</span></div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>          sd11 = gsqr_11 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>          sd22 = gsqr_22 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>          sd33 = gsqr_33 - ( (gsqr_11 + gsqr_22 + gsqr_33) / 3.0_rp)</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>          sd12 = 0.5_rp * (gsqr_12 + gsqr_21)</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>          sd13 = 0.5_rp * (gsqr_13 + gsqr_31)</div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>          sd23 = 0.5_rp * (gsqr_23 + gsqr_32)</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>          <span class="comment">! Sdij*Sdij</span></div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>          sdij_sdij = sd11*sd11 + sd22*sd22 + sd33*sd33 + &amp;</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>               2.0_rp * (sd12*sd12 + sd13*sd13 + sd23*sd23)</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>          <span class="comment">! Sij*Sij</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>          sij_sij = s11*s11 + s22*s22 + s33*s33 + &amp;</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>               2.0_rp * (s12*s12 + s13*s13 + s23*s23)</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>          <span class="comment">! Wale operator</span></div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>          op_wale = sdij_sdij**(3.0_rp / 2.0_rp) / &amp;</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>               <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>((sij_sij**(5.0_rp / 2.0_rp) + sdij_sdij**(5.0_rp / 4.0_rp)), <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span> </div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>          <span class="comment">! turbulent viscosity</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>          nut%x(i,1,1,e) = c_w**2 * delta%x(i,1,1,e)**2 * op_wale * coef%mult(i,1,1,e)</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    <span class="comment">!$omp end parallel do</span></div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span> </div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>          <span class="comment">! Wale operator</span></div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>          op_wale = sdij_sdij**(3.0_rp / 2.0_rp) / &amp;</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>               <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>((sij_sij**(5.0_rp / 2.0_rp) + sdij_sdij**(5.0_rp / 4.0_rp)), <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a>)</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>          <span class="comment">! turbulent viscosity</span></div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>          nut%x(i,1,1,e) = c_w**2 * delta%x(i,1,1,e)**2 * op_wale * coef%mult(i,1,1,e)</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <span class="comment">!$omp end parallel do</span></div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(temp_indices)</div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(temp_indices)</div>
 </div>
-<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/da8/namespacewale__cpu.html#ae8860c8d1c538c880c01de3ad5137a6c">wale_compute_cpu</a></div>
-<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
-<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d7/da8/namespacewale__cpu.html">wale_cpu</a></div>
-<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span> </div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d7/da8/namespacewale__cpu.html#ae8860c8d1c538c880c01de3ad5137a6c">wale_compute_cpu</a></div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span> </div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d7/da8/namespacewale__cpu.html">wale_cpu</a></div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
 <div class="ttc" id="ainterfaceoperators_1_1dudxyz_html"><div class="ttname"><a href="../../db/d5a/interfaceoperators_1_1dudxyz.html">operators::dudxyz</a></div><div class="ttdoc">Compute derivative of a scalar field along a single direction.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00079">operators.f90:79</a></div></div>
-<div class="ttc" id="ainterfaceoperators_1_1strain__rate_html"><div class="ttname"><a href="../../db/d20/interfaceoperators_1_1strain__rate.html">operators::strain_rate</a></div><div class="ttdoc">Compute the strain rate tensor of a vector field.</div><div class="ttdef"><b>Definition</b> <a href="../../dd/dbf/operators_8f90_source.html#l00120">operators.f90:120</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacefield__list_html"><div class="ttname"><a href="../../df/d2b/namespacefield__list.html">field_list</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/d13/field__list_8f90_source.html#l00033">field_list.f90:33</a></div></div>
 <div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
@@ -341,7 +330,7 @@ $(document).ready(function(){initNavTree('d2/dd9/wale__cpu_8f90_source.html','..
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../dir_599240cb2473dd34d041fb3ead8fcd0b.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_ee8f11d8cee760fc642c696cb0e96a7e.html">cpu</a></li><li class="navelem"><a class="el" href="../../d2/dd9/wale__cpu_8f90.html">wale_cpu.f90</a></li>
-    <li class="footer">Generated on Wed Oct 14 2026 03:43:19 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 15 2026 03:43:27 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

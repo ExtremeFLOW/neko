@@ -125,8 +125,39 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ac046dcbeec2351f5a75b01d316364cc6" id="r_ac046dcbeec2351f5a75b01d316364cc6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d92/namespacefluid__stats__output.html#ac046dcbeec2351f5a75b01d316364cc6">fluid_stats_output_sample</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, t)</td></tr>
 <tr class="memdesc:ac046dcbeec2351f5a75b01d316364cc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sample <a class="el" href="../../d9/d7d/namespacefluid__stats.html" title="Computes various statistics for the fluid fields. We use the Reynolds decomposition for a field u =  ...">fluid_stats</a> at time <em>t</em>.  <br /></td></tr>
 <tr class="separator:ac046dcbeec2351f5a75b01d316364cc6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13c555b1b62098940d08e3b2e5a24f1f" id="r_a13c555b1b62098940d08e3b2e5a24f1f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d92/namespacefluid__stats__output.html#a13c555b1b62098940d08e3b2e5a24f1f">fluid_stats_output_configure_file</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a13c555b1b62098940d08e3b2e5a24f1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Puts the leading fields in the UVW, P and T slots rather than the scalar block.  <br /></td></tr>
+<tr class="separator:a13c555b1b62098940d08e3b2e5a24f1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a13c555b1b62098940d08e3b2e5a24f1f" name="a13c555b1b62098940d08e3b2e5a24f1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13c555b1b62098940d08e3b2e5a24f1f">&#9670;&#160;</a></span>fluid_stats_output_configure_file()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> fluid_stats_output::fluid_stats_output_configure_file </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html">fluid_stats_output_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html#l00190">190</a> of file <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html">fluid_stats_output.f90</a>.</p>
+
+</div>
+</div>
 <a id="abda12190e2e49ddc85bf6cf5d67e6c63" name="abda12190e2e49ddc85bf6cf5d67e6c63"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abda12190e2e49ddc85bf6cf5d67e6c63">&#9670;&#160;</a></span>fluid_stats_output_free()</h2>
 
@@ -151,7 +182,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html#l00133">133</a> of file <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html">fluid_stats_output.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html#l00128">128</a> of file <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html">fluid_stats_output.f90</a>.</p>
 
 </div>
 </div>
@@ -205,7 +236,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html#l00073">73</a> of file <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html">fluid_stats_output.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html#l00076">76</a> of file <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html">fluid_stats_output.f90</a>.</p>
 
 </div>
 </div>
@@ -243,7 +274,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html#l00145">145</a> of file <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html">fluid_stats_output.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html#l00140">140</a> of file <a class="el" href="../../de/d03/fluid__stats__output_8f90_source.html">fluid_stats_output.f90</a>.</p>
 
 </div>
 </div>
@@ -253,7 +284,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d92/namespacefluid__stats__output.html">fluid_stats_output</a></li>
-    <li class="footer">Generated on Wed Oct 14 2026 03:43:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 15 2026 03:43:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

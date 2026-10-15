@@ -34,7 +34,7 @@ var searchData=
   ['jacobian_5finverse_31',['jacobian_inverse',['../da/d80/namespacelocal__interpolation.html#aeef5a68b5719a6d3638ce8a2be899ab7',1,'local_interpolation']]],
   ['jit_2ec_32',['jit.c',['../d6/df3/jit_8c.html',1,'']]],
   ['jit_2eh_33',['jit.h',['../d4/d0f/jit_8h.html',1,'']]],
-  ['jl_34',['Julia (Neko.jl)',['../d8/daa/api.html#autotoc_md72',1,'']]],
+  ['jl_34',['Julia (Neko.jl)',['../d8/daa/api.html#autotoc_md68',1,'']]],
   ['jl_20ndash_20a_20julia_20interface_20to_20neko_35',['Neko.jl &amp;ndash; A Julia interface to Neko',['../d5/dbe/md__2home_2runner_2work_2neko_2neko_2examples_2api_2Neko_8jl_2README.html',1,'']]],
   ['job_5finfo_36',['job_info',['../de/dc2/namespacepyneko_1_1intf.html#a4cb81ba03fe0d65330b187e343e21560',1,'pyneko::intf']]],
   ['jobctrl_37',['jobctrl',['../d7/d06/namespacejobctrl.html',1,'']]],
@@ -45,9 +45,9 @@ var searchData=
   ['jobctrl_5fset_5ftime_5flimit_5fsec_42',['jobctrl_set_time_limit_sec',['../d7/d06/namespacejobctrl.html#aaa38605ae63b754fcccffe3d10a3a4bb',1,'jobctrl::jobctrl_set_time_limit_sec()'],['../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html#a726abeee8968fe20bca3a6e0b23215be',1,'jobctrl::jobctrl_set_time_limit::jobctrl_set_time_limit_sec()']]],
   ['jobctrl_5fset_5ftime_5flimit_5fstr_43',['jobctrl_set_time_limit_str',['../d7/d06/namespacejobctrl.html#a288823dde72b2464cf502906b6bf40da',1,'jobctrl::jobctrl_set_time_limit_str()'],['../da/d39/interfacejobctrl_1_1jobctrl__set__time__limit.html#a465891abbe5d2c56c25d58e0afc0309a',1,'jobctrl::jobctrl_set_time_limit::jobctrl_set_time_limit_str()']]],
   ['jobctrl_5ftime_5flimit_44',['jobctrl_time_limit',['../d7/d06/namespacejobctrl.html#a668d576b7980c2488dece4c06fcbb41b',1,'jobctrl']]],
-  ['joblimit_45',['Restarts and joblimit',['../dd/d33/case-file.html#autotoc_md78',1,'']]],
-  ['json_20case_20file_46',['Runtime interaction with the JSON case file',['../d5/db5/programming-examples.html#autotoc_md209',1,'']]],
-  ['json_20fortran_47',['Building JSON Fortran',['../d5/dfc/installation.html#autotoc_md144',1,'']]],
+  ['joblimit_45',['Restarts and joblimit',['../dd/d33/case-file.html#autotoc_md74',1,'']]],
+  ['json_20case_20file_46',['Runtime interaction with the JSON case file',['../d5/db5/programming-examples.html#autotoc_md205',1,'']]],
+  ['json_20fortran_47',['Building JSON Fortran',['../d5/dfc/installation.html#autotoc_md140',1,'']]],
   ['json_5fextract_5fitem_48',['json_extract_item',['../d9/d2b/interfacejson__utils_1_1json__extract__item.html',1,'json_utils']]],
   ['json_5fextract_5fitem_5ffrom_5farray_49',['json_extract_item_from_array',['../d8/da8/namespacejson__utils.html#a676fe75290b2ea73d99971cb8dbdb729',1,'json_utils::json_extract_item_from_array()'],['../d9/d2b/interfacejson__utils_1_1json__extract__item.html#ab330d9a6e89188c14e71e3e8d18ca09e',1,'json_utils::json_extract_item::json_extract_item_from_array()']]],
   ['json_5fextract_5fitem_5ffrom_5fname_50',['json_extract_item_from_name',['../d8/da8/namespacejson__utils.html#a1fc9296024e5aece2174f714c31c2f50',1,'json_utils::json_extract_item_from_name()'],['../d9/d2b/interfacejson__utils_1_1json__extract__item.html#a5a0bda3e5eb109df3afb266a428fb5e9',1,'json_utils::json_extract_item::json_extract_item_from_name()']]],
@@ -85,6 +85,6 @@ var searchData=
   ['json_5futils_82',['json_utils',['../d8/da8/namespacejson__utils.html',1,'']]],
   ['json_5futils_2ef90_83',['json_utils.f90',['../d6/d44/json__utils_8f90.html',1,'']]],
   ['julia_20interface_20to_20neko_84',['Neko.jl &amp;ndash; A Julia interface to Neko',['../d5/dbe/md__2home_2runner_2work_2neko_2neko_2examples_2api_2Neko_8jl_2README.html',1,'']]],
-  ['julia_20neko_20jl_85',['Julia (Neko.jl)',['../d8/daa/api.html#autotoc_md72',1,'']]],
-  ['jump_20penalty_86',['Gradient Jump Penalty',['../dd/d33/case-file.html#autotoc_md89',1,'']]]
+  ['julia_20neko_20jl_85',['Julia (Neko.jl)',['../d8/daa/api.html#autotoc_md68',1,'']]],
+  ['jump_20penalty_86',['Gradient Jump Penalty',['../dd/d33/case-file.html#autotoc_md85',1,'']]]
 ];

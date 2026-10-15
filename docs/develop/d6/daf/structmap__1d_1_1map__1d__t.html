@@ -257,7 +257,7 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a72e07e1c90032a698dd8778e846c7935"><td class="mdescLeft">&#160;</td><td class="mdescRight">Requested physical direction of the 1D mapping. Values 1, 2, and 3 correspond to <code>x</code>, <code>y</code>, and <code>z</code>, respectively.  <br /></td></tr>
 <tr class="separator:a72e07e1c90032a698dd8778e846c7935"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3c8a34cfa1467714bb2898ad9a0ccf45" id="r_a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#a3c8a34cfa1467714bb2898ad9a0ccf45">tol</a> = 1e-7</td></tr>
-<tr class="memdesc:a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Coordinate comparison tolerance used when identifying propagated levels.  <br /></td></tr>
+<tr class="memdesc:a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tolerance used when identifying propagated levels, relative to the coordinate extent in the requested direction. The absolute tolerance never falls below a few roundoff units of the coordinate magnitude.  <br /></td></tr>
 <tr class="separator:a3c8a34cfa1467714bb2898ad9a0ccf45"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa97b415f401cb03da86d950c49b25866" id="r_aa97b415f401cb03da86d950c49b25866"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html#aa97b415f401cb03da86d950c49b25866">volume_per_gll_lvl</a></td></tr>
 <tr class="memdesc:aa97b415f401cb03da86d950c49b25866"><td class="mdescLeft">&#160;</td><td class="mdescRight">Integrated quadrature weight volume associated with each GLL level. Used as the denominator when computing plane averages.  <br /></td></tr>
@@ -265,11 +265,11 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>This type is used to average fields over planes normal to one physical direction. The constructor first determines which local tensor-product direction (<code>r</code>, <code>s</code>, or <code>t</code>) is most closely aligned with the requested physical direction (<code>x</code>, <code>y</code>, or <code>z</code>) for each element. It then assigns a one-dimensional element level to each element and expands that element level into GLL-point levels along the aligned local direction.</p>
-<p>The element-level assignment is based on propagation of the global minimum coordinate through the gather-scatter connectivity. Elements whose minimum coordinate matches the global minimum are assigned to the first level. On each following pass, the current lower face of every element is masked to the global maximum, a gather-scatter add exchanges boundary values, and the result is converted into an effective boundary minimum. Elements that have newly received the global minimum are assigned to the next level. This repeats until the propagated minimum reaches the global maximum level.</p>
+<p>The element-level assignment is based on propagation of the global minimum coordinate through the gather-scatter connectivity. Elements whose minimum coordinate matches the global minimum are assigned to the first level. On each following pass, the current lower face of every element is masked to the global maximum, a gather-scatter add exchanges boundary values, and the result is converted into an effective boundary minimum. Elements that have newly received the global minimum are assigned to the next level. This repeats until the propagated minimum reaches the global maximum level. The comparison with the global minimum uses an absolute tolerance, the user tolerance <code>tol</code> times the coordinate extent in the requested direction, with a floor of a few roundoff units of the coordinate magnitude, because the propagation is done with floating point sums scaled by the inverse multiplicity <code>coefmult</code>, which is not exact in general. Elements matched to the global minimum are reset to exactly that value so the roundoff does not accumulate over levels.</p>
 <p>Once element levels are known, every GLL point receives a global 1D level (<code>pt_lvl</code>) ordered consistently with the local element orientation. The constructor also accumulates <code>volume_per_gll_lvl</code>, the quadrature weight volume associated with each 1D level. Averaging then sums each field into these levels and divides by the corresponding level volume.</p>
-<p>The propagation algorithm assumes that the connectivity and coordinate layout allow a unique stack of element levels in the requested direction. If an element level remains unassigned, the resulting point levels are not valid for the volume accumulation or averaging steps. </p><dl class="section remark"><dt>Remarks</dt><dd>Could also be rather easily extended to say polar coordinates as well (I think). Martin Karp </dd></dl>
+<p>The propagation algorithm assumes that the connectivity and coordinate layout allow a unique stack of element levels in the requested direction. If an element level remains unassigned the constructor stops with an error, since the resulting point levels would index the level arrays out of bounds. </p><dl class="section remark"><dt>Remarks</dt><dd>Could also be rather easily extended to say polar coordinates as well (I think). Martin Karp </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a6fd57ecf349441a1d4abe5e6085ea2d7" name="a6fd57ecf349441a1d4abe5e6085ea2d7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6fd57ecf349441a1d4abe5e6085ea2d7">&#9670;&#160;</a></span>average_planes() <span class="overload">[1/2]</span></h2>
@@ -310,7 +310,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00142">142</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -353,7 +353,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00142">142</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -396,7 +396,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00128">128</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00138">138</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -439,7 +439,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00130">130</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00140">140</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -459,7 +459,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00126">126</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00136">136</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -501,7 +501,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00134">134</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -543,7 +543,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00134">134</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -585,7 +585,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00133">133</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -627,7 +627,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00122">122</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00132">132</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -644,7 +644,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -660,7 +660,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00122">122</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -676,7 +676,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -692,7 +692,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -708,7 +708,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -724,7 +724,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -740,7 +740,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -756,7 +756,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -772,7 +772,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -788,7 +788,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00126">126</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -804,7 +804,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/da8/map__1d_8f90_source.html#l00129">129</a> of file <a class="el" href="../../d7/da8/map__1d_8f90_source.html">map_1d.f90</a>.</p>
 
 </div>
 </div>
@@ -817,7 +817,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d8b/namespacemap__1d.html">map_1d</a></li><li class="navelem"><a class="el" href="../../d6/daf/structmap__1d_1_1map__1d__t.html">map_1d_t</a></li>
-    <li class="footer">Generated on Wed Oct 14 2026 03:43:21 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 15 2026 03:43:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

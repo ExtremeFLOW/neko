@@ -1,5 +1,6 @@
 var structoutput_1_1output__t =
 [
+    [ "configure_file", "dd/d5f/structoutput_1_1output__t.html#a37000f9484f9a502f7ee1c81a1d67b15", null ],
     [ "free", "dd/d5f/structoutput_1_1output__t.html#aaa2b400cbc57484459d3e37d5ad0fe2c", null ],
     [ "free_base", "dd/d5f/structoutput_1_1output__t.html#a1525d15484f840f09a5585a8127b1d62", null ],
     [ "init_base", "dd/d5f/structoutput_1_1output__t.html#aa9853130252151809a431108e99384fa", null ],

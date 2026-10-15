@@ -30,6 +30,7 @@ var namespaceutils =
     [ "set_error_or_throw", "d6/d84/namespaceutils.html#a2069613a5a5c8fc7b28e3ff311f82ecf", null ],
     [ "split_string", "d6/d84/namespaceutils.html#a2de13cdec1ab133b6f0545f467a5abcc", null ],
     [ "neko_fname_len", "d6/d84/namespaceutils.html#a76ff64218112fb6d5a8a02d15b2628e7", null ],
+    [ "neko_typename_len", "d6/d84/namespaceutils.html#a9c819a6598137db1ca3d587b83c69309", null ],
     [ "neko_varname_len", "d6/d84/namespaceutils.html#ac6d1705f20d3a1fce16eb7a745d88eb3", null ],
     [ "throw_error", "d6/d84/namespaceutils.html#a67268bc78336003fcb1397c4ca5e1827", null ],
     [ "throw_warning", "d6/d84/namespaceutils.html#abb66df0b28e173d2a7af0512a825883f", null ]

@@ -1,5 +1,6 @@
 var structspatial__average__output_1_1spatial__average__output__t =
 [
+    [ "configure_file", "d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html#a37000f9484f9a502f7ee1c81a1d67b15", null ],
     [ "free", "d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html#aaa2b400cbc57484459d3e37d5ad0fe2c", null ],
     [ "free", "d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html#ab4650bcc02cc8c7afebb704b9cf24d10", null ],
     [ "free_base", "d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html#a1525d15484f840f09a5585a8127b1d62", null ],

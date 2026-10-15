@@ -1,5 +1,7 @@
 var structfluid__stats__output_1_1fluid__stats__output__t =
 [
+    [ "configure_file", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#a54b91d5e8e020eeb8c86ae80cb835df6", null ],
+    [ "configure_file", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#a37000f9484f9a502f7ee1c81a1d67b15", null ],
     [ "free", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#af8304b8f8776f74232646293857fe15f", null ],
     [ "free", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#aaa2b400cbc57484459d3e37d5ad0fe2c", null ],
     [ "free_base", "d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html#a1525d15484f840f09a5585a8127b1d62", null ],
