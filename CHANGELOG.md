@@ -11,6 +11,11 @@
 
 ## Develop
 
+- Fixed every rank opening the file named by `NEKO_LOG_FILE`, although only
+  rank 0 writes to it. The file is opened with `status = 'replace'`, so a rank
+  reaching `log_t%init` after rank 0 had written to the file truncated it,
+  leaving the log empty or starting with null bytes. Only rank 0 opens the
+  file now.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on

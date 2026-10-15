@@ -13,6 +13,7 @@ test-suite.log
 !device_math/device_math_test
 !gather_scatter/gather_scatter_test
 !jobctrl/jobctrl_test
+!log/log_test
 !bc/bc_test
 !bc_projector/bc_projector_test
 !matrix/matrix_test
@@ -70,6 +71,7 @@ mesh/mesh_suite
 gather_scatter/gather_scatter_suite
 ax/ax_test
 jobctrl/jobctrl_suite
+log/log_suite
 scratch_registry/scratch_registry_test
 vector_scratch_registry/vector_scratch_registry_test
 matrix_scratch_registry/matrix_scratch_registry_test

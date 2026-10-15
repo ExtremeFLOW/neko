@@ -483,6 +483,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/fluid_pnpn_bc/Makefile\
         tests/unit/signal/Makefile\
         tests/unit/jobctrl/Makefile\
+        tests/unit/log/Makefile\
         tests/unit/vtkhdf/Makefile\
         tests/unit/device/Makefile\
         tests/unit/data_types/Makefile\
