@@ -69,6 +69,22 @@ $\partial_\tau\phi+\nabla\cdot(\phi(1-\phi)\mathbf n)=\nabla\cdot(\varepsilon(\n
 His phase field reads the normal only in that re-sharpening, inside a band; ours reads it pointwise
 everywhere, every step (§3).
 
+How his code solves Eq. (39) (`lvlSet.f` in his fork; `examples/rider_kothe/logs/d5/saini/`):
+- **$\mathbf n$ is frozen over each re-sharpening.** It is built once, at the first pseudo-step, from
+  the transported TLS field (`conv_clsr`, `cls_normals(..., ifld_tls)`: "normals do not change over
+  re-dist steps"), and held for all $N_{cls}$ steps. The paper says only "explicitly computed".
+- **The diffusion is projected onto $\mathbf n$, as printed.** `axhelm_cls` assembles
+  $\int\nabla v\cdot\mathbf n\,[\varepsilon(\nabla\phi\cdot\mathbf n)-\phi(1-\phi)]$, with $\nabla\phi$
+  the averaged ($C^0$) gradient and $\varepsilon$ = `eps_cls` times the element size. So the
+  compression flux sits in the same weak-form Helmholtz operator as the diffusion, not in an explicit
+  source.
+- **Ours differs in the diffusion's form.** Isotropic $\nabla\cdot(\varepsilon\Gamma\nabla\phi)$ equals
+  his only where $\nabla\phi\parallel\mathbf n$. Elsewhere it adds the tangential flux
+  $\varepsilon\Gamma(\mathbf I-\mathbf n\mathbf n)\nabla\phi$, which is largest where $\phi$ and $\psi$
+  disagree: after events under strain, and at a thinning tail (`examples/rider_kothe/README.md` §3.4).
+  Swapping ours for his form helps the early shape but loses boundedness, because variations along
+  $\psi$'s contours are then undamped (same section and its appendix).
+
 **Stepping.** Neko's scalar scheme, BDF3/EXT3 (`time_order` 3 in every case; Saini uses BDF2/EXT2,
 §6). The advection and the compression (a user source term) are explicit and extrapolated; the
 diffusion is implicit, $\varepsilon\Gamma$ being the scalar's conductivity. So the step is limited
@@ -178,7 +194,7 @@ counts) are in each case README.
 
 | setting | Saini | coupled files (committed) | `redistance_circles` |
 |---|---|---|---|
-| phase-field equation | split CLS: Eq. (38) transport with SVV, plus Eq. (39) re-sharpening every $\Delta t_{cls}$ (0.05 in §4.5); the phase field reads $\mathbf n$ only in Eq. (39) | fused CDI (§2), $\mathbf n$ read at every node every step. **The intended difference** | no phase field |
+| phase-field equation | split CLS: Eq. (38) transport with SVV, plus Eq. (39) re-sharpening every $\Delta t_{cls}$ (0.05 in §4.5); the phase field reads $\mathbf n$ only in Eq. (39), frozen over each re-sharpening, with diffusion projected onto $\mathbf n$ (§2) | fused CDI (§2), $\mathbf n$ read at every node every step. **The intended difference** | no phase field |
 | physical time scheme | BDF2, extrapolated with Nek's EXT3 coefficients. The paper prints BDF3/EXT3 for §4.5 at $H=1/128$ (p. 21), but his public `circVortex/cv.par` uses BDF2 at every resolution | BDF3/EXT3 in every case. Neko's `time_order` 2 is BDF2 with a modified EXT3 | — |
 | dealiased transport | yes, "for all my cases" (email) | yes, `dealias: true` in every `.case` | — |
 | $\Delta t$ | advective CFL (§4.5: $\approx0.4$ at $N=6$) | CDI's compression limit (§2) | — |

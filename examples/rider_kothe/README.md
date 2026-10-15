@@ -218,7 +218,23 @@ probe of §3.5 (`tables/event_psi_s1_h64.txt`).
   - At $t=4$, $H=1/128$, our 0.5 contour stops $5.7H$ ($\gamma=0.5$) and $7.8H$ ($\gamma=1$) short of
     the exact tail tip. His stops $0.8H$ short (`logs/s45_2026-10-12/tables/tail_tip_t4_h128.txt`,
     `evidence/rider_saini45_tail_h128.png`).
-  - Whether the missing tail is what drives our late $E_s$ is open.
+  - **The tip itself is a small part of $E_s$.** Split by Lagrangian origin (each misplaced node traced back
+    to $t=0$ along the exact flow; `logs/s45_2026-10-12/es_origin.py`, `tables/es_origin_*.txt`), the
+    tip's origin arc (74–99° about the disk centre) holds 2–9% of the gap to his code at $t=4$ and none
+    net at $t=8$.
+  - **The gap starts on the top of the disk.** At $t=1$–2, 64–76% of it comes from material starting at
+    60–115°, the arm that becomes the outer filament, and it is mostly missing area there. At $t=8$
+    it sits at 20–130°, with both signs.
+  - **There $\phi$ and $\psi$ disagree most** (`logs/s45_2026-10-12/align_t.py`, `tables/align_*.txt`).
+    At the events of $t=1$–2 the angle between $\nabla\phi$ and $\psi$'s normal is 2.6–5.3° on that arm,
+    against his 1.1–1.9°, and 0.5–0.8° elsewhere.
+  - **Saini's Eq. (39) diffusion form recovers the early shape but not the run** (appendix, $H=1/128$).
+    His diffusion is projected onto $\mathbf n$ (`../../CDI_METHOD.md` §2); ours is isotropic and so
+    also diffuses along the interface where the two normals disagree. Projected, our $E_s$ equals his
+    code's to $t\approx1$ and the tail shortfall falls from $5.7H$ to $3.1$–$3.3H$. But variations
+    along $\psi$'s contours are then undamped: $\phi$ leaves $[0,1]$ by up to $3\times10^{-2}$, or
+    diverges, and $E_r$, $E_s$ at $t=8$ are worse than isotropic. SVV on $\phi$ at his phase-field
+    transport strength changes nothing measurable.
 
 ### 3.5 The knobs on Saini's configuration
 
@@ -384,7 +400,9 @@ normalisation.
 
 - **Shape.** In Saini's configuration at $\gamma=1$, our $E_s$ is 1.5× his at $H=1/64$ and 2.8× at
   $H=1/128$. At $\gamma=0.5$ it is 0.94× and 2.0× (§3.4–§3.5). At $H=1/128$ our thin tail stops
-  5.7–7.8$H$ short of the tip at $t=4$, where his reaches it (§3.4).
+  5.7–7.8$H$ short of the tip at $t=4$, where his reaches it (§3.4). The gap starts on the top of the
+  disk by $t=1$; his projected Eq. (39) diffusion closes it early but costs boundedness and the $t=8$
+  result (§3.4).
 - **$p$-refinement.** In Saini's configuration $N=6$ loses boundedness and is no better than $N=5$;
   at $H=1/32$ it diverges. The cause is open (§3.7).
 - **The coarsest mesh**, $H=1/32$, is unbounded late in the run at every $N$ (§3.7).
@@ -463,7 +481,8 @@ norms are in his normalisation: ours divided by 13.147.
 ## Appendix: other configurations
 
 These runs are not in Saini's configuration. Scratch user files: `logs/d5_2026-10-06/rider_kothe_0c.f90`,
-`logs/d6_2026-10-07/rider_kothe_d6.f90` and `logs/s45_2026-10-12/rider_kothe_s45.f90`. Columns:
+`logs/d6_2026-10-07/rider_kothe_d6.f90`, `logs/s45_2026-10-12/rider_kothe_s45.f90` and
+`logs/s45_2026-10-12/cdi_forms/rider_kothe_forms.f90` (the $\phi$-diffusion rows). Columns:
 $E_r$, $E_s$, $|E_v|$ at $t=8$, worst violation, $\phi$ pieces at $t=3.04$, 4, 5.04 and 6, and
 $\psi$'s normal on those frames' events at $t=2$–5 / $t=8$. Rows without $|E_v|$ predate its
 measurement. $H=1/64$, $\xi=1$, $\gamma=1$ unless stated.
@@ -485,5 +504,9 @@ measurement. $H=1/64$, $\xi=1$, $\gamma=1$ unless stated.
 | after event 2: SSP-RK3 + printed Eq. (31) | | 1, 8, $0.41\varepsilon$, 4.3° | the printed SVV form cuts the crossings from 228 to 8 |
 | after event 2: run 1 | | 1, 7, $0.41\varepsilon$, 4.3° | BDF2 equals RK3 here |
 | after event 2: run 1 + dealiasing and guard | width $\varepsilon$ | 4, 131, $5.2\varepsilon$, 5.9° | |
+| $\phi$ diffusion projected, $\nabla\cdot(\varepsilon\Gamma(\nabla\phi\cdot\mathbf n)\mathbf n)$ (`s45_2026-10-12/cdi_forms/cdi_proj_h128`) | his Eq. (39) form in our CDI, an implicit split sub-step; $H=1/128$, $\gamma=0.5$ | diverged at $t=7.27$; violation $>10^{-3}$ from $t=1.36$ | tail $3.3H$ short at $t=4$ ($5.7H$ isotropic) |
+| the same with SVV on $\phi$ (`cdi_forms/cdi_proj_svv_h128`) | plus `svv_phi` $N/2$, $c_0=0.1$, local $\lvert\mathbf u\rvert$, explicit | diverged at $t=7.43$ | tail $3.1H$ |
+| projected inside the band, isotropic outside (`cdi_forms/cdi_proj_band_h128`) | $\mathbf D=\mathbf I-w(\mathbf I-\mathbf n\mathbf n)$, $w=\min(1,\max(0,4\phi(1-\phi)/0.01))$ | 0.00783, $3.69\times10^{-3}$, $1.4\times10^{-11}$, $3.0\times10^{-2}$ | isotropic: 0.00575, $3.25\times10^{-3}$, $1.6\times10^{-6}$, $1.0\times10^{-3}$; tail $3.1H$; $\lvert E_v\rvert$ is below Neko's $10^{-6}$ tolerance because $\phi$'s own solve has no diffusion |
+| SVV on $\phi$, isotropic diffusion (`cdi_forms/cdi_svv_h128`) | `svv_phi` as above | 0.00589, $3.19\times10^{-3}$, $1.7\times10^{-6}$, $9.4\times10^{-4}$ | within noise of isotropic; tail $5.7H$ |
 | SVV off, $\xi=1$, $\gamma=1$ (`lambda_fix_nosvv_2026-10-02/`) | no `svv_psi` | 0.0498 (on: 0.0446), $2.5\times10^{-3}$ both | before the velocity fix |
 | SVV off, $\xi=1.5$, $\gamma=1$ and 2 | no `svv_psi` | 0.0708 and 0.0688 (on: 0.0631, 0.0615) | before the velocity fix |

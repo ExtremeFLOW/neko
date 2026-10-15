@@ -68,19 +68,19 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - **BDF2 at $N_{svv}=N/4$ once lost an apex that RK3 held** (§4.4, $H=1/5$, $N=7$; archive §7.5).
        §4.5 uses $N/4$ for Eq. (44), so watch for it.
 2. **The shape gap to Saini.** His $E_s$ is 2–2.8× lower than ours at $H=1/128$.
-   - **Start here (the user's observation).** At $H=1/128$ our $\phi$ does not capture the thin tail;
-     his does.
-     - At $t=4$ our 0.5 contour stops $5.7H$ ($\gamma=0.5$) and $7.8H$ ($\gamma=1$) short of the exact
-       tip; his stops $0.8H$ short.
-     - Sources: `examples/rider_kothe/logs/s45_2026-10-12/tables/tail_tip_t4_h128.txt` and
-       `examples/rider_kothe/evidence/rider_saini45_tail_h128.png`.
-     - The missing tail may be what drives our late $E_s$.
-     - The user has ideas for a fix; think them through together before running anything.
-     - The $H=1/128$ outputs are kept in `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}`.
-   - Part of the gap is there before the first event, so the phase field itself contributes.
-   - Part is the event coupling: at $t=2$–4 the rebuilt $\psi$ is worse than its seed, and CDI reads
-     it at once. $\gamma$ already moves this.
-   - **Open:** what else on the $\phi$ side reduces it, without SVV on $\phi$.
+   - **Where it is** (case README §3.4). The tail tip ($5.7H$ short at $t=4$, his $0.8H$) is a small
+     part of $E_s$. The gap starts by $t=1$ on the material from the top of the disk, where $\phi$ and
+     $\psi$'s normal disagree most after events.
+   - **Tried and stopped: $\phi$'s diffusion form** (case README appendix; records in
+     `logs/s45_2026-10-12/PREREGISTERED.txt`, "thin tail", steps 1–4; code and tables in
+     `logs/s45_2026-10-12/cdi_forms/`). Saini's projected Eq. (39) diffusion matches his $E_s$ to
+     $t\approx1$ and halves the tail shortfall, but $\phi$ then leaves $[0,1]$ (or diverges) and $t=8$
+     is worse. Projected only inside the band: same. SVV on $\phi$ at his strength: no effect. Untried:
+     an isotropic blend $(1-\alpha)\mathbf n\mathbf n+\alpha\mathbf I$, stronger SVV on $\phi$.
+   - **Open:** what reduces the early top-of-disk loss while keeping the isotropic diffusion's
+     damping along the interface. The event coupling is one lever ($\gamma$ already moves it).
+   - The $H=1/128$ outputs are kept in `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}`
+     and `cdi_forms/output_cdi_*_h128`.
 3. **$\Delta t_{tls}=0.25$ diverges** at $t=5.69$ after 22 events, inside his range of 0.01–0.5
    (case README appendix). Find the mechanism of this repeated-event instability before any interval
    below 0.5 is used.
