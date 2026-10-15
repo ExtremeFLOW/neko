@@ -56,20 +56,22 @@ contains
   !! @param coef SEM coefficients.
   !! @param nut The SGS viscosity array.
   !! @param delta The LES lengthscale.
+  !! @param if_delta_var Whether delta varies within an element.
   !! @param c_dyn The DS model coefficient
   !! @param test_filter
   !! @param mij
   !! @param lij The Germano identity.
   !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>
   !! @param den The denominator in the expression of c_dyn, i.e. <mij*mij>
-  subroutine dynamic_smagorinsky_compute_cpu(if_ext, t, tstep, coef, nut, delta, &
-       c_dyn, test_filter, mij, lij, num, den)
+  subroutine dynamic_smagorinsky_compute_cpu(if_ext, t, tstep, coef, nut, &
+       delta, if_delta_var, c_dyn, test_filter, mij, lij, num, den)
     logical, intent(in) :: if_ext
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
+    logical, intent(in) :: if_delta_var
     type(field_t), intent(inout) :: c_dyn
     type(elementwise_filter_t), intent(inout) :: test_filter
     type(field_t), intent(inout) :: mij(6), lij(6)
@@ -151,7 +153,7 @@ contains
 
     call compute_lij_cpu(lij, u, v, w, test_filter, u%dof%size())
     call compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, &
-         s_abs, test_filter, delta, u%dof%size())
+         s_abs, test_filter, delta, if_delta_var, u%dof%size())
     call compute_num_den_cpu(num, den, lij, mij, alpha, u%dof%size())
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
@@ -252,8 +254,8 @@ contains
   end subroutine compute_lij_cpu
 
   !> Compute M_ij on the CPU.
-  !!                              _____ ____   __________
-  !! M_ij = ((delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij)*(delta^2)
+  !! M_ij = delta_test^2 |S_test| S_ij_test
+  !!      - test_filter(delta^2 |S| S_ij)
   !! @param Mij
   !! @param s11
   !! @param s22
@@ -262,21 +264,23 @@ contains
   !! @param s13
   !! @param s23
   !! @param s_abs
-  !! @param test_filter
-  !! @param n
+  !! @param test_filter The test filter.
+  !! @param delta The LES lengthscale.
+  !! @param if_delta_var Whether delta varies within an element.
+  !! @param n Number of degrees of freedom.
   subroutine compute_mij_cpu(mij, s11, s22, s33, s12, s13, s23, &
-       s_abs, test_filter, delta, n)
+       s_abs, test_filter, delta, if_delta_var, n)
     type(field_t), intent(inout) :: mij(6)
     type(field_t), intent(inout) :: s11, s22, s33, s12, s13, s23, s_abs
     type(elementwise_filter_t), intent(inout) :: test_filter
     type(field_t), intent(in) :: delta
+    logical, intent(in) :: if_delta_var
     integer, intent(in) :: n
 
     integer :: temp_indices(7)
     type(field_t), pointer :: fs11, fs22, fs33, fs12, fs13, fs23, fs_abs
     real(kind=rp) :: delta_ratio2 !test- to grid- filter ratio, squared
     integer :: i
-    real(kind=rp) :: delta2
 
     delta_ratio2 = ((test_filter%nx-1.0_rp)/(test_filter%nt-1.0_rp))**2
 
@@ -332,35 +336,69 @@ contains
     call col3(mij(6)%x, fs_abs%x, fs23%x, n)
     call cmult(mij(6)%x, delta_ratio2, n)
 
-    !! Substract the second term:
-    !!                      _____ ____   __________
-    !! (delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij
-    !! fs11 and fs22 are used as work array
-    call col3(fs11%x, s_abs%x, s11%x, n)
-    call test_filter%apply(fs22, fs11)
-    call sub2(mij(1)%x, fs22%x, n)
+    if (if_delta_var) then
+       call compute_mij_variable_delta_cpu(mij, s11, s22, s33, s12, s13, &
+            s23, s_abs, delta, test_filter, fs11, fs22, fs_abs, n)
+    else
+       call compute_mij_constant_delta_cpu(mij, s11, s22, s33, s12, s13, &
+            s23, s_abs, delta, test_filter, fs11, fs22, n)
+    end if
 
-    call col3(fs11%x, s_abs%x, s22%x, n)
-    call test_filter%apply(fs22, fs11)
-    call sub2(mij(2)%x, fs22%x, n)
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
-    call col3(fs11%x, s_abs%x, s33%x, n)
-    call test_filter%apply(fs22, fs11)
-    call sub2(mij(3)%x, fs22%x, n)
+  end subroutine compute_mij_cpu
 
-    call col3(fs11%x, s_abs%x, s12%x, n)
-    call test_filter%apply(fs22, fs11)
-    call sub2(mij(4)%x, fs22%x, n)
+  !> Complete M_ij when delta is constant within each element.
+  !! @param mij The model tensor.
+  !! @param s11 The 1,1 component of the strain tensor.
+  !! @param s22 The 2,2 component of the strain tensor.
+  !! @param s33 The 3,3 component of the strain tensor.
+  !! @param s12 The 1,2 component of the strain tensor.
+  !! @param s13 The 1,3 component of the strain tensor.
+  !! @param s23 The 2,3 component of the strain tensor.
+  !! @param s_abs The strain magnitude.
+  !! @param delta The LES lengthscale.
+  !! @param test_filter The test filter.
+  !! @param work1 Scratch field.
+  !! @param work2 Scratch field.
+  !! @param n Number of degrees of freedom.
+  subroutine compute_mij_constant_delta_cpu(mij, s11, s22, s33, s12, s13, &
+       s23, s_abs, delta, test_filter, work1, work2, n)
+    type(field_t), intent(inout) :: mij(6)
+    type(field_t), intent(in) :: s11, s22, s33, s12, s13, s23, s_abs
+    type(field_t), intent(in) :: delta
+    type(elementwise_filter_t), intent(inout) :: test_filter
+    type(field_t), intent(inout) :: work1, work2
+    integer, intent(in) :: n
 
-    call col3(fs11%x, s_abs%x, s13%x, n)
-    call test_filter%apply(fs22, fs11)
-    call sub2(mij(5)%x, fs22%x, n)
+    integer :: i
+    real(kind=rp) :: delta2
 
-    call col3(fs11%x, s_abs%x, s23%x, n)
-    call test_filter%apply(fs22, fs11)
-    call sub2(mij(6)%x, fs22%x, n)
+    call col3(work1%x, s_abs%x, s11%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(1)%x, work2%x, n)
 
-    !! Lastly multiplied by delta^2
+    call col3(work1%x, s_abs%x, s22%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(2)%x, work2%x, n)
+
+    call col3(work1%x, s_abs%x, s33%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(3)%x, work2%x, n)
+
+    call col3(work1%x, s_abs%x, s12%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(4)%x, work2%x, n)
+
+    call col3(work1%x, s_abs%x, s13%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(5)%x, work2%x, n)
+
+    call col3(work1%x, s_abs%x, s23%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(6)%x, work2%x, n)
+
+    ! Delta is constant on each element, so it commutes with the test filter.
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
     !DIR$ IVDEP
@@ -377,9 +415,79 @@ contains
     end do
     !$omp end parallel do
 
-    call neko_scratch_registry%relinquish_field(temp_indices)
+  end subroutine compute_mij_constant_delta_cpu
 
-  end subroutine compute_mij_cpu
+  !> Complete M_ij when delta varies within an element.
+  !! @param mij The model tensor.
+  !! @param s11 The 1,1 component of the strain tensor.
+  !! @param s22 The 2,2 component of the strain tensor.
+  !! @param s33 The 3,3 component of the strain tensor.
+  !! @param s12 The 1,2 component of the strain tensor.
+  !! @param s13 The 1,3 component of the strain tensor.
+  !! @param s23 The 2,3 component of the strain tensor.
+  !! @param s_abs The strain magnitude.
+  !! @param delta The LES lengthscale.
+  !! @param test_filter The test filter.
+  !! @param work1 Scratch field.
+  !! @param work2 Scratch field.
+  !! @param delta_s_abs Delta squared times the strain magnitude.
+  !! @param n Number of degrees of freedom.
+  subroutine compute_mij_variable_delta_cpu(mij, s11, s22, s33, s12, s13, &
+       s23, s_abs, delta, test_filter, work1, work2, delta_s_abs, n)
+    type(field_t), intent(inout) :: mij(6)
+    type(field_t), intent(in) :: s11, s22, s33, s12, s13, s23, s_abs
+    type(field_t), intent(in) :: delta
+    type(elementwise_filter_t), intent(inout) :: test_filter
+    type(field_t), intent(inout) :: work1, work2, delta_s_abs
+    integer, intent(in) :: n
+
+    integer :: i
+    real(kind=rp) :: delta2
+
+    ! Apply the local test-filter width to the first term and form the
+    ! complete grid-scale term before test filtering.
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do private(i, delta2)
+    do i = 1, n
+       delta2 = delta%x(i,1,1,1)**2
+       mij(1)%x(i,1,1,1) = mij(1)%x(i,1,1,1) * delta2
+       mij(2)%x(i,1,1,1) = mij(2)%x(i,1,1,1) * delta2
+       mij(3)%x(i,1,1,1) = mij(3)%x(i,1,1,1) * delta2
+       mij(4)%x(i,1,1,1) = mij(4)%x(i,1,1,1) * delta2
+       mij(5)%x(i,1,1,1) = mij(5)%x(i,1,1,1) * delta2
+       mij(6)%x(i,1,1,1) = mij(6)%x(i,1,1,1) * delta2
+       delta_s_abs%x(i,1,1,1) = s_abs%x(i,1,1,1) * delta2
+    end do
+    !$omp end parallel do
+
+    call col3(work1%x, delta_s_abs%x, s11%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(1)%x, work2%x, n)
+
+    call col3(work1%x, delta_s_abs%x, s22%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(2)%x, work2%x, n)
+
+    call col3(work1%x, delta_s_abs%x, s33%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(3)%x, work2%x, n)
+
+    call col3(work1%x, delta_s_abs%x, s12%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(4)%x, work2%x, n)
+
+    call col3(work1%x, delta_s_abs%x, s13%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(5)%x, work2%x, n)
+
+    call col3(work1%x, delta_s_abs%x, s23%x, n)
+    call test_filter%apply(work2, work1)
+    call sub2(mij(6)%x, work2%x, n)
+
+  end subroutine compute_mij_variable_delta_cpu
 
   !> Compute numerator and denominator for c_dyn on the CPU.
   !! @param num The numerator in the expression of c_dyn, i.e. <mij*lij>

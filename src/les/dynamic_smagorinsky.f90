@@ -198,7 +198,8 @@ contains
     else
        call dynamic_smagorinsky_compute_cpu(this%if_ext, t, tstep, &
             this%coef, this%nut, &
-            this%delta, this%c_dyn, this%test_filter, &
+            this%delta, this%delta_type .eq. "pointwise", &
+            this%c_dyn, this%test_filter, &
             this%mij, this%lij, this%num, this%den)
     end if
 
