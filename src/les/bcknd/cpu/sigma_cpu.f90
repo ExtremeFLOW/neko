@@ -73,6 +73,7 @@ contains
     type(field_t), pointer :: u, v, w
 
     real(kind=rp) :: sigG11, sigG12, sigG13, sigG22, sigG23, sigG33
+    real(kind=rp) :: sigG_scale, sigma_scale
     real(kind=rp) :: sigma1, sigma2, sigma3
     real(kind=rp) :: Invariant1, Invariant2, Invariant3
     real(kind=rp) :: alpha1, alpha2, alpha3
@@ -135,7 +136,7 @@ contains
 
     !$omp parallel do private(e, i, sigG11, sigG12, sigG13, sigG22, sigG23, &
     !$omp& sigG33, sigma1, sigma2, sigma3, Invariant1, Invariant2, Invariant3, &
-    !$omp& alpha1, alpha2, alpha3, Dsigma, tmp1)
+    !$omp& alpha1, alpha2, alpha3, Dsigma, tmp1, sigG_scale, sigma_scale)
     do e = 1, coef%msh%nelv
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
@@ -155,6 +156,21 @@ contains
           sigG23 = g12%x(i,1,1,e)*g13%x(i,1,1,e) + &
                g22%x(i,1,1,e)*g23%x(i,1,1,e) + &
                g32%x(i,1,1,e)*g33%x(i,1,1,e)
+
+          ! Scale G before forming its invariants to avoid overflow and
+          ! catastrophic cancellation in the analytical eigensolver.
+          sigG_scale = max(max(sigG11, sigG22), sigG33)
+          if (sigG_scale .gt. 0.0_rp) then
+             sigma_scale = sqrt(sigG_scale)
+             sigG11 = sigG11 / sigG_scale
+             sigG12 = sigG12 / sigG_scale
+             sigG13 = sigG13 / sigG_scale
+             sigG22 = sigG22 / sigG_scale
+             sigG23 = sigG23 / sigG_scale
+             sigG33 = sigG33 / sigG_scale
+          else
+             sigma_scale = 0.0_rp
+          end if
 
           ! If LAPACK compute eigenvalues of the semi-definite positive matrix G
           ! ..........to be done later on......
@@ -214,26 +230,30 @@ contains
              ! forcing is applied
              alpha1 = max(alpha1, 0.0_rp)
 
-             alpha2 = Invariant1*Invariant1*Invariant1/27.0_rp - &
-                  Invariant1*Invariant2/6.0_rp + Invariant3/2.0_rp
-
-             ! since acos(alpha2/(alpha1^(3/2)))/3.0_rp only valid for
-             ! alpha2^2 < alpha1^3.0_rp and arccos(x) only valid for -1<=x<=1
-             !  alpha3 is between 0 and pi/3
-             tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1)
+             if (alpha1 .le. eps) then
+                ! Repeated eigenvalues: their separation is below resolution.
+                alpha1 = 0.0_rp
+                tmp1 = 1.0_rp
+             else
+                alpha2 = Invariant1*Invariant1*Invariant1/27.0_rp - &
+                     Invariant1*Invariant2/6.0_rp + Invariant3/2.0_rp
+                tmp1 = alpha2/sqrt(alpha1 * alpha1 * alpha1)
+                tmp1 = max(-1.0_rp, min(1.0_rp, tmp1))
+             end if
 
              if (tmp1 .le. -1.0_rp) then
                 ! alpha3=pi/3 -> cos(alpha3)=0.5
                 ! compute the singular values
                 sigma1 = sqrt(max(Invariant1/3.0_rp + sqrt(alpha1), 0.0_rp))
                 sigma2 = sigma1
-                sigma3 = sqrt(Invariant1/3.0_rp - 2.0_rp*sqrt(alpha1))
+                sigma3 = sqrt(max(Invariant1/3.0_rp - &
+                     2.0_rp*sqrt(alpha1), 0.0_rp))
 
              elseif (tmp1 .ge. 1.0_rp) then
                 ! alpha3=0.0_rp -> cos(alpha3)=1.0
                 sigma1 = sqrt(max(Invariant1/3.0_rp + 2.0_rp*sqrt(alpha1), &
                      0.0_rp))
-                sigma2 = sqrt(Invariant1/3.0_rp - sqrt(alpha1))
+                sigma2 = sqrt(max(Invariant1/3.0_rp - sqrt(alpha1), 0.0_rp))
                 sigma3 = sigma2
              else
                 alpha3 = acos(tmp1)/3.0_rp
@@ -249,8 +269,8 @@ contains
                 else
                    sigma1 = sqrt(max(Invariant1/3.0_rp + &
                         2.0_rp*sqrt(alpha1)*cos(alpha3), 0.0_rp))
-                   sigma2 = sqrt(Invariant1/3.0_rp - &
-                        2.0_rp*sqrt(alpha1)*cos(pi_3 + alpha3))
+                   sigma2 = sqrt(max(Invariant1/3.0_rp - &
+                        2.0_rp*sqrt(alpha1)*cos(pi_3 + alpha3), 0.0_rp))
                    sigma3 = sqrt(abs(Invariant1 - &
                         sigma1*sigma1-sigma2*sigma2))
                 end if ! Invariant3=0 ?
@@ -266,7 +286,7 @@ contains
           end if
 
           !clipping to avoid negative values
-          Dsigma = max(Dsigma, 0.0_rp)
+          Dsigma = max(Dsigma, 0.0_rp) * sigma_scale
 
           ! estimate turbulent viscosity
 
