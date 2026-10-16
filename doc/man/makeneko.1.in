@@ -4,7 +4,7 @@
 makeneko \- build a custom Neko executable with user-defined modules
 .SH SYNOPSIS
 .B makeneko
-.IR file1.f90 " [" file2.f90 " ...] [" file.cu " | " file.hip "]"
+.IR file1.f90 " [" file2.f90 " ...] [" file.cu " | " file.hip "] [" file.o " | " lib.a " ...] [" flags "]"
 .SH DESCRIPTION
 .B makeneko
 is a build helper installed alongside
@@ -39,7 +39,16 @@ is called.
 .PP
 The generated driver is compiled together with the user sources and the
 installed Neko library using the Fortran compiler and flags chosen at the
-time Neko was configured. After a successful build the temporary
+time Neko was configured. The feature macros Neko was built with, such as
+.BR HAVE_CUDA ,
+.B HAVE_HIP
+or
+.BR HAVE_OPENCL ,
+are defined when compiling the Fortran sources, so preprocessed
+.I .F90
+files can select a backend with the same
+.B #ifdef
+blocks as the Neko sources. After a successful build the temporary
 .I usr_driver.f90
 is removed.
 .PP
@@ -66,6 +75,27 @@ HIP source file. Accepted only when Neko was configured with the HIP backend;
 compiled with
 .B hipcc
 using the flags chosen at configure time.
+.TP
+.IR file.o ", " lib.a ", " lib.so
+Object files and libraries, passed to the final link.
+.TP
+.BR \-I "\fIdir\fR, " \-D "\fIname\fR, " \-U \fIname\fR
+Preprocessor flags, passed to the Fortran compiler and to
+.B nvcc
+or
+.BR hipcc .
+.TP
+.BR \-L "\fIdir\fR, " \-l "\fIlib\fR, ..."
+Any other argument starting with
+.B \-
+is passed to the final link, before
+.BR \-lneko .
+Use this to link additional libraries, e.g.
+.BR "\-lcublas" .
+Options must be written as a single argument, e.g.
+.B \-L/path
+rather than
+.BR "\-L /path" .
 .PP
 Files with any other extension are ignored with a warning.
 .SH USER MODULE
