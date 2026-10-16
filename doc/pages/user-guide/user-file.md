@@ -1141,6 +1141,20 @@ makeneko user.f90 mykernel.cu
 
 @note `makeneko` does currently only support custom kernels written in CUDA or HIP.
 
+`makeneko` defines the same feature macros that Neko was built with, such as
+`HAVE_CUDA`, `HAVE_HIP` and `HAVE_OPENCL`. If the user file has the `.F90`
+extension, it is preprocessed, and the backend can be selected with the same
+`#ifdef` blocks used in the Neko sources. Additional libraries, object files and
+compiler flags can be passed on the command line, for example to call cuBLAS
+from the user file:
+
+```bash
+makeneko user.F90 mykernel.cu -lcublas
+```
+
+Arguments starting with `-I`, `-D` or `-U` are passed to all compilers, other
+arguments starting with `-` are passed to the final link.
+
 ### Registries {#user-file_tips_registries}
 
 Neko uses the concept of `registry` as a practical way to retrieve fields and
