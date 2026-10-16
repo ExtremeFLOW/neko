@@ -154,18 +154,16 @@ contains
     type(time_state_t), intent(in) :: time
     integer :: i
 
-    if (time%t .ge. this%start_time .and. time%t .le. this%end_time) then
-       do i = 1, this%fields%size()
-          call field_rzero(this%user_fields%items(i)%ptr)
-       end do
+    do i = 1, this%fields%size()
+       call field_rzero(this%user_fields%items(i)%ptr)
+    end do
 
-       call this%compute_user_(this%scheme_name, this%user_fields, time)
+    call this%compute_user_(this%scheme_name, this%user_fields, time)
 
-       do i = 1, this%fields%size()
-          call field_add2(this%fields%items(i)%ptr, &
-               this%user_fields%items(i)%ptr)
-       end do
-    end if
+    do i = 1, this%fields%size()
+       call field_add2(this%fields%items(i)%ptr, &
+            this%user_fields%items(i)%ptr)
+    end do
   end subroutine user_source_term_compute
 
 end module user_source_term

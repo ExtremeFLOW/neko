@@ -11,6 +11,11 @@
 
 ## Develop
 
+- Fixed source terms skipping the time step that lands on their `start_time`
+  or `end_time` when round-off in the accumulated time puts the step just
+  outside the window, e.g. the last step of a run whose `end_time` equals the
+  source term's. The window is now compared with the tolerance used for the
+  end of the simulation, available as the new `time_state_t%tolerance`.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on
