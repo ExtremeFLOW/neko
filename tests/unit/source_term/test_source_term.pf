@@ -186,6 +186,37 @@ contains
     src%end_time = 0.5_rp
     call src%compute(time)
     @assertEqual(2, src%n_calls)
+
+    ! Windows missing the current time by one ulp, at either end.
+    src%end_time = nearest(0.5_rp, -1.0_rp)
+    call src%compute(time)
+    @assertEqual(2, src%n_calls)
+
+    src%start_time = nearest(0.5_rp, 1.0_rp)
+    src%end_time = 1.0_rp
+    call src%compute(time)
+    @assertEqual(2, src%n_calls)
+
+    @assertEqual(0.0_dp, time%tolerance())
   end subroutine test_window_zero_dt
+
+  !> A simulation with an end time very far away, e.g. one stopped by the
+  !! job time limit, must not widen the window of the source term beyond the
+  !! steps inside it.
+  @test
+  subroutine test_window_long_run()
+    type(counting_source_term_t) :: src
+    type(time_state_t) :: time
+    real(kind=dp) :: t(600)
+
+    src%start_time = 0.25_rp
+    src%end_time = 0.5_rp
+    call time%init(0.0_dp, 1.0e9_dp, 1.0e-3_dp)
+    call march(src, time, t)
+
+    @assertEqual(250, src%first_tstep)
+    @assertEqual(500, src%last_tstep)
+    @assertEqual(251, src%n_calls)
+  end subroutine test_window_long_run
 
 end module test_source_term

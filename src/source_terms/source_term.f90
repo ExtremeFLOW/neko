@@ -235,15 +235,18 @@ contains
   !! @details Both bounds are included, within the tolerance of the time state
   !! (see `time_state_t%tolerance`), so that a bound which a time step lands on
   !! is included regardless of the round-off accumulated in the time. The
-  !! window holds absolute times, so the test is the same for a simulation
-  !! marching backwards in time.
+  !! tolerance is limited to a hundredth of the time step, as it scales with
+  !! the span of the simulation, which can be far longer than the steps
+  !! actually taken, e.g. for a run stopped by the job time limit. The window
+  !! holds absolute times, so the test is the same for a simulation marching
+  !! backwards in time.
   !! @param time Time state.
   subroutine source_term_compute_wrapper(this, time)
     class(source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     real(kind=dp) :: tol
 
-    tol = time%tolerance()
+    tol = min(time%tolerance(), 1.0e-2_dp * abs(time%dt))
     if (time%t + tol .ge. this%start_time .and. &
          time%t - tol .le. this%end_time) then
        call this%compute_(time)
