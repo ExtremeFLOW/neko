@@ -1,4 +1,9 @@
 #!/bin/sh
+# The tests declare npes up to 8 and pFUnit fails any variant it cannot
+# place, so let Open MPI oversubscribe hosts with fewer than 8 slots
+# (Open MPI 4 and Open MPI 5 spellings).
+export OMPI_MCA_rmaps_base_oversubscribe=1
+export PRTE_MCA_rmaps_default_mapping_policy=:oversubscribe
 if which mpirun >/dev/null; then
     mpirun -np 8 ./crystal_router/crystal_router_suite
 else
