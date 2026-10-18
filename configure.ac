@@ -43,6 +43,12 @@ AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python],
               [Install Python modules, requires a Python interpreter]),
               [enable_python=${enableval}],[enable_python=no])
 
+# Packages found with pkg-config, listed as Requires in neko.pc, and the
+# flags they add to LIBS and NEKO_PKG_FCFLAGS (see neko_pc_filter below)
+NEKO_PKG_REQUIRES=""
+neko_req_libs=""
+neko_req_fcflags=""
+
 # Test for a sane fortran environment (^-^)
 AC_LANG([Fortran])
 AC_PROG_FC(,90)
@@ -393,6 +399,9 @@ fi
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
 NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $JSON_Fortran_CFLAGS"
+NEKO_PKG_REQUIRES="json-fortran >= 8.3.0 $NEKO_PKG_REQUIRES"
+neko_req_libs="$neko_req_libs $JSON_Fortran_LIBS"
+neko_req_fcflags="$neko_req_fcflags $JSON_Fortran_CFLAGS"
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])
@@ -436,6 +445,45 @@ AM_CONDITIONAL([ENABLE_PYTHON], [test "x${found_python}" = xyes])
 # Append the NEKO compiler flags to the FCFLAGS
 AC_SUBST(NEKO_PKG_FCFLAGS)
 FCFLAGS="$FCFLAGS $NEKO_PKG_FCFLAGS"
+
+# Flags for neko.pc. Consumers resolve the packages in NEKO_PKG_REQUIRES
+# with pkg-config themselves, so their flags are left out rather than
+# hardcoding the installation Neko was built against.
+#
+# neko_pc_filter <flags> <flags to remove>
+#
+# Sets neko_pc_flags to <flags> without <flags to remove>. Each entry in
+# <flags to remove> removes one occurrence only, so a copy added by some
+# other dependency (e.g. the same -L path) is kept.
+neko_pc_filter () {
+   neko_pc_flags=""
+   neko_pc_rm=$2
+   for neko_pc_flag in $1; do
+      neko_pc_keep=yes
+      neko_pc_left=""
+      for neko_pc_r in $neko_pc_rm; do
+         if test "x$neko_pc_keep" = xyes &&
+            test "x$neko_pc_r" = "x$neko_pc_flag"; then
+            neko_pc_keep=no
+         else
+            neko_pc_left="$neko_pc_left $neko_pc_r"
+         fi
+      done
+      neko_pc_rm=$neko_pc_left
+      if test "x$neko_pc_keep" = xyes; then
+         neko_pc_flags="${neko_pc_flags:+$neko_pc_flags }$neko_pc_flag"
+      fi
+   done
+}
+
+neko_pc_filter "$LIBS" "$neko_req_libs"
+NEKO_PC_LIBS=$neko_pc_flags
+neko_pc_filter "$NEKO_PKG_FCFLAGS" "$neko_req_fcflags"
+NEKO_PC_FCFLAGS=$neko_pc_flags
+NEKO_PKG_REQUIRES=`echo $NEKO_PKG_REQUIRES`
+AC_SUBST(NEKO_PKG_REQUIRES)
+AC_SUBST(NEKO_PC_LIBS)
+AC_SUBST(NEKO_PC_FCFLAGS)
 
 # Date stamp for generated manual pages
 AC_SUBST(MAN_DATE, [`date +%Y-%m-%d`])

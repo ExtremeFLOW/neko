@@ -19,6 +19,9 @@ AC_DEFUN([AX_HDF5],[
 	   if test "x${have_hdf5}" = xyes; then
               LIBS="$HDF5_Fortran_LIBS $LIBS"
               NEKO_PKG_FCFLAGS="$HDF5_Fortran_CFLAGS $NEKO_PKG_FCFLAGS"
+              NEKO_PKG_REQUIRES="$NEKO_PKG_REQUIRES hdf5_fortran >= 1.14.0"
+              neko_req_libs="$neko_req_libs $HDF5_Fortran_LIBS"
+              neko_req_fcflags="$neko_req_fcflags $HDF5_Fortran_CFLAGS"
               AC_DEFINE(HAVE_HDF5,[1],
                      [Define if you have the HDF5 library.])
            fi

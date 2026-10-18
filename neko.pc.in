@@ -12,6 +12,6 @@ backend=@NEKO_BCKND@
 Name: NEKO
 Version: @PACKAGE_VERSION@
 Description:
-Requires:
-Libs: -L${libdir} -lneko @LDFLAGS@ @LIBS@
-Cflags: @NEKO_PKG_FCFLAGS@ -I${includedir} -I${includedir_pkg}
+Requires: @NEKO_PKG_REQUIRES@
+Libs: -L${libdir} -lneko @LDFLAGS@ @NEKO_PC_LIBS@
+Cflags: @NEKO_PC_FCFLAGS@ -I${includedir} -I${includedir_pkg}

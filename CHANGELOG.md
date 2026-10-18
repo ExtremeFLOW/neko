@@ -11,6 +11,12 @@
 
 ## Develop
 
+- `neko.pc` now lists JSON-Fortran, and HDF5 and libxsmm when enabled, under
+  `Requires` instead of copying their flags into `Libs` and `Cflags`, so a
+  consumer resolving them from another prefix no longer links two copies.
+  Consumers of `neko.pc` must therefore find `json-fortran.pc`, and
+  `hdf5_fortran.pc` or `libxsmmf.pc` when used, on `PKG_CONFIG_PATH`, as
+  Neko's `configure` already does.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on

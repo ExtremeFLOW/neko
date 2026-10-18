@@ -21,6 +21,9 @@ AC_DEFUN([AX_LIBXSMM],[
 	   if test "x${have_libxsmm}" = xyes; then
 	      NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $libxsmmf_CFLAGS"
 	      LIBS="$LIBS $libxsmmf_LIBS"
+	      NEKO_PKG_REQUIRES="$NEKO_PKG_REQUIRES libxsmmf >= 0.16.1"
+	      neko_req_libs="$neko_req_libs $libxsmmf_LIBS"
+	      neko_req_fcflags="$neko_req_fcflags $libxsmmf_CFLAGS"
 	      AC_DEFINE(HAVE_LIBXSMM,[1],
 			[Define if you have the LIBXSMM library.])
 	   fi
