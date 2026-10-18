@@ -11,6 +11,10 @@
 
 ## Develop
 
+- `configure` now rejects a CUDA build whose `CUDA_ARCH` is not an nvcc flag,
+  e.g. a bare `sm_80`, which nvcc read as an input file and failed the build.
+  The error for a missing `CUDA_ARCH` with device-aware MPI now shows the
+  expected form, e.g. `CUDA_ARCH=-arch=sm_80`.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on
