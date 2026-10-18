@@ -1,0 +1,6 @@
+#!/bin/sh
+if which mpirun >/dev/null; then
+    mpirun -np 8 ./crystal_router/crystal_router_suite
+else
+    mpiexec -np 8 ./crystal_router/crystal_router_suite
+fi

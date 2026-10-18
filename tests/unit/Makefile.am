@@ -15,6 +15,7 @@ SUBDIRS = tuple\
 	  global_interpolation\
 	  mean_field\
 	  gather_scatter\
+	  crystal_router\
 	  ax\
 	  krylov\
 	  bc\
@@ -72,6 +73,7 @@ TESTS = device/device_test\
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	gather_scatter/gather_scatter_test\
+	crystal_router/crystal_router_test\
 	ax/ax_test\
 	krylov/krylov_test\
 	bc/bc_test\
@@ -113,6 +115,7 @@ EXTRA_DIST = \
 	mesh/test_mesh_parallel.pf\
 	quad/test_quad.pf\
 	gather_scatter/test_gather_scatter_parallel.pf\
+	crystal_router/test_crystal_router_parallel.pf\
 	ax/test_ax_factory.pf\
 	krylov/test_krylov.pf\
 	hex/test_hex.pf\
@@ -158,6 +161,7 @@ EXTRA_DIST = \
 	device_math/test_device_math_parallel.pf\
 	mesh/mesh_test\
 	gather_scatter/gather_scatter_test\
+	crystal_router/crystal_router_test\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
 	math/math_test\

@@ -12,6 +12,7 @@ test-suite.log
 !dofmap/dofmap_test
 !device_math/device_math_test
 !gather_scatter/gather_scatter_test
+!crystal_router/crystal_router_test
 !jobctrl/jobctrl_test
 !bc/bc_test
 !bc_projector/bc_projector_test
@@ -68,6 +69,7 @@ math/math_suite
 mean_field/mean_field_suite
 mesh/mesh_suite
 gather_scatter/gather_scatter_suite
+crystal_router/crystal_router_suite
 ax/ax_test
 jobctrl/jobctrl_suite
 scratch_registry/scratch_registry_test
