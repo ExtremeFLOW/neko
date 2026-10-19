@@ -11,6 +11,10 @@
 
 ## Develop
 
+- `makeneko` now defines Neko's `HAVE_*` feature macros for user sources and
+  passes extra libraries, object files and compiler flags, e.g. `-lcublas`, to
+  the build.
+
 - Fixed `map_1d` leaving elements without a level when the propagated
   minimum coordinate differs from the global minimum by roundoff, as with
   the default floating point model of ifx in single precision.

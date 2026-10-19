@@ -7,6 +7,15 @@ includedir_pkg=${prefix}/include/neko
 FC=@FC@
 FCFLAGS='@FCFLAGS@'
 
+# Feature macros (HAVE_CUDA, HAVE_HIP, ...) that Neko was built with, taken
+# from the configure DEFS, so that user .F90 files can use the same #ifdefs
+NEKO_DEFS=''
+for def in @DEFS@; do
+    case "$def" in
+        -DHAVE_*) NEKO_DEFS="$NEKO_DEFS $def" ;;
+    esac
+done
+
 # Setup accelerator backend
 HAVE_CUDA_BCKND=@cuda_bcknd@
 if [ $HAVE_CUDA_BCKND -eq 1 ]; then
@@ -44,12 +53,20 @@ if [ -f usr_driver.f90 ]; then
 fi
 
 
-# Collect user-provided .f90, .cu and .hip files
+# Collect user-provided .f90, .cu and .hip files, objects and libraries, and
+# compiler flags. -I, -D and -U are passed to every compiler, all other
+# flags (e.g. -L/path -lcublas) only to the final link.
 USER_FILES=""
 USER_BCKND_FILES=""
+USER_OBJS=""
+USER_CPPFLAGS=""
+USER_LDFLAGS=""
 for file in "$@"; do
     case "$file" in
         *.f90|*.F90) USER_FILES="$USER_FILES $file" ;;
+        *.o|*.a|*.so) USER_LDFLAGS="$USER_LDFLAGS $file" ;;
+        -I*|-D*|-U*) USER_CPPFLAGS="$USER_CPPFLAGS $file" ;;
+        -*) USER_LDFLAGS="$USER_LDFLAGS $file" ;;
         *)
             if [ $HAVE_CUDA_BCKND -eq 1 ]; then
                 case "$file" in
@@ -186,17 +203,18 @@ USER_BCKND_OBJ=''
 if [ ! -z "$USER_BCKND_FILES" ]; then
     for file in $USER_BCKND_FILES; do
         if [ $HAVE_CUDA_BCKND -eq 1 ]; then
-            $NVCC -c $CUDA_ARCH $CUDA_CFLAGS -I$includedir_pkg -I./ "$file" -o "${file%.cu}.o"
+            $NVCC -c $CUDA_ARCH $CUDA_CFLAGS $USER_CPPFLAGS -I$includedir_pkg -I./ "$file" -o "${file%.cu}.o"
             USER_BCKND_OBJ="$USER_BCKND_OBJ ${file%.cu}.o"
         elif [ $HAVE_HIP_BCKND -eq 1 ]; then
-            $HIPCC -c $HIP_HIPCC_FLAGS -I$includedir_pkg -I./ "$file" -o "${file%.hip}.o"
+            $HIPCC -c $HIP_HIPCC_FLAGS $USER_CPPFLAGS -I$includedir_pkg -I./ "$file" -o "${file%.hip}.o"
             USER_BCKND_OBJ="$USER_BCKND_OBJ ${file%.hip}.o"
         fi
     done
 fi
 
 # Compile everything
-$FC $FCFLAGS -I$includedir_pkg -L$libdir $USER_FILES $USER_BCKND_OBJ usr_driver.f90 -lneko @LDFLAGS@ @LIBS@ -o neko
+$FC $FCFLAGS $NEKO_DEFS $USER_CPPFLAGS -I$includedir_pkg -L$libdir $USER_FILES \
+    $USER_BCKND_OBJ $USER_OBJS usr_driver.f90 $USER_LDFLAGS -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
 printf "%s\n" ' Done!'
