@@ -173,15 +173,15 @@ contains
   !! @details The current time is accumulated step by step and carries the
   !! round-off of the additions, so a time step meant to land on a fixed time
   !! can end up a few ulps on either side of it. Within this tolerance the two
-  !! are considered equal. It is relative to the span of the simulation, or to
-  !! the time step if that is larger, and is always non-negative, also for a
-  !! simulation marching backwards in time. It stays well below the time step
-  !! as long as the simulation spans fewer than about \f$ 10^9 \f$ time steps.
+  !! are considered equal. It is relative to the span of the simulation is 
+  !! always non-negative, also for a simulation marching backwards in time. 
+  !! To prevent issues it is also limited to a fraction of the time step size.
   pure function time_state_tolerance(this) result(tol)
     class(time_state_t), intent(in) :: this
     real(kind=dp) :: tol
 
-    tol = 1.0e-9_dp * max(abs(this%end_time - this%start_time), abs(this%dt))
+    tol = 1.0e-9_dp * abs(this%end_time - this%start_time)
+    tol = min(tol, 1.0e-2_dp * abs(this%dt))
 
   end function time_state_tolerance
 
