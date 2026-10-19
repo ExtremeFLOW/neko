@@ -33,6 +33,7 @@
 !> Implements the `source_term_t` type and a wrapper `source_term_wrapper_t`.
 module source_term
   use num_types, only : rp, dp
+  use utils, only : NEKO_TYPENAME_LEN
   use coefs, only : coef_t
   use field_list, only : field_list_t
   use json_module, only : json_file
@@ -167,7 +168,7 @@ module source_term
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(source_term_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
