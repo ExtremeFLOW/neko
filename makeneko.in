@@ -64,7 +64,7 @@ USER_LDFLAGS=""
 for file in "$@"; do
     case "$file" in
         *.f90|*.F90) USER_FILES="$USER_FILES $file" ;;
-        *.o|*.a|*.so) USER_OBJS="$USER_OBJS $file" ;;
+        *.o|*.a|*.so) USER_LDFLAGS="$USER_LDFLAGS $file" ;;
         -I*|-D*|-U*) USER_CPPFLAGS="$USER_CPPFLAGS $file" ;;
         -*) USER_LDFLAGS="$USER_LDFLAGS $file" ;;
         *)
