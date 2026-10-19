@@ -44,7 +44,11 @@ AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python],
               [enable_python=${enableval}],[enable_python=no])
 
 # Packages found with pkg-config, listed as Requires in neko.pc, and the
-# flags they add to LIBS and NEKO_PKG_FCFLAGS (see neko_pc_filter below)
+# flags they add to LIBS and NEKO_PKG_FCFLAGS (see neko_pc_filter below).
+# A package whose <prefix>_LIBS or <prefix>_CFLAGS is set, overriding
+# pkg-config, is not listed and its flags are kept in neko.pc instead, as
+# there may be no .pc file to require, or it may describe another
+# installation than the one Neko is built with.
 NEKO_PKG_REQUIRES=""
 neko_req_libs=""
 neko_req_fcflags=""
@@ -395,13 +399,22 @@ fi
 
 
 
-# JSON-Fortran
+# JSON-Fortran. Whether its flags are overridden must be tested before
+# PKG_CHECK_MODULES, which sets both variables
+neko_json_pc=yes
+if test -n "${JSON_Fortran_LIBS}${JSON_Fortran_CFLAGS}"; then
+   neko_json_pc=no
+fi
 PKG_CHECK_MODULES([JSON_Fortran],[json-fortran >= 8.3.0])
 LIBS="$JSON_Fortran_LIBS $LIBS"
 NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $JSON_Fortran_CFLAGS"
-NEKO_PKG_REQUIRES="json-fortran >= 8.3.0 $NEKO_PKG_REQUIRES"
-neko_req_libs="$neko_req_libs $JSON_Fortran_LIBS"
-neko_req_fcflags="$neko_req_fcflags $JSON_Fortran_CFLAGS"
+if test "x$neko_json_pc" = xyes; then
+   NEKO_PKG_REQUIRES="json-fortran >= 8.3.0 $NEKO_PKG_REQUIRES"
+   neko_req_libs="$neko_req_libs $JSON_Fortran_LIBS"
+   neko_req_fcflags="$neko_req_fcflags $JSON_Fortran_CFLAGS"
+else
+   AC_MSG_NOTICE([JSON-Fortran flags overridden, copied into neko.pc])
+fi
 
 AM_CONDITIONAL([ENABLE_PARMETIS], [test "x$found_domain_decomp" = xyes])
 AM_CONDITIONAL([ENABLE_ADIOS2], [test "x${have_adios2}" = xyes])

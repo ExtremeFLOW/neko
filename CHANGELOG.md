@@ -16,7 +16,9 @@
   consumer resolving them from another prefix no longer links two copies.
   Consumers of `neko.pc` must therefore find `json-fortran.pc`, and
   `hdf5_fortran.pc` or `libxsmmf.pc` when used, on `PKG_CONFIG_PATH`, as
-  Neko's `configure` already does.
+  Neko's `configure` already does. A dependency whose flags are given to
+  `configure` in its `_LIBS` or `_CFLAGS` variable instead, e.g.
+  `JSON_Fortran_LIBS`, is not listed and its flags are still copied.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on

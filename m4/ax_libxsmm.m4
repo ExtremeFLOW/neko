@@ -15,15 +15,23 @@ AC_DEFUN([AX_LIBXSMM],[
 
 	xsmm_bcknd="0"
         if test "x${with_libxsmm}" != xno; then
+	   neko_xsmm_pc=yes
+	   if test -n "${libxsmmf_LIBS}${libxsmmf_CFLAGS}"; then
+	      neko_xsmm_pc=no
+	   fi
      	   PKG_CHECK_MODULES([libxsmmf], [libxsmmf >= 0.16.1],
 	           	     have_libxsmm=yes xsmm_bcknd="1",
 			     xsmm_bcknd="0" have_libxsmm=no)
 	   if test "x${have_libxsmm}" = xyes; then
 	      NEKO_PKG_FCFLAGS="$NEKO_PKG_FCFLAGS $libxsmmf_CFLAGS"
 	      LIBS="$LIBS $libxsmmf_LIBS"
-	      NEKO_PKG_REQUIRES="$NEKO_PKG_REQUIRES libxsmmf >= 0.16.1"
-	      neko_req_libs="$neko_req_libs $libxsmmf_LIBS"
-	      neko_req_fcflags="$neko_req_fcflags $libxsmmf_CFLAGS"
+	      if test "x${neko_xsmm_pc}" = xyes; then
+		 NEKO_PKG_REQUIRES="$NEKO_PKG_REQUIRES libxsmmf >= 0.16.1"
+		 neko_req_libs="$neko_req_libs $libxsmmf_LIBS"
+		 neko_req_fcflags="$neko_req_fcflags $libxsmmf_CFLAGS"
+	      else
+		 AC_MSG_NOTICE([libxsmm flags overridden, copied into neko.pc])
+	      fi
 	      AC_DEFINE(HAVE_LIBXSMM,[1],
 			[Define if you have the LIBXSMM library.])
 	   fi
