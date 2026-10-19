@@ -14,12 +14,7 @@
 - Fixed source terms skipping the time step that lands on their `start_time`
   or `end_time` when round-off in the accumulated time puts the step just
   outside the window, e.g. the last step of a run whose `end_time` equals the
-  source term's. The window is now compared with the tolerance used for the
-  end of the simulation, available as the new `time_state_t%tolerance`, but
-  at most a hundredth of the time step. This covers the round-off in the
-  time only: the bounds are stored in working precision, so in single
-  precision a bound that is not exactly representable, such as 0.1, can
-  still miss the step meant to land on it.
+  source term's.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on
