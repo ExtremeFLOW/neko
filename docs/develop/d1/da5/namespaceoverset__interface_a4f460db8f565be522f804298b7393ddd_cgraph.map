@@ -1,5 +1,9 @@
 <map id="overset_interface::overset_interface_apply_scalar_dev" name="overset_interface::overset_interface_apply_scalar_dev">
-<area shape="rect" id="Node000001" title="Apply scalar (device)." alt="" coords="5,5,184,60"/>
-<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#aa2264c515090187c0a0d5455650201e3" title="Copy a masked vector ." alt="" coords="232,13,389,53"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,30,218,30,218,35,184,35"/>
+<area shape="rect" id="Node000001" title="Apply scalar (device)." alt="" coords="5,62,184,117"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#aa2264c515090187c0a0d5455650201e3" title="Copy a masked vector ." alt="" coords="232,5,389,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,60,229,47,230,52,185,65"/>
+<area shape="rect" id="Node000003" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="249,69,372,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="184,87,235,87,235,92,184,92"/>
+<area shape="rect" id="Node000004" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="249,133,372,173"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="185,113,237,129,235,134,183,118"/>
 </map>
