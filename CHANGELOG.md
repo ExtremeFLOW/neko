@@ -15,6 +15,13 @@
   e.g. a bare `sm_80`, which nvcc read as an input file and failed the build.
   The error for a missing `CUDA_ARCH` with device-aware MPI now shows the
   expected form, e.g. `CUDA_ARCH=-arch=sm_80`.
+- Fixed `map_1d` leaving elements without a level when the propagated
+  minimum coordinate differs from the global minimum by roundoff, as with
+  the default floating point model of ifx in single precision.
+- Added an agent skill for writing pFUnit unit tests, rewrote the testing
+  guide, and brought older unit-test suites in line with the templates.
+- Fixed restarted 3D statistics skipping velocity, pressure, temperature fields 
+  on output.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on

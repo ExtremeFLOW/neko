@@ -78,7 +78,7 @@ module fluid_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
   use zero_dirichlet, only : zero_dirichlet_t
-  use utils, only : neko_error, neko_type_error, NEKO_VARNAME_LEN
+  use utils, only : neko_error, neko_type_error, NEKO_TYPENAME_LEN
   use field_math, only : field_add2, field_copy
   use bc, only : bc_t, BC_DIRICHLET
   use mixed_bc, only : mixed_bc_t
@@ -319,7 +319,7 @@ module fluid_pnpn
 
   !> A name-allocator pair for user-defined fluid Pn/Pn boundary conditions.
   type fluid_pnpn_bc_allocator_entry
-     character(len=NEKO_VARNAME_LEN) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(fluid_pnpn_bc_allocate), pointer, nopass :: allocator => null()
   end type fluid_pnpn_bc_allocator_entry
 
