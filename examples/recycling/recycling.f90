@@ -71,7 +71,7 @@ contains
 
          field => neko_registry%get_field('u')
          ! get the x-velocity (u) values 10 units upstream into res
-         call interpolate%evaluate(res%x, field%x, .false.)
+         call interpolate%evaluate(res%x, field%x)
          !Enforce that bulk velocity is 1
          !If we run on GPU, do this on the GPU directly
          !Moving data to and from the GPU kills performance
@@ -86,11 +86,11 @@ contains
          call field_masked_scatter_copy_0(u, res%x, bc%msk, u%size(), n_pts)
          ! repeat for v and w
          field => neko_registry%get_field('v')
-         call interpolate%evaluate(res%x, field%x, .false.)
+         call interpolate%evaluate(res%x, field%x)
          call field_masked_scatter_copy_0(v, res%x, bc%msk, u%size(), n_pts)
 
          field => neko_registry%get_field('w')
-         call interpolate%evaluate(res%x, field%x, .false.)
+         call interpolate%evaluate(res%x, field%x)
          call field_masked_scatter_copy_0(w, res%x, bc%msk, u%size(), n_pts)
 
        end associate
