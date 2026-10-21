@@ -13,7 +13,11 @@
 
 - `neko.pc` now lists JSON-Fortran, and HDF5 and libxsmm when enabled, under
   `Requires` instead of copying their flags into `Libs` and `Cflags`, so a
-  consumer resolving them from another prefix no longer links two copies.
+  consumer resolving them from another prefix links its own copy. This does
+  not hold if the copy Neko was built against is in a directory that `Libs`
+  still lists, which besides Neko's `libdir` includes the `-L` paths that
+  `--with-parmetis`, `--with-gslib`, `--with-blas` or `LDFLAGS` add: `Libs`
+  comes before the `Requires` flags, so that copy is still found first.
   Consumers of `neko.pc` must therefore find `json-fortran.pc`, and
   `hdf5_fortran.pc` or `libxsmmf.pc` when used, on `PKG_CONFIG_PATH`, as
   Neko's `configure` already does. A dependency whose flags are given to
