@@ -173,6 +173,8 @@ contains
 
     if (allocated(c_Xh%gs_h%interp)) then
        if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_Xh)
+       ! It is not clear if op_inv is better than op_h1 in this case.
+       ! The difference is op_inv is two-sided and op_h1 is one-sided.
        call c_Xh%gs_h%op_inv(w1, n, GS_OP_ADD)
        call c_Xh%gs_h%op_inv(w2, n, GS_OP_ADD)
        call c_Xh%gs_h%op_inv(w3, n, GS_OP_ADD)

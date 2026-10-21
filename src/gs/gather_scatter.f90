@@ -408,7 +408,7 @@ contains
 
        call mult_ji%init(gs%dofmap)
        mult_ji%x(:, :, :, :) = 1.0_rp
-       call gs%interp%scale_children(mult_ji, 0.25_rp, 0.5_rp)
+       call gs%interp%apply_ji(mult_ji)
        call gs%gs_op_vector(mult_ji%x, itmp, GS_OP_ADD)
 
        call gs%interp%init_mult(mult_h1%x, mult_jt%x, mult_ji%x)
