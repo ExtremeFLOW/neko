@@ -64,6 +64,9 @@ module scalar_stats_output
      procedure, pass(this) :: free => scalar_stats_output_free
      !> Samples the fields computed by the `stats` component.
      procedure, pass(this) :: sample => scalar_stats_output_sample
+     !> Puts the leading fields in the UVW, P and T slots.
+     procedure, pass(this) :: configure_file => &
+          scalar_stats_output_configure_file
   end type scalar_stats_output_t
 
 
@@ -117,14 +120,6 @@ contains
     end if
 
     call this%init_base(fname)
-
-    select type (ft => this%file_%file_type)
-    type is (fld_file_t)
-       ft%skip_pressure = .false.
-       ft%skip_velocity = .false.
-       ft%skip_temperature = .false.
-    end select
-
     this%stats => stats
     this%T_begin = T_begin
   end subroutine scalar_stats_output_init
@@ -187,5 +182,19 @@ contains
       end if
     end associate
   end subroutine scalar_stats_output_sample
+
+  !> Puts the leading fields in the UVW, P and T slots
+  !! rather than the scalar block.
+  subroutine scalar_stats_output_configure_file(this)
+    class(scalar_stats_output_t), intent(inout) :: this
+
+    select type (ft => this%file_%file_type)
+    type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
+    end select
+
+  end subroutine scalar_stats_output_configure_file
 
 end module scalar_stats_output
