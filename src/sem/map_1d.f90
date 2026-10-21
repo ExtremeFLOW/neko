@@ -48,7 +48,7 @@ module map_1d
   use matrix, only : matrix_t
   use vector, only : vector_ptr_t
   use utils, only : neko_error, neko_warning
-  use math, only : glmax, glmin, glimax, relcmp, cmult, add2s1, col2
+  use math, only : glmax, glmin, glimax, glimin, cmult, add2s1, col2
   use mpi_f08, only : MPI_Allreduce, MPI_SUM, MPI_Barrier, MPI_IN_PLACE
   use, intrinsic :: iso_c_binding
   implicit none
@@ -72,6 +72,13 @@ module map_1d
   !! result is converted into an effective boundary minimum. Elements that have
   !! newly received the global minimum are assigned to the next level. This
   !! repeats until the propagated minimum reaches the global maximum level.
+  !! The comparison with the global minimum uses an absolute tolerance, the
+  !! user tolerance `tol` times the coordinate extent in the requested
+  !! direction, with a floor of a few roundoff units of the coordinate
+  !! magnitude, because the propagation is done with floating point sums
+  !! scaled by the inverse multiplicity `coef%mult`, which is not exact in
+  !! general. Elements matched to the global minimum are reset to exactly
+  !! that value so the roundoff does not accumulate over levels.
   !!
   !! Once element levels are known, every GLL point receives a global 1D level
   !! (`pt_lvl`) ordered consistently with the local element orientation. The
@@ -81,8 +88,9 @@ module map_1d
   !!
   !! The propagation algorithm assumes that the connectivity and coordinate
   !! layout allow a unique stack of element levels in the requested direction.
-  !! If an element level remains unassigned, the resulting point levels are not
-  !! valid for the volume accumulation or averaging steps.
+  !! If an element level remains unassigned the constructor stops with an
+  !! error, since the resulting point levels would index the level arrays out
+  !! of bounds.
   !! @remark Could also be rather easily extended to say polar coordinates
   !! as well (I think). Martin Karp
   type, public :: map_1d_t
@@ -112,7 +120,9 @@ module map_1d
      !> Requested physical direction of the 1D mapping.
      !! Values 1, 2, and 3 correspond to `x`, `y`, and `z`, respectively.
      integer :: dir
-     !> Coordinate comparison tolerance used when identifying propagated levels.
+     !> Tolerance used when identifying propagated levels, relative to the
+     !! coordinate extent in the requested direction. The absolute tolerance
+     !! never falls below a few roundoff units of the coordinate magnitude.
      real(kind=rp) :: tol = 1e-7
      !> Integrated quadrature weight volume associated with each GLL level.
      !! Used as the denominator when computing plane averages.
@@ -145,7 +155,7 @@ contains
     real(kind=rp), allocatable :: min_vals(:, :, :, :)
     real(kind=rp), allocatable :: min_temp(:, :, :, :)
     type(c_ptr) :: min_vals_d = c_null_ptr
-    real(kind=rp) :: el_dim(3, 3), glb_min, glb_max, el_min
+    real(kind=rp) :: el_dim(3, 3), glb_min, glb_max, el_min, abs_tol
 
     call this%free()
 
@@ -210,27 +220,46 @@ contains
     glb_min = glmin(line, n)
     glb_max = glmax(line, n)
 
+    ! The propagation below moves the element minima through the mesh with
+    ! gather-scatter sums scaled by coef%mult. That arithmetic is not exact:
+    ! coef%mult is 1/3 at some vertices of unstructured meshes. With the
+    ! default floating point model of ifx even 1/1 is rounded. A propagated
+    ! minimum can therefore differ from glb_min by a few roundoff errors of
+    ! the coordinate magnitude. A tolerance relative to glb_min would demand
+    ! exact equality when glb_min is zero, so compare with an absolute
+    ! tolerance instead. The user tolerance is relative to the extent of the
+    ! coordinates, so that it does not depend on where the origin is, and
+    ! the roundoff floor is relative to their magnitude, which is what the
+    ! propagation error scales with.
+    abs_tol = max(this%tol * (glb_max - glb_min), &
+         8.0_rp * epsilon(1.0_rp) * max(abs(glb_min), abs(glb_max)))
+
     i = 1
     this%el_lvl = -1
     ! Check what the minimum value in each element and put in min_vals
     do e = 1, nelv
        el_min = minval(line(:, :, :, e))
-       min_vals(:, :, :, e) = el_min
        ! Check if this element is on the bottom,
        ! in this case assign el_lvl = i = 1
-       if (relcmp(el_min, glb_min, this%tol)) then
+       if (abs(el_min - glb_min) .le. abs_tol) then
+          el_min = glb_min
           if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
        end if
+       min_vals(:, :, :, e) = el_min
     end do
 
     ! While loop where at each iteration the global maximum value
     ! propagates down one level.
     ! When the minimum value has propagated to the highest level this stops.
     ! Only works when the bottom plate of the domain is flat.
-    do while (.not. relcmp(glmax(min_vals, n), glb_min, this%tol))
+    do while (abs(glmax(min_vals, n) - glb_min) .gt. abs_tol)
 
        ! This is the assigned level
        i = i + 1
+       ! There cannot be more levels than elements, so a longer propagation
+       ! means the minimum never reaches some elements within abs_tol. Leave
+       ! the loop and report that below.
+       if (i .gt. this%msh%glb_nelv) exit
 
        do e = 1, nelv
           !Sets the value at the bottom of each element to glb_max
@@ -284,12 +313,32 @@ contains
        !and it has obtained the minval, set el_lvl = i
        do e = 1, nelv
           el_min = minval(min_vals(:, :, :, e))
-          min_vals(:, :, :, e) = el_min
-          if (relcmp(el_min, glb_min, this%tol)) then
+          if (abs(el_min - glb_min) .le. abs_tol) then
+             ! Store exactly glb_min so that the roundoff of this propagation
+             ! step does not accumulate into the next level.
+             el_min = glb_min
              if (this%el_lvl(e) .eq. -1) this%el_lvl(e) = i
           end if
+          min_vals(:, :, :, e) = el_min
        end do
     end do
+
+    if (allocated(min_vals)) then
+       if (c_associated(min_vals_d)) call device_unmap(min_vals, min_vals_d)
+       deallocate(min_vals)
+    end if
+
+    if (allocated(min_temp)) deallocate(min_temp)
+
+    ! An unassigned element would give negative point levels, which index
+    ! volume_per_gll_lvl and the averaged output out of bounds. Return after
+    ! the error, since a unit test with errors redirected to pFUnit
+    ! exceptions continues past neko_error.
+    if (glimin(this%el_lvl, nelv) .lt. 1) then
+       call neko_error('map_1d: some elements were not assigned a level, ' // &
+            'check that the mesh is layered in the requested direction')
+       return
+    end if
     this%n_el_lvls = glimax(this%el_lvl, nelv)
     this%n_gll_lvls = this%n_el_lvls*lx
 
@@ -322,12 +371,6 @@ contains
        end do
     end do
 
-    if (allocated(min_vals)) then
-       if (c_associated(min_vals_d)) call device_unmap(min_vals, min_vals_d)
-       deallocate(min_vals)
-    end if
-
-    if (allocated(min_temp)) deallocate(min_temp)
     allocate(this%volume_per_gll_lvl(this%n_gll_lvls))
 
     this%volume_per_gll_lvl = 0.0_rp

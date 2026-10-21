@@ -32,6 +32,7 @@
 !
 !> Krylov preconditioner
 module precon
+  use utils, only : NEKO_TYPENAME_LEN
   use num_types, only : rp
   use coefs, only : coef_t
   use bc_list, only : bc_list_t
@@ -132,7 +133,7 @@ module precon
 
   !> A name-allocator pair for user-defined preconditioner types.
   type precon_allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(precon_allocate), pointer, nopass :: allocator
   end type precon_allocator_entry
 
