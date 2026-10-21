@@ -55,7 +55,7 @@ module scalar_scheme
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_TYPENAME_LEN
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
@@ -317,7 +317,7 @@ module scalar_scheme
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type scalar_scheme_allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(scalar_scheme_allocate), pointer, nopass :: allocator
   end type scalar_scheme_allocator_entry
 

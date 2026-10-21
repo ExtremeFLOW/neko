@@ -42,7 +42,7 @@ module wall_model
   use neko_config, only : NEKO_BCKND_DEVICE
   use device, only : device_memcpy, HOST_TO_DEVICE
   use vector, only : vector_t
-  use utils, only : neko_error, nonlinear_index
+  use utils, only : neko_error, nonlinear_index, NEKO_TYPENAME_LEN
   use wall_sampler, only : wall_sampler_t
   use wall_sampler_fctry, only : wall_sampler_factory
   use user_intf, only : user_t
@@ -246,7 +246,7 @@ module wall_model
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(wall_model_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
