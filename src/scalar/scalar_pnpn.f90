@@ -67,9 +67,8 @@ module scalar_pnpn
   use neko_config, only : NEKO_BCKND_DEVICE
   use time_step_controller, only : time_step_controller_t
   use time_state, only : time_state_t
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_TYPENAME_LEN
   use bc, only : bc_t, BC_DIRICHLET
-  use utils, only : NEKO_VARNAME_LEN
   use comm, only : NEKO_COMM
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   implicit none
@@ -193,7 +192,7 @@ module scalar_pnpn
 
   !> A name-allocator pair for user-defined scalar Pn/Pn boundary conditions.
   type scalar_pnpn_bc_allocator_entry
-     character(len=NEKO_VARNAME_LEN) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(scalar_pnpn_bc_allocate), pointer, nopass :: allocator => null()
   end type scalar_pnpn_bc_allocator_entry
 

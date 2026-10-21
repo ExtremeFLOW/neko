@@ -11,6 +11,17 @@
 
 ## Develop
 
+- Fixed source terms skipping the time step that lands on their `start_time`
+  or `end_time` when round-off in the accumulated time puts the step just
+  outside the window, e.g. the last step of a run whose `end_time` equals the
+  source term's.
+- Fixed `map_1d` leaving elements without a level when the propagated
+  minimum coordinate differs from the global minimum by roundoff, as with
+  the default floating point model of ifx in single precision.
+- Added an agent skill for writing pFUnit unit tests, rewrote the testing
+  guide, and brought older unit-test suites in line with the templates.
+- Fixed restarted 3D statistics skipping velocity, pressure, temperature fields 
+  on output.
 - Fix OpenMP deadlock in the scratch registry. Nested operations checked the
   same critical section.
 - Fixed the scalar debug log computing its norms from stale host arrays on
