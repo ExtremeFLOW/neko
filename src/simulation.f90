@@ -94,7 +94,7 @@ contains
     call C%user%initialize(C%time)
 
     ! With a variable time step, set the first step before the initial
-    ! output. 
+    ! output.
     if (dt_controller%is_variable_dt) then
        C%time%dt = dt_controller%first_dt(C%time, &
             C%fluid%compute_cfl(C%time%dt))
