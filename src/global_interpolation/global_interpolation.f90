@@ -1011,7 +1011,7 @@ contains
     end if
 
     if (this%check_after_rst) then
-         call this%check_points(this%x%x, this%y%x, this%z%x)
+       call this%check_points(this%x%x, this%y%x, this%z%x)
     end if
 
     !Free stuff
