@@ -80,7 +80,7 @@ data type, with the suffix indicating the payload: `i4` for 32-bit integers,
 
 - [case_t](#case::case_t): An abstraction for the simulation case. Stores the
   fluid and scalar solver as components, handles IO via
-  [sampler_t](#sampler::sampler_t).
+  [output_controller_t](#output_controller::output_controller_t).
 - [fluid_scheme_incompressible_t](#fluid_scheme_incompressible::fluid_scheme_incompressible_t):
   incompressible Navier-Stokes solvers.
 - [fluid_scheme_compressible_t](#fluid_scheme_compressible::fluid_scheme_compressible_t):
@@ -113,7 +113,7 @@ and all have their name starting with `neko_`.
 - [simcomp_executor_t](#simcomp_executor::simcomp_executor_t): Driver for
   simulation components. The object is called `neko_simcomps`.
 - [log_t](#logger::log_t): Used to write to the simulation log.
-- [user_access_t](#user_access_singleton::usr_access_t): Used to access the
+- [user_access_t](#user_access_singleton::user_access_t): Used to access the
   internals of the [case_t](#case::case_t) object from within the user file.
 
 ## Linear algebra {#important_types_linear-algebra}

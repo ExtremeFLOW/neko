@@ -454,8 +454,8 @@ A more detailed description of each boundary condition is provided below.
   }
   ```
 * `user_velocity`, a Dirichlet boundary for more complex velocity profiles. This boundary
-  condition uses a [more advanced user
-  interface](#user-file_field-dirichlet-update).
+  condition uses a
+  [more advanced user interface](#user-file_field-dirichlet-update).
   ```json
   {
     "type": "user_velocity",

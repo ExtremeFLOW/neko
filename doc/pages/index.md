@@ -1,4 +1,4 @@
-# Neko Manual {#index}
+# Neko Manual {#mainpage}
 
 Neko is a portable framework for high-order spectral element flow simulations.
 Written in modern Fortran, Neko adopts an object-oriented approach, allowing
