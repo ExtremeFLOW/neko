@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -45,7 +45,9 @@ module mean_field
 
   !> Computes the temporal mean of a field.
   type, public, extends(stats_quant_t) :: mean_field_t
-     !> Pointer to the averaged field.
+     !> Pointer to the averaged field. Only used by `update`. When the mean is
+     !! updated with `update_col3` or `update_dot3`, `f` only provides the
+     !! dofmap at initialization, and `update` must not be called.
      type(field_t), pointer :: f => null()
      !> Stores the mean field.
      type(field_t), pointer :: mf => null()

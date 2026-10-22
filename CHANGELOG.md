@@ -11,7 +11,7 @@
 
 ## Develop
 
-- Reduced statistics memory usage by storing work/gradients in the scratch 
+- Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed `map_1d` leaving elements without a level when the propagated
   minimum coordinate differs from the global minimum by roundoff, as with
