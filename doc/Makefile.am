@@ -18,7 +18,7 @@ html-local: doxygen.stamp
 EXTRA_DIST = pages/methods/governing-equations.md \
 			pages/methods/mixed-boundary-condition-resolution.md \
 			schemas \
-			pages/reference/publications.md \
+			pages/appendices/publications.md \
 			pages/developer-guide \
 			pages/developer-guide/accelerators.md \
 			pages/developer-guide/run_time_selectable_types.md \
@@ -40,7 +40,7 @@ EXTRA_DIST = pages/methods/governing-equations.md \
 			pages/user-guide/statistics-guide.md \
 			pages/user-guide/user-file.md \
 			pages/user-guide/extension.md \
-			pages/reference.md \
+			pages/appendices.md \
 			pages/methods.md \
 			pages/developer-guide.md \
 			pages/index.md \

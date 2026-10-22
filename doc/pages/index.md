@@ -14,7 +14,7 @@ In order to facilitate reading of the documentation. The manual is divided into
 several sections. The [user guides](@ref user-guide) are intended for users of
 the code, while the [developer guides](@ref developer-guide) are intended for
 developers of the code. The [methods](@ref methods) section describes the
-equations and numerical methods, and the [reference](@ref reference) contains
+equations and numerical methods, and the [appendices](@ref appendices) contain
 additional information that is not directly related to the usage of the code.
 
 - \subpage user-guide
@@ -63,6 +63,6 @@ additional information that is not directly related to the usage of the code.
   - [Governing Equations](@ref governing-equations) used in our solvers.
   - [Mixed boundary-condition resolution](@ref mixed-bc-resolution) describes
     how constraints are selected where boundary faces meet.
-- \subpage reference
-  - [Environmental variable reference](@ref reference_env-var)
+- \subpage appendices
+  - [Environmental variable reference](@ref appendices_env-var)
   - [Publications](@ref publications)

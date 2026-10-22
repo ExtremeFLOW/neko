@@ -1,16 +1,16 @@
-# Reference {#reference}
+# Appendices {#appendices}
 
 \tableofcontents
 
 The appendices contain a few extra pages that are not directly related to the usage
 of the code. But can be useful for users and developers alike.
 
-- [Environmental variable reference](@ref reference_env-var)
+- [Environmental variable reference](@ref appendices_env-var)
 - \subpage nmsh-format
 - \subpage fld-format
 - \subpage publications
 
-## Environmental variable reference {#reference_env-var}
+## Environmental variable reference {#appendices_env-var}
 
 | Name                     | Description                                                           | Default value |
 | ------------------------ | --------------------------------------------------------------------- | ------------- |

@@ -13,7 +13,7 @@ Neko's documentation consists of the following:
 - Docstrings for modules, types and procedures inside the source code, written
   in Doxygen style.
 - Markdown pages located under `doc/pages`, comprising the user and developer
-  guides, the methods section, the reference, etc.
+  guides, the methods section, the appendices, etc.
 
 Doxygen is used to produce HTML pages combining the automatically parsed
 docstrings and all the manually written pages, see `doc/Doxyfile.in`.
