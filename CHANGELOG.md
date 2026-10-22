@@ -16,6 +16,10 @@
   reaching `log_t%init` after rank 0 had written to the file truncated it,
   leaving the log empty or starting with null bytes. Only rank 0 opens the
   file now.
+- Fixed source terms skipping the time step that lands on their `start_time`
+  or `end_time` when round-off in the accumulated time puts the step just
+  outside the window, e.g. the last step of a run whose `end_time` equals the
+  source term's.
 - Fixed `map_1d` leaving elements without a level when the propagated
   minimum coordinate differs from the global minimum by roundoff, as with
   the default floating point model of ifx in single precision.
