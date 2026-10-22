@@ -242,6 +242,10 @@
               "type": "integer",
               "minimum": 1
             },
+            "gmres_space_size": {
+              "type": "integer",
+              "minimum": 1
+            },
             "monitor": {
               "type": "boolean"
             },

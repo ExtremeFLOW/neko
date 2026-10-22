@@ -33,7 +33,7 @@
 !> Defines various GMRES methods
 module gmres_device
   use neko_config, only : NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
-  use krylov, only : ksp_t, ksp_monitor_t
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_GMRES_SPACE_SIZE
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only : rp, c_rp
@@ -53,6 +53,9 @@ module gmres_device
        device_event_create, device_unmap, device_free, device_event_destroy, &
        device_get_ptr, device_event_sync
   use utils, only : neko_error
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_lookup_or_default
+  use logger, only : neko_log, LOG_SIZE
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_SUM, MPI_Allreduce
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
@@ -83,6 +86,7 @@ module gmres_device
      type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => gmres_device_init
+     procedure, pass(this) :: init_from_json => gmres_device_init_from_json
      procedure, pass(this) :: free => gmres_device_free
      procedure, pass(this) :: solve => gmres_device_solve
      procedure, pass(this) :: solve_coupled => gmres_device_solve_coupled
@@ -224,6 +228,28 @@ contains
     call device_event_create(this%gs_event, 2)
 
   end subroutine gmres_device_init
+
+  !> Initialise a standard GMRES solver from a JSON solver block. Reads
+  !! `gmres_space_size` (default `KSP_GMRES_SPACE_SIZE`), then the keys of
+  !! the base type.
+  subroutine gmres_device_init_from_json(this, n, json, M)
+    class(gmres_device_t), target, intent(inout) :: this
+    integer, intent(in) :: n
+    type(json_file), intent(inout) :: json
+    class(pc_t), optional, intent(in), target :: M
+    character(len=LOG_SIZE) :: log_buf
+
+    call json_get_or_lookup_or_default(json, 'gmres_space_size', &
+         this%m_restart, KSP_GMRES_SPACE_SIZE)
+    if (this%m_restart .lt. 1) then
+       call neko_error('gmres_space_size must be at least 1')
+    end if
+    write(log_buf, '(A,I0)') 'GMRES space: ', this%m_restart
+    call neko_log%message(log_buf)
+
+    call this%ksp_init_from_json(n, json, M = M)
+
+  end subroutine gmres_device_init_from_json
 
   !> Deallocate a standard GMRES solver
   subroutine gmres_device_free(this)

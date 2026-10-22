@@ -32,7 +32,7 @@
 !
 !> Defines various GMRES methods
 module gmres_sx
-  use krylov, only : ksp_t, ksp_monitor_t
+  use krylov, only : ksp_t, ksp_monitor_t, KSP_GMRES_SPACE_SIZE
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only : rp
@@ -45,6 +45,10 @@ module gmres_sx
   use math, only : glsc3, rzero, rone, copy, cmult2, col2, col3, add2s2, abscmp
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08
+  use utils, only : neko_error
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_lookup_or_default
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
 
@@ -65,6 +69,7 @@ module gmres_sx
      real(kind=rp) :: rnorm
    contains
      procedure, pass(this) :: init => sx_gmres_init
+     procedure, pass(this) :: init_from_json => sx_gmres_init_from_json
      procedure, pass(this) :: free => sx_gmres_free
      procedure, pass(this) :: solve => sx_gmres_solve
      procedure, pass(this) :: solve_coupled => sx_gmres_solve_coupled
@@ -123,6 +128,28 @@ contains
     end if
 
   end subroutine sx_gmres_init
+
+  !> Initialise a standard GMRES solver from a JSON solver block. Reads
+  !! `gmres_space_size` (default `KSP_GMRES_SPACE_SIZE`), then the keys of
+  !! the base type.
+  subroutine sx_gmres_init_from_json(this, n, json, M)
+    class(sx_gmres_t), target, intent(inout) :: this
+    integer, intent(in) :: n
+    type(json_file), intent(inout) :: json
+    class(pc_t), optional, intent(in), target :: M
+    character(len=LOG_SIZE) :: log_buf
+
+    call json_get_or_lookup_or_default(json, 'gmres_space_size', &
+         this%lgmres, KSP_GMRES_SPACE_SIZE)
+    if (this%lgmres .lt. 1) then
+       call neko_error('gmres_space_size must be at least 1')
+    end if
+    write(log_buf, '(A,I0)') 'GMRES space: ', this%lgmres
+    call neko_log%message(log_buf)
+
+    call this%ksp_init_from_json(n, json, M = M)
+
+  end subroutine sx_gmres_init_from_json
 
   !> Deallocate a standard GMRES solver
   subroutine sx_gmres_free(this)
