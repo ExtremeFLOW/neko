@@ -132,6 +132,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa1aa53ad1607be833f29e829ed6ab215" id="r_aa1aa53ad1607be833f29e829ed6ab215"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html#aa1aa53ad1607be833f29e829ed6ab215">is_done</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:aa1aa53ad1607be833f29e829ed6ab215"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the simulation is done.  <br /></td></tr>
 <tr class="separator:aa1aa53ad1607be833f29e829ed6ab215"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c1597cf1fec4b64510bba78d123d59f" id="r_a5c1597cf1fec4b64510bba78d123d59f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html#a5c1597cf1fec4b64510bba78d123d59f">tolerance</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a5c1597cf1fec4b64510bba78d123d59f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tolerance for comparing the current time to a fixed time, such as the end time of the simulation or a bound of a time window.  <br /></td></tr>
+<tr class="separator:a5c1597cf1fec4b64510bba78d123d59f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -366,6 +369,27 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a5c1597cf1fec4b64510bba78d123d59f" name="a5c1597cf1fec4b64510bba78d123d59f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c1597cf1fec4b64510bba78d123d59f">&#9670;&#160;</a></span>tolerance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) time_state::time_state_t::tolerance </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>The current time is accumulated step by step and carries the round-off of the additions, so a time step meant to land on a fixed time can end up a few ulps on either side of it. Within this tolerance the two are considered equal. It is relative to the span of the simulation is always non-negative, also for a simulation marching backwards in time. To prevent issues it is also limited to a fraction of the time step size. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Member Data Documentation</h2>
 <a id="a8f20d79d926ccd670550b74920cd27a7" name="a8f20d79d926ccd670550b74920cd27a7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8f20d79d926ccd670550b74920cd27a7">&#9670;&#160;</a></span>dt</h2>
@@ -488,7 +512,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d92/namespacetime__state.html">time_state</a></li><li class="navelem"><a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a></li>
-    <li class="footer">Generated on Wed Oct 21 2026 03:44:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 22 2026 03:44:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

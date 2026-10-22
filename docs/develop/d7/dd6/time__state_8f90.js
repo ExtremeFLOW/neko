@@ -5,5 +5,6 @@ var time__state_8f90 =
     [ "time_state_init_from_json", "d7/dd6/time__state_8f90.html#a5021307cbd3bea730f1e3aae533f10a7", null ],
     [ "time_state_is_done", "d7/dd6/time__state_8f90.html#a879db1a86939e2f7c2f1c125d25b97fc", null ],
     [ "time_state_reset", "d7/dd6/time__state_8f90.html#ad12701a633b8532d1d91bf94bf0e4929", null ],
-    [ "time_state_status", "d7/dd6/time__state_8f90.html#a1d122a8441fba7cb07f8abdd5c99e7f8", null ]
+    [ "time_state_status", "d7/dd6/time__state_8f90.html#a1d122a8441fba7cb07f8abdd5c99e7f8", null ],
+    [ "time_state_tolerance", "d7/dd6/time__state_8f90.html#a368ca176dffa57a5562098e3190b68b5", null ]
 ];

@@ -5,5 +5,6 @@ var namespacetime__state =
     [ "time_state_init_from_json", "d8/d92/namespacetime__state.html#a5021307cbd3bea730f1e3aae533f10a7", null ],
     [ "time_state_is_done", "d8/d92/namespacetime__state.html#a879db1a86939e2f7c2f1c125d25b97fc", null ],
     [ "time_state_reset", "d8/d92/namespacetime__state.html#ad12701a633b8532d1d91bf94bf0e4929", null ],
-    [ "time_state_status", "d8/d92/namespacetime__state.html#a1d122a8441fba7cb07f8abdd5c99e7f8", null ]
+    [ "time_state_status", "d8/d92/namespacetime__state.html#a1d122a8441fba7cb07f8abdd5c99e7f8", null ],
+    [ "time_state_tolerance", "d8/d92/namespacetime__state.html#a368ca176dffa57a5562098e3190b68b5", null ]
 ];

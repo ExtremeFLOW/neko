@@ -7,6 +7,7 @@ var structtime__state_1_1time__state__t =
     [ "is_done", "d7/d90/structtime__state_1_1time__state__t.html#aa1aa53ad1607be833f29e829ed6ab215", null ],
     [ "reset", "d7/d90/structtime__state_1_1time__state__t.html#ad9099a94fb73996970cfc54e979911c6", null ],
     [ "status", "d7/d90/structtime__state_1_1time__state__t.html#a00e3a56b7a48905dd361722a422b39b2", null ],
+    [ "tolerance", "d7/d90/structtime__state_1_1time__state__t.html#a5c1597cf1fec4b64510bba78d123d59f", null ],
     [ "dt", "d7/d90/structtime__state_1_1time__state__t.html#a8f20d79d926ccd670550b74920cd27a7", null ],
     [ "dtlag", "d7/d90/structtime__state_1_1time__state__t.html#a2339a1372321cdb4feb2126bcd941a57", null ],
     [ "end_time", "d7/d90/structtime__state_1_1time__state__t.html#a56d2e0d8eb5f70a4d48d0969fd36c7de", null ],

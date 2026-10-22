@@ -131,6 +131,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a879db1a86939e2f7c2f1c125d25b97fc" id="r_a879db1a86939e2f7c2f1c125d25b97fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pure</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d92/namespacetime__state.html#a879db1a86939e2f7c2f1c125d25b97fc">time_state_is_done</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a879db1a86939e2f7c2f1c125d25b97fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the simulation is done.  <br /></td></tr>
 <tr class="separator:a879db1a86939e2f7c2f1c125d25b97fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a368ca176dffa57a5562098e3190b68b5" id="r_a368ca176dffa57a5562098e3190b68b5"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pure</a> <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d92/namespacetime__state.html#a368ca176dffa57a5562098e3190b68b5">time_state_tolerance</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a368ca176dffa57a5562098e3190b68b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Tolerance for comparing the current time to a fixed time, such as the end time of the simulation or a bound of a time window.  <br /></td></tr>
+<tr class="separator:a368ca176dffa57a5562098e3190b68b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function/Subroutine Documentation</h2>
 <a id="a8b9738d14a6832e8b5ddf8e2b0275d1a" name="a8b9738d14a6832e8b5ddf8e2b0275d1a"></a>
@@ -179,7 +182,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
 
 </div>
 </div>
@@ -209,7 +212,7 @@ Functions/Subroutines</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
 
 </div>
 </div>
@@ -238,7 +241,7 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>The comparison is made on the progress from the start time in the direction of the simulation, so that it also holds for a simulation marching backwards in time. The tolerance keeps a time a few ulps short of the end time from adding one more time step, which would overshoot the end time by almost <code>dt</code> and produce an output past it. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00156">156</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00157">157</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
 
 </div>
 </div>
@@ -266,7 +269,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
 
 </div>
 </div>
@@ -294,7 +297,36 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00124">124</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00125">125</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
+
+</div>
+</div>
+<a id="a368ca176dffa57a5562098e3190b68b5" name="a368ca176dffa57a5562098e3190b68b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a368ca176dffa57a5562098e3190b68b5">&#9670;&#160;</a></span>time_state_tolerance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pure</a> <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a> time_state::time_state_tolerance </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>The current time is accumulated step by step and carries the round-off of the additions, so a time step meant to land on a fixed time can end up a few ulps on either side of it. Within this tolerance the two are considered equal. It is relative to the span of the simulation is always non-negative, also for a simulation marching backwards in time. To prevent issues it is also limited to a fraction of the time step size. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/dd6/time__state_8f90_source.html#l00179">179</a> of file <a class="el" href="../../d7/dd6/time__state_8f90_source.html">time_state.f90</a>.</p>
 
 </div>
 </div>
@@ -304,7 +336,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d92/namespacetime__state.html">time_state</a></li>
-    <li class="footer">Generated on Wed Oct 21 2026 03:44:26 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 22 2026 03:44:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
