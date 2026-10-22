@@ -231,6 +231,22 @@ module cuda_intf
        integer(c_int) :: device_count
      end function cudaGetDeviceCount
 
+     !> Number of streaming multiprocessors of the current device
+     !! (0 if unknown), see device/cuda/props.cu
+     integer(c_int) function cuda_device_mp_count() &
+          bind(c, name = 'cuda_device_mp_count')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function cuda_device_mp_count
+
+     !> Total memory of the current device in bytes (0 if unknown),
+     !! see device/cuda/props.cu
+     integer(c_size_t) function cuda_device_total_mem() &
+          bind(c, name = 'cuda_device_total_mem')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function cuda_device_total_mem
+
      integer(c_int) function cudaGetDevice(device) &
           bind(c, name = 'cudaGetDevice')
        use, intrinsic :: iso_c_binding
