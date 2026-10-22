@@ -68,6 +68,7 @@ module overset_interface_vector
   use field_list, only : field_list_t
   use iextm_time_scheme, only : iextm_time_scheme_t
   use, intrinsic :: iso_c_binding, only : c_ptr, c_size_t
+  use profiler, only : profiler_start_region, profiler_end_region
   use time_state, only : time_state_t
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use scratch_registry, only : neko_scratch_registry
@@ -405,6 +406,7 @@ contains
     end if
 
     if (strong_) then
+       call profiler_start_region('Overset vector apply')
 
        ! We can send any of the 3 bcs we have as argument, since they are all
        ! the same boundary.
@@ -419,6 +421,7 @@ contains
        call masked_copy_0(x, this%bc_u%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy_0(y, this%bc_v%field_bc%x, this%msk, n, this%msk(0))
        call masked_copy_0(z, this%bc_w%field_bc%x, this%msk, n, this%msk(0))
+       call profiler_end_region('Overset vector apply')
     end if
 
   end subroutine overset_interface_vector_apply_vector
@@ -447,6 +450,7 @@ contains
     end if
 
     if (strong_) then
+       call profiler_start_region('Overset vector apply')
        !$omp single
        if (.not. this%updated) then
           call this%update(time)
@@ -463,6 +467,7 @@ contains
           call device_masked_copy_0(z_d, this%bc_w%field_bc%x_d, &
                this%bc_w%msk_d, this%bc_w%dof%size(), this%msk(0), strm)
        end if
+       call profiler_end_region('Overset vector apply')
     end if
 
   end subroutine overset_interface_vector_apply_vector_dev
@@ -535,6 +540,8 @@ contains
     logical :: new_tstep
 
 
+    call profiler_start_region('Overset vector update')
+
     !> Change the coordinates of the interface if set up by the user
     call this%morph_interface(this%interface_dof, this%interface_field, &
          this%interface_dof_mask, time, this%name, &
@@ -545,6 +552,8 @@ contains
     ! if (substep .eq. 1) then
     !   call this%extrapolate()
     ! end if
+
+    call profiler_start_region('Overset vector interp')
 
     !> Find points if needed - later make sure only in first substep
     if (this%find_interface) then
@@ -575,7 +584,11 @@ contains
             v%x, this%domain_element_mask, .false.)
        call this%interface_interpolator%evaluate_masked(this%w_interface%x, &
             w%x, this%domain_element_mask, .false.)
+    end if
 
+    call profiler_end_region('Overset vector interp')
+
+    if (.not. this%restart_pending) then
        if (this%log) then
           call this%log_interface_error_(u, v, w)
        end if
@@ -586,6 +599,7 @@ contains
 
     !> If this is the first substep, then we do the extrapolation
     if (new_tstep) then
+       call profiler_start_region('Overset vector extrap')
        ! Update the last steps
        this%last_tstep = time%tstep
 
@@ -616,6 +630,7 @@ contains
        end do
 
        this%restart_pending = .false.
+       call profiler_end_region('Overset vector extrap')
 
     end if
 
@@ -634,6 +649,7 @@ contains
          this%w_interface, &
          this%interface_dof_mask, this%bc_w%dof%size())
 
+    call profiler_end_region('Overset vector update')
 
   end subroutine overset_interface_update
 

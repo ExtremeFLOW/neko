@@ -3,11 +3,12 @@ module test_bc_projector
   use pfunit
   use num_types, only : rp
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use device, only : device_init, device_finalize, device_map, device_unmap, &
        device_get_ptr, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   use neko_config, only : NEKO_BCKND_DEVICE
-  use neko_mpi_types, only : neko_mpi_types_init
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use mesh_fixture, only : single_reference_element_mesh
   use mesh, only : mesh_t
   use space, only : space_t, GLL
@@ -33,31 +34,31 @@ contains
 
   subroutine setUp(this)
     class(test_bc_projector_case), intent(inout) :: this
-    integer :: ierr
+
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     call neko_mpi_types_init()
   end subroutine setUp
 
   subroutine tearDown(this)
     class(test_bc_projector_case), intent(inout) :: this
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call neko_mpi_types_free()
+    call comm_free_test()
   end subroutine tearDown
 
-  !> Verify that the parallel test fixture itself is wired correctly. This
-  !! keeps the original smoke coverage for the duplicated communicator and
-  !! pFUnit MPI test case setup.
+  !> Verify that the communicator state set up by comm_init_test matches the
+  !! communicator pFUnit hands to the test.
   @test(npes=[1])
   subroutine test_template_passes(this)
     class(test_bc_projector_case), intent(inout) :: this
     integer :: ierr, comm_size
 
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
 
     @assertEqual(0, ierr)
@@ -82,9 +83,6 @@ contains
     type(segregated_vector_bc_projector_t) :: projector
     real(kind=rp), allocatable :: x(:), y(:), z(:)
     integer :: face1_dofs(9), dof_size, i
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     call init_single_face_case(mesh, Xh, dof, gs, coef)
     call init_dirichlet_face(bc, coef, 1)
@@ -135,9 +133,6 @@ contains
     class(vector_bc_projector_t), allocatable :: projector
     real(kind=rp), allocatable :: x(:), y(:), z(:)
     integer :: face1_dofs(9), dof_size, i
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     call init_single_face_case(mesh, Xh, dof, gs, coef)
     call init_dirichlet_face(bc, coef, 1)
@@ -190,9 +185,6 @@ contains
     type(scalar_bc_projector_t), pointer :: rx, ry, rz
     real(kind=rp), allocatable :: x(:), y(:), z(:)
     integer :: dof_size
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     call init_single_face_case(mesh, Xh, dof, gs, coef)
     call init_dirichlet_face(bc, coef, 1)

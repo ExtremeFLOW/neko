@@ -29,7 +29,7 @@ crystal_router_suite.inc: Makefile
 
 distclean:
 clean:
-	$(RM) *.o *.mod *.a  *.inc *.F90 crystal_router_suite
+	$(RM) *.o *.mod *.a *.inc *.F90 crystal_router_suite
 
 
 

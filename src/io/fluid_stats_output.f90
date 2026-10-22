@@ -64,6 +64,9 @@ module fluid_stats_output
      procedure, pass(this) :: free => fluid_stats_output_free
      !> Samples the fields computed by the `stats` component.
      procedure, pass(this) :: sample => fluid_stats_output_sample
+     !> Puts the leading fields in the UVW, P and T slots.
+     procedure, pass(this) :: configure_file => &
+          fluid_stats_output_configure_file
   end type fluid_stats_output_t
 
 
@@ -117,14 +120,6 @@ contains
     end if
 
     call this%init_base(fname)
-
-    select type (ft => this%file_%file_type)
-    type is (fld_file_t)
-       ft%skip_pressure = .false.
-       ft%skip_velocity = .false.
-       ft%skip_temperature = .false.
-    end select
-
     this%stats => stats
     this%T_begin = T_begin
   end subroutine fluid_stats_output_init
@@ -189,5 +184,19 @@ contains
       end if
     end associate
   end subroutine fluid_stats_output_sample
+
+  !> Puts the leading fields in the UVW, P and T slots
+  !! rather than the scalar block.
+  subroutine fluid_stats_output_configure_file(this)
+    class(fluid_stats_output_t), intent(inout) :: this
+
+    select type (ft => this%file_%file_type)
+    type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
+    end select
+
+  end subroutine fluid_stats_output_configure_file
 
 end module fluid_stats_output

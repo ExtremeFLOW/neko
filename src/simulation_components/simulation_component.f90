@@ -36,6 +36,7 @@
 !! @note
 !! The canonical way to abbreviate simulation_component is simcomp.
 module simulation_component
+  use utils, only : NEKO_TYPENAME_LEN
   use num_types, only : dp
   use json_module, only : json_file
   use case, only : case_t
@@ -189,7 +190,7 @@ module simulation_component
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(simulation_component_allocate), pointer, nopass :: allocator
   end type allocator_entry
 

@@ -477,7 +477,6 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/global_interpolation/Makefile\
         tests/unit/mean_field/Makefile\
         tests/unit/gather_scatter/Makefile\
-        tests/unit/crystal_router/Makefile\
         tests/unit/ax/Makefile\
         tests/unit/krylov/Makefile\
         tests/unit/bc/Makefile\
@@ -513,6 +512,8 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/boundary_operation/Makefile\
         tests/unit/checkpoint_payload/Makefile\
         tests/unit/wall_sampling/Makefile\
+        tests/unit/map_1d/Makefile\
+        tests/unit/crystal_router/Makefile\
         tests/unit/geo_compression/Makefile\
         tests/unit/templates/serial/Makefile])
 
