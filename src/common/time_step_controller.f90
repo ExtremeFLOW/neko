@@ -102,12 +102,14 @@ contains
   end subroutine time_step_controller_init
 
   !> Set new dt based on cfl if requested
-  !! @param dt time step in case_t.
-  !! @param cfl courant number of current iteration.
-  !! @param tstep the current time step.
+  !! @param time The time state, whose time step is updated.
+  !! @param cfl Courant number of the current iteration.
   !! @Algorithm:
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avg is offset by 20%.
+  !! 3. A zero cfl, e.g. from a zero velocity field, puts no limit on dt, so
+  !! the first time step is the initial one and a later one is increased by
+  !! the maximum increase factor.
   subroutine time_step_controller_set_dt(this, time, cfl)
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
@@ -127,8 +129,14 @@ contains
     if (this%dt_last_change .eq. -1) then
 
        ! Set the first dt for desired cfl, or use the provided initial dt if it
-       ! is smaller. Then clamp between max and min dt if provided.
-       time%dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
+       ! is smaller. A zero cfl, which puts no limit on dt, also gives the
+       ! initial dt, without dividing by zero. Then clamp between max and min
+       ! dt if provided.
+       if (cfl .gt. 0.0_dp) then
+          time%dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
+       else
+          time%dt = this%init_dt
+       end if
        time%dt = max(min(time%dt, this%max_dt), this%min_dt)
        this%dt_last_change = 0
        this%cfl_avg = cfl
@@ -141,12 +149,21 @@ contains
             .and. this%dt_last_change .ge. this%max_update_frequency &
             .or. this%dt_last_change .ge. this%min_update_frequency) then
 
-          if (this%cfl_trg/cfl .ge. 1) then
-             ! increase of time step
-             scaling_factor = min(this%max_dt_increase_factor, this%cfl_trg/cfl)
+          ! Only divide by a positive cfl. The conditions are nested because
+          ! Fortran does not guarantee short-circuit evaluation.
+          if (cfl .gt. 0.0_dp) then
+             if (this%cfl_trg/cfl .ge. 1) then
+                ! increase of time step
+                scaling_factor = min(this%max_dt_increase_factor, &
+                     this%cfl_trg/cfl)
+             else
+                ! reduction of time step
+                scaling_factor = max(this%min_dt_decrease_factor, &
+                     this%cfl_trg/cfl)
+             end if
           else
-             ! reduction of time step
-             scaling_factor = max(this%min_dt_decrease_factor, this%cfl_trg/cfl)
+             ! a zero cfl puts no limit on dt, so increase it as much as allowed
+             scaling_factor = this%max_dt_increase_factor
           end if
 
           dt_old = time%dt
