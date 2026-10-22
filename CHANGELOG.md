@@ -13,6 +13,10 @@
 
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
+- Fixed source terms skipping the time step that lands on their `start_time`
+  or `end_time` when round-off in the accumulated time puts the step just
+  outside the window, e.g. the last step of a run whose `end_time` equals the
+  source term's.
 - Fixed `map_1d` leaving elements without a level when the propagated
   minimum coordinate differs from the global minimum by roundoff, as with
   the default floating point model of ifx in single precision.
