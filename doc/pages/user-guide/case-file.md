@@ -1875,7 +1875,7 @@ Within the `"solver"` block, the parameters of the linear solver used to solve t
 | `preconditioner.type` | Type of preconditioner to use                                             | `"jacobi"`, `"hsmg"`, `"phmg"` | `"jacobi"`    |
 | `absolute_tolerance`  | Absolute tolerance for solver convergence                                 | Positive real                  | `1.0e-10`     |
 | `max_iterations`      | Maximum number of linear solver iterations                                | Positive integer               | `1000`        |
-| `gmres_space_size`    | Krylov space size of `gmres` before it restarts                           | Positive integer               | `30`          |
+| `space_size`          | Krylov space size of `gmres` before it restarts                           | Positive integer               | `30`          |
 | `monitor`             | Monitor residuals in the linear solver                                    | `true` or `false`              | `false`       |
 | `output_base_shape`   | Enables output of the base shape field \f$ \phi \f$                       | `true` or `false`              | `true`        |
 | `output_stiffness`    | Enables output of the computed mesh stiffness field \f$ h(\mathbf{x}) \f$ | `true` or `false`              | `false`       |
@@ -2180,11 +2180,11 @@ The following keywords are used, with the corresponding options.
 * `absolute_tolerance`, tolerance criterion for convergence.
 * `max_iterations`, maximum number of iterations before giving up
    (default 1000).
-* `gmres_space_size`, Krylov space size of `gmres` before it restarts
-   (default 30). GMRES stores `2 * gmres_space_size + 2` fields, so a smaller
-   value saves memory. A solve that converges within `gmres_space_size`
-   iterations is unaffected by it, so a good choice is the iteration count
-   seen in steady operation.
+* `space_size`, Krylov space size of `gmres` before it restarts (default
+   30); not used by the other solvers. GMRES stores `2 * space_size + 2`
+   fields, so a smaller value saves memory. A solve that converges within
+   `space_size` iterations is unaffected by it, so a good choice is the
+   iteration count seen in steady operation.
 * `projection_space_size`, size of the vector space used for accelerating the
    solution procedure. If 0, then the projection space is not used.
    More important for the pressure equation.
@@ -2310,7 +2310,7 @@ concisely directly in the table.
 | `velocity_solver.preconditioner.type`              | Linear solver preconditioner for the momentum equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `velocity_solver.absolute_tolerance`               | Linear solver convergence criterion for the momentum equation.                                    | Positive real                                               | -             |
 | `velocity_solver.max_iterations`                   | Linear solver max iteration count for the momentum equation.                                      | Positive integer                                            | 1000          |
-| `velocity_solver.gmres_space_size`                 | Krylov space size of `gmres` for the momentum equation.                                           | Positive integer                                            | 30            |
+| `velocity_solver.space_size`                       | Krylov space size of `gmres` for the momentum equation.                                           | Positive integer                                            | 30            |
 | `velocity_solver.projection_space_size`            | Projection space size for the momentum equation.                                                  | Positive integer                                            | 0             |
 | `velocity_solver.projection_hold_steps`            | Holding steps of the projection for the momentum equation.                                        | Positive integer                                            | 5             |
 | `velocity_solver.monitor`                          | Monitor residuals in the linear solver for the momentum equation.                                 | `true` or `false`                                           | `false`       |
@@ -2318,7 +2318,7 @@ concisely directly in the table.
 | `pressure_solver.preconditioner.type`              | Linear solver preconditioner for the pressure equation.                                           | `ident`, `hsmg`, `jacobi`                                   | -             |
 | `pressure_solver.absolute_tolerance`               | Linear solver convergence criterion for the pressure equation.                                    | Positive real                                               | -             |
 | `pressure_solver.max_iterations`                   | Linear solver max iteration count for the pressure equation.                                      | Positive integer                                            | 1000          |
-| `pressure_solver.gmres_space_size`                 | Krylov space size of `gmres` for the pressure equation.                                           | Positive integer                                            | 30            |
+| `pressure_solver.space_size`                       | Krylov space size of `gmres` for the pressure equation.                                           | Positive integer                                            | 30            |
 | `pressure_solver.projection_space_size`            | Projection space size for the pressure equation.                                                  | Positive integer                                            | 0             |
 | `pressure_solver.projection_hold_steps`            | Holding steps of the projection for the pressure equation.                                        | Positive integer                                            | 5             |
 | `pressure_solver.projection_reorthogonalize_basis` | Whether to enable pressure projection basis reorthogonalization.                                  | `true` or `false`                                           | `false`       |
@@ -2522,7 +2522,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `solver.preconditioner.type`   | Linear solver preconditioner for the momentum equation.               | `ident`, `hsmg`, `jacobi`                   | -             |
 | `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.        | Positive real                               | -             |
 | `solver.max_iterations`        | Linear solver max iteration count for the scalar equation.            | Positive integer                            | 1000          |
-| `solver.gmres_space_size`      | Krylov space size of `gmres` for the scalar equation.                 | Positive integer                            | 30            |
+| `solver.space_size`            | Krylov space size of `gmres` for the scalar equation.                 | Positive integer                            | 30            |
 | `solver.projection_space_size` | Projection space size for the scalar equation.                        | Positive integer                            | 0             |
 | `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.              | Positive integer                            | 5             |
 

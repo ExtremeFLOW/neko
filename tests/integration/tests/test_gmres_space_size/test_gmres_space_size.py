@@ -1,4 +1,4 @@
-"""Test of the GMRES space size key of the linear solver blocks."""
+"""Test of the GMRES space_size key of the linear solver blocks."""
 from os.path import join
 import json
 import re
@@ -41,7 +41,7 @@ def pressure_iterations(log):
 
 
 def test_gmres_space_size(launcher_script, request, log_file, tmp_path):
-    """gmres_space_size is read and logged, and a small space converges to
+    """space_size is read and logged, and a small space converges to
     the same tolerance as the default one, with a few more iterations."""
     base = {"type": "gmres", "preconditioner": {"type": "phmg"},
             "absolute_tolerance": 1e-6, "max_iterations": 500,
@@ -51,7 +51,7 @@ def test_gmres_space_size(launcher_script, request, log_file, tmp_path):
                       log_file.replace(".log", "_30.log"))
     log_small = run(launcher_script,
                     make_case(tmp_path, request.node.name + "_4",
-                              dict(base, gmres_space_size=4)),
+                              dict(base, space_size=4)),
                     log_file.replace(".log", "_4.log"))
     assert "GMRES space: 30" in log_default
     assert "GMRES space: 4" in log_small

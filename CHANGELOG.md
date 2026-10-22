@@ -11,12 +11,10 @@
 
 ## Develop
 
-- Added `gmres_space_size` to the linear solver blocks, the Krylov space
-  size of `gmres` (default 30). The fluid, scalar and ALE Krylov solvers are
-  now created from their JSON solver block (`krylov_solver_factory(ksp, n,
-  json)` and `ksp_t%init_from_json`); the component-wise factory is kept.
+- Added `space_size` to the linear solver blocks, the Krylov space size of
+  `gmres` (default 30).
 - The default `max_iterations` of all linear solver blocks is now 1000
-  (`KSP_MAX_ITER`); it was 800 for the pressure and 10000 for ALE.
+  (`KSP_MAX_ITER`).
 - Fixed source terms skipping the time step that lands on their `start_time`
   or `end_time` when round-off in the accumulated time puts the step just
   outside the window, e.g. the last step of a run whose `end_time` equals the

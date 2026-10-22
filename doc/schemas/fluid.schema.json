@@ -242,7 +242,7 @@
               "type": "integer",
               "minimum": 1
             },
-            "gmres_space_size": {
+            "space_size": {
               "type": "integer",
               "minimum": 1
             },

@@ -33,7 +33,7 @@
 !> Implements `gmres_t`.
 module gmres
   !$ use omp_lib
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_GMRES_SPACE_SIZE
+  use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only : rp, xp
@@ -56,6 +56,9 @@ module gmres
   implicit none
   private
 
+  !> Default Krylov space size (restart length) of the GMRES solvers.
+  integer, public, parameter :: GMRES_SPACE_SIZE = 30
+
   !> CPU implementation of the preconditioned standard GMRES method.
   !!
   !! The large working vectors and Krylov bases are associated with arrays
@@ -63,7 +66,7 @@ module gmres
   !! The small extra-precision reduction arrays remain owned by the solver.
   type, public, extends(ksp_t) :: gmres_t
      !> Maximum dimension of the Krylov basis before restarting.
-     integer :: lgmres = 30
+     integer :: lgmres = GMRES_SPACE_SIZE
      !> Operator action used during Arnoldi orthogonalisation.
      real(kind=rp), pointer :: w(:) => null()
      !> Residual at the start of a restart cycle.
@@ -145,7 +148,7 @@ contains
   end subroutine gmres_init
 
   !> Initialise a standard GMRES solver from a JSON solver block. Reads
-  !! `gmres_space_size` (default `KSP_GMRES_SPACE_SIZE`), then the keys of
+  !! `space_size` (default `GMRES_SPACE_SIZE`), then the keys of
   !! the base type.
   subroutine gmres_init_from_json(this, n, json, M)
     class(gmres_t), target, intent(inout) :: this
@@ -154,10 +157,10 @@ contains
     class(pc_t), optional, intent(in), target :: M
     character(len=LOG_SIZE) :: log_buf
 
-    call json_get_or_lookup_or_default(json, 'gmres_space_size', &
-         this%lgmres, KSP_GMRES_SPACE_SIZE)
+    call json_get_or_lookup_or_default(json, 'space_size', &
+         this%lgmres, GMRES_SPACE_SIZE)
     if (this%lgmres .lt. 1) then
-       call neko_error('gmres_space_size must be at least 1')
+       call neko_error('GMRES space_size must be at least 1')
     end if
     write(log_buf, '(A,I0)') 'GMRES space: ', this%lgmres
     call neko_log%message(log_buf)

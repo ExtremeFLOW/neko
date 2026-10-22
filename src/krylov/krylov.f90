@@ -53,8 +53,6 @@ module krylov
   private
 
   integer, public, parameter :: KSP_MAX_ITER = 1e3 !< Maximum number of iters.
-  !> Default Krylov space size (restart length) of GMRES
-  integer, public, parameter :: KSP_GMRES_SPACE_SIZE = 30
   real(kind=rp), public, parameter :: KSP_ABS_TOL = 1d-9 !< Absolut tolerance
   real(kind=rp), public, parameter :: KSP_REL_TOL = 1d-9 !< Relative tolerance
 

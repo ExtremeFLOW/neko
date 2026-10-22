@@ -32,7 +32,8 @@
 !
 !> Defines various GMRES methods
 module gmres_sx
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_GMRES_SPACE_SIZE
+  use krylov, only : ksp_t, ksp_monitor_t
+  use gmres, only : GMRES_SPACE_SIZE
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only : rp
@@ -54,7 +55,7 @@ module gmres_sx
 
   !> Standard preconditioned generalized minimal residual method (SX version)
   type, public, extends(ksp_t) :: sx_gmres_t
-     integer :: lgmres = 30
+     integer :: lgmres = GMRES_SPACE_SIZE
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
      real(kind=rp), allocatable :: r(:)
@@ -130,7 +131,7 @@ contains
   end subroutine sx_gmres_init
 
   !> Initialise a standard GMRES solver from a JSON solver block. Reads
-  !! `gmres_space_size` (default `KSP_GMRES_SPACE_SIZE`), then the keys of
+  !! `space_size` (default `GMRES_SPACE_SIZE`), then the keys of
   !! the base type.
   subroutine sx_gmres_init_from_json(this, n, json, M)
     class(sx_gmres_t), target, intent(inout) :: this
@@ -139,10 +140,10 @@ contains
     class(pc_t), optional, intent(in), target :: M
     character(len=LOG_SIZE) :: log_buf
 
-    call json_get_or_lookup_or_default(json, 'gmres_space_size', &
-         this%lgmres, KSP_GMRES_SPACE_SIZE)
+    call json_get_or_lookup_or_default(json, 'space_size', &
+         this%lgmres, GMRES_SPACE_SIZE)
     if (this%lgmres .lt. 1) then
-       call neko_error('gmres_space_size must be at least 1')
+       call neko_error('GMRES space_size must be at least 1')
     end if
     write(log_buf, '(A,I0)') 'GMRES space: ', this%lgmres
     call neko_log%message(log_buf)
