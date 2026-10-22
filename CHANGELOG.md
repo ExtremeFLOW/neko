@@ -2,6 +2,11 @@
 
 ## Develop
 
+- Fixed `Invalid face neigh.` during mesh connectivity setup on more than one
+  rank, observed with an Intel build: two nonblocking sends in the facet
+  exchange passed the result of the stack's `%array()`, which a compiler may
+  pass as a temporary copy that is freed while the send is pending. They now
+  send from the stack's own storage, as the edge exchange already did.
 - Added the `duprat` wall model of Duprat et al. (2011), which accounts for
   the wall-tangential pressure gradient through an extended velocity scale and
   a pressure-gradient-dependent eddy viscosity. The pressure gradient is either
