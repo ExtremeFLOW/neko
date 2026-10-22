@@ -1086,8 +1086,8 @@ particular direction. For example `[1.0, 1.0, 0.0]` will multiply the fringe
 field by 1, 1, and 0 in the `x`, `y` and `z` directions respectively,
 effectively removing the forcing in the `z` direction.
 
-The reference velocity field, or `baseflow` can be set from three methods:
-1. `constant`, applies constant values according to the `values` keyword:
+The reference velocity field, or `baseflow` can be set from four methods:
+1. `constant`, applies constant values according to the `value` keyword:
 
    <details>
    <summary><b><u>Example code snippet</u></b></summary>
@@ -1171,10 +1171,11 @@ The reference velocity field, or `baseflow` can be set from three methods:
          {
             "type": "sponge",
             "amplitudes": [0.5, 0.5, 0.5],
+            "fringe_registry_name": "sponge_fringe_2",
             "baseflow": {
                 "method": "no-op"
                 // by default, retrieves the baseflow "sponge_bf_u/v/w"
-                // (can be changed via `bf_registry_prefix`)
+                // (can be changed via `baseflow_registry_prefix`)
             }
          }
       ]
@@ -1182,16 +1183,22 @@ The reference velocity field, or `baseflow` can be set from three methods:
    ```
    </details>
 
-Finally, the fringe function field must be filled by the user. This must be
-done through the user file by adding the fringe field to the
-`neko_registry`, under a name that can be retrieved internally. By default, 
-Neko will search for the field `"sponge_fringe"` in the registry, but this 
-can be changed by setting the parameter `fringe_registry_name`.
+Finally, the fringe field must be filled by the user. This is done in the
+user file by adding the field to the `neko_registry`, by default under the
+name `"sponge_fringe"`; the name can be changed with `fringe_registry_name`.
+The same applies to the baseflow fields when `"method": "user"`: they are
+looked up under the prefix `"sponge_bf"`, i.e. `sponge_bf_u`, `sponge_bf_v`
+and `sponge_bf_w`, which can be changed with `baseflow_registry_prefix`. The
+fields must be in the registry before the first time step. Register them in
+`initialize`, not in `initial_conditions`, since the latter is not called when
+restarting from a checkpoint.
 
-The same principle applies for the baseflow fields (if `"method": "user"`).
-By default, neko will search for the baseflow fields in the registry using
-the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
-This prefix can be changed by setting the parameter `bf_registry_prefix`.
+@note When using more than one sponge, each `constant` or `field` sponge
+registers its own baseflow and needs a distinct `baseflow_registry_prefix`;
+use `no-op` with the same prefix to share one instead. A `no-op` sponge must
+come after the sponge whose baseflow it reuses, and cannot reuse a `user`
+baseflow. Sponges that share a `fringe_registry_name` act in the same region,
+so give each one its own fringe to apply them in different regions.
 
 <details>
 <summary><b><u>Example using `initialize`</u></b></summary>
