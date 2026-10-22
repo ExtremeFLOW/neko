@@ -34,10 +34,13 @@ submodule (ax_product) ax_helm_fctry
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_XSMM, &
        NEKO_BCKND_DEVICE, NEKO_BCKND_CUDA, NEKO_BCKND_HIP
   use ax_helm_device, only : ax_helm_device_t
+  use ax_helm_compr_device, only : ax_helm_compr_device_t
   use ax_helm_xsmm, only : ax_helm_xsmm_t
   use ax_helm_sx, only : ax_helm_sx_t
+  use ax_helm_compr_sx, only : ax_helm_compr_sx_t
   use ax_helm, only : ax_helm_t
   use ax_helm_cpu, only : ax_helm_cpu_t
+  use ax_helm_compr_cpu, only : ax_helm_compr_cpu_t
   use ax_helm_full_cpu, only : ax_helm_full_cpu_t
   use ax_helm_full_device, only : ax_helm_full_device_t
   use ax_helm_svv_one_sided_cpu, only : ax_helm_svv_one_sided_cpu_t
@@ -50,11 +53,12 @@ submodule (ax_product) ax_helm_fctry
   implicit none
 
   ! List of all possible types created by the allocator routine
-  character(len=20) :: AX_HELM_KNOWN_TYPES(4) = [character(len=20) :: &
+  character(len=20) :: AX_HELM_KNOWN_TYPES(5) = [character(len=20) :: &
        "standard", &
        "full", &
        "standard_svv", &
-       "full_svv"]
+       "full_svv", &
+       "standard_compr"]
 
 contains
 
@@ -82,6 +86,18 @@ contains
           allocate(ax_helm_device_t::object)
        else
           allocate(ax_helm_cpu_t::object)
+       end if
+    case ("standard_compr")
+       ! The XSMM backend has no compressed product and computes the
+       ! standard one
+       if (NEKO_BCKND_SX .eq. 1) then
+          allocate(ax_helm_compr_sx_t::object)
+       else if (NEKO_BCKND_XSMM .eq. 1) then
+          allocate(ax_helm_xsmm_t::object)
+       else if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(ax_helm_compr_device_t::object)
+       else
+          allocate(ax_helm_compr_cpu_t::object)
        end if
     case ("full")
        if (NEKO_BCKND_XSMM .eq. 1) then

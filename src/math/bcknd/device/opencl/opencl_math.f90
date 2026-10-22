@@ -1,4 +1,4 @@
-! Copyright (c) 2024-2025, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -483,6 +483,15 @@ module opencl_math
        type(c_ptr), value :: a_d, strm
        integer(c_int) :: n
      end function opencl_glmax
+
+     real(c_rp) function opencl_glamax(a_d, n, strm) &
+          bind(c, name = 'opencl_glamax')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       implicit none
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: n
+     end function opencl_glamax
 
      real(c_rp) function opencl_glmin(a_d, n, strm) &
           bind(c, name = 'opencl_glmin')

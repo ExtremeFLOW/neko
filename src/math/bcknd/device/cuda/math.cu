@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -148,8 +148,9 @@ extern "C" {
   void cuda_masked_atomic_reduction(void *a, void *b, void *mask,
                                     int *n, int *m, cudaStream_t strm) {
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+    const dim3 nthrds(MASKED_ATOMIC_RED_BLOCK, 1, 1);
+    const dim3 nblcks(((*m) + MASKED_ATOMIC_RED_BLOCK - 1) /
+                      MASKED_ATOMIC_RED_BLOCK, 1, 1);
 
     masked_atomic_reduction_kernel<real><<<nblcks, nthrds, 0, strm>>>
       ((real *) a, (real *) b, (int *) mask, *n, *m);
@@ -1097,6 +1098,36 @@ extern "C" {
     }
 
     cuda_global_reduce_min(((real *) redbuf.host), redbuf.dev, 1, stream);
+
+    return ((real *) redbuf.host)[0];
+  }
+
+  /**
+   * Fortran wrapper glamax
+   * Take the maximum absolute value of a vector of length n
+   */
+  real cuda_glamax(void *a, int *n, cudaStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    const real zero = 0.0;
+
+    cuda_redbuf_check_alloc(nb);
+    if ( *n > 0) {
+      glamax_kernel<real>
+        <<<nblcks, nthrds, 0, stream>>>((real *) a,
+                                        (real *) redbuf.dev, *n);
+      CUDA_CHECK(cudaGetLastError());
+      reduce_max_kernel<real><<<1, 1024, 0, stream>>> ((real *) redbuf.dev,
+                                                        zero, nb);
+      CUDA_CHECK(cudaGetLastError());
+    }
+    else {
+      int nel = (int) (redbuf.size / sizeof(real));
+      cuda_rzero(redbuf.dev, &nel, stream);
+    }
+
+    cuda_global_reduce_max(((real *) redbuf.host), redbuf.dev, 1, stream);
 
     return ((real *) redbuf.host)[0];
   }

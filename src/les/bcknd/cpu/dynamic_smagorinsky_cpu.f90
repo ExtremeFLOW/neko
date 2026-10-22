@@ -247,6 +247,8 @@ contains
     call test_filter%apply(fv, fu)
     call sub2(lij(6)%x, fv%x, n)
 
+    call neko_scratch_registry%relinquish_field(temp_indices)
+
   end subroutine compute_lij_cpu
 
   !> Compute M_ij on the CPU.
@@ -359,6 +361,8 @@ contains
     end do
     !$omp end parallel do
 
+    call neko_scratch_registry%relinquish_field(temp_indices)
+
   end subroutine compute_mij_cpu
 
   !> Compute numerator and denominator for c_dyn on the CPU.
@@ -374,39 +378,31 @@ contains
     real(kind=rp), intent(in) :: alpha
     integer, intent(in) :: n
 
-    real(kind=rp), dimension(n) :: num_curr, den_curr
+    real(kind=rp) :: num_curr, den_curr
     integer :: i
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
     !DIR$ IVDEP
     !GCC$ ivdep
-    !$omp parallel do
+    !$omp parallel do private(i, num_curr, den_curr)
     do i = 1, n
-       num_curr(i) = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &
+       num_curr = mij(1)%x(i,1,1,1)*lij(1)%x(i,1,1,1) + &
             mij(2)%x(i,1,1,1)*lij(2)%x(i,1,1,1) + &
             mij(3)%x(i,1,1,1)*lij(3)%x(i,1,1,1) + &
             2.0_rp*(mij(4)%x(i,1,1,1)*lij(4)%x(i,1,1,1) + &
             mij(5)%x(i,1,1,1)*lij(5)%x(i,1,1,1) + &
             mij(6)%x(i,1,1,1)*lij(6)%x(i,1,1,1))
-       den_curr(i) = mij(1)%x(i,1,1,1)*mij(1)%x(i,1,1,1) + &
+       den_curr = mij(1)%x(i,1,1,1)*mij(1)%x(i,1,1,1) + &
             mij(2)%x(i,1,1,1)*mij(2)%x(i,1,1,1) + &
             mij(3)%x(i,1,1,1)*mij(3)%x(i,1,1,1) + &
             2.0_rp*(mij(4)%x(i,1,1,1)*mij(4)%x(i,1,1,1) + &
             mij(5)%x(i,1,1,1)*mij(5)%x(i,1,1,1) + &
             mij(6)%x(i,1,1,1)*mij(6)%x(i,1,1,1))
-    end do
-    !$omp end parallel do
 
-    ! running average over time
-    !OCL NORECURRENCE, NOVREC, NOALIAS
-    !DIR$ CONCURRENT
-    !DIR$ IVDEP
-    !GCC$ ivdep
-    !$omp parallel do
-    do i = 1, n
-       num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr(i)
-       den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr(i)
+       ! running average over time
+       num%x(i,1,1,1) = alpha * num%x(i,1,1,1) + (1.0_rp - alpha) * num_curr
+       den%x(i,1,1,1) = alpha * den%x(i,1,1,1) + (1.0_rp - alpha) * den_curr
     end do
     !$omp end parallel do
 

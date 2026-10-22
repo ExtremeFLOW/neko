@@ -1,5 +1,4 @@
 module test_bc
-  use mpi
   use pfunit
   use mesh_fixture, only : two_adjacent_unit_hex_mesh
   use mesh, only : mesh_t
@@ -8,6 +7,9 @@ module test_bc
   use coefs, only : coef_t
   use gather_scatter, only : gs_t
   use dirichlet, only : dirichlet_t
+  use expression_dirichlet, only : expression_dirichlet_t
+  use expression_dirichlet_vector, only : expression_dirichlet_vector_t
+  use bc, only : BC_DIRICHLET
   use facet_zone, only : facet_zone_t
   use stack, only : stack_i4t2_t
   use tuple, only : tuple_i4_t
@@ -16,7 +18,8 @@ module test_bc
   use device, only : device_init, device_finalize
   use neko_config, only : NEKO_BCKND_DEVICE
   use comm, only : NEKO_COMM, pe_rank, pe_size
-  use neko_mpi_types, only : neko_mpi_types_init
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   implicit none
 
   integer, parameter :: lx_test = 3
@@ -34,31 +37,14 @@ module test_bc
   end type bc_test_case
 
 contains
-! @test
-! subroutine test_bc_init
-!   use pfunit
-!   use dofmap
-!   use bc
-!   implicit none
-!   type(bc_t) :: b
-!   type(dofmap_t) :: dof
 
   subroutine setUp(this)
     class(bc_test_case), intent(inout) :: this
-    integer :: ierr
 
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
-
-!   @assertTrue(associated(b%dof))
-!   @assertTrue(associated(b%msh))
-!   @assertTrue(associated(b%Xh))
-! end subroutine test_bc_init
-
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call neko_mpi_types_init()
 
     call build_test_fixture(this%msh, this%Xh, this%dof, this%gs, this%coef)
@@ -74,8 +60,10 @@ contains
     call this%msh%free()
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_finalize
+       call device_finalize
     end if
+    call neko_mpi_types_free()
+    call comm_free_test()
   end subroutine tearDown
 
   @test(npes=[1])
@@ -474,6 +462,23 @@ contains
 
     deallocate(x, y, z)
   end subroutine test_bc_apply_vector_weak_noop
+
+  !> Every Dirichlet-family condition must report BC_DIRICHLET, since the
+  !! solvers only mark conditions of that type in their bc projectors.
+  @test(npes=[1])
+  subroutine test_bc_expression_dirichlet_type(this)
+    class(bc_test_case), intent(inout) :: this
+    type(expression_dirichlet_t) :: bc_s
+    type(expression_dirichlet_vector_t) :: bc_v
+
+    call bc_s%init_from_components(this%coef, "x + y")
+    @assertEqual(BC_DIRICHLET, bc_s%bc_type)
+    call bc_s%free()
+
+    call bc_v%init_from_components(this%coef, "1", "0", "z")
+    @assertEqual(BC_DIRICHLET, bc_v%bc_type)
+    call bc_v%free()
+  end subroutine test_bc_expression_dirichlet_type
 
   subroutine build_test_fixture(msh, Xh, dof, gs, coef)
     type(mesh_t), intent(inout) :: msh

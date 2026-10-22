@@ -186,6 +186,12 @@ __global__ void masked_scatter_copy_aligned_kernel(T * __restrict__ a,
 }
 
 /**
+ * Block size of masked_atomic_reduction_kernel, also the number of shared
+ * memory bins. A multiple of both wavefront sizes.
+ */
+#define MASKED_ATOMIC_RED_BLOCK 256
+
+/**
  * Device kernel for masked atomic update
  */
 template< typename T >
@@ -195,12 +201,76 @@ __global__ void masked_atomic_reduction_kernel(T * __restrict__ a,
                                                const int n,
                                                const int n_mask) {
 
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
+  __shared__ T bins[MASKED_ATOMIC_RED_BLOCK];
+  __shared__ int bins_base;
 
-  for (int i = idx; i < n_mask; i += str) {
-    unsafeAtomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
-    //atomicAdd( &(a[mask[i+1]-1]), b[i]);//a[mask[i]-1] = a[mask[i]-1] + b[i];
+  const int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const int str = MASKED_ATOMIC_RED_BLOCK * gridDim.x;
+
+  bins[threadIdx.x] = 0.0;
+
+  /* Stride over whole blocks, so every thread reaches every barrier and
+     every lane every shuffle; lanes past the end carry no target */
+  for (int base = blockIdx.x * MASKED_ATOMIC_RED_BLOCK; base < n_mask;
+       base += str) {
+
+    if (threadIdx.x == 0)
+      bins_base = mask[base + 1] - 1 - MASKED_ATOMIC_RED_BLOCK / 2;
+    __syncthreads();
+    const int kbase = bins_base;
+
+    const int i = base + threadIdx.x;
+    int key = -1;
+    T val = 0.0;
+    if (i < n_mask) {
+      key = mask[i + 1] - 1;
+      val = b[i];
+    }
+
+    /* A run starts where the target changes and ends in the lane before
+       the next run's head. The ballot is 64 bits wide at either wavefront
+       size, with the upper half zero at wave32. */
+    const int key_prev = __shfl_up(key, 1);
+    const bool head = (lane == 0) || (key != key_prev);
+    const unsigned long long heads = __ballot(head);
+
+    if (heads == (~0ull >> (64 - NEKO_WAVE_SIZE))) {
+      /* No two neighbouring lanes share a target, so there is nothing to
+         combine: scatter directly, as a plain atomic kernel would. The
+         ballot is the same in every lane, so the branch is
+         wavefront-uniform. */
+      if (key >= 0)
+        unsafeAtomicAdd(&a[key], val);
+    }
+    else {
+      const unsigned long long next = heads & ~((2ull << lane) - 1ull);
+      const int run_end = next ? __ffsll(next) - 2 : NEKO_WAVE_SIZE - 1;
+
+      /* Segmented suffix sum, the head ends up with the sum of its run */
+#pragma unroll
+      for (int off = 1; off < NEKO_WAVE_SIZE; off *= 2) {
+        const T tmp = __shfl_down(val, off);
+        if (lane + off <= run_end)
+          val += tmp;
+      }
+
+      if (head && key >= 0) {
+        const int s = key - kbase;
+        if (s >= 0 && s < MASKED_ATOMIC_RED_BLOCK)
+          atomicAdd(&bins[s], val);
+        else
+          unsafeAtomicAdd(&a[key], val);
+      }
+    }
+    __syncthreads();
+
+    /* Flush the bins and clear them for the next stride; the barrier at
+       the top of the loop orders this against the next accumulation */
+    const T sum = bins[threadIdx.x];
+    if (sum != (T) 0.0) {
+      unsafeAtomicAdd(&a[kbase + threadIdx.x], sum);
+      bins[threadIdx.x] = 0.0;
+    }
   }
 }
 
@@ -1270,6 +1340,42 @@ __global__ void glmax_kernel(const T * a,
   __syncthreads();
 
   max_val = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : ninf;
+  if (wid == 0)
+    max_val = reduce_max_warp<T>(max_val);
+
+  if (threadIdx.x == 0)
+    buf_h[blockIdx.x] = max_val;
+
+}
+
+/**
+ * Device kernel for glamax
+ * @note The identity is zero, since the reduced values are non-negative.
+ */
+template< typename T >
+__global__ void glamax_kernel(const T * a,
+                              T * buf_h,
+                              const int n) {
+
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
+
+  __shared__ T shared[64];
+  T max_val = T(0);
+  for (int i = idx; i<n ; i += str)
+  {
+    max_val = max(max_val, fabs(a[i]));
+  }
+
+  max_val = reduce_max_warp<T>(max_val);
+  if (lane == 0)
+    shared[wid] = max_val;
+  __syncthreads();
+
+  max_val = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? shared[lane] : T(0);
   if (wid == 0)
     max_val = reduce_max_warp<T>(max_val);
 

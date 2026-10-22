@@ -77,7 +77,7 @@ but also defines several parameters that pertain to the simulation as a whole.
 | `checkpoint_value`    | The frequency of sampling in terms of `checkpoint_control`.                                           | Positive real or integer                        | -             |
 | `checkpoint_filename` | The filename of written checkpoint.                                                                   | Strings such as `my_name`                       | `fluid`       |
 | `checkpoint_format`   | The file format of checkpoints                                                                        | `chkp` or `hdf5`                                | `chkp`        |
-| `restart_file`        | checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`                     | -             |
+| `restart_file`        | Checkpoint to use for a restart from previous data                                                    | Strings ending with `.chkp`, `.h5`, or `.hdf5`  | -             |
 | `restart_mesh_file`   | If the restart file is on a different mesh, specify the .nmsh file used to generate it here           | Strings ending with `.nmsh`                     | -             |
 | `mesh2mesh_tolerance` | Tolerance for the restart when restarting from another mesh                                           | Positive reals                                  | 1e-6          |
 | `job_timelimit`       | The maximum wall clock duration of the simulation.                                                    | String formatted as [[[DD-]HH:]MM:]SS           | No limit      |
@@ -296,6 +296,8 @@ Used to define the properties of the numerical discretization.
 | `dealiased_polynomial order` | The polynomial order in the higher-order space used in the dealising.                                           | Integer                    | `3/2(polynomial_order + 1) - 1` |
 | `oifs`                       | Whether to apply the Operator-Integration-Factor-Splitting (OIFS).                                              | `true` or `false`          | `false`                         |
 | `oifs_target_cfl`            | The desired OIFS-CFL number. Requires variable_timestep = true in the time control object.                      | Positive real              | `1.9`                           |
+| `compress_geometric_factors` | Whether the standard Helmholtz operators of the fluid, the scalars and the multigrid levels read the geometric factors from one copy per distinct element shape, which cuts their memory traffic on meshes of repeated shapes. The copies are held on top of the full factors. CPU, SX and device backends, not XSMM. | `true` or `false` | `false` |
+| `compress_geometric_factors_tolerance` | Tolerance on the absolute difference of the geometric factors, summed over the quadrature points of an element with the off-diagonal factors counted twice, under which two elements share them. As it is absolute, it depends on the size of the elements. | Non-negative real | `1e-7` |
 
 ## Solvers {#case-file_solvers}
 

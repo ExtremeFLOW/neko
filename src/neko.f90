@@ -293,8 +293,10 @@ contains
     end if
 
     call neko_simcomps%free()
+    call neko_point_zone_registry%free()
 
     call neko_registry%free()
+    call neko_const_registry%free()
     call neko_user_access%free()
     call neko_log%free()
 

@@ -54,7 +54,7 @@ cylinder_case = pyneko.case_init(cylinder_json,
 #pyneko.solve(cylinder_case)
 
 # To manually step forward in time, call step()
-while pyneko.time(cylinder_case) < pyneko.end_time(cylinder_case):
+while not pyneko.is_done(cylinder_case):
     pyneko.step(cylinder_case)
 
 # Cleanup

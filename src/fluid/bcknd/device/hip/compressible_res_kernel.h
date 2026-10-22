@@ -35,17 +35,31 @@
 #define __FLUID_EULER_RES_KERNEL__
 
 template< typename T >
-__global__ void compressible_res_part_visc_kernel(T * __restrict__ rhs,
+__global__ void compressible_res_part_visc_kernel(T * __restrict__ rhs_rho,
+                                     T * __restrict__ rhs_m_x,
+                                     T * __restrict__ rhs_m_y,
+                                     T * __restrict__ rhs_m_z,
+                                     T * __restrict__ rhs_E,
+                                     const T * __restrict__ visc_rho,
+                                     const T * __restrict__ visc_m_x,
+                                     const T * __restrict__ visc_m_y,
+                                     const T * __restrict__ visc_m_z,
+                                     const T * __restrict__ visc_E,
                                      const T * __restrict__ Binv,
-                                     const T * __restrict__ lap_sol,
-                                     const T * __restrict__ effective_visc,
+                                     T * __restrict__ h1,
                                      const int n) {
-  
+
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
-  
+
   for (int i = idx; i < n; i += str) {
-    rhs[i] =  -rhs[i] - effective_visc[i] * Binv[i] * lap_sol[i];
+    const T Bi = Binv[i];
+    rhs_rho[i] = -rhs_rho[i] - Bi * visc_rho[i];
+    rhs_m_x[i] = -rhs_m_x[i] - Bi * visc_m_x[i];
+    rhs_m_y[i] = -rhs_m_y[i] - Bi * visc_m_y[i];
+    rhs_m_z[i] = -rhs_m_z[i] - Bi * visc_m_z[i];
+    rhs_E[i] = -rhs_E[i] - Bi * visc_E[i];
+    h1[i] = T(1);
   }
 }
 

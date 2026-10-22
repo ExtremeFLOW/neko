@@ -61,6 +61,9 @@ libneko.neko_case_end_time.restype = @NEKO_PY_REAL_TYPE@
 libneko.neko_case_tstep.argtypes = [POINTER(c_int)]
 libneko.neko_case_tstep.restype = c_int
 
+libneko.neko_case_is_done.argtypes = [POINTER(c_int)]
+libneko.neko_case_is_done.restype = c_int
+
 libneko.neko_solve.argtypes = [POINTER(c_int)]
 libneko.neko_solve.restype = None
 
@@ -319,6 +322,11 @@ def tstep(case_descr):
     """ Retrive the current  time-step of a case. """
     tstep = libneko.neko_case_tstep(byref(case_descr))
     return tstep
+
+def is_done(case_descr):
+    """ Check if a case has reached its end time. """
+    is_done = libneko.neko_case_is_done(byref(case_descr))
+    return is_done > 0
 
 def solve(case_descr):
     """ Solve a Neko case. """

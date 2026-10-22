@@ -209,6 +209,7 @@ contains
   subroutine lambda2_free(this)
     class(lambda2_t), intent(inout) :: this
     call this%free_base()
+    call this%writer%free()
 
     nullify(this%u)
     nullify(this%v)

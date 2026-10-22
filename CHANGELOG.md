@@ -1,6 +1,130 @@
 # Changelog
 
+## Breaking changes
+
+- PR#2831 User initial conditions are no longer copied from the host to the
+  device after the user routine, so on GPUs the routine must leave the values in
+  the device arrays itself, e.g. with `device_memcpy`.
+- PR#2831 User initial conditions are can no longer assume that the arrays
+  are zeroed on entry. The user routine must set all values, e.g. with
+  `field_cfill`.
+
 ## Develop
+
+- Fixed source terms skipping the time step that lands on their `start_time`
+  or `end_time` when round-off in the accumulated time puts the step just
+  outside the window, e.g. the last step of a run whose `end_time` equals the
+  source term's.
+- Fixed `map_1d` leaving elements without a level when the propagated
+  minimum coordinate differs from the global minimum by roundoff, as with
+  the default floating point model of ifx in single precision.
+- Added an agent skill for writing pFUnit unit tests, rewrote the testing
+  guide, and brought older unit-test suites in line with the templates.
+- Fixed restarted 3D statistics skipping velocity, pressure, temperature fields 
+  on output.
+- Fix OpenMP deadlock in the scratch registry. Nested operations checked the
+  same critical section.
+- Fixed the scalar debug log computing its norms from stale host arrays on
+  GPUs and running its global reductions every step at any log level.
+- *BREAKING* User initial conditions are no longer copied from the host to the
+  device after the user routine, so on GPUs the routine must leave the values in
+  the device arrays itself, e.g. with `device_memcpy`.
+- *BREAKING* User initial conditions are can no longer assume that the arrays
+  are zeroed on entry. The user routine must set all values, e.g. with
+  `field_cfill`.
+- Added `gmsh2nmsh` under `contrib`, which converts Gmsh `.msh` meshes
+  directly to `.nmsh` without going through `.re2`. Physical groups become
+  labeled zones, group pairs can be made periodic, and curved second order
+  edges are kept. It builds without the Neko library or MPI. The copy of
+  Nek5000's `gmsh2nek` under `contrib` has been removed, and the examples
+  that used it now use `gmsh2nmsh`.
+- Added deferred `init(coef, bclst, json)` and `free` to `pc_t`, so
+  user-registered preconditioners are initialized and freed like the built-in
+  ones.
+- Fixed several OpenMP races in the scratch registry.
+- Added `source_term_t%extrapolate` and the `extrapolate` and optional
+  `scale` arguments to `source_term_handler_t%compute`, letting a source term
+  be added after the EXT extrapolation of the Pn-Pn fluid and scalar schemes
+  instead of through it. Feedback terms with a gain of order `1/dt` are
+  unstable when extrapolated with EXT3 and stable when applied as computed.
+  Callers of `compute` must now pass `extrapolate`.
+- Changed the CPU CG, coupled CG and GMRES solvers to obtain their large work
+  arrays from the scratch registry for each solve instead of retaining
+  dedicated storage.
+- Fixed `device_glmax`, `device_glmin` and `device_glamax` hanging when some
+  ranks have zero points.
+- Fixed device memory leaking on every write of a spatially averaged
+  statistics output (`fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
+  `scalar_sgs_stats` and `user_stats` with an `avg_direction`): the
+  temporary 1D and 2D output data were never freed. `map_2d_t%free` now also
+  releases its work fields and its internal `map_1d_t`.
+- Fixed memory leaks in several free routines and temporary objects,
+  including reused JSON objects, `.fld` output masks, the point zone and
+  constant registries, and user source term fields.
+- Fixed `field_vdot3` deallocating its output field on entry.
+- Fixed the CPU dynamic Smagorinsky model not relinquishing its scratch
+  fields, which grew the memory every time step and caused an error at
+  shutdown.
+- Error and warning routines are now hooked to pFUnit's exceptions, making it
+  possible to test for error emission.
+- Added format-independent checkpoint payloads for registering named fields,
+  field histories, nodal mesh arrays, and distributed or replicated real
+  arrays. HDF5 checkpoints now preserve the payload hierarchy and support
+  multiple scalars and ALE, including restart at a different polynomial order.
+  Mesh arrays derive their distribution and standard GLL interpolation from
+  their mesh and function space, while generic arrays retain a fixed logical
+  extent. The `.chkp` format remains available through a single-scalar
+  compatibility view, and existing flat HDF5 checkpoints remain readable.
+- Added a setup-time conditioning diagnostic for the geometric factors, on
+  `COEF_FULL` coefficient sets only. `coef_metric_condition` logs the worst
+  metric condition number over the mesh, the worst for its Jacobi scaled
+  form, the perturbation single precision factors would put on the element
+  operator, and whether that is within tolerance (`coef_t%metric_sp_safe`).
+  The unscaled number bounds reduced precision *arithmetic* and grows as the
+  element aspect ratio squared; the scaled one bounds *storage* and depends
+  on skew alone. A single precision build warns past `NEKO_METRIC_COND_SP` or
+  `NEKO_METRIC_PERTURB_MAX`, and a non positive definite metric is an error
+  in any precision.
+- Added closed-form symmetric eigenvalue helpers `eig_sym2` and `eig_sym3` to
+  `math`, used by the metric conditioning diagnostic. Both work in double
+  precision regardless of `rp`, since the smallest root is a difference of
+  terms of order the largest eigenvalue and its relative accuracy therefore
+  degrades as `eps * kappa`.
+- Fused the viscous accumulation at the end of the compressible device
+  residual into the one kernel the CPU backend already uses. It cost sixteen
+  launches per Runge-Kutta stage and 2.4x the memory traffic, because the
+  five components went through separate `col2`/`cmult`/`sub2` passes that
+  wrote `visc_*` back although it is scratch released immediately after. The
+  `div` and `grad` calls there now take device pointers rather than the
+  deprecated implicit-device host-array path.
+- The compressible residual on the device backends hands `glb_cmd_event` to
+  its gather-scatter operations, as the Pn-Pn solver already did. Without an
+  event the shared scatter ends in `device_sync`, draining the command queue
+  right after every exchange; it now records the event and the host waits
+  only just before the next exchange reuses the shared staging buffers, so
+  the coefficient multiplication and the three Helmholtz applies in between
+  are issued while the exchange is still in flight. Results are unchanged.
+- Fixed the compressible solver never evaluating the physical Navier-Stokes
+  fluxes on any device backend. Both `compressible_res_*` backends decided
+  whether to add the viscous stress and the heat flux with
+  `any(mu%x .ne. 0)`, which reads the *host* mirror of the material property
+  fields. Device backends never write those mirrors: `field_cfill` fills only
+  `%x_d`, and the memcpy that used to follow the `material_properties` hook
+  was removed in #2695 so that user files can call `device_math` directly.
+  Both switches were therefore always false on CUDA, HIP, OpenCL and Metal,
+  and the solver silently ran Euler plus artificial viscosity. As a
+  side-effect the test also cost three full single-threaded host passes over
+  the field per time step, with no work in flight on the device.
+  The decision now lives in `fluid_scheme_compressible_t%update_physical_flux`
+  and is taken from the device-resident arrays, and it is only re-evaluated
+  when the material properties can have changed, i.e. once at setup and
+  thereafter only when a user `material_properties` hook is registered.
+  `mu`, `kappa` and whether the Navier-Stokes fluxes are active are now
+  reported in the `Fluid` section of the log.
+- Added `glamax`, `vlamax` and `device_glamax`, the maximum absolute value of
+  a vector, with kernels for CUDA, HIP, OpenCL and Metal. Unlike an `any()`
+  over a host array it is an exact, reduced test for "are all entries zero"
+  that never touches the host copy.
 - Updated interfaces for scratch host and device arrays. Now the canonical types
   are used when requesting scratch arrays of these types. `c_ptr` and
   `real(kind=rp), pointer` should be used rather than the wrappers
@@ -58,7 +182,6 @@
 - Made the `user_stats` integration test compare its average of a random
   field against a two-sided tolerance that covers the sampling noise; the
   one-sided `1e-4` passed or failed roughly at random.
-
 - The CPU vector and full stress Helmholtz operators apply the mass term
   `h2 * B * u` inside their element kernels rather than in a separate pass
   over the whole field afterwards, so an `lx = 8` double precision velocity

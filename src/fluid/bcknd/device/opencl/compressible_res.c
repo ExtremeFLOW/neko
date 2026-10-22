@@ -46,8 +46,11 @@
 
 #include "compressible_res_kernel.cl.h"
 
-void compressible_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
-                                void *effective_visc, int *n) {
+void compressible_res_part_visc_opencl(void *rhs_rho, void *rhs_m_x,
+                                void *rhs_m_y, void *rhs_m_z, void *rhs_E,
+                                void *visc_rho, void *visc_m_x, void *visc_m_y,
+                                void *visc_m_z, void *visc_E,
+                                void *Binv, void *h1, int *n) {
   cl_int err;
   
   if (compressible_res_program == NULL)
@@ -57,11 +60,19 @@ void compressible_res_part_visc_opencl(void *rhs_u, void *Binv, void *lap_sol,
                                     "compressible_res_part_visc_kernel", &err);
   CL_CHECK(err);
 
-  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &rhs_u));
-  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &Binv));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &lap_sol));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &effective_visc));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &rhs_rho));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &rhs_m_x));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &rhs_m_y));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &rhs_m_z));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &rhs_E));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &visc_rho));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &visc_m_x));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &visc_m_y));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &visc_m_z));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &visc_E));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &Binv));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &h1));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), n));
   
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;

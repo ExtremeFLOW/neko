@@ -80,8 +80,21 @@ module compressible_residual
        class(compressible_rhs_t), allocatable, intent(inout) :: object
        real(kind=rp), intent(in) :: gamma
      end subroutine compressible_rhs_factory
+
+     !> Select whether the physical Navier-Stokes fluxes are evaluated.
+     !! @details The backends cannot decide this themselves: on a device
+     !! backend the host copies of `mu` and `kappa` are not kept in sync
+     !! with the device arrays the kernels read, so inspecting them would
+     !! silently reduce the solver to Euler. The owning scheme decides
+     !! instead, see `fluid_scheme_compressible_t%update_physical_flux`.
+     !! @param add_flux Whether to add the viscous and heat fluxes.
+     !! @param add_stress Whether to add the viscous stress.
+     module subroutine compressible_rhs_set_physical_flux(add_flux, add_stress)
+       logical, intent(in) :: add_flux
+       logical, intent(in) :: add_stress
+     end subroutine compressible_rhs_set_physical_flux
   end interface
 
-  public :: compressible_rhs_factory
+  public :: compressible_rhs_factory, compressible_rhs_set_physical_flux
 
 end module compressible_residual

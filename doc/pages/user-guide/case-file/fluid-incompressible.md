@@ -193,27 +193,35 @@ The default name of the boundary conditions is given by the
 applies in zone index 5 can be retrieved by the `pressure_bc_5` name.
 
 ### Available conditions
-The conditions to apply is specified by `type` keyword inside each of the JSON
-objects. The full list of possible conditions for the fluid is specified in the
-table below.
+The conditions to apply are specified by the `type` keyword inside each of the
+JSON objects. Each type sets both the velocity and the pressure condition on
+the zone, and the table below lists what each type corresponds to. An empty
+entry means the natural condition of the scheme for that field: a homogeneous
+Neumann condition for the velocity, or a Neumann condition for the pressure
+with the normal gradient given by the momentum equation. These combinations
+cover the standard cases. It is also possible to set the velocity and the
+pressure condition separately, see
+[below](@ref case-file_fluid-split-boundary-conditions).
 
-| Boundary Condition  | Description                                                                                                                      |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------|
-| symmetry            | A symmetry plane. Must be axis-aligned.                                                                                          |
-| velocity_value      | A Dirichlet condition for velocity.                                                                                              |
-| no_slip             | A no-slip wall. Either stationary or moving.                                                                                     |
-| outflow             | A pressure outlet.                                                                                                               |
-| normal_outflow      | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. |
-| outflow+user        | Same as `outflow` but with user-specified pressure.                                                                              |
-| normal_outflow+user | Same as `normal_outflow` but with user-specified pressure.                                                                       |
-| outflow+dong        | A pressure outlet with the Dong condition applied.                                                                               |
-| normal_outflow+dong | The `normal_outflow` with the Dong condition applied.                                                                            |
-| shear_stress        | Prescribed wall shear stress.                                                                                                    |
-| wall_model          | Shear stress condition based on a wall model for large-eddy simulation.                                                          |
-| blasius_profile     | A Blasius velocity profile.                                                                                                      |
-| user_velocity       | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                    |
-| user_pressure       | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                           |
-| overset_interface   | A Dirichlet condition that prescribes values from another Neko simulation running concurrently.                                  |
+| Boundary Condition  | Velocity            | Pressure         | Description                                                                                                                      |
+| ------------------- | ------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| symmetry            | `symmetry`          |                  | A symmetry plane. Must be axis-aligned.                                                                                          |
+| velocity_value      | `dirichlet`         |                  | A Dirichlet condition for velocity.                                                                                              |
+| expression_velocity | `expression`        |                  | A Dirichlet condition for velocity given by mathematical expressions.                                                            |
+| expression_pressure |                     | `expression`     | A Dirichlet condition for pressure given by a mathematical expression.                                                           |
+| no_slip             | `no_slip`           |                  | A no-slip wall. Either stationary or moving.                                                                                     |
+| outflow             |                     | `zero_dirichlet` | A pressure outlet.                                                                                                               |
+| normal_outflow      | `non_normal`        | `zero_dirichlet` | An Neumann condition for the surface-normal component of velocity combined with a Dirichlet for the surface-parallel components. |
+| outflow+user        |                     | `user_dirichlet` | Same as `outflow` but with user-specified pressure.                                                                              |
+| normal_outflow+user | `non_normal`        | `user_dirichlet` | Same as `normal_outflow` but with user-specified pressure.                                                                       |
+| outflow+dong        |                     | `dong`           | A pressure outlet with the Dong condition applied.                                                                               |
+| normal_outflow+dong | `non_normal`        | `dong`           | The `normal_outflow` with the Dong condition applied.                                                                            |
+| shear_stress        | `shear_stress`      |                  | Prescribed wall shear stress.                                                                                                    |
+| wall_model          | `wall_model`        |                  | Shear stress condition based on a wall model for large-eddy simulation.                                                          |
+| blasius_profile     | `blasius_profile`   |                  | A Blasius velocity profile.                                                                                                      |
+| user_velocity       | `user_dirichlet`    |                  | The `field_dirichlet_vector_t` user-defined Dirichlet condition for velocity.                                                    |
+| user_pressure       |                     | `user_dirichlet` | The `field_dirichlet_t` user-defined Dirichlet condition for pressure.                                                           |
+| overset_interface   | `overset_interface` | `overset_interface` (if `couple_pressure`) | A Dirichlet condition that prescribes values from another Neko simulation running concurrently.        |
 
 A more detailed description of each boundary condition is provided below.
 
@@ -660,6 +668,80 @@ The keywords for this wall model are the same as for the [MOST model](#most-wall
   Mauritsen, T., Svensson, G., Zilitinkevich, S. S., Esau, I., Enger, L., & Grisogono, B. (2007). A Total Turbulent Energy Closure Model for Neutrally and Stably Stratified Atmospheric Boundary Layers. Journal of the Atmospheric Sciences, 64(11), 4113–4126. https://doi.org/10.1175/2007JAS2294.1.
   </details>
 
+
+### Separate velocity and pressure conditions {#case-file_fluid-split-boundary-conditions}
+
+Instead of a joint `type`, a boundary condition object can hold a `velocity`
+object and a `pressure` object, each with its own `type`. Both must be
+present in this form. This allows combinations that are not covered by the
+joint types, for example a `non_normal` velocity condition with a pressure
+given by an expression.
+
+```json
+{
+  "zone_indices": [4],
+  "velocity": {
+    "type": "non_normal",
+    "value": [1.0, 0.0, 0.0]
+  },
+  "pressure": {
+    "type": "expression",
+    "value": "p_0*sin(2*pi*f*t)"
+  }
+}
+```
+
+The natural conditions of the scheme are selected with the `neumann` type.
+For the velocity it is a Neumann condition on the viscous traction, which is
+homogeneous, i.e. no constraint, unless a constant `flux` is given. For the
+pressure it is the Neumann condition of the Pn/Pn scheme, with the normal
+gradient given by the momentum equation, as on velocity Dirichlet boundaries.
+There the flux is set by the scheme, so the pressure `neumann` type takes no
+keywords. Keywords at the top level of the object, such as
+`zone_indices` and `name`, apply to both conditions. Keywords inside
+`velocity` and `pressure` apply to that condition only and take precedence
+over the top-level ones. A joint `type` cannot be combined with a `velocity`
+or `pressure` object in the same entry.
+
+The combinations defined by the joint types are the ones that are tested. When
+combining conditions separately, it is up to the user to make sure that the
+combination is well posed. In particular, the pressure is only de-meaned when
+no zone has a Dirichlet pressure condition.
+
+The available velocity condition types are listed below. The keywords they
+accept are the same as for the corresponding joint types.
+
+| Velocity condition  | Description                                                                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| dirichlet           | A Dirichlet condition with a constant `value`. Same as `velocity_value`.                                                                               |
+| expression          | A Dirichlet condition given by expressions. Same as `expression_velocity`.                                                                             |
+| no_slip             | A no-slip wall, see `no_slip`.                                                                                                                         |
+| symmetry            | A symmetry plane, see `symmetry`.                                                                                                                      |
+| non_normal          | A homogeneous Neumann condition for the surface-normal component combined with a Dirichlet for the surface-parallel components, see `normal_outflow`. |
+| neumann             | A Neumann condition on the viscous traction. Without keywords it is homogeneous, i.e. no constraint. The optional `flux`, an array of 3 reals, prescribes a constant traction per unit area, added to the right-hand side of the momentum equation. |
+| shear_stress        | Prescribed wall shear stress, see `shear_stress`.                                                                                                      |
+| wall_model          | Shear stress from a wall model, see `wall_model`.                                                                                                      |
+| blasius_profile     | A Blasius velocity profile, see `blasius_profile`.                                                                                                     |
+| user_dirichlet      | The user-defined Dirichlet condition. Same as `user_velocity`.                                                                                         |
+| overset_interface   | Values from another Neko simulation, see `overset_interface`.                                                                                          |
+
+The available pressure condition types are the following.
+
+| Pressure condition  | Description                                                                          |
+| ------------------- | ------------------------------------------------------------------------------------ |
+| dirichlet           | A Dirichlet condition with a constant `value`.                                       |
+| zero_dirichlet      | A zero pressure. The pressure part of `outflow`.                                     |
+| expression          | A Dirichlet condition given by an expression. Same as `expression_pressure`.         |
+| dong                | The Dong outflow condition. The pressure part of `outflow+dong`.                     |
+| neumann             | The Neumann condition of the Pn/Pn scheme, with the normal gradient given by the momentum equation. Takes no keywords. |
+| user_dirichlet      | The user-defined Dirichlet condition. Same as `user_pressure`.                       |
+| overset_interface   | Values from another Neko simulation, see `overset_interface`.                        |
+
+Custom velocity and pressure condition types can be added from user modules
+with the `register_fluid_pnpn_velocity_bc` and `register_fluid_pnpn_pressure_bc`
+routines. See `fluid_pnpn_bc_template.f90` in the
+`examples/programming/user_type_templates` directory for a template.
+
 ## Initial conditions {#case-file_fluid-ic}
 The object `initial_condition` is used to provide initial conditions.
 It is mandatory.
@@ -1070,20 +1152,44 @@ The reference velocity field, or `baseflow` can be set from three methods:
    }
    ```
    </details>
+4. `no-op`, where the velocity field is retrieved directly from the registry.
+   Use when multiple sponge objects should use the same baseflow velocity.
+   <details>
+   <summary><b><u>Example code snippet</u></b></summary>
+   ```json
+   {
+      "source_terms": [
+         {
+            "type": "sponge",
+            "amplitudes": [10.0, 10.0, 10.0],
+            "baseflow": {
+                // baseflow registered under "sponge_bf_u/v/w"
+                "method": "field",
+                "file_name": "baseflow0.f00000"
+            }
+         },
+         {
+            "type": "sponge",
+            "amplitudes": [0.5, 0.5, 0.5],
+            "baseflow": {
+                "method": "no-op"
+                // by default, retrieves the baseflow "sponge_bf_u/v/w"
+                // (can be changed via `bf_registry_prefix`)
+            }
+         }
+      ]
+   }
+   ```
+   </details>
 
 Finally, the fringe function field must be filled by the user. This must be
 done through the user file by adding the fringe field to the
-`neko_registry` in either `initialize` or `initial_conditions` (more
-specifically, before the first call to compute the sponge source term). Note that `initial_conditions` is not called when doing a restart from a checkpoint file, so if restarts will be done the sponge should be implemented in `user_init_modules`.
+`neko_registry`, under a name that can be retrieved internally. By default, 
+Neko will search for the field `"sponge_fringe"` in the registry, but this 
+can be changed by setting the parameter `fringe_registry_name`.
 
-The fringe field must be set by adding a field to the `neko_registry`
-under a specific name that can be retrieved internally. By default, Neko will
-search for the field `"sponge_fringe"` in the registry, but this can be changed
-by setting the parameter `fringe_registry_name`, which is important when using
-more than one sponge source term.
-
-The same principle applies for the base flow fields (if `"method": "user"`).
-By default, neko will search for the base flow fields in the registry using
+The same principle applies for the baseflow fields (if `"method": "user"`).
+By default, neko will search for the baseflow fields in the registry using
 the prefix `"sponge_bf_"`, meaning that `u` will be in `sponge_bf_u`, etc.
 This prefix can be changed by setting the parameter `bf_registry_prefix`.
 
@@ -1091,6 +1197,9 @@ This prefix can be changed by setting the parameter `bf_registry_prefix`.
 <summary><b><u>Example using `initialize`</u></b></summary>
 
 ```fortran
+!
+! Sponge source term, example using "baseflow.method": "user"
+!
 module user
   use neko
   implicit none
@@ -1121,7 +1230,7 @@ contains
     call neko_registry%add_field(u%dof,"sponge_fringe")
     fringe => neko_registry%get_field("sponge_fringe")
 
-    ! Initialize the base flows
+    ! Initialize the base flows (only needed if "method": "user")
     call neko_registry%add_field(u%dof,"sponge_bf_u")
     ubf => neko_registry%get_field("sponge_bf_u")
     call neko_registry%add_field(u%dof,"sponge_bf_v")
@@ -1219,7 +1328,7 @@ The parameters for the sponge source term are summarized in the table below:
 | Name                       | Description                                                             | Admissible values                 | Default value     |
 | -------------------------- | ----------------------------------------------------------------------- | --------------------------------- | ----------------- |
 | `amplitudes`               | Sponge forcing strength in each Cartesian direction                     | Array of 3 reals                  | -                 |
-| `baseflow.method`          | Method to define the reference (baseflow) velocity                      | `"constant"`, `"field"`, `"user"` | -                 |
+| `baseflow.method`          | Method to define the reference (baseflow) velocity                      | `"constant"`, `"field"`, `"user"`, `"no-op"` | -                 |
 | `baseflow.value`           | Velocity vector for constant baseflow                                   | Array of 3 reals                  | -                 |
 | `baseflow.file_name`       | File containing baseflow velocity field                                 | String                            | -                 |
 | `baseflow.mesh_file_name`  | Mesh file corresponding to the baseflow field                           | String                            | -                 |
@@ -1566,16 +1675,30 @@ For a given coordinate \f$ \mathbf{x} = (x, y, z) \f$, the raw distance \f$ r \f
 
 @note Setting a very large value for `gain` (e.g., `1.0e6`) is recommended if the mesh immediately surrounding the body is intended to be fully rigid (i.e., \f$ \phi_i \approx 1 \f$). Conversely, if two moving objects are in close proximity, the `gain` should be kept low enough to ensure the mesh in the gap region remains soft and deformable. Visualizing the generated `phi_total0.f00000` file, and checking the mesh quality using `mesh_preview` are highly recommended.
 
-### Restarting ALE simulations
+### Restarting ALE simulations {#case-file_ale-restart}
 
-Neko supports checkpointing and restarting for ALE simulations from `.chkp` files. No additional parameters need to be set apart from the usual configuration for saving these files.
+Neko supports checkpointing and restarting ALE simulations with both `.chkp`
+and HDF5 checkpoint files. Select HDF5 by setting `checkpoint_format` to
+`"hdf5"`; this requires a build with HDF5 support. No other parameters are
+needed beyond the usual checkpoint configuration.
 
 **Restart Capabilities:**
-* **Exact Restart:** Restarting from the same mesh and the same polynomial order is an exact restart.
-* **Different Polynomial Order:** Restarting from the same mesh but a different polynomial order is supported for ALE. In this case, the mass matrix at the time of the restart will be used for the lagged mass matrices required in `BDF2` and `BDF3` time integration schemes. It is the user's responsibility to decide whether the resulting initial transient error due to this is acceptable for a given case.
-* **Different Mesh:** Restarting from a different mesh is not yet supported for ALE simulations.
 
-@attention A `.chkp` file generated from a standard static simulation (i.e., `"ale.enabled": false`) cannot be used as `"restart_file"` to restart an ALE simulation. However, if you run a static simulation to establish a base flow, that output field can be loaded as an `initial_condition` for a subsequent ALE simulation. In this case, saving the file in `double precision` is recommended.
+* **Exact Restart:** Restarting from the same mesh and polynomial order is an
+  exact restart.
+* **Different Polynomial Order:** Both `.chkp` and HDF5 checkpoints support
+  restarting from the same mesh with a different polynomial order. The mass
+  matrix at the restart time is then used for the lagged mass matrices required
+  by the `BDF2` and `BDF3` time-integration schemes. The user must decide
+  whether the resulting initial transient error is acceptable.
+* **Different Mesh:** Restarting ALE simulations from a different mesh is not
+  yet supported.
+
+@attention A checkpoint generated by a static simulation, with
+`"ale.enabled": false`, cannot be used as `restart_file` for an ALE simulation.
+However, its output field can be loaded as an `initial_condition` for a
+subsequent ALE simulation. Saving that field in double precision is
+recommended.
 
 ## Linear solver configuration
 The mandatory `velocity_solver` and `pressure_solver` objects are used to

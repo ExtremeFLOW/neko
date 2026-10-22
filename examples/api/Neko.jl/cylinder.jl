@@ -74,7 +74,7 @@ cylinder_case = Neko.case_init(cylinder_json,
 #Neko.solve(cylinder_case)
 
 # To manually step forward in time, call step()
-while Neko.time(cylinder_case) < Neko.end_time(cylinder_case)
+while !Neko.is_done(cylinder_case)
     Neko.step(cylinder_case)
 end
 

@@ -72,6 +72,9 @@ module opencl_prgm_lib
   !> Device Ax helm kernels
   type(c_ptr), public, bind(c) :: ax_helm_program = C_NULL_PTR
 
+  !> Device Ax helm kernels on compressed geometric factors
+  type(c_ptr), public, bind(c) :: ax_helm_compr_program = C_NULL_PTR
+
   !> Device Ax helm full kernels
   type(c_ptr), public, bind(c) :: ax_helm_full_program = C_NULL_PTR
 
@@ -312,6 +315,13 @@ contains
           call neko_error('Failed to release program')
        end if
        ax_helm_program = C_NULL_PTR
+    end if
+
+    if (c_associated(ax_helm_compr_program)) then
+       if (clReleaseProgram(ax_helm_compr_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       ax_helm_compr_program = C_NULL_PTR
     end if
 
     if (c_associated(ax_helm_full_program)) then
