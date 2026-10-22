@@ -12,8 +12,9 @@
 ## Develop
 
 - Fixed the variable time step controller dividing by zero when the CFL number
-  is zero, e.g. with a zero velocity field, which aborts a run that traps
-  floating-point exceptions. The time steps it sets are unchanged.
+  is exactly zero, e.g. with a zero velocity field, which aborts a run that
+  traps floating-point exceptions. The time steps it sets are unchanged for
+  every CFL number Neko computes.
 - Fixed source terms skipping the time step that lands on their `start_time`
   or `end_time` when round-off in the accumulated time puts the step just
   outside the window, e.g. the last step of a run whose `end_time` equals the

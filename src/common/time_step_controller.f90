@@ -68,7 +68,7 @@ module time_step_controller
 contains
 
   !> Constructor
-  !! @param order order of the interpolation
+  !! @param params The time settings of the case file, `case.time`.
   subroutine time_step_controller_init(this, params)
     class(time_step_controller_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
@@ -107,9 +107,9 @@ contains
   !! @Algorithm:
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avg is offset by 20%.
-  !! 3. A zero cfl, e.g. from a zero velocity field, puts no limit on dt, so
-  !! the first time step is the initial one and a later one is increased by
-  !! the maximum increase factor.
+  !! 3. An exact zero cfl, e.g. from a zero velocity field, puts no limit on
+  !! dt, so the first time step is the initial one and a later one is
+  !! increased by the maximum increase factor.
   subroutine time_step_controller_set_dt(this, time, cfl)
     class(time_step_controller_t), intent(inout) :: this
     type(time_state_t), intent(inout) :: time
@@ -129,13 +129,13 @@ contains
     if (this%dt_last_change .eq. -1) then
 
        ! Set the first dt for desired cfl, or use the provided initial dt if it
-       ! is smaller. A zero cfl, which puts no limit on dt, also gives the
-       ! initial dt, without dividing by zero. Then clamp between max and min
+       ! is smaller. An exact zero cfl, which puts no limit on dt, gives the
+       ! initial dt without dividing by zero. Then clamp between max and min
        ! dt if provided.
-       if (cfl .gt. 0.0_dp) then
-          time%dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
-       else
+       if (cfl .eq. 0.0_dp) then
           time%dt = this%init_dt
+       else
+          time%dt = min(this%cfl_trg / cfl * time%dt, this%init_dt)
        end if
        time%dt = max(min(time%dt, this%max_dt), this%min_dt)
        this%dt_last_change = 0
@@ -149,21 +149,18 @@ contains
             .and. this%dt_last_change .ge. this%max_update_frequency &
             .or. this%dt_last_change .ge. this%min_update_frequency) then
 
-          ! Only divide by a positive cfl. The conditions are nested because
-          ! Fortran does not guarantee short-circuit evaluation.
-          if (cfl .gt. 0.0_dp) then
-             if (this%cfl_trg/cfl .ge. 1) then
-                ! increase of time step
-                scaling_factor = min(this%max_dt_increase_factor, &
-                     this%cfl_trg/cfl)
-             else
-                ! reduction of time step
-                scaling_factor = max(this%min_dt_decrease_factor, &
-                     this%cfl_trg/cfl)
-             end if
-          else
-             ! a zero cfl puts no limit on dt, so increase it as much as allowed
+          ! Test for an exact zero cfl first, so that it is never divided by.
+          ! Any other cfl, also a NaN one from a diverged run, is handled as
+          ! before.
+          if (cfl .eq. 0.0_dp) then
+             ! no limit on dt, so increase it as much as allowed
              scaling_factor = this%max_dt_increase_factor
+          else if (this%cfl_trg/cfl .ge. 1) then
+             ! increase of time step
+             scaling_factor = min(this%max_dt_increase_factor, this%cfl_trg/cfl)
+          else
+             ! reduction of time step
+             scaling_factor = max(this%min_dt_decrease_factor, this%cfl_trg/cfl)
           end if
 
           dt_old = time%dt

@@ -2,7 +2,7 @@ module test_time_step_controller
   use pfunit
   use, intrinsic :: ieee_arithmetic, only : ieee_divide_by_zero, &
        ieee_invalid, ieee_overflow, ieee_usual, ieee_get_flag, &
-       ieee_set_flag, ieee_support_flag
+       ieee_set_flag, ieee_support_flag, ieee_value, ieee_quiet_nan
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use device, only : device_init, device_finalize
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -126,6 +126,37 @@ contains
     @assertFalse(invalid, message = "Later step raised invalid")
     @assertFalse(overflow, message = "Later step overflowed")
   end subroutine test_later_step_zero_cfl
+
+  !> Verify that a NaN CFL, as from a diverged run, is not taken for a zero
+  !! one on a later step: the time step is updated as before the zero CFL was
+  !! guarded against, not increased by the maximum increase factor. Neither
+  !! the flags nor the new time step are checked, since comparing the NaN
+  !! raises the invalid flag, as it always has, and the result of max() with
+  !! a NaN argument is processor dependent.
+  @test(npes=[1])
+  subroutine test_later_step_nan_cfl(this)
+    class(test_time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: ctrl
+    type(time_state_t) :: time
+    real(kind=dp) :: dt_old
+    logical :: updated, as_zero
+
+    ! A NaN average CFL fails the deviation test, so a minimum update
+    ! frequency of 0 is needed for the time step to be updated at all.
+    call init_controller(ctrl, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, ' // &
+         '"timestep": 10.0, "min_update_frequency": 0}')
+
+    call ctrl%set_dt(time, 0.25_dp)
+    dt_old = time%dt
+
+    call ctrl%set_dt(time, ieee_value(1.0_dp, ieee_quiet_nan))
+    updated = time%dt .ne. dt_old
+    as_zero = time%dt .eq. 1.2_dp * dt_old
+
+    @assertTrue(updated, message = "NaN CFL did not update the time step")
+    @assertFalse(as_zero, message = "NaN CFL taken for a zero CFL")
+  end subroutine test_later_step_nan_cfl
 
   !> Verify that a positive CFL gives the same time steps as before the zero
   !! CFL was guarded against, on the first step and on later steps whose
