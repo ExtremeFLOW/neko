@@ -1,8 +1,8 @@
 diff --git a/src/common/time_state.f90 b/src/common/time_state.f90
-index e11edc8ea3f..e04d1a0621b 100644
+index bc8a9dfcfe4..bdf43926a07 100644
 --- a/src/common/time_state.f90
 +++ b/src/common/time_state.f90
-@@ -155,9 +155,12 @@ contains
+@@ -156,9 +156,12 @@ contains
    !! the end time by almost `dt` and produce an output past it.
    pure function time_state_is_done(this) result(is_done)
      class(time_state_t), intent(in) :: this
@@ -13,5 +13,5 @@ index e11edc8ea3f..e04d1a0621b 100644
 +    write(s,*) this%t
 +
      span = abs(this%end_time - this%start_time)
-     tol = 1.0e-9_dp * max(span, abs(this%dt))
+     tol = this%tolerance()
  
