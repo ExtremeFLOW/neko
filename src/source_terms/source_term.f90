@@ -32,8 +32,8 @@
 !
 !> Implements the `source_term_t` type and a wrapper `source_term_wrapper_t`.
 module source_term
+  use num_types, only : rp, dp
   use utils, only : NEKO_TYPENAME_LEN
-  use num_types, only : rp
   use coefs, only : coef_t
   use field_list, only : field_list_t
   use json_module, only : json_file
@@ -232,12 +232,15 @@ contains
   end subroutine source_term_wrapper_free
 
   !> Executes `compute_` based on time conditions.
-  !> @param time Time state.
+  !! @param time Time state.
   subroutine source_term_compute_wrapper(this, time)
     class(source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp) :: tol
 
-    if (time%t .ge. this%start_time .and. time%t .le. this%end_time) then
+    tol = time%tolerance()
+    if (time%t + tol .ge. this%start_time .and. &
+         time%t - tol .le. this%end_time) then
        call this%compute_(time)
     end if
 
