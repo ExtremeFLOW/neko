@@ -208,8 +208,9 @@ contains
 #endif
   end function device_count
 
-  !> Return the number of multiprocessors (SMs on NVIDIA, CUs on AMD) of
-  !! the current device, or 0 if the backend cannot tell.
+  !> Return the number of multiprocessors (SMs on NVIDIA, CUs on AMD,
+  !! compute units on OpenCL, GPU cores on Apple Silicon) of the current
+  !! device, or 0 if the backend cannot tell.
   !! @note Used to size work decompositions so that every launch fills
   !! the device with complete waves of blocks.
   integer function device_mp_count()
@@ -217,6 +218,10 @@ contains
     device_mp_count = hip_device_mp_count()
 #elif HAVE_CUDA
     device_mp_count = cuda_device_mp_count()
+#elif HAVE_OPENCL
+    device_mp_count = opencl_device_mp_count()
+#elif HAVE_METAL
+    device_mp_count = metal_device_mp_count()
 #else
     device_mp_count = 0
 #endif
@@ -224,11 +229,17 @@ contains
 
   !> Return the total memory of the current device in bytes, or 0 if the
   !! backend cannot tell.
+  !! @note On Metal (unified memory) this is the recommended maximum
+  !! working set rather than physical memory.
   integer(kind=i8) function device_total_mem()
 #ifdef HAVE_HIP
     device_total_mem = int(hip_device_total_mem(), i8)
 #elif HAVE_CUDA
     device_total_mem = int(cuda_device_total_mem(), i8)
+#elif HAVE_OPENCL
+    device_total_mem = opencl_device_total_mem()
+#elif HAVE_METAL
+    device_total_mem = int(metal_device_total_mem(), i8)
 #else
     device_total_mem = 0_i8
 #endif
