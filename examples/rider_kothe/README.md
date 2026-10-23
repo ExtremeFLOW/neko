@@ -186,7 +186,8 @@ Sources: `logs/s45_2026-10-12/tables/full_*.txt` and `summary_all_h64.txt`.
   (`n1_dt`) and $r_f=0.1001$ (`n2_rf`). With the run itself they give $E_r$ 0.0379–0.0407 and $E_s$
   0.0182–0.0192, about ±4% and ±3%. Smaller differences are not results.
 - **$E_r$** is 7.6% below his at $H=1/64$, at the edge of the band, and 28% lower at $H=1/128$.
-- **$E_s$** is 1.5× his at $H=1/64$ and 2.8× at $H=1/128$. His falls 7.4× per doubling, ours 4.0×.
+- **$E_s$** is 1.5× his at $H=1/64$ and 2.8× at $H=1/128$. His falls 7.4× per doubling, ours 4.0× (at
+  $\gamma=0.5$, 3.5×; why: §3.8).
 - **$|E_v|$** is at our solver tolerance (an absolute residual of $10^{-6}$). His solves converge to
   $10^{-8}$.
 - **Boundedness.** Ours stays within about $10^{-3}$ of $[0,1]$: $9.2\times10^{-4}$–$2.0\times10^{-3}$
@@ -396,13 +397,118 @@ normalisation.
   frames located (late in the run, at $H=1/64$ and 1/32), the worst values sit within about 1.5$H$ of
   the interface, where $|\nabla\psi|$ is ordinary. The mechanism is open (`../../NEXT_SESSION.md`).
 
+### 3.8 Why our $E_s$ converges more slowly
+
+At $t=8$, $N=5$, $\gamma=0.5$, his $E_s$ falls 7.4× from $H=1/64$ to $1/128$ and ours 3.5× (§3.7). This
+section takes that rate apart. It uses the outputs of §3.4–§3.7 plus repeats of his code.
+- Scripts and tables are in `logs/s45_2026-10-12/`: `drift_split.py`, `persist.py` with
+  `persist_stats.py`, `mass_disp.py` and `hb_predict.py`.
+- `rate_tables.py` prints the window rates, the drift and the retention (→ `tables/rate_tables.txt`).
+- Its `PREREGISTERED.txt` holds the predictions and verdicts.
+- "His" is his code at the same cell, rescored as in §3.6.
+- "In $E_s$ units" means a misplaced area divided by $2P_eA_e$, as in $E_s$.
+
+**His rate is real.** Repeats of his runs that change nothing physical (`logs/d5/saini/mk_s45_rate.sh`;
+`tables/full_saini_cv64n5_{d04,n1dt}.txt`, `full_saini_cv128n5_n1dt.txt`):
+- at $H=1/64$, the dump interval alone, which perturbs his run at round-off from the first step;
+- at both $H$, a 0.08% smaller $\Delta t$.
+
+With the original runs:
+- $E_s(8)$ is 0.0121–0.0138 at $H=1/64$ and $1.63$–$1.71\times10^{-3}$ at $1/128$; $E_r$ is 0.0410–0.0438
+  and 0.0119.
+- So his rate is 7.1–8.4× per doubling.
+- At $H=1/64$ his runs agree to four digits through $t=4$, then part. His band there is ±7%, against our
+  ±3% (§3.4).
+
+**A single frame is a noisy rate.** Between frames 0.04–0.08 apart, $E_s$ changes by 7–13% (rms of the log
+ratio over $t=6.5$–8) in both codes. The rates below are ratios of means over time windows. His $1/32$ run
+has frames only every 0.5.
+
+| coarse → fine | $t$ 0–2 | 2–4 | 4–6 | 6–7.5 | 7.5–8 |
+|---|---|---|---|---|---|
+| ours, $\gamma=0.5$, $1/32\to1/64$ | 3.30 | 4.17 | 4.16 | 4.64 | 5.35 |
+| his, $1/32\to1/64$ | 3.65 | 4.26 | 4.35 | 5.25 | 4.50 |
+| ours, $\gamma=0.5$, $1/64\to1/128$ | 3.25 | 3.62 | 4.12 | 4.33 | 4.30 |
+| ours, $\gamma=1$, $1/64\to1/128$ | 3.16 | 3.12 | 3.85 | 4.64 | 4.81 |
+| his, $1/64\to1/128$ | 3.97 | 5.40 | 5.81 | 5.53 | 6.30 |
+
+At the coarse doubling the two codes agree within about 20%. From the coarse doubling to the fine one, his
+rate rises in every window after $t=2$ and ours does not.
+
+**Per interval, $\phi$ does the same thing in both codes.** Each reseed puts $\psi$'s zero set on $\phi$'s
+contour, and transport then carries it nearly materially. So the area between $\phi$'s 0.5 contour and
+$\psi$'s zero set at the last frame before the next event, $D_{drift}$, is $\phi$'s non-material motion
+over that interval (`tables/drift_*.txt`).
+- **Its size matches.** Ours at $\gamma=0.5$ is within a factor of about 1.6 of his at every interval to
+  $t=7.5$ (2.2 at $\gamma=1$). At $H=1/128$ it is $(2.1$–$6.4)\times10^{-4}$ in ours and
+  $(1.7$–$4.6)\times10^{-4}$ in his, in $E_s$ units.
+- **It falls at the same rate:** per-interval ratios 3.3–6.1× (median 4.4) for ours at $\gamma=0.5$, and
+  3.5–5.4× (median 4.5) for his.
+- **The exception is our last interval** ($t=7.5$–8): 2.2× against his 5.5×.
+
+**The difference is how much error carries over.** Retention is
+$r_k=(E_{s,k}-D_{drift,k})/E_{s,k-1}$ at successive pre-event frames: the share of the earlier error still
+present. Means over the events at $t=1$–7.5:
+
+| | $H=1/64$ | $H=1/128$ |
+|---|---|---|
+| ours, $\gamma=0.25,\ 0.5,\ 1,\ 2$ | 0.60, 0.66, 0.70, 0.75 | –, 0.71, 0.75, – |
+| his | 0.45 | 0.23 |
+
+- **This accounts for the rates.** With the drift falling about 4.5× in both codes,
+  $E_s\approx D_{drift}/(1-r)$ gives about 3.8× for ours and 6.3× for his, close to the window rates.
+- **His error is not noise.** The misplaced area, binned by where its material started at $t=0$, has the
+  same pattern in repeats of either code (correlation 0.92–1.00). It also stays in place across an event
+  (`tables/persist_stats.txt`).
+- **Ours locks in more with refinement.** Across an event, the pattern's correlation at $t=2.5$–6 goes from
+  0.73 to 0.90 in ours, and from 0.75 to 0.78 in his.
+- **Our early error lasts.** The flow is reversible, so the frame at $8-t$ has the geometry of the frame at
+  $t$. At $H=1/128$ the $t\le2$ pattern correlates +0.70 with its mirror in ours and +0.27 in his ($H=1/64$:
+  +0.39 and +0.32).
+
+**Ruled out.**
+- **$\psi$'s quality.** The drift per interval is the same in both codes. As a diagnostic only, CDI fed a
+  $\psi$ transported from the exact distance also converges at 4.4–4.7× in every window.
+- **A curvature–strain drift.** A profile that the flow compresses and that CDI relaxes fast sheds
+  $-(\pi^2/3)\kappa S_n\varepsilon^2$ of area per unit length and time. Summed unsigned along the exact
+  interface (`tables/hb_predict.txt`):
+  - it matches the first interval at $H=1/64$: $7.5\times10^{-4}$ in $E_s$ units, measured
+    $7.5\times10^{-4}$ at $\gamma=0.5$;
+  - it gives $(0.3$–$2.5)\times10^{-4}$ per interval at $t=2$–6. The measured drift there is
+    $(13.5$–$19.4)\times10^{-4}$ at $\gamma=0.5$, and about the same at every $\gamma$ from 0.25 to 2.
+- **His error as a deviation tied to the current strain.** Neither code's pattern changes sign between $t$
+  and $8-t$.
+- **His error as profile shape**, a distorted profile whose mass is still where pure transport puts it.
+  - At $t\ge7.4$ the contour error per material wedge follows the mass moved non-materially into that wedge,
+    in both codes. At $t=8$ the regression slope is 0.7–0.8 and the correlation 0.81–0.94
+    (`tables/mass_*.txt`).
+  - His moved mass at $t=8$ is 0.74× ours at $H=1/128$.
+  - The test is blind at $t\approx2.5$–6. The carried initial profile is then sharper than the node spacing,
+    and its sampling sets the moved mass to within about 20% in every run.
+  - It is also weak early: at $t\approx0.5$ only about 20 nodes are misplaced per frame.
+- **The levers in our $\phi$ equation.** At $H=1/128$, with means over the events at $t=1$–6:
+  - retention is 0.67 with isotropic diffusion and 0.67 with SVV on $\phi$;
+  - it is 0.56 with the projected Eq. (39) diffusion, projected everywhere or only inside the band;
+  - his code gives 0.14;
+  - $\gamma=0.25$ gives 0.56 at $H=1/64$.
+
+**Open.** Per interval, $\phi$ moves about as far from $\psi$'s zero set in both codes. At $t=8$ both
+codes' contour errors are mostly mass moved non-materially. But his error carries over less: retention
+0.45 and 0.23, against about 0.7 in ours. If his mass error also accumulates less, his non-material flux
+partly reverses from one interval to the next while ours keeps its sign. This has not been measured
+(`../../NEXT_SESSION.md` item 2).
+
 ## 4. Limitations and open items
 
-- **Shape.** In Saini's configuration at $\gamma=1$, our $E_s$ is 1.5× his at $H=1/64$ and 2.8× at
-  $H=1/128$. At $\gamma=0.5$ it is 0.94× and 2.0× (§3.4–§3.5). At $H=1/128$ our thin tail stops
-  5.7–7.8$H$ short of the tip at $t=4$, where his reaches it (§3.4). The gap starts on the top of the
-  disk by $t=1$; his projected Eq. (39) diffusion closes it early but costs boundedness and the $t=8$
-  result (§3.4).
+- **Shape.**
+  - In Saini's configuration at $\gamma=1$, our $E_s$ is 1.5× his at $H=1/64$ and 2.8× at $H=1/128$; at
+    $\gamma=0.5$, 0.94× and 2.0× (§3.4–§3.5).
+  - His $E_s$ falls 7.1–8.4× per doubling over his repeats.
+  - Per interval, $\phi$ moves as much in both codes. Ours keeps about 70% of the earlier error at every
+    $H$; his keeps 45%, then 23% (§3.8). What lets his $\phi$ shed it is open.
+  - At $H=1/128$ our thin tail stops 5.7–7.8$H$ short of the tip at $t=4$; his stops $0.8H$ short (§3.4).
+  - The gap starts on the top of the disk by $t=1$. His projected Eq. (39) diffusion closes it early but
+    costs boundedness and the $t=8$ result (§3.4).
 - **$p$-refinement.** In Saini's configuration $N=6$ loses boundedness and is no better than $N=5$;
   at $H=1/32$ it diverges. The cause is open (§3.7).
 - **The coarsest mesh**, $H=1/32$, is unbounded late in the run at every $N$ (§3.7).

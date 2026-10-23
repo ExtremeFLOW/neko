@@ -17,7 +17,10 @@ The measurement scripts are in `examples/rider_kothe/logs/`:
   - `measure.sh` (every measure on every frame) and `summarize.py` (one table per batch);
   - `es_t.py` ($E_s$ at every frame against the exact interface) and `probe_quality.py`;
   - `figs_s45.py` (the three metrics, $|E_v|(t)$, contours with his code);
-- `d5/saini/mk_saini_grid.sh` (his code over his grid);
+  - the rate study (case README §3.8): `drift_split.py`, `persist.py` with `persist_stats.py`,
+    `mass_disp.py`, `hb_predict.py`, and `rate_tables.py`, which prints the window rates, drift and
+    retention;
+- `d5/saini/mk_saini_grid.sh` (his code over his grid) and `d5/saini/mk_s45_rate.sh` (his repeats);
 - `figs/figs_rk.py` and `anim/anim_rk.py` (which now also reads his dumps, `saini=<dir>`).
 
 Run them with `/lscratch/sieburgh/local/venv-neko/bin/python`.
@@ -67,20 +70,43 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
        inside `svv_local`.
      - **BDF2 at $N_{svv}=N/4$ once lost an apex that RK3 held** (§4.4, $H=1/5$, $N=7$; archive §7.5).
        §4.5 uses $N/4$ for Eq. (44), so watch for it.
-2. **The shape gap to Saini.** His $E_s$ is 2–2.8× lower than ours at $H=1/128$.
-   - **Where it is** (case README §3.4). The tail tip ($5.7H$ short at $t=4$, his $0.8H$) is a small
-     part of $E_s$. The gap starts by $t=1$ on the material from the top of the disk, where $\phi$ and
-     $\psi$'s normal disagree most after events.
-   - **Tried and stopped: $\phi$'s diffusion form** (case README appendix; records in
+2. **The shape gap to Saini.** His $E_s$ falls 7.1–8.4× per doubling over his repeats, ours 3.5–4×.
+   At $H=1/128$ his is 2–2.8× lower.
+   - **What is known** (case README §3.4 and §3.8).
+     - Per interval, $\phi$ moves away from $\psi$'s zero set by about the same amount in both codes, at the same
+       rate.
+     - Ours keeps about 70% of the earlier error at every $H$ (less at lower $\gamma$). His keeps 45%, then
+       23%.
+     - The error patterns are deterministic, and ours locks in more with refinement.
+     - At $H=1/128$ our $t\le2$ error pattern is still there at the mirrored times $t=6$–8 (correlation
+       +0.70); his much less (+0.27). At $H=1/64$ both keep it (+0.39, +0.32).
+     - The tail tip is a small part of $E_s$.
+   - **Ruled out** (§3.8): $\psi$'s quality, the curvature–strain drift, noise, a strain-tied deviation,
+     and his error being profile shape at $t\ge7.4$. At $t=8$ both codes' contour error is mostly mass
+     moved non-materially.
+   - **Tried and stopped: $\phi$'s diffusion form** (case README appendix and §3.8; records in
      `logs/s45_2026-10-12/PREREGISTERED.txt`, "thin tail", steps 1–4; code and tables in
-     `logs/s45_2026-10-12/cdi_forms/`). Saini's projected Eq. (39) diffusion matches his $E_s$ to
-     $t\approx1$ and halves the tail shortfall, but $\phi$ then leaves $[0,1]$ (or diverges) and $t=8$
-     is worse. Projected only inside the band: same. SVV on $\phi$ at his strength: no effect. Untried:
-     an isotropic blend $(1-\alpha)\mathbf n\mathbf n+\alpha\mathbf I$, stronger SVV on $\phi$.
-   - **Open:** what reduces the early top-of-disk loss while keeping the isotropic diffusion's
-     damping along the interface. The event coupling is one lever ($\gamma$ already moves it).
-   - The $H=1/128$ outputs are kept in `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}`
-     and `cdi_forms/output_cdi_*_h128`.
+     `logs/s45_2026-10-12/cdi_forms/`).
+     - The projected Eq. (39) diffusion matches his $E_s$ to $t\approx1$ and lowers retention from 0.67 to
+       0.56 (means over the events at $t=1$–6). But $\phi$ then leaves $[0,1]$ (or diverges), and $t=8$ is
+       worse.
+     - Projected only inside the band: the same.
+     - SVV on $\phi$ at his strength: no effect.
+     - Untried: an isotropic blend $(1-\alpha)\mathbf n\mathbf n+\alpha\mathbf I$, and stronger SVV on $\phi$.
+   - **Open: what lets his $\phi$ shed its error between events.**
+     - His contour error carries over less: retention 0.45, then 0.23, against about 0.7 in ours. At $t=8$
+       both are mostly mass moved non-materially.
+     - If his mass error also accumulates less, his non-material mass flux partly reverses from one interval
+       to the next while ours keeps its sign. Untested.
+     - Measuring it needs a mass reference that stays resolved mid-run. The initial profile carried along
+       the flow is sharper than the node spacing at $t\approx2.5$–6, where `mass_disp.py` is blind. The
+       alternative is resolved frames only: early against mirrored late.
+   - **Not run:** $\gamma=0.25$ at $H=1/128$. With retention at 0.6–0.7, both readings predicted
+     $E_s(8)\approx2.6\times10^{-3}$, so it would not decide anything.
+   - **Outputs kept.**
+     - The $H=1/128$ outputs: `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}` and
+       `cdi_forms/output_cdi_*_h128`.
+     - His dumps every 0.04 at both $H$: `logs/d5/saini/cv{64,128}n5_d04`.
 3. **$\Delta t_{tls}=0.25$ diverges** at $t=5.69$ after 22 events, inside his range of 0.01–0.5
    (case README appendix). Find the mechanism of this repeated-event instability before any interval
    below 0.5 is used.
