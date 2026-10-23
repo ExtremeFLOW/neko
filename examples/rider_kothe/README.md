@@ -325,8 +325,24 @@ disk: 0.929, against our disk area of 0.0707. With `norms.E_r` on his $t=8$ dump
   - That is the seed's $\pm r_f/2$ grown at width 0.25 over $25H$:
     $\tfrac12\operatorname{asinh}(\sinh(0.1)\,e^{2\cdot25H})=0.0738$. The printed $2.5H$ would give
     0.052.
-  - Its slope near 1 is at $t=8$. Right after his build his code's band mean is 2.32 ($H=1/128$,
-    $N=3$), and at $t=8$ it is 0.94.
+  - Its slope near 1 is at $t=8$, 0.5 of transport after his last build. Right after his build his
+    code's band mean is 2.32 ($H=1/128$, $N=3$), and at $t=8$ it is 0.94.
+- **One Eq. (44) solve leaves $|\nabla\psi|\approx2.7$ at the zero set, in both codes.**
+  - Linearised at the zero set, with the Eq. (47) seed's slope $g_0=0.1/(4\varepsilon)$ and
+    $\operatorname{sgn}\psi\approx2\psi$ (Eq. (46) at 0.25), Eq. (44) gives $dg/d\tau=-2g(g-1)$, so
+    $1-1/g=(1-1/g_0)\,e^{-2\tau}$. At $\tau=25H$ this is 2.64, 2.72 and 2.77 for $N=4$, 5 and 6
+    ($H=1/128$, $g_0=12.8$, 16, 19.2).
+  - Our runs log a band mean of 2.67 after the $t=7.5$ event ($H=1/128$, $N=5$; `run_s8_g05_h128.log`).
+  - Transport then brings it down. Mean $|\nabla\psi|$ on $|\psi|<2H$, $H=1/128$, $N=5$, ours
+    (`s8_g05_h128`) and his code (`cv128n5_d04`), from `logs/s45_2026-10-12/gband_t.py`:
+
+    | $t$ | 7.44 | 7.48 | 7.52 | 7.60 | 7.68 | 7.76 | 7.84 | 7.92 | 7.96 |
+    |---|---|---|---|---|---|---|---|---|---|
+    | ours | 1.73 | 1.65 | 2.64 | 2.37 | 2.13 | 1.94 | 1.77 | 1.73 | 1.70 |
+    | his | 1.68 | 1.60 | 2.56 | 2.30 | 2.06 | 1.87 | 1.71 | 1.66 | 1.63 |
+
+  - The $\phi(1-\phi)$-weighted means follow the same pattern. Right after the first event both are 2.74
+    ($t=0.04$).
 
 **His code over his whole grid.** These are his shipped case at each $H$ and $N$ of his Figs. 17–18,
 changing only $H$, `lx1` and his paper's $\Delta t$ ($\{8,4,2\}\times10^{-4}$). They are rescored in our
@@ -566,6 +582,17 @@ norms are in his normalisation: ours divided by 13.147.
   - Made by `logs/anim/anim_rk.py`, which reads his dumps with `saini=<dir>`.
   - The positions agree at every frame. Ours loses the tail tip at $t\approx4$ where his keeps it.
   - His $\phi$ leaves $[0,1]$ over much of the domain: $[-0.048,\,1.010]$ at $t=4$.
+- **`rider_saini45_fig16.png`:** his Fig. 16, $\phi$ and $\psi$ along $y=0.75$ at $t=8$, $H=1/128$, $N=4$–6,
+  both codes 0.5 of transport after their $t=7.5$ rebuild (`logs/s45_2026-10-12/fig16_phase/fig16_phase.py`).
+  - His $t=8$ event never fires. His driver tests `time-starttime .ge. ftlsr_next` and sets `starttime` to
+    $\Delta t$ at step 1 (`lvlSet.f`, `LS_default_driver`), so his events land a step or two late (steps
+    2502, …, 37501 in `logs/d5/saini/cv128n5/logfile`) and $t=8$ falls short.
+  - Ours fires at $t=8$ on our timer. These runs stop at that event's predecessor
+    (`redistance.max_events = 15`; `chainME15.sh`, `output_<run>_me15`).
+    $\phi$ is bit-identical to the original runs at all 201 frames, and $\psi$ at every frame before
+    $t=8$ (`fig16_phase.py check`).
+  - Both plateau at 0.074. The zero-crossing slopes $|\partial_x\psi|$ are 1.02–1.07 and 1.47–1.55 for ours,
+    0.96–1.03 and 1.43–1.50 for his. Right after a rebuild they are about 2.7 in both (§3.6).
 - **`rider_saini45_fig17.png`:** his Fig. 17, $E_r$, $|E_v|$ and $E_s$ at $t=8$ against $N$, one curve
   per $H$. Ours solid, his dotted, his $N=3$ at $H=1/128$ included.
 - **`rider_saini45_fig18.png`:** his Fig. 18, the same three measures against $1/H$, one curve per $N$; x marks ours
