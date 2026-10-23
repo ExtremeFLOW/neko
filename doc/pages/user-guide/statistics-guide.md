@@ -16,15 +16,15 @@ In this page we use the following convention for a field
 
 The temporal average of a field \f$u\f$ is the approximation of the integral
 
-$$
+\f[
 \langle u \rangle_t = \int_{T_0}^{T_N} u dt
-$$
+\f]
 
 In Neko, this is computed as
 
-$$
+\f[
 \langle u \rangle_t = \sum_{i=0}^N u_i \Delta t_i
-$$
+\f]
 where \f$ u_0 \f$ is the fields value at \f$ T_0 \f$ and \f$ N \f$ is the 
 number of time steps needed to reach 
 \f$ T_N \f$, \f$ T_N = T_0 + \sum_{i=0}^N \Delta t_i \f$.
@@ -195,16 +195,16 @@ stats and in s40 for the full set of statistics.
 | -      | \f$ \langle w \rangle \f$ (only if 2D and `full`)                            | s40 (only if 2D, empty if 3D)      |
 
 where \f$e11,e22...\f$ is computed as:
-$$
+\f[
 \begin{aligned}
-e11 &= \left(\frac{\partial u}{\partial x}\right)^2 + \left(\frac{\partial u}{\partial y}\right)^2 + \left(\frac{\partial u}{\partial z}\right)^2 \\\\
-e22 &= \left(\frac{\partial v}{\partial x}\right)^2 + \left(\frac{\partial v}{\partial y}\right)^2 + \left(\frac{\partial v}{\partial z}\right)^2 \\\\
-e33 &= \left(\frac{\partial w}{\partial x}\right)^2 + \left(\frac{\partial w}{\partial y}\right)^2 + \left(\frac{\partial w}{\partial z}\right)^2 \\\\
-e12 &= \frac{\partial u}{\partial x}  \frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial v}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial v}{\partial z} \\\\
-e13 &= \frac{\partial u}{\partial x}  \frac{\partial w}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial w}{\partial z} \\\\
-e23 &= \frac{\partial v}{\partial x}  \frac{\partial w}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial w}{\partial z} \\\\
+e11 &= \left(\frac{\partial u}{\partial x}\right)^2 + \left(\frac{\partial u}{\partial y}\right)^2 + \left(\frac{\partial u}{\partial z}\right)^2 \\
+e22 &= \left(\frac{\partial v}{\partial x}\right)^2 + \left(\frac{\partial v}{\partial y}\right)^2 + \left(\frac{\partial v}{\partial z}\right)^2 \\
+e33 &= \left(\frac{\partial w}{\partial x}\right)^2 + \left(\frac{\partial w}{\partial y}\right)^2 + \left(\frac{\partial w}{\partial z}\right)^2 \\
+e12 &= \frac{\partial u}{\partial x}  \frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial v}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial v}{\partial z} \\
+e13 &= \frac{\partial u}{\partial x}  \frac{\partial w}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial w}{\partial z} \\
+e23 &= \frac{\partial v}{\partial x}  \frac{\partial w}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial w}{\partial z} \\
 \end{aligned}
-$$
+\f]
 
 
 # Postprocessing
@@ -336,14 +336,14 @@ the basic set and `s38` for the full set.
 | -      | \f$ \langle  ws   \rangle \f$   (only if 2D and `full`)                        | s38                                |
 
 where \f$e_{ss}, e_{us}, e_{vs}, e_{ws}\f$ are computed as:
-$$
+\f[
 \begin{aligned}
-e_{ss} &= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\\\
-e_{us} &= \frac{\partial u}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\\\
-e_{vs} &= \frac{\partial v}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\\\
-e_{ws} &= \frac{\partial w}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\\\
+e_{ss} &= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\
+e_{us} &= \frac{\partial u}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\
+e_{vs} &= \frac{\partial v}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\
+e_{ws} &= \frac{\partial w}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\
 \end{aligned}
-$$
+\f]
 
 # Fluid Subgrid-Scale (SGS) Statistics {#fluid-sgs-statistics}
 In the fluid SGS statistics in Neko, subgrid-scale (SGS) contribution to the

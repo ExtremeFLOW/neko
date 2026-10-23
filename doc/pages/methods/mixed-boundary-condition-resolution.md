@@ -25,7 +25,7 @@ Each incident boundary face has one of four class values:
 
 The numerical values define the priority order
 
-$$0 \mathrel{\succ} 2 \mathrel{\succ} 3 \mathrel{\succ} 5,$$
+\f[0 \mathrel{\succ} 2 \mathrel{\succ} 3 \mathrel{\succ} 5,\f]
 
 where a smaller value has higher priority. This is a policy for resolving
 different boundary classes; it is not an ordering by the dimension of their
@@ -34,7 +34,7 @@ constraint spaces.
 Let \f$\mathcal{F}(x)\f$ be the set of boundary faces incident on a node
 \f$x\f$, and let \f$c_f\f$ denote the class of face \f$f\f$. The nodal class is
 
-$$c(x) = \min_{f \in \mathcal{F}(x)} c_f.$$
+\f[c(x) = \min_{f \in \mathcal{F}(x)} c_f.\f]
 
 Consequently, a fully constrained face takes priority over every other class,
 and a normal-component constraint takes priority over a tangential-component
@@ -46,21 +46,21 @@ A local normal is required only when \f$c(x)\f$ is class 2 or class 3. Among
 the faces incident on \f$x\f$, only those whose class equals the resolved nodal
 class contribute. Define
 
-$$
+\f[
 \mathcal{F}_c(x) =
 \left\{ f \in \mathcal{F}(x) : c_f = c(x) \right\}.
-$$
+\f]
 
 If \f$\boldsymbol{n}_f(x)\f$ is the unit outward normal of face \f$f\f$ at the
 node, the resolved normal is the normalised, equally weighted sum
 
-$$
+\f[
 \boldsymbol{n}(x) =
 \frac{\displaystyle\sum_{f \in \mathcal{F}_c(x)}
       \boldsymbol{n}_f(x)}
      {\displaystyle\left\|\sum_{f \in \mathcal{F}_c(x)}
       \boldsymbol{n}_f(x)\right\|_2}.
-$$
+\f]
 
 Thus, a lower-priority face neither changes the nodal class nor contributes to
 the resolved normal. Faces of the selected class contribute symmetrically. The
@@ -74,9 +74,9 @@ then expressed in the node's local physical frame.
 Choose any two unit vectors \f$\boldsymbol{t}_1(x)\f$ and
 \f$\boldsymbol{t}_2(x)\f$ that complete an orthonormal basis
 
-$$
+\f[
 \left\{\boldsymbol{n},\boldsymbol{t}_1,\boldsymbol{t}_2\right\}.
-$$
+\f]
 
 The particular choice of tangential directions does not affect the resulting
 constraint because both tangential directions are always treated alike.
@@ -85,24 +85,24 @@ constraint because both tangential directions are always treated alike.
 
 Let \f$I\f$ be the \f$3 \times 3\f$ identity matrix and set
 
-$$N = \boldsymbol{n}\boldsymbol{n}^{\mathsf T}, \qquad
-  T = I - \boldsymbol{n}\boldsymbol{n}^{\mathsf T}.$$
+\f[N = \boldsymbol{n}\boldsymbol{n}^{\mathsf T}, \qquad
+  T = I - \boldsymbol{n}\boldsymbol{n}^{\mathsf T}.\f]
 
 For a vector \f$\boldsymbol{u}\f$, the homogeneous nodal constraint is enforced
 by \f$\boldsymbol{u}_{c}=P_c\boldsymbol{u}\f$, with
 
-$$
+\f[
 P_0 = 0, \qquad
 P_2 = T, \qquad
 P_3 = N, \qquad
 P_5 = I.
-$$
+\f]
 
 Class 2 therefore removes the normal component and preserves the tangential
 plane. Class 3 removes both tangential components and preserves only the normal
 component. Each matrix is symmetric and idempotent,
 
-$$P_c^{\mathsf T}=P_c, \qquad P_c^2=P_c,$$
+\f[P_c^{\mathsf T}=P_c, \qquad P_c^2=P_c,\f]
 
 so the nodal operation is an orthogonal projection onto the selected admissible
 subspace.
@@ -116,8 +116,8 @@ from all incident faces.
 For example, suppose two class-2 faces meet with orthogonal normals
 \f$\boldsymbol{e}_1\f$ and \f$\boldsymbol{e}_2\f$. The resolved normal is
 
-$$\boldsymbol{n} =
-  \frac{\boldsymbol{e}_1+\boldsymbol{e}_2}{\sqrt{2}},$$
+\f[\boldsymbol{n} =
+  \frac{\boldsymbol{e}_1+\boldsymbol{e}_2}{\sqrt{2}},\f]
 
 and the projected vectors satisfy \f$u_1+u_2=0\f$. Enforcing both face
 constraints independently would instead require \f$u_1=u_2=0\f$. The former

@@ -6,8 +6,6 @@ The appendices contain a few extra pages that are not directly related to the us
 of the code. But can be useful for users and developers alike.
 
 - [Environmental variable reference](@ref appendices_env-var)
-- \subpage governing-equations
-- \subpage mixed-bc-resolution
 - \subpage nmsh-format
 - \subpage fld-format
 - \subpage publications

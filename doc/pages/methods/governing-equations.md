@@ -6,15 +6,15 @@
 
 In general, Neko integrates the Navier-Stokes equations in time formulated as follows:
 
-$$\rho \left( \frac{\partial u_i}{\partial t} +
+\f[\rho \left( \frac{\partial u_i}{\partial t} +
    u_j \frac{\partial u_i}{\partial x_j} \right) =
   -\frac{\partial p}{\partial x_i} +
   \mu \frac{\partial u_i }{\partial x_j \partial x_j} +
-  \rho \sum_j f^u_{i,j} , \quad i=1,2,3,$$
+  \rho \sum_j f^u_{i,j} , \quad i=1,2,3,\f]
 
 together with the continuity equation
 
-$$ \frac{\partial u_i}{\partial x_i} = 0 \ .$$
+\f[ \frac{\partial u_i}{\partial x_i} = 0 \ .\f]
 
 Here, \f$ u_i \f$ are the components of the velocity vector, \f$ p \f$ is the
 pressure, \f$ \rho \f$ is the density, \f$ \mu \f$ is the dynamic viscosity, and
@@ -25,13 +25,13 @@ When the viscosity is varying in space (e.g. for LES modelling), the viscous
 stress tensor cannot be simplified and the following equations are solved in a
 coupled manner (the so-called stress formulation):
 
-$$\rho \left( \frac{\partial u_i}{\partial t} +
+\f[\rho \left( \frac{\partial u_i}{\partial t} +
    u_j \frac{\partial u_i}{\partial x_j} \right) =
   -\frac{\partial p}{\partial x_i} +
   \frac{\partial}{\partial x_j} \left(\mu_{tot}
   \left(\frac{\partial u_i }{\partial x_j} +
    \frac{\partial u_j }{\partial x_i} \right) \right)  +
-  \rho \sum_j f^u_{i,j} , \quad i=1,2,3.$$
+  \rho \sum_j f^u_{i,j} , \quad i=1,2,3.\f]
 
 Here, \f$ \mu_{tot} \f$ is the total viscosity field, potentially including the
 contribution from turbulence modelling.
@@ -42,11 +42,11 @@ Optionally, an additional equation for scalar transport can be included. Here we
 formulate it as an equation for temperature, but the physical meaning can of course
 differ from case to case.
 
-$$\rho c_p \left( \frac{\partial T}{\partial t} +
+\f[\rho c_p \left( \frac{\partial T}{\partial t} +
    u_j \frac{\partial T}{\partial x_j} \right) =
   \frac{\partial}{ \partial x_j}
   \left(\lambda_{tot} \frac{\partial T }{ \partial x_j} \right)+
-  \rho c_p \sum_j f_j^s.$$
+  \rho c_p \sum_j f_j^s.\f]
 
 Here, \f$ T \f$ is the scalar temperature field, \f$ c_p \f$ is the specific
 heat capacity, \f$ \lambda_{tot} \f$ is the total thermal conductivity, and \f$ f_j^s
@@ -57,26 +57,26 @@ heat capacity, \f$ \lambda_{tot} \f$ is the total thermal conductivity, and \f$ 
 Neko also supports compressible flow simulations, where the primary quantities
 are advanced through conservation of mass, momentum, and energy:
 
-$$\frac{\partial \rho}{\partial t} + 
-  \frac{\partial (\rho u_i)}{\partial x_i} = 0,$$
+\f[\frac{\partial \rho}{\partial t} + 
+  \frac{\partial (\rho u_i)}{\partial x_i} = 0,\f]
 
-$$\frac{\partial (\rho u_i)}{\partial t} + 
+\f[\frac{\partial (\rho u_i)}{\partial t} + 
   \frac{\partial (\rho u_i u_j)}{\partial x_j} = 
-  -\frac{\partial p}{\partial x_i}, \quad i=1,2,3,$$
+  -\frac{\partial p}{\partial x_i}, \quad i=1,2,3,\f]
 
-$$\frac{\partial E}{\partial t} + 
-  \frac{\partial ((E + p) u_i)}{\partial x_i} = 0.$$
+\f[\frac{\partial E}{\partial t} + 
+  \frac{\partial ((E + p) u_i)}{\partial x_i} = 0.\f]
 
 Here, \f$ \rho \f$ is the density, \f$ u_i \f$ are the velocity components,
 \f$ p \f$ is the pressure, and \f$ E \f$ is the total energy per unit volume.
 The total energy is related to the internal energy and kinetic energy by
 
-$$E = \frac{p}{\gamma - 1} + \frac{1}{2} \rho u_i u_i,$$
+\f[E = \frac{p}{\gamma - 1} + \frac{1}{2} \rho u_i u_i,\f]
 
 where \f$ \gamma \f$ is the ratio of specific heats. The system is closed by
 the ideal gas equation of state:
 
-$$p = (\gamma - 1) \left( E - \frac{1}{2} \rho u_i u_i \right).$$
+\f[p = (\gamma - 1) \left( E - \frac{1}{2} \rho u_i u_i \right).\f]
 
 Physical dynamic viscosity and thermal conductivity can be specified as
 constants in the case file or via the user file `material_properties` interface;
@@ -84,7 +84,7 @@ if they are not specified, they default to zero.
 
 ## Non-dimensionalisation
 A non-dimensional form of the Navier-Stokes equations may be found by defining the Reynolds number
-$$ Re = \frac{\rho U L}{\mu} \ ,$$
+\f[ Re = \frac{\rho U L}{\mu} \ ,\f]
 with reference velocity \f$U\f$, reference length \f$L\f$, density \f$\rho\f$ and dynamic viscosity \f$\mu\f$; the latter two may be
 combined into the kinematic viscosity \f$\nu=\mu/\rho\f$. In order to get a properly scaled problem, one can define 
 the mesh such that the reference length is unity, and set the velocity boundary conditions (or forcing) such that the reference velocity 
