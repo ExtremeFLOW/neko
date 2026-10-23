@@ -32,7 +32,6 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <device/cuda/props.h>
 
 extern "C" {

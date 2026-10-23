@@ -32,7 +32,6 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
 #include <hip/hip_runtime.h>
 #include <device/hip/props.h>
 
