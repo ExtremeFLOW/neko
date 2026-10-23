@@ -76,6 +76,8 @@ module output_controller
      procedure, pass(this) :: execute => output_controller_execute
      !> Set output counter based on time (after restart)
      procedure, pass(this) :: set_counter => output_controller_set_counter
+     !> The time until the next scheduled write of any of the outputs.
+     procedure, pass(this) :: time_to_next => output_controller_time_to_next
   end type output_controller_t
 
 contains
@@ -407,5 +409,22 @@ contains
 
   end subroutine output_controller_set_write_count
 
+
+  !> The time until the next scheduled write that the time step should land
+  !! on, the smallest over all outputs, or `huge(0.0_dp)` if there is none.
+  !! @param time The current time.
+  pure function output_controller_time_to_next(this, time) &
+       result(t)
+    class(output_controller_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: t
+    integer :: i
+
+    t = huge(0.0_dp)
+    do i = 1, this%n
+       t = min(t, this%controllers(i)%time_to_next(time))
+    end do
+
+  end function output_controller_time_to_next
 
 end module output_controller
