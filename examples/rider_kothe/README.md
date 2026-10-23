@@ -541,13 +541,18 @@ Every animation also ships as a GIF.
 **Saini's configuration against his code, over his grid** (`logs/s45_2026-10-12/figs_saini45.py`; §3.4, §3.7).
 Ours is CDI with his $\psi$ configuration at $\gamma=0.5$. His is his own code on the same cell. Error
 norms are in his normalisation: ours divided by 13.147.
-- **`rider_saini45_map.png`:** where our method does well. Ours over his for $E_r$, $E_s$, $|E_v|$ and
-  the worst violation, per cell of $H\in\{1/32,1/64,1/128\}\times N\in\{4,5,6\}$.
+- **`rider_saini45_map.png`:** where our method does well. Ours and his values for $E_r$, $E_s$, $|E_v|$
+  and the worst violation, coloured by ours over his, per cell of $H\in\{1/32,1/64,1/128\}\times N\in\{4,5,6\}$.
   - $E_r$ is 0.48–0.92× his in seven of eight cells.
   - The worst violation is 0.01–0.02× his at $H\ge1/64$, $N\le5$.
   - $E_s$ is 0.94–3.2× his.
   - $|E_v|$ is at our solver tolerance.
   - $H=1/32$, $N=6$ diverged.
+- **`rider_saini45_snapshots.png`:** $\phi$ and $\psi$ at $t=4$ and $t=8$, $H=1/64$, $N=5$, ours at $\gamma=0.5$,
+  against the exact interface (dashed); the layout of `rider_snapshots.png` (`logs/s45_2026-10-12/snapshots_s45.py`).
+  - $\phi$ is bounded to $3\times10^{-12}$ at $t=4$; at $t=8$ it spans $[-3.2\times10^{-4},\,1+5.7\times10^{-4}]$,
+    at the walls and inside the disk.
+  - At $t=8$ $\psi$'s zero contour is ragged across the top-left of the disk.
 - **`rider_saini45_tail_h128.png`:** the open problem. $\phi=0.5$ at $H=1/128$, $N=5$ against the exact
   interface, for ours at $\gamma=0.5$ and 1 and his code.
   - At $t=4$ (the whole spiral, and the tail zoomed), his contour reaches the tail tip and ours stops
@@ -563,6 +568,10 @@ norms are in his normalisation: ours divided by 13.147.
   - His $\phi$ leaves $[0,1]$ over much of the domain: $[-0.048,\,1.010]$ at $t=4$.
 - **`rider_saini45_fig17.png`:** his Fig. 17, $E_r$, $|E_v|$ and $E_s$ at $t=8$ against $N$, one curve
   per $H$. Ours solid, his dotted, his $N=3$ at $H=1/128$ included.
+- **`rider_saini45_fig18.png`:** his Fig. 18, the same three measures against $1/H$, one curve per $N$; x marks ours
+  diverged ($H=1/32$, $N=6$). Our $|E_v|$ stays near $10^{-7}$ as $H$ falls, his drops to $10^{-9}$–$10^{-10}$.
+- **`rider_saini45_fig19.png`:** his Fig. 19, the mean interface thickness $l_{avg}/l_0$ against $t$, per $H$ and
+  $N$. At $H=1/128$ ours stays within about 5% of 1; his falls to about 0.8 and rises to about 1.3 after $t=6$.
 - **`rider_saini45_fig20.png`:** his Fig. 20 as the worst violation against $t$, per $H$ and $N$, on a
   log scale. His figure plots $\max|\psi|$, overshoot only.
   - At $N=4$–5, $H\ge1/64$, ours has a per-frame median of $10^{-11}$–$10^{-8}$ and a maximum of about
@@ -571,6 +580,8 @@ norms are in his normalisation: ours divided by 13.147.
     violation grows late in the run.
   - His sits at $10^{-2}$–$10^{-1}$ throughout.
   - Source: `logs/s45_2026-10-12/tables/full_*.txt`, column 3.
+- **`rider_saini45_fig22.png`:** his Fig. 22, $|E_v|$ against $t$, in our normalisation for both. Ours climbs to
+  $10^{-6}$–$10^{-5}$ by $t\approx4$ and then holds; at $H=1/128$ his stays near $10^{-8}$.
 - **`rider_saini45_fig21.png`:** his Fig. 21, the 0.5 contour at $t=8$ for $H=1/32$, 1/64 and 1/128
   against the exact circle, per $N$. Ours is on top, his below; ours at $H=1/64$, $N=6$ is the ragged
   one.
