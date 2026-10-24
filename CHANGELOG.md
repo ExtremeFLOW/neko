@@ -11,6 +11,10 @@
 
 ## Develop
 
+- Fix bugs in running average of the dynamic Smgorinsky SGS model.
+- Remove the averaging of the LES filter width on element interfaces.
+- Fixed Mij computation in dynamic Smagorinsky SGS model 
+  for variable filter width.
 - Added `case.time.exact_output_time`, which fits the variable time step so
   that the sampling and output times of every time based schedule, and
   `end_time`, are reached exactly.
