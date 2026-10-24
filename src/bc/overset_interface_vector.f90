@@ -579,11 +579,11 @@ contains
     ! checkpoint, so cross-domain interpolation is unnecessary once.
     if (.not. this%restart_pending) then
        call this%interface_interpolator%evaluate_masked(this%u_interface%x, &
-            u%x, this%domain_element_mask, .false.)
+            u%x, this%domain_element_mask)
        call this%interface_interpolator%evaluate_masked(this%v_interface%x, &
-            v%x, this%domain_element_mask, .false.)
+            v%x, this%domain_element_mask)
        call this%interface_interpolator%evaluate_masked(this%w_interface%x, &
-            w%x, this%domain_element_mask, .false.)
+            w%x, this%domain_element_mask)
     end if
 
     call profiler_end_region('Overset vector interp')

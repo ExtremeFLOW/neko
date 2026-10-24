@@ -402,3 +402,65 @@ DEFINE_FIND_RST_LEGENDRE_KERNEL(13, 128)
 DEFINE_FIND_RST_LEGENDRE_KERNEL(14, 128)
 DEFINE_FIND_RST_LEGENDRE_KERNEL(15, 128)
 DEFINE_FIND_RST_LEGENDRE_KERNEL(16, 128)
+
+inline void local_interpolation_weights_1d(
+    const real xi, __global const real *nodes, __global real *weights,
+    const int p, const int lx) {
+  real_xp c[16];
+  for (int j = 0; j < lx; ++j) c[j] = (real_xp)0;
+  c[0] = (real_xp)1;
+  real_xp c1 = (real_xp)1;
+  real_xp c4 = (real_xp)(nodes[0] - xi);
+  for (int i = 1; i < lx; ++i) {
+    real_xp c2 = (real_xp)1;
+    const real_xp c5 = c4;
+    c4 = (real_xp)(nodes[i] - xi);
+    for (int j = 0; j < i; ++j) {
+      const real_xp c3 = (real_xp)(nodes[i] - nodes[j]);
+      c2 *= c3;
+      c[i] = -c1*c5*c[i-1]/c2;
+      c[j] = c4*c[j]/c3;
+    }
+    c1 = c2;
+  }
+  for (int j = 0; j < lx; ++j) weights[p*lx+j] = (real)c[j];
+}
+
+inline void local_interpolation_compute_weights_point(
+    const real r, const real s, const real t, __global const real *zg,
+    __global real *wr, __global real *ws, __global real *wt,
+    const int lx, const int p) {
+  if (r <= (real)1.1 && r >= (real)-1.1 &&
+      s <= (real)1.1 && s >= (real)-1.1 &&
+      t <= (real)1.1 && t >= (real)-1.1) {
+    local_interpolation_weights_1d(r, zg, wr, p, lx);
+    local_interpolation_weights_1d(s, zg+lx, ws, p, lx);
+    local_interpolation_weights_1d(t, zg+2*lx, wt, p, lx);
+  } else {
+    for (int j = 0; j < lx; ++j) {
+      wr[p*lx+j] = (real)0;
+      ws[p*lx+j] = (real)0;
+      wt[p*lx+j] = (real)0;
+    }
+  }
+}
+
+__kernel void local_interpolation_compute_weights_kernel(
+    __global const real *rst, __global const real *zg,
+    __global real *wr, __global real *ws, __global real *wt,
+    const int lx, const int n) {
+  const int p = get_global_id(0);
+  if (p >= n) return;
+  local_interpolation_compute_weights_point(
+      rst[3*p], rst[3*p+1], rst[3*p+2], zg, wr, ws, wt, lx, p);
+}
+
+__kernel void local_interpolation_compute_weights_3arrays_kernel(
+    __global const real *r, __global const real *s, __global const real *t,
+    __global const real *zg, __global real *wr, __global real *ws,
+    __global real *wt, const int lx, const int n) {
+  const int p = get_global_id(0);
+  if (p >= n) return;
+  local_interpolation_compute_weights_point(
+      r[p], s[p], t[p], zg, wr, ws, wt, lx, p);
+}
