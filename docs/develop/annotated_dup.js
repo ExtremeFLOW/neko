@@ -325,6 +325,8 @@ var annotated_dup =
     ] ],
     [ "cuda_intf", "db/d9a/namespacecuda__intf.html", [
       [ "cuda_buffer_free_all", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all.html", "d5/d21/interfacecuda__intf_1_1cuda__buffer__free__all" ],
+      [ "cuda_device_mp_count", "dd/d69/interfacecuda__intf_1_1cuda__device__mp__count.html", "dd/d69/interfacecuda__intf_1_1cuda__device__mp__count" ],
+      [ "cuda_device_total_mem", "d3/dfc/interfacecuda__intf_1_1cuda__device__total__mem.html", "d3/dfc/interfacecuda__intf_1_1cuda__device__total__mem" ],
       [ "cudadevicegetstreampriorityrange", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange.html", "de/d94/interfacecuda__intf_1_1cudadevicegetstreampriorityrange" ],
       [ "cudadevicereset", "d5/d22/interfacecuda__intf_1_1cudadevicereset.html", "d5/d22/interfacecuda__intf_1_1cudadevicereset" ],
       [ "cudadevicesynchronize", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize.html", "dd/d5c/interfacecuda__intf_1_1cudadevicesynchronize" ],
@@ -929,6 +931,8 @@ var annotated_dup =
     ] ],
     [ "hip_intf", "d0/d4e/namespacehip__intf.html", [
       [ "hip_buffer_free_all", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all" ],
+      [ "hip_device_mp_count", "df/d6f/interfacehip__intf_1_1hip__device__mp__count.html", "df/d6f/interfacehip__intf_1_1hip__device__mp__count" ],
+      [ "hip_device_total_mem", "da/de4/interfacehip__intf_1_1hip__device__total__mem.html", "da/de4/interfacehip__intf_1_1hip__device__total__mem" ],
       [ "hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
       [ "hipdevicegetstreampriorityrange", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange.html", "d2/da1/interfacehip__intf_1_1hipdevicegetstreampriorityrange" ],
       [ "hipdevicereset", "df/dd3/interfacehip__intf_1_1hipdevicereset.html", "df/dd3/interfacehip__intf_1_1hipdevicereset" ],
@@ -1090,6 +1094,7 @@ var annotated_dup =
     [ "krylov", "db/d6d/namespacekrylov.html", [
       [ "krylov_allocate", "d0/d54/interfacekrylov_1_1krylov__allocate.html", "d0/d54/interfacekrylov_1_1krylov__allocate" ],
       [ "krylov_allocator_entry", "d2/dbc/structkrylov_1_1krylov__allocator__entry.html", "d2/dbc/structkrylov_1_1krylov__allocator__entry" ],
+      [ "krylov_solver_factory", "da/d68/interfacekrylov_1_1krylov__solver__factory.html", null ],
       [ "ksp_init_intrf", "d0/db4/interfacekrylov_1_1ksp__init__intrf.html", "d0/db4/interfacekrylov_1_1ksp__init__intrf" ],
       [ "ksp_method", "d2/d6e/interfacekrylov_1_1ksp__method.html", "d2/d6e/interfacekrylov_1_1ksp__method" ],
       [ "ksp_method_coupled", "d1/d3d/interfacekrylov_1_1ksp__method__coupled.html", "d1/d3d/interfacekrylov_1_1ksp__method__coupled" ],

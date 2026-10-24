@@ -24,6 +24,7 @@ var structforce__torque_1_1force__torque__t =
     [ "preprocess_", "da/d47/structforce__torque_1_1force__torque__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "da/d47/structforce__torque_1_1force__torque__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "da/d47/structforce__torque_1_1force__torque__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "da/d47/structforce__torque_1_1force__torque__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "bc", "da/d47/structforce__torque_1_1force__torque__t.html#afb364971c4bfb270569b2dfce3d410c4", null ],
     [ "body_p", "da/d47/structforce__torque_1_1force__torque__t.html#ae75c285688f34dcb528d2a6fd9b52dc3", null ],
     [ "body_r", "da/d47/structforce__torque_1_1force__torque__t.html#a32e1e37ac870680fdd3ffe8308ad9765", null ],

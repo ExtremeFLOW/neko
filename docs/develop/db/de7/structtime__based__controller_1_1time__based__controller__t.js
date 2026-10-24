@@ -6,6 +6,7 @@ var structtime__based__controller_1_1time__based__controller__t =
     [ "next_time", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a73705db8820a94432f42001957d926d9", null ],
     [ "register_execution", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#ab63ccda66bc7805f30ba75010df89e18", null ],
     [ "set_counter", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a5817f450c97cc802eebc4fc0639fe492", null ],
+    [ "time_to_next", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a8f9d01059c727a7224a8bcc1850afe4a", null ],
     [ "tolerance", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a2521ad530674622a07127f9333595cc2", null ],
     [ "anchor_time", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a8a75d5984b05c8dc55fe9553201fa0c0", null ],
     [ "control_mode", "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a70ed418a684f6d827ecb314bfc52520b", null ],

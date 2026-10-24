@@ -23,6 +23,7 @@ var structboundary__flux_1_1boundary__flux__t =
     [ "preprocess_", "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d7/df8/structboundary__flux_1_1boundary__flux__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "bc", "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a7bdaea81040836146a854b921ecde966", null ],
     [ "case", "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "coef", "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a406eecbdc56e4d656295bbcee21fe9d2", null ],

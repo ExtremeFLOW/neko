@@ -1,0 +1,5 @@
+<map id="comm::comm_init" name="comm::comm_init">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,13,145,38"/>
+<area shape="rect" id="Node000002" href="$d3/d8f/namespacecomm.html#aa8ddde0090060fc67f9299432f93fd86" title="Decide whether the thread level an OpenSHMEM library handed back is usable, given how Neko drives it." alt="" coords="193,5,408,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,23,179,23,179,28,146,28"/>
+</map>

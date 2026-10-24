@@ -129,8 +129,11 @@ Data Types</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/dc8/interfacekrylov_1_1ksp__t__free.html">krylov::ksp_t_free</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface for deallocating a Krylov method.  <a href="../../d6/dc8/interfacekrylov_1_1ksp__t__free.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/d68/interfacekrylov_1_1krylov__solver__factory.html">krylov::krylov_solver_factory</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory for Krylov solvers. Both creates and initializes the object, either from its parameters or from a JSON solver block.  <a href="../../da/d68/interfacekrylov_1_1krylov__solver__factory.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d54/interfacekrylov_1_1krylov__allocate.html">krylov::krylov_allocate</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Factory for Krylov solvers. Both creates and initializes the object.  <a href="../../d0/d54/interfacekrylov_1_1krylov__allocate.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Krylov solver allocator.  <a href="../../d0/d54/interfacekrylov_1_1krylov__allocate.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">type &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html">krylov::krylov_allocator_entry</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Called in user modules to add an allocator for custom types.  <a href="../../d2/dbc/structkrylov_1_1krylov__allocator__entry.html#details">More...</a><br /></td></tr>
@@ -147,6 +150,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a81737524a147e005b37c62f781570b13" id="r_a81737524a147e005b37c62f781570b13"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a81737524a147e005b37c62f781570b13">krylov::krylov_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, max_iter, rel_tol, abs_tol, m, monitor)</td></tr>
 <tr class="memdesc:a81737524a147e005b37c62f781570b13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor for the base type.  <br /></td></tr>
 <tr class="separator:a81737524a147e005b37c62f781570b13"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6be482060cb8f251dffeeef215e023db" id="r_a6be482060cb8f251dffeeef215e023db"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a6be482060cb8f251dffeeef215e023db">krylov::krylov_init_from_json</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, json, m)</td></tr>
+<tr class="memdesc:a6be482060cb8f251dffeeef215e023db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from a JSON solver block. Reads <code>max_iterations</code> (default <code>KSP_MAX_ITER</code>), <code>absolute_tolerance</code> and <code>monitor</code> (default false) and calls the type's <code>init</code>. Types with keys of their own override this, read them and then call <code>ksp_init_from_json</code>.  <br /></td></tr>
+<tr class="separator:a6be482060cb8f251dffeeef215e023db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6b461bf26ab4402b452e62fd907103a7" id="r_a6b461bf26ab4402b452e62fd907103a7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d6d/namespacekrylov.html#a6b461bf26ab4402b452e62fd907103a7">krylov::krylov_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a6b461bf26ab4402b452e62fd907103a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a Krylov solver.  <br /></td></tr>
 <tr class="separator:a6b461bf26ab4402b452e62fd907103a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -196,7 +202,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_e1eebdd739dbe665ed101a65279c9fe9.html">krylov</a></li><li class="navelem"><a class="el" href="../../d9/da5/krylov_8f90.html">krylov.f90</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

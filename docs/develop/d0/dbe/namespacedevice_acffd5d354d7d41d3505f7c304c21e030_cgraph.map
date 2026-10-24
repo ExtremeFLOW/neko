@@ -1,0 +1,7 @@
+<map id="device::device_total_mem" name="device::device_total_mem">
+<area shape="rect" id="Node000001" title="Return the total memory of the current device in bytes, or 0 if the backend cannot tell." alt="" coords="5,37,200,62"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="67,38,59,28,63,18,78,12,103,10,133,14,145,23,142,27,131,19,103,15,79,17,67,22,64,28,71,35"/>
+<area shape="rect" id="Node000002" href="$d3/d3b/namespaceopencl__intf.html#ac184b2938fef440fe2110d503b5f0100" title="Return the global memory size of the current device in bytes (CL_DEVICE_GLOBAL_MEM_SIZE),..." alt="" coords="248,29,399,69"/>
+<area shape="poly" id="edge2_Node000001_Node000002" title=" " alt="" coords="200,47,234,47,234,52,200,52"/>
+<area shape="poly" id="edge3_Node000002_Node000002" title=" " alt="" coords="282,30,280,20,286,10,301,5,323,3,349,6,363,13,360,18,347,11,323,8,302,10,290,15,285,21,287,28"/>
+</map>

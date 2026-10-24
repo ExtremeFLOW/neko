@@ -21,7 +21,7 @@ var searchData=
   ['pipecg_5faux_2ecu_18',['pipecg_aux.cu',['../d8/d3b/pipecg__aux_8cu.html',1,'']]],
   ['pipecg_5faux_2ehip_19',['pipecg_aux.hip',['../da/d9a/pipecg__aux_8hip.html',1,'']]],
   ['pipecg_5fdevice_2ef90_20',['pipecg_device.F90',['../d5/d7f/pipecg__device_8F90.html',1,'']]],
-  ['pipecg_5fkernel_2eh_21',['pipecg_kernel.h',['../d5/d02/hip_2pipecg__kernel_8h.html',1,'(Global Namespace)'],['../d1/d49/cuda_2pipecg__kernel_8h.html',1,'(Global Namespace)']]],
+  ['pipecg_5fkernel_2eh_21',['pipecg_kernel.h',['../d1/d49/cuda_2pipecg__kernel_8h.html',1,'(Global Namespace)'],['../d5/d02/hip_2pipecg__kernel_8h.html',1,'(Global Namespace)']]],
   ['pipecg_5fsx_2ef90_22',['pipecg_sx.f90',['../d6/d9d/pipecg__sx_8f90.html',1,'']]],
   ['pnpn_5fres_2ec_23',['pnpn_res.c',['../df/d4b/pnpn__res_8c.html',1,'']]],
   ['pnpn_5fres_2ecu_24',['pnpn_res.cu',['../d4/d66/pnpn__res_8cu.html',1,'']]],
@@ -57,7 +57,10 @@ var searchData=
   ['projection_2ehip_54',['projection.hip',['../d9/d09/projection_8hip.html',1,'']]],
   ['projection_5fkernel_2eh_55',['projection_kernel.h',['../d9/d19/hip_2projection__kernel_8h.html',1,'(Global Namespace)'],['../d3/d18/cuda_2projection__kernel_8h.html',1,'(Global Namespace)']]],
   ['projection_5fvel_2ef90_56',['projection_vel.f90',['../d0/db7/projection__vel_8f90.html',1,'']]],
-  ['prs_5fres_5fkernel_2eh_57',['prs_res_kernel.h',['../d8/dc2/hip_2prs__res__kernel_8h.html',1,'(Global Namespace)'],['../db/d30/cuda_2prs__res__kernel_8h.html',1,'(Global Namespace)']]],
-  ['prs_5fstress_5fres_5fkernel_2eh_58',['prs_stress_res_kernel.h',['../dc/d4f/hip_2prs__stress__res__kernel_8h.html',1,'(Global Namespace)'],['../d5/de5/cuda_2prs__stress__res__kernel_8h.html',1,'(Global Namespace)']]],
-  ['publications_2emd_59',['publications.md',['../dd/dae/publications_8md.html',1,'']]]
+  ['props_2ecu_57',['props.cu',['../dd/d00/props_8cu.html',1,'']]],
+  ['props_2eh_58',['props.h',['../d1/df9/hip_2props_8h.html',1,'(Global Namespace)'],['../d2/dce/cuda_2props_8h.html',1,'(Global Namespace)']]],
+  ['props_2ehip_59',['props.hip',['../dc/d45/props_8hip.html',1,'']]],
+  ['prs_5fres_5fkernel_2eh_60',['prs_res_kernel.h',['../d8/dc2/hip_2prs__res__kernel_8h.html',1,'(Global Namespace)'],['../db/d30/cuda_2prs__res__kernel_8h.html',1,'(Global Namespace)']]],
+  ['prs_5fstress_5fres_5fkernel_2eh_61',['prs_stress_res_kernel.h',['../dc/d4f/hip_2prs__stress__res__kernel_8h.html',1,'(Global Namespace)'],['../d5/de5/cuda_2prs__stress__res__kernel_8h.html',1,'(Global Namespace)']]],
+  ['publications_2emd_62',['publications.md',['../dd/dae/publications_8md.html',1,'']]]
 ];

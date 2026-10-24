@@ -3,6 +3,8 @@ var comm_8F90 =
     [ "comm::neko_comm_wrapper_init", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init" ],
     [ "comm_free", "d1/db1/comm_8F90.html#a064af56a87bebfb8224de6dd655ea7b3", null ],
     [ "comm_init", "d1/db1/comm_8F90.html#a08a353f1ee66ac93674f48d999819eec", null ],
+    [ "is_mpmd", "d1/db1/comm_8F90.html#af6773c5e1f197ca836a300f02226f2cd", null ],
+    [ "shmem_check_thread_level", "d1/db1/comm_8F90.html#aa8ddde0090060fc67f9299432f93fd86", null ],
     [ "global_pe_rank", "d1/db1/comm_8F90.html#a49ecc104d9449bfa2c82e20961e03be2", null ],
     [ "global_pe_size", "d1/db1/comm_8F90.html#a6f12f8d4e58022c341882f61ff607fe6", null ],
     [ "mpi_extra_precision", "d1/db1/comm_8F90.html#ae24abe270df5000b8f0534eaeb00245f", null ],

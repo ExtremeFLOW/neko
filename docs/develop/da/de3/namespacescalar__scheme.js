@@ -14,7 +14,7 @@ var namespacescalar__scheme =
     [ "scalar_scheme_register_checkpoint", "da/de3/namespacescalar__scheme.html#aa2f488b99c645a710c5d753ddb926068", null ],
     [ "scalar_scheme_set_initial_condition", "da/de3/namespacescalar__scheme.html#afe219aba510b669da4f2c1042297e0d5", null ],
     [ "scalar_scheme_set_material_properties", "da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415", null ],
-    [ "scalar_scheme_solver_factory", "da/de3/namespacescalar__scheme.html#a5f6ead3b733850e84a4bfb55ce3c1bbe", null ],
+    [ "scalar_scheme_solver_factory", "da/de3/namespacescalar__scheme.html#a5cbeed855d8b8de25f037f9d83ac9a61", null ],
     [ "scalar_scheme_update_material_properties", "da/de3/namespacescalar__scheme.html#a9f1e7d30e723418c67f7d22f72f0ace1", null ],
     [ "scalar_scheme_validate", "da/de3/namespacescalar__scheme.html#a6e4383936f487cdaaa5fffa09dc56155", null ],
     [ "scalar_scheme_wrapper_free", "da/de3/namespacescalar__scheme.html#a4e8b4e8e83d114fec2685bfa33dcbd0f", null ],

@@ -19,6 +19,7 @@ var structles__simcomp_1_1les__simcomp__t =
     [ "restart", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#a076025c7bfc9d80db382fb4ef4184cff", null ],
     [ "restart_", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "case", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "les_model", "d1/d3b/structles__simcomp_1_1les__simcomp__t.html#a75f569a7cb752acd969250778b075c8b", null ],

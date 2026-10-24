@@ -5,6 +5,7 @@ var structoutput__controller_1_1output__controller__t =
     [ "free", "d4/d3d/structoutput__controller_1_1output__controller__t.html#ae2848decb9446af697818c2de2b980c1", null ],
     [ "init", "d4/d3d/structoutput__controller_1_1output__controller__t.html#a7def57fefac22334e2b07f3f57ce6670", null ],
     [ "set_counter", "d4/d3d/structoutput__controller_1_1output__controller__t.html#a64d10beb8a82a75598b11d897503b5eb", null ],
+    [ "time_to_next", "d4/d3d/structoutput__controller_1_1output__controller__t.html#a1ceeeae69b20ce413449e80e8687eb94", null ],
     [ "controllers", "d4/d3d/structoutput__controller_1_1output__controller__t.html#aea8cb202e8bc15f7f032e8a51dee9df9", null ],
     [ "n", "d4/d3d/structoutput__controller_1_1output__controller__t.html#acd5fe2352767058f62553ad615d6cb9f", null ],
     [ "output_list", "d4/d3d/structoutput__controller_1_1output__controller__t.html#a455d7c1ebf2a7702aa980cf2f3cedb32", null ],

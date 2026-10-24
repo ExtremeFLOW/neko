@@ -223,7 +223,9 @@ Enumerations</h2></td></tr>
 <tr class="memitem:a5c088c3f5e21c3e37acf1b09d50e1e99" id="r_a5c088c3f5e21c3e37acf1b09d50e1e99"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a5c088c3f5e21c3e37acf1b09d50e1e99a030b8a17a54e1a65da6fa36c43ad80e6">opencl_intf::cl_context_platform</a> = int(Z'1084')
  }</td></tr>
 <tr class="separator:a5c088c3f5e21c3e37acf1b09d50e1e99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a370e2b94f59ff866ce497a8a8dcd79c4" id="r_a370e2b94f59ff866ce497a8a8dcd79c4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4a5dfd2b9b1dfa13d9bb698680453e4971">opencl_intf::cl_device_name</a> = 4139
+<tr class="memitem:a370e2b94f59ff866ce497a8a8dcd79c4" id="r_a370e2b94f59ff866ce497a8a8dcd79c4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4a5f22925b82ba0e912a2639aae38b69fb">opencl_intf::cl_device_max_compute_units</a> = int(Z'1002')
+, <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4a4d6d2e2ad72d7c632cc2afdf752f915f">opencl_intf::cl_device_global_mem_size</a> = int(Z'101F')
+, <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4a5dfd2b9b1dfa13d9bb698680453e4971">opencl_intf::cl_device_name</a> = 4139
  }</td></tr>
 <tr class="memdesc:a370e2b94f59ff866ce497a8a8dcd79c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enum device info.  <a href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4">More...</a><br /></td></tr>
 <tr class="separator:a370e2b94f59ff866ce497a8a8dcd79c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -239,6 +241,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a476f3dd0418dfa1401fb91a1a75635d8" id="r_a476f3dd0418dfa1401fb91a1a75635d8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a476f3dd0418dfa1401fb91a1a75635d8">opencl_intf::opencl_device_count</a> ()</td></tr>
 <tr class="memdesc:a476f3dd0418dfa1401fb91a1a75635d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of OpenCL devices.  <br /></td></tr>
 <tr class="separator:a476f3dd0418dfa1401fb91a1a75635d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ef8afa7610b7b4336817194ad1736a3" id="r_a0ef8afa7610b7b4336817194ad1736a3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a0ef8afa7610b7b4336817194ad1736a3">opencl_intf::opencl_device_mp_count</a> ()</td></tr>
+<tr class="memdesc:a0ef8afa7610b7b4336817194ad1736a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of compute units of the current device (CL_DEVICE_MAX_COMPUTE_UNITS), or 0 if the query fails.  <br /></td></tr>
+<tr class="separator:a0ef8afa7610b7b4336817194ad1736a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac184b2938fef440fe2110d503b5f0100" id="r_ac184b2938fef440fe2110d503b5f0100"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>(kind=i8) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d3b/namespaceopencl__intf.html#ac184b2938fef440fe2110d503b5f0100">opencl_intf::opencl_device_total_mem</a> ()</td></tr>
+<tr class="memdesc:ac184b2938fef440fe2110d503b5f0100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the global memory size of the current device in bytes (CL_DEVICE_GLOBAL_MEM_SIZE), or 0 if the query fails.  <br /></td></tr>
+<tr class="separator:ac184b2938fef440fe2110d503b5f0100"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -273,7 +281,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_16dc92632bab467dc50b01bd02b3341a.html">device</a></li><li class="navelem"><a class="el" href="../../de/ded/opencl__intf_8F90.html">opencl_intf.F90</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

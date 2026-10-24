@@ -24,6 +24,8 @@ var cuda__intf_8F90 =
     [ "cuda_intf::cudaeventrecord", "dd/d59/interfacecuda__intf_1_1cudaeventrecord.html", "dd/d59/interfacecuda__intf_1_1cudaeventrecord" ],
     [ "cuda_intf::cudaeventsynchronize", "d7/dff/interfacecuda__intf_1_1cudaeventsynchronize.html", "d7/dff/interfacecuda__intf_1_1cudaeventsynchronize" ],
     [ "cuda_intf::cudagetdevicecount", "d4/d40/interfacecuda__intf_1_1cudagetdevicecount.html", "d4/d40/interfacecuda__intf_1_1cudagetdevicecount" ],
+    [ "cuda_intf::cuda_device_mp_count", "dd/d69/interfacecuda__intf_1_1cuda__device__mp__count.html", "dd/d69/interfacecuda__intf_1_1cuda__device__mp__count" ],
+    [ "cuda_intf::cuda_device_total_mem", "d3/dfc/interfacecuda__intf_1_1cuda__device__total__mem.html", "d3/dfc/interfacecuda__intf_1_1cuda__device__total__mem" ],
     [ "cuda_intf::cudagetdevice", "d6/d4c/interfacecuda__intf_1_1cudagetdevice.html", "d6/d4c/interfacecuda__intf_1_1cudagetdevice" ],
     [ "cuda_intf::cudasetdevice", "d2/db0/interfacecuda__intf_1_1cudasetdevice.html", "d2/db0/interfacecuda__intf_1_1cudasetdevice" ],
     [ "cuda_device_count", "d1/d5d/cuda__intf_8F90.html#a4c6829041b1ce806df2141185b6e705b", null ],

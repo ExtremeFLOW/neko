@@ -18,6 +18,7 @@ var structsimulation__component__template_1_1simulation__component__template__t 
     [ "preprocess_", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "case", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "name", "de/dae/structsimulation__component__template_1_1simulation__component__template__t.html#a5bbbafdd10fc5f071a23b4f96383d5e5", null ],

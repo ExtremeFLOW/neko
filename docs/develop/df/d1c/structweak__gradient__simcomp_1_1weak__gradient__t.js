@@ -23,6 +23,7 @@ var structweak__gradient__simcomp_1_1weak__gradient__t =
     [ "preprocess_", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "case", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "gradient_x", "df/d1c/structweak__gradient__simcomp_1_1weak__gradient__t.html#a952b0969d5d7f7239b7f6b324d0e2491", null ],

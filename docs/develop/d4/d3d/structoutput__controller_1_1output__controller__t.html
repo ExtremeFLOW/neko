@@ -138,6 +138,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a64d10beb8a82a75598b11d897503b5eb" id="r_a64d10beb8a82a75598b11d897503b5eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d3d/structoutput__controller_1_1output__controller__t.html#a64d10beb8a82a75598b11d897503b5eb">set_counter</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:a64d10beb8a82a75598b11d897503b5eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set output counter based on time (after restart)  <br /></td></tr>
 <tr class="separator:a64d10beb8a82a75598b11d897503b5eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ceeeae69b20ce413449e80e8687eb94" id="r_a1ceeeae69b20ce413449e80e8687eb94"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d4/d3d/structoutput__controller_1_1output__controller__t.html#a1ceeeae69b20ce413449e80e8687eb94">time_to_next</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
+<tr class="memdesc:a1ceeeae69b20ce413449e80e8687eb94"><td class="mdescLeft">&#160;</td><td class="mdescRight">The time until the next scheduled write of any of the outputs.  <br /></td></tr>
+<tr class="separator:a1ceeeae69b20ce413449e80e8687eb94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -389,6 +392,42 @@ Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a1ceeeae69b20ce413449e80e8687eb94" name="a1ceeeae69b20ce413449e80e8687eb94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ceeeae69b20ce413449e80e8687eb94">&#9670;&#160;</a></span>time_to_next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) output_controller::output_controller_t::time_to_next </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d4/d3d/structoutput__controller_1_1output__controller__t.html">output_controller_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The current time. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/d94/output__controller_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d6/d94/output__controller_8f90_source.html">output_controller.f90</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Member Data Documentation</h2>
 <a id="aea8cb202e8bc15f7f032e8a51dee9df9" name="aea8cb202e8bc15f7f032e8a51dee9df9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aea8cb202e8bc15f7f032e8a51dee9df9">&#9670;&#160;</a></span>controllers</h2>
@@ -511,7 +550,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d8/d57/namespaceoutput__controller.html">output_controller</a></li><li class="navelem"><a class="el" href="../../d4/d3d/structoutput__controller_1_1output__controller__t.html">output_controller_t</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

@@ -21,6 +21,7 @@ var structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t =
     [ "restart", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html#a9e7c582a374a8b0e189e0f6a2d212011", null ],
     [ "restart_", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "base_filename", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html#a63774ae58d506a1bd30f2bb56e5e57e7", null ],
     [ "case", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d9/d57/structfluid__sgs__stats__simcomp_1_1fluid__sgs__stats__simcomp__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],

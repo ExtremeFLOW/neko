@@ -20,6 +20,7 @@ var structavm__simcomp_1_1avm__simcomp__t =
     [ "restart", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html#ae7cc161d9b8a6d3dca1ffc030e0f0441", null ],
     [ "restart_", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "avm", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html#a36685aa853aae55447e22ad6378923ce", null ],
     [ "case", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "da/d55/structavm__simcomp_1_1avm__simcomp__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],

@@ -134,6 +134,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aeded4e0ebc5aa3cebcf5cc5d187d8058" id="r_aeded4e0ebc5aa3cebcf5cc5d187d8058"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html#aeded4e0ebc5aa3cebcf5cc5d187d8058">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a0604caa64f407001658d0678f200e426">max_iter</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a7e02bc45055956c25f0825ca6322051f">rel_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a2a27126d7e255eb318856063d2e4a9ab">abs_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a28a4c9b86fb1d7419f87185bcdff744d">monitor</a>)</td></tr>
 <tr class="memdesc:aeded4e0ebc5aa3cebcf5cc5d187d8058"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a standard GMRES solver.  <br /></td></tr>
 <tr class="separator:aeded4e0ebc5aa3cebcf5cc5d187d8058"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb9f0b3a2a4edac7224ca2f9e25ef18d" id="r_afb9f0b3a2a4edac7224ca2f9e25ef18d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html#afb9f0b3a2a4edac7224ca2f9e25ef18d">init_from_json</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, json, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a>)</td></tr>
+<tr class="memdesc:afb9f0b3a2a4edac7224ca2f9e25ef18d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a standard GMRES solver from a JSON solver block. Reads <code>space_size</code> (default <code>GMRES_SPACE_SIZE</code>), then the keys of the base type.  <br /></td></tr>
+<tr class="separator:afb9f0b3a2a4edac7224ca2f9e25ef18d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee31089dd19ba89021a9b67c633aed97" id="r_aee31089dd19ba89021a9b67c633aed97"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html#aee31089dd19ba89021a9b67c633aed97">free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:aee31089dd19ba89021a9b67c633aed97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a standard GMRES solver.  <br /></td></tr>
 <tr class="separator:aee31089dd19ba89021a9b67c633aed97"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,9 +149,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a212e2f4ae22fc2b8b984a036ac549985" id="r_a212e2f4ae22fc2b8b984a036ac549985"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>(ksp_init_intrf), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">deferred</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a212e2f4ae22fc2b8b984a036ac549985">init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a0604caa64f407001658d0678f200e426">max_iter</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a7e02bc45055956c25f0825ca6322051f">rel_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a2a27126d7e255eb318856063d2e4a9ab">abs_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a28a4c9b86fb1d7419f87185bcdff744d">monitor</a>)</td></tr>
 <tr class="memdesc:a212e2f4ae22fc2b8b984a036ac549985"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a212e2f4ae22fc2b8b984a036ac549985"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23bd4feaa3faea1c9ef96f32106154ff" id="r_a23bd4feaa3faea1c9ef96f32106154ff"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a23bd4feaa3faea1c9ef96f32106154ff">init_from_json</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, json, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a>)</td></tr>
+<tr class="memdesc:a23bd4feaa3faea1c9ef96f32106154ff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor from a JSON solver block.  <br /></td></tr>
+<tr class="separator:a23bd4feaa3faea1c9ef96f32106154ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa93557061efb3f02ecd62cf8c05931c0" id="r_aa93557061efb3f02ecd62cf8c05931c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#aa93557061efb3f02ecd62cf8c05931c0">ksp_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a0604caa64f407001658d0678f200e426">max_iter</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a7e02bc45055956c25f0825ca6322051f">rel_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a2a27126d7e255eb318856063d2e4a9ab">abs_tol</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a>, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a28a4c9b86fb1d7419f87185bcdff744d">monitor</a>)</td></tr>
 <tr class="memdesc:aa93557061efb3f02ecd62cf8c05931c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base type constructor.  <br /></td></tr>
 <tr class="separator:aa93557061efb3f02ecd62cf8c05931c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f0fbc400d5e8d4b1acf11654bb45c63" id="r_a8f0fbc400d5e8d4b1acf11654bb45c63"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a8f0fbc400d5e8d4b1acf11654bb45c63">ksp_init_from_json</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, json, <a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a919f46cedba40962024d26a886ab31f9">m</a>)</td></tr>
+<tr class="memdesc:a8f0fbc400d5e8d4b1acf11654bb45c63"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base type constructor from a JSON solver block, for types that override <code>init_from_json</code>.  <br /></td></tr>
+<tr class="separator:a8f0fbc400d5e8d4b1acf11654bb45c63"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a34dae2b9d3aff8de33af53f6bb156bc4" id="r_a34dae2b9d3aff8de33af53f6bb156bc4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html#a34dae2b9d3aff8de33af53f6bb156bc4">ksp_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:a34dae2b9d3aff8de33af53f6bb156bc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base type destructor.  <br /></td></tr>
 <tr class="separator:a34dae2b9d3aff8de33af53f6bb156bc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -179,7 +188,7 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a9871687acdc149b01ae896c6264fee36" id="r_a9871687acdc149b01ae896c6264fee36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html#a9871687acdc149b01ae896c6264fee36">lgmres</a> = 30</td></tr>
+<tr class="memitem:a9871687acdc149b01ae896c6264fee36" id="r_a9871687acdc149b01ae896c6264fee36"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html#a9871687acdc149b01ae896c6264fee36">lgmres</a> = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">GMRES_SPACE_SIZE</a></td></tr>
 <tr class="separator:a9871687acdc149b01ae896c6264fee36"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7988e21c042408a2516e5aaf3a70a56e" id="r_a7988e21c042408a2516e5aaf3a70a56e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">dimension</a>(:), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">allocatable</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html#a7988e21c042408a2516e5aaf3a70a56e">w</a></td></tr>
 <tr class="separator:a7988e21c042408a2516e5aaf3a70a56e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -226,7 +235,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00052">52</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="aee31089dd19ba89021a9b67c633aed97" name="aee31089dd19ba89021a9b67c633aed97"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aee31089dd19ba89021a9b67c633aed97">&#9670;&#160;</a></span>free() <span class="overload">[1/2]</span></h2>
@@ -244,7 +253,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -272,7 +281,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -332,7 +341,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -400,7 +409,107 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+
+</div>
+</div>
+<a id="afb9f0b3a2a4edac7224ca2f9e25ef18d" name="afb9f0b3a2a4edac7224ca2f9e25ef18d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb9f0b3a2a4edac7224ca2f9e25ef18d">&#9670;&#160;</a></span>init_from_json() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) gmres_sx::sx_gmres_t::init_from_json </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html">sx_gmres_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>m</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00073">73</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+
+</div>
+</div>
+<a id="a23bd4feaa3faea1c9ef96f32106154ff" name="a23bd4feaa3faea1c9ef96f32106154ff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23bd4feaa3faea1c9ef96f32106154ff">&#9670;&#160;</a></span>init_from_json() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) krylov::ksp_t::init_from_json </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>m</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Size of work arrays. </td></tr>
+    <tr><td class="paramname">json</td><td>The solver block. </td></tr>
+    <tr><td class="paramname">M</td><td>The preconditioner (optional). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -452,7 +561,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -480,7 +589,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00087">87</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -551,7 +660,65 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+
+</div>
+</div>
+<a id="a8f0fbc400d5e8d4b1acf11654bb45c63" name="a8f0fbc400d5e8d4b1acf11654bb45c63"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f0fbc400d5e8d4b1acf11654bb45c63">&#9670;&#160;</a></span>ksp_init_from_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">procedure</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pass</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>) krylov::ksp_t::ksp_init_from_json </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d0/d3b/structkrylov_1_1ksp__t.html">ksp_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>m</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inherited</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">n</td><td>Size of work arrays. </td></tr>
+    <tr><td class="paramname">json</td><td>The solver block. </td></tr>
+    <tr><td class="paramname">M</td><td>The preconditioner (optional). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -595,7 +762,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00107">107</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -633,7 +800,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -661,7 +828,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -705,7 +872,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -777,7 +944,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -857,7 +1024,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -953,7 +1120,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1057,7 +1224,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00101">101</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -1082,7 +1249,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -1098,7 +1265,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1114,7 +1281,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1130,7 +1297,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1141,12 +1308,12 @@ Public Attributes</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> gmres_sx::sx_gmres_t::lgmres = 30</td>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> gmres_sx::sx_gmres_t::lgmres = <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">GMRES_SPACE_SIZE</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1170,7 +1337,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -1194,7 +1361,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -1218,7 +1385,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -1234,7 +1401,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1258,7 +1425,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -1274,7 +1441,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1290,7 +1457,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1314,7 +1481,7 @@ Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/da5/krylov_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d9/da5/krylov_8f90_source.html">krylov.f90</a>.</p>
 
 </div>
 </div>
@@ -1330,7 +1497,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1346,7 +1513,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1362,7 +1529,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1378,7 +1545,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00054">54</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1394,7 +1561,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1410,7 +1577,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d1/dde/gmres__sx_8f90_source.html">gmres_sx.f90</a>.</p>
 
 </div>
 </div>
@@ -1423,7 +1590,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d5/d6a/namespacegmres__sx.html">gmres_sx</a></li><li class="navelem"><a class="el" href="../../d3/d41/structgmres__sx_1_1sx__gmres__t.html">sx_gmres_t</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

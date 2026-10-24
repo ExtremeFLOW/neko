@@ -23,6 +23,7 @@ var structboundary__operation_1_1boundary__operation__t =
     [ "preprocess_", "d0/d23/structboundary__operation_1_1boundary__operation__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "d0/d23/structboundary__operation_1_1boundary__operation__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d0/d23/structboundary__operation_1_1boundary__operation__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d0/d23/structboundary__operation_1_1boundary__operation__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "areas", "d0/d23/structboundary__operation_1_1boundary__operation__t.html#a1b0e72e0551dcb373574ab3518b61e77", null ],
     [ "average", "d0/d23/structboundary__operation_1_1boundary__operation__t.html#a26c6f6daf701cabf2f51acf37236d6f4", null ],
     [ "bc", "d0/d23/structboundary__operation_1_1boundary__operation__t.html#a7b9c2c36bf54e31b6fca5da01be8f368", null ],

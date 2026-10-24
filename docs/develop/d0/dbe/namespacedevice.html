@@ -147,6 +147,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aab9b9e345cf9153c37f6376d32dbb012" id="r_aab9b9e345cf9153c37f6376d32dbb012"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/namespacedevice.html#aab9b9e345cf9153c37f6376d32dbb012">device_count</a> ()</td></tr>
 <tr class="memdesc:aab9b9e345cf9153c37f6376d32dbb012"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of available devices.  <br /></td></tr>
 <tr class="separator:aab9b9e345cf9153c37f6376d32dbb012"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f5302b6d1ae6bf6947f46de206f37f1" id="r_a2f5302b6d1ae6bf6947f46de206f37f1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/namespacedevice.html#a2f5302b6d1ae6bf6947f46de206f37f1">device_mp_count</a> ()</td></tr>
+<tr class="memdesc:a2f5302b6d1ae6bf6947f46de206f37f1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of multiprocessors (SMs on NVIDIA, CUs on AMD, compute units on OpenCL, GPU cores on Apple Silicon) of the current device, or 0 if the backend cannot tell.  <br /></td></tr>
+<tr class="separator:a2f5302b6d1ae6bf6947f46de206f37f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acffd5d354d7d41d3505f7c304c21e030" id="r_acffd5d354d7d41d3505f7c304c21e030"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>(kind=i8) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/namespacedevice.html#acffd5d354d7d41d3505f7c304c21e030">device_total_mem</a> ()</td></tr>
+<tr class="memdesc:acffd5d354d7d41d3505f7c304c21e030"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the total memory of the current device in bytes, or 0 if the backend cannot tell.  <br /></td></tr>
+<tr class="separator:acffd5d354d7d41d3505f7c304c21e030"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a87905d572ea607609a71d54effdb0ab9" id="r_a87905d572ea607609a71d54effdb0ab9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9">device_alloc</a> (x_d, s)</td></tr>
 <tr class="memdesc:a87905d572ea607609a71d54effdb0ab9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Allocate memory on the device.  <br /></td></tr>
 <tr class="separator:a87905d572ea607609a71d54effdb0ab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -343,7 +349,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00211">211</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00249">249</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -431,7 +437,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00637">637</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00675">675</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -475,7 +481,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00674">674</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00712">712</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -519,7 +525,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00711">711</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00749">749</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -563,7 +569,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00747">747</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00785">785</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -591,7 +597,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01199">1199</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01237">1237</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -619,7 +625,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01226">1226</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01264">1264</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -647,7 +653,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01253">1253</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01291">1291</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -675,7 +681,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01280">1280</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01318">1318</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -691,7 +697,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00196">196</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00197">197</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -750,7 +756,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00784">784</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00822">822</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -778,7 +784,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00808">808</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00846">846</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -806,7 +812,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00832">832</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00870">870</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -834,7 +840,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00856">856</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00894">894</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -864,7 +870,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01588">1588</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01626">1626</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -920,7 +926,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01622">1622</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01660">1660</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -986,7 +992,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01643">1643</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01681">1681</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1032,7 +1038,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01666">1666</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01704">1704</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1080,7 +1086,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00162">162</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00163">163</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1128,7 +1134,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00242">242</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00280">280</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1196,7 +1202,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01307">1307</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01345">1345</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1234,7 +1240,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01335">1335</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01373">1373</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1272,7 +1278,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01363">1363</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01401">1401</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1310,7 +1316,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01391">1391</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01429">1429</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1336,7 +1342,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00137">137</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00138">138</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1419,7 +1425,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>On unified memory architectures (Metal) the device pointer aliases the host array whenever possible, such that host and device share a single allocation instead of replicating data </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00883">883</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00921">921</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1489,7 +1495,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00915">915</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00953">953</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -1533,7 +1539,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00949">949</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00987">987</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -1577,7 +1583,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00983">983</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01021">1021</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -1621,7 +1627,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01017">1017</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01055">1055</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -1684,7 +1690,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>For device to device copies, <em>ptr_h</em> is assumed to be the dst device pointer </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00499">499</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00537">537</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1775,7 +1781,7 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>For host-device copies <em>dst</em> is the host pointer and <em>src</em> is the device pointer (regardless of <em>dir</em>) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00470">470</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00508">508</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -1837,7 +1843,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00316">316</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00354">354</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -1899,7 +1905,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00354">354</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00392">392</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -1961,7 +1967,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00392">392</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00430">430</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -2023,7 +2029,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00430">430</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00468">468</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -2071,7 +2077,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00267">267</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00305">305</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2101,6 +2107,44 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="a2f5302b6d1ae6bf6947f46de206f37f1" name="a2f5302b6d1ae6bf6947f46de206f37f1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f5302b6d1ae6bf6947f46de206f37f1">&#9670;&#160;</a></span>device_mp_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> device::device_mp_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>Used to size work decompositions so that every launch fills the device with complete waves of blocks. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00216">216</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dbe/namespacedevice_a2f5302b6d1ae6bf6947f46de206f37f1_cgraph.png" border="0" usemap="#ad0/dbe/namespacedevice_a2f5302b6d1ae6bf6947f46de206f37f1_cgraph" alt=""/></div>
+<map name="ad0/dbe/namespacedevice_a2f5302b6d1ae6bf6947f46de206f37f1_cgraph" id="ad0/dbe/namespacedevice_a2f5302b6d1ae6bf6947f46de206f37f1_cgraph">
+<area shape="rect" title="Return the number of multiprocessors (SMs on NVIDIA, CUs on AMD, compute units on OpenCL,..." alt="" coords="5,37,192,62"/>
+<area shape="poly" title=" " alt="" coords="64,38,56,28,60,18,75,12,99,10,128,14,140,23,137,27,126,19,99,15,76,17,64,22,61,28,68,35"/>
+<area shape="rect" href="../../d3/d3b/namespaceopencl__intf.html#a0ef8afa7610b7b4336817194ad1736a3" title="Return the number of compute units of the current device (CL_DEVICE_MAX_COMPUTE_UNITS),..." alt="" coords="240,29,384,69"/>
+<area shape="poly" title=" " alt="" coords="192,47,226,47,226,52,192,52"/>
+<area shape="poly" title=" " alt="" coords="272,30,270,20,276,10,290,5,312,3,337,6,351,13,348,18,335,11,312,8,292,10,279,15,275,21,277,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dbe/namespacedevice_a2f5302b6d1ae6bf6947f46de206f37f1_icgraph.png" border="0" usemap="#ad0/dbe/namespacedevice_a2f5302b6d1ae6bf6947f46de206f37f1_icgraph" alt=""/></div>
+<map name="ad0/dbe/namespacedevice_a2f5302b6d1ae6bf6947f46de206f37f1_icgraph" id="ad0/dbe/namespacedevice_a2f5302b6d1ae6bf6947f46de206f37f1_icgraph">
+<area shape="rect" title="Return the number of multiprocessors (SMs on NVIDIA, CUs on AMD, compute units on OpenCL,..." alt="" coords="5,29,192,55"/>
+<area shape="poly" title=" " alt="" coords="132,19,122,11,99,8,79,10,69,15,66,20,72,28,68,31,61,21,65,11,77,5,99,3,124,6,135,15"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="aacdc0ad29b09298498fc06f3106fe4f4" name="aacdc0ad29b09298498fc06f3106fe4f4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aacdc0ad29b09298498fc06f3106fe4f4">&#9670;&#160;</a></span>device_name()</h2>
 
@@ -2117,7 +2161,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00181">181</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00182">182</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -2157,7 +2201,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01570">1570</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01608">1608</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2185,7 +2229,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01579">1579</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01617">1617</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2227,7 +2271,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01462">1462</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01500">1500</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -2263,7 +2307,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01499">1499</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01537">1537</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2297,7 +2341,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01521">1521</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01559">1559</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2347,7 +2391,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01543">1543</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01581">1581</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2399,7 +2443,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01419">1419</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01457">1457</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -2419,7 +2463,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01440">1440</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01478">1478</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -2448,6 +2492,44 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="275,415,176,442,175,437,274,410"/>
 <area shape="rect" href="../../d8/dcd/namespacegs__device.html#a89055bd6c1485bfd35554067912769bf" title="Gather kernel." alt="" coords="22,504,181,544"/>
 <area shape="poly" title=" " alt="" coords="310,420,260,457,199,494,171,506,169,502,196,490,257,453,307,415"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="acffd5d354d7d41d3505f7c304c21e030" name="acffd5d354d7d41d3505f7c304c21e030"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acffd5d354d7d41d3505f7c304c21e030">&#9670;&#160;</a></span>device_total_mem()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>(kind=i8) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a> device::device_total_mem</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>On Metal (unified memory) this is the recommended maximum working set rather than physical memory. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l00234">234</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dbe/namespacedevice_acffd5d354d7d41d3505f7c304c21e030_cgraph.png" border="0" usemap="#ad0/dbe/namespacedevice_acffd5d354d7d41d3505f7c304c21e030_cgraph" alt=""/></div>
+<map name="ad0/dbe/namespacedevice_acffd5d354d7d41d3505f7c304c21e030_cgraph" id="ad0/dbe/namespacedevice_acffd5d354d7d41d3505f7c304c21e030_cgraph">
+<area shape="rect" title="Return the total memory of the current device in bytes, or 0 if the backend cannot tell." alt="" coords="5,37,200,62"/>
+<area shape="poly" title=" " alt="" coords="67,38,59,28,63,18,78,12,103,10,133,14,145,23,142,27,131,19,103,15,79,17,67,22,64,28,71,35"/>
+<area shape="rect" href="../../d3/d3b/namespaceopencl__intf.html#ac184b2938fef440fe2110d503b5f0100" title="Return the global memory size of the current device in bytes (CL_DEVICE_GLOBAL_MEM_SIZE),..." alt="" coords="248,29,399,69"/>
+<area shape="poly" title=" " alt="" coords="200,47,234,47,234,52,200,52"/>
+<area shape="poly" title=" " alt="" coords="282,30,280,20,286,10,301,5,323,3,349,6,363,13,360,18,347,11,323,8,302,10,290,15,285,21,287,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d0/dbe/namespacedevice_acffd5d354d7d41d3505f7c304c21e030_icgraph.png" border="0" usemap="#ad0/dbe/namespacedevice_acffd5d354d7d41d3505f7c304c21e030_icgraph" alt=""/></div>
+<map name="ad0/dbe/namespacedevice_acffd5d354d7d41d3505f7c304c21e030_icgraph" id="ad0/dbe/namespacedevice_acffd5d354d7d41d3505f7c304c21e030_icgraph">
+<area shape="rect" title="Return the total memory of the current device in bytes, or 0 if the backend cannot tell." alt="" coords="5,29,200,55"/>
+<area shape="poly" title=" " alt="" coords="137,19,127,11,103,8,82,10,71,15,69,20,75,28,71,31,64,21,67,11,81,5,103,3,129,6,141,15"/>
 </map>
 </div>
 
@@ -2487,7 +2569,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01051">1051</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01089">1089</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -2525,7 +2607,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01088">1088</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01126">1126</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -2563,7 +2645,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01125">1125</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01163">1163</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -2601,7 +2683,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01162">1162</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d2a/device_8F90_source.html#l01200">1200</a> of file <a class="el" href="../../d4/d2a/device_8F90_source.html">device.F90</a>.</p>
 
 </div>
 </div>
@@ -2780,7 +2862,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d0/dbe/namespacedevice.html">device</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

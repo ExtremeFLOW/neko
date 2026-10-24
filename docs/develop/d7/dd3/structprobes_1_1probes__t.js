@@ -27,6 +27,7 @@ var structprobes_1_1probes__t =
     [ "restart", "d7/dd3/structprobes_1_1probes__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d7/dd3/structprobes_1_1probes__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
     [ "setup_offset", "d7/dd3/structprobes_1_1probes__t.html#af642a5b93fa9ee932a593ffa7e5a4d45", null ],
+    [ "time_to_next", "d7/dd3/structprobes_1_1probes__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "append_out", "d7/dd3/structprobes_1_1probes__t.html#a45f10ca002c4a521e59883224b2d60b3", null ],
     [ "case", "d7/dd3/structprobes_1_1probes__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d7/dd3/structprobes_1_1probes__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],

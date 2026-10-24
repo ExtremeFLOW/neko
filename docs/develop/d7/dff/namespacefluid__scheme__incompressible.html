@@ -130,9 +130,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa72fc8bdc7d2e0828eb5346cf1cfab23" id="r_aa72fc8bdc7d2e0828eb5346cf1cfab23"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dff/namespacefluid__scheme__incompressible.html#aa72fc8bdc7d2e0828eb5346cf1cfab23">fluid_scheme_bc_apply_prs</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:aa72fc8bdc7d2e0828eb5346cf1cfab23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply all boundary conditions defined for pressure.  <br /></td></tr>
 <tr class="separator:aa72fc8bdc7d2e0828eb5346cf1cfab23"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a85f5885312dd2d37bdaf0b6607bdd29d" id="r_a85f5885312dd2d37bdaf0b6607bdd29d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dff/namespacefluid__scheme__incompressible.html#a85f5885312dd2d37bdaf0b6607bdd29d">fluid_scheme_solver_factory</a> (ksp, n, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">solver</a>, max_iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">abstol</a>, monitor)</td></tr>
-<tr class="memdesc:a85f5885312dd2d37bdaf0b6607bdd29d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a linear solver.  <br /></td></tr>
-<tr class="separator:a85f5885312dd2d37bdaf0b6607bdd29d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50cdbba18bfb6700510c1a06663b1608" id="r_a50cdbba18bfb6700510c1a06663b1608"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dff/namespacefluid__scheme__incompressible.html#a50cdbba18bfb6700510c1a06663b1608">fluid_scheme_solver_factory</a> (ksp, n, params)</td></tr>
+<tr class="memdesc:a50cdbba18bfb6700510c1a06663b1608"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a linear solver from its JSON solver block.  <br /></td></tr>
+<tr class="separator:a50cdbba18bfb6700510c1a06663b1608"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abf392def30c85c4fb3e14fb9739f5ab9" id="r_abf392def30c85c4fb3e14fb9739f5ab9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/dff/namespacefluid__scheme__incompressible.html#abf392def30c85c4fb3e14fb9739f5ab9">fluid_scheme_precon_factory</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, pc, ksp, coef, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">bclst</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pctype</a>, json)</td></tr>
 <tr class="memdesc:abf392def30c85c4fb3e14fb9739f5ab9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize a Krylov preconditioner.  <br /></td></tr>
 <tr class="separator:abf392def30c85c4fb3e14fb9739f5ab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -181,7 +181,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00628">628</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00618">618</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 
 </div>
 </div>
@@ -220,7 +220,7 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000006">Todo:</a></b></dt><dd>Why can't we call the interface here? </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00570">570</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00565">565</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -275,7 +275,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="todo"><dt><b><a class="el" href="../../dd/da0/todo.html#_todo000005">Todo:</a></b></dt><dd>Why can't we call the interface here? </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00523">523</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00518">518</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -313,7 +313,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00379">379</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00374">374</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 
 </div>
 </div>
@@ -453,7 +453,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00611">611</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00601">601</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -514,7 +514,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00672">672</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00662">662</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -540,8 +540,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a85f5885312dd2d37bdaf0b6607bdd29d" name="a85f5885312dd2d37bdaf0b6607bdd29d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a85f5885312dd2d37bdaf0b6607bdd29d">&#9670;&#160;</a></span>fluid_scheme_solver_factory()</h2>
+<a id="a50cdbba18bfb6700510c1a06663b1608" name="a50cdbba18bfb6700510c1a06663b1608"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50cdbba18bfb6700510c1a06663b1608">&#9670;&#160;</a></span>fluid_scheme_solver_factory()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -564,26 +564,8 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>solver</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>max_iter</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>abstol</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>monitor</em>&#160;</td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -599,13 +581,13 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>Currently only supporting Krylov solvers </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00596">596</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00591">591</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d7/dff/namespacefluid__scheme__incompressible_a85f5885312dd2d37bdaf0b6607bdd29d_icgraph.png" border="0" usemap="#ad7/dff/namespacefluid__scheme__incompressible_a85f5885312dd2d37bdaf0b6607bdd29d_icgraph" alt=""/></div>
-<map name="ad7/dff/namespacefluid__scheme__incompressible_a85f5885312dd2d37bdaf0b6607bdd29d_icgraph" id="ad7/dff/namespacefluid__scheme__incompressible_a85f5885312dd2d37bdaf0b6607bdd29d_icgraph">
-<area shape="rect" title="Initialize a linear solver." alt="" coords="183,5,399,45"/>
+<div class="center"><img src="../../d7/dff/namespacefluid__scheme__incompressible_a50cdbba18bfb6700510c1a06663b1608_icgraph.png" border="0" usemap="#ad7/dff/namespacefluid__scheme__incompressible_a50cdbba18bfb6700510c1a06663b1608_icgraph" alt=""/></div>
+<map name="ad7/dff/namespacefluid__scheme__incompressible_a50cdbba18bfb6700510c1a06663b1608_icgraph" id="ad7/dff/namespacefluid__scheme__incompressible_a50cdbba18bfb6700510c1a06663b1608_icgraph">
+<area shape="rect" title="Initialize a linear solver from its JSON solver block." alt="" coords="183,5,399,45"/>
 <area shape="rect" href="../../d6/d78/namespacefluid__plan1.html#ab1fb9c5e6fea5145cee2e111f6ce9404" title=" " alt="" coords="5,5,135,45"/>
 <area shape="poly" title=" " alt="" coords="169,28,135,28,135,23,169,23"/>
 </map>
@@ -654,7 +636,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00643">643</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00633">633</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -702,7 +684,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00481">481</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html#l00476">476</a> of file <a class="el" href="../../d8/d5a/fluid__scheme__incompressible_8f90_source.html">fluid_scheme_incompressible.f90</a>.</p>
 
 </div>
 </div>
@@ -712,7 +694,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d7/dff/namespacefluid__scheme__incompressible.html">fluid_scheme_incompressible</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:53 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

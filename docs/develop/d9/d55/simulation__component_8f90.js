@@ -17,6 +17,7 @@ var simulation__component_8f90 =
     [ "simulation_component_parse_json", "d9/d55/simulation__component_8f90.html#ae36a1c18f230607b04b28352d3c5f068", null ],
     [ "simulation_component_preprocess_wrapper", "d9/d55/simulation__component_8f90.html#ade8539079a6c9703b477359d3a5d06ad", null ],
     [ "simulation_component_restart_wrapper", "d9/d55/simulation__component_8f90.html#a611ee043ca2e2d68faa2ccc75b98f6f3", null ],
+    [ "simulation_component_time_to_next", "d9/d55/simulation__component_8f90.html#ab1b5413ab1826d9eb9c6aa976e5464e0", null ],
     [ "simulation_component_wrapper_free", "d9/d55/simulation__component_8f90.html#a234e5706646dbb5f3fd6aede8a1f9c45", null ],
     [ "simulation_component_wrapper_init", "d9/d55/simulation__component_8f90.html#a69e81ab0c3432721c64e59fccead976c", null ],
     [ "simulation_component_wrapper_is_allocated", "d9/d55/simulation__component_8f90.html#a9a5a82ed79dcbb8b7a29100e65f22727", null ],

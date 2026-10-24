@@ -217,7 +217,9 @@ Enumerations</h2></td></tr>
 <tr class="memitem:a5c088c3f5e21c3e37acf1b09d50e1e99" id="r_a5c088c3f5e21c3e37acf1b09d50e1e99"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a5c088c3f5e21c3e37acf1b09d50e1e99a030b8a17a54e1a65da6fa36c43ad80e6">cl_context_platform</a> = int(Z'1084')
  }</td></tr>
 <tr class="separator:a5c088c3f5e21c3e37acf1b09d50e1e99"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a370e2b94f59ff866ce497a8a8dcd79c4" id="r_a370e2b94f59ff866ce497a8a8dcd79c4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4a5dfd2b9b1dfa13d9bb698680453e4971">cl_device_name</a> = 4139
+<tr class="memitem:a370e2b94f59ff866ce497a8a8dcd79c4" id="r_a370e2b94f59ff866ce497a8a8dcd79c4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4a5f22925b82ba0e912a2639aae38b69fb">cl_device_max_compute_units</a> = int(Z'1002')
+, <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4a4d6d2e2ad72d7c632cc2afdf752f915f">cl_device_global_mem_size</a> = int(Z'101F')
+, <a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4a5dfd2b9b1dfa13d9bb698680453e4971">cl_device_name</a> = 4139
  }</td></tr>
 <tr class="memdesc:a370e2b94f59ff866ce497a8a8dcd79c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enum device info.  <a href="../../d3/d3b/namespaceopencl__intf.html#a370e2b94f59ff866ce497a8a8dcd79c4">More...</a><br /></td></tr>
 <tr class="separator:a370e2b94f59ff866ce497a8a8dcd79c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -233,6 +235,12 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a476f3dd0418dfa1401fb91a1a75635d8" id="r_a476f3dd0418dfa1401fb91a1a75635d8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a476f3dd0418dfa1401fb91a1a75635d8">opencl_device_count</a> ()</td></tr>
 <tr class="memdesc:a476f3dd0418dfa1401fb91a1a75635d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of OpenCL devices.  <br /></td></tr>
 <tr class="separator:a476f3dd0418dfa1401fb91a1a75635d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ef8afa7610b7b4336817194ad1736a3" id="r_a0ef8afa7610b7b4336817194ad1736a3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d3b/namespaceopencl__intf.html#a0ef8afa7610b7b4336817194ad1736a3">opencl_device_mp_count</a> ()</td></tr>
+<tr class="memdesc:a0ef8afa7610b7b4336817194ad1736a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the number of compute units of the current device (CL_DEVICE_MAX_COMPUTE_UNITS), or 0 if the query fails.  <br /></td></tr>
+<tr class="separator:a0ef8afa7610b7b4336817194ad1736a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac184b2938fef440fe2110d503b5f0100" id="r_ac184b2938fef440fe2110d503b5f0100"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>(kind=i8) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/d3b/namespaceopencl__intf.html#ac184b2938fef440fe2110d503b5f0100">opencl_device_total_mem</a> ()</td></tr>
+<tr class="memdesc:ac184b2938fef440fe2110d503b5f0100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the global memory size of the current device in bytes (CL_DEVICE_GLOBAL_MEM_SIZE), or 0 if the query fails.  <br /></td></tr>
+<tr class="separator:ac184b2938fef440fe2110d503b5f0100"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -392,7 +400,9 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a370e2b94f59ff866ce497a8a8dcd79c4a5dfd2b9b1dfa13d9bb698680453e4971" name="a370e2b94f59ff866ce497a8a8dcd79c4a5dfd2b9b1dfa13d9bb698680453e4971"></a>cl_device_name&#160;</td><td class="fielddoc"></td></tr>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a370e2b94f59ff866ce497a8a8dcd79c4a5f22925b82ba0e912a2639aae38b69fb" name="a370e2b94f59ff866ce497a8a8dcd79c4a5f22925b82ba0e912a2639aae38b69fb"></a>cl_device_max_compute_units&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a370e2b94f59ff866ce497a8a8dcd79c4a4d6d2e2ad72d7c632cc2afdf752f915f" name="a370e2b94f59ff866ce497a8a8dcd79c4a4d6d2e2ad72d7c632cc2afdf752f915f"></a>cl_device_global_mem_size&#160;</td><td class="fielddoc"></td></tr>
+<tr><td class="fieldname"><a id="a370e2b94f59ff866ce497a8a8dcd79c4a5dfd2b9b1dfa13d9bb698680453e4971" name="a370e2b94f59ff866ce497a8a8dcd79c4a5dfd2b9b1dfa13d9bb698680453e4971"></a>cl_device_name&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
 <p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00096">96</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
@@ -412,7 +422,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00485">485</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00487">487</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -441,6 +451,44 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
+<a id="a0ef8afa7610b7b4336817194ad1736a3" name="a0ef8afa7610b7b4336817194ad1736a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ef8afa7610b7b4336817194ad1736a3">&#9670;&#160;</a></span>opencl_device_mp_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a> <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a> opencl_intf::opencl_device_mp_count</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>This is SMs on NVIDIA and CUs on AMD, but EUs/Xe-cores on Intel GPUs and logical cores on CPU devices. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00509">509</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d3b/namespaceopencl__intf_a0ef8afa7610b7b4336817194ad1736a3_cgraph.png" border="0" usemap="#ad3/d3b/namespaceopencl__intf_a0ef8afa7610b7b4336817194ad1736a3_cgraph" alt=""/></div>
+<map name="ad3/d3b/namespaceopencl__intf_a0ef8afa7610b7b4336817194ad1736a3_cgraph" id="ad3/d3b/namespaceopencl__intf_a0ef8afa7610b7b4336817194ad1736a3_cgraph">
+<area shape="rect" title="Return the number of compute units of the current device (CL_DEVICE_MAX_COMPUTE_UNITS),..." alt="" coords="5,29,149,69"/>
+<area shape="poly" title=" " alt="" coords="49,29,48,20,52,11,62,5,77,3,95,6,104,13,101,17,93,11,77,8,64,10,56,14,53,21,55,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d3b/namespaceopencl__intf_a0ef8afa7610b7b4336817194ad1736a3_icgraph.png" border="0" usemap="#ad3/d3b/namespaceopencl__intf_a0ef8afa7610b7b4336817194ad1736a3_icgraph" alt=""/></div>
+<map name="ad3/d3b/namespaceopencl__intf_a0ef8afa7610b7b4336817194ad1736a3_icgraph" id="ad3/d3b/namespaceopencl__intf_a0ef8afa7610b7b4336817194ad1736a3_icgraph">
+<area shape="rect" title="Return the number of compute units of the current device (CL_DEVICE_MAX_COMPUTE_UNITS),..." alt="" coords="240,29,384,69"/>
+<area shape="poly" title=" " alt="" coords="348,18,335,11,312,8,292,10,279,15,275,21,277,28,272,30,270,20,276,10,290,5,312,3,337,6,351,13"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a2f5302b6d1ae6bf6947f46de206f37f1" title="Return the number of multiprocessors (SMs on NVIDIA, CUs on AMD, compute units on OpenCL,..." alt="" coords="5,37,192,62"/>
+<area shape="poly" title=" " alt="" coords="226,52,192,52,192,47,226,47"/>
+<area shape="poly" title=" " alt="" coords="137,27,126,19,99,15,76,17,64,22,61,28,68,35,64,38,56,28,60,18,75,12,99,10,128,14,140,23"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a07ec4ed5818678cf793c11b2b44543ca" name="a07ec4ed5818678cf793c11b2b44543ca"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a07ec4ed5818678cf793c11b2b44543ca">&#9670;&#160;</a></span>opencl_device_name()</h2>
 
@@ -457,7 +505,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00470">470</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00472">472</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -468,6 +516,43 @@ Here is the caller graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="398,28,364,28,364,23,398,23"/>
 <area shape="rect" href="../../dd/d62/namespaceneko.html#a12ac3a3e9d30fbc66d5a77e012e90edb" title="Display job information, number of MPI ranks, CPU type and selected hardware backend." alt="" coords="5,13,156,38"/>
 <area shape="poly" title=" " alt="" coords="190,28,157,28,157,23,190,23"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ac184b2938fef440fe2110d503b5f0100" name="ac184b2938fef440fe2110d503b5f0100"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac184b2938fef440fe2110d503b5f0100">&#9670;&#160;</a></span>opencl_device_total_mem()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>(kind=i8) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a> opencl_intf::opencl_device_total_mem</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00526">526</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d3b/namespaceopencl__intf_ac184b2938fef440fe2110d503b5f0100_cgraph.png" border="0" usemap="#ad3/d3b/namespaceopencl__intf_ac184b2938fef440fe2110d503b5f0100_cgraph" alt=""/></div>
+<map name="ad3/d3b/namespaceopencl__intf_ac184b2938fef440fe2110d503b5f0100_cgraph" id="ad3/d3b/namespaceopencl__intf_ac184b2938fef440fe2110d503b5f0100_cgraph">
+<area shape="rect" title="Return the global memory size of the current device in bytes (CL_DEVICE_GLOBAL_MEM_SIZE),..." alt="" coords="5,29,156,69"/>
+<area shape="poly" title=" " alt="" coords="52,29,50,20,55,11,65,5,81,3,99,6,108,13,105,17,97,11,81,8,67,10,59,14,55,21,57,28"/>
+</map>
+</div>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d3/d3b/namespaceopencl__intf_ac184b2938fef440fe2110d503b5f0100_icgraph.png" border="0" usemap="#ad3/d3b/namespaceopencl__intf_ac184b2938fef440fe2110d503b5f0100_icgraph" alt=""/></div>
+<map name="ad3/d3b/namespaceopencl__intf_ac184b2938fef440fe2110d503b5f0100_icgraph" id="ad3/d3b/namespaceopencl__intf_ac184b2938fef440fe2110d503b5f0100_icgraph">
+<area shape="rect" title="Return the global memory size of the current device in bytes (CL_DEVICE_GLOBAL_MEM_SIZE),..." alt="" coords="248,29,399,69"/>
+<area shape="poly" title=" " alt="" coords="360,18,347,11,323,8,302,10,290,15,285,21,287,28,282,30,280,20,286,10,301,5,323,3,349,6,363,13"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#acffd5d354d7d41d3505f7c304c21e030" title="Return the total memory of the current device in bytes, or 0 if the backend cannot tell." alt="" coords="5,37,200,62"/>
+<area shape="poly" title=" " alt="" coords="234,52,200,52,200,47,234,47"/>
+<area shape="poly" title=" " alt="" coords="142,27,131,19,103,15,79,17,67,22,64,28,71,35,67,38,59,28,63,18,78,12,103,10,133,14,145,23"/>
 </map>
 </div>
 
@@ -505,7 +590,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00425">425</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00427">427</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -553,7 +638,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00364">364</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00366">366</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -582,7 +667,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00104">104</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00106">106</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -598,7 +683,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00106">106</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00108">108</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -614,7 +699,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00102">102</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00104">104</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -630,7 +715,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00105">105</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00107">107</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -646,7 +731,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00101">101</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00103">103</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -662,7 +747,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00103">103</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00105">105</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -678,7 +763,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00109">109</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00111">111</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -694,7 +779,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00110">110</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../de/ded/opencl__intf_8F90_source.html#l00112">112</a> of file <a class="el" href="../../de/ded/opencl__intf_8F90_source.html">opencl_intf.F90</a>.</p>
 
 </div>
 </div>
@@ -736,7 +821,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/d3b/namespaceopencl__intf.html">opencl_intf</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

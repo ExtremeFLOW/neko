@@ -5,6 +5,7 @@ var namespacegmres__device =
     [ "device_gmres_part2", "de/df2/namespacegmres__device.html#a0a158df824f0f1613e4f18806ea3a81e", null ],
     [ "gmres_device_free", "de/df2/namespacegmres__device.html#ae22b087c0b4a1f8189d29fefe812cc6a", null ],
     [ "gmres_device_init", "de/df2/namespacegmres__device.html#a0b4548cec5c339329d7919b3870d8810", null ],
+    [ "gmres_device_init_from_json", "de/df2/namespacegmres__device.html#a4d8bc26070556e1f2cdaa072907f21d4", null ],
     [ "gmres_device_solve", "de/df2/namespacegmres__device.html#acdfd846f0f2c95fed9ed788773cbc6b4", null ],
     [ "gmres_device_solve_coupled", "de/df2/namespacegmres__device.html#ab70720741aca24905cfa92c39bf25473", null ]
 ];

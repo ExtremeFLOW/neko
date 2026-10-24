@@ -23,6 +23,7 @@ var structwall__shear__stress__simcomp_1_1wall__shear__stress__t =
     [ "preprocess_", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "bdata", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html#a78b6525d7183c176e1bf140822f581ad", null ],
     [ "case", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "coef", "d8/dd6/structwall__shear__stress__simcomp_1_1wall__shear__stress__t.html#a089eec3d394d8f2bf657830428090a82", null ],

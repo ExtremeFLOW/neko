@@ -14,6 +14,8 @@ var hip__intf_8F90 =
     [ "hip_intf::hip_buffer_free_all", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all.html", "dc/d01/interfacehip__intf_1_1hip__buffer__free__all" ],
     [ "hip_intf::hipdevicegetname", "d1/d41/interfacehip__intf_1_1hipdevicegetname.html", "d1/d41/interfacehip__intf_1_1hipdevicegetname" ],
     [ "hip_intf::hipgetdevicecount", "db/d7a/interfacehip__intf_1_1hipgetdevicecount.html", "db/d7a/interfacehip__intf_1_1hipgetdevicecount" ],
+    [ "hip_intf::hip_device_mp_count", "df/d6f/interfacehip__intf_1_1hip__device__mp__count.html", "df/d6f/interfacehip__intf_1_1hip__device__mp__count" ],
+    [ "hip_intf::hip_device_total_mem", "da/de4/interfacehip__intf_1_1hip__device__total__mem.html", "da/de4/interfacehip__intf_1_1hip__device__total__mem" ],
     [ "hip_intf::hipstreamcreate", "da/da9/interfacehip__intf_1_1hipstreamcreate.html", "da/da9/interfacehip__intf_1_1hipstreamcreate" ],
     [ "hip_intf::hipstreamcreatewithflags", "da/dee/interfacehip__intf_1_1hipstreamcreatewithflags.html", "da/dee/interfacehip__intf_1_1hipstreamcreatewithflags" ],
     [ "hip_intf::hipstreamcreatewithpriority", "d6/dc0/interfacehip__intf_1_1hipstreamcreatewithpriority.html", "d6/dc0/interfacehip__intf_1_1hipstreamcreatewithpriority" ],

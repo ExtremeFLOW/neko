@@ -1,0 +1,7 @@
+<map id="opencl_intf::opencl_device_mp_count" name="opencl_intf::opencl_device_mp_count">
+<area shape="rect" id="Node000001" title="Return the number of compute units of the current device (CL_DEVICE_MAX_COMPUTE_UNITS),..." alt="" coords="240,29,384,69"/>
+<area shape="poly" id="edge3_Node000001_Node000001" title=" " alt="" coords="348,18,335,11,312,8,292,10,279,15,275,21,277,28,272,30,270,20,276,10,290,5,312,3,337,6,351,13"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a2f5302b6d1ae6bf6947f46de206f37f1" title="Return the number of multiprocessors (SMs on NVIDIA, CUs on AMD, compute units on OpenCL,..." alt="" coords="5,37,192,62"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="226,52,192,52,192,47,226,47"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="137,27,126,19,99,15,76,17,64,22,61,28,68,35,64,38,56,28,60,18,75,12,99,10,128,14,140,23"/>
+</map>

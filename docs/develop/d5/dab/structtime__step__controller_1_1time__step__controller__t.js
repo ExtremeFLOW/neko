@@ -1,12 +1,16 @@
 var structtime__step__controller_1_1time__step__controller__t =
 [
+    [ "first_dt", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a0c9ab39ac87224d05f7b72bd442eba97", null ],
     [ "init", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#afaf8293252a7af32206e05aed134b486", null ],
+    [ "land", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a706d98acb5fcc71fa9ed9e5202be3857", null ],
     [ "set_dt", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a186f75d41833bcba6c64906260b86420", null ],
     [ "alpha", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#aabc24f05d328ccfd718c4f0ba79cd9ff", null ],
     [ "cfl_avg", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#ac42837deb70757eb35af0848c00fb142", null ],
     [ "cfl_trg", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#ac16d94b7c21808b95601d40e5217db50", null ],
     [ "dev_tol", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a5b4fa23cc6ea4724c13fd7bbff0ccac6", null ],
     [ "dt_last_change", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#aa924533aa901bae7b0bb60aa32087ef0", null ],
+    [ "dt_previous", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a3685861c2a758836f340c98695e765a2", null ],
+    [ "exact_output_time", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a5b21a78ce02b8632b0db5b1c8c722628", null ],
     [ "init_dt", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#ad1d1a64af4e4df6dc7483551b2d86031", null ],
     [ "is_variable_dt", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a439f22eea49d553aac2d34fce88d8169", null ],
     [ "max_dt", "d5/dab/structtime__step__controller_1_1time__step__controller__t.html#a1d142a2262631a29a67df28d792a9a1f", null ],

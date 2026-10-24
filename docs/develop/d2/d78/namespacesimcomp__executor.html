@@ -129,6 +129,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ab37b7e3a85e9d146796cb05a5ee7d5fc" id="r_ab37b7e3a85e9d146796cb05a5ee7d5fc"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#ab37b7e3a85e9d146796cb05a5ee7d5fc">simcomp_executor_preprocess</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:ab37b7e3a85e9d146796cb05a5ee7d5fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute preprocess_ for all simcomps.  <br /></td></tr>
 <tr class="separator:ab37b7e3a85e9d146796cb05a5ee7d5fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9261be971c5f9d5b79da6f17a587fce2" id="r_a9261be971c5f9d5b79da6f17a587fce2"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#a9261be971c5f9d5b79da6f17a587fce2">simcomp_executor_time_to_next</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
+<tr class="memdesc:a9261be971c5f9d5b79da6f17a587fce2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The time until the next scheduled execution of <code>preprocess</code>, <code>compute</code> or the output of any simcomp, or <code>huge(0.0_dp)</code> if there is none. Used to make the time step land exactly on it.  <br /></td></tr>
+<tr class="separator:a9261be971c5f9d5b79da6f17a587fce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f6d6acefb8cc9db02882f9a464ddf8c" id="r_a2f6d6acefb8cc9db02882f9a464ddf8c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html#a2f6d6acefb8cc9db02882f9a464ddf8c">simcomp_executor_compute</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:a2f6d6acefb8cc9db02882f9a464ddf8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execute compute_ for all simcomps.  <br /></td></tr>
 <tr class="separator:a2f6d6acefb8cc9db02882f9a464ddf8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,7 +189,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00306">306</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00330">330</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -214,7 +217,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00197">197</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00199">199</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -242,7 +245,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00178">178</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00180">180</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -270,7 +273,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00337">337</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00361">361</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -321,7 +324,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00089">89</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -365,7 +368,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00289">289</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00291">291</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -409,7 +412,51 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00323">323</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00347">347</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9261be971c5f9d5b79da6f17a587fce2" name="a9261be971c5f9d5b79da6f17a587fce2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9261be971c5f9d5b79da6f17a587fce2">&#9670;&#160;</a></span>simcomp_executor_time_to_next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a> simcomp_executor::simcomp_executor_time_to_next </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The current time. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00310">310</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -426,7 +473,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d8/d65/simcomp__executor_8f90_source.html">simcomp_executor.f90</a>.</p>
 
 </div>
 </div>
@@ -436,7 +483,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/d78/namespacesimcomp__executor.html">simcomp_executor</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

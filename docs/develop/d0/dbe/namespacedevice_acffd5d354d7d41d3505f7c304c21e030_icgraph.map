@@ -1,0 +1,4 @@
+<map id="device::device_total_mem" name="device::device_total_mem">
+<area shape="rect" id="Node000001" title="Return the total memory of the current device in bytes, or 0 if the backend cannot tell." alt="" coords="5,29,200,55"/>
+<area shape="poly" id="edge1_Node000001_Node000001" title=" " alt="" coords="137,19,127,11,103,8,82,10,71,15,69,20,75,28,71,31,64,21,67,11,81,5,103,3,129,6,141,15"/>
+</map>

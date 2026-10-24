@@ -153,6 +153,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aef41ed2d9a697e6ee9dd7f4259c05d09" id="r_aef41ed2d9a697e6ee9dd7f4259c05d09"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/def/namespacesimulation__component.html#aef41ed2d9a697e6ee9dd7f4259c05d09">simulation_component_compute_wrapper</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:aef41ed2d9a697e6ee9dd7f4259c05d09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for calling <code>compute_</code> based on the <code>compute_controller</code>. Serves as the public interface.  <br /></td></tr>
 <tr class="separator:aef41ed2d9a697e6ee9dd7f4259c05d09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1b5413ab1826d9eb9c6aa976e5464e0" id="r_ab1b5413ab1826d9eb9c6aa976e5464e0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/def/namespacesimulation__component.html#ab1b5413ab1826d9eb9c6aa976e5464e0">simulation_component_time_to_next</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
+<tr class="memdesc:ab1b5413ab1826d9eb9c6aa976e5464e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">The time until the next scheduled execution of <code>preprocess</code>, <code>compute</code> or the output, whichever comes first, or <code>huge(0.0_dp)</code> if there is none. Used to make the time step land exactly on it. A component that drives a controller of its own, apart from the three of the base class, should override this and include it.  <br /></td></tr>
+<tr class="separator:ab1b5413ab1826d9eb9c6aa976e5464e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a611ee043ca2e2d68faa2ccc75b98f6f3" id="r_a611ee043ca2e2d68faa2ccc75b98f6f3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d2/def/namespacesimulation__component.html#a611ee043ca2e2d68faa2ccc75b98f6f3">simulation_component_restart_wrapper</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time)</td></tr>
 <tr class="memdesc:a611ee043ca2e2d68faa2ccc75b98f6f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Wrapper for calling <code>set_counter_</code> based for the controllers.  <br /></td></tr>
 <tr class="separator:a611ee043ca2e2d68faa2ccc75b98f6f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -230,7 +233,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00493">493</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00514">514</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -274,7 +277,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00484">484</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00505">505</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -318,7 +321,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00475">475</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00496">496</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -362,7 +365,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00450">450</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00453">453</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -390,7 +393,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00420">420</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00423">423</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -434,7 +437,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00209">209</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00212">212</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -506,7 +509,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00271">271</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00274">274</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -599,7 +602,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00240">240</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00243">243</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -692,7 +695,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00296">296</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00299">299</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -736,7 +739,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00437">437</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00440">440</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -780,7 +783,51 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00462">462</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00483">483</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+
+</div>
+</div>
+<a id="ab1b5413ab1826d9eb9c6aa976e5464e0" name="ab1b5413ab1826d9eb9c6aa976e5464e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1b5413ab1826d9eb9c6aa976e5464e0">&#9670;&#160;</a></span>simulation_component_time_to_next()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a> simulation_component::simulation_component_time_to_next </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../dc/d0d/structsimulation__component_1_1simulation__component__t.html">simulation_component_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>time</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The current time. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00469">469</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -808,7 +855,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00515">515</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00536">536</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -852,7 +899,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00504">504</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00525">525</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -886,7 +933,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00540">540</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00561">561</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -931,7 +978,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00529">529</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00550">550</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -948,7 +995,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00198">198</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00201">201</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -972,7 +1019,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00201">201</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d55/simulation__component_8f90_source.html#l00204">204</a> of file <a class="el" href="../../d9/d55/simulation__component_8f90_source.html">simulation_component.f90</a>.</p>
 
 </div>
 </div>
@@ -982,7 +1029,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d2/def/namespacesimulation__component.html">simulation_component</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:55 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:32 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

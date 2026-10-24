@@ -8,5 +8,6 @@ var simcomp__executor_8f90 =
     [ "simcomp_executor_init", "d8/d65/simcomp__executor_8f90.html#a7f5ec92ba565c1a0002e25412f94229e", null ],
     [ "simcomp_executor_preprocess", "d8/d65/simcomp__executor_8f90.html#ab37b7e3a85e9d146796cb05a5ee7d5fc", null ],
     [ "simcomp_executor_restart", "d8/d65/simcomp__executor_8f90.html#a0070bfaf30d230aba1583248b850106f", null ],
+    [ "simcomp_executor_time_to_next", "d8/d65/simcomp__executor_8f90.html#a9261be971c5f9d5b79da6f17a587fce2", null ],
     [ "neko_simcomps", "d8/d65/simcomp__executor_8f90.html#a4e23cb01202a3d0847549aafe6b9738f", null ]
 ];

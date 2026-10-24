@@ -24,6 +24,7 @@ var structuser__stats_1_1user__stats__t =
     [ "restart", "dd/d8b/structuser__stats_1_1user__stats__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "dd/d8b/structuser__stats_1_1user__stats__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
     [ "restart_", "dd/d8b/structuser__stats_1_1user__stats__t.html#aac4301162161299fe4e7e916fa119413", null ],
+    [ "time_to_next", "dd/d8b/structuser__stats_1_1user__stats__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "base_filename", "dd/d8b/structuser__stats_1_1user__stats__t.html#aedea793e95551ee271eec36d09c4c793", null ],
     [ "case", "dd/d8b/structuser__stats_1_1user__stats__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "dd/d8b/structuser__stats_1_1user__stats__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],

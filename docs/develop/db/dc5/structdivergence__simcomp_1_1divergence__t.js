@@ -23,6 +23,7 @@ var structdivergence__simcomp_1_1divergence__t =
     [ "preprocess_", "db/dc5/structdivergence__simcomp_1_1divergence__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "db/dc5/structdivergence__simcomp_1_1divergence__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "db/dc5/structdivergence__simcomp_1_1divergence__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "db/dc5/structdivergence__simcomp_1_1divergence__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "case", "db/dc5/structdivergence__simcomp_1_1divergence__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "db/dc5/structdivergence__simcomp_1_1divergence__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "divergence", "db/dc5/structdivergence__simcomp_1_1divergence__t.html#a6143ca46e122aa2063350f878f38b8b6", null ],

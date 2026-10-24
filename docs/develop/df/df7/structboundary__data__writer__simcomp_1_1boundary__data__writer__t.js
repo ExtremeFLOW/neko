@@ -24,6 +24,7 @@ var structboundary__data__writer__simcomp_1_1boundary__data__writer__t =
     [ "preprocess_", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "append_out", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html#a823b4aaa21d218d53cc97e3b0da30b00", null ],
     [ "bdata", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html#ac1f66e3f86633a2cb06d6607c3dec72f", null ],
     [ "case", "df/df7/structboundary__data__writer__simcomp_1_1boundary__data__writer__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],

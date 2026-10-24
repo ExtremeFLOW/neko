@@ -3,6 +3,8 @@ var namespacecomm =
     [ "neko_comm_wrapper_init", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init" ],
     [ "comm_free", "d3/d8f/namespacecomm.html#a064af56a87bebfb8224de6dd655ea7b3", null ],
     [ "comm_init", "d3/d8f/namespacecomm.html#a08a353f1ee66ac93674f48d999819eec", null ],
+    [ "is_mpmd", "d3/d8f/namespacecomm.html#af6773c5e1f197ca836a300f02226f2cd", null ],
+    [ "shmem_check_thread_level", "d3/d8f/namespacecomm.html#aa8ddde0090060fc67f9299432f93fd86", null ],
     [ "global_pe_rank", "d3/d8f/namespacecomm.html#a49ecc104d9449bfa2c82e20961e03be2", null ],
     [ "global_pe_size", "d3/d8f/namespacecomm.html#a6f12f8d4e58022c341882f61ff607fe6", null ],
     [ "mpi_extra_precision", "d3/d8f/namespacecomm.html#ae24abe270df5000b8f0534eaeb00245f", null ],

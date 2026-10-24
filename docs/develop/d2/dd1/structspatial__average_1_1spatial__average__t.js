@@ -19,6 +19,7 @@ var structspatial__average_1_1spatial__average__t =
     [ "preprocess_", "d2/dd1/structspatial__average_1_1spatial__average__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "d2/dd1/structspatial__average_1_1spatial__average__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d2/dd1/structspatial__average_1_1spatial__average__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d2/dd1/structspatial__average_1_1spatial__average__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "case", "d2/dd1/structspatial__average_1_1spatial__average__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d2/dd1/structspatial__average_1_1spatial__average__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "name", "d2/dd1/structspatial__average_1_1spatial__average__t.html#a5bbbafdd10fc5f071a23b4f96383d5e5", null ],

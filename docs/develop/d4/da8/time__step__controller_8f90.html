@@ -101,7 +101,8 @@ $(document).ready(function(){initNavTree('d4/da8/time__step__controller_8f90.htm
   <div class="summary">
 <a href="#nested-classes">Data Types</a> &#124;
 <a href="#namespaces">Modules</a> &#124;
-<a href="#func-members">Functions/Subroutines</a>  </div>
+<a href="#func-members">Functions/Subroutines</a> &#124;
+<a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">time_step_controller.f90 File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -125,9 +126,24 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a4bf4086f70a833896ee477ca27076a17" id="r_a4bf4086f70a833896ee477ca27076a17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#a4bf4086f70a833896ee477ca27076a17">time_step_controller::time_step_controller_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, params)</td></tr>
 <tr class="memdesc:a4bf4086f70a833896ee477ca27076a17"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="separator:a4bf4086f70a833896ee477ca27076a17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a967d86b1e569f6ed05ba1fe36e80dd3a" id="r_a967d86b1e569f6ed05ba1fe36e80dd3a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">pure</a> <a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp) <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">function</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#a967d86b1e569f6ed05ba1fe36e80dd3a">time_step_controller::time_step_controller_first_dt</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time, cfl)</td></tr>
+<tr class="memdesc:a967d86b1e569f6ed05ba1fe36e80dd3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The first time step of a variable time step run: the one giving the target CFL number, limited by <code>timestep</code>, <code>max_timestep</code> and <code>min_timestep</code> where given.  <br /></td></tr>
+<tr class="separator:a967d86b1e569f6ed05ba1fe36e80dd3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9ae9b03d86f743c7b100f304544cb35c" id="r_a9ae9b03d86f743c7b100f304544cb35c"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#a9ae9b03d86f743c7b100f304544cb35c">time_step_controller::time_step_controller_set_dt</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time, cfl)</td></tr>
 <tr class="memdesc:a9ae9b03d86f743c7b100f304544cb35c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set new dt based on cfl if requested.  <br /></td></tr>
 <tr class="separator:a9ae9b03d86f743c7b100f304544cb35c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a973c309b915a3f5552bc468d14ee71f4" id="r_a973c309b915a3f5552bc468d14ee71f4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#a973c309b915a3f5552bc468d14ee71f4">time_step_controller::time_step_controller_land</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, time, time_to_next)</td></tr>
+<tr class="memdesc:a973c309b915a3f5552bc468d14ee71f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fit the time step so that the next scheduled time, or the end time, is reached exactly.  <br /></td></tr>
+<tr class="separator:a973c309b915a3f5552bc468d14ee71f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Variables</h2></td></tr>
+<tr class="memitem:a0a40505ce743bcb531f4d960caeff50d" id="r_a0a40505ce743bcb531f4d960caeff50d"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#a0a40505ce743bcb531f4d960caeff50d">time_step_controller::landing_tol</a> = 1.0e-6<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">_dp</a></td></tr>
+<tr class="memdesc:a0a40505ce743bcb531f4d960caeff50d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relative tolerance on the number of steps up to a scheduled time, so that round-off in the accumulated time does not add a step, and on the change of the step that counts as one.  <br /></td></tr>
+<tr class="separator:a0a40505ce743bcb531f4d960caeff50d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81cffe9b4621198da9e9c844c7fafb9a" id="r_a81cffe9b4621198da9e9c844c7fafb9a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=dp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d3/dda/namespacetime__step__controller.html#a81cffe9b4621198da9e9c844c7fafb9a">time_step_controller::max_landing_steps</a> = 1.0e15_dp</td></tr>
+<tr class="memdesc:a81cffe9b4621198da9e9c844c7fafb9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Largest number of steps up to a scheduled time that is still fitted.  <br /></td></tr>
+<tr class="separator:a81cffe9b4621198da9e9c844c7fafb9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -135,7 +151,7 @@ Functions/Subroutines</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_fdedb0aba14d44ce9d99bc100e026e6a.html">common</a></li><li class="navelem"><a class="el" href="../../d4/da8/time__step__controller_8f90.html">time_step_controller.f90</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:51 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:29 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

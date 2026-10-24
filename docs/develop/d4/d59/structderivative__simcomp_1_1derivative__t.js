@@ -23,6 +23,7 @@ var structderivative__simcomp_1_1derivative__t =
     [ "preprocess_", "d4/d59/structderivative__simcomp_1_1derivative__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "d4/d59/structderivative__simcomp_1_1derivative__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d4/d59/structderivative__simcomp_1_1derivative__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d4/d59/structderivative__simcomp_1_1derivative__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "case", "d4/d59/structderivative__simcomp_1_1derivative__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d4/d59/structderivative__simcomp_1_1derivative__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "dr", "d4/d59/structderivative__simcomp_1_1derivative__t.html#a0f5ceeac2e9188424213eaedfc455857", null ],

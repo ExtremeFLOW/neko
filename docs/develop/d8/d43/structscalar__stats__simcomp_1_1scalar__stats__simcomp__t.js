@@ -21,6 +21,7 @@ var structscalar__stats__simcomp_1_1scalar__stats__simcomp__t =
     [ "restart", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#ac90a6f125803e8e20b0c3a5e26698c79", null ],
     [ "restart_", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "base_filename", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#a95ffc3e633d724632d4188509144fe4f", null ],
     [ "case", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],

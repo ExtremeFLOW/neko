@@ -119,9 +119,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aeb40eb6b82f696a5696324c68d7f9501" id="r_aeb40eb6b82f696a5696324c68d7f9501"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db4/namespaceale__manager.html#aeb40eb6b82f696a5696324c68d7f9501">ale_manager_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, json, user, chkp)</td></tr>
 <tr class="memdesc:aeb40eb6b82f696a5696324c68d7f9501"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc.  <br /></td></tr>
 <tr class="separator:aeb40eb6b82f696a5696324c68d7f9501"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaec889c954567207a1fe41e8961ac448" id="r_aaec889c954567207a1fe41e8961ac448"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db4/namespaceale__manager.html#aaec889c954567207a1fe41e8961ac448">solve_base_mesh_displacement</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, json, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">import_base_shapes</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">abstol</a>, ksp_solver, ksp_max_iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_type</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_params</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">res_monitor</a>)</td></tr>
-<tr class="memdesc:aaec889c954567207a1fe41e8961ac448"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blending function for mesh deformation. For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.  <br /></td></tr>
-<tr class="separator:aaec889c954567207a1fe41e8961ac448"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a657d2ef58db3d7baab4bb7e6e84e92c4" id="r_a657d2ef58db3d7baab4bb7e6e84e92c4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db4/namespaceale__manager.html#a657d2ef58db3d7baab4bb7e6e84e92c4">solve_base_mesh_displacement</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, json, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">import_base_shapes</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">solver_params</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_type</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_params</a>)</td></tr>
+<tr class="memdesc:a657d2ef58db3d7baab4bb7e6e84e92c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blending function for mesh deformation. For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.  <br /></td></tr>
+<tr class="separator:a657d2ef58db3d7baab4bb7e6e84e92c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac0b6c752943e3cd820d8361a1bf5e46" id="r_aac0b6c752943e3cd820d8361a1bf5e46"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db4/namespaceale__manager.html#aac0b6c752943e3cd820d8361a1bf5e46">update_mesh_velocity</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">time_s</a>)</td></tr>
 <tr class="memdesc:aac0b6c752943e3cd820d8361a1bf5e46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodies: mesh_vel = Sum( V_i * Phi_i )  <br /></td></tr>
 <tr class="separator:aac0b6c752943e3cd820d8361a1bf5e46"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -167,8 +167,8 @@ Functions/Subroutines</h2></td></tr>
 <tr class="separator:a1b12f37a0a36e76ed8cb2ab5ef1c6446"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aedfb0e2f9dc3f11ae4cc029df909c043" id="r_aedfb0e2f9dc3f11ae4cc029df909c043"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db4/namespaceale__manager.html#aedfb0e2f9dc3f11ae4cc029df909c043">ghost_tracker_coord_step</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">kin_object</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">time_s</a>, nadv, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">body_idx</a>)</td></tr>
 <tr class="separator:aedfb0e2f9dc3f11ae4cc029df909c043"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac61c32c83ac5d2184941909e80538701" id="r_ac61c32c83ac5d2184941909e80538701"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db4/namespaceale__manager.html#ac61c32c83ac5d2184941909e80538701">get_ale_solver_params_json</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, json, ksp_solver, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_type</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_params</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">abstol</a>, ksp_max_iter, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">res_monitor</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">import_base_shapes</a>)</td></tr>
-<tr class="separator:ac61c32c83ac5d2184941909e80538701"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a937a88bc41c572333c49d08ae563641a" id="r_a937a88bc41c572333c49d08ae563641a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db4/namespaceale__manager.html#a937a88bc41c572333c49d08ae563641a">get_ale_solver_params_json</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, json, ksp_solver, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_type</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">precon_params</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">abstol</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">import_base_shapes</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">solver_params</a>)</td></tr>
+<tr class="separator:a937a88bc41c572333c49d08ae563641a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae74986b60404e0155473e0706bcdb051" id="r_ae74986b60404e0155473e0706bcdb051"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../dd/db4/namespaceale__manager.html#ae74986b60404e0155473e0706bcdb051">register_checkpoint_fields</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, coef, checkpoint)</td></tr>
 <tr class="separator:ae74986b60404e0155473e0706bcdb051"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -258,7 +258,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01430">1430</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01425">1425</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -341,7 +341,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01230">1230</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01225">1225</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -393,7 +393,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01469">1469</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01464">1464</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -468,7 +468,7 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="218,246,268,253,267,258,217,251"/>
 <area shape="rect" href="../../d5/de6/namespacefield__math.html#a6d9ee36a5c455ef8e5d73ebe6424f4f6" title="Zero a real vector." alt="" coords="283,313,450,338"/>
 <area shape="poly" title=" " alt="" coords="152,246,282,297,309,306,307,311,280,303,150,251"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#ac61c32c83ac5d2184941909e80538701" title=" " alt="" coords="285,363,448,403"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a937a88bc41c572333c49d08ae563641a" title=" " alt="" coords="285,363,448,403"/>
 <area shape="poly" title=" " alt="" coords="137,247,199,295,283,348,295,355,293,359,280,353,196,299,134,251"/>
 <area shape="rect" href="../../d1/d65/namespaceale__rigid__kinematics.html#a739218ae2456939a6ceefb1ad4128845" title="Initialize pivot state." alt="" coords="288,427,445,467"/>
 <area shape="poly" title=" " alt="" coords="131,247,189,324,233,371,283,413,292,418,289,423,280,417,229,375,185,327,127,250"/>
@@ -539,14 +539,14 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01510">1510</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01505">1505</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../dd/db4/namespaceale__manager_a78d874284de8a2025d022773712319fa_icgraph.png" border="0" usemap="#add/db4/namespaceale__manager_a78d874284de8a2025d022773712319fa_icgraph" alt=""/></div>
 <map name="add/db4/namespaceale__manager_a78d874284de8a2025d022773712319fa_icgraph" id="add/db4/namespaceale__manager_a78d874284de8a2025d022773712319fa_icgraph">
 <area shape="rect" title="Factory for ALE Preconditioner." alt="" coords="252,5,439,45"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aaec889c954567207a1fe41e8961ac448" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,5,204,45"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a657d2ef58db3d7baab4bb7e6e84e92c4" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,5,204,45"/>
 <area shape="poly" title=" " alt="" coords="239,28,204,28,204,23,239,23"/>
 </map>
 </div>
@@ -593,7 +593,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01742">1742</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01737">1737</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -647,7 +647,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01984">1984</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01979">1979</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -677,7 +677,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01271">1271</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01266">1266</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -712,15 +712,15 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../dd/db4/namespaceale__manager_aadb4d8b03fb126dbfd684fe551c739e5_icgraph.png" border="0" usemap="#add/db4/namespaceale__manager_aadb4d8b03fb126dbfd684fe551c739e5_icgraph" alt=""/></div>
 <map name="add/db4/namespaceale__manager_aadb4d8b03fb126dbfd684fe551c739e5_icgraph" id="add/db4/namespaceale__manager_aadb4d8b03fb126dbfd684fe551c739e5_icgraph">
 <area shape="rect" title=" " alt="" coords="252,5,424,45"/>
-<area shape="rect" href="../../dd/db4/namespaceale__manager.html#aaec889c954567207a1fe41e8961ac448" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,5,204,45"/>
+<area shape="rect" href="../../dd/db4/namespaceale__manager.html#a657d2ef58db3d7baab4bb7e6e84e92c4" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,5,204,45"/>
 <area shape="poly" title=" " alt="" coords="238,28,204,28,204,23,238,23"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="ac61c32c83ac5d2184941909e80538701" name="ac61c32c83ac5d2184941909e80538701"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac61c32c83ac5d2184941909e80538701">&#9670;&#160;</a></span>get_ale_solver_params_json()</h2>
+<a id="a937a88bc41c572333c49d08ae563641a" name="a937a88bc41c572333c49d08ae563641a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a937a88bc41c572333c49d08ae563641a">&#9670;&#160;</a></span>get_ale_solver_params_json()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -767,20 +767,14 @@ Here is the caller graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
-          <td class="paramname"><em>ksp_max_iter</em>, </td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
+          <td class="paramname"><em>import_base_shapes</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
-          <td class="paramname"><em>res_monitor</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">out</a>)&#160;</td>
-          <td class="paramname"><em>import_base_shapes</em>&#160;</td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>solver_params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -795,12 +789,12 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02181">2181</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02176">2176</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dd/db4/namespaceale__manager_ac61c32c83ac5d2184941909e80538701_icgraph.png" border="0" usemap="#add/db4/namespaceale__manager_ac61c32c83ac5d2184941909e80538701_icgraph" alt=""/></div>
-<map name="add/db4/namespaceale__manager_ac61c32c83ac5d2184941909e80538701_icgraph" id="add/db4/namespaceale__manager_ac61c32c83ac5d2184941909e80538701_icgraph">
+<div class="center"><img src="../../dd/db4/namespaceale__manager_a937a88bc41c572333c49d08ae563641a_icgraph.png" border="0" usemap="#add/db4/namespaceale__manager_a937a88bc41c572333c49d08ae563641a_icgraph" alt=""/></div>
+<map name="add/db4/namespaceale__manager_a937a88bc41c572333c49d08ae563641a_icgraph" id="add/db4/namespaceale__manager_a937a88bc41c572333c49d08ae563641a_icgraph">
 <area shape="rect" title=" " alt="" coords="281,5,444,45"/>
 <area shape="rect" href="../../dd/db4/namespaceale__manager.html#aeb40eb6b82f696a5696324c68d7f9501" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="5,13,233,38"/>
 <area shape="poly" title=" " alt="" coords="268,28,233,28,233,23,268,23"/>
@@ -843,7 +837,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01970">1970</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01965">1965</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -899,7 +893,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02135">2135</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02130">2130</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -935,7 +929,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02084">2084</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02079">2079</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -971,7 +965,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02029">2029</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02024">2024</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -1015,7 +1009,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01764">1764</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01759">1759</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1069,7 +1063,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02242">2242</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02234">2234</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -1113,7 +1107,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01942">1942</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01937">1937</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -1151,7 +1145,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01708">1708</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01703">1703</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -1189,7 +1183,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01523">1523</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01518">1518</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1207,8 +1201,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="aaec889c954567207a1fe41e8961ac448" name="aaec889c954567207a1fe41e8961ac448"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaec889c954567207a1fe41e8961ac448">&#9670;&#160;</a></span>solve_base_mesh_displacement()</h2>
+<a id="a657d2ef58db3d7baab4bb7e6e84e92c4" name="a657d2ef58db3d7baab4bb7e6e84e92c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a657d2ef58db3d7baab4bb7e6e84e92c4">&#9670;&#160;</a></span>solve_base_mesh_displacement()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1243,20 +1237,8 @@ Here is the call graph for this function:</div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>abstol</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">character</a>(len=*), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ksp_solver</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>ksp_max_iter</em>, </td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>solver_params</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1268,13 +1250,7 @@ Here is the call graph for this function:</div>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
-          <td class="paramname"><em>precon_params</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">logical</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
-          <td class="paramname"><em>res_monitor</em>&#160;</td>
+          <td class="paramname"><em>precon_params</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1289,12 +1265,12 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00838">838</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00837">837</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../dd/db4/namespaceale__manager_aaec889c954567207a1fe41e8961ac448_cgraph.png" border="0" usemap="#add/db4/namespaceale__manager_aaec889c954567207a1fe41e8961ac448_cgraph" alt=""/></div>
-<map name="add/db4/namespaceale__manager_aaec889c954567207a1fe41e8961ac448_cgraph" id="add/db4/namespaceale__manager_aaec889c954567207a1fe41e8961ac448_cgraph">
+<div class="center"><img src="../../dd/db4/namespaceale__manager_a657d2ef58db3d7baab4bb7e6e84e92c4_cgraph.png" border="0" usemap="#add/db4/namespaceale__manager_a657d2ef58db3d7baab4bb7e6e84e92c4_cgraph" alt=""/></div>
+<map name="add/db4/namespaceale__manager_a657d2ef58db3d7baab4bb7e6e84e92c4_cgraph" id="add/db4/namespaceale__manager_a657d2ef58db3d7baab4bb7e6e84e92c4_cgraph">
 <area shape="rect" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,210,204,250"/>
 <area shape="rect" href="../../dd/db4/namespaceale__manager.html#a78d874284de8a2025d022773712319fa" title="Factory for ALE Preconditioner." alt="" coords="252,53,439,93"/>
 <area shape="poly" title=" " alt="" coords="123,208,177,156,213,128,251,102,263,96,266,100,253,107,216,132,181,160,126,212"/>
@@ -1403,7 +1379,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01587">1587</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01582">1582</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -1441,7 +1417,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01914">1914</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01909">1909</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1529,7 +1505,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01451">1451</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01446">1446</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1595,7 +1571,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01162">1162</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01157">1157</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1665,7 +1641,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dd/db4/namespaceale__manager.html">ale_manager</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:52 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:30 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

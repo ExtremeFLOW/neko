@@ -19,6 +19,8 @@ var structlpt__simcomp_1_1lpt__simcomp__t =
     [ "preprocess_", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html#a108b30439e1f99eb6996c949ab197fe3", null ],
     [ "restart", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html#a3cd3a39bf037e35d9a67378ee83d7829", null ],
     [ "restart_", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html#a4b075f50e4494af32b30f24dcbb75ed2", null ],
+    [ "time_to_next", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html#a2817b39402e8cd2d0cb88484b530c619", null ],
+    [ "time_to_next", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html#ae7bfd09bcf4ed21331b9798d57249ae1", null ],
     [ "case", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html#a45232b7d63b83b47e43412b5dc52f82e", null ],
     [ "compute_controller", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html#a93ae6a34d943971c49859e7dc2a08dc6", null ],
     [ "lpt", "d2/d3c/structlpt__simcomp_1_1lpt__simcomp__t.html#a5029e25b49355573f3da2e811c7fbccf", null ],

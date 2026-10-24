@@ -2,9 +2,11 @@ var structkrylov_1_1ksp__t =
 [
     [ "free", "d0/d3b/structkrylov_1_1ksp__t.html#a39467d0a5f0620de72b7a1a6e68e93d0", null ],
     [ "init", "d0/d3b/structkrylov_1_1ksp__t.html#a212e2f4ae22fc2b8b984a036ac549985", null ],
+    [ "init_from_json", "d0/d3b/structkrylov_1_1ksp__t.html#a23bd4feaa3faea1c9ef96f32106154ff", null ],
     [ "is_converged", "d0/d3b/structkrylov_1_1ksp__t.html#a75721421d4d26e4ea23205cfbc34443b", null ],
     [ "ksp_free", "d0/d3b/structkrylov_1_1ksp__t.html#a34dae2b9d3aff8de33af53f6bb156bc4", null ],
     [ "ksp_init", "d0/d3b/structkrylov_1_1ksp__t.html#aa93557061efb3f02ecd62cf8c05931c0", null ],
+    [ "ksp_init_from_json", "d0/d3b/structkrylov_1_1ksp__t.html#a8f0fbc400d5e8d4b1acf11654bb45c63", null ],
     [ "monitor_iter", "d0/d3b/structkrylov_1_1ksp__t.html#a4f01bfbf0a5979a60a0612e504c64489", null ],
     [ "monitor_start", "d0/d3b/structkrylov_1_1ksp__t.html#af1e58ddd50f07c06f09799dfc7e9933c", null ],
     [ "monitor_stop", "d0/d3b/structkrylov_1_1ksp__t.html#ab332bd6ee706aaacb6cd8bcbb3adb351", null ],

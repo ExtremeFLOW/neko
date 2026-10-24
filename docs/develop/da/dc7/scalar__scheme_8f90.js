@@ -14,7 +14,7 @@ var scalar__scheme_8f90 =
     [ "scalar_scheme_register_checkpoint", "da/dc7/scalar__scheme_8f90.html#aa2f488b99c645a710c5d753ddb926068", null ],
     [ "scalar_scheme_set_initial_condition", "da/dc7/scalar__scheme_8f90.html#afe219aba510b669da4f2c1042297e0d5", null ],
     [ "scalar_scheme_set_material_properties", "da/dc7/scalar__scheme_8f90.html#ab72269e4be11d711d345d540ff333415", null ],
-    [ "scalar_scheme_solver_factory", "da/dc7/scalar__scheme_8f90.html#a5f6ead3b733850e84a4bfb55ce3c1bbe", null ],
+    [ "scalar_scheme_solver_factory", "da/dc7/scalar__scheme_8f90.html#a5cbeed855d8b8de25f037f9d83ac9a61", null ],
     [ "scalar_scheme_update_material_properties", "da/dc7/scalar__scheme_8f90.html#a9f1e7d30e723418c67f7d22f72f0ace1", null ],
     [ "scalar_scheme_validate", "da/dc7/scalar__scheme_8f90.html#a6e4383936f487cdaaa5fffa09dc56155", null ],
     [ "scalar_scheme_wrapper_free", "da/dc7/scalar__scheme_8f90.html#a4e8b4e8e83d114fec2685bfa33dcbd0f", null ],

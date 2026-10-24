@@ -123,6 +123,9 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a0b4548cec5c339329d7919b3870d8810" id="r_a0b4548cec5c339329d7919b3870d8810"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df2/namespacegmres__device.html#a0b4548cec5c339329d7919b3870d8810">gmres_device_init</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, max_iter, m, rel_tol, abs_tol, monitor)</td></tr>
 <tr class="memdesc:a0b4548cec5c339329d7919b3870d8810"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a standard GMRES solver.  <br /></td></tr>
 <tr class="separator:a0b4548cec5c339329d7919b3870d8810"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d8bc26070556e1f2cdaa072907f21d4" id="r_a4d8bc26070556e1f2cdaa072907f21d4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df2/namespacegmres__device.html#a4d8bc26070556e1f2cdaa072907f21d4">gmres_device_init_from_json</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, n, json, m)</td></tr>
+<tr class="memdesc:a4d8bc26070556e1f2cdaa072907f21d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a standard GMRES solver from a JSON solver block. Reads <code>space_size</code> (default <code>GMRES_SPACE_SIZE</code>), then the keys of the base type.  <br /></td></tr>
+<tr class="separator:a4d8bc26070556e1f2cdaa072907f21d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae22b087c0b4a1f8189d29fefe812cc6a" id="r_ae22b087c0b4a1f8189d29fefe812cc6a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/df2/namespacegmres__device.html#ae22b087c0b4a1f8189d29fefe812cc6a">gmres_device_free</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
 <tr class="memdesc:ae22b087c0b4a1f8189d29fefe812cc6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deallocate a standard GMRES solver.  <br /></td></tr>
 <tr class="separator:ae22b087c0b4a1f8189d29fefe812cc6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -192,7 +195,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00118">118</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00123">123</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -252,7 +255,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00229">229</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00256">256</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
 
 </div>
 </div>
@@ -320,7 +323,57 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00141">141</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00146">146</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
+
+</div>
+</div>
+<a id="a4d8bc26070556e1f2cdaa072907f21d4" name="a4d8bc26070556e1f2cdaa072907f21d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d8bc26070556e1f2cdaa072907f21d4">&#9670;&#160;</a></span>gmres_device_init_from_json()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> gmres_device::gmres_device_init_from_json </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d8/d1e/structgmres__device_1_1gmres__device__t.html">gmres_device_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>this</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>)&#160;</td>
+          <td class="paramname"><em>n</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>json</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d7/d3a/structprecon_1_1pc__t.html">pc_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">in</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">optional</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">target</a>&#160;</td>
+          <td class="paramname"><em>m</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00236">236</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
 
 </div>
 </div>
@@ -400,7 +453,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00321">321</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00348">348</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -528,7 +581,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00492">492</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d58/gmres__device_8F90_source.html#l00519">519</a> of file <a class="el" href="../../d2/d58/gmres__device_8F90_source.html">gmres_device.F90</a>.</p>
 
 </div>
 </div>
@@ -538,7 +591,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../de/df2/namespacegmres__device.html">gmres_device</a></li>
-    <li class="footer">Generated on Fri Oct 23 2026 03:44:54 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sat Oct 24 2026 03:43:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
