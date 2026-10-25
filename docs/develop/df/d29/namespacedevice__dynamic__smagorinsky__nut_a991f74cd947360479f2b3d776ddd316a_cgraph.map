@@ -1,8 +1,8 @@
 <map id="device_dynamic_smagorinsky_nut::device_mij_compute_part1" name="device_dynamic_smagorinsky_nut::device_mij_compute_part1">
 <area shape="rect" id="Node000001" title="part 1 of the computing of the mij field" alt="" coords="5,49,240,89"/>
-<area shape="rect" id="Node000002" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a1be7b8d840991fb8f90db602ae92c0fe" title=" " alt="" coords="737,5,924,31"/>
+<area shape="rect" id="Node000002" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#af065763bfab5875f5c847f8da20cb358" title=" " alt="" coords="737,5,924,31"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,58,724,23,724,28,240,63"/>
-<area shape="rect" id="Node000004" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ace8ff036578ef8be8eb8aa5b94bb71b1" title=" " alt="" coords="288,77,445,117"/>
+<area shape="rect" id="Node000004" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a52d1df75bfd4ce78dada6babafba38b2" title=" " alt="" coords="288,77,445,117"/>
 <area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="240,79,275,83,274,89,240,85"/>
 <area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="972,99,1124,139"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="875,28,925,48,1005,90,1002,95,923,52,873,33"/>

@@ -121,7 +121,7 @@ var NAVTREEINDEX139 =
 "df/d29/namespacedevice__dynamic__smagorinsky__nut.html":[1,0,119],
 "df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a22bc401b3e2a942519a5f5d7b9b4d978":[1,0,119,5],
 "df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba":[1,0,119,8],
-"df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a66e06c1331950e890bc37a4acacf8770":[1,0,119,7],
+"df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a991f74cd947360479f2b3d776ddd316a":[1,0,119,7],
 "df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ac84f2458b7e3844fb271bb114231ea03":[1,0,119,9],
 "df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ad2a7f3e8548b2a06ad85f699241afebc":[1,0,119,6],
 "df/d2a/interfacegs__device__shmem_1_1cuda__gs__post__ready.html":[1,0,226,2],

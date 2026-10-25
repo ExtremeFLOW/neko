@@ -206,7 +206,7 @@ var searchData=
   ['opencl_5fmasked_5fscatter_5fcopy_5faligned_203',['opencl_masked_scatter_copy_aligned',['../dd/dec/interfaceopencl__math_1_1opencl__masked__scatter__copy__aligned.html#aeec0b87d4027e0399271f15cdd622bc9',1,'opencl_math::opencl_masked_scatter_copy_aligned::opencl_masked_scatter_copy_aligned()'],['../dd/dec/interfaceopencl__math_1_1opencl__masked__scatter__copy__aligned.html',1,'opencl_math::opencl_masked_scatter_copy_aligned'],['../d6/da3/math_8c.html#a5408ec6a87c247d831c75a6624bbdad6',1,'opencl_masked_scatter_copy_aligned(void *a, void *b, void *mask, int *n, int *m, cl_command_queue cmd_queue):&#160;math.c']]],
   ['opencl_5fmath_204',['opencl_math',['../de/d3f/namespaceopencl__math.html',1,'']]],
   ['opencl_5fmath_2ef90_205',['opencl_math.f90',['../d1/d96/opencl__math_8f90.html',1,'']]],
-  ['opencl_5fmij_5fcompute_5fpart1_206',['opencl_mij_compute_part1',['../de/d8a/dynamic__smagorinsky__nut_8c.html#ace8ff036578ef8be8eb8aa5b94bb71b1',1,'dynamic_smagorinsky_nut.c']]],
+  ['opencl_5fmij_5fcompute_5fpart1_206',['opencl_mij_compute_part1',['../de/d8a/dynamic__smagorinsky__nut_8c.html#a52d1df75bfd4ce78dada6babafba38b2',1,'dynamic_smagorinsky_nut.c']]],
   ['opencl_5fmij_5fnut_5fcompute_5fpart2_207',['opencl_mij_nut_compute_part2',['../de/d8a/dynamic__smagorinsky__nut_8c.html#ace5d89b2c62a078cb94b3406d9e1afad',1,'dynamic_smagorinsky_nut.c']]],
   ['opencl_5fmost_5fcompute_208',['opencl_most_compute',['../d0/d4f/most_8c.html#a0b7949861fafb82165146c303f797e9e',1,'most.c']]],
   ['opencl_5fneumann_5fapply_5fscalar_209',['opencl_neumann_apply_scalar',['../d0/dd5/neumann_8c.html#a415af5982c959bc3211d68079ecf3f82',1,'neumann.c']]],

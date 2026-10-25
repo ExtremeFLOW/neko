@@ -464,17 +464,12 @@ $(document).ready(function(){initNavTree('df/dcc/les__model_8f90_source.html','.
 <div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>         <span class="keyword">call </span>device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&amp;</div>
 <div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>              host_to_device, sync = .false.)</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>         <span class="keyword">call </span>this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), gs_op_add)</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>         <span class="keyword">call </span>device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())</div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span>         <span class="keyword">call </span>this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), gs_op_add)</div>
-<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span>         <span class="keyword">call </span>col2(this%delta%x, this%coef%mult, this%delta%dof%size())</div>
-<div class="line"><a id="l00390" name="l00390"></a><span class="lineno">  390</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00391" name="l00391"></a><span class="lineno">  391</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span>    <span class="keyword">end </span>associate</div>
 </div>
-<div class="line"><a id="l00392" name="l00392"></a><span class="lineno">  392</span>  <span class="keyword">end subroutine </span>les_model_compute_delta</div>
-<div class="line"><a id="l00393" name="l00393"></a><span class="lineno">  393</span> </div>
-<div class="line"><a id="l00394" name="l00394"></a><span class="lineno">  394</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/dfc/namespaceles__model.html">les_model</a></div>
+<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>  <span class="keyword">end subroutine </span>les_model_compute_delta</div>
+<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span> </div>
+<div class="line"><a id="l00389" name="l00389"></a><span class="lineno">  389</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/dfc/namespaceles__model.html">les_model</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device)</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>
 <div class="ttc" id="ainterfaceles__model_1_1les__model__compute_html"><div class="ttname"><a href="../../d8/d42/interfaceles__model_1_1les__model__compute.html">les_model::les_model_compute</a></div><div class="ttdoc">Compute eddy viscosity.</div><div class="ttdef"><b>Definition</b> <a href="../../df/dcc/les__model_8f90_source.html#l00102">les_model.f90:102</a></div></div>
 <div class="ttc" id="ainterfaceles__model_1_1les__model__free_html"><div class="ttname"><a href="../../d8/daa/interfaceles__model_1_1les__model__free.html">les_model::les_model_free</a></div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="../../df/dcc/les__model_8f90_source.html#l00124">les_model.f90:124</a></div></div>
@@ -529,7 +524,7 @@ $(document).ready(function(){initNavTree('df/dcc/les__model_8f90_source.html','.
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_6ac2283507a4fed10461ea6c78ce067a.html">les</a></li><li class="navelem"><a class="el" href="../../df/dcc/les__model_8f90.html">les_model.f90</a></li>
-    <li class="footer">Generated on Sat Oct 24 2026 03:43:28 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Oct 25 2026 03:46:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

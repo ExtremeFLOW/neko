@@ -1,6 +1,6 @@
-<map id="cuda_mij_compute_part1" name="cuda_mij_compute_part1">
-<area shape="rect" id="Node000001" title=" " alt="" coords="863,60,1049,85"/>
-<area shape="rect" id="Node000002" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a66e06c1331950e890bc37a4acacf8770" title="part 1 of the computing of the mij field" alt="" coords="580,53,815,93"/>
+<map id="opencl_mij_compute_part1" name="opencl_mij_compute_part1">
+<area shape="rect" id="Node000001" title=" " alt="" coords="863,53,1020,93"/>
+<area shape="rect" id="Node000002" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a991f74cd947360479f2b3d776ddd316a" title="part 1 of the computing of the mij field" alt="" coords="580,53,815,93"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="849,75,815,75,815,70,849,70"/>
 <area shape="rect" id="Node000003" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aeb6ad20071c91bb06dedc412094bb61e" title="Compute M_ij and nut on the device." alt="" coords="322,5,490,60"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="566,57,490,47,490,41,567,52"/>

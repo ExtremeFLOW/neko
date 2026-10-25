@@ -116,7 +116,7 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a30745e0cf7ea898af7a777cec4b533ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute Germano Identity on the CPU.  <br /></td></tr>
 <tr class="separator:a30745e0cf7ea898af7a777cec4b533ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3451ae6ed3c633d99cfe5b8dd3c0fea7" id="r_a3451ae6ed3c633d99cfe5b8dd3c0fea7"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7">compute_mij_cpu</a> (mij, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s11</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s22</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s33</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s12</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s13</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s23</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">s_abs</a>, test_filter, delta, n)</td></tr>
-<tr class="memdesc:a3451ae6ed3c633d99cfe5b8dd3c0fea7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute M_ij on the CPU.  <br /></td></tr>
+<tr class="memdesc:a3451ae6ed3c633d99cfe5b8dd3c0fea7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute M_ij on the CPU. M_ij = delta_test^2 |S_test| S_ij_test.  <br /></td></tr>
 <tr class="separator:a3451ae6ed3c633d99cfe5b8dd3c0fea7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a943f162fc6c5b0d7695ceec20c11a909" id="r_a943f162fc6c5b0d7695ceec20c11a909"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909">compute_num_den_cpu</a> (num, den, lij, mij, alpha, n)</td></tr>
 <tr class="memdesc:a943f162fc6c5b0d7695ceec20c11a909"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute numerator and denominator for c_dyn on the CPU.  <br /></td></tr>
@@ -307,8 +307,8 @@ Here is the caller graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
-<hr  />
-<p> M_ij = ((delta_test/delta)^2 s_abs*s_ij - s_abs*s_ij)*(delta^2) </p><dl class="params"><dt>Parameters</dt><dd>
+<ul>
+<li>test_filter(delta^2 |S| S_ij) <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">Mij</td><td></td></tr>
     <tr><td class="paramname">s11</td><td></td></tr>
@@ -318,25 +318,26 @@ Here is the caller graph for this function:</div>
     <tr><td class="paramname">s13</td><td></td></tr>
     <tr><td class="paramname">s23</td><td></td></tr>
     <tr><td class="paramname">s_abs</td><td></td></tr>
-    <tr><td class="paramname">test_filter</td><td></td></tr>
-    <tr><td class="paramname">n</td><td></td></tr>
+    <tr><td class="paramname">test_filter</td><td>The test filter. </td></tr>
+    <tr><td class="paramname">delta</td><td>The LES lengthscale. </td></tr>
+    <tr><td class="paramname">n</td><td>Number of degrees of freedom. </td></tr>
   </table>
   </dd>
 </dl>
+</li>
+</ul>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00267">267</a> of file <a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html">dynamic_smagorinsky_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00268">268</a> of file <a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html">dynamic_smagorinsky_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/def/namespacedynamic__smagorinsky__cpu_a3451ae6ed3c633d99cfe5b8dd3c0fea7_cgraph.png" border="0" usemap="#ada/def/namespacedynamic__smagorinsky__cpu_a3451ae6ed3c633d99cfe5b8dd3c0fea7_cgraph" alt=""/></div>
 <map name="ada/def/namespacedynamic__smagorinsky__cpu_a3451ae6ed3c633d99cfe5b8dd3c0fea7_cgraph" id="ada/def/namespacedynamic__smagorinsky__cpu_a3451ae6ed3c633d99cfe5b8dd3c0fea7_cgraph">
-<area shape="rect" title="Compute M_ij on the CPU." alt="" coords="5,47,180,87"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="228,5,329,31"/>
-<area shape="poly" title=" " alt="" coords="168,45,216,32,218,37,169,50"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="233,55,324,80"/>
-<area shape="poly" title=" " alt="" coords="180,65,219,65,219,70,180,70"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="231,104,326,129"/>
-<area shape="poly" title=" " alt="" coords="169,85,219,98,218,103,168,90"/>
+<area shape="rect" title="Compute M_ij on the CPU. M_ij = delta_test^2 |S_test| S_ij_test." alt="" coords="5,23,180,63"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="230,5,321,31"/>
+<area shape="poly" title=" " alt="" coords="180,29,216,23,217,29,181,34"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="228,55,323,80"/>
+<area shape="poly" title=" " alt="" coords="181,52,215,57,214,62,180,57"/>
 </map>
 </div>
 <div class="dynheader">
@@ -344,7 +345,7 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../da/def/namespacedynamic__smagorinsky__cpu_a3451ae6ed3c633d99cfe5b8dd3c0fea7_icgraph.png" border="0" usemap="#ada/def/namespacedynamic__smagorinsky__cpu_a3451ae6ed3c633d99cfe5b8dd3c0fea7_icgraph" alt=""/></div>
 <map name="ada/def/namespacedynamic__smagorinsky__cpu_a3451ae6ed3c633d99cfe5b8dd3c0fea7_icgraph" id="ada/def/namespacedynamic__smagorinsky__cpu_a3451ae6ed3c633d99cfe5b8dd3c0fea7_icgraph">
-<area shape="rect" title="Compute M_ij on the CPU." alt="" coords="260,13,435,53"/>
+<area shape="rect" title="Compute M_ij on the CPU. M_ij = delta_test^2 |S_test| S_ij_test." alt="" coords="260,13,435,53"/>
 <area shape="rect" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a4413235e5f71141ae47e071699c75afb" title="Compute eddy viscosity on the CPU." alt="" coords="5,5,212,60"/>
 <area shape="poly" title=" " alt="" coords="246,35,212,35,212,30,246,30"/>
 </map>
@@ -421,7 +422,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00375">375</a> of file <a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html">dynamic_smagorinsky_cpu.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html#l00363">363</a> of file <a class="el" href="../../d2/d0e/dynamic__smagorinsky__cpu_8f90_source.html">dynamic_smagorinsky_cpu.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -549,18 +550,16 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="167,77,259,41,308,27,309,32,261,46,169,82"/>
 <area shape="rect" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a30745e0cf7ea898af7a777cec4b533ea" title="Compute Germano Identity on the CPU." alt="" coords="283,55,451,95"/>
 <area shape="poly" title=" " alt="" coords="212,92,269,85,270,90,213,97"/>
-<area shape="rect" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7" title="Compute M_ij on the CPU." alt="" coords="280,119,455,159"/>
+<area shape="rect" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7" title="Compute M_ij on the CPU. M_ij = delta_test^2 |S_test| S_ij_test." alt="" coords="280,119,455,159"/>
 <area shape="poly" title=" " alt="" coords="213,117,267,124,266,130,212,123"/>
 <area shape="rect" href="../../da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909" title="Compute numerator and denominator for c_dyn on the CPU." alt="" coords="260,183,475,223"/>
 <area shape="poly" title=" " alt="" coords="171,132,261,169,283,177,282,182,259,174,169,137"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="528,112,619,137"/>
-<area shape="poly" title=" " alt="" coords="452,93,515,108,514,113,451,98"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="526,63,621,88"/>
-<area shape="poly" title=" " alt="" coords="451,73,512,73,512,78,451,78"/>
-<area shape="poly" title=" " alt="" coords="455,130,514,126,514,131,455,136"/>
-<area shape="poly" title=" " alt="" coords="435,117,474,105,521,90,522,95,475,110,437,122"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a0a627ff3e9d8b5a4fdffb489df69adb1" title="Multiplication by constant c ." alt="" coords="523,161,624,187"/>
-<area shape="poly" title=" " alt="" coords="455,151,509,161,508,166,454,157"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="525,67,615,92"/>
+<area shape="poly" title=" " alt="" coords="452,74,511,76,511,81,452,80"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="523,120,617,145"/>
+<area shape="poly" title=" " alt="" coords="439,93,512,114,510,119,438,98"/>
+<area shape="poly" title=" " alt="" coords="435,117,513,93,514,98,437,122"/>
+<area shape="poly" title=" " alt="" coords="455,134,508,132,509,137,455,139"/>
 </map>
 </div>
 
@@ -572,7 +571,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../da/def/namespacedynamic__smagorinsky__cpu.html">dynamic_smagorinsky_cpu</a></li>
-    <li class="footer">Generated on Sat Oct 24 2026 03:43:31 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Oct 25 2026 03:46:34 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

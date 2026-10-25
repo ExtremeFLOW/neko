@@ -4,7 +4,7 @@
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="537,186,506,123,482,89,453,59,434,48,437,43,456,55,486,85,510,120,542,184"/>
 <area shape="rect" id="Node000003" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a30745e0cf7ea898af7a777cec4b533ea" title="Compute Germano Identity on the CPU." alt="" coords="273,69,441,109"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="527,189,495,155,453,124,429,112,432,107,456,119,498,151,531,185"/>
-<area shape="rect" id="Node000005" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7" title="Compute M_ij on the CPU." alt="" coords="270,133,445,173"/>
+<area shape="rect" id="Node000005" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7" title="Compute M_ij on the CPU. M_ij = delta_test^2 |S_test| S_ij_test." alt="" coords="270,133,445,173"/>
 <area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="493,197,424,176,426,171,494,192"/>
 <area shape="rect" id="Node000006" href="$d5/de6/namespacefield__math.html#a3cbc556471d67156c30b2c918a4f8b20" title="Vector substraction ." alt="" coords="275,198,440,223"/>
 <area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="489,213,440,213,440,208,489,208"/>

@@ -42,7 +42,7 @@ var NAVTREEINDEX64 =
 "d7/d7d/opr__convect__scalar_8hip.html#af477c3e24e538a16c75439061804fb62":[3,0,3,18,0,1,1,30,7],
 "d7/d7d/opr__convect__scalar_8hip_source.html":[3,0,3,18,0,1,1,30],
 "d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html":[3,0,3,16,0,1,0,3],
-"d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#a27206ad264bc08eac017d44b4ca1d45a":[3,0,3,16,0,1,0,3,2],
+"d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#a5a63f35aa3e125cec1cfdb6e004311cc":[3,0,3,16,0,1,0,3,2],
 "d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#ab548c13ee3a2621a36a9902eef0be725":[3,0,3,16,0,1,0,3,3],
 "d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#abf4850e218286d1d3009582e2c08108d":[3,0,3,16,0,1,0,3,0],
 "d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#ac6568ad2541797c51186143273fe8697":[3,0,3,16,0,1,0,3,1],
