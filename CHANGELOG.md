@@ -11,6 +11,9 @@
 
 ## Develop
 
+- Fixed `regen.sh` returning success when `autoconf` or `automake` fails,
+  which let `./regen.sh && ./configure` carry on with a stale or missing
+  `configure`. The script now exits with status 1 as soon as either fails.
 - Fixed source terms skipping the time step that lands on their `start_time`
   or `end_time` when round-off in the accumulated time puts the step just
   outside the window, e.g. the last step of a run whose `end_time` equals the

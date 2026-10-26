@@ -23,9 +23,9 @@ else
 fi
 
 echo "Running autoconf"
-autoconf
+autoconf || exit 1
 echo "Running automake"
-automake -a
+automake -a || exit 1
 
 echo "Deleting autom4te.cache directory"
 rm -r autom4te.cache
