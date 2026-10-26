@@ -29,7 +29,6 @@ test-suite.log
 !restart_consistency/restart_consistency_test
 !restart_consistency_hdf5/restart_consistency_hdf5_test
 !geo_compression/geo_compression_test
-!time_step_controller/time_step_controller_test
 
 # Processed files
 **.inc
@@ -76,6 +75,7 @@ fast3d/fast3d_test
 time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
+time_step_controller/time_step_controller_test
 errors/errors_test
 json_utils/json_utils_test
 fluid_pnpn_bc/fluid_pnpn_bc_test
@@ -95,4 +95,3 @@ checkpoint_payload/checkpoint_payload_test
 wall_sampling/wall_sampling_suite
 crystal_router/crystal_router_suite
 geo_compression/geo_compression_suite
-time_step_controller/time_step_controller_suite
