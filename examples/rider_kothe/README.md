@@ -418,7 +418,7 @@ normalisation.
 At $t=8$, $N=5$, $\gamma=0.5$, his $E_s$ falls 7.4× from $H=1/64$ to $1/128$ and ours 3.5× (§3.7). This
 section takes that rate apart. It uses the outputs of §3.4–§3.7 plus repeats of his code.
 - Scripts and tables are in `logs/s45_2026-10-12/`: `drift_split.py`, `persist.py` with
-  `persist_stats.py`, `mass_disp.py` and `hb_predict.py`.
+  `persist_stats.py`, `mass_disp.py`, `mass_fine.py` with `mass_tests.py`, and `hb_predict.py`.
 - `rate_tables.py` prints the window rates, the drift and the retention (→ `tables/rate_tables.txt`).
 - Its `PREREGISTERED.txt` holds the predictions and verdicts.
 - "His" is his code at the same cell, rescored as in §3.6.
@@ -508,11 +508,37 @@ present. Means over the events at $t=1$–7.5:
   - his code gives 0.14;
   - $\gamma=0.25$ gives 0.56 at $H=1/64$.
 
-**Open.** Per interval, $\phi$ moves about as far from $\psi$'s zero set in both codes. At $t=8$ both
-codes' contour errors are mostly mass moved non-materially. But his error carries over less: retention
-0.45 and 0.23, against about 0.7 in ours. If his mass error also accumulates less, his non-material flux
-partly reverses from one interval to the next while ours keeps its sign. This has not been measured
-(`../../NEXT_SESSION.md` item 2).
+**The non-material mass flux reverses with the flow, in both codes.** $M(\theta,t)$ is the mass that
+has entered the material wedge $\theta$ (10° origin bins) non-materially since $t=0$. It is integrated on
+$32\times32$ sub-points per element, over whole elements near the interface, so that it stays resolved
+where the carried initial profile is sharper than the node spacing (`mass_fine.py`; tables
+`tables/massfine_*_s32.npz`, `tables/mass_tests.txt`; checks and predictions in `PREREGISTERED.txt`,
+"Does his non-material mass flux reverse?").
+- **It does not flip from one interval to the next.** Successive per-interval increments of $M$
+  correlate positively in both codes: $+0.16$ to $+0.59$ at $t\le1.44$, and $+0.24$ to $+0.75$ at
+  $t\ge6.48$ except two pairs near 0 (ours at $H=1/128$). The flux keeps its sign through a phase of the
+  flow.
+- **It reverses with the flow.** $M(8)-M(8-t)$ against $M(t)$ correlates $-0.74$ to $-0.96$ at
+  $t=0.96$ and 1.44, with slopes $-0.95$ to $-1.54$, in every run. Mass moved along the interface while
+  the flow stretches comes back when it reverses.
+- **The amount moved is the same at $H=1/128$, and within 15% at $1/64$.** $\sum|M|$ at the late peak ($t=6.48$) is $760$ against
+  $758\times10^{-6}$ at $H=1/128$, and $2655$ against $3053\times10^{-6}$ at $H=1/64$ (ours at
+  $\gamma=0.5$).
+- **What differs is the remainder not undone by $t=8$**, $\sum|M(8)|/\sum|M(6.48)|$:
+
+| | $H=1/64$ | $H=1/128$ | $\sum\lvert M(8)\rvert$, $1/64\to1/128$ | $E_s(8)$, $1/64\to1/128$ |
+|---|---|---|---|---|
+| ours, $\gamma=0.25$ | 0.27 | — | | |
+| ours, $\gamma=0.5$ | 0.34 | 0.32 | 3.7× | 3.5× |
+| ours, $\gamma=1$ | 0.46 | 0.53 | 2.8× | 4.0× |
+| ours, $\gamma=2$ | 0.54 | — | | |
+| his | 0.42 | 0.23 | 7.3× | 7.1–8.4× |
+
+  At $H=1/64$ ours leaves less than his at $\gamma\le0.5$. His remainder falls from 0.42 to 0.23 under
+  refinement; ours does not fall. That remainder sets $E_s(8)$ and its rate.
+
+**Open: why his irreversible remainder falls with $H$ and ours does not** (`../../NEXT_SESSION.md`
+item 2).
 
 ## 4. Limitations and open items
 
@@ -520,8 +546,9 @@ partly reverses from one interval to the next while ours keeps its sign. This ha
   - In Saini's configuration at $\gamma=1$, our $E_s$ is 1.5× his at $H=1/64$ and 2.8× at $H=1/128$; at
     $\gamma=0.5$, 0.94× and 2.0× (§3.4–§3.5).
   - His $E_s$ falls 7.1–8.4× per doubling over his repeats.
-  - Per interval, $\phi$ moves as much in both codes. Ours keeps about 70% of the earlier error at every
-    $H$; his keeps 45%, then 23% (§3.8). What lets his $\phi$ shed it is open.
+  - In both codes the non-material mass flux reverses with the flow, and the amount moved is the same at $H=1/128$. The
+    part not undone by $t=8$ is about a third in ours at $\gamma=0.5$ at both $H$; his is 0.42, then
+    0.23 (§3.8). Why his falls with $H$ is open.
   - At $H=1/128$ our thin tail stops 5.7–7.8$H$ short of the tip at $t=4$; his stops $0.8H$ short (§3.4).
   - The gap starts on the top of the disk by $t=1$. His projected Eq. (39) diffusion closes it early but
     costs boundedness and the $t=8$ result (§3.4).

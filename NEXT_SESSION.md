@@ -81,9 +81,11 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - At $H=1/128$ our $t\le2$ error pattern is still there at the mirrored times $t=6$–8 (correlation
        +0.70); his much less (+0.27). At $H=1/64$ both keep it (+0.39, +0.32).
      - The tail tip is a small part of $E_s$.
+     - In both codes the non-material mass flux keeps its sign through a phase of the flow and reverses
+       with it; the mass moved by the late peak ($t=6.48$) is the same at $H=1/128$.
    - **Ruled out** (§3.8): $\psi$'s quality, the curvature–strain drift, noise, a strain-tied deviation,
-     and his error being profile shape at $t\ge7.4$. At $t=8$ both codes' contour error is mostly mass
-     moved non-materially.
+     his error being profile shape at $t\ge7.4$, and his flux flipping sign from one interval to the next.
+     At $t=8$ both codes' contour error is mostly mass moved non-materially.
    - **Tried and stopped: $\phi$'s diffusion form** (case README appendix and §3.8; records in
      `logs/s45_2026-10-12/PREREGISTERED.txt`, "thin tail", steps 1–4; code and tables in
      `logs/s45_2026-10-12/cdi_forms/`).
@@ -93,16 +95,17 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - Projected only inside the band: the same.
      - SVV on $\phi$ at his strength: no effect.
      - Untried: an isotropic blend $(1-\alpha)\mathbf n\mathbf n+\alpha\mathbf I$, and stronger SVV on $\phi$.
-   - **Open: what lets his $\phi$ shed its error between events.**
-     - His contour error carries over less: retention 0.45, then 0.23, against about 0.7 in ours. At $t=8$
-       both are mostly mass moved non-materially.
-     - If his mass error also accumulates less, his non-material mass flux partly reverses from one interval
-       to the next while ours keeps its sign. Untested.
-     - Measuring it needs a mass reference that stays resolved mid-run. The initial profile carried along
-       the flow is sharper than the node spacing at $t\approx2.5$–6, where `mass_disp.py` is blind. The
-       alternative is resolved frames only: early against mirrored late.
-   - **Not run:** $\gamma=0.25$ at $H=1/128$. With retention at 0.6–0.7, both readings predicted
-     $E_s(8)\approx2.6\times10^{-3}$, so it would not decide anything.
+   - **Open: why his irreversible remainder falls with $H$ and ours does not.** The remainder is the part
+     of the moved mass not undone by $t=8$, $\sum|M(8)|/\sum|M(6.48)|$ (`mass_fine.py`, `mass_tests.py`).
+     - His: 0.42 at $H=1/64$, 0.23 at $1/128$. Ours at $\gamma=0.5$: 0.34, then 0.32; at $\gamma=1$: 0.46,
+       then 0.53. At $H=1/64$ ours is the smaller at $\gamma\le0.5$.
+     - It grows with $\gamma$ at $H=1/64$: 0.27 at 0.25, 0.54 at 2.
+     - Look at the remainder, not the forward motion. `massfine_*_s32.npz` holds only $t\le1.44$ and
+       $t\ge6.48$, so it cannot say when the irreversible part forms. Running `mass_fine.py` at
+       $t=2$–6 needs its sub-point check (c2 in `PREREGISTERED.txt`) to pass there first; the carried
+       profile is most compressed mid-run.
+   - **Not run:** $\gamma=0.25$ at $H=1/128$. It now has a question: does our remainder fall with $H$ at
+     low $\gamma$, as his does?
    - **Outputs kept.**
      - The $H=1/128$ outputs: `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}` and
        `cdi_forms/output_cdi_*_h128`.
