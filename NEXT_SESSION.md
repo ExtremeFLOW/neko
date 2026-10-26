@@ -92,7 +92,8 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - The projected Eq. (39) diffusion matches his $E_s$ to $t\approx1$ and lowers retention from 0.67 to
        0.56 (means over the events at $t=1$–6). But $\phi$ then leaves $[0,1]$ (or diverges), and $t=8$ is
        worse.
-     - Projected only inside the band: the same.
+     - Projected only inside the band: the same. Its rate is ours, not his: window rates 3.8–4.2× from
+       $H=1/64$ to $1/128$, and $E_s(8)$ 4.65× only because its $H=1/64$ value is 51% worse than isotropic.
      - SVV on $\phi$ at his strength: no effect.
      - Untried: an isotropic blend $(1-\alpha)\mathbf n\mathbf n+\alpha\mathbf I$, and stronger SVV on $\phi$.
    - **Open: why his irreversible remainder falls with $H$ and ours does not.** The remainder is the part
