@@ -18,8 +18,8 @@ The measurement scripts are in `examples/rider_kothe/logs/`:
   - `es_t.py` ($E_s$ at every frame against the exact interface) and `probe_quality.py`;
   - `figs_s45.py` (the three metrics, $|E_v|(t)$, contours with his code);
   - the rate study (case README §3.8): `drift_split.py`, `persist.py` with `persist_stats.py`,
-    `mass_disp.py`, `hb_predict.py`, and `rate_tables.py`, which prints the window rates, drift and
-    retention;
+    `mass_disp.py`, `mass_fine.py` with `mass_tests.py`, `hb_predict.py`, and `rate_tables.py`, which
+    prints the window rates, drift and retention;
 - `d5/saini/mk_saini_grid.sh` (his code over his grid) and `d5/saini/mk_s45_rate.sh` (his repeats);
 - `figs/figs_rk.py` and `anim/anim_rk.py` (which now also reads his dumps, `saini=<dir>`).
 
@@ -87,7 +87,8 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      his error being profile shape at $t\ge7.4$, and his flux flipping sign from one interval to the next.
      At $t=8$ both codes' contour error is mostly mass moved non-materially.
    - **Tried and stopped: $\phi$'s diffusion form** (case README appendix and §3.8; records in
-     `logs/s45_2026-10-12/PREREGISTERED.txt`, "thin tail", steps 1–4; code and tables in
+     `logs/s45_2026-10-12/PREREGISTERED.txt`, "thin tail", steps 1–4, and "Band-projected diffusion: E_s
+     rate"; code and tables in
      `logs/s45_2026-10-12/cdi_forms/`).
      - The projected Eq. (39) diffusion matches his $E_s$ to $t\approx1$ and lowers retention from 0.67 to
        0.56 (means over the events at $t=1$–6). But $\phi$ then leaves $[0,1]$ (or diverges), and $t=8$ is
@@ -95,7 +96,7 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - Projected only inside the band: the same. Its rate is ours, not his: window rates 3.8–4.2× from
        $H=1/64$ to $1/128$, and $E_s(8)$ 4.65× only because its $H=1/64$ value is 51% worse than isotropic.
      - SVV on $\phi$ at his strength: no effect.
-     - Untried: an isotropic blend $(1-\alpha)\mathbf n\mathbf n+\alpha\mathbf I$, and stronger SVV on $\phi$.
+     - Untried: an isotropic blend $(1-\alpha)\mathbf n\mathbf n+\alpha\mathbf I$.
    - **Open: why his irreversible remainder falls with $H$ and ours does not.** The remainder is the part
      of the moved mass not undone by $t=8$, $\sum|M(8)|/\sum|M(6.48)|$ (`mass_fine.py`, `mass_tests.py`).
      - His: 0.42 at $H=1/64$, 0.23 at $1/128$. Ours at $\gamma=0.5$: 0.34, then 0.32; at $\gamma=1$: 0.46,
@@ -109,7 +110,7 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      low $\gamma$, as his does?
    - **Outputs kept.**
      - The $H=1/128$ outputs: `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}` and
-       `cdi_forms/output_cdi_*_h128`.
+       `cdi_forms/output_cdi_*_h128`, plus `cdi_forms/output_cdi_proj_band_h64`.
      - His dumps every 0.04 at both $H$: `logs/d5/saini/cv{64,128}n5_d04`.
 3. **$\Delta t_{tls}=0.25$ diverges** at $t=5.69$ after 22 events, inside his range of 0.01–0.5
    (case README appendix). Find the mechanism of this repeated-event instability before any interval
