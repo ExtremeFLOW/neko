@@ -3,9 +3,9 @@
 echo "Updating configuration..."
 echo "Running libtoolize"
 if which libtoolize > /dev/null 2>&1; then
-    libtoolize -i
+    libtoolize -i || exit 1
 elif which glibtoolize > /dev/null 2>&1; then
-    glibtoolize -i
+    glibtoolize -i || exit 1
 else
     echo "No libtoolize found on your system"
     exit 1
@@ -16,7 +16,7 @@ rm aclocal.m4
 
 echo "Running aclocal"
 if which aclocal > /dev/null 2>&1; then
-  aclocal -I m4 --install
+  aclocal -I m4 --install || exit 1
 else
   echo "No aclocal found on your system"
   exit 1

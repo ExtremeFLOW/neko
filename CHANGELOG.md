@@ -11,9 +11,10 @@
 
 ## Develop
 
-- Fixed `regen.sh` returning success when `autoconf` or `automake` fails,
-  which let `./regen.sh && ./configure` carry on with a stale or missing
-  `configure`. The script now exits with status 1 as soon as either fails.
+- Fixed `regen.sh` returning success when `libtoolize`, `aclocal`,
+  `autoconf` or `automake` fails, which let `./regen.sh && ./configure` carry
+  on with a stale or missing `configure` or `Makefile.in`. The script now
+  exits with status 1 as soon as any of them fails.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 
