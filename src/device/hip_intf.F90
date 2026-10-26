@@ -193,6 +193,22 @@ module hip_intf
        integer(c_int) :: amount
      end function hipGetDeviceCount
 
+     !> Number of compute units of the current device (0 if unknown),
+     !! see device/hip/props.hip
+     integer(c_int) function hip_device_mp_count() &
+          bind(c, name = 'hip_device_mp_count')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function hip_device_mp_count
+
+     !> Total memory of the current device in bytes (0 if unknown),
+     !! see device/hip/props.hip
+     integer(c_size_t) function hip_device_total_mem() &
+          bind(c, name = 'hip_device_total_mem')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function hip_device_total_mem
+
      integer(c_int) function hipStreamCreate(stream) &
           bind(c, name = 'hipStreamCreate')
        use, intrinsic :: iso_c_binding
