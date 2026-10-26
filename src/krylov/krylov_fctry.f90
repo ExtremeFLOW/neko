@@ -53,6 +53,7 @@ submodule (krylov) krylov_fctry
   use num_Types, only : rp
   use precon, only : pc_t
   use utils, only : neko_type_error, neko_type_registration_error
+  use json_utils, only : json_get
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   implicit none
 
@@ -79,7 +80,7 @@ contains
   !! @param abstol The absolute tolerance, optional.
   !! @param M The preconditioner, optional.
   !! @param monitor Enable/disable residual history, optional.
-  module subroutine krylov_solver_factory(object, n, type_name, &
+  module subroutine krylov_solver_factory_components(object, n, type_name, &
        max_iter, abstol, M, monitor)
     class(ksp_t), allocatable, intent(inout) :: object
     integer, intent(in), value :: n
@@ -93,7 +94,27 @@ contains
 
     call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
 
-  end subroutine krylov_solver_factory
+  end subroutine krylov_solver_factory_components
+
+  !> Factory for Krylov solvers from a JSON solver block. Both creates and
+  !! initializes the object.
+  !! @param object The object to be allocated.
+  !! @param n Size of the vectors the solver operates on.
+  !! @param json The solver block, with the solver type under `type`.
+  !! @param M The preconditioner, optional.
+  module subroutine krylov_solver_factory_json(object, n, json, M)
+    class(ksp_t), allocatable, intent(inout) :: object
+    integer, intent(in), value :: n
+    type(json_file), intent(inout) :: json
+    class(pc_t), optional, intent(in), target :: M
+    character(len=:), allocatable :: type_name
+
+    call json_get(json, 'type', type_name)
+    call krylov_solver_allocator(object, type_name)
+
+    call object%init_from_json(n, json, M = M)
+
+  end subroutine krylov_solver_factory_json
 
   !> Krylov solver allocator.
   !! @param object The object to be allocated.
