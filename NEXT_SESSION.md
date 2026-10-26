@@ -109,10 +109,15 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
    - **Next: scale $\gamma$ with $\varepsilon$.** $\Gamma$ stays $\gamma u_{\max}(t)$.
      - **The idea.** What sets the remainder is CDI's relaxation rate against the flow's strain rate,
        $\beta=(\Gamma/\varepsilon)/(u_{\max}/L)=\gamma L/\varepsilon$, with $\varepsilon=\xi H/N$.
-       - Ours grows as $N/H$. At $\gamma=0.5$ it is about 8 e-folds per 0.05 at $H=1/64$ and 16 at
-         $1/128$.
-       - His Eq. (39) re-sharpening runs a pseudo-time $\varepsilon$ at unit speed every 0.05, about one
-         e-fold whatever $H$ and $N$ are.
+       - His Eq. (39) re-sharpening runs a pseudo-time $\varepsilon$ at unit compression speed every 0.05
+         (`lvlSet.f`: `nsteps_cls = floor(eps_in*dxave/dt_cls)`; `axhelm_cls` has coefficient 1 on
+         $\phi(1-\phi)$; `cv.par` `userParam02 = 0.05`). That is a dose of $\Gamma_{eff}=20\varepsilon$ per
+         unit time. With $u_{\max}$'s mean over $t\in[0,8]$, $2/\pi$, it equals $\gamma\approx0.098$ at
+         $H=1/64$ and 0.049 at $1/128$ ($N=5$). It is not a high $\gamma$: his bursts stop after about
+         a third of a relaxation time ($\pi^2\varepsilon/3$ for the width of a logistic profile), not at
+         steady state.
+       - Ours, at fixed $\gamma$, grows as $N/H$ against his. At $\gamma=0.5$ it is 5× his at
+         $H=1/64$ and 10× at $1/128$.
        - It fits what is known. At $H=1/64$, $E_s(8)$ falls with $\gamma$ (0.0222, 0.0182, 0.0114, 0.0080
          at 2, 1, 0.5, 0.25), and the remainder rises with it.
        - So $\gamma\propto\varepsilon$, i.e. $\propto H/N$, should hold $\beta$ fixed.
