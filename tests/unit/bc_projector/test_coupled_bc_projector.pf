@@ -3,11 +3,12 @@ module test_coupled_bc_projector
   use pfunit
   use num_types, only : rp
   use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   use device, only : device_init, device_finalize, device_map, device_unmap, &
        device_get_ptr, device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   use neko_config, only : NEKO_BCKND_DEVICE
-  use neko_mpi_types, only : neko_mpi_types_init
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
   use mesh_fixture, only : single_reference_element_mesh, &
        single_skewed_element_mesh, two_adjacent_unit_hex_mesh
   use mesh, only : mesh_t
@@ -38,19 +39,22 @@ contains
 
   subroutine setUp(this)
     class(test_coupled_bc_projector_case), intent(inout) :: this
-    integer :: ierr
+
+    call comm_init_test(this%getMpiCommunicator())
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
     call neko_mpi_types_init()
   end subroutine setUp
 
   subroutine tearDown(this)
     class(test_coupled_bc_projector_case), intent(inout) :: this
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_finalize
     end if
+    call neko_mpi_types_free()
+    call comm_free_test()
   end subroutine tearDown
 
   !> Verify that the parallel test template is wired correctly.
@@ -74,9 +78,6 @@ contains
     type(coupled_vector_bc_projector_t) :: bc_projector
     real(kind=rp) :: tangential_value(3)
 
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
     call MPI_Comm_size(NEKO_COMM%mpi_val, comm_size, ierr)
 
     ! Mesh and SEM
@@ -297,7 +298,6 @@ contains
        end select
     end do
 
-
     !do i = 1, bc_projector%mixed_dof_mask%size()
     !   write(*,*) bc_projector%n%x(:, i)
     !end do
@@ -344,9 +344,6 @@ contains
     integer :: zone_idx, dof_size
     integer, parameter :: face_center = 13
     integer, parameter :: interior = 14
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     call init_reference_case(mesh, Xh, dof, gs, coef)
 
@@ -414,9 +411,6 @@ contains
     real(kind=rp) :: t1_norm, t2_norm
     integer :: zone_idx, dof_size, projector_idx
     integer, parameter :: top_center = 23
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     call init_skewed_case(mesh, Xh, dof, gs, coef)
 
@@ -495,9 +489,6 @@ contains
     integer, parameter :: face_center = 13
     integer, parameter :: interior = 14
 
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     call init_reference_case(mesh, Xh, dof, gs, coef)
 
     tangential_value = [0.0_rp, 0.0_rp, 0.0_rp]
@@ -554,9 +545,6 @@ contains
     type(coupled_vector_bc_projector_t) :: bc_projector
     integer :: zone_idx
 
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     call init_reference_case(mesh, Xh, dof, gs, coef)
 
     call bclst%init(6)
@@ -601,9 +589,6 @@ contains
     real(kind=rp) :: tangential_value(3)
     integer :: zone_idx, i, global_idx, projector_idx
     integer :: symmetry_size, non_normal_size
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     call init_reference_case(mesh, Xh, dof, gs, coef)
 
@@ -679,9 +664,6 @@ contains
     integer :: zone_idx, mixed_size, dirichlet_size, center_idx
     real(kind=rp) :: normal_before(3)
 
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
-
     call init_reference_case(mesh, Xh, dof, gs, coef)
 
     call bclst%init(6)
@@ -734,9 +716,6 @@ contains
     type(bc_list_t) :: bclst
     type(coupled_vector_bc_projector_t) :: bc_projector
     integer :: shared_idx, symmetry_center
-
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
 
     call init_two_element_case(mesh, Xh, dof, gs, coef)
 

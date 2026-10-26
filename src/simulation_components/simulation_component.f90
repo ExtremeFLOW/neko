@@ -36,6 +36,7 @@
 !! @note
 !! The canonical way to abbreviate simulation_component is simcomp.
 module simulation_component
+  use utils, only : NEKO_TYPENAME_LEN
   use num_types, only : dp
   use json_module, only : json_file
   use case, only : case_t
@@ -89,6 +90,9 @@ module simulation_component
      !> Wrapper for calling `compute_` based on the `compute_controller`.
      !! Serves as the public interface.
      procedure, pass(this) :: compute => simulation_component_compute_wrapper
+     !> The time until the next scheduled execution of any of the controllers.
+     procedure, pass(this) :: time_to_next => &
+          simulation_component_time_to_next
      !> The common constructor using a JSON dictionary.
      procedure(simulation_component_init), pass(this), deferred :: init
      !> Destructor.
@@ -189,7 +193,7 @@ module simulation_component
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(simulation_component_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
@@ -455,6 +459,24 @@ contains
        call this%compute_controller%register_execution(time)
     end if
   end subroutine simulation_component_compute_wrapper
+
+  !> The time until the next scheduled execution of `preprocess`, `compute`
+  !! or the output, whichever comes first, or `huge(0.0_dp)` if there is
+  !! none. Used to make the time step land exactly on it. A component that
+  !! drives a controller of its own, apart from the three of the base class,
+  !! should override this and include it.
+  !! @param time The current time.
+  function simulation_component_time_to_next(this, time) &
+       result(t)
+    class(simulation_component_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: t
+
+    t = min(this%preprocess_controller%time_to_next(time), &
+         this%compute_controller%time_to_next(time), &
+         this%output_controller%time_to_next(time))
+
+  end function simulation_component_time_to_next
 
   !> Wrapper for calling `set_counter_` based for the controllers.
   !! @param time The current time.
