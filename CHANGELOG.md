@@ -16,6 +16,17 @@
   reaching `log_t%init` after rank 0 had written to the file truncated it,
   leaving the log empty or starting with null bytes. Only rank 0 opens the
   file now.
+- Fix bugs in running average of the dynamic Smgorinsky SGS model.
+- Remove the averaging of the LES filter width on element interfaces.
+- Fixed Mij computation in dynamic Smagorinsky SGS model 
+  for variable filter width.
+- Added `case.time.exact_output_time`, which fits the variable time step so
+  that the sampling and output times of every time based schedule, and
+  `end_time`, are reached exactly.
+- Added `space_size` to the linear solver blocks, the Krylov space size of
+  `gmres` (default 30).
+- The default `max_iterations` of all linear solver blocks is now 1000
+  (`KSP_MAX_ITER`).
 - Fixed source terms skipping the time step that lands on their `start_time`
   or `end_time` when round-off in the accumulated time puts the step just
   outside the window, e.g. the last step of a run whose `end_time` equals the
@@ -70,6 +81,13 @@
 - Fixed the CPU dynamic Smagorinsky model not relinquishing its scratch
   fields, which grew the memory every time step and caused an error at
   shutdown.
+- A variable time step run sets its first time step before the initial
+  output. The scheduled times used to be checked there against the
+  placeholder step of one time unit, so an output scheduled within a tenth of
+  its interval after the start was written at the start instead. The first
+  step itself is unchanged up to round-off.
+- An MPMD run whose coupled cases do not agree on `variable_timestep` stops
+  with an error at setup instead of hanging at the first time step.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,
