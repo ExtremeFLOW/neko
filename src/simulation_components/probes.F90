@@ -103,6 +103,8 @@ module probes
      !> Persistent CPU-only timestamp buffer.
      type(host_array_t) :: time_out
      logical :: append_out = .true.
+     !> Whether this component owns an open HDF5 file for appended samples.
+     logical :: append_file_open = .false.
    contains
      !> Initialize from json.
      procedure, pass(this) :: init => probes_init_from_json
@@ -620,7 +622,12 @@ contains
           out_int = this%n_global_probes
           call ft%write_attribute("NProbes", out_int)
        end if
-       call ft%close()
+       ! Appended samples reuse this file and group until probes_free.
+       if (this%append_out) then
+          this%append_file_open = .true.
+       else
+          call ft%close()
+       end if
 
        !> Set up the timestamp buffer for appended output
        this%seq_io = .false.
@@ -647,6 +654,17 @@ contains
   subroutine probes_free(this)
     class(probes_t), intent(inout) :: this
     integer :: i
+
+    ! Constructors also call free before opening a file. Only close a file
+    ! retained by this component, and reset ownership for repeated free calls.
+    if (this%append_file_open) then
+       select type (ft => this%fout%file_type)
+       class is (hdf5_file_t)
+          call ft%close()
+       end select
+       this%append_file_open = .false.
+    end if
+    call this%fout%free()
 
     if (allocated(this%xyz)) then
        deallocate(this%xyz)
@@ -821,8 +839,7 @@ contains
              ! Append output format
              if (this%append_out) then
 
-                call ft%open("w")
-                call ft%set_active_group("probes")
+                ! The file and probes group remain open from initialisation.
                 ! Write Nsteps in root
                 out_int = this%output_controller%nexecutions + 1
                 call ft%write_attribute("NSteps", out_int)
@@ -837,7 +854,6 @@ contains
                 if (pe_rank == 0) this%time_out%x(1) = time%t
                 call ft%write_dataset(this%time_out, name = "time", &
                      layout = this%time_layout)
-                call ft%close()
 
                 ! Write data in different steps
              else

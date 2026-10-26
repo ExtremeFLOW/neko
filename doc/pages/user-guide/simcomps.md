@@ -478,6 +478,10 @@ output, where each new sample is appended directly under the `probes` group:
 ~~~~~~~~~~~~~~~
 
 Note that here the sample time is stored as a dedicated variable.
+With `append_output=true`, the HDF5 file remains open between samples and is
+closed when the probes component is freed. With `append_output=false`, the file
+is opened and closed for each sample.
+
 ### field_writer {#simcomp_field_writer}
 Outputs registered 3D fields to a file. Requires a list of field names
 in the `fields` keyword. Primarily to be used for outputting new fields defined
