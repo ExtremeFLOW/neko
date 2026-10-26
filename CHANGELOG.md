@@ -11,6 +11,11 @@
 
 ## Develop
 
+- Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
+  equal dof ids tested its bound and the next element in one `.and.`, which
+  Fortran need not short-circuit, so it read one element past the end of the
+  sorted id list whenever the last run reached it, e.g. on a single-element
+  mesh. Results are unchanged.
 - Fixed source terms skipping the time step that lands on their `start_time`
   or `end_time` when round-off in the accumulated time puts the step just
   outside the window, e.g. the last step of a run whose `end_time` equals the
