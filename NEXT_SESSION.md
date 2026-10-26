@@ -106,8 +106,43 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
        $t\ge6.48$, so it cannot say when the irreversible part forms. Running `mass_fine.py` at
        $t=2$–6 needs its sub-point check (c2 in `PREREGISTERED.txt`) to pass there first; the carried
        profile is most compressed mid-run.
-   - **Not run:** $\gamma=0.25$ at $H=1/128$. It now has a question: does our remainder fall with $H$ at
-     low $\gamma$, as his does?
+   - **Next: scale $\gamma$ with $\varepsilon$.** $\Gamma$ stays $\gamma u_{\max}(t)$.
+     - **The idea.** What sets the remainder is CDI's relaxation rate against the flow's strain rate,
+       $\beta=(\Gamma/\varepsilon)/(u_{\max}/L)=\gamma L/\varepsilon$, with $\varepsilon=\xi H/N$.
+       - Ours grows as $N/H$. At $\gamma=0.5$ it is about 8 e-folds per 0.05 at $H=1/64$ and 16 at
+         $1/128$.
+       - His Eq. (39) re-sharpening runs a pseudo-time $\varepsilon$ at unit speed every 0.05, about one
+         e-fold whatever $H$ and $N$ are.
+       - It fits what is known. At $H=1/64$, $E_s(8)$ falls with $\gamma$ (0.0222, 0.0182, 0.0114, 0.0080
+         at 2, 1, 0.5, 0.25), and the remainder rises with it.
+       - So $\gamma\propto\varepsilon$, i.e. $\propto H/N$, should hold $\beta$ fixed.
+     - **Runs**, one change each from an existing case, at its $\Delta t$. Generated `.case` files go in
+       `logs/`. Measure as for `cdi_proj_band_h64`: `full_measures.py`, `es_t.py` and window rates;
+       also `mass_fine.py` with `mass_tests.py` for the remainder. Preregister first.
+       1. **Isotropic, $\gamma=0.25$, $H=1/128$**: `s8_g05_h128` with $\gamma$ halved. It pairs with `s7_g05`
+          ($\gamma=0.5$, $H=1/64$, $E_s(8)$ 0.0114). This run decides the item.
+          - $E_s(8)\le2.3\times10^{-3}$, a rate of at least 5× (50%); $\le1.63\times10^{-3}$, his 7× (20%).
+          - Window rates after $t=2$ above isotropic's 3.6–4.3× (60%).
+          - Remainder below 0.30 (55%).
+          - Worst violation $\le5\times10^{-3}$ (60%).
+          - Below 4.5×, drop the idea, and stop this list here.
+       2. **Band-projected, $\gamma=0.25$, $H=1/64$** (about 1 h): `cdi_forms/cdi_proj_band_h64` with
+          $\gamma$ halved. Does a weaker pull let the projection gain?
+          - $E_s(8)$ below its $\gamma=0.5$ value, $1.71\times10^{-2}$ (70%).
+          - Below isotropic $\gamma=0.25$, `s7_g025` 0.0080 (30%).
+          - Worst violation below $2.8\times10^{-2}$ (50%).
+       3. **Band-projected, $\gamma=0.25$, $H=1/128$**, paired with `cdi_proj_band_h64`: the rate question
+          for the projected form. At least 5× (40%).
+       4. **Toward his strength**, if run 1 reaches 5×: $\gamma\approx0.1$ at $H=1/64$ and 0.05 at $1/128$,
+          the isotropic form, and the band form if run 2 gained. Stop where boundedness breaks; the user
+          accepts some loss, his code leaves $[0,1]$ by 5–14%.
+       5. **Polynomial order**: $N=4$ and 6 at $H=1/64$ with $\gamma=0.5\cdot5/N$, against his grid cells
+          (case README §3.7). Item 4's $N=6$ failure is a boundedness loss, which a weaker pull is not
+          expected to fix, so don't read it as a test of item 4.
+     - **Higher $\gamma$ with the projected form is skipped:** every measure so far says a stronger pull
+       hurts, for both forms.
+     - **If it holds**, $\gamma\propto\varepsilon$ changes the $\phi$ equation's parameter definition
+       (`CDI_METHOD.md` §2) and the coupled files. That is the user's call after the runs.
    - **Outputs kept.**
      - The $H=1/128$ outputs: `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}` and
        `cdi_forms/output_cdi_*_h128`, plus `cdi_forms/output_cdi_proj_band_h64`.
