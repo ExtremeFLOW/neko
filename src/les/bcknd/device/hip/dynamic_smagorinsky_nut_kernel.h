@@ -160,7 +160,7 @@ __global__ void mij_compute_part1(T * __restrict__ m11,
                                   const T * __restrict__ s12,
                                   const T * __restrict__ s13,
                                   const T * __restrict__ s23,
-                                  const T * __restrict__ fs_abs,
+                                  const T * __restrict__ delta,
                                   const T * __restrict__ fs11,
                                   const T * __restrict__ fs22,
                                   const T * __restrict__ fs33,
@@ -181,21 +181,26 @@ __global__ void mij_compute_part1(T * __restrict__ m11,
 
   for (int i = idx; i < n; i += str) {
     const T s_abs_r = s_abs[i];
-    const T fs_abs_r = fs_abs[i];
+    const T delta_r = delta[i];
+    const T delta2 = delta_r * delta_r;
+    const T fs_abs_r = sqrt(2.0 *
+      (fs11[i] * fs11[i] + fs22[i] * fs22[i] + fs33[i] * fs33[i]) +
+      4.0 * (fs12[i] * fs12[i] + fs13[i] * fs13[i] +
+             fs23[i] * fs23[i]));
 
-    m11[i] = delta_ratio2 * (fs_abs_r * fs11[i]);
-    m22[i] = delta_ratio2 * (fs_abs_r * fs22[i]);
-    m33[i] = delta_ratio2 * (fs_abs_r * fs33[i]);
-    m12[i] = delta_ratio2 * (fs_abs_r * fs12[i]);
-    m13[i] = delta_ratio2 * (fs_abs_r * fs13[i]);
-    m23[i] = delta_ratio2 * (fs_abs_r * fs23[i]);
+    m11[i] = delta_ratio2 * delta2 * fs_abs_r * fs11[i];
+    m22[i] = delta_ratio2 * delta2 * fs_abs_r * fs22[i];
+    m33[i] = delta_ratio2 * delta2 * fs_abs_r * fs33[i];
+    m12[i] = delta_ratio2 * delta2 * fs_abs_r * fs12[i];
+    m13[i] = delta_ratio2 * delta2 * fs_abs_r * fs13[i];
+    m23[i] = delta_ratio2 * delta2 * fs_abs_r * fs23[i];
 
-    fsabss11[i] = s_abs_r * s11[i];
-    fsabss22[i] = s_abs_r * s22[i];
-    fsabss33[i] = s_abs_r * s33[i];
-    fsabss12[i] = s_abs_r * s12[i];
-    fsabss13[i] = s_abs_r * s13[i];
-    fsabss23[i] = s_abs_r * s23[i];
+    fsabss11[i] = delta2 * s_abs_r * s11[i];
+    fsabss22[i] = delta2 * s_abs_r * s22[i];
+    fsabss33[i] = delta2 * s_abs_r * s33[i];
+    fsabss12[i] = delta2 * s_abs_r * s12[i];
+    fsabss13[i] = delta2 * s_abs_r * s13[i];
+    fsabss23[i] = delta2 * s_abs_r * s23[i];
   }
 }
 
@@ -237,12 +242,12 @@ __global__ void mij_nut_compute_part2(const T * __restrict__ m11,
     const T delta2 =  delta_r * delta_r;
     T c_dyn_r;
 
-    const T m11_r = delta2 * (m11[i] - fsabss11[i]);
-    const T m22_r = delta2 * (m22[i] - fsabss22[i]);
-    const T m33_r = delta2 * (m33[i] - fsabss33[i]);
-    const T m12_r = delta2 * (m12[i] - fsabss12[i]);
-    const T m13_r = delta2 * (m13[i] - fsabss13[i]);
-    const T m23_r = delta2 * (m23[i] - fsabss23[i]);
+    const T m11_r = m11[i] - fsabss11[i];
+    const T m22_r = m22[i] - fsabss22[i];
+    const T m33_r = m33[i] - fsabss33[i];
+    const T m12_r = m12[i] - fsabss12[i];
+    const T m13_r = m13[i] - fsabss13[i];
+    const T m23_r = m23[i] - fsabss23[i];
 
     num_curr = m11_r * l11[i]
              + m22_r * l22[i]
