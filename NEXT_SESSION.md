@@ -124,13 +124,9 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - **Runs**, one change each from an existing case, at its $\Delta t$. Generated `.case` files go in
        `logs/`. Measure as for `cdi_proj_band_h64`: `full_measures.py`, `es_t.py` and window rates;
        also `mass_fine.py` with `mass_tests.py` for the remainder. Preregister first.
-       1. **Isotropic, $\gamma=0.25$, $H=1/128$**: `s8_g05_h128` with $\gamma$ halved. It pairs with `s7_g05`
-          ($\gamma=0.5$, $H=1/64$, $E_s(8)$ 0.0114). This run decides the item.
-          - $E_s(8)\le2.3\times10^{-3}$, a rate of at least 5× (50%); $\le1.63\times10^{-3}$, his 7× (20%).
-          - Window rates after $t=2$ above isotropic's 3.6–4.3× (60%).
-          - Remainder below 0.30 (55%).
-          - Worst violation $\le5\times10^{-3}$ (60%).
-          - Below 4.5×, drop the idea, and stop this list here.
+       1. **Done: isotropic, $\gamma=0.25$, $H=1/128$** (`s9_g025_h128`, case README appendix). $E_s(8)$ falls
+          4.90× from `s7_g05`, above the 4.5× stop line and 2% short of 5×; remainder 0.27. The user decides
+          whether runs 2–4 go ahead.
        2. **Band-projected, $\gamma=0.25$, $H=1/64$** (about 1 h): `cdi_forms/cdi_proj_band_h64` with
           $\gamma$ halved. Does a weaker pull let the projection gain?
           - $E_s(8)$ below its $\gamma=0.5$ value, $1.71\times10^{-2}$ (70%).
