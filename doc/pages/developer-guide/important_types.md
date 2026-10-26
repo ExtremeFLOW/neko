@@ -58,6 +58,56 @@ to set all entries to a scalar.
 Fortran does not allow arrays of pointers, so for every container there is a
 corresponding `*_ptr_t` type holding a single pointer component `ptr`.
 
+## Repeated HDF5 array writes {#important_types_hdf5-layout}
+
+[hdf5_file_t](#hdf5_file::hdf5_file_t) can write ordinary host arrays with
+`write_array(values, name)`, or a [host_array_t](#host_array::host_array_t)
+with `write_dataset(array, name="values")`. These paths do not allocate
+device storage. When output precision matches `rp`, they write directly from
+the host values without allocating a conversion buffer.
+
+For a fixed distribution, initialise a
+[hdf5_layout_t](#hdf5_file::hdf5_layout_t) once and supply it to subsequent
+writes:
+
+```fortran
+type(hdf5_layout_t) :: layout
+
+! Collective setup: every rank supplies its local number of entries.
+call layout%init(size(values))
+
+! With the file and group open, reuse the layout for each sample or field.
+call output%write_array(values, "u", layout)
+```
+
+The layout stores counts and offsets, so a write with a supplied layout skips
+the three MPI collectives used to calculate them. Dataset I/O remains
+collective. All ranks must initialise the layout again if any rank's local
+count or `NEKO_COMM` changes. The layout can also be passed to `write_vector`,
+`write_matrix` or `write_dataset` using the `layout` keyword. For matrices,
+the local count is the number of columns. Without a supplied layout, writes
+calculate their distribution as before.
+
+`layout%init(local_count)` takes one scalar integer from each rank:
+
+- For vectors and one-dimensional host arrays, pass the local number of
+  elements, for example `vec%size()` or `size(values)`.
+- For matrices, pass the local number of **columns**, `mat%get_ncols()`.
+  Do not pass the total element count `mat%size()`, the row count, the
+  two-dimensional array, or an array of dimensions or rank counts.
+
+The matrix writer distributes the second dimension. Every rank must have
+the same number of rows and writes all rows of its local columns.
+
+```fortran
+! Coordinates have shape (3, n_local_probes) on each rank.
+call layout%init(coordinates%get_ncols()) ! n_local_probes, not 3*n_local_probes
+call output%write_matrix(coordinates, layout=layout)
+```
+
+The same layout can describe a vector of `n_local_probes` field values.
+Reuse it only when the local counts and rank ordering match on every rank.
+
 ## Generic containers {#important_types_generic-containers}
 
 The `adt` directory holds abstract data types that are used mostly in the

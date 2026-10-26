@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@
 module probes
   use num_types, only : rp, dp
   use matrix, only : matrix_t
-  use vector, only : vector_t
+  use host_array, only : host_array_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use utils, only : neko_error, nonlinear_index, NEKO_VARNAME_LEN
   use field_list, only : field_list_t
@@ -55,7 +55,7 @@ module probes
   use point_zone_registry, only : neko_point_zone_registry
   use file, only : file_t, file_free
   use csv_file, only : csv_file_t
-  use hdf5_file, only : hdf5_file_t
+  use hdf5_file, only : hdf5_file_t, hdf5_layout_t
   use math, only : copy
   use device_math, only : device_copy
   use case, only : case_t
@@ -98,7 +98,10 @@ module probes
      !> Output variables
      type(file_t) :: fout
      type(matrix_t) :: mat_out
-     type(vector_t) :: vec_out
+     !> Fixed distributions for field values and the root-owned timestamp.
+     type(hdf5_layout_t) :: probe_layout, time_layout
+     !> Persistent CPU-only timestamp buffer.
+     type(host_array_t) :: time_out
      logical :: append_out = .true.
    contains
      !> Initialize from json.
@@ -599,6 +602,9 @@ contains
        call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
 
        !> Set up output
+       ! Probe ownership is fixed after redistribution. Reuse its layout
+       ! for coordinates and every field instead of repeating collectives.
+       call this%probe_layout%init(this%n_local_probes)
        call ft%open("w")
        call ft%set_active_group("probes")
 
@@ -610,15 +616,23 @@ contains
           this%output_controller%nexecutions = out_int
        else
           ! Write out the mesh
-          call ft%write_dataset(mat_coords)
+          call ft%write_dataset(mat_coords, layout = this%probe_layout)
           out_int = this%n_global_probes
           call ft%write_attribute("NProbes", out_int)
        end if
        call ft%close()
 
-       !> Set up the output matrix
+       !> Set up the timestamp buffer for appended output
        this%seq_io = .false.
-       call this%vec_out%init(this%n_local_probes, "interpolated_fields_trsp")
+       if (this%append_out) then
+          ! Only rank zero owns the timestamp, but all ranks join the write.
+          if (pe_rank == 0) then
+             call this%time_out%init(1)
+          else
+             call this%time_out%init(0)
+          end if
+          call this%time_layout%init(this%time_out%size())
+       end if
 
        ! Free temporaries
        call mat_coords%free()
@@ -672,7 +686,7 @@ contains
 
     call this%global_interp%free()
     call this%mat_out%free()
-    call this%vec_out%free()
+    call this%time_out%free()
 
   end subroutine probes_free
 
@@ -755,7 +769,6 @@ contains
     logical :: do_interp_on_host = .false.
     character(len=1000) :: group_name
     real(kind=rp) :: time_
-    type(vector_t) :: vec_time
     integer :: out_int
 
     !> Do not execute if we are below the start_time
@@ -815,21 +828,15 @@ contains
                 call ft%write_attribute("NSteps", out_int)
                 ! Write out the data
                 do i = 1, this%n_fields
-                   call copy(this%vec_out%x, this%out_values(:,i), &
-                        this%vec_out%size())
-                   this%vec_out%name = trim(this%which_fields(i))
-                   call ft%write_dataset(this%vec_out)
+                   ! Write out_values directly, after the device-to-host
+                   ! copy above on GPU builds.
+                   call ft%write_array(this%out_values(:,i), &
+                        trim(this%which_fields(i)), this%probe_layout)
                 end do
 
-                ! Write the time by hacking the vector write
-                if (pe_rank .eq. 0) then
-                   call vec_time%init(1, "time")
-                   vec_time%x(1) = time%t
-                else
-                   call vec_time%init(0, "time")
-                end if
-                call ft%write_dataset(vec_time)
-                call vec_time%free()
+                if (pe_rank == 0) this%time_out%x(1) = time%t
+                call ft%write_dataset(this%time_out, name = "time", &
+                     layout = this%time_layout)
                 call ft%close()
 
                 ! Write data in different steps
@@ -845,10 +852,10 @@ contains
                 ! Write out the data
                 call ft%set_active_group(trim(group_name))
                 do i = 1, this%n_fields
-                   call copy(this%vec_out%x, this%out_values(:,i), &
-                        this%vec_out%size())
-                   this%vec_out%name = trim(this%which_fields(i))
-                   call ft%write_dataset(this%vec_out)
+                   ! Write out_values directly, after the device-to-host
+                   ! copy above on GPU builds.
+                   call ft%write_array(this%out_values(:,i), &
+                        trim(this%which_fields(i)), this%probe_layout)
                 end do
                 ! Write the time as an attribute
                 time_ = time%t
