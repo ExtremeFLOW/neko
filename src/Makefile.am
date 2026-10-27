@@ -42,7 +42,7 @@ neko_fortran_SOURCES = \
 	sem/speclib.f90 \
 	qoi/drag_torque.f90\
 	sem/local_interpolation.f90 \
-	math/math.f90\
+	math/math.F90\
 	math/mathops.f90\
 	math/fast3d.f90\
 	sem/space.f90\
@@ -134,7 +134,7 @@ neko_fortran_SOURCES = \
 	math/bcknd/cpu/tensor_cpu.f90\
 	math/bcknd/sx/tensor_sx.f90\
 	math/bcknd/xsmm/tensor_xsmm.F90\
-	math/fdm.f90\
+	math/fdm.F90\
 	math/bcknd/cpu/fdm_cpu.f90\
 	math/bcknd/sx/fdm_sx.f90\
 	math/bcknd/xsmm/fdm_xsmm.f90\
@@ -545,6 +545,7 @@ libneko_la_SOURCES += \
 	device/hip/check.hip\
 	device/hip/buffer.hip\
 	device/hip/unified.hip\
+	device/hip/props.hip\
 	math/bcknd/device/hip/math.hip\
 	math/bcknd/device/hip/schwarz.hip\
 	math/bcknd/device/hip/tensor.hip\
@@ -617,6 +618,7 @@ if ENABLE_CUDA
 libneko_la_SOURCES += \
     ale/bcknd/device/cuda/ale_kinematics.cu\
 	device/cuda/check.cu\
+	device/cuda/props.cu\
 	device/cuda/buffer.cu\
 	device/cuda/nvtx_wrapper.cu\
 	math/bcknd/device/cuda/math.cu\
@@ -1384,9 +1386,11 @@ EXTRA_DIST = \
 	device/opencl/check.h\
 	device/hip/check.h\
 	device/cuda/check.h\
+	device/cuda/props.h\
 	device/cuda/buffer.h\
 	device/hip/buffer.h\
 	device/hip/unified.h\
+	device/hip/props.h\
 	device/opencl/buffer.h\
 	comm/comm_nccl.h\
 	comm/comm.h\

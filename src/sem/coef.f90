@@ -1403,7 +1403,7 @@ contains
                 ! condition number is invariant under it and w3*J spans a
                 ! wide range within an element
                 scal = max(abs(real(this%G11(i,j,k,e), dp)), &
-                           abs(real(this%G22(i,j,k,e), dp)))
+                     abs(real(this%G22(i,j,k,e), dp)))
                 scal = max(scal, abs(real(this%G33(i,j,k,e), dp)))
                 scal = max(scal, abs(real(this%G12(i,j,k,e), dp)))
                 scal = max(scal, abs(real(this%G13(i,j,k,e), dp)))
@@ -1840,6 +1840,17 @@ contains
        !$omp end parallel do
     end if
 
+    !>  @todo cleanup once we have device math in place
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       c%volume = device_glsum(c%B_d, ntot)
+    else
+       c%volume = glsum(c%B, ntot)
+    end if
+
+    if (c%volume .le. 0.0_rp) then
+       call neko_error('Mesh has non-positive volume')
+    end if
+
     ! Neither Binv nor the volume is read when only applying an operator,
     ! and assembling Binv costs a gather-scatter round on top of that.
     if (c%scope .ne. COEF_FULL) return
@@ -1857,12 +1868,6 @@ contains
        call invcol1(c%Binv, ntot)
     end if
 
-    !>  @todo cleanup once we have device math in place
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       c%volume = device_glsum(c%B_d, ntot)
-    else
-       c%volume = glsum(c%B, ntot)
-    end if
 
   end subroutine coef_generate_mass
 
