@@ -531,7 +531,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/psnr/Makefile\
 		    contrib/rea2nbin/rea2nbin.1\
 		    contrib/prepart/prepart.1])
-   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh])
+   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh contrib/checkneko])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
