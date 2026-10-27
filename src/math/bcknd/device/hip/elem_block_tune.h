@@ -57,6 +57,11 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <hip/hip_runtime.h>
+#include <device/device_config.h>
+#include <device/hip/check.h>
 
 /* Sweep the elements per block candidates?
    On by default, as on CUDA. It was off here because the blocked variants
@@ -222,6 +227,279 @@ static int neko_tune_iters()
   do {                                                                        \
     NEKO_TUNE_LOG_1D(LX, T1);                                                 \
     NEKO_TUNE_LOG_KSTEP(LX, T2);                                              \
+  } while (0)
+
+
+/*
+ * TUNE-TIME VERIFICATION
+ *
+ * Every candidate the sweep is about to time is first run once on a synthetic
+ * input and compared with the reference formulation's result on the same
+ * input: the 1d kernel's first candidate where there is one, the kstep
+ * kernel's where there is not. A candidate whose max-norm difference exceeds
+ * NEKO_TUNE_VERIFY_TOL times the reference's max-norm is reported as REJECTED
+ * and excluded from the comparison, so it can be measured but cannot win.
+ *
+ * Why it exists: the matrix core contraction once ran for a long time with
+ * its lane layout wrong -- a wrong but symmetric operator makes CG converge
+ * happily to the solution of a different system (see mfma_contract_4x4 in
+ * mfma_kernel.h), so "the solver converges" never caught it. The single
+ * precision 4x4x1 tile added since carries a layout that is documented by
+ * AMD's calculator but has not been read out on hardware, and this is what
+ * keeps it honest: a wrong register index costs that candidate at tuning,
+ * loudly, not the solve.
+ *
+ * Why a synthetic input: the tuner runs on the first call of an operator,
+ * which can be on a zero field (a zero initial guess, a zero velocity), and
+ * every layout reproduces zero. The fields the operator differentiates are
+ * swapped for a deterministic non-zero pattern in (0.5, 1.5) for the duration
+ * of the pass -- the tune function hands over the addresses of its input
+ * pointer variables, which its launch macros name, so the swap is invisible
+ * to them -- while geometry, metrics and weights stay the case's own. The
+ * reference max-norm is logged with every rejection, so an inconclusive pass
+ * is visible as such.
+ *
+ * The tolerance is a layout detector, not an accuracy test: the variants sum
+ * the same terms in a different order, a few ulp per point, where a layout
+ * error reads as O(1). NaN or Inf anywhere in a candidate's output counts as
+ * an infinite difference, so it cannot slip through a comparison that is
+ * false for NaN.
+ *
+ * Cost: one launch per candidate plus a reduction over the output, once per
+ * (operator, order), and nin + nout arrays of n reals for the duration of the
+ * pass; a failed allocation skips the pass and says so in the log, it never
+ * stops the tune. NEKO_TUNE_VERIFY=0 turns it off, NEKO_TUNE_VERIFY_TOL
+ * overrides the tolerance.
+ */
+#ifndef NEKO_TUNE_VERIFY_DEFAULT
+#define NEKO_TUNE_VERIFY_DEFAULT 1
+#endif
+#define NEKO_TUNE_VERIFY_BLOCKS 256
+#define NEKO_TUNE_VERIFY_THREADS 256
+#define NEKO_TUNE_VERIFY_MAXIN 8
+/* Upper bound on any formulation's candidate count, for the reject flags */
+#define NEKO_TUNE_MAXCAND 16
+
+static int neko_tune_verify_on()
+{
+  const char *v = getenv("NEKO_TUNE_VERIFY");
+
+  if (v != NULL) {
+    return (atoi(v) != 0);
+  }
+  return NEKO_TUNE_VERIFY_DEFAULT;
+}
+
+static double neko_tune_verify_tol()
+{
+  const char *v = getenv("NEKO_TUNE_VERIFY_TOL");
+
+  if (v != NULL && atof(v) > 0.0) {
+    return atof(v);
+  }
+  return (sizeof(real) == 4) ? 1.0e-4 : 1.0e-10;
+}
+
+/* Deterministic non-zero pattern in (0.5, 1.5), different per input slot */
+static __global__ void neko_tune_fill_kernel(real * __restrict__ x,
+                                             const int n,
+                                             const unsigned int seed) {
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n;
+       i += gridDim.x * blockDim.x) {
+    unsigned int h = (unsigned int) i * 2654435761u + seed * 40503u;
+    h ^= h >> 15;
+    h *= 2246822519u;
+    h ^= h >> 13;
+    x[i] = (real) 0.5 + (real) (h & 0xffffffu) / (real) 0x1000000u;
+  }
+}
+
+/* Per block maxima of |a - b| and |b|, NaN or Inf in a counted as infinite */
+static __global__ void neko_tune_diff_kernel(const real * __restrict__ a,
+                                             const real * __restrict__ b,
+                                             const int n,
+                                             double * __restrict__ part) {
+  __shared__ double sd[NEKO_TUNE_VERIFY_THREADS];
+  __shared__ double sr[NEKO_TUNE_VERIFY_THREADS];
+  double md = 0.0, mr = 0.0;
+
+  for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n;
+       i += gridDim.x * blockDim.x) {
+    const double x = (double) a[i];
+    const double y = (double) b[i];
+    const double d = fabs(x - y);
+    const double r = fabs(y);
+    if (!(d < HUGE_VAL)) {
+      md = HUGE_VAL;
+    } else if (d > md) {
+      md = d;
+    }
+    if (r > mr) {
+      mr = r;
+    }
+  }
+  sd[threadIdx.x] = md;
+  sr[threadIdx.x] = mr;
+  __syncthreads();
+  for (int s = blockDim.x / 2; s > 0; s >>= 1) {
+    if (threadIdx.x < s) {
+      if (sd[threadIdx.x + s] > sd[threadIdx.x]) {
+        sd[threadIdx.x] = sd[threadIdx.x + s];
+      }
+      if (sr[threadIdx.x + s] > sr[threadIdx.x]) {
+        sr[threadIdx.x] = sr[threadIdx.x + s];
+      }
+    }
+    __syncthreads();
+  }
+  if (threadIdx.x == 0) {
+    part[2 * blockIdx.x] = sd[0];
+    part[2 * blockIdx.x + 1] = sr[0];
+  }
+}
+
+typedef struct {
+  real *buf;                        /* nin synthetic inputs, nout references */
+  double *part;                     /* per block maxima */
+  real **outs;                      /* the tune function's output arrays */
+  void ***ins;                      /* addresses of its input pointers */
+  void *saved[NEKO_TUNE_VERIFY_MAXIN];
+  int nin, nout, n;
+  double tol;
+} neko_tune_verify_t;
+
+/* Reject flags of one formulation's candidates, see NEKO_TUNE_VERIFY_CAND */
+typedef struct {
+  int rej[NEKO_TUNE_MAXCAND];
+} neko_tune_rej_t;
+
+/*
+ * Set the pass up: allocate, fill the synthetic inputs and point the tune
+ * function's input pointer variables at them. Returns 0, with nothing
+ * swapped, if the pass is off or cannot be set up.
+ */
+static int neko_tune_verify_begin(neko_tune_verify_t *v, real **outs,
+                                  const int nout, void ***ins, const int nin,
+                                  const int n, hipStream_t stream)
+{
+  const size_t bytes = (size_t) (nin + nout) * (size_t) n * sizeof(real);
+
+  if (!neko_tune_verify_on() || n <= 0 || nin > NEKO_TUNE_VERIFY_MAXIN) {
+    return 0;
+  }
+  v->outs = outs;
+  v->ins = ins;
+  v->nin = nin;
+  v->nout = nout;
+  v->n = n;
+  v->tol = neko_tune_verify_tol();
+  v->buf = NULL;
+  v->part = NULL;
+  if (hipMalloc((void **) &v->buf, bytes) != hipSuccess) {
+    /* Clear the sticky error: the tuner checks hipGetLastError() after
+       every launch and would otherwise report this one there */
+    (void) hipGetLastError();
+    return 0;
+  }
+  if (hipMalloc((void **) &v->part,
+                2 * NEKO_TUNE_VERIFY_BLOCKS * sizeof(double)) != hipSuccess) {
+    (void) hipGetLastError();
+    HIP_CHECK(hipFree(v->buf));
+    return 0;
+  }
+  for (int i = 0; i < nin; i++) {
+    real *x = v->buf + (size_t) i * n;
+    hipLaunchKernelGGL(neko_tune_fill_kernel, dim3(NEKO_TUNE_VERIFY_BLOCKS),
+                       dim3(NEKO_TUNE_VERIFY_THREADS), 0, stream,
+                       x, n, (unsigned int) (i + 1));
+    HIP_CHECK(hipGetLastError());
+    v->saved[i] = *ins[i];
+    *ins[i] = (void *) x;
+  }
+  return 1;
+}
+
+/* Snapshot the outputs of the reference launch the caller has just made */
+static void neko_tune_verify_ref(neko_tune_verify_t *v, hipStream_t stream)
+{
+  for (int j = 0; j < v->nout; j++) {
+    /* hipMemcpyDefault rather than DeviceToDevice: the runtime then
+       resolves the kind from the pointers, which keeps this correct if
+       the operator's arrays are ever host-mapped on an APU */
+    HIP_CHECK(hipMemcpyAsync(v->buf + (size_t) (v->nin + j) * v->n,
+                             v->outs[j], (size_t) v->n * sizeof(real),
+                             hipMemcpyDefault, stream));
+  }
+  HIP_CHECK(hipStreamSynchronize(stream));
+}
+
+/*
+ * Compare the outputs of the launch the caller has just made with the
+ * snapshot. Returns 1 if every output is within tolerance, and leaves the
+ * worst max-norm difference and the reference max-norm behind for the log
+ * either way. Written so that an infinite difference fails.
+ */
+static int neko_tune_verify_check(neko_tune_verify_t *v, hipStream_t stream,
+                                  double *maxdiff, double *maxref)
+{
+  double part[2 * NEKO_TUNE_VERIFY_BLOCKS];
+
+  *maxdiff = 0.0;
+  *maxref = 0.0;
+  for (int j = 0; j < v->nout; j++) {
+    const real *ref = v->buf + (size_t) (v->nin + j) * v->n;
+    hipLaunchKernelGGL(neko_tune_diff_kernel, dim3(NEKO_TUNE_VERIFY_BLOCKS),
+                       dim3(NEKO_TUNE_VERIFY_THREADS), 0, stream,
+                       (const real *) v->outs[j], ref, v->n, v->part);
+    HIP_CHECK(hipGetLastError());
+    HIP_CHECK(hipMemcpyAsync(part, v->part, sizeof(part),
+                             hipMemcpyDeviceToHost, stream));
+    HIP_CHECK(hipStreamSynchronize(stream));
+    for (int b = 0; b < NEKO_TUNE_VERIFY_BLOCKS; b++) {
+      if (part[2 * b] > *maxdiff) {
+        *maxdiff = part[2 * b];
+      }
+      if (part[2 * b + 1] > *maxref) {
+        *maxref = part[2 * b + 1];
+      }
+    }
+  }
+  return (*maxdiff <= v->tol * (*maxref));
+}
+
+/* Restore the input pointers and release the buffers */
+static void neko_tune_verify_end(neko_tune_verify_t *v, hipStream_t stream)
+{
+  HIP_CHECK(hipStreamSynchronize(stream));
+  for (int i = 0; i < v->nin; i++) {
+    *v->ins[i] = v->saved[i];
+  }
+  HIP_CHECK(hipFree(v->buf));
+  HIP_CHECK(hipFree(v->part));
+}
+
+/* Launch candidate C of LAUNCH, compare it with the reference and record the
+   verdict in REJ; a rejection is logged with the two norms behind it. Expects
+   `stream` and `neko_log_buf` in scope like the reporting macros above */
+#define NEKO_TUNE_VERIFY_CAND(VF, REJ, LAUNCH, LX, C, NAME)                   \
+  do {                                                                        \
+    double md_, mr_;                                                          \
+    LAUNCH(LX, C);                                                            \
+    (REJ).rej[C] = !neko_tune_verify_check(&(VF), stream, &md_, &mr_);        \
+    if ((REJ).rej[C]) {                                                       \
+      sprintf(neko_log_buf,                                                   \
+              "%-5s cand %2d REJECTED: |diff| %.1e, |ref| %.1e",              \
+              NAME, C, md_, mr_);                                             \
+      log_message(neko_log_buf);                                              \
+    }                                                                         \
+  } while (0)
+
+/* Take the rejected candidates of one formulation out of the comparison */
+#define NEKO_TUNE_APPLY_REJ(T, REJ, N)                                        \
+  do {                                                                        \
+    for (int c = 0; c < (N); c++) {                                           \
+      if ((REJ).rej[c]) { (T)[c] = NEKO_TUNE_INIT; }                          \
+    }                                                                         \
   } while (0)
 
 #endif // __MATH_ELEM_BLOCK_TUNE_H__
