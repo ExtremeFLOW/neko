@@ -182,6 +182,29 @@ def test_compressible_zones(tmp_path):
                for p in problems(result))
 
 
+def test_custom_keys(tmp_path, cylinder):
+    """Custom keys are accepted next to the case and in user-defined
+    components, whose parameters the user file defines, but not in built-in
+    components."""
+    cylinder["postprocess"] = {"tool": "custom"}
+    fluid = cylinder["case"]["fluid"]
+    fluid["initial_condition"] = {"type": "user", "amplitude": 1.0}
+    fluid["boundary_conditions"][0] = {
+        "type": "user_velocity", "zone_indices": [1], "profile": "parabolic",
+    }
+    fluid["source_terms"] = [{"type": "user", "custom_parameter": 2.0}]
+    result = write_and_check(tmp_path, cylinder)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert problems(result) == []
+    assert ["1", "72", "user_velocity"] in zone_table(result)
+
+    fluid["boundary_conditions"][4]["custom_parameter"] = 2.0
+    result = write_and_check(tmp_path, cylinder)
+    assert result.returncode == 1
+    assert any('unknown key "custom_parameter"' in p
+               for p in problems(result)), result.stdout
+
+
 def test_scalars(tmp_path, cylinder):
     """Each scalar has a column in the zone table, named as by Neko, and the
     names must differ. A zone that is not in the mesh has a row too."""

@@ -738,7 +738,7 @@
               "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         },
         {
           "type": "object",

@@ -33,6 +33,14 @@ considers `10.0` to satisfy the `integer` type. The schemas mark real-only
 values with the Neko-specific `x-neko-real` annotation, and the validation
 helper enforces both that annotation and strict JSON integer encoding.
 
+Keys that the schemas do not define are rejected in the objects of built-in
+components, so that a misspelt key, which Neko would silently ignore, does not
+go unnoticed. Other keys are accepted at the top level of the file, next to
+`case`, for instance for the settings of other tools, in `case`, `case.fluid`
+and `case.scalar`, and in user-defined components: initial conditions of type
+`user`, boundary conditions of the `user_*` types and source terms of type
+`user`, whose parameters the user file defines.
+
 ## Checking a case file {#case-file_checking}
 
 A case file can be checked without running Neko with `checkneko`, which is
