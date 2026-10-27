@@ -11,11 +11,6 @@
 
 ## Develop
 
-- Fixed every rank opening the file named by `NEKO_LOG_FILE`, although only
-  rank 0 writes to it. The file is opened with `status = 'replace'`, so a rank
-  reaching `log_t%init` after rank 0 had written to the file truncated it,
-  leaving the log empty or starting with null bytes. Only rank 0 opens the
-  file now.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 
