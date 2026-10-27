@@ -11,10 +11,6 @@
 
 ## Develop
 
-- `configure` now rejects a CUDA build whose `CUDA_ARCH` is not an nvcc flag,
-  e.g. a bare `sm_80`, which nvcc read as an input file and failed the build.
-  The error for a missing `CUDA_ARCH` with device-aware MPI now shows the
-  expected form, e.g. `CUDA_ARCH=-arch=sm_80`.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 
