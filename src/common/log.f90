@@ -135,7 +135,6 @@ contains
 
     call get_environment_variable(trim(prefix) // "_LOG_FILE", &
          log_file, envvar_len)
-    ! Only rank 0 writes to the log, so only rank 0 opens the file.
     if (envvar_len .gt. 0) then
        open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
             action = 'write')
