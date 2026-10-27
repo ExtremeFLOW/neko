@@ -101,7 +101,7 @@ module checkneko_util
        typo_limit, is_whole, str_eq, file_exists, join_path, file_suffix, &
        jtype, jnchildren, jname, jchild, jelement, jfirst, jnext, jstr, &
        jint, jreal, jbool, is_number, node_at, path_key, path_index, &
-       parent_path, add_str
+       parent_path, add_str, one_str
 
 contains
 
@@ -239,6 +239,19 @@ contains
     call move_alloc(tmp, list)
 
   end subroutine add_str
+
+  !> An array of one string
+  !! @details Unlike the array constructor [str_t(s)], which gfortran 12 and
+  !! 13 give the wrong length.
+  !! @param s The string
+  function one_str(s) result(list)
+    character(len=*), intent(in) :: s
+    type(str_t), allocatable :: list(:)
+
+    allocate(list(1))
+    list(1)%s = s
+
+  end function one_str
 
   !> An integer as text
   !! @param i The integer
@@ -2327,7 +2340,7 @@ contains
           if (.not. associated(jchild(inst, name))) then
              call report(SEV_ERROR, path, 'missing the required key ' // &
                   quoted(name) // misspelled_as(name, inst, props), inst, &
-                  MK_REQUIRED, allowed = [str_t(quoted(name))])
+                  MK_REQUIRED, allowed = one_str(quoted(name)))
           end if
           e => jnext(e)
        end do
@@ -4550,7 +4563,6 @@ contains
 
     schema_dir = ''
     run_dir = '.'
-    allocate(case_files(0))
 
     argc = command_argument_count()
     i = 1
@@ -4593,10 +4605,13 @@ contains
        i = i + 1
     end do
 
-    do while (i .le. argc)
-       call get_command_argument(i, arg)
-       case_files = [case_files, str_t(trim(arg))]
-       i = i + 1
+    ! The files. gfortran 12 and 13 give an element of an array constructor
+    ! such as [case_files, str_t(trim(arg))] the length of arg, padded with
+    ! NULs, so the components are assigned one by one.
+    allocate(case_files(argc - i + 1))
+    do j = 1, size(case_files)
+       call get_command_argument(i + j - 1, arg)
+       case_files(j)%s = trim(arg)
     end do
     if (size(case_files) .eq. 0) call usage_error('')
 
