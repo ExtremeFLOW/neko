@@ -11,6 +11,11 @@
 
 ## Develop
 
+- Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
+  equal dof ids tested its bound and the next element in one `.and.`, which
+  Fortran need not short-circuit, so it read one element past the end of the
+  sorted id list whenever the last run reached it, e.g. on a single-element
+  mesh. Results are unchanged.
 - Added a single precision batched matrix core tile, `v_mfma_f32_4x4x1f32`,
   to the HIP `MFMA` strategies as the default single precision tile
   (`NEKO_MFMA_TILE=0`), with the `16x16x4` tile measured against it by the
