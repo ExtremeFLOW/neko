@@ -38,6 +38,7 @@ module time_step_controller
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
+  use math, only : abscmp
   use comm, only : NEKO_GLOBAL_COMM, is_mpmd
   use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_Allreduce, &
        MPI_DOUBLE_PRECISION, MPI_INTEGER
@@ -214,9 +215,7 @@ contains
             .or. this%dt_last_change .ge. this%min_update_frequency) then
 
           ! Test for an exact zero cfl first, so that it is never divided by.
-          ! Any other cfl, also a NaN one from a diverged run, is handled as
-          ! before.
-          if (cfl .eq. 0.0_dp) then
+          if (abscmp(cfl, 0.0_dp)) then
              ! no limit on dt, so increase it as much as allowed
              scaling_factor = this%max_dt_increase_factor
           else if (this%cfl_trg/cfl .ge. 1) then
