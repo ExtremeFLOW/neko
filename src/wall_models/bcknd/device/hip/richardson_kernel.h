@@ -118,9 +118,9 @@ __device__ T tau_neutral(T magu, T h, T z0, T kappa)
 }
 
 template<typename T>
-__device__ T heat_flux_neutral(T ti, T ts, T h, T z0h, T utau, T kappa)
+__device__ T heat_flux_neutral(T ti, T ts, T h, T z0h, T utau, T kappa, T Pr)
 {
-    return kappa * utau * (ti - ts) / log(h / z0h);
+    return kappa * utau * (ti - ts) / (Pr * log(h / z0h));
 }
 
 /*
@@ -242,7 +242,7 @@ __global__ void richardson_compute(
             tau_mag = tau_neutral<T>(magu, hi, z0, kappa);
             utau = sqrt(tau_mag);
             if constexpr (BC_TYPE == 1) {
-                q = heat_flux_neutral<T>(ti, ts, hi, z0h, utau, kappa);
+                q = heat_flux_neutral<T>(ti, ts, hi, z0h, utau, kappa, Pr);
             }
         }
 
