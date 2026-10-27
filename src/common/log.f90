@@ -148,7 +148,6 @@ contains
   subroutine log_free(this)
     class(log_t), intent(inout) :: this
     integer :: i
-    if (pe_rank .ne. 0) return
 
     ! Flush the log before closing off.
     call this%flush()
@@ -220,7 +219,6 @@ contains
   subroutine log_end(this)
     class(log_t), intent(inout) :: this
     if (pe_rank .ne. 0) return
-
 
     if (this%section_id_ .eq. 0) then
        call neko_error("Log is unbalanced")
@@ -328,11 +326,9 @@ contains
     character(len=*), intent(in) :: msg
     if (pe_rank .ne. 0) return
 
-
     call this%indent()
     write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg), '  ***'
     call this%flush()
-
 
   end subroutine log_warning
 
