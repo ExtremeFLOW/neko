@@ -1,0 +1,207 @@
+! Tests for the log file handling of log_t on more than one rank.
+!
+! Only rank 0 writes to a log, so only rank 0 may open the file named by
+! NEKO_LOG_FILE. The file is opened with status = 'replace', which truncates
+! it, so a rank opening it after rank 0 has written to it would destroy what
+! rank 0 wrote.
+module test_log_parallel
+  use mpi
+  use pfunit
+  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use logger, only : log_t, LOG_SIZE, NEKO_LOG_QUIET
+  use, intrinsic :: iso_fortran_env, only : stdout => output_unit
+  use, intrinsic :: iso_c_binding, only : c_char, c_int, c_null_char
+  implicit none
+
+  !> Name of the log file written by the tests
+  character(len=*), parameter :: log_fname = 'test_log_parallel.log'
+
+  !> Maximum number of lines read back from the log file
+  integer, parameter :: max_lines = 4
+
+  interface
+     function c_setenv(name, val, overwrite) bind(c, name = 'setenv') &
+          result(ierr)
+       import :: c_char, c_int
+       character(kind=c_char), dimension(*), intent(in) :: name
+       character(kind=c_char), dimension(*), intent(in) :: val
+       integer(c_int), value :: overwrite
+       integer(c_int) :: ierr
+     end function c_setenv
+
+     function c_unsetenv(name) bind(c, name = 'unsetenv') result(ierr)
+       import :: c_char, c_int
+       character(kind=c_char), dimension(*), intent(in) :: name
+       integer(c_int) :: ierr
+     end function c_unsetenv
+  end interface
+
+  @TestCase
+  type, extends(MPITestCase) :: test_log
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_log
+
+contains
+
+  subroutine setUp(this)
+    class(test_log), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_log), intent(inout) :: this
+    call comm_free_test()
+  end subroutine tearDown
+
+  !> Point NEKO_LOG_FILE at the test log file on every rank.
+  subroutine set_log_file()
+    integer(c_int) :: ierr
+
+    ierr = c_setenv('NEKO_LOG_FILE' // c_null_char, &
+         log_fname // c_null_char, 1_c_int)
+    @assertEqual(0, ierr)
+  end subroutine set_log_file
+
+  !> Remove NEKO_LOG_FILE from the environment on every rank.
+  subroutine unset_log_file()
+    integer(c_int) :: ierr
+
+    ierr = c_unsetenv('NEKO_LOG_FILE' // c_null_char)
+    @assertEqual(0, ierr)
+  end subroutine unset_log_file
+
+  !> Count the ranks which have the log file open.
+  !! @note Collective over NEKO_COMM.
+  function count_open() result(n_open)
+    integer :: n_open
+    integer :: n_local, ierr
+    logical :: is_open
+
+    inquire(file = log_fname, opened = is_open)
+    n_local = merge(1, 0, is_open)
+    call MPI_Allreduce(n_local, n_open, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM%mpi_val, ierr)
+  end function count_open
+
+  !> Count the ranks on which standard output is still connected.
+  !! @note Collective over NEKO_COMM.
+  function count_stdout_open() result(n_open)
+    integer :: n_open
+    integer :: n_local, ierr
+    logical :: is_open
+
+    inquire(unit = stdout, opened = is_open)
+    n_local = merge(1, 0, is_open)
+    call MPI_Allreduce(n_local, n_open, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM%mpi_val, ierr)
+  end function count_stdout_open
+
+  !> Read the log file back on rank 0 and delete it.
+  !! @param lines The lines of the file, blank beyond @a n_lines.
+  !! @param n_lines The number of lines read.
+  subroutine read_log_file(lines, n_lines)
+    character(len=LOG_SIZE), intent(out) :: lines(max_lines)
+    integer, intent(out) :: n_lines
+    integer :: unit, ios
+
+    lines = ''
+    n_lines = 0
+    if (pe_rank .ne. 0) return
+
+    open(newunit = unit, file = log_fname, status = 'old', action = 'read')
+    do
+       if (n_lines .eq. max_lines) exit
+       read(unit, '(A)', iostat = ios) lines(n_lines + 1)
+       if (ios .ne. 0) exit
+       n_lines = n_lines + 1
+    end do
+    close(unit, status = 'delete')
+  end subroutine read_log_file
+
+  !> A rank initialising the log after rank 0 has already written to the
+  !! file must neither open the file nor truncate what rank 0 wrote.
+  @test(npes=[2])
+  subroutine test_log_late_init_keeps_file(this)
+    class(test_log), intent(inout) :: this
+    type(log_t) :: stream
+    character(len=LOG_SIZE) :: lines(max_lines)
+    integer :: n_lines, n_open, n_open_freed, ierr
+
+    call set_log_file()
+
+    ! Rank 0 initialises the log and pushes a first line to disk...
+    if (pe_rank .eq. 0) then
+       call stream%init()
+       call stream%message('first line', NEKO_LOG_QUIET)
+       call stream%flush()
+    end if
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
+
+    ! ...before any other rank initialises the same log. The collective in
+    ! count_open orders these initialisations before rank 0 writes again.
+    if (pe_rank .ne. 0) then
+       call stream%init()
+    end if
+    n_open = count_open()
+
+    call stream%message('second line', NEKO_LOG_QUIET)
+    call stream%free()
+    n_open_freed = count_open()
+
+    call unset_log_file()
+    call read_log_file(lines, n_lines)
+
+    if (pe_rank .eq. 0) then
+       @assertEqual('first line', trim(lines(1)))
+       @assertEqual('second line', trim(lines(2)))
+       @assertEqual(2, n_lines)
+    end if
+    @assertEqual(1, n_open, 'Only rank 0 may open the log file')
+    @assertEqual(0, n_open_freed, 'Freeing must close the log file')
+  end subroutine test_log_late_init_keeps_file
+
+  !> Freeing and re-initialising a log, and freeing it twice, must pair the
+  !! open and close of the log file on every rank and never close standard
+  !! output.
+  @test(npes=[2])
+  subroutine test_log_reinit_pairs_open_close(this)
+    class(test_log), intent(inout) :: this
+    type(log_t) :: stream
+    character(len=LOG_SIZE) :: lines(max_lines)
+    integer :: n_lines, n_open_first, n_open_second, n_open_freed
+    integer :: n_stdout_freed, n_stdout_end
+
+    call set_log_file()
+
+    call stream%init()
+    call stream%message('first run', NEKO_LOG_QUIET)
+    n_open_first = count_open()
+    call stream%free()
+    n_stdout_freed = count_stdout_open()
+
+    call stream%init()
+    call stream%message('second run', NEKO_LOG_QUIET)
+    n_open_second = count_open()
+    call stream%free()
+    call stream%free()
+    n_open_freed = count_open()
+    n_stdout_end = count_stdout_open()
+
+    call unset_log_file()
+    call read_log_file(lines, n_lines)
+
+    @assertEqual(1, n_open_first, 'Only rank 0 may open the log file')
+    @assertEqual(pe_size, n_stdout_freed, 'Freeing closed standard output')
+    @assertEqual(1, n_open_second, 'Only rank 0 may reopen the log file')
+    @assertEqual(0, n_open_freed, 'Freeing must close the log file')
+    @assertEqual(pe_size, n_stdout_end, 'Freeing closed standard output')
+    if (pe_rank .eq. 0) then
+       @assertEqual(1, n_lines)
+       @assertEqual('second run', trim(lines(1)))
+    end if
+  end subroutine test_log_reinit_pairs_open_close
+
+end module test_log_parallel
