@@ -11,10 +11,6 @@
 
 ## Develop
 
-- Fixed the variable time step controller dividing by zero when the CFL number
-  is exactly zero, e.g. with a zero velocity field, which aborts a run that
-  traps floating-point exceptions. The time steps it sets are unchanged for
-  every CFL number Neko computes.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 
