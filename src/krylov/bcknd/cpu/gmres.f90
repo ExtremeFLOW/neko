@@ -49,8 +49,15 @@ module gmres
   use neko_config, only : NEKO_BLK_SIZE
   use comm, only : NEKO_COMM, MPI_EXTRA_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
+  use utils, only : neko_error
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_lookup_or_default
+  use logger, only : neko_log, LOG_SIZE
   implicit none
   private
+
+  !> Default Krylov space size (restart length) of the GMRES solvers.
+  integer, public, parameter :: GMRES_SPACE_SIZE = 30
 
   !> CPU implementation of the preconditioned standard GMRES method.
   !!
@@ -59,7 +66,7 @@ module gmres
   !! The small extra-precision reduction arrays remain owned by the solver.
   type, public, extends(ksp_t) :: gmres_t
      !> Maximum dimension of the Krylov basis before restarting.
-     integer :: lgmres = 30
+     integer :: lgmres = GMRES_SPACE_SIZE
      !> Operator action used during Arnoldi orthogonalisation.
      real(kind=rp), pointer :: w(:) => null()
      !> Residual at the start of a restart cycle.
@@ -81,6 +88,8 @@ module gmres
    contains
      !> Initialise a standard GMRES solver.
      procedure, pass(this) :: init => gmres_init
+     !> Initialise a standard GMRES solver from a JSON solver block.
+     procedure, pass(this) :: init_from_json => gmres_init_from_json
      !> Free a standard GMRES solver.
      procedure, pass(this) :: free => gmres_free
      !> Solve a linear system with the standard GMRES method.
@@ -137,6 +146,28 @@ contains
     end if
 
   end subroutine gmres_init
+
+  !> Initialise a standard GMRES solver from a JSON solver block. Reads
+  !! `space_size` (default `GMRES_SPACE_SIZE`), then the keys of
+  !! the base type.
+  subroutine gmres_init_from_json(this, n, json, M)
+    class(gmres_t), target, intent(inout) :: this
+    integer, intent(in) :: n
+    type(json_file), intent(inout) :: json
+    class(pc_t), optional, intent(in), target :: M
+    character(len=LOG_SIZE) :: log_buf
+
+    call json_get_or_lookup_or_default(json, 'space_size', &
+         this%lgmres, GMRES_SPACE_SIZE)
+    if (this%lgmres .lt. 1) then
+       call neko_error('GMRES space_size must be at least 1')
+    end if
+    write(log_buf, '(A,I0)') 'GMRES space: ', this%lgmres
+    call neko_log%message(log_buf)
+
+    call this%ksp_init_from_json(n, json, M = M)
+
+  end subroutine gmres_init_from_json
 
   !> Free a standard GMRES solver.
   subroutine gmres_free(this)

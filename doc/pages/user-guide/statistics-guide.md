@@ -88,12 +88,15 @@ Statistics are enabled in the case file as a simcomp with the added argument
 The run and per-run counters are appended according to
 @ref statistics-output-filenames.
 
-In addition, one can specify the usual controls for the output, which then 
-outputs the averages computes from the last time the statistics were written
-to file. For example, if one wants to compute only the basic statistics and
-sample the fields every 4 time steps and compute and output batches every 20
-time units and have an initial transient of 60 time units the following would
-work:
+In addition, one can specify the usual controls for the output, which then
+outputs the averages computes from the last time the statistics were written to
+file. A sample or an output controlled by `simulationtime` or `nsamples` is
+taken at the first time step that reaches the scheduled time. To have the time
+step fitted so that the scheduled times are reached exactly, adjust `dt` to the
+flow with `variable_timestep` and set `exact_output_time`. For example, if one
+ wants to compute only the basic statistics and sample the fields every 4 time
+steps and compute and output batches every 20 time units and have an initial
+transient of 60 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation_components":
