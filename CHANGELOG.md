@@ -11,6 +11,8 @@
 
 ## Develop
 
+- Reduced statistics memory usage by storing work/gradients in the scratch
+  registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
   equal dof ids tested its bound and the next element in one `.and.`, which
   Fortran need not short-circuit, so it read one element past the end of the

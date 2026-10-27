@@ -35,7 +35,7 @@
 module scalar_sgs_stats
   use mean_field, only : mean_field_t
   use num_types, only : rp
-  use field_math, only : field_cmult, field_col3, field_cmult2
+  use field_math, only : field_cmult, field_cmult2
   use operators, only : grad
   use coefs, only : coef_t
   use field, only : field_t
@@ -47,9 +47,6 @@ module scalar_sgs_stats
   private
 
   type, public, extends(stats_quant_t) :: scalar_sgs_stats_t
-     !> Work fields
-     type(field_t) :: stats_work
-
      !> Pointers to the instantenious quantities.
      type(field_t), pointer :: alphat => null() !< scalar diffusivity
      type(field_t), pointer :: nut => null() !< scalar diffusivity
@@ -108,15 +105,13 @@ contains
     this%alphat => neko_registry%get_field(alphat_field)
     this%nut_dependency = .false.
 
-    ! Initialize work fields
-    call this%stats_work%init(this%s%dof, 'stats')
-
-    ! Initialize mean fields
+    ! Initialize mean fields. The fluxes are means of products, updated with
+    ! update_col3, so the field passed to init only provides the dofmap.
     call this%alphat_mean%init(this%alphat)
 
-    call this%alphatdsdx%init(this%stats_work, trim(s_name) // 'alphatdsdx')
-    call this%alphatdsdy%init(this%stats_work, trim(s_name) // 'alphatdsdy')
-    call this%alphatdsdz%init(this%stats_work, trim(s_name) // 'alphatdsdz')
+    call this%alphatdsdx%init(this%s, trim(s_name) // 'alphatdsdx')
+    call this%alphatdsdy%init(this%s, trim(s_name) // 'alphatdsdy')
+    call this%alphatdsdz%init(this%s, trim(s_name) // 'alphatdsdz')
 
     allocate(this%stat_fields%items(this%n_stats))
 
@@ -151,15 +146,13 @@ contains
     allocate(this%alphat)
     call this%alphat%init(this%nut%dof, trim(s_name) // 'alphat_temp')
 
-    ! Initialize work fields
-    call this%stats_work%init(this%s%dof, 'stats')
-
-    ! Initialize mean fields
+    ! Initialize mean fields. The fluxes are means of products, updated with
+    ! update_col3, so the field passed to init only provides the dofmap.
     call this%alphat_mean%init(this%alphat)
 
-    call this%alphatdsdx%init(this%stats_work, trim(s_name) // 'alphatdsdx')
-    call this%alphatdsdy%init(this%stats_work, trim(s_name) // 'alphatdsdy')
-    call this%alphatdsdz%init(this%stats_work, trim(s_name) // 'alphatdsdz')
+    call this%alphatdsdx%init(this%s, trim(s_name) // 'alphatdsdx')
+    call this%alphatdsdy%init(this%s, trim(s_name) // 'alphatdsdy')
+    call this%alphatdsdz%init(this%s, trim(s_name) // 'alphatdsdz')
 
     allocate(this%stat_fields%items(this%n_stats))
 
@@ -175,37 +168,28 @@ contains
   subroutine scalar_sgs_stats_update(this, k)
     class(scalar_sgs_stats_t), intent(inout) :: this
     real(kind=rp), intent(in) :: k
-    integer :: n
     integer :: temp_indices(3)
 
-    associate(stats_work => this%stats_work)
-      n = stats_work%dof%size()
+    call neko_scratch_registry%request_field(this%dsdx_work, &
+         temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(this%dsdy_work, &
+         temp_indices(2), .false.)
+    call neko_scratch_registry%request_field(this%dsdz_work, &
+         temp_indices(3), .false.)
 
-      call neko_scratch_registry%request_field(this%dsdx_work, &
-           temp_indices(1), .false.)
-      call neko_scratch_registry%request_field(this%dsdy_work, &
-           temp_indices(2), .false.)
-      call neko_scratch_registry%request_field(this%dsdz_work, &
-           temp_indices(3), .false.)
+    if (this%nut_dependency) then
+       call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
+    end if
+    call this%alphat_mean%update(k)
 
-      if (this%nut_dependency) then
-         call field_cmult2(this%alphat, this%nut, 1.0_rp / this%pr_turb)
-      end if
-      call this%alphat_mean%update(k)
+    call grad(this%dsdx_work%x, &
+         this%dsdy_work%x, &
+         this%dsdz_work%x, &
+         this%s%x, this%coef)
 
-      call grad(this%dsdx_work%x, &
-           this%dsdy_work%x, &
-           this%dsdz_work%x, &
-           this%s%x, this%coef)
-
-      call field_col3(stats_work, this%alphat, this%dsdx_work)
-      call this%alphatdsdx%update(k)
-      call field_col3(stats_work, this%alphat, this%dsdy_work)
-      call this%alphatdsdy%update(k)
-      call field_col3(stats_work, this%alphat, this%dsdz_work)
-      call this%alphatdsdz%update(k)
-
-    end associate
+    call this%alphatdsdx%update_col3(k, this%alphat, this%dsdx_work)
+    call this%alphatdsdy%update_col3(k, this%alphat, this%dsdy_work)
+    call this%alphatdsdz%update_col3(k, this%alphat, this%dsdz_work)
 
     call neko_scratch_registry%relinquish_field(temp_indices)
   end subroutine scalar_sgs_stats_update
@@ -214,8 +198,6 @@ contains
   !> Destructor.
   subroutine scalar_sgs_stats_free(this)
     class(scalar_sgs_stats_t), intent(inout) :: this
-
-    call this%stats_work%free()
 
     call this%alphat_mean%free()
 
