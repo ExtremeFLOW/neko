@@ -76,8 +76,6 @@ var namespacemath =
     [ "pwmax3", "dd/d47/namespacemath.html#a6d7903e3a006b36c894dfa2a75aaa879", null ],
     [ "pwmin2", "dd/d47/namespacemath.html#a91ae5eb754e6a6c9593c7fb4d71585e5", null ],
     [ "pwmin3", "dd/d47/namespacemath.html#ae7886e431e7c1d9ca1403479a40b3ec7", null ],
-    [ "qabscmp", "dd/d47/namespacemath.html#a1cd0d78140224e2d74fe6e02ca07a005", null ],
-    [ "qrelcmp", "dd/d47/namespacemath.html#ac79bdac321f5d661827c7dd6babebbe6", null ],
     [ "reorddp", "dd/d47/namespacemath.html#a45c75c49f5ca92b6ceac45d61d8a8e47", null ],
     [ "reordi4", "dd/d47/namespacemath.html#af9feeaa7f010049caa25da1f7ea1d569", null ],
     [ "rone", "dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4", null ],

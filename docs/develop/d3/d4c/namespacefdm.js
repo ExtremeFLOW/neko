@@ -12,7 +12,6 @@ var namespacefdm =
     [ "fdm_setup_fast1d_b", "d3/d4c/namespacefdm.html#aa1dffe8b5bb908c079e4590d88890a9a", null ],
     [ "generalev", "d3/d4c/namespacefdm.html#a80707a7089b9f914dc2b50b342672817", null ],
     [ "plane_space", "d3/d4c/namespacefdm.html#aabcee63af217208d1a05220944b92edc", null ],
-    [ "qp_sygv", "d3/d4c/namespacefdm.html#a52aacbda9eb0bf09006ddf147fab77d1", null ],
     [ "sp_sygv", "d3/d4c/namespacefdm.html#adb929d1ca06716467100807706c19d71", null ],
     [ "swap_lengths", "d3/d4c/namespacefdm.html#a19fe736e9ae087d32426eaf2798b817d", null ]
 ];
