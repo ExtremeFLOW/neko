@@ -377,9 +377,12 @@ contains
     n = this%lvl(1)%fine_lvl_dofs
     if (lvl .eq. 0) then !> isleaf true
        call this%ax%compute(vec_out, vec_in, this%coef, this%msh, this%Xh)
-       call this%gs_h%op(vec_out, n, GS_OP_ADD)
-       call this%blst%apply(vec_out, n)
-       if (allocated(this%gs_h%interp)) call this%gs_h%op_h1(vec_out, n, GS_OP_ADD)
+       if (allocated(this%gs_h%interp)) then
+          call tamg_assemble(this, vec_out, n)
+       else
+          call this%gs_h%op(vec_out, n, GS_OP_ADD)
+          call this%blst%apply(vec_out, n)
+       end if
     else !> pass down through hierarchy
        associate( wrk_in => this%lvl(1)%wrk_in, wrk_out => this%lvl(1)%wrk_out)
          !> Map input level to finest level
@@ -390,20 +393,25 @@ contains
 
          !> Average on overlapping dofs
          if (allocated(this%gs_h%interp)) then
-            call this%gs_h%op_h1(wrk_in, n, GS_OP_ADD)
+            call tamg_project(this, wrk_in, n)
          else
             call this%gs_h%op(wrk_in, n, GS_OP_ADD)
             call col2( wrk_in, this%coef%mult, n)
+            call this%blst%apply(wrk_in, n)
          end if
-         call this%blst%apply(wrk_in, n)
 
          !> Finest level matvec (Call local finite element assembly)
          call this%ax%compute(wrk_out, wrk_in, this%coef, this%msh, this%Xh)
-         call this%gs_h%op(wrk_out, n, GS_OP_ADD)
-         call this%blst%apply(wrk_out, n)
+         if (allocated(this%gs_h%interp)) then
+            call tamg_assemble(this, wrk_out, n)
+         else
+            call this%gs_h%op(wrk_out, n, GS_OP_ADD)
+            call this%blst%apply(wrk_out, n)
+         end if
 
+         ! Split the assembled values between the copies; children's hanging
+         ! slots get zero multiplicity, consistent with the restriction
          call col2(wrk_out, this%coef%mult, n)
-         if (allocated(this%gs_h%interp)) call this%gs_h%op_h1(wrk_out, n, GS_OP_ADD)
 
          !> Map finest level matvec back to output level
          call rzero(vec_out, this%lvl(lvl)%nnodes)
@@ -465,13 +473,13 @@ contains
     end do
     if (lvl-1 .eq. 0) then
        if (allocated(this%gs_h%interp)) then
-          call this%gs_h%op_h1(vec_out, this%lvl(lvl)%fine_lvl_dofs, GS_OP_ADD)
+          call tamg_project(this, vec_out, this%lvl(lvl)%fine_lvl_dofs)
        else
           call this%gs_h%op(vec_out, this%lvl(lvl)%fine_lvl_dofs, &
                GS_OP_ADD)
           call col2(vec_out, this%coef%mult, this%lvl(lvl)%fine_lvl_dofs)
+          call this%blst%apply(vec_out, this%lvl(lvl)%fine_lvl_dofs)
        end if
-       call this%blst%apply(vec_out, this%lvl(lvl)%fine_lvl_dofs)
     end if
   end subroutine tamg_prolongation_operator
 
@@ -553,5 +561,31 @@ contains
        call this%blst%apply( vec_out, m)
     end if
   end subroutine tamg_device_prolongation_operator
+
+  !> Assemble an operator output (dual vector) on a nonconforming finest
+  !! level; strong bcs in the topological context, between gs and J.
+  subroutine tamg_assemble(this, w, n)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: w(n)
+
+    call this%gs_h%interp%apply_jt(w, n)
+    call this%gs_h%gs_op_vector(w, n, GS_OP_ADD)
+    call this%blst%apply(w, n, ifgs = .true.)
+    call this%gs_h%interp%apply_j(w, n)
+  end subroutine tamg_assemble
+
+  !> Make a primal vector continuous on a nonconforming finest level;
+  !! strong bcs in the topological context.
+  subroutine tamg_project(this, w, n)
+    class(tamg_hierarchy_t), intent(inout) :: this
+    integer, intent(in) :: n
+    real(kind=rp), intent(inout) :: w(n)
+
+    call this%gs_h%interp%remove_mult_h1(w, n)
+    call this%gs_h%gs_op_vector(w, n, GS_OP_ADD)
+    call this%blst%apply(w, n, ifgs = .true.)
+    call this%gs_h%interp%apply_j(w, n)
+  end subroutine tamg_project
 
 end module tree_amg

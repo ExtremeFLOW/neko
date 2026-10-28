@@ -391,17 +391,22 @@ contains
                    mg(lvl)%coef, mg(lvl)%bclst, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            end if
-           if (allocated(mg(lvl)%gs_h%interp)) call mg(lvl)%gs_h%op_h1(z%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+           if (allocated(mg(lvl)%gs_h%interp)) &
+                call mg(lvl)%gs_h%op_h1(z%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
 
            !------------!
            !  Residual  !
            !------------!
            call Ax%compute(w%x, z%x, mg(lvl)%coef, msh, mg(lvl)%Xh)
-           call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, glb_cmd_event)
-           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
-           call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
-           if (allocated(mg(lvl)%gs_h%interp)) &
-                call mg(lvl)%gs_h%op_h1(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+           if (allocated(mg(lvl)%gs_h%interp)) then
+              call phmg_assemble(w%x, mg(lvl)%dm_Xh%size(), mg(lvl)%gs_h, &
+                   mg(lvl)%bclst)
+           else
+              call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD, &
+                   glb_cmd_event)
+              call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+              call mg(lvl)%bclst%apply_scalar(w%x, mg(lvl)%dm_Xh%size())
+           end if
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_add2s1(w%x_d, r%x_d, -1.0_rp, mg(lvl)%dm_Xh%size())
@@ -420,16 +425,18 @@ contains
 
            call intrp(lvl+1)%map(mg(lvl+1)%r%x, w%x, msh%nelv, mg(lvl+1)%Xh)
 
-           call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
-                GS_OP_ADD, glb_cmd_event)
-           call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
+           if (allocated(mg(lvl+1)%gs_h%interp)) then
+              call phmg_assemble(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
+                   mg(lvl+1)%gs_h, mg(lvl+1)%bclst)
+           else
+              call mg(lvl+1)%gs_h%op(mg(lvl+1)%r%x, mg(lvl+1)%dm_Xh%size(), &
+                   GS_OP_ADD, glb_cmd_event)
+              call device_stream_wait_event(glb_cmd_queue, glb_cmd_event, 0)
 
-           call mg(lvl+1)%bclst%apply_scalar( &
-                mg(lvl+1)%r%x, &
-                mg(lvl+1)%dm_Xh%size())
-           if (allocated(mg(lvl+1)%gs_h%interp)) &
-                call mg(lvl+1)%gs_h%op_h1(mg(lvl+1)%r%x, &
-                mg(lvl+1)%dm_Xh%size(), GS_OP_ADD)
+              call mg(lvl+1)%bclst%apply_scalar( &
+                   mg(lvl+1)%r%x, &
+                   mg(lvl+1)%dm_Xh%size())
+           end if
 
            if (NEKO_BCKND_DEVICE .eq. 1) then
               call device_rzero(mg(lvl+1)%z%x_d, mg(lvl+1)%dm_Xh%size())
@@ -448,7 +455,9 @@ contains
            mg(this%nlvls-1)%r%x, &
            mg(this%nlvls-1)%dm_Xh%size())
       lvl = this%nlvls-1
-      if (allocated(mg(lvl)%gs_h%interp)) call mg(lvl)%gs_h%op_h1(mg(this%nlvls-1)%z%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+      if (allocated(mg(lvl)%gs_h%interp)) &
+           call phmg_project(mg(lvl)%z%x, mg(lvl)%dm_Xh%size(), &
+           mg(lvl)%gs_h, mg(lvl)%bclst)
       call profiler_end_region( 'PHMG_coarse-solve' )
 
       do lvl = (this%nlvls-2), 0, -1
@@ -461,7 +470,8 @@ contains
            call intrp(lvl+1)%map(w%x, mg(lvl+1)%z%x, msh%nelv, mg(lvl)%Xh)
 
            if (allocated(mg(lvl)%gs_h%interp)) then
-              call mg(lvl)%gs_h%op_h1(w%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+              call phmg_project(w%x, mg(lvl)%dm_Xh%size(), mg(lvl)%gs_h, &
+                   mg(lvl)%bclst)
            else
               call mg(lvl)%gs_h%op(w%x, mg(lvl)%dm_Xh%size(), &
                    GS_OP_ADD, glb_cmd_event)
@@ -498,7 +508,8 @@ contains
                    mg(lvl)%coef, mg(lvl)%bclst, &
                    mg(lvl)%gs_h, niter = mg(lvl)%smoother_itrs)
            end if
-           if (allocated(mg(lvl)%gs_h%interp)) call mg(lvl)%gs_h%op_h1(z%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
+           if (allocated(mg(lvl)%gs_h%interp)) &
+                call mg(lvl)%gs_h%op_h1(z%x, mg(lvl)%dm_Xh%size(), GS_OP_ADD)
          end associate
          call profiler_end_region( "PHMG_level_" // trim(lvl_name))
       end do
@@ -630,6 +641,34 @@ contains
     call neko_log%end_section()
 
   end subroutine print_phmg_info
+
+  !> Assemble an operator output (dual vector) on a nonconforming level and
+  !! apply the strong bcs in the topological context, between gs and J.
+  subroutine phmg_assemble(w, n, gs_h, blst)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: w
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+
+    call gs_h%interp%apply_jt(w, n)
+    call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+    call blst%apply_scalar(w, n, ifgs = .true.)
+    call gs_h%interp%apply_j(w, n)
+  end subroutine phmg_assemble
+
+  !> Make a correction (primal vector) continuous on a nonconforming level
+  !! and apply the strong bcs in the topological context.
+  subroutine phmg_project(w, n, gs_h, blst)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: w
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+
+    call gs_h%interp%remove_mult_h1(w, n)
+    call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+    call blst%apply_scalar(w, n, ifgs = .true.)
+    call gs_h%interp%apply_j(w, n)
+  end subroutine phmg_project
 
   !> AMR restart
   !! @param[inout]  reconstruct   data reconstruction type

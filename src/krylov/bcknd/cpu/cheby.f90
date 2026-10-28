@@ -149,20 +149,23 @@ contains
          call random_number(rn)
          d(i) = rn + 10.0_rp
       end do
-      call gs_h%op(d, n, GS_OP_ADD)
-      call blst%apply(d, n)
+      if (allocated(gs_h%interp)) then
+         call cheby_project(d, n, gs_h, blst)
+      else
+         call gs_h%op(d, n, GS_OP_ADD)
+         call blst%apply(d, n)
+      end if
 
       !Power method to get lamba max
       do i = 1, this%power_its
          call ax%compute(w, d, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call cheby_assemble(w, n, gs_h, blst)
          if (associated(this%schwarz)) then
             call this%schwarz%compute(r, w)
             call copy(w, r, n)
          else
             call this%M%solve(r, w, n)
-            if (allocated(gs_h%interp)) call gs_h%op_h1(r, n, GS_OP_ADD)
+            if (allocated(gs_h%interp)) call cheby_project(r, n, gs_h, blst)
             call copy(w, r, n)
          end if
 
@@ -172,14 +175,13 @@ contains
       end do
 
       call ax%compute(w, d, coef, x%msh, x%Xh)
-      call gs_h%op(w, n, GS_OP_ADD)
-      call blst%apply(w, n)
+      call cheby_assemble(w, n, gs_h, blst)
       if (associated(this%schwarz)) then
          call this%schwarz%compute(r, w)
          call copy(w, r, n)
       else
          call this%M%solve(r, w, n)
-         if (allocated(gs_h%interp)) call gs_h%op_h1(r, n, GS_OP_ADD)
+         if (allocated(gs_h%interp)) call cheby_project(r, n, gs_h, blst)
          call copy(w, r, n)
       end if
 
@@ -343,8 +345,7 @@ contains
       ! calculate residual
       if (.not.this%zero_initial_guess) then
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call cheby_assemble(w, n, gs_h, blst)
          call sub3(r, f, w, n)
       else
          call copy(r, f, n)
@@ -356,7 +357,7 @@ contains
          call this%schwarz%compute(d, r)
       else
          call this%M%solve(d, r, n)
-         if (allocated(gs_h%interp)) call gs_h%op_h1(d, n, GS_OP_ADD)
+         if (allocated(gs_h%interp)) call cheby_project(d, n, gs_h, blst)
       end if
 
       do concurrent (i = 1:n)
@@ -375,15 +376,14 @@ contains
          rhok = rhokp1
          ! calculate residual
          call ax%compute(w, x%x, coef, x%msh, x%Xh)
-         call gs_h%op(w, n, GS_OP_ADD)
-         call blst%apply(w, n)
+         call cheby_assemble(w, n, gs_h, blst)
          call sub3(r, f, w, n)
 
          if (associated(this%schwarz)) then
             call this%schwarz%compute(w, r)
          else
             call this%M%solve(w, r, n)
-            if (allocated(gs_h%interp)) call gs_h%op_h1(w, n, GS_OP_ADD)
+            if (allocated(gs_h%interp)) call cheby_project(w, n, gs_h, blst)
          end if
          do concurrent (i = 1:n)
             d(i) = tmp1 * d(i) + tmp2 * w(i)
@@ -452,5 +452,40 @@ contains
     this%recompute_eigs = .true.
 
   end subroutine cheby_amr_restart
+
+  !> Assemble an operator output (dual vector) and apply the strong bcs.
+  !! On nonconforming meshes the topological mask is applied between gs and
+  !! J, so that children's hanging slots are interpolated from masked parent
+  !! values.
+  subroutine cheby_assemble(w, n, gs_h, blst)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: w
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+
+    if (allocated(gs_h%interp)) then
+       call gs_h%interp%apply_jt(w, n)
+       call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+       call blst%apply(w, n, ifgs = .true.)
+       call gs_h%interp%apply_j(w, n)
+    else
+       call gs_h%op(w, n, GS_OP_ADD)
+       call blst%apply(w, n)
+    end if
+  end subroutine cheby_assemble
+
+  !> Make a correction (primal vector) continuous on a nonconforming mesh
+  !! and apply the strong bcs in the topological context.
+  subroutine cheby_project(w, n, gs_h, blst)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(inout) :: w
+    type(gs_t), intent(inout) :: gs_h
+    type(bc_list_t), intent(inout) :: blst
+
+    call gs_h%interp%remove_mult_h1(w, n)
+    call gs_h%gs_op_vector(w, n, GS_OP_ADD)
+    call blst%apply(w, n, ifgs = .true.)
+    call gs_h%interp%apply_j(w, n)
+  end subroutine cheby_project
 
 end module cheby
