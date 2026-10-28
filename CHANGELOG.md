@@ -11,6 +11,11 @@
 
 ## Develop
 
+- Added the `reichardt` wall model, based on Reichardt's law of the wall,
+  which blends the viscous sublayer, buffer layer and logarithmic region in a
+  single formula. Available for the CPU, CUDA, HIP, OpenCL and Metal backends.
+  Besides the required `kappa`, the constants `C`, `B1` and `B2` of the law can
+  be set in the case file and default to their original values.
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
