@@ -38,6 +38,7 @@ contains
 
   !> Enable the runtime statistics, writing profile.csv if @a output_profile.
   !! A stale profile.csv is removed, since the report appends to it.
+  !! @param output_profile Whether the report writes profile.csv.
   subroutine enable_stats(output_profile)
     logical, intent(in) :: output_profile
     type(json_file) :: params
@@ -68,8 +69,11 @@ contains
     if (pe_rank .ne. 0) return
 
     open(newunit = unit, file = 'profile.csv', status = 'old', &
-         action = 'read')
-    read(unit, '(A)') line
+         action = 'read', iostat = ierr)
+    @assertEqual(0, ierr, 'Could not open profile.csv')
+
+    read(unit, '(A)', iostat = ierr) line
+    if (ierr .ne. 0) line = ''
     n = 0
     do
        read(unit, '(A)', iostat = ierr)

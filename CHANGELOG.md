@@ -12,9 +12,14 @@
 ## Develop
 
 - Fixed the runtime statistics aborting with `Not enough profiling regions
-  available` after 25 named regions. The region table now grows on demand,
-  names longer than 25 characters are looked up truncated, as they are
-  stored, and the `profile.csv` header is no longer cut at 1024 characters.
+  available` after 25 named regions. The region table now grows on demand.
+  Names longer than 25 characters are now looked up truncated, as they are
+  stored, which also stops the `Profile region renamed` abort for scalars
+  whose names have 17 or more characters. The `profile.csv` header is no
+  longer cut at 1024 characters.
+- *BREAKING* `csv_file_t%header` is now a deferred-length allocatable, which
+  stays unallocated until the header is set. Code reading it directly must
+  check `allocated()` first.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 

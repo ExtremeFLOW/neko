@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -306,6 +306,9 @@ contains
 
   !> Find or allocate a region id for the named region @a name
   !! @details The table is grown when no free region is left.
+  !! @param name Name of the region, compared by its first
+  !! RT_STATS_MAX_NAME_LEN characters.
+  !! @param region_id Id of the region found or allocated.
   subroutine runtime_stats_find_region_id(this, name, region_id)
     class(runtime_stats_t), intent(inout) :: this
     character(len=*), intent(in) :: name

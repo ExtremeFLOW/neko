@@ -2550,12 +2550,15 @@ file.
 A more detailed description as well as a  full list of available components and
  their setup is provided in a [separate page of the manual](@ref point-zones).
 
-## Runtime statistics
+## Runtime statistics {#case-file_runtime-statistics}
 
 This object adds the collection of runtime statistics (timings) for identified
 profiling regions. A region is defined as all functions between a call to
-`profiler_start_region(name, id)` and `profiler_end_region(name, id)`. Neko
-currently supports 50 regions, with id 1..25 being reserved for internal use.
+`profiler_start_region(name, id)` and `profiler_end_region(name, id)`, where
+the `id` is optional. Regions without an id are added as they are first
+started, so their number is not limited. The ids 1..25 are reserved for regions
+started with an explicit id. A region is identified by the first 25 characters
+of its name, so regions whose names share those are timed as one region.
 
 
 | Name             | Description                                                 | Admissible values | Default value |
