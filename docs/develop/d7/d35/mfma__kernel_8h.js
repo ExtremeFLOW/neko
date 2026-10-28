@@ -8,11 +8,14 @@ var mfma__kernel_8h =
     [ "NEKO_MFMA_LDS_FITS", "d7/d35/mfma__kernel_8h.html#a5efaa20f179078b0d6f22377a23aebfb", null ],
     [ "NEKO_MFMA_LDS_N", "d7/d35/mfma__kernel_8h.html#a977bff9d86ff2e6d86cb1416b486b6aa", null ],
     [ "NEKO_MFMA_NBLCKS", "d7/d35/mfma__kernel_8h.html#aee576a10ad1ef6007c97cc99414b3599", null ],
+    [ "NEKO_MFMA_NEL", "d7/d35/mfma__kernel_8h.html#ab67fa3091a49fb62099a8c875da9a4cf", null ],
+    [ "NEKO_MFMA_NEL_N", "d7/d35/mfma__kernel_8h.html#abb8c1d68efe6b294f1f647b450f2dc41", null ],
     [ "NEKO_MFMA_NGROUPS", "d7/d35/mfma__kernel_8h.html#a60a3596e739fc2f84ecd307270f4772b", null ],
     [ "NEKO_MFMA_NTHRDS", "d7/d35/mfma__kernel_8h.html#ab0774fcbbcd6fd5434e09ecc51978f8b", null ],
     [ "NEKO_MFMA_NWF", "d7/d35/mfma__kernel_8h.html#aabe54c7b9f09c67de00a86971a760f06", null ],
     [ "NEKO_MFMA_NWF_CANDIDATES", "d7/d35/mfma__kernel_8h.html#a2732f81ab81eb1b8162f9a01c68d7457", null ],
     [ "NEKO_MFMA_PAD_N", "d7/d35/mfma__kernel_8h.html#afa1cabeeaff9ad2c8cdfabab7f6bdd38", null ],
+    [ "NEKO_MFMA_POW2_FLOOR", "d7/d35/mfma__kernel_8h.html#aad7845f972949ade4023daf56dca66b9", null ],
     [ "NEKO_MFMA_SD_N", "d7/d35/mfma__kernel_8h.html#a73283f831acfaadddce6c8d13f41ac00", null ],
     [ "NEKO_MFMA_SJ_N", "d7/d35/mfma__kernel_8h.html#a0143909c22a8f5d15948316b314b1a89", null ],
     [ "NEKO_MFMA_SK_N", "d7/d35/mfma__kernel_8h.html#a15a3fd88a56db2e781fbba60488ca8a6", null ],
@@ -32,7 +35,6 @@ var mfma__kernel_8h =
     [ "mfma_tile_name", "d7/d35/mfma__kernel_8h.html#a25bc7a2edfabef17e8c735c4f4f50d3a", null ],
     [ "mfma_tile_offered", "d7/d35/mfma__kernel_8h.html#aeef90a0fd63410f790a7f9a478327652", null ],
     [ "neko_mfma_candidates", "d7/d35/mfma__kernel_8h.html#a7b256ea31a80c4a43a6c0e5beae2f151", null ],
-    [ "neko_mfma_nwf_pin", "d7/d35/mfma__kernel_8h.html#a81a12c603fd9eec454bea2dc6108804b", null ],
     [ "neko_mfma_pin", "d7/d35/mfma__kernel_8h.html#a72cdac771b250ae347ae1803acd23ef9", null ],
     [ "neko_mfma_sweep", "d7/d35/mfma__kernel_8h.html#ad5690afb81cf3734a1b60cd1bc68fc37", null ]
 ];

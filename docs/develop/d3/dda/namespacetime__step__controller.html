@@ -187,7 +187,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00156">156</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00157">157</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -218,12 +218,12 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">order</td><td>order of the interpolation </td></tr>
+    <tr><td class="paramname">params</td><td>The time settings of the case file, <code>case.time</code>. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00093">93</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -286,7 +286,7 @@ Here is the call graph for this function:</div>
 <p>To be called right after <code>set_dt</code>. The time up to the next target is divided into the number of equal steps nearest, in ratio, to the proposed step, within <code>min_dt_decrease_factor</code> and <code>max_dt_increase_factor</code> of the previous step and below <code>max_timestep</code>. As long as the CFL controller keeps the step and the step divides the remaining time, which it does between scheduled times and at those of equal intervals, the step is returned unchanged. The end is the target if the next scheduled time is within <code>min_dt_decrease_factor</code> times the previous step of it, and that scheduled time is executed at the end. A scheduled time closer than that is passed, and executed at the first step past it.</p>
 <p>Designed for output intervals of several steps, the same for all controllers or whole multiples of each other. Schedules that produce scheduled times close to each other make the step shorter than needed. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00278">278</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00286">286</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -344,14 +344,15 @@ Here is the call graph for this function:</div>
     <tr><td class="paramname">time</td><td>The time state, whose <code>dt</code> is the step taken last on entry and the step about to be taken on exit. </td></tr>
     <tr><td class="paramname">cfl</td><td>courant number of current iteration. @Algorithm:<ol type="1">
 <li>Set the first time step such that cfl is the set one;</li>
-<li>During time-stepping, adjust dt when cfl_avg is offset by 20%. With <code>exact_output_time</code> the step is then fitted to the next scheduled time by <code>land</code>, which is to be called right after. </li>
+<li>During time-stepping, adjust dt when cfl_avg is offset by 20%.</li>
+<li>An exact zero cfl, e.g. from a zero velocity field, puts no limit on dt, so the first time step is the initial one and a later one is increased by the maximum increase factor. With <code>exact_output_time</code> the step is then fitted to the next scheduled time by <code>land</code>, which is to be called right after. </li>
 </ol>
 </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00177">177</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00181">181</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -378,7 +379,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00050">50</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -402,7 +403,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00054">54</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -412,7 +413,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/dda/namespacetime__step__controller.html">time_step_controller</a></li>
-    <li class="footer">Generated on Tue Oct 27 2026 04:02:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Oct 28 2026 03:38:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

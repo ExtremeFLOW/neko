@@ -2142,6 +2142,8 @@ var annotated_dup =
     [ "hip_buffer", "d3/d16/structhip__buffer.html", "d3/d16/structhip__buffer" ],
     [ "kinematics_params_t", "df/dc7/structkinematics__params__t.html", "df/dc7/structkinematics__params__t" ],
     [ "lpt_periodic_params", "d7/dac/structlpt__periodic__params.html", "d7/dac/structlpt__periodic__params" ],
+    [ "neko_tune_rej_t", "da/d24/structneko__tune__rej__t.html", "da/d24/structneko__tune__rej__t" ],
+    [ "neko_tune_verify_t", "d9/d2b/structneko__tune__verify__t.html", "d9/d2b/structneko__tune__verify__t" ],
     [ "opencl_buffer", "d5/da0/structopencl__buffer.html", "d5/da0/structopencl__buffer" ],
     [ "opgrad_dmma_dispatch", "df/d08/structopgrad__dmma__dispatch.html", "df/d08/structopgrad__dmma__dispatch" ],
     [ "opgrad_dmma_tma_dispatch", "d6/d17/structopgrad__dmma__tma__dispatch.html", "d6/d17/structopgrad__dmma__tma__dispatch" ],

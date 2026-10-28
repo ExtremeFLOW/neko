@@ -1,5 +1,11 @@
 <map id="device_math::device_addcol3s2" name="device_math::device_addcol3s2">
-<area shape="rect" id="Node000001" title="Returns ." alt="" coords="193,5,351,45"/>
-<area shape="rect" id="Node000002" href="$dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="5,5,145,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,28,146,28,146,23,179,23"/>
+<area shape="rect" id="Node000001" title="Returns ." alt="" coords="476,35,633,75"/>
+<area shape="rect" id="Node000002" href="$dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="258,5,398,45"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="462,45,398,37,399,32,462,40"/>
+<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#ac1961ed199e8a2b4833049a6687a53fd" title="Returns ." alt="" coords="228,70,428,95"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="462,69,429,73,428,68,462,63"/>
+<area shape="rect" id="Node000004" href="$d1/d26/namespacemean__field.html#a8ddeb536cd296d2da2a483c4a1cb565c" title="Update the mean field using the pointwise product &#160;as the sample, without the need for a work field h..." alt="" coords="5,31,180,71"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="220,71,180,65,180,60,221,65"/>
+<area shape="rect" id="Node000005" href="$d1/d26/namespacemean__field.html#a450822c9ed2fc89ba3edc33505cfcbfa" title="Update the mean field using &#160;as the sample, without the need for a work field holding the sum." alt="" coords="5,95,180,135"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="221,100,180,105,180,100,220,95"/>
 </map>

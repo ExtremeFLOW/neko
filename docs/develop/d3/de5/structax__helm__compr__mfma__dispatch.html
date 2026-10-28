@@ -119,7 +119,7 @@ struct ax_helm_compr_mfma_dispatch&lt; T, LX, NWF, TILE &gt;</div><p>Matrix-core
 <dl class="section note"><dt>Note</dt><dd>Do not expect it to win. MEASURED on gfx90a in single precision at 8192 elements per rank: at lx = 4 it is chosen, 20.48 us/call against the 1d kernel's 20.87, a 1.9% margin; at lx = 8 it loses, 136.40 against 130.50 for 1d at 512 threads, 4.5% behind. Those two numbers are 1.107 and 1.157 TB/s of a 1.6 TB/s MI250X GCD, so both kernels are sitting on the memory roof and what separates them is streaming efficiency, not arithmetic. That is the whole difficulty with the strategy: the operator runs at roughly 1.6 flop/byte, tens of times below the ridge, so the tile utilisation a matrix core buys has to be paid for in staging traffic and usually is. Nothing has been measured on gfx942 at all.</dd></dl>
 <p>ALL OF THOSE NUMBERS ARE STALE. They predate the elements per block rework (which changed what more than one wavefront means at lx = 4), the padded LDS layout, the B-hoisted 4x4x4 nest, the 16 wavefront rung and the geometry prefetch. Of those the first three are the ones expected to move the lx = 8 comparison: the bank model prices a whole lx = 8 f64 element &ndash; every LDS access of the six contractions and the three linear passes &ndash; at 2976 cycles before them and 1220 after, and the streaming efficiency those numbers are really measuring is what an 8-way LDS conflict costs. The same model puts lx = 12 f64 at 8964 -&gt; 4752 and the orders it does not pad, lx = 10 and 11, at -30% and -27% from the hoisted operand alone. Re-measure before quoting any of it, and treat the 4.5% deficit as the thing to re-test rather than as a settled result. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../df/d6c/hip_2ax__helm__compr__kernel_8h_source.html#l00698">698</a> of file <a class="el" href="../../df/d6c/hip_2ax__helm__compr__kernel_8h_source.html">ax_helm_compr_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d6c/hip_2ax__helm__compr__kernel_8h_source.html#l00708">708</a> of file <a class="el" href="../../df/d6c/hip_2ax__helm__compr__kernel_8h_source.html">ax_helm_compr_kernel.h</a>.</p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a877446ced44f638c6a8c16b25601b9f5" name="a877446ced44f638c6a8c16b25601b9f5"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a877446ced44f638c6a8c16b25601b9f5">&#9670;&#160;</a></span>run()</h2>
@@ -229,7 +229,7 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/d6c/hip_2ax__helm__compr__kernel_8h_source.html#l00699">699</a> of file <a class="el" href="../../df/d6c/hip_2ax__helm__compr__kernel_8h_source.html">ax_helm_compr_kernel.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/d6c/hip_2ax__helm__compr__kernel_8h_source.html#l00709">709</a> of file <a class="el" href="../../df/d6c/hip_2ax__helm__compr__kernel_8h_source.html">ax_helm_compr_kernel.h</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -252,7 +252,7 @@ Here is the caller graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/de5/structax__helm__compr__mfma__dispatch.html">ax_helm_compr_mfma_dispatch</a></li>
-    <li class="footer">Generated on Tue Oct 27 2026 04:02:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Oct 28 2026 03:38:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

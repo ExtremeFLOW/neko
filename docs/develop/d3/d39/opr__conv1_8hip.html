@@ -402,7 +402,8 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <b>Value:</b><div class="fragment"><div class="line">    <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipLaunchKernelGGL</a>( <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">HIP_KERNEL_NAME</a>(                                        \</div>
-<div class="line">                          <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">conv1_kernel_mfma</a>&lt;<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>, <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, <a class="code hl_define" href="../../d7/d35/mfma__kernel_8h.html#aabe54c7b9f09c67de00a86971a760f06">NEKO_MFMA_NWF</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>)&gt; ),      \</div>
+<div class="line">                          <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">conv1_kernel_mfma</a>&lt;<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>, <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, <a class="code hl_define" href="../../d7/d35/mfma__kernel_8h.html#aabe54c7b9f09c67de00a86971a760f06">NEKO_MFMA_NWF</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>),         \</div>
+<div class="line">                                            <a class="code hl_define" href="../../d7/d35/mfma__kernel_8h.html#ac796f2929fcd7023e932f50428ada6d1">NEKO_MFMA_TILE</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>)&gt; ),               \</div>
 <div class="line">                        <a class="code hl_define" href="../../d7/d35/mfma__kernel_8h.html#aee576a10ad1ef6007c97cc99414b3599">NEKO_MFMA_NBLCKS</a>(*nel, <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>), <a class="code hl_define" href="../../d7/d35/mfma__kernel_8h.html#ab0774fcbbcd6fd5434e09ecc51978f8b">NEKO_MFMA_NTHRDS</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">C</a>), 0,  \</div>
 <div class="line">                        (<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipStream_t</a>) glb_cmd_queue,                            \</div>
 <div class="line">                        (<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) du, (<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code hl_variable" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>,                                \</div>
@@ -413,9 +414,10 @@ Functions</h2></td></tr>
 <div class="line">                        (<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a9e2f89da215dbe99062df096d6c1cc92">drdz</a>, (<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a7475f63c9be53e7d3cc2505d78bba6da">dsdz</a>, (<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a10cf1c71e1eb0ab67333ff8ec99adc30">dtdz</a>,            \</div>
 <div class="line">                        (<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a> *) <a class="code hl_variable" href="../../d0/d7e/cuda_2ax__helm__full__kernel_8h.html#a47a622d5bd18875ab38c9a0c77ab2cb2">jacinv</a>, *nel);                                 <a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">\</a></div>
 <div class="line"><a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">    HIP_CHECK</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">hipGetLastError</a>());</div>
-<div class="ttc" id="amfma__kernel_8h_html_aabe54c7b9f09c67de00a86971a760f06"><div class="ttname"><a href="../../d7/d35/mfma__kernel_8h.html#aabe54c7b9f09c67de00a86971a760f06">NEKO_MFMA_NWF</a></div><div class="ttdeci">#define NEKO_MFMA_NWF(C)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d35/mfma__kernel_8h_source.html#l00263">mfma_kernel.h:263</a></div></div>
-<div class="ttc" id="amfma__kernel_8h_html_ab0774fcbbcd6fd5434e09ecc51978f8b"><div class="ttname"><a href="../../d7/d35/mfma__kernel_8h.html#ab0774fcbbcd6fd5434e09ecc51978f8b">NEKO_MFMA_NTHRDS</a></div><div class="ttdeci">#define NEKO_MFMA_NTHRDS(C)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d35/mfma__kernel_8h_source.html#l00265">mfma_kernel.h:265</a></div></div>
-<div class="ttc" id="amfma__kernel_8h_html_aee576a10ad1ef6007c97cc99414b3599"><div class="ttname"><a href="../../d7/d35/mfma__kernel_8h.html#aee576a10ad1ef6007c97cc99414b3599">NEKO_MFMA_NBLCKS</a></div><div class="ttdeci">#define NEKO_MFMA_NBLCKS(NELV, LX, C)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d35/mfma__kernel_8h_source.html#l00495">mfma_kernel.h:495</a></div></div>
+<div class="ttc" id="amfma__kernel_8h_html_aabe54c7b9f09c67de00a86971a760f06"><div class="ttname"><a href="../../d7/d35/mfma__kernel_8h.html#aabe54c7b9f09c67de00a86971a760f06">NEKO_MFMA_NWF</a></div><div class="ttdeci">#define NEKO_MFMA_NWF(C)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d35/mfma__kernel_8h_source.html#l00280">mfma_kernel.h:280</a></div></div>
+<div class="ttc" id="amfma__kernel_8h_html_ab0774fcbbcd6fd5434e09ecc51978f8b"><div class="ttname"><a href="../../d7/d35/mfma__kernel_8h.html#ab0774fcbbcd6fd5434e09ecc51978f8b">NEKO_MFMA_NTHRDS</a></div><div class="ttdeci">#define NEKO_MFMA_NTHRDS(C)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d35/mfma__kernel_8h_source.html#l00282">mfma_kernel.h:282</a></div></div>
+<div class="ttc" id="amfma__kernel_8h_html_ac796f2929fcd7023e932f50428ada6d1"><div class="ttname"><a href="../../d7/d35/mfma__kernel_8h.html#ac796f2929fcd7023e932f50428ada6d1">NEKO_MFMA_TILE</a></div><div class="ttdeci">#define NEKO_MFMA_TILE(C)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d35/mfma__kernel_8h_source.html#l00281">mfma_kernel.h:281</a></div></div>
+<div class="ttc" id="amfma__kernel_8h_html_aee576a10ad1ef6007c97cc99414b3599"><div class="ttname"><a href="../../d7/d35/mfma__kernel_8h.html#aee576a10ad1ef6007c97cc99414b3599">NEKO_MFMA_NBLCKS</a></div><div class="ttdeci">#define NEKO_MFMA_NBLCKS(NELV, LX, C)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d35/mfma__kernel_8h_source.html#l00554">mfma_kernel.h:554</a></div></div>
 </div><!-- fragment -->
 </div>
 </div>
@@ -449,7 +451,12 @@ Functions</h2></td></tr>
 <div class="line">    <span class="keywordflow">case</span> 1:  <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 1); <span class="keywordflow">break</span>;                                           \</div>
 <div class="line">    <span class="keywordflow">case</span> 2:  <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 2); <span class="keywordflow">break</span>;                                           \</div>
 <div class="line">    <span class="keywordflow">case</span> 3:  <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 3); <span class="keywordflow">break</span>;                                           \</div>
-<div class="line">    <span class="keywordflow">default</span>: <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 4); <span class="keywordflow">break</span>;                                           \</div>
+<div class="line">    <span class="keywordflow">case</span> 4:  <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 4); <span class="keywordflow">break</span>;                                           \</div>
+<div class="line">    <span class="keywordflow">case</span> 5:  <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 5); <span class="keywordflow">break</span>;                                           \</div>
+<div class="line">    <span class="keywordflow">case</span> 6:  <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 6); <span class="keywordflow">break</span>;                                           \</div>
+<div class="line">    <span class="keywordflow">case</span> 7:  <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 7); <span class="keywordflow">break</span>;                                           \</div>
+<div class="line">    <span class="keywordflow">case</span> 8:  <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 8); <span class="keywordflow">break</span>;                                           \</div>
+<div class="line">    <span class="keywordflow">default</span>: <a class="code hl_define" href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a>(<a class="code hl_function" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">LX</a>, 9); <span class="keywordflow">break</span>;                                           \</div>
 <div class="line">    }</div>
 <div class="ttc" id="aopr__conv1_8hip_html_ab1021927c2c26d9d74ac53e3a898b28c"><div class="ttname"><a href="../../d3/d39/opr__conv1_8hip.html#ab1021927c2c26d9d74ac53e3a898b28c">CASE_MFMA</a></div><div class="ttdeci">#define CASE_MFMA(LX, C)</div></div>
 </div><!-- fragment -->
@@ -772,50 +779,76 @@ template&lt;<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.ht
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d39/opr__conv1_8hip_source.html#l00222">222</a> of file <a class="el" href="../../d3/d39/opr__conv1_8hip_source.html">opr_conv1.hip</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d39/opr__conv1_8hip_source.html#l00229">229</a> of file <a class="el" href="../../d3/d39/opr__conv1_8hip_source.html">opr_conv1.hip</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d3/d39/opr__conv1_8hip_a2a3b3c0bf96f55962b7f372d555da50b_cgraph.png" border="0" usemap="#ad3/d39/opr__conv1_8hip_a2a3b3c0bf96f55962b7f372d555da50b_cgraph" alt=""/></div>
 <map name="ad3/d39/opr__conv1_8hip_a2a3b3c0bf96f55962b7f372d555da50b_cgraph" id="ad3/d39/opr__conv1_8hip_a2a3b3c0bf96f55962b7f372d555da50b_cgraph">
-<area shape="rect" title=" " alt="" coords="5,304,103,329"/>
-<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="363,395,515,435"/>
-<area shape="poly" title=" " alt="" coords="54,303,59,260,74,201,87,170,103,140,123,114,149,92,191,70,229,62,268,70,310,92,343,121,371,156,392,195,409,236,430,317,439,381,433,382,425,318,404,238,388,197,366,159,339,124,306,96,266,75,229,68,193,75,152,96,127,117,107,143,91,172,79,203,65,261,59,304"/>
-<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#a7e3ce445f098e02799be0deeeee1fe6d" title=" " alt="" coords="166,5,293,31"/>
-<area shape="poly" title=" " alt="" coords="54,303,60,256,75,189,103,115,124,80,149,48,166,35,169,39,153,52,128,83,108,117,80,190,65,257,59,304"/>
-<area shape="rect" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580" title=" " alt="" coords="166,107,293,132"/>
-<area shape="poly" title=" " alt="" coords="56,303,67,270,85,227,113,181,149,141,156,136,159,141,152,145,117,184,90,229,72,272,61,304"/>
-<area shape="rect" href="../../d4/d8d/neko__log_8h.html#a2eb7fca59244516787b0701a7011b1a3" title=" " alt="" coords="189,156,269,181"/>
-<area shape="poly" title=" " alt="" coords="60,302,93,248,118,217,149,190,175,177,177,182,152,195,122,221,97,252,64,305"/>
-<area shape="rect" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1" title=" " alt="" coords="175,205,283,231"/>
-<area shape="poly" title=" " alt="" coords="67,302,102,271,149,240,163,233,166,238,152,244,106,275,70,306"/>
-<area shape="rect" href="../../d4/d8d/neko__log_8h.html#ab1629da16eb42a5e01533232e6eff57e" title=" " alt="" coords="181,255,277,280"/>
-<area shape="poly" title=" " alt="" coords="99,301,169,281,171,286,101,307"/>
-<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#a10c8a7500139c17630594483b5cb70c9" title=" " alt="" coords="163,304,296,329"/>
-<area shape="poly" title=" " alt="" coords="103,314,149,314,149,319,103,319"/>
-<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#a467611b54cf89f5a2337da92f62837d0" title=" " alt="" coords="178,353,281,379"/>
-<area shape="poly" title=" " alt="" coords="101,327,171,347,169,352,99,332"/>
-<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#ac8dde0b8d9ebba281727a2ecc4cc08bb" title=" " alt="" coords="167,403,292,428"/>
-<area shape="poly" title=" " alt="" coords="71,328,106,357,152,388,169,395,166,400,149,392,103,362,67,332"/>
-<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#a81a12c603fd9eec454bea2dc6108804b" title=" " alt="" coords="151,452,308,477"/>
-<area shape="poly" title=" " alt="" coords="64,328,97,381,123,411,152,437,164,444,161,449,149,441,119,415,93,384,60,331"/>
-<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#ad5690afb81cf3734a1b60cd1bc68fc37" title=" " alt="" coords="155,501,303,527"/>
-<area shape="poly" title=" " alt="" coords="61,329,72,361,91,403,117,448,152,487,161,493,158,497,149,491,113,451,86,406,67,363,56,330"/>
-<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#a90ad1bd2cd38c6c82c13b8dbfbad4e63" title=" " alt="" coords="167,551,292,576"/>
-<area shape="poly" title=" " alt="" coords="60,329,67,369,84,425,111,485,130,513,152,537,158,542,154,546,149,541,126,516,107,488,79,427,62,370,54,330"/>
-<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#a43bb8b89362950c0edd57163c18933b1" title=" " alt="" coords="159,600,299,625"/>
-<area shape="poly" title=" " alt="" coords="59,329,64,377,78,447,90,484,106,522,127,556,153,587,157,591,154,595,149,591,122,559,101,524,85,486,73,448,58,378,53,330"/>
-<area shape="poly" title=" " alt="" coords="400,396,398,386,404,376,418,371,439,369,464,372,477,379,474,384,462,377,439,374,419,376,407,381,403,387,405,394"/>
-<area shape="poly" title=" " alt="" coords="281,29,310,48,342,87,368,131,389,177,405,224,427,313,438,381,432,382,422,314,400,226,384,179,363,134,337,90,306,52,278,33"/>
-<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#a02d36ef9d468176fa428c3464a1aadf5" title=" " alt="" coords="356,5,523,31"/>
-<area shape="poly" title=" " alt="" coords="293,15,342,15,342,21,293,21"/>
-<area shape="poly" title=" " alt="" coords="278,327,309,338,355,361,397,386,395,390,353,366,307,343,277,332"/>
-<area shape="poly" title=" " alt="" coords="281,375,351,392,350,397,280,381"/>
-<area shape="poly" title=" " alt="" coords="292,413,349,413,349,418,292,418"/>
-<area shape="poly" title=" " alt="" coords="283,449,350,434,351,439,285,455"/>
-<area shape="poly" title=" " alt="" coords="274,499,307,486,394,440,396,445,309,491,276,504"/>
-<area shape="poly" title=" " alt="" coords="282,548,307,537,337,516,366,492,411,444,415,448,369,496,340,520,309,542,284,553"/>
-<area shape="poly" title=" " alt="" coords="285,598,306,586,343,555,375,517,420,446,424,449,379,521,347,558,310,591,288,602"/>
+<area shape="rect" title=" " alt="" coords="5,425,103,450"/>
+<area shape="rect" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="591,616,743,656"/>
+<area shape="poly" title=" " alt="" coords="53,424,61,340,77,214,90,149,106,90,125,43,149,11,174,5,221,3,353,6,481,13,544,20,561,39,576,64,601,129,621,209,637,297,658,473,667,603,661,603,652,474,632,298,616,210,596,130,571,66,557,42,541,25,481,18,352,11,221,9,174,11,152,16,130,45,111,92,95,150,83,215,66,340,59,425"/>
+<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#a7e3ce445f098e02799be0deeeee1fe6d" title=" " alt="" coords="176,26,303,52"/>
+<area shape="poly" title=" " alt="" coords="54,424,65,350,84,241,112,133,129,90,149,61,162,51,165,55,153,65,134,93,117,135,89,242,70,351,60,425"/>
+<area shape="rect" href="../../d4/d8d/neko__log_8h.html#aa969e9a4786509252ce57451b36f9580" title=" " alt="" coords="176,76,303,101"/>
+<area shape="poly" title=" " alt="" coords="52,425,54,368,65,284,77,237,94,191,118,148,149,110,162,100,165,105,153,114,122,151,99,193,82,239,71,285,59,368,58,425"/>
+<area shape="rect" href="../../d4/d8d/neko__log_8h.html#a2eb7fca59244516787b0701a7011b1a3" title=" " alt="" coords="199,125,279,150"/>
+<area shape="poly" title=" " alt="" coords="53,424,58,375,72,304,84,265,100,227,122,191,149,160,166,148,185,141,187,146,168,153,152,163,126,194,105,229,89,267,77,305,63,375,58,425"/>
+<area shape="rect" href="../../d4/d8d/neko__log_8h.html#a347ebadee5cc010bd2a7205296e939a1" title=" " alt="" coords="185,174,293,200"/>
+<area shape="poly" title=" " alt="" coords="54,424,62,382,78,324,106,263,125,234,149,209,171,195,174,200,152,213,129,237,111,265,83,326,67,384,59,425"/>
+<area shape="rect" href="../../d4/d8d/neko__log_8h.html#ab1629da16eb42a5e01533232e6eff57e" title=" " alt="" coords="191,224,287,249"/>
+<area shape="poly" title=" " alt="" coords="56,424,66,390,84,346,112,299,129,277,149,258,177,243,179,248,152,262,133,281,116,302,89,348,71,392,61,425"/>
+<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#a25bc7a2edfabef17e8c735c4f4f50d3a" title=" " alt="" coords="173,273,306,298"/>
+<area shape="poly" title=" " alt="" coords="60,423,94,372,119,342,149,315,175,301,178,305,152,320,123,345,98,375,64,426"/>
+<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#a10c8a7500139c17630594483b5cb70c9" title=" " alt="" coords="393,324,526,349"/>
+<area shape="poly" title=" " alt="" coords="76,422,110,405,150,388,209,372,269,358,379,341,380,347,270,364,210,377,152,393,112,409,78,427"/>
+<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#a467611b54cf89f5a2337da92f62837d0" title=" " alt="" coords="408,374,511,400"/>
+<area shape="poly" title=" " alt="" coords="102,425,150,416,280,400,394,389,395,394,281,405,151,421,103,430"/>
+<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#ac8dde0b8d9ebba281727a2ecc4cc08bb" title=" " alt="" coords="397,424,522,449"/>
+<area shape="poly" title=" " alt="" coords="103,435,383,434,383,439,103,440"/>
+<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#a7b256ea31a80c4a43a6c0e5beae2f151" title=" " alt="" coords="151,476,328,501"/>
+<area shape="poly" title=" " alt="" coords="102,448,180,469,178,474,101,453"/>
+<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#a72cdac771b250ae347ae1803acd23ef9" title=" " alt="" coords="176,525,303,550"/>
+<area shape="poly" title=" " alt="" coords="70,448,105,479,152,510,171,518,169,523,149,515,102,483,67,452"/>
+<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#ad5690afb81cf3734a1b60cd1bc68fc37" title=" " alt="" coords="385,574,533,600"/>
+<area shape="poly" title=" " alt="" coords="63,449,95,505,120,535,152,559,205,581,263,592,319,596,372,595,372,600,319,602,262,598,204,586,149,564,117,539,91,508,59,452"/>
+<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#a90ad1bd2cd38c6c82c13b8dbfbad4e63" title=" " alt="" coords="397,624,522,649"/>
+<area shape="poly" title=" " alt="" coords="61,450,71,482,88,525,115,568,132,587,152,603,179,618,208,629,268,643,329,646,383,644,383,650,329,652,268,648,206,634,177,623,149,608,129,591,111,572,84,527,66,484,56,451"/>
+<area shape="rect" href="../../db/d36/cuda_2elem__block__tune_8h.html#a43bb8b89362950c0edd57163c18933b1" title=" " alt="" coords="389,673,529,698"/>
+<area shape="poly" title=" " alt="" coords="59,450,66,491,81,547,109,605,129,631,152,653,177,668,204,680,263,694,321,698,375,696,375,701,321,703,262,699,203,685,175,673,149,657,125,635,105,608,76,549,61,492,54,451"/>
+<area shape="rect" href="../../d7/df2/hip_2elem__block__tune_8h.html#a7fd579448a17f7f9bcede136f0675ba4" title=" " alt="" coords="151,774,327,800"/>
+<area shape="poly" title=" " alt="" coords="60,450,69,495,87,561,115,635,153,707,180,738,210,764,206,768,176,742,148,710,110,637,82,562,64,496,55,451"/>
+<area shape="rect" href="../../d7/df2/hip_2elem__block__tune_8h.html#a5d27ed74b1c7d3bf0b54c0b778e67ad4" title=" " alt="" coords="381,873,537,898"/>
+<area shape="poly" title=" " alt="" coords="59,450,70,524,89,632,117,740,134,781,153,809,175,828,200,844,256,866,313,879,368,885,368,890,313,884,254,871,198,848,172,832,149,813,129,784,112,741,84,634,64,525,54,451"/>
+<area shape="rect" href="../../d7/df2/hip_2elem__block__tune_8h.html#a5be7dd33767b22ddd9558c1a6dd8b29c" title=" " alt="" coords="157,924,321,949"/>
+<area shape="poly" title=" " alt="" coords="57,450,57,521,67,632,78,695,96,759,120,822,153,879,172,899,196,915,193,919,169,903,149,882,115,824,91,761,73,696,62,633,52,521,52,450"/>
+<area shape="rect" href="../../d7/df2/hip_2elem__block__tune_8h.html#a37426ad23d433132b6d12bb40a8a40da" title=" " alt="" coords="160,973,319,998"/>
+<area shape="poly" title=" " alt="" coords="59,450,65,549,80,703,93,784,109,858,129,919,140,942,153,960,156,963,152,967,149,963,136,945,124,921,103,859,87,785,75,704,59,550,53,450"/>
+<area shape="poly" title=" " alt="" coords="628,616,626,606,632,597,646,592,667,590,691,592,704,600,701,604,689,597,667,595,647,597,635,601,631,607,633,615"/>
+<area shape="poly" title=" " alt="" coords="293,23,351,16,418,15,452,20,485,29,516,42,544,62,560,79,573,102,597,162,617,236,633,318,655,481,666,602,661,602,650,481,628,319,612,237,592,164,569,105,555,82,541,66,514,47,483,34,451,25,417,21,351,21,294,29"/>
+<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#a02d36ef9d468176fa428c3464a1aadf5" title=" " alt="" coords="376,77,543,102"/>
+<area shape="poly" title=" " alt="" coords="296,49,391,71,390,76,295,54"/>
+<area shape="poly" title=" " alt="" coords="524,347,544,359,570,387,593,417,627,484,649,549,662,602,657,603,644,551,622,486,588,420,566,390,541,364,521,351"/>
+<area shape="poly" title=" " alt="" coords="512,392,544,409,567,430,587,454,620,506,643,558,659,602,654,603,638,560,615,508,583,457,563,433,541,413,510,397"/>
+<area shape="poly" title=" " alt="" coords="523,446,544,458,581,491,611,529,636,568,653,602,649,605,631,571,607,533,577,495,541,462,520,451"/>
+<area shape="rect" href="../../d7/d35/mfma__kernel_8h.html#aeef90a0fd63410f790a7f9a478327652" title=" " alt="" coords="388,473,531,498"/>
+<area shape="poly" title=" " alt="" coords="328,484,374,484,374,489,328,490"/>
+<area shape="poly" title=" " alt="" coords="303,531,416,535,481,544,544,559,590,580,630,605,627,610,588,585,542,564,480,549,416,540,303,537"/>
+<area shape="poly" title=" " alt="" coords="293,522,391,499,393,504,294,527"/>
+<area shape="poly" title=" " alt="" coords="514,597,578,612,576,617,513,602"/>
+<area shape="poly" title=" " alt="" coords="522,634,577,634,577,639,522,639"/>
+<area shape="poly" title=" " alt="" coords="513,670,576,655,578,660,514,675"/>
+<area shape="poly" title=" " alt="" coords="314,771,423,746,483,729,542,707,585,686,624,662,627,666,587,690,544,712,485,734,425,752,315,777"/>
+<area shape="rect" href="../../d7/df2/hip_2elem__block__tune_8h.html#a6b63134651726348f883c1dff835f06f" title=" " alt="" coords="380,774,539,800"/>
+<area shape="poly" title=" " alt="" coords="328,784,366,784,366,790,328,790"/>
+<area shape="poly" title=" " alt="" coords="262,797,314,827,377,858,399,866,397,871,375,863,311,831,260,802"/>
+<area shape="rect" href="../../d7/df2/hip_2elem__block__tune_8h.html#a39a700f749f1ed5e69b4cb619a038a84" title=" " alt="" coords="381,824,538,849"/>
+<area shape="poly" title=" " alt="" coords="297,797,389,818,388,823,296,802"/>
+<area shape="poly" title=" " alt="" coords="502,772,541,753,595,709,638,665,642,668,599,713,544,757,504,776"/>
+<area shape="poly" title=" " alt="" coords="520,870,541,858,582,814,614,763,638,712,653,669,658,670,643,714,619,765,587,817,544,862,523,875"/>
+<area shape="poly" title=" " alt="" coords="518,821,541,809,577,776,607,739,649,667,653,670,611,742,581,780,544,813,520,826"/>
+<area shape="poly" title=" " alt="" coords="312,946,366,950,426,947,487,934,515,923,541,907,569,883,592,855,611,823,626,789,647,723,659,669,664,670,653,725,631,791,616,825,596,858,572,887,544,912,517,928,488,939,427,953,366,955,311,952"/>
+<area shape="poly" title=" " alt="" coords="309,996,364,1000,425,997,486,984,515,972,541,955,572,926,598,891,618,852,633,811,653,732,661,669,666,670,658,733,639,813,623,854,602,894,576,929,544,960,517,977,488,989,426,1003,364,1005,308,1001"/>
 </map>
 </div>
 
@@ -827,7 +860,7 @@ Here is the call graph for this function:</div>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="../../dir_ae9a93452e2a84339148a16bcf2eb561.html">math</a></li><li class="navelem"><a class="el" href="../../dir_50770e26e3ba115102e9374c0e502830.html">bcknd</a></li><li class="navelem"><a class="el" href="../../dir_23179ed14d067dddc96ef717056004fe.html">device</a></li><li class="navelem"><a class="el" href="../../dir_f48359d827d7566deae6b1b647b520e2.html">hip</a></li><li class="navelem"><a class="el" href="../../d3/d39/opr__conv1_8hip.html">opr_conv1.hip</a></li>
-    <li class="footer">Generated on Tue Oct 27 2026 04:02:22 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Oct 28 2026 03:38:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

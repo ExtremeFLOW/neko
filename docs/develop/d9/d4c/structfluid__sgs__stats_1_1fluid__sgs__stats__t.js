@@ -10,7 +10,6 @@ var structfluid__sgs__stats_1_1fluid__sgs__stats__t =
     [ "nut", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#a492036155f4a4f842be361610c91004f", null ],
     [ "nut_mean", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#aa3f8befab8cb3ceda114073949cc1ddd", null ],
     [ "stat_fields", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#a74673417f43a25bdc6a73478a48eab4f", null ],
-    [ "stats_work", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#a7d1c0a7fa412b03d0052a04427c9476c", null ],
     [ "u", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#a67a71802b2ae8954e39f970ad238e007", null ],
     [ "uu_sgs", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#a3acf60d415b92a228045bc21bb63da2b", null ],
     [ "uv_sgs", "d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html#ac62a26b30c12c0ef1cdd775be8610328", null ],

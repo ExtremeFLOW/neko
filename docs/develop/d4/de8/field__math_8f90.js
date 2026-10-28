@@ -7,6 +7,7 @@ var field__math_8f90 =
     [ "field_add3s2", "d4/de8/field__math_8f90.html#a830909a69752f94498bb95cdad0cfe47", null ],
     [ "field_add4", "d4/de8/field__math_8f90.html#a24b3d994a5dfd34e99fd333ee854d01b", null ],
     [ "field_addcol3", "d4/de8/field__math_8f90.html#a70f4682c62a21733532dd123b317b8ba", null ],
+    [ "field_addcol3s2", "d4/de8/field__math_8f90.html#ac1961ed199e8a2b4833049a6687a53fd", null ],
     [ "field_addcol4", "d4/de8/field__math_8f90.html#ad612dd1dce947f21a6bd1643cf6b51c6", null ],
     [ "field_addsqr2s2", "d4/de8/field__math_8f90.html#ad990551f82897418c80b304b6e9a5d47", null ],
     [ "field_cadd", "d4/de8/field__math_8f90.html#a28c175a03f6a8174143bb2d488da7b6d", null ],

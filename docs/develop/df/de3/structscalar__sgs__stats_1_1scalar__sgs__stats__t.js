@@ -22,6 +22,5 @@ var structscalar__sgs__stats_1_1scalar__sgs__stats__t =
     [ "nut_dependency", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#aa9d76c282edfb126d88152b6d2817e10", null ],
     [ "pr_turb", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a302148e89f738227c2fc84e3d80de215", null ],
     [ "s", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#aaf895d93633b0c78440b2648245e4a52", null ],
-    [ "stat_fields", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#ac60a9ff7659a712a14e5b610f1e26f60", null ],
-    [ "stats_work", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#a94eb4264b00a906957d56a7c97e2cccd", null ]
+    [ "stat_fields", "df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html#ac60a9ff7659a712a14e5b610f1e26f60", null ]
 ];

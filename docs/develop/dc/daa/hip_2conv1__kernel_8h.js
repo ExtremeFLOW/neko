@@ -1,8 +1,8 @@
 var hip_2conv1__kernel_8h =
 [
-    [ "conv1_mfma_dispatch< T, LX, NWF >", "db/d49/structconv1__mfma__dispatch.html", "db/d49/structconv1__mfma__dispatch" ],
+    [ "conv1_mfma_dispatch< T, LX, NWF, TILE >", "db/d49/structconv1__mfma__dispatch.html", "db/d49/structconv1__mfma__dispatch" ],
     [ "__launch_bounds__", "dc/daa/hip_2conv1__kernel_8h.html#a03bce530a9de475f2cb8c5879b48c62c", null ],
-    [ "__launch_bounds__", "dc/daa/hip_2conv1__kernel_8h.html#a1ad60fbb7b2ca0729331bc0d8d0d7832", null ],
+    [ "__launch_bounds__", "dc/daa/hip_2conv1__kernel_8h.html#a615d6014a7822bd4555e3c141a74dd2e", null ],
     [ "__syncthreads", "dc/daa/hip_2conv1__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],
     [ "conv1_kernel_1d", "dc/daa/hip_2conv1__kernel_8h.html#aa2f2964f98ae000163718cbdbc5dbd34", null ],
     [ "for", "dc/daa/hip_2conv1__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044", null ],

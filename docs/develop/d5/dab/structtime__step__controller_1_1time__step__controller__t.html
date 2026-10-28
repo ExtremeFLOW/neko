@@ -163,7 +163,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 </div><h2 class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a0c9ab39ac87224d05f7b72bd442eba97" name="a0c9ab39ac87224d05f7b72bd442eba97"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0c9ab39ac87224d05f7b72bd442eba97">&#9670;&#160;</a></span>first_dt()</h2>
@@ -204,7 +204,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -235,12 +235,12 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">order</td><td>order of the interpolation </td></tr>
+    <tr><td class="paramname">params</td><td>The time settings of the case file, <code>case.time</code>. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -285,7 +285,7 @@ Public Attributes</h2></td></tr>
 <p>To be called right after <code>set_dt</code>. The time up to the next target is divided into the number of equal steps nearest, in ratio, to the proposed step, within <code>min_dt_decrease_factor</code> and <code>max_dt_increase_factor</code> of the previous step and below <code>max_timestep</code>. As long as the CFL controller keeps the step and the step divides the remaining time, which it does between scheduled times and at those of equal intervals, the step is returned unchanged. The end is the target if the next scheduled time is within <code>min_dt_decrease_factor</code> times the previous step of it, and that scheduled time is executed at the end. A scheduled time closer than that is passed, and executed at the first step past it.</p>
 <p>Designed for output intervals of several steps, the same for all controllers or whole multiples of each other. Schedules that produce scheduled times close to each other make the step shorter than needed. </p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -325,14 +325,15 @@ Public Attributes</h2></td></tr>
     <tr><td class="paramname">time</td><td>The time state, whose <code>dt</code> is the step taken last on entry and the step about to be taken on exit. </td></tr>
     <tr><td class="paramname">cfl</td><td>courant number of current iteration. @Algorithm:<ol type="1">
 <li>Set the first time step such that cfl is the set one;</li>
-<li>During time-stepping, adjust dt when cfl_avg is offset by 20%. With <code>exact_output_time</code> the step is then fitted to the next scheduled time by <code>land</code>, which is to be called right after. </li>
+<li>During time-stepping, adjust dt when cfl_avg is offset by 20%.</li>
+<li>An exact zero cfl, e.g. from a zero velocity field, puts no limit on dt, so the first time step is the initial one and a later one is increased by the maximum increase factor. With <code>exact_output_time</code> the step is then fitted to the next scheduled time by <code>land</code>, which is to be called right after. </li>
 </ol>
 </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -349,7 +350,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -365,7 +366,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -381,7 +382,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00059">59</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -397,7 +398,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -413,7 +414,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -429,7 +430,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00076">76</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -445,7 +446,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -461,7 +462,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00060">60</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -477,7 +478,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00058">58</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -493,7 +494,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -509,7 +510,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -525,7 +526,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -541,7 +542,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -557,7 +558,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -573,7 +574,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d4/da8/time__step__controller_8f90_source.html">time_step_controller.f90</a>.</p>
 
 </div>
 </div>
@@ -586,7 +587,7 @@ Public Attributes</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d3/dda/namespacetime__step__controller.html">time_step_controller</a></li><li class="navelem"><a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a></li>
-    <li class="footer">Generated on Tue Oct 27 2026 04:02:25 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Wed Oct 28 2026 03:38:18 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
