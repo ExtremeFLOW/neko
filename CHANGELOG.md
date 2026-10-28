@@ -11,6 +11,10 @@
 
 ## Develop
 
+- Fixed the runtime statistics aborting with `Not enough profiling regions
+  available` after 25 named regions. The region table now grows on demand,
+  names longer than 25 characters are looked up truncated, as they are
+  stored, and the `profile.csv` header is no longer cut at 1024 characters.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 

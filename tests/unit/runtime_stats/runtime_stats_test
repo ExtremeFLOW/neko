@@ -1,0 +1,6 @@
+#!/bin/sh
+if which mpirun >/dev/null; then
+    mpirun -np 2 ./runtime_stats/runtime_stats_suite
+else
+    mpiexec -np 2 ./runtime_stats/runtime_stats_suite
+fi
