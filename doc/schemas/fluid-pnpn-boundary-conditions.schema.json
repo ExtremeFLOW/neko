@@ -618,6 +618,91 @@
             {
               "type": "object",
               "required": [
+                "kappa"
+              ],
+              "properties": {
+                "model": {
+                  "const": "duprat"
+                },
+                "kappa": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "beta": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "A": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "pressure_gradient": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "enum": [
+                        "constant",
+                        "local"
+                      ]
+                    },
+                    "value": {
+                      "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+                    },
+                    "filter_time": {
+                      "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+                    },
+                    "start_time": {
+                      "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
+                    }
+                  },
+                  "if": {
+                    "properties": {
+                      "type": {
+                        "const": "local"
+                      }
+                    },
+                    "required": [
+                      "type"
+                    ]
+                  },
+                  "then": {
+                    "required": [
+                      "filter_time"
+                    ],
+                    "not": {
+                      "required": [
+                        "value"
+                      ]
+                    }
+                  },
+                  "else": {
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "filter_time"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "start_time"
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/wallModelBase"
+            },
+            {
+              "type": "object",
+              "required": [
                 "z0",
                 "type_of_temp_bc",
                 "scalar_field",
