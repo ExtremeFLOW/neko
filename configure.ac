@@ -483,6 +483,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/fluid_pnpn_bc/Makefile\
         tests/unit/signal/Makefile\
         tests/unit/jobctrl/Makefile\
+        tests/unit/log/Makefile\
         tests/unit/vtkhdf/Makefile\
         tests/unit/device/Makefile\
         tests/unit/data_types/Makefile\
@@ -503,6 +504,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/time_scheme_controller/Makefile\
         tests/unit/runge_kutta_scheme/Makefile\
         tests/unit/time_based_controller/Makefile\
+        tests/unit/time_step_controller/Makefile\
         tests/unit/json_utils/Makefile\
         tests/unit/utils/Makefile\
         tests/unit/expression/Makefile\

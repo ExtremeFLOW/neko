@@ -21,6 +21,7 @@ SUBDIRS = tuple\
 	  fluid_pnpn_bc\
 	  signal\
 	  jobctrl\
+	  log\
 	  device\
 	  data_types\
 	  device_math\
@@ -40,6 +41,7 @@ SUBDIRS = tuple\
 	  time_scheme_controller\
 	  runge_kutta_scheme\
 	  time_based_controller\
+	  time_step_controller\
 	  json_utils\
 	  utils\
 	  expression\
@@ -80,6 +82,7 @@ TESTS = device/device_test\
 	fluid_pnpn_bc/fluid_pnpn_bc_test\
 	signal/signal_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
 	device_mathops/device_mathops_test\
@@ -97,6 +100,7 @@ TESTS = device/device_test\
 	time_scheme_controller/time_scheme_controller_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
 	time_based_controller/time_based_controller_test\
+	time_step_controller/time_step_controller_test\
 	json_utils/json_utils_test\
 	utils/read_duration_test\
 	expression/expression_test\
@@ -130,6 +134,7 @@ EXTRA_DIST = \
 	signal/test_signal.pf\
 	space/test_space_test.pf\
 	jobctrl/test_jobctrl_parallel.pf\
+	log/test_log_parallel.pf\
 	dofmap/test_dofmap_parallel.pf\
 	field/test_field_parallel.pf\
 	global_interpolation/test_glob_interp_par.pf\
@@ -164,6 +169,7 @@ EXTRA_DIST = \
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	math/math_test\
 	field/field_test\
 	global_interpolation/global_interpolation_test\
@@ -199,6 +205,7 @@ EXTRA_DIST = \
 	utils/test_read_duration.pf\
 	expression/test_expression.pf\
 	time_based_controller/test_time_based_controller.pf\
+	time_step_controller/test_time_step_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
 	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\

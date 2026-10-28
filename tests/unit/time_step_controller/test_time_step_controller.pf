@@ -1,0 +1,768 @@
+!> Unit tests for the time step controller, in particular for fitting the
+!! variable time step so that the scheduled sampling and output times, and
+!! the end time, are reached exactly.
+module test_time_step_controller
+  use pfunit
+  use, intrinsic :: ieee_arithmetic, only : ieee_divide_by_zero, &
+       ieee_invalid, ieee_overflow, ieee_usual, ieee_get_flag, &
+       ieee_set_flag, ieee_support_flag, ieee_value, ieee_quiet_nan
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : dp
+  use json_module, only : json_file
+  use time_state, only : time_state_t
+  use time_based_controller, only : time_based_controller_t
+  use time_step_controller, only : time_step_controller_t, LANDING_TOL
+  implicit none
+
+  !> Safety net, so that a broken time step does not hang the test suite.
+  integer, parameter :: MAX_STEPS = 100000
+  integer, parameter :: MAX_EXEC = 4096
+
+  !> Tolerance on times, which are accumulated in double precision whatever
+  !! the working precision of Neko.
+  real(kind=dp), parameter :: TIME_TOL = 1.0e3_dp * epsilon(1.0_dp)
+
+  !> Tolerance on single time steps, which are always double precision.
+  real(kind=dp), parameter :: DT_TOL = 10.0_dp * epsilon(1.0_dp)
+
+  @TestCase
+  type, extends(TestCase) :: time_step_controller_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type time_step_controller_case
+
+  !> A controller driven by the time loop, and the times it executed at.
+  type ctrl_run_t
+     type(time_based_controller_t) :: ctrl
+     !> Whether it is checked before the loop, as the outputs are, or not,
+     !! as the simulation components.
+     logical :: at_start = .true.
+     integer :: nexec = 0
+     real(kind=dp) :: t_exec(MAX_EXEC) = 0.0_dp
+  end type ctrl_run_t
+
+  !> The steps the time loop took.
+  type steps_t
+     integer :: n = 0
+     !> The step and `dt_last_change` after it was set.
+     real(kind=dp), allocatable :: dt(:)
+     integer, allocatable :: dlc(:)
+     real(kind=dp) :: first_dt = 0.0_dp
+     real(kind=dp) :: t_final = 0.0_dp
+  end type steps_t
+
+contains
+
+  subroutine setUp(this)
+    class(time_step_controller_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(time_step_controller_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> A variable step controller aiming at a CFL of 0.5, with the default
+  !! bounds.
+  function variable_dt_controller(exact) result(dtc)
+    logical, intent(in) :: exact
+    type(time_step_controller_t) :: dtc
+
+    dtc%is_variable_dt = .true.
+    dtc%dt_last_change = -1
+    dtc%exact_output_time = exact
+    dtc%cfl_trg = 0.5_dp
+    dtc%init_dt = huge(0.0_dp)
+    dtc%max_dt = huge(0.0_dp)
+    dtc%min_dt = 0.0_dp
+    dtc%alpha = 0.5_dp
+    dtc%max_dt_increase_factor = 1.2_dp
+    dtc%min_dt_decrease_factor = 0.5_dp
+    dtc%dev_tol = 0.2_dp
+    dtc%max_update_frequency = 0
+    dtc%min_update_frequency = huge(0)
+  end function variable_dt_controller
+
+  !> A synthetic CFL number, proportional to the step: a velocity `u` that
+  !! varies in time by the relative amplitude `a`. With `u = 500` the
+  !! controller aims at a step of 1e-3.
+  function cfl(time, u, a) result(c)
+    type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: u, a
+    real(kind=dp) :: c
+
+    c = abs(time%dt) * u * (1.0_dp + a * sin(60.0_dp * time%t))
+  end function cfl
+
+  !> Check the controllers at the current time and execute them.
+  subroutine execute(runs, time, at_start_only, force)
+    type(ctrl_run_t), intent(inout) :: runs(:)
+    type(time_state_t), intent(in) :: time
+    logical, intent(in) :: at_start_only, force
+    integer :: i
+
+    do i = 1, size(runs)
+       if (at_start_only .and. .not. runs(i)%at_start) cycle
+       if (runs(i)%ctrl%check(time, force)) then
+          runs(i)%nexec = runs(i)%nexec + 1
+          if (runs(i)%nexec .le. MAX_EXEC) then
+             runs(i)%t_exec(runs(i)%nexec) = time%t
+          end if
+          call runs(i)%ctrl%register_execution(time)
+       end if
+    end do
+  end subroutine execute
+
+  !> Run the time loop from the given time state to its end time, as the
+  !! simulation does: the first step and the outputs before the loop, then
+  !! per step the time step controller, the fit to the next scheduled time,
+  !! the advance of the time and the controllers.
+  !! @param dtc The time step controller under test.
+  !! @param time The time state to start from, advanced to the end.
+  !! @param runs The controllers to drive.
+  !! @param steps The steps taken.
+  !! @param u The velocity of the synthetic CFL number.
+  !! @param a The relative amplitude of its variation in time.
+  subroutine run_loop(dtc, time, runs, steps, u, a)
+    type(time_step_controller_t), intent(inout) :: dtc
+    type(time_state_t), intent(inout) :: time
+    type(ctrl_run_t), intent(inout) :: runs(:)
+    type(steps_t), intent(out) :: steps
+    real(kind=dp), intent(in) :: u, a
+    real(kind=dp) :: t_to_next
+    integer :: i
+
+    allocate(steps%dt(MAX_STEPS), steps%dlc(MAX_STEPS))
+    steps%n = 0
+
+    if (time%tstep .eq. 0) then
+       time%dt = dtc%first_dt(time, cfl(time, u, a))
+       call execute(runs, time, .true., .false.)
+    end if
+    steps%first_dt = abs(time%dt)
+
+    do while (.not. time%is_done() .and. steps%n .lt. MAX_STEPS)
+       call dtc%set_dt(time, cfl(time, u, a))
+       if (dtc%exact_output_time) then
+          t_to_next = huge(0.0_dp)
+          do i = 1, size(runs)
+             t_to_next = min(t_to_next, runs(i)%ctrl%time_to_next(time))
+          end do
+          call dtc%land(time, t_to_next)
+       end if
+
+       steps%n = steps%n + 1
+       steps%dt(steps%n) = abs(time%dt)
+       steps%dlc(steps%n) = dtc%dt_last_change
+
+       do i = 10, 2, -1
+          time%tlag(i) = time%tlag(i-1)
+          time%dtlag(i) = time%dtlag(i-1)
+       end do
+       time%dtlag(1) = time%dt
+       time%tlag(1) = time%t
+       time%tstep = time%tstep + 1
+       time%t = time%t + time%dt
+
+       call execute(runs, time, .false., .false.)
+    end do
+
+    steps%t_final = time%t
+  end subroutine run_loop
+
+  !> The largest distance between the executions of a controller and the
+  !! times `t_begin + k * interval`, from execution `first` on.
+  function max_error(run, t_begin, interval, first) result(err)
+    type(ctrl_run_t), intent(in) :: run
+    real(kind=dp), intent(in) :: t_begin, interval
+    integer, intent(in), optional :: first
+    real(kind=dp) :: err
+    integer :: i, i0
+
+    i0 = 1
+    if (present(first)) i0 = first
+    err = 0.0_dp
+    do i = i0, min(run%nexec, MAX_EXEC)
+       err = max(err, abs(run%t_exec(i) - t_begin - &
+            nint((run%t_exec(i) - t_begin) / interval) * interval))
+    end do
+  end function max_error
+
+  !> How far the ratio of consecutive steps exceeds the bounds of the
+  !! controller, at worst; not positive if every step is within them. The
+  !! first step is compared with the one set before the loop.
+  function bounds_excess(steps, f_min, f_max) result(excess)
+    type(steps_t), intent(in) :: steps
+    real(kind=dp), intent(in) :: f_min, f_max
+    real(kind=dp) :: excess, ratio
+    integer :: k
+
+    excess = -huge(0.0_dp)
+    do k = 1, steps%n
+       if (k .eq. 1) then
+          ratio = steps%dt(k) / steps%first_dt
+       else
+          ratio = steps%dt(k) / steps%dt(k-1)
+       end if
+       excess = max(excess, ratio - f_max, f_min - ratio)
+    end do
+  end function bounds_excess
+
+  !> The number of steps that change the step by more than `LANDING_TOL`
+  !! without setting `dt_last_change` to 0, so that the projection spaces
+  !! would not be reset.
+  function unflagged_changes(steps) result(nerr)
+    type(steps_t), intent(in) :: steps
+    integer :: nerr, k
+
+    nerr = 0
+    do k = 2, steps%n
+       if (abs(steps%dt(k) - steps%dt(k-1)) .gt. &
+            LANDING_TOL * steps%dt(k-1) .and. steps%dlc(k) .ne. 0) then
+          nerr = nerr + 1
+       end if
+    end do
+  end function unflagged_changes
+
+  !> The number of changes of the step after the first step.
+  function nchanges(steps) result(n)
+    type(steps_t), intent(in) :: steps
+    integer :: n, k
+
+    n = 0
+    do k = 2, steps%n
+       if (abs(steps%dt(k) - steps%dt(k-1)) .gt. &
+            LANDING_TOL * steps%dt(k-1)) n = n + 1
+    end do
+  end function nchanges
+
+  !> A controller whose last step was `dt_prev` at the target CFL number,
+  !! so that `set_dt` proposes `dt_prev` again.
+  subroutine settled_controller(dtc, time, dt_prev, end_time)
+    type(time_step_controller_t), intent(out) :: dtc
+    type(time_state_t), intent(out) :: time
+    real(kind=dp), intent(in) :: dt_prev, end_time
+
+    dtc = variable_dt_controller(.true.)
+    dtc%dt_last_change = 5
+    dtc%cfl_avg = dtc%cfl_trg
+    call time%init(0.0_dp, end_time, dt_prev)
+    time%tstep = 10
+    call dtc%set_dt(time, dtc%cfl_trg)
+  end subroutine settled_controller
+
+  !> The options are read from the case file, and the fit needs the
+  !! variable step: with a fixed one it is an error at setup.
+  @test
+  subroutine test_init_reads_exact_output_time(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(json_file) :: params
+
+    call params%load_from_string('{"variable_timestep": true, ' // &
+         '"target_cfl": 0.5, "exact_output_time": true}')
+    call dtc%init(params)
+    @assertTrue(dtc%is_variable_dt)
+    @assertTrue(dtc%exact_output_time)
+
+    call params%load_from_string('{"variable_timestep": true, ' // &
+         '"target_cfl": 0.5}')
+    call dtc%init(params)
+    @assertFalse(dtc%exact_output_time)
+
+    call params%load_from_string('{"variable_timestep": false, ' // &
+         '"timestep": 0.01, "exact_output_time": true}')
+    call dtc%init(params)
+    @assertExceptionRaised()
+  end subroutine test_init_reads_exact_output_time
+
+  !> The first step gives the target CFL number, capped by the initial,
+  !! maximum and minimum steps.
+  @test
+  subroutine test_first_dt_meets_target_and_caps(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 1.0_dp, 1.0_dp)
+    ! A CFL number of 500 with the placeholder step of one: 1e-3 gives 0.5
+    @assertEqual(1.0e-3_dp, dtc%first_dt(time, 500.0_dp), tolerance=TIME_TOL)
+    dtc%init_dt = 5.0e-4_dp
+    @assertEqual(5.0e-4_dp, dtc%first_dt(time, 500.0_dp), tolerance=TIME_TOL)
+    dtc%init_dt = huge(0.0_dp)
+    dtc%max_dt = 8.0e-4_dp
+    @assertEqual(8.0e-4_dp, dtc%first_dt(time, 500.0_dp), tolerance=TIME_TOL)
+    dtc%max_dt = huge(0.0_dp)
+    dtc%min_dt = 2.0e-3_dp
+    @assertEqual(2.0e-3_dp, dtc%first_dt(time, 500.0_dp), tolerance=TIME_TOL)
+    dtc%min_dt = 0.0_dp
+    ! No velocity yet: the initial step
+    dtc%init_dt = 3.0e-3_dp
+    @assertEqual(3.0e-3_dp, dtc%first_dt(time, 0.0_dp), tolerance=TIME_TOL)
+  end subroutine test_first_dt_meets_target_and_caps
+
+  !> Without the option the step is the one of the CFL controller, and the
+  !! scheduled times are not reached exactly.
+  @test
+  subroutine test_no_fit_without_option(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+
+    dtc = variable_dt_controller(.false.)
+    call time%init(0.0_dp, 0.1_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.1_dp, "simulationtime", 0.0107_dp)
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.0_dp)
+
+    @assertEqual(1.0e-3_dp, steps%dt(steps%n), tolerance=TIME_TOL)
+    @assertTrue(max_error(runs(1), 0.0_dp, 0.0107_dp) .gt. 1.0e-4_dp)
+  end subroutine test_no_fit_without_option
+
+  !> With a steady CFL number each interval is divided into the count of
+  !! steps nearest to the proposed one, 0.0107 / 1e-3 = 10.7 to 11, and the
+  !! step is kept: every scheduled time and the end are reached exactly and
+  !! the step never changes after the first one.
+  @test
+  subroutine test_steady_divides_each_interval(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.107_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.107_dp, "simulationtime", 0.0107_dp)
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.0_dp)
+
+    @assertEqual(110, steps%n)
+    do k = 1, steps%n
+       @assertEqual(0.0107_dp / 11.0_dp, steps%dt(k), tolerance=TIME_TOL)
+    end do
+    @assertEqual(11, runs(1)%nexec)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.0107_dp), tolerance=TIME_TOL)
+    @assertEqual(0.107_dp, steps%t_final, tolerance=TIME_TOL)
+  end subroutine test_steady_divides_each_interval
+
+  !> A CFL number that fluctuates within the band of the controller does not
+  !! make it change the step, so the fitted step is kept for the whole run.
+  @test
+  subroutine test_fluctuating_cfl_keeps_step(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.214_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.214_dp, "simulationtime", 0.0107_dp)
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.1_dp)
+
+    @assertEqual(0, nchanges(steps))
+    @assertEqual(21, runs(1)%nexec)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.0107_dp), tolerance=TIME_TOL)
+    @assertEqual(0.214_dp, steps%t_final, tolerance=TIME_TOL)
+  end subroutine test_fluctuating_cfl_keeps_step
+
+  !> Schedules whose intervals are multiples of each other are all landed
+  !! on with one step, fitted to the shortest interval.
+  @test
+  subroutine test_nested_schedules_share_step(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(3)
+    type(steps_t) :: steps
+    integer :: k
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.2_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.2_dp, "simulationtime", 0.1_dp)
+    call runs(2)%ctrl%init(0.0_dp, 0.2_dp, "simulationtime", 0.05_dp)
+    call runs(3)%ctrl%init(0.0_dp, 0.2_dp, "simulationtime", 0.01_dp)
+    ! A proposed step of 0.5 / 467 = 1.07e-3, 9.34 steps per 0.01: nine
+    call run_loop(dtc, time, runs, steps, 467.0_dp, 0.0_dp)
+
+    do k = 1, steps%n
+       @assertEqual(0.01_dp / 9.0_dp, steps%dt(k), tolerance=TIME_TOL)
+    end do
+    @assertEqual(3, runs(1)%nexec)
+    @assertEqual(5, runs(2)%nexec)
+    @assertEqual(21, runs(3)%nexec)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.1_dp), tolerance=TIME_TOL)
+    @assertEqual(0.0_dp, max_error(runs(2), 0.0_dp, 0.05_dp), tolerance=TIME_TOL)
+    @assertEqual(0.0_dp, max_error(runs(3), 0.0_dp, 0.01_dp), tolerance=TIME_TOL)
+  end subroutine test_nested_schedules_share_step
+
+  !> With a CFL number that varies strongly the controller changes the
+  !! step, and the fit follows: every scheduled time is still reached, the
+  !! ratio of consecutive steps stays within the bounds of the controller,
+  !! and every change of the step is flagged for the projection spaces.
+  @test
+  subroutine test_varying_cfl_stays_in_bounds(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.5_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.5_dp, "simulationtime", 0.0107_dp)
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.5_dp)
+
+    @assertTrue(nchanges(steps) .gt. 0)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.0107_dp), tolerance=TIME_TOL)
+    @assertTrue(bounds_excess(steps, 0.5_dp, 1.2_dp) .le. LANDING_TOL)
+    @assertEqual(0, unflagged_changes(steps))
+    @assertEqual(0.5_dp, steps%t_final, tolerance=TIME_TOL)
+  end subroutine test_varying_cfl_stays_in_bounds
+
+  !> A binding max_timestep raises the count: with steps of at most 0.007
+  !! each interval of 0.05 takes eight steps of 0.00625, not seven.
+  @test
+  subroutine test_max_timestep_raises_count(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
+
+    dtc = variable_dt_controller(.true.)
+    dtc%max_dt = 0.007_dp
+    call time%init(0.0_dp, 0.1_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.1_dp, "simulationtime", 0.05_dp)
+    ! The target CFL number is out of reach: the cap is what is proposed
+    call run_loop(dtc, time, runs, steps, 1.0_dp, 0.0_dp)
+
+    @assertEqual(16, steps%n)
+    do k = 1, steps%n
+       @assertEqual(0.00625_dp, steps%dt(k), tolerance=TIME_TOL)
+    end do
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.05_dp), tolerance=TIME_TOL)
+  end subroutine test_max_timestep_raises_count
+
+  !> The nearest count can need a step longer than max_dt_increase_factor
+  !! allows: 0.0125 is one step of 0.0125 after one of 0.01, so it takes two
+  !! of 0.00625 instead.
+  @test
+  subroutine test_ratio_bound_raises_count(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+
+    call settled_controller(dtc, time, 0.01_dp, 1.0_dp)
+    @assertEqual(0.01_dp, time%dt, tolerance=TIME_TOL)
+    call dtc%land(time, 0.0125_dp)
+    @assertEqual(0.00625_dp, time%dt, tolerance=TIME_TOL)
+    @assertEqual(0, dtc%dt_last_change)
+  end subroutine test_ratio_bound_raises_count
+
+  !> A scheduled time closer than min_dt_decrease_factor times the last step
+  !! is passed: the proposed step is taken unchanged.
+  @test
+  subroutine test_close_target_is_passed(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+
+    call settled_controller(dtc, time, 0.01_dp, 1.0_dp)
+    call dtc%land(time, 0.004_dp)
+    @assertEqual(0.01_dp, time%dt, tolerance=TIME_TOL)
+    @assertEqual(6, dtc%dt_last_change)
+  end subroutine test_close_target_is_passed
+
+  !> A scheduled time just before the end, closer to it than the shortest
+  !! step allowed, is replaced by the end as the target: 0.0204 is divided
+  !! into two steps, rather than landing on 0.02 and leaving 0.0004.
+  @test
+  subroutine test_end_replaces_close_target(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+
+    call settled_controller(dtc, time, 0.01_dp, 0.0204_dp)
+    call dtc%land(time, 0.02_dp)
+    @assertEqual(0.0102_dp, time%dt, tolerance=TIME_TOL)
+  end subroutine test_end_replaces_close_target
+
+  !> An end time that is not a scheduled time is reached exactly, and no
+  !! step goes past it.
+  @test
+  subroutine test_end_time_is_reached(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.0523_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.0523_dp, "simulationtime", 0.0107_dp)
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.0_dp)
+
+    @assertEqual(0.0523_dp, steps%t_final, tolerance=TIME_TOL)
+    @assertEqual(5, runs(1)%nexec)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.0107_dp), tolerance=TIME_TOL)
+  end subroutine test_end_time_is_reached
+
+  !> A short interval is landed on like any other: an interval of 2.5
+  !! proposed steps is divided into three steps.
+  @test
+  subroutine test_short_interval_is_landed_on(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.1_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.1_dp, "simulationtime", 0.0025_dp)
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.0_dp)
+
+    @assertEqual(120, steps%n)
+    do k = 1, steps%n
+       @assertEqual(0.0025_dp / 3.0_dp, steps%dt(k), tolerance=TIME_TOL)
+    end do
+    @assertEqual(41, runs(1)%nexec)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.0025_dp), tolerance=TIME_TOL)
+  end subroutine test_short_interval_is_landed_on
+
+  !> An interval shorter than one proposed step, but at least
+  !! min_dt_decrease_factor times it, makes the step the interval.
+  @test
+  subroutine test_interval_below_step_sets_step(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+    integer :: k
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.007_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.007_dp, "simulationtime", 7.0e-4_dp)
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.0_dp)
+
+    @assertEqual(10, steps%n)
+    do k = 1, steps%n
+       @assertEqual(7.0e-4_dp, steps%dt(k), tolerance=TIME_TOL)
+    end do
+    @assertEqual(11, runs(1)%nexec)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 7.0e-4_dp), tolerance=TIME_TOL)
+  end subroutine test_interval_below_step_sets_step
+
+  !> A simulation component is not executed before the time loop, so its
+  !! execution at the start is performed at the end of the first step; the
+  !! step is fitted to the scheduled time after it, and every later
+  !! execution lands exactly.
+  @test
+  subroutine test_component_due_at_start(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.0535_dp, 1.0_dp)
+    call runs(1)%ctrl%init(0.0_dp, 0.0535_dp, "simulationtime", 0.0107_dp)
+    runs(1)%at_start = .false.
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.0_dp)
+
+    @assertEqual(6, runs(1)%nexec)
+    @assertEqual(steps%dt(1), runs(1)%t_exec(1), tolerance=TIME_TOL)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.0107_dp, 2), tolerance=TIME_TOL)
+  end subroutine test_component_due_at_start
+
+  !> After a restart between two scheduled times, the first step is set
+  !! anew from the CFL number and the run lands on the scheduled times that
+  !! follow.
+  @test
+  subroutine test_restart_lands_on_next_times(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    type(ctrl_run_t) :: runs(1)
+    type(steps_t) :: steps
+
+    dtc = variable_dt_controller(.true.)
+    call time%init(0.0_dp, 0.0535_dp, 7.3e-4_dp)
+    time%t = 0.0151_dp
+    time%tstep = 20
+    call runs(1)%ctrl%init(0.0_dp, 0.0535_dp, "simulationtime", 0.0107_dp)
+    call runs(1)%ctrl%set_counter(time)
+    call run_loop(dtc, time, runs, steps, 500.0_dp, 0.0_dp)
+
+    @assertEqual(4, runs(1)%nexec)
+    @assertEqual(0.0214_dp, runs(1)%t_exec(1), tolerance=TIME_TOL)
+    @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.0107_dp), tolerance=TIME_TOL)
+    @assertEqual(0.0535_dp, steps%t_final, tolerance=TIME_TOL)
+  end subroutine test_restart_lands_on_next_times
+
+  !> Initialise a controller from the case-file keys in a JSON string, and
+  !! start from a unit time step, as time_state_t does for a variable one.
+  !! @param dtc The controller to initialise.
+  !! @param time The time state to initialise.
+  !! @param keys The JSON object with the controller's case-file keys.
+  subroutine init_controller(dtc, time, keys)
+    type(time_step_controller_t), intent(inout) :: dtc
+    type(time_state_t), intent(inout) :: time
+    character(len=*), intent(in) :: keys
+    type(json_file) :: params
+
+    call params%load_from_string(keys)
+    call dtc%init(params)
+    call params%destroy()
+
+    call time%init(0.0_dp, 1.0_dp, 1.0_dp)
+  end subroutine init_controller
+
+  ! The floating-point exception flags are cleared and read in the test
+  ! itself, around the call to set_dt. A procedure that finds a flag
+  ! signalling on entry quiets it and restores it on return, so a helper
+  ! routine could neither clear nor read them for its caller.
+
+  !> Verify that a zero CFL on the first step raises no floating-point
+  !! exception and gives the initial time step, the value IEEE arithmetic
+  !! produced before the zero CFL was guarded against.
+  @test
+  subroutine test_first_step_zero_cfl(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    logical :: divide_by_zero, invalid, overflow
+
+    @assertTrue(ieee_support_flag(ieee_divide_by_zero, 1.0_dp))
+
+    call init_controller(dtc, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, "timestep": 0.25}')
+
+    call ieee_set_flag(ieee_usual, .false.)
+    call dtc%set_dt(time, 0.0_dp)
+    call ieee_get_flag(ieee_divide_by_zero, divide_by_zero)
+    call ieee_get_flag(ieee_invalid, invalid)
+    call ieee_get_flag(ieee_overflow, overflow)
+
+    @assertRelativelyEqual(0.25_dp, time%dt, tolerance = DT_TOL)
+    @assertFalse(divide_by_zero, message = "First step divided by zero")
+    @assertFalse(invalid, message = "First step raised invalid")
+    @assertFalse(overflow, message = "First step overflowed")
+  end subroutine test_first_step_zero_cfl
+
+  !> Verify that a zero CFL on a later step raises no floating-point
+  !! exception and scales the time step by the maximum increase factor, the
+  !! value IEEE arithmetic produced before the zero CFL was guarded against.
+  @test
+  subroutine test_later_step_zero_cfl(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    logical :: divide_by_zero, invalid, overflow
+
+    @assertTrue(ieee_support_flag(ieee_divide_by_zero, 1.0_dp))
+
+    call init_controller(dtc, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, "timestep": 10.0}')
+
+    ! A positive CFL on the first step, so that only the later step sees a
+    ! zero one: min(0.5 / 0.25 * 1.0, 10.0) = 2.0.
+    call dtc%set_dt(time, 0.25_dp)
+    @assertRelativelyEqual(2.0_dp, time%dt, tolerance = DT_TOL)
+
+    call ieee_set_flag(ieee_usual, .false.)
+    call dtc%set_dt(time, 0.0_dp)
+    call ieee_get_flag(ieee_divide_by_zero, divide_by_zero)
+    call ieee_get_flag(ieee_invalid, invalid)
+    call ieee_get_flag(ieee_overflow, overflow)
+
+    ! The default maximum increase factor is 1.2: 1.2 * 2.0 = 2.4.
+    @assertRelativelyEqual(2.4_dp, time%dt, tolerance = DT_TOL)
+    @assertFalse(divide_by_zero, message = "Later step divided by zero")
+    @assertFalse(invalid, message = "Later step raised invalid")
+    @assertFalse(overflow, message = "Later step overflowed")
+  end subroutine test_later_step_zero_cfl
+
+  !> Verify that a NaN CFL, as from a diverged run, is not taken for a zero
+  !! one on a later step: the time step is updated as before the zero CFL was
+  !! guarded against, not increased by the maximum increase factor. Neither
+  !! the flags nor the new time step are checked, since comparing the NaN
+  !! raises the invalid flag, as it always has, and the result of max() with
+  !! a NaN argument is processor dependent.
+  @test
+  subroutine test_later_step_nan_cfl(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    real(kind=dp) :: dt_old
+    logical :: updated, as_zero
+
+    ! A NaN average CFL fails the deviation test, so a minimum update
+    ! frequency of 0 is needed for the time step to be updated at all.
+    call init_controller(dtc, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, ' // &
+         '"timestep": 10.0, "min_update_frequency": 0}')
+
+    call dtc%set_dt(time, 0.25_dp)
+    dt_old = time%dt
+
+    call dtc%set_dt(time, ieee_value(1.0_dp, ieee_quiet_nan))
+    updated = time%dt .ne. dt_old
+    as_zero = time%dt .eq. 1.2_dp * dt_old
+
+    @assertTrue(updated, message = "NaN CFL did not update the time step")
+    @assertFalse(as_zero, message = "NaN CFL taken for a zero CFL")
+  end subroutine test_later_step_nan_cfl
+
+  !> Verify that a positive CFL gives the same time steps as before the zero
+  !! CFL was guarded against, on the first step and on later steps whose
+  !! scaling is limited or not by the increase and decrease factors.
+  @test
+  subroutine test_positive_cfl_unchanged(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+
+    call init_controller(dtc, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, ' // &
+         '"timestep": 10.0, "max_dt_increase_factor": 2.0}')
+
+    ! First step: min(0.5 / 0.25 * 1.0, 10.0) = 2.0.
+    call dtc%set_dt(time, 0.25_dp)
+    @assertRelativelyEqual(2.0_dp, time%dt, tolerance = DT_TOL)
+
+    ! Increase, not limited: min(2.0, 0.5 / 0.3125) = 1.6.
+    call dtc%set_dt(time, 0.3125_dp)
+    @assertRelativelyEqual(3.2_dp, time%dt, tolerance = DT_TOL)
+
+    ! Increase, limited: min(2.0, 0.5 / 0.1) = 2.0.
+    call dtc%set_dt(time, 0.1_dp)
+    @assertRelativelyEqual(6.4_dp, time%dt, tolerance = DT_TOL)
+
+    ! Decrease, not limited: max(0.5, 0.5 / 0.625) = 0.8.
+    call dtc%set_dt(time, 0.625_dp)
+    @assertRelativelyEqual(5.12_dp, time%dt, tolerance = DT_TOL)
+
+    ! Decrease, limited: max(0.5, 0.5 / 2.0) = 0.5.
+    call dtc%set_dt(time, 2.0_dp)
+    @assertRelativelyEqual(2.56_dp, time%dt, tolerance = DT_TOL)
+  end subroutine test_positive_cfl_unchanged
+
+end module test_time_step_controller

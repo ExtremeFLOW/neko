@@ -222,7 +222,7 @@ everywhere, typically because of a division by zero or the square root of a
 negative number, is also reported as an error, at setup if it does not depend on
 time and otherwise every time it is evaluated.
 
-### Time control
+### Time control {#case-file_time-control}
 The `time` object is used to define the time-stepping of the simulation,
 including the time-step size, the start and end time, and the variables related
 to the variable time-stepping algorithm. For the variable timestep, one can
@@ -244,6 +244,7 @@ smallest of `timestep` and the value calculated from the target CFL number.
 | `min_dt_decrease_factor`   | The minimum scaling factor to decrease time step                                            | Positive real less than `1`       | `0.5`         |
 | `cfl_deviation_tolerance`  | The tolerance of the deviation from the target CFL number                                   | Positive real less than `1`       | `0.2`         |
 | `cfl_running_avg_coeff`    | The running average coefficient `a` where `cfl_avg_new = a * cfl_new + (1-a) * cfl_avg_old` | Positive real between `0` and `1` | `0.5`         |
+| `exact_output_time`        | Whether to fit the variable `dt` so that the sampling and output times are reached exactly   | `true` or `false`                 | `false`       |
 
 ### Restarts and joblimit
 Restarts will restart the simulation from the exact state at a given time that

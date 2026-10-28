@@ -186,6 +186,7 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `solver.type`                  | Linear solver for scalar equation.                                    | `cg`, `pipecg`, `bicgstab`, `cacg`, `gmres` | -             |
 | `solver.preconditioner.type`   | Linear solver preconditioner for the momentum equation.               | `ident`, `hsmg`, `jacobi`                   | -             |
 | `solver.absolute_tolerance`    | Linear solver convergence criterion for the momentum equation.        | Positive real                               | -             |
-| `solver.maxiter`               | Linear solver max iteration count for the momentum equation.          | Positive real                               | 800           |
+| `solver.max_iterations`        | Linear solver max iteration count for the scalar equation.            | Positive integer                            | 1000          |
+| `solver.space_size`            | Krylov space size of `gmres` for the scalar equation.                 | Positive integer                            | 30            |
 | `solver.projection_space_size` | Projection space size for the scalar equation.                        | Positive integer                            | 0             |
 | `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.              | Positive integer                            | 5             |
