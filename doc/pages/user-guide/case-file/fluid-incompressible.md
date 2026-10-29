@@ -378,7 +378,11 @@ A more detailed description of each boundary condition is provided below.
   ```
 
 * `shear_stress`. Non-penetration condition combined with a set shear stress
-   vector. Only works with axis-aligned boundaries. The stress value is
+   vector. Requires `full_stress_formulation` to be enabled. The wall-normal
+   velocity is removed along the resolved normal at each boundary node (see
+   [mixed boundary-condition resolution](@ref mixed-bc-resolution)), so the
+   condition is not restricted to axis-aligned boundaries and also applies to
+   inclined and curved walls. The stress value is
    specified by the `value` keyword, which should be an array of 3 reals. It is
    the responsibility of the user to set the vector in the direction parallel
    to the boundary.
@@ -391,8 +395,11 @@ A more detailed description of each boundary condition is provided below.
   ```
 
 * `wall_model`. A shear stress condition where the values are computed by a wall
-   model. Meant to be used for wall-modelled large-eddy simulation. Only works
-   with axis-aligned boundaries. The model is selected using the `model`
+   model. Meant to be used for wall-modelled large-eddy simulation. As for
+   `shear_stress`, `full_stress_formulation` must be enabled, and the condition
+   also applies to inclined and curved walls: the wall models use the velocity
+   component parallel to the wall at each node and apply the stress in that
+   direction. The model is selected using the `model`
    keyword. Additional configuration depends on the model selected.
 
    * The `spalding`model requires specifying `kappa` and `B`, which are the
