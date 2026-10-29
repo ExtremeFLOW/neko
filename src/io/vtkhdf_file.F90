@@ -1026,47 +1026,6 @@ contains
     end if
 
     ! ------------------------------------------------------------------------ !
-    ! Add attributes to the PointData
-
-    do i = 1, fields_written
-       field_name = name_list(i)
-       is_vector = vector_list(i)
-       pd_dims1 = 1_hsize_t
-
-       call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
-       call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
-
-       call h5aexists_f(dset_id, "Attribute", exists, ierr)
-       if (exists) then
-          call h5dclose_f(dset_id, ierr)
-          call h5gclose_f(pointdata_grp, ierr)
-          cycle
-       end if
-
-       ! Write the attribute what this PointData represents
-       call h5screate_f(H5S_SCALAR_F, filespace, ierr)
-
-       call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
-       call h5tset_size_f(H5T_NEKO_STRING, int(7, size_t), ierr)
-       call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
-
-       call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
-            attr_id, ierr)
-       if (is_vector) then
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vectors"], pd_dims1, ierr)
-       else
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalars"], pd_dims1, ierr)
-       end if
-
-       call h5aclose_f(attr_id, ierr)
-       call h5tclose_f(H5T_NEKO_STRING, ierr)
-       call h5sclose_f(filespace, ierr)
-       call h5dclose_f(dset_id, ierr)
-       call h5gclose_f(pointdata_grp, ierr)
-
-    end do
-
-    ! ------------------------------------------------------------------------ !
     ! Cleanup before returning
 
     deallocate(name_list)
@@ -1436,7 +1395,22 @@ contains
     call h5dcreate_f(hdf_root, trim(name), precision_hdf, filespace, dset_id, &
          ierr)
 
-    if (precision_local .eq. sp) then
+    if (precision_local .eq. rp) then
+       ! Perform direct write for each component seperatly to avoid extra memory allocation
+       call h5dwrite_f(dset_id, precision_hdf, u, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            [1_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
+       call h5dwrite_f(dset_id, precision_hdf, v, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            [2_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
+       call h5dwrite_f(dset_id, precision_hdf, w, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+    else if (precision_local .eq. sp) then
        block
          real(kind=sp), allocatable :: f(:,:)
 
