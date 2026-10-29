@@ -104,6 +104,8 @@ $(document).ready(function(){initNavTree('d9/d16/mixed-bc-resolution.html','../.
 <div class="toc"><h3>Table of Contents</h3>
 <ul><li class="level1"><a href="#mixed-bc-priority">Boundary classes and priority</a></li>
 <li class="level1"><a href="#mixed-bc-normal">Resolution of the nodal normal</a></li>
+<li class="level1"><a href="#mixed-bc-projectors">Nodal projectors</a></li>
+<li class="level1"><a href="#mixed-bc-interpretation">Interpretation at edges and corners</a></li>
 </ul>
 </div>
 <div class="textblock"><p>Mixed vector boundary conditions constrain components relative to the local boundary normal. At a node in the interior of a boundary face, that normal is unambiguous. At an edge or corner, however, several boundary faces can meet and may impose different kinds of constraint. This appendix defines how those face constraints are reduced to one homogeneous nodal constraint.</p>
@@ -124,23 +126,82 @@ Boundary classes and priority</h1>
 <td class="markdownTableBodyRight">5   </td><td class="markdownTableBodyNone">None   </td><td class="markdownTableBodyNone">All vectors   </td></tr>
 </table>
 <p>The numerical values define the priority order</p>
-<p>$$0 \mathrel{\succ} 2 \mathrel{\succ} 3 \mathrel{\succ} 5,$$</p>
+<p class="formulaDsp">
+\[0 \mathrel{\succ} 2 \mathrel{\succ} 3 \mathrel{\succ} 5,\]
+</p>
 <p>where a smaller value has higher priority. This is a policy for resolving different boundary classes; it is not an ordering by the dimension of their constraint spaces.</p>
 <p>Let \(\mathcal{F}(x)\) be the set of boundary faces incident on a node \(x\), and let \(c_f\) denote the class of face \(f\). The nodal class is</p>
-<p>$$c(x) = \min_{f \in \mathcal{F}(x)} c_f.$$</p>
+<p class="formulaDsp">
+\[c(x) = \min_{f \in \mathcal{F}(x)} c_f.\]
+</p>
 <p>Consequently, a fully constrained face takes priority over every other class, and a normal-component constraint takes priority over a tangential-component constraint.</p>
 <h1><a class="anchor" id="mixed-bc-normal"></a>
 Resolution of the nodal normal</h1>
 <p>A local normal is required only when \(c(x)\) is class 2 or class 3. Among the faces incident on \(x\), only those whose class equals the resolved nodal class contribute. Define</p>
-<p>$$ \mathcal{F}_c(x) = \left\{ f \in \mathcal{F}(x) : c_f = c(x) \right </p>
+<p class="formulaDsp">
+\[
+\mathcal{F}_c(x) =
+\left\{ f \in \mathcal{F}(x) : c_f = c(x) \right\}.
+\]
+</p>
+<p>If \(\boldsymbol{n}_f(x)\) is the unit outward normal of face \(f\) at the node, the resolved normal is the normalised, equally weighted sum</p>
+<p class="formulaDsp">
+\[
+\boldsymbol{n}(x) =
+\frac{\displaystyle\sum_{f \in \mathcal{F}_c(x)}
+      \boldsymbol{n}_f(x)}
+     {\displaystyle\left\|\sum_{f \in \mathcal{F}_c(x)}
+      \boldsymbol{n}_f(x)\right\|_2}.
+\]
+</p>
+<p>Thus, a lower-priority face neither changes the nodal class nor contributes to the resolved normal. Faces of the selected class contribute symmetrically. The construction requires their normal sum to be non-zero; otherwise, no resolved normal exists and the boundary configuration is invalid for this rule.</p>
+<p>If nodes are identified through a rotated periodic mapping, their face normals are expressed in a common frame before being summed. The resolved normal is then expressed in the node's local physical frame.</p>
+<p>Choose any two unit vectors \(\boldsymbol{t}_1(x)\) and \(\boldsymbol{t}_2(x)\) that complete an orthonormal basis</p>
+<p class="formulaDsp">
+\[
+\left\{\boldsymbol{n},\boldsymbol{t}_1,\boldsymbol{t}_2\right\}.
+\]
+</p>
+<p>The particular choice of tangential directions does not affect the resulting constraint because both tangential directions are always treated alike.</p>
+<h1><a class="anchor" id="mixed-bc-projectors"></a>
+Nodal projectors</h1>
+<p>Let \(I\) be the \(3 \times 3\) identity matrix and set</p>
+<p class="formulaDsp">
+\[N = \boldsymbol{n}\boldsymbol{n}^{\mathsf T}, \qquad
+  T = I - \boldsymbol{n}\boldsymbol{n}^{\mathsf T}.\]
+</p>
+<p>For a vector \(\boldsymbol{u}\), the homogeneous nodal constraint is enforced by \(\boldsymbol{u}_{c}=P_c\boldsymbol{u}\), with</p>
+<p class="formulaDsp">
+\[
+P_0 = 0, \qquad
+P_2 = T, \qquad
+P_3 = N, \qquad
+P_5 = I.
+\]
+</p>
+<p>Class 2 therefore removes the normal component and preserves the tangential plane. Class 3 removes both tangential components and preserves only the normal component. Each matrix is symmetric and idempotent,</p>
+<p class="formulaDsp">
+\[P_c^{\mathsf T}=P_c, \qquad P_c^2=P_c,\]
+</p>
+<p>so the nodal operation is an orthogonal projection onto the selected admissible subspace.</p>
+<h1><a class="anchor" id="mixed-bc-interpretation"></a>
+Interpretation at edges and corners</h1>
+<p>The normal-sum rule selects one representative normal and therefore one nodal subspace. It does not form the exact intersection of the constraint subspaces from all incident faces.</p>
+<p>For example, suppose two class-2 faces meet with orthogonal normals \(\boldsymbol{e}_1\) and \(\boldsymbol{e}_2\). The resolved normal is</p>
+<p class="formulaDsp">
+\[\boldsymbol{n} =
+  \frac{\boldsymbol{e}_1+\boldsymbol{e}_2}{\sqrt{2}},\]
+</p>
+<p>and the projected vectors satisfy \(u_1+u_2=0\). Enforcing both face constraints independently would instead require \(u_1=u_2=0\). The former is the deliberate compromise made by the normal-sum rule. The same distinction applies when several class-3 faces meet.</p>
+<p>When different mixed classes meet, priority is applied before the normal is formed. For example, at a class-2/class-3 junction, the node is assigned class 2 and only class-2 face normals enter the sum. The result is therefore always a single projector associated with the highest-priority incident class. </p>
 </div></div><!-- contents -->
 </div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../da/dd6/appendices.html">Appendices</a></li>
-    <li class="footer">Generated on Wed Oct 28 2026 03:38:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../d0/d7f/methods.html">Theory and methods</a></li>
+    <li class="footer">Generated on Thu Oct 29 2026 03:37:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

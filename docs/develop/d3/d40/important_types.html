@@ -153,7 +153,7 @@ Generic containers</h1>
 <h1><a class="anchor" id="important_types_solvers"></a>
 Governing equation solvers and related types</h1>
 <ul>
-<li><a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>: An abstraction for the simulation case. Stores the fluid and scalar solver as components, handles IO via sampler_t.</li>
+<li><a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a>: An abstraction for the simulation case. Stores the fluid and scalar solver as components, handles IO via <a class="el" href="../../d4/d3d/structoutput__controller_1_1output__controller__t.html">output_controller_t</a>.</li>
 <li><a class="el" href="../../d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html">fluid_scheme_incompressible_t</a>: incompressible Navier-Stokes solvers.</li>
 <li><a class="el" href="../../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html">fluid_scheme_compressible_t</a>: compressible Navier-Stokes solvers.</li>
 <li><a class="el" href="../../dd/ded/structscalar__scheme_1_1scalar__scheme__t.html">scalar_scheme_t</a>: Scalar advection-diffusion-reaction solvers.</li>
@@ -169,7 +169,7 @@ Singletons</h1>
 <li><a class="el" href="../../d8/d43/structscratch__registry_1_1scratch__registry__t.html">scratch_registry_t</a>: Provides a mechanism to get a temporary <a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>, <a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>, <a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>, <a class="el" href="../../d2/d24/structtensor3_1_1tensor3__t.html">tensor3_t</a>, <a class="el" href="../../d2/de3/structtensor4_1_1tensor4__t.html">tensor4_t</a>, or raw host or device array for doing some work. Use this instead of creating temporary fields inside a subroutine.</li>
 <li><a class="el" href="../../de/d74/structsimcomp__executor_1_1simcomp__executor__t.html">simcomp_executor_t</a>: Driver for simulation components. The object is called <code>neko_simcomps</code>.</li>
 <li><a class="el" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>: Used to write to the simulation log.</li>
-<li>user_access_t: Used to access the internals of the <a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a> object from within the user file.</li>
+<li><a class="el" href="../../db/d04/structuser__access__singleton_1_1user__access__t.html">user_access_t</a>: Used to access the internals of the <a class="el" href="../../db/d7a/structcase_1_1case__t.html">case_t</a> object from within the user file.</li>
 </ul>
 <h1><a class="anchor" id="important_types_linear-algebra"></a>
 Linear algebra</h1>
@@ -184,7 +184,7 @@ Linear algebra</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dc/d70/developer-guide.html">Developer guide</a></li>
-    <li class="footer">Generated on Wed Oct 28 2026 03:38:16 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Thu Oct 29 2026 03:37:23 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
