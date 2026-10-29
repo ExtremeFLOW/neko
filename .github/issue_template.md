@@ -14,6 +14,7 @@
 - `configure`:
 - Neko log "Job Information" output:
 ```
+ -------Job Information--------
 Paste job information block here.
 ```
 
