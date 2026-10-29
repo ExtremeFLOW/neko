@@ -1396,7 +1396,8 @@ contains
          ierr)
 
     if (precision_local .eq. rp) then
-       ! Perform direct write for each component seperatly to avoid extra memory allocation
+       ! Perform direct write for each component seperatly to avoid extra memory
+       ! allocation
        call h5dwrite_f(dset_id, precision_hdf, u, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
