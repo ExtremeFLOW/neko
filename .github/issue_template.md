@@ -1,7 +1,7 @@
 ## Summary
-[//]: # (Please provide a concise summary of the issue faced.)
+[//]: # (Please provide a concise summary of the issue faced or feature requested.)
 
-## Neko configuration
+## Neko configuration <!-- Remove if not applicable such as a feature request -->
 [//]: # (Please provide the Neko configuration used to reproduce the issue.)
 [//]: # (This should include the version of Neko, the operating system or)
 [//]: # (HPC machine, compiler stack, and flags passed to configure.)
@@ -18,10 +18,10 @@
 Paste job information block here.
 ```
 
-## Steps to Reproduce
+## Steps to Reproduce <!-- Remove if not applicable -->
 [//]: # (Please provide the steps to reproduce the issue. If possible, please)
 [//]: # (provide a minimal code snippet that reproduces the issue.)
 
-## Details
+## Details <!-- Remove if empty -->
 [//]: # (Please provide any extra details, screenshots, or context relevant for)
 [//]: # (investigation.)
