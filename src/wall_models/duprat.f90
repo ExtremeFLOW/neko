@@ -55,8 +55,7 @@ module duprat
        device_masked_scatter_copy_0, device_cfill
   use scratch_registry, only : neko_scratch_registry
   use logger, only : LOG_SIZE, neko_log
-  use utils, only : neko_error, neko_warning
-  use comm, only : pe_rank
+  use utils, only : neko_error
 
   implicit none
   private
@@ -71,7 +70,6 @@ module duprat
   !! Reference: https://doi.org/10.1063/1.3529358
   !! The pressure gradient is either prescribed as a constant, or evaluated
   !! locally from the pressure field and filtered in time.
-  !! @note The device kernels have not yet been validated on GPU hardware.
   type, public, extends(wall_model_t) :: duprat_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa = 0.41_rp
@@ -167,8 +165,6 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(json_file), intent(inout) :: json
     character(len=LOG_SIZE) :: log_buf
-
-    call duprat_device_warning()
 
     call this%partial_init_base(coef, scheme_name, json)
     call duprat_read_json(json, this%kappa, this%beta, this%A, &
@@ -296,8 +292,6 @@ contains
     real(kind=rp), intent(in) :: filter_time, start_time
     logical, intent(in) :: local_dpds
 
-    call duprat_device_warning()
-
     call this%free()
     call this%init_base(scheme_name, coef, msk, facet, sampler)
 
@@ -362,14 +356,6 @@ contains
        call cfill(vec%x, val, vec%size())
     end if
   end subroutine duprat_fill
-
-  !> Warn that the device kernels are not yet validated on GPU hardware.
-  subroutine duprat_device_warning()
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. pe_rank .eq. 0) then
-       call neko_warning("The duprat wall model GPU implementation " // &
-            "is partially untested so far")
-    end if
-  end subroutine duprat_device_warning
 
   !> Compute the kinematic viscosity vector.
   subroutine duprat_compute_nu(this)

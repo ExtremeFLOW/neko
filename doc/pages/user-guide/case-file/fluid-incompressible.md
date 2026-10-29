@@ -437,9 +437,7 @@ A more detailed description of each boundary condition is provided below.
      pressure field. The filtered \f$ \partial p / \partial s \f$ and
      \f$ \alpha \f$ at the wall nodes are stored in the fields `duprat_dpds`
      and `duprat_alpha` in the field registry, and can be written with the
-     `field_writer` simulation component. The GPU implementation is partially
-     untested so far, and a warning is printed when the model is used on a
-     device backend.
+     `field_writer` simulation component.
      ```json
      {
        "type": "wall_model",
