@@ -630,7 +630,7 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_msg, '(A, I0, A, A, I0, A)') &
+                write(error_msg, '(A, I0, A, A, A, I0, A)') &
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
                      "does not exist in the mesh. Check scalar boundary ", &

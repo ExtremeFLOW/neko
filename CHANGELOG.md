@@ -11,6 +11,8 @@
 
 ## Develop
 
+- Fixed the scalar boundary condition check crashing with a Fortran runtime
+  error instead of reporting a zone index that does not exist in the mesh.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 
