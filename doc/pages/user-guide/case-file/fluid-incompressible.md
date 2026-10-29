@@ -413,8 +413,6 @@ A more detailed description of each boundary condition is provided below.
      It requires specifying the von Kármán constant `kappa`, and accepts the
      optional constants `C`, `B1` and `B2`, which default to the original
      values `7.8`, `11` and `3`. This model is suitable for smooth walls.
-     The GPU implementation is partially untested so far, and a warning is
-     printed when the model is used on a device backend.
 
    * The `rough_log_law` model requires specifying `kappa` and `B`, which are
      the log-law constants, and `z0`, which is the characteristic roughness

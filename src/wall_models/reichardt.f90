@@ -52,8 +52,6 @@ module reichardt
   use device_math, only : device_masked_gather_copy_0
   use scratch_registry, only : neko_scratch_registry
   use logger, only : LOG_SIZE, neko_log
-  use utils, only : neko_warning
-  use comm, only : pe_rank
 
   implicit none
   private
@@ -64,7 +62,6 @@ module reichardt
   !! with the original constants \f$ C = 7.8 \f$, \f$ B_1 = 11 \f$ and
   !! \f$ B_2 = 3 \f$ as defaults.
   !! Reference: https://doi.org/10.1002/zamm.19510310704
-  !! @note The device kernels have not yet been validated on GPU hardware.
   type, public, extends(wall_model_t) :: reichardt_t
      !> The von Karman coefficient.
      real(kind=rp) :: kappa = 0.41_rp
@@ -137,8 +134,6 @@ contains
     type(json_file), intent(inout) :: json
     character(len=LOG_SIZE) :: log_buf
 
-    call reichardt_device_warning()
-
     call this%partial_init_base(coef, scheme_name, json)
     call json_get_or_lookup(json, "kappa", this%kappa)
     call json_get_or_lookup_or_default(json, "C", this%C, 7.8_rp)
@@ -202,8 +197,6 @@ contains
     class(wall_sampler_t), allocatable, intent(inout) :: sampler
     real(kind=rp), intent(in) :: kappa, C, B1, B2
 
-    call reichardt_device_warning()
-
     call this%free()
     call this%init_base(scheme_name, coef, msk, facet, sampler)
 
@@ -219,14 +212,6 @@ contains
     call this%v_s%init(this%n_nodes)
     call this%w_s%init(this%n_nodes)
   end subroutine reichardt_init_from_components
-
-  !> Warn that the device kernels are not yet validated on GPU hardware.
-  subroutine reichardt_device_warning()
-    if (NEKO_BCKND_DEVICE .eq. 1 .and. pe_rank .eq. 0) then
-       call neko_warning("The reichardt wall model GPU implementation " // &
-            "is partially untested so far")
-    end if
-  end subroutine reichardt_device_warning
 
   !> Compute the kinematic viscosity vector.
   subroutine reichardt_compute_nu(this)
