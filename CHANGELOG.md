@@ -11,6 +11,9 @@
 
 ## Develop
 
+- Unit-test suites now compile private copies of the shared fixtures, so a
+  second suite using a fixture no longer fails with `Cannot open module file`,
+  and the fixtures are rebuilt when `libneko` changes.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 
