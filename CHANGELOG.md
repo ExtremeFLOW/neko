@@ -8,18 +8,12 @@
 - PR#2831 User initial conditions are can no longer assume that the arrays
   are zeroed on entry. The user routine must set all values, e.g. with
   `field_cfill`.
+- PR#2891 `csv_file_t%header` is now a deferred-length allocatable, which
+  stays unallocated until the header is set. Code reading it directly must
+  check `allocated()` first.
 
 ## Develop
 
-- Fixed the runtime statistics aborting with `Not enough profiling regions
-  available` after 25 named regions. The region table now grows on demand.
-  Names longer than 25 characters are now looked up truncated, as they are
-  stored, which also stops the `Profile region renamed` abort for scalars
-  whose names have 17 or more characters. The `profile.csv` header is no
-  longer cut at 1024 characters.
-- *BREAKING* `csv_file_t%header` is now a deferred-length allocatable, which
-  stays unallocated until the header is set. Code reading it directly must
-  check `allocated()` first.
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
