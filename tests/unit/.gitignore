@@ -95,5 +95,6 @@ bc_projector/bc_projector_suite
 boundary_operation/boundary_operation_suite
 checkpoint_payload/checkpoint_payload_test
 wall_sampling/wall_sampling_suite
+duprat/duprat_test
 crystal_router/crystal_router_suite
 geo_compression/geo_compression_suite

@@ -11,6 +11,12 @@
 
 ## Develop
 
+- Added the `duprat` wall model of Duprat et al. (2011), which accounts for
+  the wall-tangential pressure gradient through an extended velocity scale and
+  a pressure-gradient-dependent eddy viscosity. The pressure gradient is either
+  prescribed as a constant or evaluated locally from the pressure field and
+  filtered in time. Available for the CPU, CUDA, HIP, OpenCL and Metal
+  backends.
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping

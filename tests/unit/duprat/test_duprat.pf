@@ -1,0 +1,348 @@
+module test_duprat
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use math, only : NEKO_EPS
+  use duprat_cpu, only : duprat_compute_cpu, duprat_update_dpds_cpu, &
+       duprat_u_star
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_duprat_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_duprat_case
+
+  ! Reference values, computed independently with SciPy: U* by adaptive
+  ! quadrature of Eq. (5) of Duprat et al. (2011), and u_tau by solving
+  ! u = u_tau_p U*(h u_tau_p / nu) with brentq. Default constants
+  ! kappa = 0.41, beta = 0.78, A = 17.
+  ! Zero pressure gradient, u = 1, h = 0.05, nu = 1e-4
+  real(kind=rp), parameter :: UTAU_ZPG = 7.07651223726671053e-02_rp
+  ! Adverse gradient dp/ds = 1, u = 1, h = 0.05, nu = 1e-4
+  real(kind=rp), parameter :: UTAU_APG = 6.51766461571228473e-02_rp
+  real(kind=rp), parameter :: ALPHA_APG = 6.63497339979885248e-01_rp
+  ! Favourable gradient dp/ds = -1, u = 1, h = 0.05, nu = 1e-4
+  real(kind=rp), parameter :: UTAU_FPG = 1.41161919435572131e-01_rp
+  real(kind=rp), parameter :: ALPHA_FPG = 9.02430923953317254e-01_rp
+  ! Adverse gradient dp/ds = 0.2, u = 0.5, h = 0.02, nu = 1e-4
+  real(kind=rp), parameter :: UTAU_APG2 = 5.12131551453846173e-02_rp
+  real(kind=rp), parameter :: ALPHA_APG2 = 7.80685881598211839e-01_rp
+  ! Favourable gradient dp/ds = -0.05, u = 1.2, h = 0.3, nu = 1e-5
+  real(kind=rp), parameter :: UTAU_FPG2 = 7.02965788376958556e-02_rp
+  real(kind=rp), parameter :: ALPHA_FPG2 = 9.87412382819277235e-01_rp
+  ! kappa = 0.40, beta = 0.7, A = 20, dp/ds = 1, u = 1, h = 0.05, nu = 1e-4
+  real(kind=rp), parameter :: UTAU_CUSTOM = 5.78992938210663305e-02_rp
+  real(kind=rp), parameter :: ALPHA_CUSTOM = 6.08765671723502821e-01_rp
+
+contains
+
+  subroutine setUp(this)
+    class(test_duprat_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_duprat_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Relative tolerance of the comparisons, adapted to the working precision
+  pure function tol() result(t)
+    real(kind=rp) :: t
+    t = max(1.0e-8_rp, 1.0e3_rp * NEKO_EPS)
+  end function tol
+
+  !> Verify the quadrature of the dimensionless velocity U*(y*) against
+  !! reference values, without and with adverse and favourable pressure
+  !! gradients.
+  @test
+  subroutine test_u_star_reference_values(this)
+    class(test_duprat_case), intent(inout) :: this
+    integer, parameter :: n = 6
+    real(kind=rp) :: ys(n), alpha(n), sp(n), ref(n), us
+    integer :: i
+
+    ys = [0.5_rp, 30.0_rp, 500.0_rp, 100.0_rp, 100.0_rp, 50.0_rp]
+    alpha = [1.0_rp, 1.0_rp, 1.0_rp, 0.5_rp, 0.5_rp, 0.05_rp]
+    sp = [1.0_rp, 1.0_rp, 1.0_rp, 1.0_rp, -1.0_rp, 1.0_rp]
+    ref = [4.99980662838976408e-01_rp, 1.36110062283495665e+01_rp, &
+         2.06940211682639479e+01_rp, 1.61004369720788532e+01_rp, &
+         -1.09598360104115997e+01_rp, 1.36630154009183826e+01_rp]
+
+    do i = 1, n
+       us = duprat_u_star(ys(i), alpha(i), sp(i), 0.41_rp, 0.78_rp, 17.0_rp)
+       @assertEqual(ref(i), us, tolerance = tol() * abs(ref(i)))
+    end do
+
+    ! U* vanishes at the wall
+    us = duprat_u_star(0.0_rp, 1.0_rp, 1.0_rp, 0.41_rp, 0.78_rp, 17.0_rp)
+    @assertEqual(0.0_rp, us)
+  end subroutine test_u_star_reference_values
+
+  !> Verify the wall shear stress and alpha on a flat wall against reference
+  !! values, without, with adverse and with favourable pressure gradients.
+  @test
+  subroutine test_flat_wall_reference_values(this)
+    class(test_duprat_case), intent(inout) :: this
+    integer, parameter :: n = 5
+    real(kind=rp), dimension(n) :: u, v, w, n_x, n_y, n_z, nu, rho, h, dpds
+    real(kind=rp), dimension(n) :: tau_x, tau_y, tau_z, alpha
+    real(kind=rp), dimension(n) :: utau_ref, alpha_ref
+    integer :: i
+
+    ! Velocity along x, wall normal along y
+    u = [1.0_rp, 1.0_rp, 1.0_rp, 0.5_rp, 1.2_rp]
+    h = [0.05_rp, 0.05_rp, 0.05_rp, 0.02_rp, 0.3_rp]
+    nu = [1.0e-4_rp, 1.0e-4_rp, 1.0e-4_rp, 1.0e-4_rp, 1.0e-5_rp]
+    dpds = [0.0_rp, 1.0_rp, -1.0_rp, 0.2_rp, -0.05_rp]
+    utau_ref = [UTAU_ZPG, UTAU_APG, UTAU_FPG, UTAU_APG2, UTAU_FPG2]
+    alpha_ref = [1.0_rp, ALPHA_APG, ALPHA_FPG, ALPHA_APG2, ALPHA_FPG2]
+    v = 0.0_rp
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    rho = 1.0_rp
+    tau_x = 0.0_rp
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+    alpha = 0.0_rp
+
+    call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
+         tau_x, tau_y, tau_z, alpha, n, 0.41_rp, 0.78_rp, 17.0_rp, 1)
+
+    do i = 1, n
+       ! The stress opposes the flow
+       @assertEqual(-utau_ref(i)**2, tau_x(i), tolerance = tol() * utau_ref(i)**2)
+       @assertEqual(0.0_rp, tau_y(i))
+       @assertEqual(0.0_rp, tau_z(i))
+       @assertEqual(alpha_ref(i), alpha(i), tolerance = tol() * alpha_ref(i))
+    end do
+  end subroutine test_flat_wall_reference_values
+
+  !> Verify that the constants kappa, beta and A passed to the kernel are
+  !! used.
+  @test
+  subroutine test_custom_constants(this)
+    class(test_duprat_case), intent(inout) :: this
+    real(kind=rp), dimension(1) :: u, v, w, n_x, n_y, n_z, nu, rho, h, dpds
+    real(kind=rp), dimension(1) :: tau_x, tau_y, tau_z, alpha
+
+    u = 1.0_rp
+    v = 0.0_rp
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.0_rp
+    h = 0.05_rp
+    dpds = 1.0_rp
+    tau_x = 0.0_rp
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+    alpha = 0.0_rp
+
+    call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
+         tau_x, tau_y, tau_z, alpha, 1, 0.40_rp, 0.7_rp, 20.0_rp, 1)
+
+    @assertEqual(-UTAU_CUSTOM**2, tau_x(1), tolerance = tol() * UTAU_CUSTOM**2)
+    @assertEqual(ALPHA_CUSTOM, alpha(1), tolerance = tol() * ALPHA_CUSTOM)
+  end subroutine test_custom_constants
+
+  !> Verify the direction and the density scaling of the stress for an
+  !! inclined wall, a velocity with a wall-normal component and an adverse
+  !! pressure gradient. The density enters both the stress and the pressure
+  !! velocity.
+  @test
+  subroutine test_inclined_wall_and_density(this)
+    class(test_duprat_case), intent(inout) :: this
+    real(kind=rp), dimension(1) :: u, v, w, n_x, n_y, n_z, nu, rho, h, dpds
+    real(kind=rp), dimension(1) :: tau_x, tau_y, tau_z, alpha
+    real(kind=rp) :: ref(3), alpha_ref, scale, tau_n
+
+    ! Wall normal (0.6, 0.8, 0), velocity (1, 0.3, 0.4). The wall-parallel
+    ! part is (0.496, -0.372, 0.4); the reference stress, -rho u_tau^2 times
+    ! its direction, was computed independently for rho = 1.2 and
+    ! dp/ds = 0.5.
+    u = 1.0_rp
+    v = 0.3_rp
+    w = 0.4_rp
+    n_x = 0.6_rp
+    n_y = 0.8_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.2_rp
+    h = 0.05_rp
+    dpds = 0.5_rp
+    tau_x = 0.0_rp
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+    alpha = 0.0_rp
+    ref = [-2.19348964552628289e-03_rp, 1.64511723414471271e-03_rp, &
+         -1.76894326252119622e-03_rp]
+    alpha_ref = 6.93478741399065735e-01_rp
+    scale = maxval(abs(ref))
+
+    call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
+         tau_x, tau_y, tau_z, alpha, 1, 0.41_rp, 0.78_rp, 17.0_rp, 1)
+
+    @assertEqual(ref(1), tau_x(1), tolerance = tol() * scale)
+    @assertEqual(ref(2), tau_y(1), tolerance = tol() * scale)
+    @assertEqual(ref(3), tau_z(1), tolerance = tol() * scale)
+    @assertEqual(alpha_ref, alpha(1), tolerance = tol() * alpha_ref)
+    ! The stress is parallel to the wall
+    tau_n = tau_x(1) * n_x(1) + tau_y(1) * n_y(1) + tau_z(1) * n_z(1)
+    @assertEqual(0.0_rp, tau_n, tolerance = tol() * scale)
+  end subroutine test_inclined_wall_and_density
+
+  !> Verify that a vanishing wall-parallel velocity gives zero stress and
+  !! alpha = 1, also when the velocity is purely wall-normal.
+  @test
+  subroutine test_no_parallel_velocity(this)
+    class(test_duprat_case), intent(inout) :: this
+    real(kind=rp), dimension(2) :: u, v, w, n_x, n_y, n_z, nu, rho, h, dpds
+    real(kind=rp), dimension(2) :: tau_x, tau_y, tau_z, alpha
+
+    u = 0.0_rp
+    v = [0.0_rp, 0.7_rp]
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.0_rp
+    h = 0.05_rp
+    dpds = 1.0_rp
+    tau_x = 1.0_rp
+    tau_y = 1.0_rp
+    tau_z = 1.0_rp
+    alpha = 0.0_rp
+
+    call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
+         tau_x, tau_y, tau_z, alpha, 2, 0.41_rp, 0.78_rp, 17.0_rp, 1)
+
+    @assertEqual(0.0_rp, tau_x)
+    @assertEqual(0.0_rp, tau_y)
+    @assertEqual(0.0_rp, tau_z)
+    @assertEqual(1.0_rp, alpha)
+  end subroutine test_no_parallel_velocity
+
+  !> Verify that the stress vanishes when the adverse pressure gradient
+  !! alone accounts for the sampled velocity, i.e. when the residual has no
+  !! root with u_tau > 0.
+  @test
+  subroutine test_vanishing_shear_stress(this)
+    class(test_duprat_case), intent(inout) :: this
+    real(kind=rp), dimension(1) :: u, v, w, n_x, n_y, n_z, nu, rho, h, dpds
+    real(kind=rp), dimension(1) :: tau_x, tau_y, tau_z, alpha
+
+    ! u_p = 0.1 equals the sampled velocity, while u_p U*(h u_p / nu) is
+    ! about 2.7 even for alpha = 0.
+    u = 0.1_rp
+    v = 0.0_rp
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.0_rp
+    h = 0.05_rp
+    dpds = 10.0_rp
+    tau_x = 0.0_rp
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+    alpha = 1.0_rp
+
+    call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
+         tau_x, tau_y, tau_z, alpha, 1, 0.41_rp, 0.78_rp, 17.0_rp, 1)
+
+    @assertLessThanOrEqual(abs(tau_x(1)), 2.0_rp * NEKO_EPS * u(1)**2)
+    @assertEqual(0.0_rp, tau_y(1))
+    @assertEqual(0.0_rp, tau_z(1))
+    @assertLessThanOrEqual(alpha(1), 2.0_rp * NEKO_EPS)
+  end subroutine test_vanishing_shear_stress
+
+  !> Verify that after the first time step the previous stress is only an
+  !! initial guess, and the result does not depend on it.
+  @test
+  subroutine test_previous_stress_as_guess(this)
+    class(test_duprat_case), intent(inout) :: this
+    real(kind=rp), dimension(2) :: u, v, w, n_x, n_y, n_z, nu, rho, h, dpds
+    real(kind=rp), dimension(2) :: tau_x, tau_y, tau_z, alpha
+
+    u = 1.0_rp
+    v = 0.0_rp
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.0_rp
+    h = 0.05_rp
+    dpds = 1.0_rp
+    ! Guesses far below and far above the solution
+    tau_x = [-1.0e-5_rp, -1.0e-1_rp]
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+    alpha = 0.0_rp
+
+    call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
+         tau_x, tau_y, tau_z, alpha, 2, 0.41_rp, 0.78_rp, 17.0_rp, 5)
+
+    @assertEqual(-UTAU_APG**2, tau_x(1), tolerance = tol() * UTAU_APG**2)
+    @assertEqual(-UTAU_APG**2, tau_x(2), tolerance = tol() * UTAU_APG**2)
+  end subroutine test_previous_stress_as_guess
+
+  !> Verify the update of the filtered pressure gradient: the projection on
+  !! the wall-parallel flow direction, the exponential moving average, the
+  !! limit to the Stokes bound, and that nodes without a flow direction keep
+  !! their previous value.
+  @test
+  subroutine test_update_dpds(this)
+    class(test_duprat_case), intent(inout) :: this
+    integer, parameter :: n = 3
+    real(kind=rp), dimension(n) :: dpx, dpy, dpz, u, v, w, n_x, n_y, n_z
+    real(kind=rp), dimension(n) :: nu, rho, h, dpds, ref
+    real(kind=rp) :: eps
+
+    ! Node 1: wall normal z, wall-parallel velocity (3, 4, 0), so
+    ! dp/ds = (0.2 * 3 - 0.1 * 4) / 5 = 0.04, below the bound.
+    ! Node 2: wall normal y, wall-parallel velocity (5, 0, 0), dp/ds = -100,
+    ! limited to -(rho / nu) (u nu / h)^(3/2) = -1200 * 0.05^(3/2).
+    ! Node 3: purely wall-normal velocity, no flow direction.
+    dpx = [0.2_rp, -100.0_rp, 1.0_rp]
+    dpy = [-0.1_rp, 3.0_rp, 1.0_rp]
+    dpz = [7.0_rp, 0.0_rp, 1.0_rp]
+    u = [3.0_rp, 5.0_rp, 0.0_rp]
+    v = [4.0_rp, 0.3_rp, 0.7_rp]
+    w = [0.5_rp, 0.0_rp, 0.0_rp]
+    n_x = [0.0_rp, 0.0_rp, 0.0_rp]
+    n_y = [0.0_rp, 1.0_rp, 1.0_rp]
+    n_z = [1.0_rp, 0.0_rp, 0.0_rp]
+    nu = 1.0e-3_rp
+    rho = [1.0_rp, 1.2_rp, 1.0_rp]
+    h = 0.1_rp
+    dpds = [0.1_rp, 2.0_rp, 0.3_rp]
+    eps = 0.25_rp
+    ! (1 - eps) dpds + eps dp/ds
+    ref = [0.085_rp, -1.85410196624968382_rp, 0.3_rp]
+
+    call duprat_update_dpds_cpu(dpx, dpy, dpz, u, v, w, n_x, n_y, n_z, &
+         nu, rho, h, eps, dpds, n)
+
+    @assertEqual(ref(1), dpds(1), tolerance = tol() * abs(ref(1)))
+    @assertEqual(ref(2), dpds(2), tolerance = tol() * abs(ref(2)))
+    @assertEqual(ref(3), dpds(3))
+  end subroutine test_update_dpds
+
+end module test_duprat
