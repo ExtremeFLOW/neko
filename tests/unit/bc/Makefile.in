@@ -11,7 +11,7 @@ NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
 %.o : %.F90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) $<
 
-mesh_fixture.o : ../fixtures/mesh_fixture.f90
+mesh_fixture.o : ../fixtures/mesh_fixture.f90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) -o mesh_fixture.o $<
 mesh_fixture.mod : mesh_fixture.o
 
