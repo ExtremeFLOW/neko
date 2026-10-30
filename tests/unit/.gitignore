@@ -97,3 +97,4 @@ checkpoint_payload/checkpoint_payload_test
 wall_sampling/wall_sampling_suite
 crystal_router/crystal_router_suite
 geo_compression/geo_compression_suite
+reichardt/reichardt_test
