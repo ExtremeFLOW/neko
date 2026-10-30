@@ -20,6 +20,28 @@
 - *BREAKING* `csv_file_t%header` is now a deferred-length allocatable, which
   stays unallocated until the header is set. Code reading it directly must
   check `allocated()` first.
+- Reduced statistics memory usage by storing work/gradients in the scratch
+  registry and folding product computations into the update routines.
+- Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
+  equal dof ids tested its bound and the next element in one `.and.`, which
+  Fortran need not short-circuit, so it read one element past the end of the
+  sorted id list whenever the last run reached it, e.g. on a single-element
+  mesh. Results are unchanged.
+- Added a single precision batched matrix core tile, `v_mfma_f32_4x4x1f32`,
+  to the HIP `MFMA` strategies as the default single precision tile
+  (`NEKO_MFMA_TILE=0`), with the `16x16x4` tile measured against it by the
+  Helmholtz autotuner as in double precision. Its sixteen blocks take columns
+  from several elements at low order, so the single precision strategies now
+  cover `2 <= lx <= 12`. The lane layout is AMD's documented one and has not
+  yet been read out on hardware; `-DMFMA_F32_USE_16X16` builds without it.
+- Added a verification pass to the HIP operator autotuner: every candidate is
+  run once on a synthetic input and compared with the reference formulation
+  before it is timed, and one that does not reproduce it is logged as
+  `REJECTED` and cannot win. `NEKO_TUNE_VERIFY=0` turns it off,
+  `NEKO_TUNE_VERIFY_TOL` sets the tolerance.
+- The HIP `opgrad`, `dudxyz`, `conv1` and `cdtp` matrix core strategies now
+  sweep both tiles like the Helmholtz operator, ten candidates per order,
+  and honour `NEKO_MFMA_TILE`.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 

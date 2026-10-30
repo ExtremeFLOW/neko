@@ -41,7 +41,7 @@ module runtime_stats
   use file, only : file_t
   use matrix, only : matrix_t
   use utils, only : neko_error
-  use comm, only : pe_rank, pe_size, NEKO_COMM
+  use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Wtime, MPI_Allreduce, MPI_IN_PLACE, &
        MPI_DOUBLE_PRECISION, MPI_SUM
   implicit none
@@ -281,7 +281,7 @@ contains
                         region_sample(1:nsamples)
                    call MPI_Allreduce(MPI_IN_PLACE, &
                         profile_data%x(1:nsamples, col_idx), nsamples, &
-                        MPI_DOUBLE_PRECISION, MPI_SUM, NEKO_COMM)
+                        MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM)
                    profile_data%x(1:nsamples, col_idx) = &
                         profile_data%x(1:nsamples, col_idx) / pe_size
                 end select

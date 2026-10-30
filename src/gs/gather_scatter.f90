@@ -1470,7 +1470,10 @@ contains
          id = dg(i)
          count = 1
          j = i
-         do while ( j+1 .le. n .and. dg(j+1) .eq. id)
+         ! Separate tests, since .and. need not short-circuit: a combined
+         ! condition would read dg(n + 1) once j reaches n
+         do while (j + 1 .le. n)
+            if (dg(j + 1) .ne. id) exit
             j = j + 1
             count = count + 1
          end do

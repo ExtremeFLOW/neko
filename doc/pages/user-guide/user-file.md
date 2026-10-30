@@ -400,8 +400,8 @@ set to the scalar name specified in the JSON configuration (e.g., "s1", "s2", et
 after calling this routine. The fluid fields may be set with `field_math`
 routines, which operate on the device arrays when running on GPUs, so no
 transfer is needed. The scalar is set in a loop over the host array `s%%x`, so
-it has to be copied to the device with `device_memcpy`. See [Running on
-GPUs](@ref user-file_tips_running-on-gpus) for more information.
+it has to be copied to the device with `device_memcpy`. See
+[Running on GPUs](@ref user-file_tips_running-on-gpus) for more information.
 
 We should also add of the following lines in `user_setup`, as usual.
 

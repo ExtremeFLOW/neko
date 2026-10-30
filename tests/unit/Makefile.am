@@ -21,6 +21,7 @@ SUBDIRS = tuple\
 	  fluid_pnpn_bc\
 	  signal\
 	  jobctrl\
+	  log\
 	  device\
 	  data_types\
 	  device_math\
@@ -82,6 +83,7 @@ TESTS = device/device_test\
 	fluid_pnpn_bc/fluid_pnpn_bc_test\
 	signal/signal_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
 	device_mathops/device_mathops_test\
@@ -134,6 +136,7 @@ EXTRA_DIST = \
 	signal/test_signal.pf\
 	space/test_space_test.pf\
 	jobctrl/test_jobctrl_parallel.pf\
+	log/test_log_parallel.pf\
 	dofmap/test_dofmap_parallel.pf\
 	field/test_field_parallel.pf\
 	global_interpolation/test_glob_interp_par.pf\
@@ -168,6 +171,7 @@ EXTRA_DIST = \
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	math/math_test\
 	field/field_test\
 	global_interpolation/global_interpolation_test\

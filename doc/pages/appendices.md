@@ -6,8 +6,6 @@ The appendices contain a few extra pages that are not directly related to the us
 of the code. But can be useful for users and developers alike.
 
 - [Environmental variable reference](@ref appendices_env-var)
-- \subpage governing-equations
-- \subpage mixed-bc-resolution
 - \subpage nmsh-format
 - \subpage fld-format
 - \subpage publications
@@ -27,6 +25,8 @@ of the code. But can be useful for users and developers alike.
 | `NEKO_MFMA_TUNE`         | Sweep the matrix core variants on the HIP backend (boolean)           | 1             |
 | `NEKO_TUNE_ROUNDS`       | Interleaved sampling rounds used by the operator auto-tuner           | 3             |
 | `NEKO_TUNE_ITERS`        | Kernel launches timed per candidate per round                        | 100           |
+| `NEKO_TUNE_VERIFY`       | Verify every HIP tuner candidate against the reference before timing (boolean) | 1 |
+| `NEKO_TUNE_VERIFY_TOL`   | Relative max-norm tolerance of that verification                      | `1e-4` (sp), `1e-10` (dp) |
 | `NEKO_LOG_FILE`          | Log file name, uses `stdout` if not set.                              | Unset         |
 | `NEKO_LOG_TAB_SIZE`      | Number of spaces added for each level of indentation in the log file. | 1             |
 | `NEKO_LOG_LEVEL`         | Log verbosity level (integer > 0, default: 1)                         | Unset         |
@@ -129,24 +129,36 @@ is one element per block, i.e. the unblocked geometry, which makes
 Values outside the valid range fall back to `0`.
 
 `NEKO_MFMA_TILE` pins which matrix core tile the contraction is issued
-on, which the tuner otherwise sweeps: `0` is the
-precision's default tile and `1` the 16x16x4 one. It only names two
-different things in a double precision build --- single precision has no
-4x4x4 instruction, so both values are the 16x16x4 tile there, and the
-sweep measures the tile only where the two differ. The Helmholtz operator,
-scalar and vector, is the one that carries this dimension; `opgrad`,
-`dudxyz`, `conv1` and `cdtp` keep their contractions on the default tile
-and ignore the variable.
+on, which the tuner otherwise sweeps: `0` is the precision's batched tile,
+`4x4x4` in double precision and `4x4x1` in single, and `1` the `16x16x4`
+one. A build with `-DMFMA_F64_USE_16X16` or `-DMFMA_F32_USE_16X16` has
+only the `16x16x4` tile in that precision, and the sweep measures the tile
+only where the two differ. Every operator with a matrix core strategy
+carries this dimension: the scalar, vector and compressible Helmholtz
+operators, `opgrad`, `dudxyz`, `conv1` and `cdtp`.
 
 Which tile is faster is not obvious and used to be fixed at build time.
-The batched 4x4x4 tile fills `M = lx < 16` exactly where the 16x16x4 one
-wastes half its rows at `lx = 8`, but it runs at half the FLOP rate, owes
-four cycles on each step of an accumulate chain where the large tile owes
-none, and re-reads its second operand once per M-tile. Those cancel around
-`lx = 8` and favour the large tile above it, so the tuner measures both
-rather than taking either argument on faith. Both are verified against a
-reference and give bit-identical double precision results, so the choice
-is a performance one only. The cost is tuning time: a double precision
+In double precision the batched 4x4x4 tile fills `M = lx < 16` exactly
+where the 16x16x4 one wastes half its rows at `lx = 8`, but it runs at half
+the FLOP rate, owes four cycles on each step of an accumulate chain where
+the large tile owes none, and re-reads its second operand once per M-tile.
+Those cancel around `lx = 8` and favour the large tile above it. In single
+precision the batched 4x4x1 tile runs at the full rate with a free
+accumulate chain and batches several low order elements into one
+instruction, so the accounting favours it everywhere, but its layout is
+documented rather than measured. Either way the tuner measures both rather
+than taking an argument on faith, and verifies each against the reference
+formulation before it may win. The cost is tuning time: ten matrix core
+candidates per order in either precision, five wavefront counts on each
+tile.
+
+`NEKO_TUNE_VERIFY` switches the verification pass that precedes every HIP
+sweep: each candidate is run once on a synthetic non-zero input and
+compared with the reference formulation's result, and one whose max-norm
+difference exceeds `NEKO_TUNE_VERIFY_TOL` times the reference's max-norm is
+logged as `REJECTED` and excluded from the comparison. It is on by default
+and exists because a wrong but symmetric operator still lets the solver
+converge, to the solution of a different system.
 build times eight matrix core candidates per order instead of four.
 
 `NEKO_DMMA_NW` pins one of the instantiated warps per block candidates
