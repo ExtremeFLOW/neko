@@ -630,13 +630,12 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_msg, '(A, I0, A, A, I0, A)') &
+                write(error_msg, '(A, I0, A, A, A, I0, A)') &
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
                      "does not exist in the mesh. Check scalar boundary ", &
                      "condition ", i, "."
                 call neko_error(error_msg)
-                error stop
              end if
 
              if (marked_zones(zone_indices(j))) then
@@ -647,7 +646,6 @@ contains
                      "scalar and make sure that each zone index appears only ",&
                      "in a single boundary condition."
                 call neko_error(error_msg)
-                error stop
              else
                 marked_zones(zone_indices(j)) = .true.
              end if
@@ -666,7 +664,6 @@ contains
              write(error_msg, '(A, I0)') &
                   "No scalar boundary condition assigned to zone ", i
              call neko_error(error_msg)
-             error stop
           end if
        end do
     else
@@ -677,7 +674,6 @@ contains
                   "No boundary_conditions entry in the case file for scalar ", &
                   this%s%name
              call neko_error(error_msg)
-             error stop
           end if
        end do
 
