@@ -8,6 +8,9 @@
 - PR#2831 User initial conditions are can no longer assume that the arrays
   are zeroed on entry. The user routine must set all values, e.g. with
   `field_cfill`.
+- PR#2891 `csv_file_t%header` is now a deferred-length allocatable, which
+  stays unallocated until the header is set. Code reading it directly must
+  check `allocated()` first.
 
 ## Develop
 

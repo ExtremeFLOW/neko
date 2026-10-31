@@ -1,4 +1,4 @@
-! Copyright (c) 2024, The Neko Authors
+! Copyright (c) 2024-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -47,8 +47,11 @@ module runtime_stats
   implicit none
   private
 
-  integer, parameter :: RT_STATS_MAX_REGIONS = 50
+  !> Initial number of regions, the table grows when it is full
+  integer, parameter :: RT_STATS_INIT_REGIONS = 50
+  !> Region ids reserved for regions started with an explicit id
   integer, parameter :: RT_STATS_RESERVED_REGIONS = 25
+  !> Length a region name is stored, looked up and reported with
   integer, parameter :: RT_STATS_MAX_NAME_LEN = 25
 
   type :: runtime_stats_t
@@ -69,6 +72,7 @@ module runtime_stats
      procedure, public, pass(this) :: report => runtime_stats_report
 
      procedure, pass(this) :: find_region_id => runtime_stats_find_region_id
+     procedure, private, pass(this) :: grow => runtime_stats_grow
   end type runtime_stats_t
 
   type(runtime_stats_t), public :: neko_rt_stats
@@ -91,12 +95,12 @@ contains
 
     if (this%enabled) then
 
-       allocate(this%rt_stats_id(RT_STATS_MAX_REGIONS))
+       allocate(this%rt_stats_id(RT_STATS_INIT_REGIONS))
 
        this%rt_stats_id = ''
 
-       allocate(this%elapsed_time(RT_STATS_MAX_REGIONS))
-       do i = 1, RT_STATS_MAX_REGIONS
+       allocate(this%elapsed_time(RT_STATS_INIT_REGIONS))
+       do i = 1, RT_STATS_INIT_REGIONS
           call this%elapsed_time(i)%init()
        end do
 
@@ -133,20 +137,24 @@ contains
     character(len=*), intent(in) :: name
     integer, optional, intent(in) :: region_id
     type(tuple_i4r8_t) :: region_data
+    character(len=RT_STATS_MAX_NAME_LEN) :: key
     integer :: id
 
     if (.not. this%enabled) return
 
+    ! Names are stored truncated, so compare them truncated
+    key = name
+
     if (present(region_id)) then
        id = region_id
     else
-       call this%find_region_id(name, id)
+       call this%find_region_id(key, id)
     end if
 
-    if (id .gt. 0 .and. id .le. RT_STATS_MAX_REGIONS) then
+    if (id .gt. 0 .and. id .le. size(this%rt_stats_id)) then
        if (len_trim(this%rt_stats_id(id)) .eq. 0) then
-          this%rt_stats_id(id) = trim(name)
-       else if (trim(this%rt_stats_id(id)) .ne. trim(name)) then
+          this%rt_stats_id(id) = key
+       else if (this%rt_stats_id(id) .ne. key) then
           call neko_error('Profile region renamed')
        end if
        region_data%x = id
@@ -168,6 +176,7 @@ contains
     real(kind=dp) :: end_time, elapsed_time
     type(tuple_i4r8_t) :: region_data
     character(len=1024) :: error_msg
+    character(len=RT_STATS_MAX_NAME_LEN) :: key
     integer :: id
 
     if (.not. this%enabled) return
@@ -181,13 +190,15 @@ contains
 
     ! If we are given a name, check it matches the id
     if (present(name)) then
+       ! Names are stored truncated, so compare them truncated
+       key = name
        if (present(region_id)) then
           id = region_id
        else
-          call this%find_region_id(name, id)
+          call this%find_region_id(key, id)
        end if
 
-       if (trim(this%rt_stats_id(id)) .ne. trim(name)) then
+       if (this%rt_stats_id(id) .ne. key) then
           write(error_msg, '(A,I0,A,A,A)') 'Invalid profiler region closed (', &
                id, ', expected: ', trim(this%rt_stats_id(id)), ')'
           call neko_error(trim(error_msg))
@@ -210,7 +221,7 @@ contains
   subroutine runtime_stats_report(this)
     class(runtime_stats_t), intent(inout) :: this
     character(len=LOG_SIZE) :: log_buf, fmt
-    character(len=1250) :: hdr
+    character(len=:), allocatable :: hdr
     real(kind=dp) :: avg, std, sem, total
     integer :: i, nsamples, ncols, nrows, col_idx
     type(matrix_t) :: profile_data
@@ -228,7 +239,7 @@ contains
     ncols = 0
     nrows = 0
     hdr = ''
-    do i = 1, RT_STATS_MAX_REGIONS
+    do i = 1, size(this%rt_stats_id)
        if (len_trim(this%rt_stats_id(i)) .gt. 0) then
           nsamples = this%elapsed_time(i)%size()
           ncols = ncols + 1
@@ -294,19 +305,27 @@ contains
   end subroutine runtime_stats_report
 
   !> Find or allocate a region id for the named region @a name
+  !! @details The table is grown when no free region is left.
+  !! @param name Name of the region, compared by its first
+  !! RT_STATS_MAX_NAME_LEN characters.
+  !! @param region_id Id of the region found or allocated.
   subroutine runtime_stats_find_region_id(this, name, region_id)
     class(runtime_stats_t), intent(inout) :: this
     character(len=*), intent(in) :: name
     integer, intent(out) :: region_id
+    character(len=RT_STATS_MAX_NAME_LEN) :: key
     integer :: i
 
     region_id = -1
 
     if (.not. this%enabled) return
 
+    ! Names are stored truncated, so look them up truncated
+    key = name
+
     ! Look for the region name first
-    do i = RT_STATS_RESERVED_REGIONS + 1, RT_STATS_MAX_REGIONS
-       if (trim(this%rt_stats_id(i)) .eq. trim(name)) then
+    do i = RT_STATS_RESERVED_REGIONS + 1, size(this%rt_stats_id)
+       if (this%rt_stats_id(i) .eq. key) then
           region_id = i
           exit
        end if
@@ -316,17 +335,43 @@ contains
     if (region_id .ne. -1) return
 
     ! Otherwise, look for an empty slot
-    do i = RT_STATS_RESERVED_REGIONS + 1, RT_STATS_MAX_REGIONS
+    do i = RT_STATS_RESERVED_REGIONS + 1, size(this%rt_stats_id)
        if (len_trim(this%rt_stats_id(i)) .eq. 0) then
           region_id = i
           exit
        end if
     end do
 
+    ! If there is none, grow the table and take its first new slot
     if (region_id .eq. -1) then
-       call neko_error('Not enough profiling regions available')
+       region_id = size(this%rt_stats_id) + 1
+       call this%grow()
     end if
 
   end subroutine runtime_stats_find_region_id
+
+  !> Double the number of regions, keeping the recorded ones
+  subroutine runtime_stats_grow(this)
+    class(runtime_stats_t), intent(inout) :: this
+    character(len=RT_STATS_MAX_NAME_LEN), allocatable :: tmp_id(:)
+    type(stack_r8_t), allocatable :: tmp_time(:)
+    integer :: i, n
+
+    n = size(this%rt_stats_id)
+
+    allocate(tmp_id(2 * n))
+    tmp_id(1:n) = this%rt_stats_id
+    tmp_id(n + 1:) = ''
+    call move_alloc(tmp_id, this%rt_stats_id)
+
+    ! Copy the stacks, move_alloc then frees the old ones with their data
+    allocate(tmp_time(2 * n))
+    tmp_time(1:n) = this%elapsed_time
+    do i = n + 1, 2 * n
+       call tmp_time(i)%init()
+    end do
+    call move_alloc(tmp_time, this%elapsed_time)
+
+  end subroutine runtime_stats_grow
 
 end module runtime_stats
