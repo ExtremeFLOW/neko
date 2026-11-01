@@ -3,6 +3,7 @@ var structruntime__stats_1_1runtime__stats__t =
     [ "end_region", "d5/db8/structruntime__stats_1_1runtime__stats__t.html#a65128afd9269478d6ddca870c47e6eb8", null ],
     [ "find_region_id", "d5/db8/structruntime__stats_1_1runtime__stats__t.html#aeab2701e91dcded0ec45f945e76250da", null ],
     [ "free", "d5/db8/structruntime__stats_1_1runtime__stats__t.html#ae7c0833c84e94447c2307e87bf46c51d", null ],
+    [ "grow", "d5/db8/structruntime__stats_1_1runtime__stats__t.html#ae1c783f6bbb2498793ce8335b21206d5", null ],
     [ "init", "d5/db8/structruntime__stats_1_1runtime__stats__t.html#a598dd89ca0195a8a0f4fd2c455b5ae73", null ],
     [ "report", "d5/db8/structruntime__stats_1_1runtime__stats__t.html#a194bc144cc96a69dc46419808e1e70a3", null ],
     [ "start_region", "d5/db8/structruntime__stats_1_1runtime__stats__t.html#ab8edd3bb1fb3ba106f09f5df19f7fb33", null ],

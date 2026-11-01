@@ -134,14 +134,20 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ad16174630d36b9a6313ac82285d16118" id="r_ad16174630d36b9a6313ac82285d16118"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespaceruntime__stats.html#ad16174630d36b9a6313ac82285d16118">runtime_stats_find_region_id</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>, name, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">region_id</a>)</td></tr>
 <tr class="memdesc:ad16174630d36b9a6313ac82285d16118"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find or allocate a region id for the named region <em>name</em>.  <br /></td></tr>
 <tr class="separator:ad16174630d36b9a6313ac82285d16118"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b2564d6d0a20c6561d61d1de0115e95" id="r_a2b2564d6d0a20c6561d61d1de0115e95"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespaceruntime__stats.html#a2b2564d6d0a20c6561d61d1de0115e95">runtime_stats_grow</a> (<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">this</a>)</td></tr>
+<tr class="memdesc:a2b2564d6d0a20c6561d61d1de0115e95"><td class="mdescLeft">&#160;</td><td class="mdescRight">Double the number of regions, keeping the recorded ones.  <br /></td></tr>
+<tr class="separator:a2b2564d6d0a20c6561d61d1de0115e95"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:afd8fc71ba24d1d271d7ded2c980d60c8" id="r_afd8fc71ba24d1d271d7ded2c980d60c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespaceruntime__stats.html#afd8fc71ba24d1d271d7ded2c980d60c8">rt_stats_max_regions</a> = 50</td></tr>
-<tr class="separator:afd8fc71ba24d1d271d7ded2c980d60c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3be96f5c8556daed711d922fbeba0b0" id="r_ae3be96f5c8556daed711d922fbeba0b0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespaceruntime__stats.html#ae3be96f5c8556daed711d922fbeba0b0">rt_stats_init_regions</a> = 50</td></tr>
+<tr class="memdesc:ae3be96f5c8556daed711d922fbeba0b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initial number of regions, the table grows when it is full.  <br /></td></tr>
+<tr class="separator:ae3be96f5c8556daed711d922fbeba0b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba83d4c3bd7755755e086a1ba6fea51e" id="r_aba83d4c3bd7755755e086a1ba6fea51e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespaceruntime__stats.html#aba83d4c3bd7755755e086a1ba6fea51e">rt_stats_reserved_regions</a> = 25</td></tr>
+<tr class="memdesc:aba83d4c3bd7755755e086a1ba6fea51e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Region ids reserved for regions started with an explicit id.  <br /></td></tr>
 <tr class="separator:aba83d4c3bd7755755e086a1ba6fea51e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a5c20c6c4257e05a7b427c4abb089c8" id="r_a7a5c20c6c4257e05a7b427c4abb089c8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespaceruntime__stats.html#a7a5c20c6c4257e05a7b427c4abb089c8">rt_stats_max_name_len</a> = 25</td></tr>
+<tr class="memdesc:a7a5c20c6c4257e05a7b427c4abb089c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length a region name is stored, looked up and reported with.  <br /></td></tr>
 <tr class="separator:a7a5c20c6c4257e05a7b427c4abb089c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac1ee103318e55eb60579b525f029386c" id="r_ac1ee103318e55eb60579b525f029386c"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d5/db8/structruntime__stats_1_1runtime__stats__t.html">runtime_stats_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">public</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d6/d78/namespaceruntime__stats.html#ac1ee103318e55eb60579b525f029386c">neko_rt_stats</a></td></tr>
 <tr class="separator:ac1ee103318e55eb60579b525f029386c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,7 +200,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00172">172</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -237,8 +243,15 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>The table is grown when no free region is left. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">name</td><td>Name of the region, compared by its first RT_STATS_MAX_NAME_LEN characters. </td></tr>
+    <tr><td class="paramname">region_id</td><td>Id of the region found or allocated. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00297">297</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00312">312</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -266,7 +279,35 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00110">110</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+
+</div>
+</div>
+<a id="a2b2564d6d0a20c6561d61d1de0115e95" name="a2b2564d6d0a20c6561d61d1de0115e95"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2b2564d6d0a20c6561d61d1de0115e95">&#9670;&#160;</a></span>runtime_stats_grow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">subroutine</a> runtime_stats::runtime_stats_grow </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">class</a>(<a class="el" href="../../d5/db8/structruntime__stats_1_1runtime__stats__t.html">runtime_stats_t</a>), <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">intent</a>(<a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">inout</a>)&#160;</td>
+          <td class="paramname"><em>this</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00354">354</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -304,7 +345,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -332,7 +373,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00210">210</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00221">221</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -376,7 +417,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00135">135</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -393,7 +434,31 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+
+</div>
+</div>
+<a id="ae3be96f5c8556daed711d922fbeba0b0" name="ae3be96f5c8556daed711d922fbeba0b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3be96f5c8556daed711d922fbeba0b0">&#9670;&#160;</a></span>rt_stats_init_regions</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a> runtime_stats::rt_stats_init_regions = 50</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -417,31 +482,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00052">52</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
-
-</div>
-</div>
-<a id="afd8fc71ba24d1d271d7ded2c980d60c8" name="afd8fc71ba24d1d271d7ded2c980d60c8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd8fc71ba24d1d271d7ded2c980d60c8">&#9670;&#160;</a></span>rt_stats_max_regions</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">integer</a>, <a class="el" href="../../d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759">parameter</a> runtime_stats::rt_stats_max_regions = 50</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00050">50</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -465,7 +506,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html#l00053">53</a> of file <a class="el" href="../../d0/d6c/runtime__statistics_8f90_source.html">runtime_statistics.f90</a>.</p>
 
 </div>
 </div>
@@ -475,7 +516,7 @@ Variables</h2></td></tr>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../d6/d78/namespaceruntime__stats.html">runtime_stats</a></li>
-    <li class="footer">Generated on Sat Oct 31 2026 03:35:07 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Nov 1 2026 03:34:58 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>

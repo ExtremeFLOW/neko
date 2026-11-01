@@ -114,8 +114,8 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <li class="level1"><a href="#case-file_solvers">Solvers</a></li>
 <li class="level1"><a href="#autotoc_md75">Simulation components</a></li>
 <li class="level1"><a href="#autotoc_md76">Point zones</a></li>
-<li class="level1"><a href="#autotoc_md77">Runtime statistics</a></li>
-<li class="level1"><a href="#autotoc_md78">Output frequency control</a></li>
+<li class="level1"><a href="#case-file_runtime-statistics">Runtime statistics</a></li>
+<li class="level1"><a href="#autotoc_md77">Output frequency control</a></li>
 </ul>
 </div>
 <div class="textblock"><p>The case file defines all the parameters of a simulation. The format of the file is JSON, making it easy to read and write case files using the majority of the popular programming languages. JSON is hierarchical and consists of parameter blocks enclosed in curly braces. These blocks are referred to as objects. The case file makes use of objects to separate the configuration of different parts of the solver. We refer the reader to the examples shipped with the code to get a good idea of how a case file looks. The table below provides a complete reference for all possible configuration choices.</p>
@@ -371,9 +371,9 @@ Point zones</h1>
 <p>Point zones enable the user to select GLL points in the computational domain according to some geometric criterion. Three predefined geometric shapes are selectable from the case file: boxes, spheres, and cylinders.</p>
 <p>A point zone object defined in the case file can be retrieved from the point zone registry, <code>neko_point_zone_registry</code>, and can be used to perform any zone-specific operations (e.g. localized source term, probing...). User-specific point zones can also be added manually to the point zone registry from the user file.</p>
 <p>A more detailed description as well as a full list of available components and their setup is provided in a <a class="el" href="../../da/dd0/point-zones.html">separate page of the manual</a>.</p>
-<h1><a class="anchor" id="autotoc_md77"></a>
+<h1><a class="anchor" id="case-file_runtime-statistics"></a>
 Runtime statistics</h1>
-<p>This object adds the collection of runtime statistics (timings) for identified profiling regions. A region is defined as all functions between a call to <code>profiler_start_region(name, id)</code> and <code>profiler_end_region(name, id)</code>. Neko currently supports 50 regions, with id 1..25 being reserved for internal use.</p>
+<p>This object adds the collection of runtime statistics (timings) for identified profiling regions. A region is defined as all functions between a call to <code>profiler_start_region(name, id)</code> and <code>profiler_end_region(name, id)</code>, where the <code>id</code> is optional. Regions without an id are added as they are first started, so their number is not limited. The ids 1..25 are reserved for regions started with an explicit id. A region is identified by the first 25 characters of its name, so regions whose names share those are timed as one region.</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Name   </th><th class="markdownTableHeadNone">Description   </th><th class="markdownTableHeadNone">Admissible values   </th><th class="markdownTableHeadNone">Default value    </th></tr>
@@ -382,7 +382,7 @@ Runtime statistics</h1>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone"><code>output_profile</code>   </td><td class="markdownTableBodyNone">Whether to output all gathered profiling data as a CSV file   </td><td class="markdownTableBodyNone"><code>true</code> or <code>false</code>   </td><td class="markdownTableBodyNone"><code>false</code>   </td></tr>
 </table>
-<h1><a class="anchor" id="autotoc_md78"></a>
+<h1><a class="anchor" id="autotoc_md77"></a>
 Output frequency control</h1>
 <p>A common scheme for controlling the output frequency is applied for various outputs. It is described already now in order to clarify the meaning of several parameters found in the tables below.</p>
 <p>The frequency is controlled by two parameters, ending with <code>_control</code> and <code>_value</code>, respectively. The latter name is perhaps not ideal, but it is somewhat difficult to come up with a good one, suggestions are welcome.</p>
@@ -404,7 +404,7 @@ Output frequency control</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Sat Oct 31 2026 03:35:05 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Sun Nov 1 2026 03:34:56 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
