@@ -21,6 +21,7 @@ SUBDIRS = tuple\
 	  fluid_pnpn_bc\
 	  signal\
 	  jobctrl\
+	  log\
 	  device\
 	  data_types\
 	  device_math\
@@ -51,6 +52,7 @@ SUBDIRS = tuple\
 	  checkpoint_payload\
 	  wall_sampling\
 	  map_1d\
+	  runtime_stats\
 	  geo_compression\
 	  restart_consistency\
 	  crystal_router\
@@ -81,6 +83,7 @@ TESTS = device/device_test\
 	fluid_pnpn_bc/fluid_pnpn_bc_test\
 	signal/signal_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
 	device_mathops/device_mathops_test\
@@ -109,6 +112,7 @@ TESTS = device/device_test\
 	checkpoint_payload/checkpoint_payload_test\
 	wall_sampling/wall_sampling_test\
 	map_1d/map_1d_test\
+	runtime_stats/runtime_stats_test\
 	geo_compression/geo_compression_test\
 	restart_consistency/restart_consistency_test\
 	crystal_router/crystal_router_test\
@@ -132,6 +136,7 @@ EXTRA_DIST = \
 	signal/test_signal.pf\
 	space/test_space_test.pf\
 	jobctrl/test_jobctrl_parallel.pf\
+	log/test_log_parallel.pf\
 	dofmap/test_dofmap_parallel.pf\
 	field/test_field_parallel.pf\
 	global_interpolation/test_glob_interp_par.pf\
@@ -166,6 +171,7 @@ EXTRA_DIST = \
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	math/math_test\
 	field/field_test\
 	global_interpolation/global_interpolation_test\
@@ -214,6 +220,8 @@ EXTRA_DIST = \
 	wall_sampling/wall_sampling_test\
 	map_1d/test_map_1d.pf\
 	map_1d/map_1d_test\
+	runtime_stats/test_runtime_stats.pf\
+	runtime_stats/runtime_stats_test\
 	geo_compression/test_geo_compression_parallel.pf\
 	geo_compression/geo_compression_test\
 	restart_consistency/test_restart_consistency.pf\

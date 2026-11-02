@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2024, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ module csv_file
   implicit none
 
   type, public, extends(generic_file_t) :: csv_file_t
-     character(len=1024) :: header = "" !< Contains header of file.
+     character(len=:), allocatable :: header !< Contains header of file.
      logical :: header_is_written = .false. !< Has header already been written?
    contains
      !> Writes data to an output file.
@@ -139,9 +139,11 @@ contains
     end if
 
     ! write header if not empty and if not already written
-    if (f%header .ne. "" .and. .not. f%header_is_written) then
-       write (file_unit, '(A)') trim(f%header)
-       f%header_is_written = .true.
+    if (allocated(f%header)) then
+       if (f%header .ne. "" .and. .not. f%header_is_written) then
+          write (file_unit, '(A)') trim(f%header)
+          f%header_is_written = .true.
+       end if
     end if
 
     ! Add time at the beginning if specified
@@ -180,9 +182,11 @@ contains
     end if
 
     ! write header if not empty and if not already written
-    if (f%header .ne. "" .and. .not. f%header_is_written) then
-       write (file_unit, '(A)') trim(f%header)
-       f%header_is_written = .true.
+    if (allocated(f%header)) then
+       if (f%header .ne. "" .and. .not. f%header_is_written) then
+          write (file_unit, '(A)') trim(f%header)
+          f%header_is_written = .true.
+       end if
     end if
 
     do i = 1, data%get_nrows()

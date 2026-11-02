@@ -65,7 +65,8 @@ module field_math
   use device, only : device_get_ptr
   use math, only : rzero, rone, copy, cmult, cadd, cfill, invcol1, vdot3, &
        add3, add4, sub2, sub3, add2s1, add2s2, addsqr2s2, cmult2, invcol2, &
-       col2, col3, subcol3, add3s2, addcol3, addcol4, glsum, glmax, glmin, &
+       col2, col3, subcol3, add3s2, addcol3, addcol4, addcol3s2, glsum, &
+       glmax, glmin, &
        glsc2, glsc3, masked_gather_copy, masked_gather_copy_0, &
        masked_scatter_copy_0, glsubnorm, invcol3, pwmax2, pwmax3, cpwmax2, &
        cpwmax3, pwmin2, pwmin3, cpwmin2, cpwmin3, add2
@@ -74,7 +75,8 @@ module field_math
        device_add3, device_add4, device_sub2, device_sub3, device_add2s1, &
        device_add2s2, device_addsqr2s2, device_cmult2, device_invcol2, &
        device_col2, device_col3, device_subcol3, device_add3s2, &
-       device_addcol3, device_addcol4, device_glsum, device_glsc2, &
+       device_addcol3, device_addcol4, device_addcol3s2, device_glsum, &
+       device_glsc2, &
        device_glmax, device_glmin, device_cmult, &
        device_glsc3, device_masked_gather_copy_0, device_masked_scatter_copy_0,&
        device_masked_gather_copy_aligned, &
@@ -90,7 +92,8 @@ module field_math
        field_add2, field_sub2, field_sub3, field_add2s1, &
        field_add2s2, field_addsqr2s2, field_cmult2, &
        field_invcol2, field_col2, field_col3, field_subcol3, &
-       field_add3s2, field_addcol3, field_addcol4, field_glsum, &
+       field_add3s2, field_addcol3, field_addcol4, field_addcol3s2, &
+       field_glsum, &
        field_glmax, field_glmin, &
        field_glsc2, field_glsc3, field_add3, field_masked_gather_copy_0, &
        field_masked_gather_copy, &
@@ -617,6 +620,29 @@ contains
     end if
 
   end subroutine field_addcol3
+
+  !> Returns \f$ a = a + s(b*c) \f$
+  subroutine field_addcol3s2(a, b, c, s, n)
+    integer, intent(in), optional :: n
+    type(field_t), intent(inout) :: a
+    type(field_t), intent(in) :: b
+    type(field_t), intent(in) :: c
+    real(kind=rp), intent(in) :: s
+    integer :: size
+
+    if (present(n)) then
+       size = n
+    else
+       size = a%size()
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_addcol3s2(a%x_d, b%x_d, c%x_d, s, size)
+    else
+       call addcol3s2(a%x, b%x, c%x, s, size)
+    end if
+
+  end subroutine field_addcol3s2
 
   !> Returns \f$ a = a + b*c*d \f$
   subroutine field_addcol4(a, b, c, d, n)

@@ -137,11 +137,11 @@ backend and keep tuning the two.
   the eight tiles of a contraction among themselves.
 - the **mfma** variant on HIP, which stages the element in LDS and issues
   each contraction on the matrix cores as a `D * U` GEMM with `M = lx`,
-  `N = lx^2` and `K = lx`. Double precision uses the batched `4x4x4`
-  tile, which is fully utilised in `M` for any `lx < 16`; single
-  precision uses `16x16x4`, there being no `4x4x4` instruction for it.
-  Its geometry parameter is the number of *wavefronts per block* (1, 2,
-  4 or 8).
+  `N = lx^2` and `K = lx`. Each precision has a batched tile, `4x4x4` in
+  double precision and `4x4x1` in single, and the `16x16x4` tile, and the
+  Helmholtz operator measures the two against each other. Its geometry
+  parameters are the number of *wavefronts per block* (1, 2, 4, 8 or 16)
+  and the tile.
 
 Padding the dmma cube to `8^3` keeps every tile full, so no lane ever has
 to test an index, but it is exact only at `lx = 8`: at `lx = 4` just 64
@@ -283,37 +283,63 @@ fifteen for `conv1` and five for `cdtp`. The variants that stage past
 48 kB additionally check that the device will grant a block the shared
 memory they need.
 
-@note For the Helmholtz operator the mfma search has a second dimension:
-which matrix core tile the contraction is issued on. Double precision has
-two, and they trade against each other rather than one dominating. The
-batched `v_mfma_f64_4x4x4f64` tile fills `M = lx < 16` exactly, where
+@note The mfma search has a second dimension for every operator that
+offers it:
+which matrix core tile the contraction is issued on. In double precision
+the batched `v_mfma_f64_4x4x4f64` tile fills `M = lx < 16` exactly, where
 `v_mfma_f64_16x16x4f64` wastes half its rows at `lx = 8` --- but it runs at
 128 rather than 256 flop per cycle per compute unit, owes four cycles on
 each step of an accumulate chain where the large tile owes none, and
 re-reads its second operand once per M-tile, which is two to three times
 the shared memory traffic. Counting issues and cycles, the small tile wins
 by 2x at `lx = 4`, the two are within about 10% of each other from `lx = 5`
-to `8`, and the large tile wins by 1.5x from `lx = 9` up. That was a
+to `8`, and the large tile wins by 1.5x from `lx = 9` up. In single
+precision the batched tile is `v_mfma_f32_4x4x1f32`: sixteen independent
+`4x4` outer products per instruction at the full 256 flop per cycle per
+compute unit, with no wait states on its accumulate chain, so it keeps the
+small tile's `M` utilisation without the double precision rate penalty ---
+half the matrix core cycles of `16x16x4` at `lx = 8` and, because its
+sixteen blocks can take columns from different elements, a quarter at
+`lx = 4` and a thirty-second at `lx = 2`. Its lane layout is the one AMD's
+matrix instruction calculator documents, which reproduces the double
+precision layout that was read out on hardware, but it has not itself been
+measured; that is what the verification pass below is for. The tile was a
 compile-time choice until the accounting was redone, which is exactly the
-kind of decision the tuner exists to make, so both are now candidates ---
-eight instead of four in a double precision build. Single precision has no
-4x4x4 instruction, so there the dimension collapses and only four
-candidates are timed. Both tiles reproduce a reference to machine precision
-and give bit-identical double precision results, so nothing but time is at
+kind of decision the tuner exists to make, so both tiles are candidates in
+both precisions --- ten per order, five wavefront counts on each.
+`-DMFMA_F64_USE_16X16` and `-DMFMA_F32_USE_16X16` collapse a precision onto
+its `16x16x4` tile. The double precision tiles reproduce a reference to
+machine precision and give bit-identical results, so nothing but time is at
 stake in trying them.
 
-@note The mfma variant covers `4 <= lx <= 12` in *both* precisions, on
-gfx90a (MI250X) and gfx942 (MI300A / MI300X), for the scalar and vector
-`Ax`, `opgrad`, `dudxyz`, `conv1` and `cdtp`.
-`v_mfma_f32_16x16x4f32` is true IEEE fp32, so a single precision
-build loses nothing in accuracy there; the upper order bound is the LDS
-needed to keep the staged cubes resident, not the instruction.
+@note The mfma variant covers `4 <= lx <= 12` in double precision and
+`2 <= lx <= 12` in single, on gfx90a (MI250X) and gfx942 (MI300A / MI300X),
+for the scalar and vector `Ax`, `opgrad`, `dudxyz`, `conv1` and `cdtp`.
+`v_mfma_f32_16x16x4f32` and `v_mfma_f32_4x4x1f32` are true IEEE fp32, so a
+single precision build loses nothing in accuracy there. The upper order
+bound is the LDS needed to keep the staged cubes resident, not the
+instruction; the lower one is where the batched single precision tile still
+fills, sixteen `lx = 2` elements or four `lx = 4` elements to one
+instruction, which is aimed at p-multigrid the way the dmma packing is.
 Availability is confirmed by launching a probe kernel that reports
 whether the device pass really was compiled for a matrix core
 architecture, rather than by reading the device properties: a code
 object selected from a fat binary built for something else would
 otherwise turn the strategy into a silent no-op, launching, writing
 nothing, and leaving stale values in the output.
+
+@note Every candidate the HIP tuner is about to time is first verified: run
+once on a synthetic non-zero input and compared with the reference
+formulation's result on the same input, the 1d kernel's first candidate
+where there is one and the kstep kernel's where there is not. A candidate
+whose max-norm difference exceeds `NEKO_TUNE_VERIFY_TOL` times the
+reference's max-norm (`1e-4` in single precision, `1e-10` in double; a
+layout detector rather than an accuracy test, since a layout error reads as
+O(1)) is reported as `REJECTED` with both norms and dropped from the
+comparison, so it can be measured but cannot win. The synthetic input is
+what makes the pass conclusive on the first call of an operator, which can
+land on a zero field that every layout reproduces; the geometry and metrics
+stay the case's own. `NEKO_TUNE_VERIFY=0` turns the pass off.
 
 @note Neither variant is a free win to expect. `Ax` is strongly bandwidth
 bound, roughly 1.6 flop/byte at `lx = 8` against a ridge point near 9 on
