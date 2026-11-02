@@ -11,7 +11,9 @@ NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
 %.o : %.F90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) $<
 
-../fixtures/mesh_fixture.o : ../fixtures/mesh_fixture.f90
+# The fixture is compiled here, not in ../fixtures, so that its module file
+# ends up in this directory whatever other suite has compiled it before.
+mesh_fixture.o : ../fixtures/mesh_fixture.f90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) -o $@ $<
 
 
@@ -27,16 +29,16 @@ Makefile: Makefile.in @top_builddir@/config.status
 
 bc_projector_suite_TESTS := test_bc_projector.pf\
     test_coupled_bc_projector.pf
-bc_projector_suite_OTHER_SOURCES = ../fixtures/mesh_fixture.f90
+bc_projector_suite_OTHER_SOURCES = mesh_fixture.f90
 bc_projector_suite_OTHER_LIBRARIES = -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
 $(eval $(call make_pfunit_test,bc_projector_suite))
 bc_projector_suite.inc: Makefile
-test_bc_projector.o: ../fixtures/mesh_fixture.o
-test_coupled_bc_projector.o: ../fixtures/mesh_fixture.o
+test_bc_projector.o: mesh_fixture.o
+test_coupled_bc_projector.o: mesh_fixture.o
 
 distclean:
 clean:
-	$(RM) *.o *.mod *.a *.inc *.F90 bc_projector_suite ../fixtures/mesh_fixture.o
+	$(RM) *.o *.mod *.a *.inc *.F90 bc_projector_suite
 
 
 

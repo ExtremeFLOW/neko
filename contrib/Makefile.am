@@ -1,5 +1,6 @@
 SUBDIRS = rea2nbin\
 	  gmsh2nmsh\
+	  checkneko\
 	  prepart\
 	  genmeshbox\
 	  create_periodic_zones\

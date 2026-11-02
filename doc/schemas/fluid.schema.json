@@ -46,7 +46,7 @@
               "const": "user"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         },
         {
           "type": "object",
