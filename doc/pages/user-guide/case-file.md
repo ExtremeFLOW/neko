@@ -29,6 +29,63 @@ valid without having to run a simulation.
 reals such as `10.0`. Make sure that you use the correct number type for the
 parameter you are setting.
 
+Keys that the schemas do not define are rejected in the objects of built-in
+components, so that a misspelt key, which Neko would silently ignore, does not
+go unnoticed. Other keys are accepted at the top level of the file, next to
+`case`, for instance for the settings of other tools, in `case`, `case.fluid`
+and `case.scalar`, and in user-defined components: initial conditions of type
+`user`, boundary conditions of the `user_*` types and source terms of type
+`user`, whose parameters the user file defines.
+
+## Checking a case file {#case-file_checking}
+
+A case file can be checked without running Neko with `checkneko`, which is
+installed with the other contrib tools and needs neither MPI nor the Neko
+library:
+
+```shell
+checkneko cylinder.case
+```
+
+Run it in the directory Neko will run in, or give that directory with
+`-d dir`, since file names in the case file are relative to it. The case file
+is parsed the way Neko parses it and validated against the schemas in
+`doc/schemas`, which are installed with the tool in `share/neko/schemas`. It
+then checks what the schemas cannot:
+
+- A value that names a constant must name one in `case.constants`, of the kind
+  Neko reads there.
+- The files the case reads, such as the mesh and restart files, must exist.
+- For an `.nmsh` mesh, the `zone_indices` of the boundary conditions of the
+  fluid and the scalars must match the labeled zones of the mesh, with one
+  boundary condition for each zone, as Neko requires.
+- Point zones that values refer to must be defined in `case.point_zones`.
+
+A table lists the labeled zones with their number of facets and the boundary
+conditions of the fluid and of each scalar on them, for example
+
+```text
+ Zone  Facets  Fluid               Scalar temperature
+    1      72  velocity_value      dirichlet
+    2      72  outflow+dong        neumann
+    7      96  no_slip (cylinder)  dirichlet
+```
+
+where `-` means that a field has no boundary condition on a zone, and the
+`name` of an entry is given in parentheses. Each problem is then reported on
+one line with its line number and its location in the case file, for example,
+with the list of types shortened here,
+
+```text
+cylinder.case:67: error: case.fluid.boundary_conditions[5].type: must be one of "symmetry", "outflow", ..., got "no_slp" (did you mean "no_slip"?)
+```
+
+The exit status is 1 if there are errors. Warnings, for instance about a key
+that appears twice or a misspelled key in an object that allows any key, do
+not change the exit status. The tool can also be compiled on its own, for
+instance when Neko is cross-compiled for another architecture, see
+`contrib/checkneko/README.md`.
+
 ## High-level structure
 The current high-level structure of the case file is shown below.
 
