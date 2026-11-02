@@ -722,7 +722,13 @@ keywords:
   - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
     - `test_filter`: The test filter for the dynamic Smagorinsky model
   - `vreman`: The Vreman model. Configured by the following additional keywords:
-    - `c`: The model constant, defaults to 0.07.
+    - `c`: The model constant, defaults to 0.07, which corresponds to the
+      Smagorinsky constant 0.17 through `c = 2.5 c_s^2` (Vreman 2004).
+    - `anisotropic`: Whether to use direction-dependent filter widths as in
+      Vreman (2004), eq. (32), defaults to `false`. The filter widths are the
+      grid steps along the three GLL directions of each element, as defined
+      by `delta_type`, so the model works for stretched and rotated elements.
+      With `false`, the isotropic `les_delta` is used in all directions.
     - `buoyancy_correction`: Whether or not to apply a correction to the eddy
       viscosity field based on the local Richardson number as described by Moeng
       and Sullivan 2015 (http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2).
@@ -733,8 +739,18 @@ keywords:
         - `Ri_c`: The critical Richardson number.
         - `reference_temperature`: The reference temperature for computation of
           the Richardson number.
-        - `g`: The gravity vector.
+        - `g`: The gravity vector, pointing in the direction of gravity, e.g.
+          `[0, 0, -9.81]` (the model reverses it internally, as the Deardorff
+          model does).
       - `false`: Compute the standard Vreman eddy viscosity.
+    - With `buoyancy_correction`, the correction factor
+      `sqrt(1 - Ri / Ri_c)` is the stability function of Lilly (1962). The
+      scalar eddy diffusivity then follows from the (corrected) eddy viscosity
+      through a constant turbulent Prandtl number, i.e. `"alphat":
+      {"nut_dependency": true, "nut_field": <nut_field>, "Pr_t": Pr_t}` in the
+      scalar. In Lilly's derivation the critical Richardson number equals the
+      turbulent Prandtl number, so a consistent choice is `Ri_c = Pr_t`
+      (e.g. 1/3).
   - `sigma`: The Sigma model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
@@ -744,7 +760,8 @@ keywords:
     Configured by the following additional keyword:
     - `c_k`: The model constant, defaults to 0.1.
     - `T0`: The reference temperature.
-    - `g`: The gravity vector.
+    - `g`: The gravity vector, pointing in the direction of gravity, e.g.
+      `[0, 0, -9.81]` (the model reverses it internally).
     - `temperature_field`: The field name of the temperature field,
       defaults to `temperature`.
     - `TKE_field`: The field name of the turbulent kinetic energy (TKE) field,
