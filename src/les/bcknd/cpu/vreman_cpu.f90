@@ -113,7 +113,7 @@ contains
     call neko_scratch_registry%request_field(a33, temp_indices(9), .false.)
 
 
-    ! Compute the derivatives of the velocity (the alpha tensor)
+    ! Compute the derivatives of the velocity
     call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
@@ -126,6 +126,9 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
+    ! Note: the gradients are summed (not averaged) over shared nodes. The
+    ! eddy viscosity is multiplied by mult below, and final GS + mult then
+    ! averages the element wise values
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
     call coef%gs_h%op(a13, GS_OP_ADD)
@@ -136,8 +139,7 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
-    !$omp parallel do private(e, i, beta11, beta12, beta13, beta22, beta23, &
-    !$omp& beta33, b_beta, aijaij)
+    !$omp parallel do private(e, i, j, k, a, gt, h, beta, b_beta, aijaij)
     do e = 1, coef%msh%nelv
        do i = 1, coef%Xh%lxyz
           a(1,1) = a11%x(i,1,1,e)
@@ -201,6 +203,7 @@ contains
        end do
     end do
     !$omp end parallel do
+
     if (if_corr) then
        temperature => neko_registry%get_field_by_name(scalar_name)
        call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), &
@@ -217,6 +220,8 @@ contains
        else
           call neko_error("The gravity vector must have at least one nonzero component")
        endif
+
+       ! Temperature gradient (element-local)
        call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
 
        ! g*grad(T), averaged over the elements sharing a node, 
@@ -233,12 +238,14 @@ contains
           !DIR$ IVDEP
           !GCC$ ivdep
           do i = 1, coef%Xh%lxyz
+             m = coef%mult(i,1,1,e)
 
-             ! Buoyancy component (numerator in Ri definition)
-             buoyancy = (-g(1) * dTdx%x(i,1,1,e) - &
-                  g(2) * dTdy%x(i,1,1,e) - &
+             ! Squared Brunt-Vaisala frequency, positive for stable
+             ! stratification since g >0 here.
              N2 = dTdx%x(i,1,1,e) / ref_temp
 
+             ! Element-local eddy viscosity: the summed gradients times
+             ! mult give the element value, see above
              nu = nut%x(i,1,1,e)
 
              ! Directional derivative of the averaged velocity along n
