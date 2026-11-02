@@ -37,12 +37,12 @@ module vreman_device
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
-  use operators, only : dudxyz
+  use operators, only : dudxyz, grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use device_math, only : device_col2
+  use device_math, only : device_col2, device_cmult2, device_add2s2
   use device_vreman_nut, only : device_vreman_nut_compute, &
-       device_vreman_nut_compute_buoy
+       device_vreman_nut_compute_aniso, device_vreman_stability
 
   implicit none
   private
@@ -63,11 +63,11 @@ contains
   !! @param scalar_name The name of the scalar field for buoyancy correction.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
-  !! @param g The gravity vector.
-  subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c,&
-       if_corr, scalar_name, ri_c, ref_temp, g)
+  subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c, &
+       if_corr, scalar_name, ri_c, ref_temp, g, &
+       if_aniso, g11, g12, g13, g22, g23, g33)
 
-    logical, intent(in) :: if_ext
+    logical, intent(in) :: if_ext, if_corr, if_aniso
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -78,6 +78,7 @@ contains
     character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(in) :: ri_c, ref_temp
     real(kind=rp), intent(in) :: g(3)
+    type(field_t), intent(in) :: g11, g12, g13, g22, g23, g33
 
     ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
@@ -93,7 +94,7 @@ contains
     type(field_t), pointer :: b_beta
     type(field_t), pointer :: aijaij
     integer :: temp_indices(9), temp_indices_buoy(3)
-    integer :: e, i
+    real(kind=rp) :: g_(3), ri_c_, ref_temp_, eps_
 
     if (if_ext .eqv. .true.) then
        u => neko_registry%get_field_by_name("u_e")
@@ -138,6 +139,20 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
+    if (if_aniso) then
+       call device_vreman_nut_compute_aniso(a11%x_d, a12%x_d, a13%x_d, &
+            a21%x_d, a22%x_d, a23%x_d, &
+            a31%x_d, a32%x_d, a33%x_d, &
+            g11%x_d, g12%x_d, g13%x_d, g22%x_d, g23%x_d, g33%x_d, &
+            nut%x_d, coef%mult_d, c, NEKO_EPS, a11%dof%size())
+    else
+       call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
+            a21%x_d, a22%x_d, a23%x_d, &
+            a31%x_d, a32%x_d, a33%x_d, &
+            delta%x_d, nut%x_d, coef%mult_d, &
+            c, NEKO_EPS, a11%dof%size())
+    end if
+
     if (if_corr) then
        temperature => neko_registry%get_field_by_name(scalar_name)
 
@@ -148,27 +163,28 @@ contains
        call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), &
             .false.)
 
-       call dudxyz(dTdx%x_d, temperature%x_d, coef%drdx_d, coef%dsdx_d, &
-            coef%dtdx_d, coef)
-       call dudxyz(dTdy%x_d, temperature%x_d, coef%drdy_d, coef%dsdy_d, &
-            coef%dtdy_d, coef)
-       call dudxyz(dTdz%x_d, temperature%x_d, coef%drdz_d, coef%dsdz_d, &
-            coef%dtdz_d, coef)
+       call grad(dTdx%x_d, dTdy%x_d, dTdz%x_d, temperature%x_d, coef)
 
-       call device_vreman_nut_compute_buoy(a11%x_d, a12%x_d, a13%x_d, &
+       g_ = g
+       ri_c_ = ri_c
+       ref_temp_ = ref_temp
+       eps_ = NEKO_EPS
+
+       ! g . grad(T), averaged over the elements sharing a node, so that
+       ! N^2 is single-valued like the shear (gather-scatter is linear, so
+       ! one field suffices). Stored in dTdx.
+       call device_cmult2(dTdx%x_d, dTdx%x_d, g(1), dTdx%size())
+       call device_add2s2(dTdx%x_d, dTdy%x_d, g(2), dTdx%size())
+       call device_add2s2(dTdx%x_d, dTdz%x_d, g(3), dTdx%size())
+       call coef%gs_h%op(dTdx, GS_OP_ADD)
+       call device_col2(dTdx%x_d, coef%mult_d, dTdx%size())
+
+       call device_vreman_stability(a11%x_d, a12%x_d, a13%x_d, &
             a21%x_d, a22%x_d, a23%x_d, &
             a31%x_d, a32%x_d, a33%x_d, &
-            delta%x_d, nut%x_d, coef%mult_d, &
-            c, NEKO_EPS, a11%dof%size(), &
-            dTdx%x_d, dTdy%x_d, dTdz%x_d, &
-            g, ri_c, ref_temp)
+            dTdx%x_d, nut%x_d, coef%mult_d, &
+            g_, ri_c_, ref_temp_, eps_, a11%dof%size())
        call neko_scratch_registry%relinquish_field(temp_indices_buoy)
-    else
-       call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
-            a21%x_d, a22%x_d, a23%x_d, &
-            a31%x_d, a32%x_d, a33%x_d, &
-            delta%x_d, nut%x_d, coef%mult_d, &
-            c, NEKO_EPS, a11%dof%size())
     end if
 
     call coef%gs_h%op(nut, GS_OP_ADD)
