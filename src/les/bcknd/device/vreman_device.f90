@@ -60,9 +60,13 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
   !! @param if_corr Whether to apply buoyancy correction.
-  !! @param scalar_name The name of the scalar field for buoyancy correction.
+  !! @param scalar_name The name of the scalar field for the stability
+  !! treatment.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
+  !! @param g The gravity vector, pointing upwards (reversed at init).
+  !! @param if_aniso Whether to use the anisotropic filter-width tensor.
+  !! @param g11, g12, g13, g22, g23, g33 The filter-width tensor.
   subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c, &
        if_corr, scalar_name, ri_c, ref_temp, g, &
        if_aniso, g11, g12, g13, g22, g23, g33)
@@ -74,25 +78,14 @@ contains
     type(field_t), intent(inout) :: nut
     type(field_t), intent(in) :: delta
     real(kind=rp), intent(in) :: c
-    logical, intent(in) :: if_corr
     character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(in) :: ri_c, ref_temp
     real(kind=rp), intent(in) :: g(3)
     type(field_t), intent(in) :: g11, g12, g13, g22, g23, g33
 
-    ! This is the alpha tensor in the paper
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
     type(field_t), pointer :: temperature, dTdx, dTdy, dTdz
-
-    type(field_t), pointer :: beta11
-    type(field_t), pointer :: beta12
-    type(field_t), pointer :: beta13
-    type(field_t), pointer :: beta22
-    type(field_t), pointer :: beta23
-    type(field_t), pointer :: beta33
-    type(field_t), pointer :: b_beta
-    type(field_t), pointer :: aijaij
     integer :: temp_indices(9), temp_indices_buoy(3)
     real(kind=rp) :: g_(3), ri_c_, ref_temp_, eps_
 
@@ -116,7 +109,6 @@ contains
     call neko_scratch_registry%request_field(a32, temp_indices(8), .false.)
     call neko_scratch_registry%request_field(a33, temp_indices(9), .false.)
 
-    ! Compute the derivatives of the velocity (the alpha tensor)
     call dudxyz(a11%x_d, u%x_d, coef%drdx_d, coef%dsdx_d, coef%dtdx_d, coef)
     call dudxyz(a12%x_d, u%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
     call dudxyz(a13%x_d, u%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
@@ -129,6 +121,8 @@ contains
     call dudxyz(a32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
     call dudxyz(a33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
+    ! The gradients are summed (not averaged) over shared nodes, see the
+    ! comment in vreman_cpu.
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
     call coef%gs_h%op(a13, GS_OP_ADD)
