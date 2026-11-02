@@ -48,6 +48,7 @@ module hdf5_file
   use interpolation, only : interpolator_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use vector, only : vector_t
+  use host_array, only : host_array_t
   use matrix, only : matrix_t
   use datadist, only : linear_dist_t
   use global_interpolation, only : global_interpolation_t
@@ -64,6 +65,45 @@ module hdf5_file
   implicit none
   private
 
+  !> Reusable distribution of a rank-ordered host array over NEKO_COMM.
+  !! Counts are vector elements or matrix columns, not total matrix elements.
+  !! Matrices distribute their second dimension; all ranks have the same
+  !! number of rows and write every row of their local columns.
+  !! Initialise collectively once, then reuse while every rank's local size
+  !! and NEKO_COMM remain unchanged. Reinitialise after redistribution.
+  type, public :: hdf5_layout_t
+     private
+     !> Number of entries on this rank; -1 marks an uninitialised layout.
+     integer :: local_count = -1
+     !> First entry owned by this rank, using zero-based indexing.
+     integer :: offset = 0
+     !> Sum and maximum of local counts over NEKO_COMM.
+     integer :: total_count = 0
+     integer :: max_count = 0
+   contains
+     !> Calculate the distribution collectively.
+     procedure :: init => hdf5_layout_init
+  end type hdf5_layout_t
+
+#ifdef HAVE_HDF5
+  !> Dataset resources retained while the active group remains open.
+  type :: hdf5_dataset_t
+     !> Dataset name relative to the active group.
+     character(len=:), allocatable :: name
+     !> Open dataset and memory dataspace handles.
+     integer(hid_t) :: id = -1_hid_t, memspace = -1_hid_t
+     !> Array rank (number of dimensions), not the MPI rank.
+     integer :: dset_rank = 0
+     !> Current extent (writers support up to four array dimensions).
+     integer(hsize_t) :: extent(4) = 0_hsize_t
+     !> Local shape used to construct the reusable memory dataspace.
+     integer(hsize_t) :: memory_shape(4) = 0_hsize_t
+   contains
+     !> Release retained handles and the dataset name.
+     procedure :: free => hdf5_dataset_free
+  end type hdf5_dataset_t
+#endif
+
   !> Interface for HDF5 files
   type, public, extends(generic_file_t) :: hdf5_file_t
 
@@ -72,6 +112,10 @@ module hdf5_file
      integer(hid_t) :: file_id = -1_hid_t
      integer(hid_t) :: active_group_id = -1_hid_t
      integer(hid_t) :: plist_id = -1_hid_t
+     !> Collective transfer properties shared by writes to this open file.
+     integer(hid_t), private :: xfer_id = -1_hid_t
+     !> Datasets belonging to the active group, released before changing it.
+     type(hdf5_dataset_t), allocatable, private :: datasets(:)
 #endif
      character(len=1) :: mode
      integer :: precision = -1
@@ -89,8 +133,18 @@ module hdf5_file
      ! Granular methods for dealing with HDF5 files
      procedure :: open => hdf5_file_open
      procedure :: close => hdf5_file_close
+     !> Release an open file and its retained dataset resources.
+     procedure :: free => hdf5_file_free
+#ifdef HAVE_HDF5
+     !> Release the datasets of the active group.
+     procedure, private :: clear_datasets => hdf5_file_clear_datasets
+     !> Open or reuse a dataset and prepare the next write selection.
+     procedure, private :: prepare_dataset => hdf5_file_prepare_dataset
+#endif
      procedure :: set_active_group => hdf5_file_set_group
      procedure :: set_precision => hdf5_file_set_precision
+     !> Write a one-dimensional host array, optionally reusing its layout.
+     procedure :: write_array => hdf5_file_write_array
      procedure, pass(this) :: write_vector => hdf5_file_write_vector
      procedure, pass(this) :: write_matrix => hdf5_file_write_matrix
      procedure, pass(this) :: write_field => hdf5_file_write_field
@@ -129,6 +183,36 @@ module hdf5_file
   end type hdf5_checkpoint_layout_t
 
 contains
+
+  !> Release an open file and its retained dataset resources.
+  subroutine hdf5_file_free(this)
+    class(hdf5_file_t), intent(inout) :: this
+#ifdef HAVE_HDF5
+    if (this%file_id /= -1_hid_t) call this%close()
+#endif
+  end subroutine hdf5_file_free
+
+  !> Calculate a reusable layout for distributed array writes.
+  !! @param local_count Scalar integer: local number of vector elements or
+  !! matrix columns. For a matrix use mat%get_ncols(), not mat%size().
+  !! Pass only this rank's count, not an array of counts or dimensions.
+  !! @note All ranks in NEKO_COMM must call this routine. A supplied layout
+  !! removes size collectives from subsequent writes; callers must initialise
+  !! it again on all ranks if any local count or the communicator changes.
+  subroutine hdf5_layout_init(this, local_count)
+    class(hdf5_layout_t), intent(inout) :: this
+    integer, intent(in) :: local_count
+    integer :: ierr
+
+    this%local_count = local_count
+    call MPI_Scan(local_count, this%offset, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+    this%offset = this%offset - local_count
+    call MPI_Allreduce(local_count, this%total_count, 1, MPI_INTEGER, &
+         MPI_SUM, NEKO_COMM, ierr)
+    call MPI_Allreduce(local_count, this%max_count, 1, MPI_INTEGER, &
+         MPI_MAX, NEKO_COMM, ierr)
+  end subroutine hdf5_layout_init
 
   !> Get the physical file name generated by the next write.
   function hdf5_file_get_next_output_fname(this) result(fname)
@@ -1287,6 +1371,8 @@ contains
     character(len=1024) :: fname
     character(len=LOG_SIZE) :: log_buf
 
+    call this%free()
+
     ! Set the mode for the file
     this%mode = mode
 
@@ -1319,6 +1405,10 @@ contains
             this%file_id, ierr, access_prp = this%plist_id)
     end if
 
+    ! All dataset writes share these collective transfer properties.
+    call h5pcreate_f(H5P_DATASET_XFER_F, this%xfer_id, ierr)
+    call h5pset_dxpl_mpio_f(this%xfer_id, H5FD_MPIO_COLLECTIVE_F, ierr)
+
     ! Set the active group to the root of the file
     call this%set_active_group()
 
@@ -1332,6 +1422,10 @@ contains
   subroutine hdf5_file_close(this)
     class(hdf5_file_t), intent(inout) :: this
     integer :: ierr
+
+    call this%clear_datasets()
+    call h5pclose_f(this%xfer_id, ierr)
+    this%xfer_id = -1_hid_t
 
     if (this%active_group_id .ne. -1_hid_t .and. &
          this%active_group_id .ne. this%file_id) then
@@ -1363,6 +1457,9 @@ contains
     integer :: ierr, i, j, num_groups, name_len, group_loc
     logical :: group_exists
 
+
+    ! Dataset names in the cache are relative to the group being closed.
+    call this%clear_datasets()
 
     ! Close previous active group if one is open
     if (this%active_group_id .ne. -1_hid_t .and. this%active_group_id .ne. &
@@ -1431,16 +1528,32 @@ contains
   end subroutine hdf5_file_set_group
 
 
-  subroutine hdf5_file_write_dataset(this, data)
+  !> Write a supported object into the active group.
+  !! @param data Object whose host values are written.
+  !! @param name Dataset name, required only for host_array_t.
+  !! @param layout Optional reusable vector or matrix column distribution.
+  subroutine hdf5_file_write_dataset(this, data, name, layout)
     class(hdf5_file_t), intent(inout) :: this
     class(*), intent(inout) :: data
+    character(len=*), intent(in), optional :: name
+    type(hdf5_layout_t), intent(in), optional :: layout
 
     select type (d => data)
+    type is (host_array_t)
+       if (.not. present(name)) then
+          call neko_error("A dataset name is required for host arrays")
+          return
+       end if
+       call this%write_array(d%x, name, layout)
     type is (vector_t)
-       call this%write_vector(d)
+       call this%write_vector(d, layout)
     type is (matrix_t)
-       call this%write_matrix(d)
+       call this%write_matrix(d, layout)
     type is (field_t)
+       if (present(layout)) then
+          call neko_error("A supplied layout is only supported for arrays")
+          return
+       end if
        call this%write_field(d)
     class default
        call neko_error("write_dataset not implemented for this data type")
@@ -1497,86 +1610,237 @@ contains
   end subroutine hdf5_file_read_attribute
 
 
-  subroutine hdf5_file_write_vector(this, vec)
+  !> Release the handles owned by one cached dataset.
+  subroutine hdf5_dataset_free(this)
+    class(hdf5_dataset_t), intent(inout) :: this
+    integer :: ierr
+
+    if (this%memspace /= -1_hid_t) call h5sclose_f(this%memspace, ierr)
+    if (this%id /= -1_hid_t) call h5dclose_f(this%id, ierr)
+    this%memspace = -1_hid_t
+    this%id = -1_hid_t
+    this%dset_rank = 0
+    this%extent = 0_hsize_t
+    this%memory_shape = 0_hsize_t
+    if (allocated(this%name)) deallocate(this%name)
+  end subroutine hdf5_dataset_free
+
+  !> Release cached datasets before closing their group or file.
+  subroutine hdf5_file_clear_datasets(this)
+    class(hdf5_file_t), intent(inout) :: this
+    integer :: i
+
+    if (.not. allocated(this%datasets)) return
+    do i = 1, size(this%datasets)
+       call this%datasets(i)%free()
+    end do
+    deallocate(this%datasets)
+  end subroutine hdf5_file_clear_datasets
+
+  !> Open or reuse a dataset and prepare one sample for writing.
+  !! @param name Dataset name relative to the active group.
+  !! @param dims Global shape of this sample before appending.
+  !! @param chunks Chunk shape used only when creating the dataset.
+  !! @param count Local shape of this sample.
+  !! @param offset MPI rank's array offset, including previous samples.
+  !! @param dataset_id Borrowed dataset handle, owned by this file.
+  !! @param memspace Borrowed memory dataspace, owned by this file.
+  !! @param filespace Fresh file dataspace; the caller must close it.
+  subroutine hdf5_file_prepare_dataset(this, name, dims, chunks, count, &
+       offset, dataset_id, memspace, filespace)
+    class(hdf5_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    integer(hsize_t), intent(in) :: dims(:), chunks(:), count(:)
+    integer(hsize_t), intent(inout) :: offset(:)
+    integer(hid_t), intent(out) :: dataset_id, memspace, filespace
+    integer(hsize_t) :: new_extent(size(dims)), max_extent(size(dims))
+    integer(hid_t) :: dcpl_id, precision_hdf
+    integer :: i, index, dset_rank, ierr
+    logical :: exists
+
+    ! Array rank is the number of dimensions, not the MPI rank.
+    dset_rank = size(dims)
+    if (.not. allocated(this%datasets)) allocate(this%datasets(0))
+    index = 0
+    do i = 1, size(this%datasets)
+       if (this%datasets(i)%name == name) then
+          index = i
+          exit
+       end if
+    end do
+
+    exists = .true.
+    if (index == 0) then
+       ! Grow only on first use of a name. This copies handle values;
+       ! only free closes the resources, not the array reallocation.
+       this%datasets = [this%datasets, hdf5_dataset_t()]
+       index = size(this%datasets)
+       associate (dataset => this%datasets(index))
+         dataset%name = name
+         dataset%dset_rank = dset_rank
+         call h5lexists_f(this%active_group_id, name, exists, ierr)
+         if (exists) then
+            ! retrieve the dset id for the existing data set
+            call h5dopen_f(this%active_group_id, name, dataset%id, ierr)
+            if (ierr < 0) then
+               call neko_error("Could not open HDF5 dataset: " // name)
+               return
+            end if
+            call h5dget_space_f(dataset%id, filespace, ierr)
+            call h5sget_simple_extent_dims_f(filespace, &
+                 dataset%extent(1:dset_rank), max_extent, ierr)
+            call h5sclose_f(filespace, ierr)
+         else
+            max_extent = dims
+            max_extent(dset_rank) = H5S_UNLIMITED_F
+            ! create file space of this shape
+            call h5screate_simple_f(dset_rank, dims, filespace, ierr, max_extent)
+            call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
+            call h5pset_chunk_f(dcpl_id, dset_rank, chunks, ierr)
+            precision_hdf = h5kind_to_type(this%precision, H5_REAL_KIND)
+            ! create the data set with the given shape
+            call h5dcreate_f(this%active_group_id, name, precision_hdf, &
+                 filespace, dataset%id, ierr, dcpl_id = dcpl_id)
+            if (ierr < 0) then
+               call h5pclose_f(dcpl_id, ierr)
+               call h5sclose_f(filespace, ierr)
+               call neko_error("Could not create HDF5 dataset: " // name)
+               return
+            end if
+            call h5pclose_f(dcpl_id, ierr)
+            call h5sclose_f(filespace, ierr)
+            dataset%extent(1:dset_rank) = dims
+         end if
+       end associate
+    end if
+
+    associate (dataset => this%datasets(index))
+      if (dataset%dset_rank /= dset_rank) then
+         call neko_error("HDF5 dataset rank changed: " // name)
+         return
+      end if
+      if (exists .and. this%overwrite .and. pe_rank == 0) then
+         select case (dset_rank)
+         case (2)
+            call neko_warning("Dataset " // name // &
+                 " already exists and wil be overwritten")
+         case (4)
+            call neko_warning("Overwriting dataset: " // name)
+         end select
+      end if
+      if (exists .and. .not. this%overwrite) then
+         ! The extent is queried only on opening an existing dataset.
+         ! Each extension updates our copy, without querying it again.
+         new_extent = dims
+         offset(dset_rank) = offset(dset_rank) + dataset%extent(dset_rank)
+         new_extent(dset_rank) = new_extent(dset_rank) + dataset%extent(dset_rank)
+         call h5dset_extent_f(dataset%id, new_extent, ierr)
+         if (ierr < 0) then
+            call neko_error("Could not extend HDF5 dataset: " // name)
+            return
+         end if
+         dataset%extent(1:dset_rank) = new_extent
+      end if
+
+      ! Local shapes can change between writes. Only recreate the memory
+      ! dataspace when that happens; no sample values are retained here.
+      if (dataset%memspace /= -1_hid_t) then
+         if (any(dataset%memory_shape(1:dset_rank) /= count)) then
+            call h5sclose_f(dataset%memspace, ierr)
+            dataset%memspace = -1_hid_t
+         end if
+      end if
+      if (dataset%memspace == -1_hid_t) then
+         ! Create the corresponding memory space (buffer) for my local data
+         call h5screate_simple_f(dset_rank, count, dataset%memspace, ierr)
+         if (any(count == 0_hsize_t)) then
+            call h5sselect_none_f(dataset%memspace, ierr)
+         end if
+         dataset%memory_shape(1:dset_rank) = count
+      end if
+
+      ! Extending invalidates previously obtained file dataspaces.
+      ! Get the total file space (shape) of the data set
+      call h5dget_space_f(dataset%id, filespace, ierr)
+      if (any(count == 0_hsize_t)) then
+         call h5sselect_none_f(filespace, ierr)
+      else
+         ! Get only the slice where my rank writes
+         call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, offset, &
+              count, ierr)
+      end if
+      dataset_id = dataset%id
+      memspace = dataset%memspace
+    end associate
+  end subroutine hdf5_file_prepare_dataset
+
+  !> Write a vector through the host-array path.
+  !! @param vec Vector whose host values are written.
+  !! @param layout Optional distribution to reuse between writes.
+  subroutine hdf5_file_write_vector(this, vec, layout)
     class(hdf5_file_t), intent(inout) :: this
     type(vector_t), intent(inout) :: vec
-    integer :: ierr, counts, offset, total_count, dset_rank, max_count
-    integer(hsize_t) :: append_offset
+    type(hdf5_layout_t), intent(in), optional :: layout
+    real(kind=rp) :: empty(0)
+
+    ! vector_allocate returns without allocating for an initial size of zero.
+    ! Supply an empty array rather than passing its unallocated x component.
+    if (vec%size() == 0) then
+       call this%write_array(empty, trim(vec%name), layout)
+    else
+       call this%write_array(vec%x, trim(vec%name), layout)
+    end if
+  end subroutine hdf5_file_write_vector
+
+  !> Write host values without allocating a device-backed temporary.
+  !! @param values Local values in rank order.
+  !! @param name Dataset name within the active group.
+  !! @param layout Optional distribution to reuse between writes.
+  subroutine hdf5_file_write_array(this, values, name, layout)
+    class(hdf5_file_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: values(:)
+    character(len=*), intent(in) :: name
+    type(hdf5_layout_t), intent(in), optional :: layout
+    type(hdf5_layout_t) :: distribution
+    integer :: ierr, counts, offset, total_count, max_count
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
+    integer(hid_t) :: filespace, dset_id, memspace
     integer(hsize_t), dimension(1) :: dcount, doffset
-    integer(hsize_t), dimension(1) :: ddims, ddims_max, chunkdims
-    integer(hsize_t), dimension(1) :: tempddims, tempmaxddims
-    logical :: dset_exists
+    integer(hsize_t), dimension(1) :: ddims, chunkdims
     real(kind=sp), allocatable :: write_buffer_sp(:) ! Write buffer single
     real(kind=dp), allocatable :: write_buffer_dp(:) ! Write buffer double
 
     ! ===============
-    ! Get vector info
+    ! Get host array info
     ! ===============
-    counts = vec%size()
-    append_offset = 0_hsize_t
-    offset = 0
-    total_count = 0
-    max_count = 0
-    call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
-    offset = offset - counts ! Not using exclusive scan
-    call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
-         MPI_MAX, NEKO_COMM, ierr)
+    counts = size(values)
+    ! Reuse an explicitly supplied distribution. A local size check catches
+    ! accidental misuse without adding a collective to every write.
+    if (present(layout)) then
+       if (counts /= layout%local_count) then
+          call neko_error("HDF5 layout does not match the local array size")
+          return
+       end if
+       distribution = layout
+    else
+       call distribution%init(counts)
+    end if
+    offset = distribution%offset
+    total_count = distribution%total_count
+    max_count = distribution%max_count
 
     ! ===============
     ! Configure MPIIO
     ! ===============
-    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
     precision_hdf = h5kind_to_type(this%precision, H5_REAL_KIND)
 
     ! ===================
     ! Create the data set
     ! ===================
-    dset_rank = 1 ! rank 1 array, i.e. a vector
     ddims = [int(total_count, hsize_t)] ! global size of the vector
 
     ! Enable chunking to be able to append
     chunkdims = [max(int(max_count, hsize_t), 1_hsize_t)]
-    ddims_max = [H5S_UNLIMITED_F] ! allow unlimited size for appending
-    call h5lexists_f(this%active_group_id, trim(vec%name), dset_exists, ierr)
-    if (dset_exists) then
-       if (this%overwrite) then
-          ! retrieve the dset id for the existing data set
-          call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
-       else
-          ! Retreive the existing data set
-          call h5dopen_f(this%active_group_id, trim(vec%name), dset_id, ierr)
-          ! Retrieve the current filespace (shape space)
-          call h5dget_space_f(dset_id, filespace, ierr)
-          ! Get the current shape
-          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
-               ierr)
-          ! Clean up the opened file space
-          call h5sclose_f(filespace, ierr)
-          ! Overwrite the new full shape
-          ddims(1) = ddims(1) + tempddims(1) ! New size
-          append_offset = tempddims(1) ! current size which is the offset
-          ! Extend the data set to the new shape
-          call h5dset_extent_f(dset_id, ddims, ierr)
-       end if
-    else
-       ! create file space of this shape
-       call h5screate_simple_f(dset_rank, ddims, filespace, ierr, ddims_max)
-       ! Create chunk property list (needed to be able to append)
-       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-       call h5pset_chunk_f(dcpl_id, dset_rank, chunkdims, ierr)
-       ! create the data set with the given shape
-       call h5dcreate_f(this%active_group_id, trim(vec%name), precision_hdf, &
-            filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       ! clean opened ids
-       call h5sclose_f(filespace, ierr)
-       call h5pclose_f(dcpl_id, ierr)
-    end if
 
     ! ===========================
     ! Set up writing the data set
@@ -1584,34 +1848,35 @@ contains
     dcount = [int(counts, hsize_t)] ! local size of the vector
 
     ! offset for this rank in the global vector
-    doffset = [int(offset, hsize_t) + append_offset]
-    ! Get the total file space (shape) of the data set
-    call h5dget_space_f(dset_id, filespace, ierr)
-    ! Get only the slice where my rank writes
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, &
-         ierr)
-    ! Create the corresponding memory space (buffer) for my local data
-    call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
-
+    doffset = [int(offset, hsize_t)]
+    ! Retain the dataset and memory space; refresh the file space after
+    ! extending it to include this sample.
+    call this%prepare_dataset(trim(name), ddims, chunkdims, &
+         dcount, doffset, dset_id, memspace, filespace)
 
     ! =======================
     ! Cast and write the data
     ! =======================
-    if (this%precision == sp) then
-       allocate(write_buffer_sp(vec%size()))
-       if (vec%size() > 0) write_buffer_sp = real(vec%x, kind=sp)
+    if (this%precision == rp) then
+       ! The host values already have the requested precision.
+       call h5dwrite_f(dset_id, precision_hdf, values, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = this%xfer_id)
+    else if (this%precision == sp) then
+       allocate(write_buffer_sp(size(values)))
+       if (size(values) > 0) write_buffer_sp = real(values, kind=sp)
        ! Write the data
        call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
+            xfer_prp = this%xfer_id)
        deallocate(write_buffer_sp)
     else if (this%precision == dp) then
-       allocate(write_buffer_dp(vec%size()))
-       if (vec%size() > 0) write_buffer_dp = real(vec%x, kind=dp)
+       allocate(write_buffer_dp(size(values)))
+       if (size(values) > 0) write_buffer_dp = real(values, kind=dp)
        ! Write the data
        call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
+            xfer_prp = this%xfer_id)
        deallocate(write_buffer_dp)
     else
        call neko_error("Unsupported precision")
@@ -1620,24 +1885,23 @@ contains
     ! =======================
     ! Clean up
     ! =======================
-    call h5pclose_f(xf_id, ierr)
-    call h5sclose_f(memspace, ierr)
     call h5sclose_f(filespace, ierr)
-    call h5dclose_f(dset_id, ierr)
 
-  end subroutine hdf5_file_write_vector
+  end subroutine hdf5_file_write_array
 
-  subroutine hdf5_file_write_matrix(this, mat)
+  !> Write a matrix, distributing its columns over NEKO_COMM.
+  !! @param mat Matrix whose host values are written.
+  !! @param layout Optional reusable distribution of the matrix columns.
+  subroutine hdf5_file_write_matrix(this, mat, layout)
     class(hdf5_file_t), intent(inout) :: this
     type(matrix_t), intent(inout) :: mat
-    integer :: ierr, counts, offset, total_count, dset_rank, strides, max_count
-    integer(hsize_t) :: append_offset
+    type(hdf5_layout_t), intent(in), optional :: layout
+    integer :: ierr, counts, offset, total_count, strides, max_count
+    type(hdf5_layout_t) :: distribution
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
+    integer(hid_t) :: filespace, dset_id, memspace
     integer(hsize_t), dimension(2) :: dcount, doffset
-    integer(hsize_t), dimension(2) :: ddims, ddims_max, chunkdims
-    integer(hsize_t), dimension(2) :: tempddims, tempmaxddims
-    logical :: dset_exists
+    integer(hsize_t), dimension(2) :: ddims, chunkdims
     real(kind=sp), allocatable :: write_buffer_sp(:,:) ! Write buffer single
     real(kind=dp), allocatable :: write_buffer_dp(:,:) ! Write buffer double
 
@@ -1646,64 +1910,31 @@ contains
     ! ===============
     strides = mat%get_nrows()
     counts = mat%get_ncols()
-    append_offset = 0_hsize_t
-    total_count = 0
-    max_count = 0
-    offset = 0
-    call MPI_Scan(counts, offset, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
-    offset = offset - counts ! Not using exclusive scan
-    call MPI_Allreduce(counts, total_count, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(counts, max_count, 1, MPI_INTEGER, &
-         MPI_MAX, NEKO_COMM, ierr)
+    ! Matrices distribute columns; the layout is independent of row count.
+    if (present(layout)) then
+       if (counts /= layout%local_count) then
+          call neko_error("HDF5 layout does not match the local column count")
+          return
+       end if
+       distribution = layout
+    else
+       call distribution%init(counts)
+    end if
+    offset = distribution%offset
+    total_count = distribution%total_count
+    max_count = distribution%max_count
 
     ! ===============
     ! Configure MPIIO
     ! ===============
-    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
     precision_hdf = h5kind_to_type(this%precision, H5_REAL_KIND)
 
     ! ===================
     ! Create the data set
     ! ===================
-    dset_rank = 2 ! rank 2 array, i.e. a matrix
     ! global size of the matrix
     ddims = [int(strides, hsize_t), int(total_count, hsize_t)]
     chunkdims = [int(strides, hsize_t), max(int(max_count, hsize_t), 1_hsize_t)]
-    ddims_max = [int(strides, hsize_t), H5S_UNLIMITED_F]
-    call h5lexists_f(this%active_group_id, trim(mat%name), dset_exists, ierr)
-    if (dset_exists) then
-       if (this%overwrite) then
-
-          if (pe_rank .eq. 0) then
-             call neko_warning("Dataset " // trim(mat%name) // &
-                  " already exists and wil be overwritten")
-          end if
-          ! retrieve the dset id for the existing data set
-          call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
-       else
-          call h5dopen_f(this%active_group_id, trim(mat%name), dset_id, ierr)
-          call h5dget_space_f(dset_id, filespace, ierr)
-          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
-               ierr)
-          call h5sclose_f(filespace, ierr)
-          ddims(2) = ddims(2) + tempddims(2)
-          append_offset = tempddims(2)
-          call h5dset_extent_f(dset_id, ddims, ierr)
-       end if
-    else
-       ! create file space of this shape
-       call h5screate_simple_f(dset_rank, ddims, filespace, ierr, ddims_max)
-       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-       call h5pset_chunk_f(dcpl_id, dset_rank, chunkdims, ierr)
-       ! create the data set with the given shape
-       call h5dcreate_f(this%active_group_id, trim(mat%name), precision_hdf, &
-            filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5sclose_f(filespace, ierr)
-       call h5pclose_f(dcpl_id, ierr)
-    end if
 
     ! ===========================
     ! Set up writing the data set
@@ -1711,25 +1942,27 @@ contains
     ! local size of the matrix
     dcount = [int(strides, hsize_t), int(counts, hsize_t)]
     ! offset for this rank in the global matrix
-    doffset = [0_hsize_t, int(offset, hsize_t) + append_offset]
-    ! Get the total file space (shape) of the data set
-    call h5dget_space_f(dset_id, filespace, ierr)
-    ! Get only the slice where my rank writes
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, &
-         ierr)
-    ! Create the corresponding memory space (buffer) for my local data
-    call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
+    doffset = [0_hsize_t, int(offset, hsize_t)]
+    ! Retain the dataset and memory space; refresh the file space after
+    ! extending it to include this sample.
+    call this%prepare_dataset(trim(mat%name), ddims, chunkdims, &
+         dcount, doffset, dset_id, memspace, filespace)
 
     ! =======================
     ! Cast and write the data
     ! =======================
-    if (this%precision == sp) then
+    if (this%precision == rp) then
+       ! The host values already have the requested precision.
+       call h5dwrite_f(dset_id, precision_hdf, mat%x, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = this%xfer_id)
+    else if (this%precision == sp) then
        allocate(write_buffer_sp(mat%get_nrows(), mat%get_ncols()))
        if (mat%size() > 0) write_buffer_sp = real(mat%x, kind=sp)
        ! Write the data
        call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
+            xfer_prp = this%xfer_id)
        deallocate(write_buffer_sp)
     else if (this%precision == dp) then
        allocate(write_buffer_dp(mat%get_nrows(), mat%get_ncols()))
@@ -1737,7 +1970,7 @@ contains
        ! Write the data
        call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
+            xfer_prp = this%xfer_id)
        deallocate(write_buffer_dp)
     else
        call neko_error("Unsupported precision")
@@ -1746,25 +1979,19 @@ contains
     ! =======================
     ! Clean up
     ! =======================
-    call h5pclose_f(xf_id, ierr)
-    call h5sclose_f(memspace, ierr)
     call h5sclose_f(filespace, ierr)
-    call h5dclose_f(dset_id, ierr)
 
   end subroutine hdf5_file_write_matrix
 
   subroutine hdf5_file_write_field(this, field)
     class(hdf5_file_t), intent(inout) :: this
     type(field_t), intent(inout) :: field
-    integer :: ierr, counts, offset, total_count, dset_rank, max_count
+    integer :: ierr, counts, offset, total_count, max_count
     integer :: stride_ax_1, stride_ax_2, stride_ax_3
-    integer(hsize_t) :: append_offset
     integer(hid_t) :: precision_hdf
-    integer(hid_t) :: xf_id, filespace, dset_id, memspace, dcpl_id
+    integer(hid_t) :: filespace, dset_id, memspace
     integer(hsize_t), dimension(4) :: dcount, doffset
-    integer(hsize_t), dimension(4) :: ddims, ddims_max, chunkdims
-    integer(hsize_t), dimension(4) :: tempddims, tempmaxddims
-    logical :: dset_exists
+    integer(hsize_t), dimension(4) :: ddims, chunkdims
     real(kind=sp), allocatable :: write_buffer_sp(:,:,:,:) ! Write buffer single
     real(kind=dp), allocatable :: write_buffer_dp(:,:,:,:) ! Write buffer double
 
@@ -1775,7 +2002,6 @@ contains
     stride_ax_2 = field%Xh%ly
     stride_ax_3 = field%Xh%lz
     counts = field%msh%nelv
-    append_offset = 0_hsize_t
     total_count = field%msh%glb_nelv
     max_count = 0
     offset = field%msh%offset_el
@@ -1785,14 +2011,11 @@ contains
     ! ===============
     ! Configure MPIIO
     ! ===============
-    call h5pcreate_f(H5P_DATASET_XFER_F, xf_id, ierr)
-    call h5pset_dxpl_mpio_f(xf_id, H5FD_MPIO_COLLECTIVE_F, ierr)
     precision_hdf = h5kind_to_type(this%precision, H5_REAL_KIND)
 
     ! ===================
     ! Create the data set
     ! ===================
-    dset_rank = 4 ! rank 4 array, i.e. a 4D tensor
     ddims = [int(stride_ax_1, hsize_t), &
          int(stride_ax_2, hsize_t), &
          int(stride_ax_3, hsize_t), &
@@ -1801,39 +2024,6 @@ contains
          int(stride_ax_2, hsize_t), &
          int(stride_ax_3, hsize_t), &
          max(int(max_count, hsize_t), 1_hsize_t)]
-    ddims_max = [int(stride_ax_1, hsize_t), &
-         int(stride_ax_2, hsize_t), &
-         int(stride_ax_3, hsize_t), &
-         H5S_UNLIMITED_F]
-    call h5lexists_f(this%active_group_id, trim(field%name), dset_exists, ierr)
-    if (dset_exists) then
-       if (this%overwrite) then
-          ! retrieve the dset id for the existing data set
-          if (pe_rank .eq. 0) then
-             call neko_warning("Overwriting dataset: " // trim(field%name))
-          end if
-          call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
-       else
-          call h5dopen_f(this%active_group_id, trim(field%name), dset_id, ierr)
-          call h5dget_space_f(dset_id, filespace, ierr)
-          call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
-               ierr)
-          call h5sclose_f(filespace, ierr)
-          ddims(4) = ddims(4) + tempddims(4)
-          append_offset = tempddims(4)
-          call h5dset_extent_f(dset_id, ddims, ierr)
-       end if
-    else
-       ! create file space of this shape
-       call h5screate_simple_f(dset_rank, ddims, filespace, ierr, ddims_max)
-       call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
-       call h5pset_chunk_f(dcpl_id, dset_rank, chunkdims, ierr)
-       ! create the data set with the given shape
-       call h5dcreate_f(this%active_group_id, trim(field%name), precision_hdf, &
-            filespace, dset_id, ierr, dcpl_id = dcpl_id)
-       call h5sclose_f(filespace, ierr)
-       call h5pclose_f(dcpl_id, ierr)
-    end if
 
     ! ===========================
     ! Set up writing the data set
@@ -1843,14 +2033,11 @@ contains
          int(stride_ax_3, hsize_t), &
          int(counts, hsize_t)] ! local size of the tensor
     doffset = [0_hsize_t, 0_hsize_t, 0_hsize_t, &
-         int(offset, hsize_t) + append_offset] ! offset in the global tensor
-    ! Get the total file space (shape) of the data set
-    call h5dget_space_f(dset_id, filespace, ierr)
-    ! Get only the slice where my rank writes
-    call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, doffset, dcount, &
-         ierr)
-    ! Create the corresponding memory space (buffer) for my local data
-    call h5screate_simple_f(dset_rank, dcount, memspace, ierr)
+         int(offset, hsize_t)] ! offset in the global tensor
+    ! Retain the dataset and memory space; refresh the file space after
+    ! extending it to include this sample.
+    call this%prepare_dataset(trim(field%name), ddims, chunkdims, &
+         dcount, doffset, dset_id, memspace, filespace)
 
     ! =======================
     ! Cast and write the data
@@ -1862,7 +2049,7 @@ contains
        ! Write the data
        call h5dwrite_f(dset_id, precision_hdf, write_buffer_sp, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
+            xfer_prp = this%xfer_id)
        deallocate(write_buffer_sp)
     else if (this%precision == dp) then
        allocate(write_buffer_dp(field%Xh%lx, field%Xh%ly, field%Xh%lz, &
@@ -1871,7 +2058,7 @@ contains
        ! Write the data
        call h5dwrite_f(dset_id, precision_hdf, write_buffer_dp, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
-            xfer_prp = xf_id)
+            xfer_prp = this%xfer_id)
        deallocate(write_buffer_dp)
     else
        call neko_error("Unsupported precision")
@@ -1880,10 +2067,7 @@ contains
     ! =======================
     ! Clean up
     ! =======================
-    call h5pclose_f(xf_id, ierr)
-    call h5sclose_f(memspace, ierr)
     call h5sclose_f(filespace, ierr)
-    call h5dclose_f(dset_id, ierr)
 
   end subroutine hdf5_file_write_field
 
@@ -2309,9 +2493,11 @@ contains
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_read
 
-  subroutine hdf5_file_write_dataset(this, data)
+  subroutine hdf5_file_write_dataset(this, data, name, layout)
     class(hdf5_file_t), intent(inout) :: this
     class(*), intent(inout) :: data
+    character(len=*), intent(in), optional :: name
+    type(hdf5_layout_t), intent(in), optional :: layout
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_write_dataset
 
@@ -2338,15 +2524,25 @@ contains
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_read_attribute
 
-  subroutine hdf5_file_write_vector(this, vec)
+  subroutine hdf5_file_write_array(this, values, name, layout)
+    class(hdf5_file_t), intent(inout) :: this
+    real(kind=rp), intent(in) :: values(:)
+    character(len=*), intent(in) :: name
+    type(hdf5_layout_t), intent(in), optional :: layout
+    call neko_error('Neko needs to be built with HDF5 support')
+  end subroutine hdf5_file_write_array
+
+  subroutine hdf5_file_write_vector(this, vec, layout)
     class(hdf5_file_t), intent(inout) :: this
     type(vector_t), intent(inout) :: vec
+    type(hdf5_layout_t), intent(in), optional :: layout
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_write_vector
 
-  subroutine hdf5_file_write_matrix(this, mat)
+  subroutine hdf5_file_write_matrix(this, mat, layout)
     class(hdf5_file_t), intent(inout) :: this
     type(matrix_t), intent(inout) :: mat
+    type(hdf5_layout_t), intent(in), optional :: layout
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_write_matrix
 

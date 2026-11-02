@@ -58,6 +58,30 @@ to set all entries to a scalar.
 Fortran does not allow arrays of pointers, so for every container there is a
 corresponding `*_ptr_t` type holding a single pointer component `ptr`.
 
+## Repeated HDF5 array writes {#important_types_hdf5-layout}
+
+[hdf5_file_t](#hdf5_file::hdf5_file_t) accepts ordinary host arrays through
+`write_array(values, name)` and [host_array_t](#host_array::host_array_t)
+through `write_dataset(array, name="values")`. Keeping the file and group
+open allows repeated writes to reuse their setup automatically.
+
+For a fixed distribution, an optional
+[hdf5_layout_t](#hdf5_file::hdf5_layout_t) avoids recalculating it for each write:
+
+```fortran
+type(hdf5_layout_t) :: layout
+
+call layout%init(size(values))
+call output%write_array(values, "u", layout)
+```
+
+Every MPI rank must initialise the layout with one scalar integer: its local
+number of elements for vectors, or **columns** for matrices
+(`mat%get_ncols()`, not `mat%size()`). Matrices must have the same number of
+rows on all ranks. Reinitialise the layout on all ranks if the distribution
+or communicator changes. Without a layout, writes calculate the distribution
+automatically.
+
 ## Generic containers {#important_types_generic-containers}
 
 The `adt` directory holds abstract data types that are used mostly in the
