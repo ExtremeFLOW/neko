@@ -361,7 +361,7 @@ contains
       p_prev = DEVICE_FUSEDCG_P_SPACE
       p_cur = 1
       call device_rzero(x%x_d, n)
-      call device_rzero(p_d(1), n)
+      call device_rzero(p_d(p_prev), n)
       call device_copy(r_d, f_d, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)

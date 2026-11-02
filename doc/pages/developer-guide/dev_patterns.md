@@ -194,7 +194,7 @@ Hopefully, they can guide towards better implementation.
 
 4. Follow the single responsibility principle for types.
 
-   For example, don't mix I\O and other functionality into one type. It is very
+   For example, don't mix I/O and other functionality into one type. It is very
    common and completely fine to create helper types encapsulating some
    necessary functionality. Don't try to map types to "real-world concepts",
    that doesn't work.

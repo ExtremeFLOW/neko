@@ -3,6 +3,9 @@
 !! the end time, are reached exactly.
 module test_time_step_controller
   use pfunit
+  use, intrinsic :: ieee_arithmetic, only : ieee_divide_by_zero, &
+       ieee_invalid, ieee_overflow, ieee_usual, ieee_get_flag, &
+       ieee_set_flag, ieee_support_flag, ieee_value, ieee_quiet_nan
   use device, only : device_init, device_finalize
   use neko_config, only : NEKO_BCKND_DEVICE
   use num_types, only : dp
@@ -19,6 +22,9 @@ module test_time_step_controller
   !> Tolerance on times, which are accumulated in double precision whatever
   !! the working precision of Neko.
   real(kind=dp), parameter :: TIME_TOL = 1.0e3_dp * epsilon(1.0_dp)
+
+  !> Tolerance on single time steps, which are always double precision.
+  real(kind=dp), parameter :: DT_TOL = 10.0_dp * epsilon(1.0_dp)
 
   @TestCase
   type, extends(TestCase) :: time_step_controller_case
@@ -610,5 +616,153 @@ contains
     @assertEqual(0.0_dp, max_error(runs(1), 0.0_dp, 0.0107_dp), tolerance=TIME_TOL)
     @assertEqual(0.0535_dp, steps%t_final, tolerance=TIME_TOL)
   end subroutine test_restart_lands_on_next_times
+
+  !> Initialise a controller from the case-file keys in a JSON string, and
+  !! start from a unit time step, as time_state_t does for a variable one.
+  !! @param dtc The controller to initialise.
+  !! @param time The time state to initialise.
+  !! @param keys The JSON object with the controller's case-file keys.
+  subroutine init_controller(dtc, time, keys)
+    type(time_step_controller_t), intent(inout) :: dtc
+    type(time_state_t), intent(inout) :: time
+    character(len=*), intent(in) :: keys
+    type(json_file) :: params
+
+    call params%load_from_string(keys)
+    call dtc%init(params)
+    call params%destroy()
+
+    call time%init(0.0_dp, 1.0_dp, 1.0_dp)
+  end subroutine init_controller
+
+  ! The floating-point exception flags are cleared and read in the test
+  ! itself, around the call to set_dt. A procedure that finds a flag
+  ! signalling on entry quiets it and restores it on return, so a helper
+  ! routine could neither clear nor read them for its caller.
+
+  !> Verify that a zero CFL on the first step raises no floating-point
+  !! exception and gives the initial time step, the value IEEE arithmetic
+  !! produced before the zero CFL was guarded against.
+  @test
+  subroutine test_first_step_zero_cfl(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    logical :: divide_by_zero, invalid, overflow
+
+    @assertTrue(ieee_support_flag(ieee_divide_by_zero, 1.0_dp))
+
+    call init_controller(dtc, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, "timestep": 0.25}')
+
+    call ieee_set_flag(ieee_usual, .false.)
+    call dtc%set_dt(time, 0.0_dp)
+    call ieee_get_flag(ieee_divide_by_zero, divide_by_zero)
+    call ieee_get_flag(ieee_invalid, invalid)
+    call ieee_get_flag(ieee_overflow, overflow)
+
+    @assertRelativelyEqual(0.25_dp, time%dt, tolerance = DT_TOL)
+    @assertFalse(divide_by_zero, message = "First step divided by zero")
+    @assertFalse(invalid, message = "First step raised invalid")
+    @assertFalse(overflow, message = "First step overflowed")
+  end subroutine test_first_step_zero_cfl
+
+  !> Verify that a zero CFL on a later step raises no floating-point
+  !! exception and scales the time step by the maximum increase factor, the
+  !! value IEEE arithmetic produced before the zero CFL was guarded against.
+  @test
+  subroutine test_later_step_zero_cfl(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    logical :: divide_by_zero, invalid, overflow
+
+    @assertTrue(ieee_support_flag(ieee_divide_by_zero, 1.0_dp))
+
+    call init_controller(dtc, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, "timestep": 10.0}')
+
+    ! A positive CFL on the first step, so that only the later step sees a
+    ! zero one: min(0.5 / 0.25 * 1.0, 10.0) = 2.0.
+    call dtc%set_dt(time, 0.25_dp)
+    @assertRelativelyEqual(2.0_dp, time%dt, tolerance = DT_TOL)
+
+    call ieee_set_flag(ieee_usual, .false.)
+    call dtc%set_dt(time, 0.0_dp)
+    call ieee_get_flag(ieee_divide_by_zero, divide_by_zero)
+    call ieee_get_flag(ieee_invalid, invalid)
+    call ieee_get_flag(ieee_overflow, overflow)
+
+    ! The default maximum increase factor is 1.2: 1.2 * 2.0 = 2.4.
+    @assertRelativelyEqual(2.4_dp, time%dt, tolerance = DT_TOL)
+    @assertFalse(divide_by_zero, message = "Later step divided by zero")
+    @assertFalse(invalid, message = "Later step raised invalid")
+    @assertFalse(overflow, message = "Later step overflowed")
+  end subroutine test_later_step_zero_cfl
+
+  !> Verify that a NaN CFL, as from a diverged run, is not taken for a zero
+  !! one on a later step: the time step is updated as before the zero CFL was
+  !! guarded against, not increased by the maximum increase factor. Neither
+  !! the flags nor the new time step are checked, since comparing the NaN
+  !! raises the invalid flag, as it always has, and the result of max() with
+  !! a NaN argument is processor dependent.
+  @test
+  subroutine test_later_step_nan_cfl(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+    real(kind=dp) :: dt_old
+    logical :: updated, as_zero
+
+    ! A NaN average CFL fails the deviation test, so a minimum update
+    ! frequency of 0 is needed for the time step to be updated at all.
+    call init_controller(dtc, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, ' // &
+         '"timestep": 10.0, "min_update_frequency": 0}')
+
+    call dtc%set_dt(time, 0.25_dp)
+    dt_old = time%dt
+
+    call dtc%set_dt(time, ieee_value(1.0_dp, ieee_quiet_nan))
+    updated = time%dt .ne. dt_old
+    as_zero = time%dt .eq. 1.2_dp * dt_old
+
+    @assertTrue(updated, message = "NaN CFL did not update the time step")
+    @assertFalse(as_zero, message = "NaN CFL taken for a zero CFL")
+  end subroutine test_later_step_nan_cfl
+
+  !> Verify that a positive CFL gives the same time steps as before the zero
+  !! CFL was guarded against, on the first step and on later steps whose
+  !! scaling is limited or not by the increase and decrease factors.
+  @test
+  subroutine test_positive_cfl_unchanged(this)
+    class(time_step_controller_case), intent(inout) :: this
+    type(time_step_controller_t) :: dtc
+    type(time_state_t) :: time
+
+    call init_controller(dtc, time, &
+         '{"variable_timestep": true, "target_cfl": 0.5, ' // &
+         '"timestep": 10.0, "max_dt_increase_factor": 2.0}')
+
+    ! First step: min(0.5 / 0.25 * 1.0, 10.0) = 2.0.
+    call dtc%set_dt(time, 0.25_dp)
+    @assertRelativelyEqual(2.0_dp, time%dt, tolerance = DT_TOL)
+
+    ! Increase, not limited: min(2.0, 0.5 / 0.3125) = 1.6.
+    call dtc%set_dt(time, 0.3125_dp)
+    @assertRelativelyEqual(3.2_dp, time%dt, tolerance = DT_TOL)
+
+    ! Increase, limited: min(2.0, 0.5 / 0.1) = 2.0.
+    call dtc%set_dt(time, 0.1_dp)
+    @assertRelativelyEqual(6.4_dp, time%dt, tolerance = DT_TOL)
+
+    ! Decrease, not limited: max(0.5, 0.5 / 0.625) = 0.8.
+    call dtc%set_dt(time, 0.625_dp)
+    @assertRelativelyEqual(5.12_dp, time%dt, tolerance = DT_TOL)
+
+    ! Decrease, limited: max(0.5, 0.5 / 2.0) = 0.5.
+    call dtc%set_dt(time, 2.0_dp)
+    @assertRelativelyEqual(2.56_dp, time%dt, tolerance = DT_TOL)
+  end subroutine test_positive_cfl_unchanged
 
 end module test_time_step_controller

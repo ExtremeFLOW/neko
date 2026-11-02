@@ -194,8 +194,8 @@ linear and any file-defined curved geometry at all GLL points.  It can therefore
 project the nodes of selected boundary facets onto an analytic surface or apply
 another high-order mapping.
 
-The user-file setup and registration are described under [runtime mesh
-deformation](@ref user-file_user-mesh-setup).
+The user-file setup and registration are described under
+[runtime mesh deformation](@ref user-file_user-mesh-setup).
 
 Note that changing `msh%points` directly in `mesh_setup`, as in the simple
 scaling examples in the user-file guide, is useful for affine transformations
