@@ -57,26 +57,39 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine hip_vreman_nut_compute
 
-
-     subroutine hip_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+     subroutine hip_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
-          delta_d, nut_d, mult_d, c, eps, n, &
-          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
-          bind(c, name = 'hip_vreman_nut_compute_buoy')
+          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+          nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'hip_vreman_nut_compute_aniso')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
-            delta_d, nut_d, mult_d
+            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+            nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
-       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
-       real(c_rp) :: g(3)
-       real(c_rp) :: ri_c, ref_temp
-     end subroutine hip_vreman_nut_compute_buoy
+     end subroutine hip_vreman_nut_compute_aniso
 
+     subroutine hip_vreman_stability(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          gdT_d, nut_d, mult_d, &
+          g, ri_c, ref_temp, eps, n) &
+          bind(c, name = 'hip_vreman_stability')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            gdT_d, nut_d, mult_d
+       real(c_rp) :: g(3)
+       real(c_rp) :: ri_c, ref_temp, eps
+       integer(c_int) :: n
+     end subroutine hip_vreman_stability
   end interface
 #elif HAVE_CUDA
   interface
