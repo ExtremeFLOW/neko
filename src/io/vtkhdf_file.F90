@@ -1545,6 +1545,12 @@ contains
   !! If the dataset is a Virtual Dataset (VDS), HDF5 does not support parallel
   !! reads on VDS. We detect this from the dataset's storage layout and read
   !! directly from the external source file instead.
+  !!
+  !! A temporal file whose PointData is not virtual holds every step in one
+  !! dataset. The rows of step @a counter then start at
+  !! Steps/PointDataOffsets/<dataset>(@a counter). As in the VTKHDF
+  !! specification, a dataset without such offsets starts at the geometry
+  !! offset of the step, Steps/PointOffsets(@a counter).
   subroutine vtkhdf_read_field(vtkhdf_grp, fname, counter, fld)
     integer(hid_t), intent(in) :: vtkhdf_grp
     character(len=*), intent(in) :: fname
@@ -1555,14 +1561,16 @@ contains
     integer :: ierr, local_points, total_points, point_offset, component
     integer(hid_t) :: pointdata_grp, dset_id, filespace, memspace, xf_id
     integer(hid_t) :: dcpl_id, ext_file_id, ext_plist_id, attr_id
+    integer(hid_t) :: offsets_id, offsets_space, step_space
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(1) :: dcount1, doffset1
     integer(hsize_t), dimension(2) :: dcount2, doffset2
 
     integer(size_t) :: vds_count
+    integer(kind=i8) :: step_offset
     character(len=128) :: dset_name
     character(len=1024) :: vds_src_file, ext_fname, main_path, main_name, main_suffix
-    logical :: exists, is_vds
+    logical :: exists, is_vds, is_temporal
     real(kind=rp), allocatable :: vec_component(:,:)
     integer :: mpi_info, mpi_comm, pct_pos, nsteps, layout
     character(len=256) :: error_message
@@ -1570,8 +1578,8 @@ contains
     field_name = trim(fld%name)
 
     ! Validate counter against file's NSteps if temporal data exists
-    call h5lexists_f(vtkhdf_grp, "Steps", exists, ierr)
-    if (exists) then
+    call h5lexists_f(vtkhdf_grp, "Steps", is_temporal, ierr)
+    if (is_temporal) then
        call h5aopen_by_name_f(vtkhdf_grp, "Steps", "NSteps", attr_id, ierr)
        call h5aread_f(attr_id, H5T_NATIVE_INTEGER, nsteps, [1_hsize_t], ierr)
        call h5aclose_f(attr_id, ierr)
@@ -1639,6 +1647,7 @@ contains
     is_vds = (layout .eq. H5D_VIRTUAL_F)
 
     vds_count = 0_size_t
+    step_offset = 0_i8
     if (is_vds) then
        call h5pget_virtual_count_f(dcpl_id, vds_count, ierr)
        if (ierr .ne. 0) then
@@ -1715,11 +1724,54 @@ contains
 
        ! Open the dataset from the external file
        call h5dopen_f(ext_file_id, trim(dset_name), dset_id, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: PointData field ' // trim(dset_name) // &
+               ' not found in VDS source file: ' // trim(ext_fname))
+       end if
 
        call h5pclose_f(ext_plist_id, ierr)
     else
        call h5pclose_f(dcpl_id, ierr)
        ext_file_id = -1
+
+       ! Inline temporal data: find where the rows of this step start,
+       ! falling back to the geometry offset without data offsets
+       if (is_temporal) then
+          call h5lexists_f(vtkhdf_grp, "Steps/PointDataOffsets", exists, ierr)
+          if (exists) then
+             call h5lexists_f(vtkhdf_grp, "Steps/PointDataOffsets/" // &
+                  trim(dset_name), exists, ierr)
+          end if
+          if (exists) then
+             call h5dopen_f(vtkhdf_grp, "Steps/PointDataOffsets/" // &
+                  trim(dset_name), offsets_id, ierr)
+          else
+             call h5lexists_f(vtkhdf_grp, "Steps/PointOffsets", exists, ierr)
+             if (.not. exists) then
+                call neko_error('VTKHDF: Neither Steps/PointDataOffsets/' // &
+                     trim(dset_name) // ' nor Steps/PointOffsets found ' // &
+                     'in temporal file: ' // &
+                     trim(fname))
+             end if
+             call h5dopen_f(vtkhdf_grp, "Steps/PointOffsets", offsets_id, ierr)
+          end if
+          call h5dget_space_f(offsets_id, offsets_space, ierr)
+          call h5sselect_hyperslab_f(offsets_space, H5S_SELECT_SET_F, &
+               [int(counter, hsize_t)], [1_hsize_t], ierr)
+          call h5screate_simple_f(1, [1_hsize_t], step_space, ierr)
+          call h5dread_f(offsets_id, h5kind_to_type(i8, H5_INTEGER_KIND), &
+               step_offset, [1_hsize_t], ierr, &
+               file_space_id = offsets_space, mem_space_id = step_space)
+          if (ierr .ne. 0) then
+             write(error_message, '(A,A,A,I0)') &
+                  'VTKHDF: Cannot read the step offset of ', &
+                  trim(dset_name), ' at step ', counter
+             call neko_error(trim(error_message))
+          end if
+          call h5sclose_f(step_space, ierr)
+          call h5sclose_f(offsets_space, ierr)
+          call h5dclose_f(offsets_id, ierr)
+       end if
     end if
 
     ! Now read from the dataset (either original or from external file)
@@ -1730,7 +1782,8 @@ contains
     if (trim(dset_name) .eq. 'Velocity' .and. component .ge. 0) then
        ! Velocity is stored as (3, n_points), read one component
        dcount2 = [1_hsize_t, int(local_points, hsize_t)]
-       doffset2 = [int(component, hsize_t), int(point_offset, hsize_t)]
+       doffset2 = [int(component, hsize_t), &
+            int(point_offset, hsize_t) + int(step_offset, hsize_t)]
 
        call h5screate_simple_f(2, dcount2, memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -1740,12 +1793,16 @@ contains
        call h5dread_f(dset_id, H5T_NEKO_REAL, vec_component, dcount2, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot read PointData field: ' // &
+               trim(dset_name))
+       end if
        fld%x = reshape(vec_component, shape(fld%x))
        deallocate(vec_component)
     else
        ! Scalar field: 1D array
        dcount1 = int(local_points, hsize_t)
-       doffset1 = int(point_offset, hsize_t)
+       doffset1 = int(point_offset, hsize_t) + int(step_offset, hsize_t)
 
        call h5screate_simple_f(1, dcount1, memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -1754,6 +1811,10 @@ contains
        call h5dread_f(dset_id, H5T_NEKO_REAL, fld%x(1,1,1,1), dcount1, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot read PointData field: ' // &
+               trim(dset_name))
+       end if
     end if
 
     call h5sclose_f(memspace, ierr)

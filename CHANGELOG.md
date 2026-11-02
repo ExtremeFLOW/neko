@@ -11,6 +11,11 @@
 
 ## Develop
 
+- Fixed reading temporal VTKHDF files whose point data is stored inline,
+  such as Neko output from before the per-step data files. Every step read
+  back as step 0; the reader now starts at `Steps/PointDataOffsets`, or at
+  `Steps/PointOffsets` for a field without them, as the VTKHDF
+  specification does.
 - Fixed reading VTKHDF files whose point data is stored inline rather than
   as virtual datasets, such as Neko's own non-temporal output. The reader
   took every dataset for a virtual one and aborted with `Cannot open VDS
