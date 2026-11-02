@@ -11,6 +11,14 @@
 
 ## Develop
 
+- Fixed the Richardson number of the Vreman buoyancy correction at element
+  boundaries. The temperature gradient (g . grad T) is now also
+  averaged over the elements sharing a node.
+- Fixed wrong sign of the buoyancy term in the device kernels of the Vreman 
+  buoyancy correction (CPU version was correct).
+- Added an `anisotropic` option to the Vreman model, which uses the
+  direction-dependent filter widths of Vreman (2004), eq. (32), instead of a
+  single isotropic `Delta`.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
   equal dof ids tested its bound and the next element in one `.and.`, which
   Fortran need not short-circuit, so it read one element past the end of the
