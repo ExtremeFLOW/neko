@@ -13,9 +13,11 @@
 
 - Fixed the Richardson number of the Vreman buoyancy correction at element
   boundaries. The temperature gradient (g . grad T) is now also
-  averaged over the elements sharing a node.
-- Fixed wrong sign of the buoyancy term in the device kernels of the Vreman 
-  buoyancy correction (CPU version was correct).
+  averaged over the elements sharing a node, as well as the wrong sign of 
+  the buoyancy term in the device kernels of the Vreman buoyancy correction.
+- The scalar scheme now warns when `alphat.nut_dependency` is false and
+  `alphat.alphat_field` is empty, and stops with a clearer error when the field
+  is not in the registry.
 - Added an `anisotropic` option to the Vreman model, which uses the
   direction-dependent filter widths of Vreman (2004), eq. (32), instead of a
   single isotropic `Delta`.
