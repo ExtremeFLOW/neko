@@ -38,6 +38,7 @@ module time_step_controller
   use json_module, only : json_file
   use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
   use time_state, only : time_state_t
+  use math, only : abscmp
   use comm, only : NEKO_GLOBAL_COMM, is_mpmd
   use mpi_f08, only : MPI_MIN, MPI_MAX, MPI_IN_PLACE, MPI_Allreduce, &
        MPI_DOUBLE_PRECISION, MPI_INTEGER
@@ -89,7 +90,7 @@ module time_step_controller
 contains
 
   !> Constructor
-  !! @param order order of the interpolation
+  !! @param params The time settings of the case file, `case.time`.
   subroutine time_step_controller_init(this, params)
     class(time_step_controller_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
@@ -172,6 +173,9 @@ contains
   !! @Algorithm:
   !! 1. Set the first time step such that cfl is the set one;
   !! 2. During time-stepping, adjust dt when cfl_avg is offset by 20%.
+  !! 3. An exact zero cfl, e.g. from a zero velocity field, puts no limit on
+  !! dt, so the first time step is the initial one and a later one is
+  !! increased by the maximum increase factor.
   !! With `exact_output_time` the step is then fitted to the next scheduled
   !! time by `land`, which is to be called right after.
   subroutine time_step_controller_set_dt(this, time, cfl)
@@ -210,7 +214,11 @@ contains
             .and. this%dt_last_change .ge. this%max_update_frequency &
             .or. this%dt_last_change .ge. this%min_update_frequency) then
 
-          if (this%cfl_trg/cfl .ge. 1) then
+          ! Test for an exact zero cfl first, so that it is never divided by.
+          if (abscmp(cfl, 0.0_dp)) then
+             ! no limit on dt, so increase it as much as allowed
+             scaling_factor = this%max_dt_increase_factor
+          else if (this%cfl_trg/cfl .ge. 1) then
              ! increase of time step
              scaling_factor = min(this%max_dt_increase_factor, this%cfl_trg/cfl)
           else

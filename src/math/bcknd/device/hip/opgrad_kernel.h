@@ -240,7 +240,7 @@ opgrad_kernel_kstep(T * __restrict__ ux,
 
 #if defined(__gfx90a__) || defined(__gfx942__)
 
-template< typename T, const int LX, const int NWF >
+template< typename T, const int LX, const int NWF, const int TILE >
 __device__ void opgrad_mfma_elem(T * __restrict__ ux,
                                  T * __restrict__ uy,
                                  T * __restrict__ uz,
@@ -267,7 +267,11 @@ __device__ void opgrad_mfma_elem(T * __restrict__ ux,
      contraction offers one column group, so WPE is 1 and every wavefront gets
      an element of its own rather than idling. */
   enum { EB = NEKO_MFMA_EB_N(NWF, LX, sizeof(T)),
-         WPE = NWF / EB };
+         WPE = NWF / EB,
+         /* Elements the batched single precision tile contracts per
+            call, from the wavefronts of the first element of each
+            batch; one for every other tile, see NEKO_MFMA_NEL_N */
+         NEL = NEKO_MFMA_NEL_N(EB, LX, sizeof(T), TILE) };
   static_assert(WPE * EB == NWF,
                 "wavefronts per block must split evenly over the elements");
 
@@ -318,12 +322,15 @@ __device__ void opgrad_mfma_elem(T * __restrict__ ux,
 
   /* Reference space derivatives ur, us, ut, striped across the cooperating
      wavefronts by mfma_contract_sel */
-  mfma_contract_sel<T, LX, 0, false, false, WPE>::run(shr + sh, shdx,
-                                                      shu + sh, lane, sub);
-  mfma_contract_sel<T, LX, 1, false, false, WPE>::run(shs + sh, shdy,
-                                                      shu + sh, lane, sub);
-  mfma_contract_sel<T, LX, 2, false, false, WPE>::run(sht + sh, shdz,
-                                                      shu + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 0, false, false, WPE, TILE, 0, NEL>::run(
+        shr + sh, shdx, shu + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 1, false, false, WPE, TILE, 0, NEL>::run(
+        shs + sh, shdy, shu + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 2, false, false, WPE, TILE, 0, NEL>::run(
+        sht + sh, shdz, shu + sh, lane, sub);
 
   __syncthreads();
 
@@ -351,7 +358,7 @@ __device__ void opgrad_mfma_elem(T * __restrict__ ux,
  * the strategy for them, so the no-op is unreachable at runtime, see
  * mfma_lx_supported() and hip_have_mfma() in mfma_kernel.h.
  */
-template< typename T, const int LX, const int NWF >
+template< typename T, const int LX, const int NWF, const int TILE >
 struct opgrad_mfma_dispatch {
   __device__ static void run(T *, T *, T *, const T *, const T *, const T *,
                              const T *, const T *, const T *, const T *,
@@ -363,8 +370,8 @@ struct opgrad_mfma_dispatch {
 
 /* Keep in sync with mfma_lx_supported() in mfma_kernel.h */
 #define NEKO_OPGRAD_MFMA_DISPATCH(TYPE, LXV)                                  \
-  template< const int NWF >                                                   \
-  struct opgrad_mfma_dispatch< TYPE, LXV, NWF > {                             \
+  template< const int NWF, const int TILE >                                   \
+  struct opgrad_mfma_dispatch< TYPE, LXV, NWF, TILE > {                       \
     __device__ static void run(TYPE * ux,                                     \
                                TYPE * uy,                                     \
                                TYPE * uz,                                     \
@@ -383,9 +390,10 @@ struct opgrad_mfma_dispatch {
                                const TYPE * dtdz,                             \
                                const TYPE * w3,                               \
                                const int nelv) {                              \
-      opgrad_mfma_elem< TYPE, LXV, NWF >(ux, uy, uz, u, dx, dy, dz, drdx,     \
-                                         dsdx, dtdx, drdy, dsdy, dtdy,        \
-                                         drdz, dsdz, dtdz, w3, nelv);         \
+      opgrad_mfma_elem< TYPE, LXV, NWF, TILE >(ux, uy, uz, u, dx, dy, dz,     \
+                                               drdx, dsdx, dtdx, drdy, dsdy,  \
+                                               dtdy, drdz, dsdz, dtdz, w3,    \
+                                               nelv);                         \
     }                                                                         \
   }
 
@@ -399,6 +407,8 @@ NEKO_OPGRAD_MFMA_DISPATCH(double, 10);
 NEKO_OPGRAD_MFMA_DISPATCH(double, 11);
 NEKO_OPGRAD_MFMA_DISPATCH(double, 12);
 
+NEKO_OPGRAD_MFMA_DISPATCH(float, 2);
+NEKO_OPGRAD_MFMA_DISPATCH(float, 3);
 NEKO_OPGRAD_MFMA_DISPATCH(float, 4);
 NEKO_OPGRAD_MFMA_DISPATCH(float, 5);
 NEKO_OPGRAD_MFMA_DISPATCH(float, 6);
@@ -416,7 +426,7 @@ NEKO_OPGRAD_MFMA_DISPATCH(float, 12);
  * ax_helm_kernel_mfma: the kstep kernels ask for three waves per SIMD, and
  * the matrix core kernels were validated without that constraint.
  */
-template< typename T, const int LX, const int NWF >
+template< typename T, const int LX, const int NWF, const int TILE >
 __global__ void __launch_bounds__(64 * NWF)
 opgrad_kernel_mfma(T * __restrict__ ux,
                    T * __restrict__ uy,
@@ -437,9 +447,9 @@ opgrad_kernel_mfma(T * __restrict__ ux,
                    const T * __restrict__ w3,
                    const int nelv) {
 
-  opgrad_mfma_dispatch< T, LX, NWF >::run(ux, uy, uz, u, dx, dy, dz, drdx,
-                                          dsdx, dtdx, drdy, dsdy, dtdy, drdz,
-                                          dsdz, dtdz, w3, nelv);
+  opgrad_mfma_dispatch< T, LX, NWF, TILE >::run(ux, uy, uz, u, dx, dy, dz, drdx,
+                                                dsdx, dtdx, drdy, dsdy, dtdy,
+                                                drdz, dsdz, dtdz, w3, nelv);
 }
 
 #endif // __MATH_OPGRAD_KERNEL_H__

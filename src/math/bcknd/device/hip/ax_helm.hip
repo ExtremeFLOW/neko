@@ -583,6 +583,39 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
+  /* Verify every candidate against the reference formulation on a synthetic
+     input before anything is timed, see neko_tune_verify_begin() in
+     elem_block_tune.h. A candidate that does not reproduce it is reported
+     and dropped from the comparison below. */
+  neko_tune_rej_t rej1 = {{0}}, rej2 = {{0}}, rej3 = {{0}};
+  {
+    neko_tune_verify_t vf;
+    real *vouts[] = { (real *) w };
+    void **vins[] = { &u };
+    if (neko_tune_verify_begin(&vf, vouts, 1, vins, 1,
+                               (*nelv) * LX * LX * LX, stream)) {
+      sprintf(neko_log_buf, "Verify       : rel tol %.1e, synthetic input",
+              vf.tol);
+      log_message(neko_log_buf);
+      CASE_1D_SEL(LX, 0);
+      neko_tune_verify_ref(&vf, stream);
+      NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej1, CASE_1D_SEL, LX, c, "1D");
+      }
+      NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej2, CASE_KSTEP_SEL, LX, c, "KSTEP");
+      }
+      NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej3, CASE_MFMA_SEL, LX, c, "MFMA");
+      }
+      neko_tune_verify_end(&vf, stream);
+    } else {
+      sprintf(neko_log_buf, "Verify       : %s", neko_tune_verify_on() ?
+              "skipped, no memory for it" : "off (NEKO_TUNE_VERIFY=0)");
+      log_message(neko_log_buf);
+    }
+  }
+
   /* Warm every variant before timing anything: each specialisation has to
      be resident and the clocks at steady state, or whichever variant is
      timed first is measured on a colder part */
@@ -611,6 +644,12 @@ int tune(void *w, void *u, void *dx, void *dy, void *dz,
       NEKO_TUNE_TIME(time3, CASE_MFMA_SEL, LX, c, iters);
     }
   }
+
+  /* Candidates the verification pass rejected drop out here, after the
+     timing, so the sweep's own bookkeeping is untouched */
+  NEKO_TUNE_APPLY_REJ(time1, rej1, NEKO_CHUNKS_CANDIDATES);
+  NEKO_TUNE_APPLY_REJ(time2, rej2, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_APPLY_REJ(time3, rej3, NEKO_MFMA_CANDIDATES);
 
   NEKO_TUNE_LOG(LX, time1, time2);
   NEKO_TUNE_LOG_MFMA(LX, time3);
@@ -781,6 +820,39 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
+  /* Verify every candidate against the reference formulation on a synthetic
+     input before anything is timed, see neko_tune_verify_begin() in
+     elem_block_tune.h. A candidate that does not reproduce it is reported
+     and dropped from the comparison below. */
+  neko_tune_rej_t rej1 = {{0}}, rej2 = {{0}}, rej3 = {{0}};
+  {
+    neko_tune_verify_t vf;
+    real *vouts[] = { (real *) w };
+    void **vins[] = { &u };
+    if (neko_tune_verify_begin(&vf, vouts, 1, vins, 1,
+                               (*nelv) * LX * LX * LX, stream)) {
+      sprintf(neko_log_buf, "Verify       : rel tol %.1e, synthetic input",
+              vf.tol);
+      log_message(neko_log_buf);
+      CASE_1D_SEL(LX, 0);
+      neko_tune_verify_ref(&vf, stream);
+      NEKO_TUNE_FOR(c, try_1d, ch_pin, NEKO_CHUNKS_CANDIDATES) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej1, CASE_1D_SEL, LX, c, "1D");
+      }
+      NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej2, CASE_KSTEP_PADDED_SEL, LX, c, "KSTEP");
+      }
+      NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej3, CASE_MFMA_SEL, LX, c, "MFMA");
+      }
+      neko_tune_verify_end(&vf, stream);
+    } else {
+      sprintf(neko_log_buf, "Verify       : %s", neko_tune_verify_on() ?
+              "skipped, no memory for it" : "off (NEKO_TUNE_VERIFY=0)");
+      log_message(neko_log_buf);
+    }
+  }
+
   /* Warm every variant before timing anything: each specialisation has to
      be resident and the clocks at steady state, or whichever variant is
      timed first is measured on a colder part */
@@ -809,6 +881,12 @@ int tune_padded(void *w, void *u, void *dx, void *dy, void *dz,
       NEKO_TUNE_TIME(time3, CASE_MFMA_SEL, LX, c, iters);
     }
   }
+
+  /* Candidates the verification pass rejected drop out here, after the
+     timing, so the sweep's own bookkeeping is untouched */
+  NEKO_TUNE_APPLY_REJ(time1, rej1, NEKO_CHUNKS_CANDIDATES);
+  NEKO_TUNE_APPLY_REJ(time2, rej2, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_APPLY_REJ(time3, rej3, NEKO_MFMA_CANDIDATES);
 
   NEKO_TUNE_LOG(LX, time1, time2);
   NEKO_TUNE_LOG_MFMA(LX, time3);
@@ -986,6 +1064,36 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
+  /* Verify every candidate against the reference formulation on a synthetic
+     input before anything is timed, see neko_tune_verify_begin() in
+     elem_block_tune.h. A candidate that does not reproduce it is reported
+     and dropped from the comparison below. */
+  neko_tune_rej_t rej2 = {{0}}, rej3 = {{0}};
+  {
+    neko_tune_verify_t vf;
+    real *vouts[] = { (real *) au, (real *) av, (real *) aw };
+    void **vins[] = { &u, &v, &w };
+    if (neko_tune_verify_begin(&vf, vouts, 3, vins, 3,
+                               (*nelv) * LX * LX * LX, stream)) {
+      sprintf(neko_log_buf, "Verify       : rel tol %.1e, synthetic input",
+              vf.tol);
+      log_message(neko_log_buf);
+      CASE_VECTOR_KSTEP_SEL(LX, 0);
+      neko_tune_verify_ref(&vf, stream);
+      NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej2, CASE_VECTOR_KSTEP_SEL, LX, c, "KSTEP");
+      }
+      NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej3, CASE_VECTOR_MFMA_SEL, LX, c, "MFMA");
+      }
+      neko_tune_verify_end(&vf, stream);
+    } else {
+      sprintf(neko_log_buf, "Verify       : %s", neko_tune_verify_on() ?
+              "skipped, no memory for it" : "off (NEKO_TUNE_VERIFY=0)");
+      log_message(neko_log_buf);
+    }
+  }
+
   /* Warm every variant before timing anything, see tune() */
   for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
     NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
@@ -1005,6 +1113,11 @@ int tune_vector(void *au, void *av, void *aw, void *u, void *v, void *w,
       NEKO_TUNE_TIME(time3, CASE_VECTOR_MFMA_SEL, LX, c, iters);
     }
   }
+
+  /* Candidates the verification pass rejected drop out here, after the
+     timing, so the sweep's own bookkeeping is untouched */
+  NEKO_TUNE_APPLY_REJ(time2, rej2, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_APPLY_REJ(time3, rej3, NEKO_MFMA_CANDIDATES);
 
   NEKO_TUNE_LOG_KSTEP(LX, time2);
   NEKO_TUNE_LOG_MFMA_VEC(LX, time3);
@@ -1153,6 +1266,37 @@ int tune_vector_padded(void *au, void *av, void *aw,
   HIP_CHECK(hipEventCreate(&start));
   HIP_CHECK(hipEventCreate(&stop));
 
+  /* Verify every candidate against the reference formulation on a synthetic
+     input before anything is timed, see neko_tune_verify_begin() in
+     elem_block_tune.h. A candidate that does not reproduce it is reported
+     and dropped from the comparison below. */
+  neko_tune_rej_t rej2 = {{0}}, rej3 = {{0}};
+  {
+    neko_tune_verify_t vf;
+    real *vouts[] = { (real *) au, (real *) av, (real *) aw };
+    void **vins[] = { &u, &v, &w };
+    if (neko_tune_verify_begin(&vf, vouts, 3, vins, 3,
+                               (*nelv) * LX * LX * LX, stream)) {
+      sprintf(neko_log_buf, "Verify       : rel tol %.1e, synthetic input",
+              vf.tol);
+      log_message(neko_log_buf);
+      CASE_VECTOR_KSTEP_PADDED_SEL(LX, 0);
+      neko_tune_verify_ref(&vf, stream);
+      NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej2, CASE_VECTOR_KSTEP_PADDED_SEL, LX, c,
+                              "KSTEP");
+      }
+      NEKO_TUNE_FOR(c, try_mfma, nwf_pin, mfma_cand) {
+        NEKO_TUNE_VERIFY_CAND(vf, rej3, CASE_VECTOR_MFMA_SEL, LX, c, "MFMA");
+      }
+      neko_tune_verify_end(&vf, stream);
+    } else {
+      sprintf(neko_log_buf, "Verify       : %s", neko_tune_verify_on() ?
+              "skipped, no memory for it" : "off (NEKO_TUNE_VERIFY=0)");
+      log_message(neko_log_buf);
+    }
+  }
+
   /* Warm every variant before timing anything, see tune() */
   for (int i = 0; i < NEKO_TUNE_WARMUP; i++) {
     NEKO_TUNE_FOR(c, try_kstep, eb_pin, eb_cand) {
@@ -1172,6 +1316,11 @@ int tune_vector_padded(void *au, void *av, void *aw,
       NEKO_TUNE_TIME(time3, CASE_VECTOR_MFMA_SEL, LX, c, iters);
     }
   }
+
+  /* Candidates the verification pass rejected drop out here, after the
+     timing, so the sweep's own bookkeeping is untouched */
+  NEKO_TUNE_APPLY_REJ(time2, rej2, NEKO_EB_CANDIDATES);
+  NEKO_TUNE_APPLY_REJ(time3, rej3, NEKO_MFMA_CANDIDATES);
 
   NEKO_TUNE_LOG_KSTEP(LX, time2);
   NEKO_TUNE_LOG_MFMA_VEC(LX, time3);
