@@ -94,38 +94,35 @@ __kernel void vreman_nut_compute_kernel(__global const real * __restrict__ a11,
 /**
  * Device kernel for vreman_nut_compute_buoy
  */
-__kernel void vreman_nut_compute_buoy_kernel(__global const real * __restrict__ a11,
-                                             __global const real * __restrict__ a12,
-                                             __global const real * __restrict__ a13,
-                                             __global const real * __restrict__ a21,
-                                             __global const real * __restrict__ a22,
-                                             __global const real * __restrict__ a23,
-                                             __global const real * __restrict__ a31,
-                                             __global const real * __restrict__ a32,
-                                             __global const real * __restrict__ a33,
-                                             __global const real * __restrict__ delta,
-                                             __global real * __restrict__ nut,
-                                             __global const real * __restrict__ mult,
-                                             const real c,
-                                             const real eps,
-                                             const int n,
-                                             __global const real * __restrict__ dTdx,
-                                             __global const real * __restrict__ dTdy,
-                                             __global const real * __restrict__ dTdz,
-                                             const real n1,
-                                             const real n2,
-                                             const real n3,
-                                             const real g1,
-                                             const real g2,
-                                             const real g3,
-                                             const real ri_c,
-                                             const real ref_temp) {
+/*
+ * Anisotropic Vreman kernel, beta = A G A^T with G = sum_m d_m d_m^T
+ * built from the local grid-step vectors d_m (Vreman 2004, eq. 32).
+ */
+__kernel void vreman_nut_compute_aniso_kernel(__global const real * __restrict__ a11,
+                                              __global const real * __restrict__ a12,
+                                              __global const real * __restrict__ a13,
+                                              __global const real * __restrict__ a21,
+                                              __global const real * __restrict__ a22,
+                                              __global const real * __restrict__ a23,
+                                              __global const real * __restrict__ a31,
+                                              __global const real * __restrict__ a32,
+                                              __global const real * __restrict__ a33,
+                                              __global const real * __restrict__ g11,
+                                              __global const real * __restrict__ g12,
+                                              __global const real * __restrict__ g13,
+                                              __global const real * __restrict__ g22,
+                                              __global const real * __restrict__ g23,
+                                              __global const real * __restrict__ g33,
+                                              __global real * __restrict__ nut,
+                                              __global const real * __restrict__ mult,
+                                              const real c,
+                                              const real eps,
+                                              const int n) {
 
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
 
   const real zero = (real) 0.0;
-  const real one = (real) 1.0;
 
   for (int i = idx; i < n; i += str) {
 
@@ -138,14 +135,29 @@ __kernel void vreman_nut_compute_buoy_kernel(__global const real * __restrict__ 
     const real a31_r = a31[i];
     const real a32_r = a32[i];
     const real a33_r = a33[i];
-    const real delta_r = delta[i];
+    const real g11_r = g11[i];
+    const real g12_r = g12[i];
+    const real g13_r = g13[i];
+    const real g22_r = g22[i];
+    const real g23_r = g23[i];
+    const real g33_r = g33[i];
 
-    const real beta11 = a11_r * a11_r + a21_r * a21_r + a31_r * a31_r;
-    const real beta22 = a12_r * a12_r + a22_r * a22_r + a32_r * a32_r;
-    const real beta33 = a13_r * a13_r + a23_r * a23_r + a33_r * a33_r;
-    const real beta12 = a11_r * a12_r + a21_r * a22_r + a31_r * a32_r;
-    const real beta13 = a11_r * a13_r + a21_r * a23_r + a31_r * a33_r;
-    const real beta23 = a12_r * a13_r + a22_r * a23_r + a32_r * a33_r;
+    const real h11 = g11_r * a11_r + g12_r * a12_r + g13_r * a13_r;
+    const real h12 = g12_r * a11_r + g22_r * a12_r + g23_r * a13_r;
+    const real h13 = g13_r * a11_r + g23_r * a12_r + g33_r * a13_r;
+    const real h21 = g11_r * a21_r + g12_r * a22_r + g13_r * a23_r;
+    const real h22 = g12_r * a21_r + g22_r * a22_r + g23_r * a23_r;
+    const real h23 = g13_r * a21_r + g23_r * a22_r + g33_r * a23_r;
+    const real h31 = g11_r * a31_r + g12_r * a32_r + g13_r * a33_r;
+    const real h32 = g12_r * a31_r + g22_r * a32_r + g23_r * a33_r;
+    const real h33 = g13_r * a31_r + g23_r * a32_r + g33_r * a33_r;
+
+    const real beta11 = a11_r * h11 + a12_r * h12 + a13_r * h13;
+    const real beta22 = a21_r * h21 + a22_r * h22 + a23_r * h23;
+    const real beta33 = a31_r * h31 + a32_r * h32 + a33_r * h33;
+    const real beta12 = a11_r * h21 + a12_r * h22 + a13_r * h23;
+    const real beta13 = a11_r * h31 + a12_r * h32 + a13_r * h33;
+    const real beta23 = a21_r * h31 + a22_r * h32 + a23_r * h33;
 
     real b_beta = beta11 * beta22 - beta12 * beta12
       + beta11 * beta33 - beta13 * beta13
@@ -153,40 +165,68 @@ __kernel void vreman_nut_compute_buoy_kernel(__global const real * __restrict__ 
 
     b_beta = max(zero, b_beta);
 
-    const real aijaij = beta11 + beta22 + beta33;
+    const real aijaij = a11_r * a11_r + a12_r * a12_r + a13_r * a13_r
+      + a21_r * a21_r + a22_r * a22_r + a23_r * a23_r
+      + a31_r * a31_r + a32_r * a32_r + a33_r * a33_r;
 
-    const real nut0 = c * delta_r * delta_r
-      * sqrt(b_beta / (aijaij + eps)) * mult[i];
+    nut[i] = c * sqrt(b_beta / (aijaij + eps)) * mult[i];
+  }
+}
 
-    /* Scalar gradient for buoyancy */
-    const real buoyancy = (g1 * dTdx[i] + g2 * dTdy[i] + g3 * dTdz[i])
-      / ref_temp;
+/*
+ * Richardson-number correction for the Vreman model (Lilly 1962; Moeng &
+ * Sullivan 2015) applied to an already computed nut field. The gradients
+ * are gather-scatter sums and are scaled by mult before use.
+ * gdT is the interface-averaged g . grad(T), g pointing upwards
+ * (reversed from the case-file input at init).
+ */
+__kernel void vreman_stability_kernel(__global const real * __restrict__ a11,
+                                      __global const real * __restrict__ a12,
+                                      __global const real * __restrict__ a13,
+                                      __global const real * __restrict__ a21,
+                                      __global const real * __restrict__ a22,
+                                      __global const real * __restrict__ a23,
+                                      __global const real * __restrict__ a31,
+                                      __global const real * __restrict__ a32,
+                                      __global const real * __restrict__ a33,
+                                      __global const real * __restrict__ gdT,
+                                      __global real * nut,
+                                      __global const real * __restrict__ mult,
+                                      const real n1,
+                                      const real n2,
+                                      const real n3,
+                                      const real ri_c,
+                                      const real ref_temp,
+                                      const real eps,
+                                      const int n) {
 
-    /* Directional derivative along n */
-    const real du_n1 = a11_r * n1 + a12_r * n2 + a13_r * n3;
-    const real du_n2 = a21_r * n1 + a22_r * n2 + a23_r * n3;
-    const real du_n3 = a31_r * n1 + a32_r * n2 + a33_r * n3;
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
 
-    const real du_parallel = du_n1 * n1 + du_n2 * n2 + du_n3 * n3;
+  const real zero = (real) 0.0;
+  const real one = (real) 1.0;
 
-    const real sh1 = du_n1 - du_parallel * n1;
-    const real sh2 = du_n2 - du_parallel * n2;
-    const real sh3 = du_n3 - du_parallel * n3;
+  for (int i = idx; i < n; i += str) {
+    const real m = mult[i];
+    const real N2 = gdT[i] / ref_temp;
 
+    const real du_n1 = (a11[i] * n1 + a12[i] * n2 + a13[i] * n3) * m;
+    const real du_n2 = (a21[i] * n1 + a22[i] * n2 + a23[i] * n3) * m;
+    const real du_n3 = (a31[i] * n1 + a32[i] * n2 + a33[i] * n3) * m;
+    const real du_par = du_n1 * n1 + du_n2 * n2 + du_n3 * n3;
+    const real sh1 = du_n1 - du_par * n1;
+    const real sh2 = du_n2 - du_par * n2;
+    const real sh3 = du_n3 - du_par * n3;
     const real shear_sq = sh1 * sh1 + sh2 * sh2 + sh3 * sh3;
 
-    const real ri = buoyancy / (shear_sq + eps);
-
-    real out;
+    const real ri = N2 / (shear_sq + eps);
     if (ri <= ri_c) {
       real v = one - ri / ri_c;
       if (v < zero) v = zero;
-      out = nut0 * sqrt(v);
+      nut[i] = nut[i] * sqrt(v);
     } else {
-      out = eps;
+      nut[i] = eps;
     }
-
-    nut[i] = out;
   }
 }
 
