@@ -106,6 +106,7 @@ contains
     character(len=255) :: log_file
     character(len=32) :: prefix
     integer :: envvar_len
+    if (pe_rank .ne. 0) return
 
     if (present(env_prefix)) then
        prefix = env_prefix
@@ -185,13 +186,12 @@ contains
   !! so it is safe to call from any rank.
   subroutine log_flush(this)
     class(log_t), intent(in) :: this
+    if (pe_rank .ne. 0) return
 
     ! The unit is compared against the sentinel value set by `log_free`, and
     ! not simply tested for being positive, since NEWUNIT-assigned units
     ! (used for NEKO_LOG_FILE) are always negative
-    if (pe_rank .eq. 0) then
-       flush(this%unit_)
-    end if
+    flush(this%unit_)
 
   end subroutine log_flush
 
@@ -199,6 +199,7 @@ contains
   pure function log_level(this) result(lvl)
     class(log_t), intent(in) :: this
     integer :: lvl
+    if (pe_rank .ne. 0) return
 
     lvl = this%level_
 
@@ -207,25 +208,23 @@ contains
   !> Increase indention level
   subroutine log_begin(this)
     class(log_t), intent(inout) :: this
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       this%section_id_ = this%section_id_ + 1
-       this%indent_ = this%indent_ + this%tab_size_
-    end if
+    this%section_id_ = this%section_id_ + 1
+    this%indent_ = this%indent_ + this%tab_size_
 
   end subroutine log_begin
 
   !> Decrease indention level
   subroutine log_end(this)
     class(log_t), intent(inout) :: this
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       if (this%section_id_ .eq. 0) then
-          call neko_error("Log is unbalanced")
-       end if
-       this%section_id_ = this%section_id_ - 1
-       this%indent_ = this%indent_ - this%tab_size_
+    if (this%section_id_ .eq. 0) then
+       call neko_error("Log is unbalanced")
     end if
+    this%section_id_ = this%section_id_ - 1
+    this%indent_ = this%indent_ - this%tab_size_
 
     this%section_header = ""
 
@@ -234,10 +233,9 @@ contains
   !> Indent a log
   subroutine log_indent(this)
     class(log_t), intent(in) :: this
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       write(this%unit_, '(A)', advance = 'no') repeat(' ', this%indent_)
-    end if
+    write(this%unit_, '(A)', advance = 'no') repeat(' ', this%indent_)
 
   end subroutine log_indent
 
@@ -247,6 +245,7 @@ contains
     integer, optional :: lvl
 
     integer :: lvl_
+    if (pe_rank .ne. 0) return
 
     if (present(lvl)) then
        lvl_ = lvl
@@ -258,9 +257,7 @@ contains
        return
     end if
 
-    if (pe_rank .eq. 0) then
-       write(this%unit_, '(A)') ''
-    end if
+    write(this%unit_, '(A)') ''
 
   end subroutine log_newline
 
@@ -270,6 +267,7 @@ contains
     character(len=*), intent(in) :: msg
     integer, optional :: lvl
     integer :: lvl_
+    if (pe_rank .ne. 0) return
 
     if (present(lvl)) then
        lvl_ = lvl
@@ -285,10 +283,8 @@ contains
        call this%print_section_header(lvl)
     end if
 
-    if (pe_rank .eq. 0) then
-       call this%indent()
-       write(this%unit_, '(A)') trim(msg)
-    end if
+    call this%indent()
+    write(this%unit_, '(A)') trim(msg)
 
   end subroutine log_message
 
@@ -297,19 +293,18 @@ contains
     class(log_t), intent(in) :: this
     character(len=*), intent(in) :: version
     character(len=*), intent(in) :: build_info
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       write(this%unit_, '(A)') ''
-       write(this%unit_, '(1X,A)') '   _  __  ____  __ __  ____  '
-       write(this%unit_, '(1X,A)') '  / |/ / / __/ / //_/ / __ \ '
-       write(this%unit_, '(1X,A)') ' /    / / _/  / ,<   / /_/ / '
-       write(this%unit_, '(1X,A)') '/_/|_/ /___/ /_/|_|  \____/  '
-       write(this%unit_, '(A)') ''
-       write(this%unit_, '(1X,A,A,A)') '(version: ', trim(version), ')'
-       write(this%unit_, '(1X,A)') trim(build_info)
-       write(this%unit_, '(A)') ''
-       flush(this%unit_)
-    end if
+    write(this%unit_, '(A)') ''
+    write(this%unit_, '(1X,A)') '   _  __  ____  __ __  ____  '
+    write(this%unit_, '(1X,A)') '  / |/ / / __/ / //_/ / __ \ '
+    write(this%unit_, '(1X,A)') ' /    / / _/  / ,<   / /_/ / '
+    write(this%unit_, '(1X,A)') '/_/|_/ /___/ /_/|_|  \____/  '
+    write(this%unit_, '(A)') ''
+    write(this%unit_, '(1X,A,A,A)') '(version: ', trim(version), ')'
+    write(this%unit_, '(1X,A)') trim(build_info)
+    write(this%unit_, '(A)') ''
+    flush(this%unit_)
 
   end subroutine log_header
 
@@ -317,12 +312,11 @@ contains
   subroutine log_error(this, msg)
     class(log_t), intent(in) :: this
     character(len=*), intent(in) :: msg
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       call this%flush()
-       call this%indent()
-       call neko_error(trim(msg))
-    end if
+    call this%flush()
+    call this%indent()
+    call neko_error(trim(msg))
 
   end subroutine log_error
 
@@ -330,12 +324,11 @@ contains
   subroutine log_warning(this, msg)
     class(log_t), intent(in) :: this
     character(len=*), intent(in) :: msg
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       call this%indent()
-       write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg), '  ***'
-       call this%flush()
-    end if
+    call this%indent()
+    write(this%unit_, '(A,A,A)') '*** WARNING: ', trim(msg), '  ***'
+    call this%flush()
 
   end subroutine log_warning
 
@@ -352,7 +345,6 @@ contains
     character(len=255) :: deprecation_error
     character(len=LOG_SIZE) :: msg
     integer :: i
-
     if (pe_rank .ne. 0) return
 
     if (this%level_ .ge. NEKO_LOG_DEPRECATION .or. &
@@ -416,6 +408,7 @@ contains
     integer, optional :: lvl
 
     integer :: pre, pos
+    if (pe_rank .ne. 0) return
 
     if (len_trim(this%section_header) .gt. 0) then
        call this%print_section_header(lvl)
@@ -423,20 +416,18 @@ contains
 
     call this%begin()
 
-    if (pe_rank .eq. 0) then
-       pre = (30 - len_trim(msg)) / 2
-       pos = 30 - (len_trim(msg) + pre)
+    pre = (30 - len_trim(msg)) / 2
+    pos = 30 - (len_trim(msg) + pre)
 
-       if (pre .lt. 0 .or. pos .lt. 0) then
-          pre = 1
-          pos = 1
-          write(this%section_header, '(A,A,A)') &
-               repeat('-', pre), trim(msg(1: SEC_HEAD_SIZE - 2)), &
-               repeat('-', pos)
-       else
-          write(this%section_header, '(A,A,A)') &
-               repeat('-', pre), trim(msg), repeat('-', pos)
-       end if
+    if (pre .lt. 0 .or. pos .lt. 0) then
+       pre = 1
+       pos = 1
+       write(this%section_header, '(A,A,A)') &
+            repeat('-', pre), trim(msg(1: SEC_HEAD_SIZE - 2)), &
+            repeat('-', pos)
+    else
+       write(this%section_header, '(A,A,A)') &
+            repeat('-', pre), trim(msg), repeat('-', pos)
     end if
 
   end subroutine log_section
@@ -446,6 +437,7 @@ contains
     class(log_t), intent(inout) :: this
     integer, optional :: lvl
     integer :: lvl_
+    if (pe_rank .ne. 0) return
 
     if (present(lvl)) then
        lvl_ = lvl
@@ -457,12 +449,10 @@ contains
        return
     end if
 
-    if (pe_rank .eq. 0) then
-       call this%newline(lvl)
-       call this%indent()
-       write(this%unit_, '(A)') trim(this%section_header)
-       this%section_header = ""
-    end if
+    call this%newline(lvl)
+    call this%indent()
+    write(this%unit_, '(A)') trim(this%section_header)
+    this%section_header = ""
 
   end subroutine log_print_section_header
 
@@ -471,6 +461,7 @@ contains
     class(log_t), intent(inout) :: this
     character(len=*), intent(in), optional :: msg
     integer, optional :: lvl
+    if (pe_rank .ne. 0) return
 
     if (present(msg)) then
        call this%message(msg, lvl)
@@ -491,17 +482,16 @@ contains
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
     integer :: len
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       len = 0
-       do
-          if (c_msg(len+1) .eq. C_NULL_CHAR) exit
-          len = len + 1
-          msg(len:len) = c_msg(len)
-       end do
+    len = 0
+    do
+       if (c_msg(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       msg(len:len) = c_msg(len)
+    end do
 
-       call neko_log%message(trim(msg(1:len)))
-    end if
+    call neko_log%message(trim(msg(1:len)))
 
   end subroutine log_message_c
 
@@ -512,20 +502,19 @@ contains
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
     integer :: len
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       len = 0
-       do
-          if (c_msg(len+1) .eq. C_NULL_CHAR) exit
-          len = len + 1
-          msg(len:len) = c_msg(len)
-       end do
+    len = 0
+    do
+       if (c_msg(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       msg(len:len) = c_msg(len)
+    end do
 
-       call neko_log%flush()
-       call neko_log%indent()
-       write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg(1:len)), '  ***'
-       flush(stderr)
-    end if
+    call neko_log%flush()
+    call neko_log%indent()
+    write(stderr, '(A,A,A)') '*** ERROR: ', trim(msg(1:len)), '  ***'
+    flush(stderr)
 
   end subroutine log_error_c
 
@@ -536,20 +525,19 @@ contains
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
     integer :: len
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       len = 0
-       do
-          if (c_msg(len+1) .eq. C_NULL_CHAR) exit
-          len = len + 1
-          msg(len:len) = c_msg(len)
-       end do
+    len = 0
+    do
+       if (c_msg(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       msg(len:len) = c_msg(len)
+    end do
 
-       call neko_log%indent()
-       write(neko_log%unit_, '(A,A,A)') &
-            '*** WARNING: ', trim(msg(1:len)), '  ***'
-       call neko_log%flush()
-    end if
+    call neko_log%indent()
+    write(neko_log%unit_, '(A,A,A)') &
+         '*** WARNING: ', trim(msg(1:len)), '  ***'
+    call neko_log%flush()
 
   end subroutine log_warning_c
 
@@ -560,17 +548,16 @@ contains
     character(kind=c_char), dimension(*), intent(in) :: c_msg
     character(len=LOG_SIZE) :: msg
     integer :: len
+    if (pe_rank .ne. 0) return
 
-    if (pe_rank .eq. 0) then
-       len = 0
-       do
-          if (c_msg(len+1) .eq. C_NULL_CHAR) exit
-          len = len + 1
-          msg(len:len) = c_msg(len)
-       end do
+    len = 0
+    do
+       if (c_msg(len+1) .eq. C_NULL_CHAR) exit
+       len = len + 1
+       msg(len:len) = c_msg(len)
+    end do
 
-       call neko_log%section(trim(msg(1:len)))
-    end if
+    call neko_log%section(trim(msg(1:len)))
 
   end subroutine log_section_c
 

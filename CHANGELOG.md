@@ -19,6 +19,8 @@
 - Added an `anisotropic` option to the Vreman model, which uses the
   direction-dependent filter widths of Vreman (2004), eq. (32), instead of a
   single isotropic `Delta`.
+- Reduced statistics memory usage by storing work/gradients in the scratch
+  registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
   equal dof ids tested its bound and the next element in one `.and.`, which
   Fortran need not short-circuit, so it read one element past the end of the
