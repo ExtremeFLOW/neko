@@ -2,6 +2,7 @@ module vtkhdf_parallel
   use mpi
   use pfunit
   use field, only : field_t
+  use field_list, only : field_list_t
   use field_math, only : field_cfill
   use file, only : file_t
   use vtkhdf_file, only : vtkhdf_file_t
@@ -1129,5 +1130,244 @@ contains
     call h5close_f(hdferr)
 
   end subroutine test_vtkhdf_write_time_subdivide
+
+  ! NOTE on field choice: the obvious way to get a 3-component PointData
+  ! dataset here would be a velocity field (u, v, w, grouped into
+  ! "Velocity" by vtkhdf_write_pointdata). That grouped write was tried
+  ! first and found to be independently broken: write_vector_field()
+  ! re-selects the *file* hyperslab per component (row 1 for v, row 2 for
+  ! w) but never re-selects the matching *memory* dataspace, which keeps
+  ! its original full 3-row extent. HDF5 rejects the resulting v/w writes
+  ! ("src and dest dataspaces have different number of elements
+  ! selected"); the diagnostic is non-fatal (ierr is not checked), so the
+  ! write "succeeds" with 2 of 3 components read out of bounds, and a
+  ! later read-back of 'u' comes back as e.g. 0.17563436254145032E+244.
+  ! That reproduces regardless of #150, of temporal vs non-temporal mode,
+  ! and of rank count, so it is a separate, pre-existing bug (filed as
+  ! #151) that would contaminate a #150 regression test. These two tests
+  ! therefore use two independent scalar fields instead: p (renamed
+  ! "Pressure" by the writer) and s, which exercise write_scalar_field,
+  ! unaffected by that bug.
+
+  !> Fill p and s with known, non-trivial, mutually distinct values that
+  !! depend on both the grid point and @a step, so a round-trip read can be
+  !! checked against an exact expectation and two different steps are never
+  !! numerically equal to one another.
+  !! @param p pressure-like scalar field (renamed "Pressure" by the writer).
+  !! @param s a second, independent scalar field.
+  !! @param step Step index, used to perturb both fields.
+  subroutine test_vtkhdf_fill_rt_fields(p, s, step)
+    type(field_t), intent(inout) :: p, s
+    real(kind=rp), intent(in) :: step
+
+    p%x = 1000.0_rp * real(pe_rank, rp) + step + 3.0_rp
+    s%x = p%dof%x%x + 10.0_rp * step + 1.0_rp
+
+  end subroutine test_vtkhdf_fill_rt_fields
+
+  ! CONTROL for the #150 regression below: a temporal (printf-pattern VDS)
+  ! write/read round trip at a step counter > 0. This path already works
+  ! today (h5pget_virtual_count_f genuinely reports vds_count > 0), so this
+  ! test must pass on unfixed code. It proves the read harness itself is
+  ! sound and that a failure in the non-temporal test is specific to the
+  ! bug, not to the test machinery.
+  @test(npes=[2])
+  subroutine test_vtkhdf_read_temporal_counter1(this)
+    class (test_vtkhdf), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    type(field_t) :: p, s, p2, s2
+    type(field_list_t) :: fl
+    character(len=80) :: fname, rfname
+    type(file_t) :: file
+    integer :: unit, ierr
+    logical :: exists
+    character(len=:), allocatable :: message
+    real(kind=rp) :: mag, err_p, err_s
+
+    inquire(file='test_read_t_0.vtkhdf', exist=exists)
+    if (exists .and. pe_rank .eq. 0) then
+       open(newunit=unit, file='test_read_t_0.vtkhdf')
+       close(unit, status='delete')
+       call execute_command_line('rm -rf test_read_t_0.data')
+    end if
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
+
+    ! Create the test mesh and two scalar fields: p (renamed "Pressure" by
+    ! the writer) and s.
+    call test_vtkhdf_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call p%init(msh, Xh, 'p')
+    call s%init(msh, Xh, 's')
+    call p2%init(msh, Xh, 'p')
+    call s2%init(msh, Xh, 's')
+
+    call fl%init(2)
+    call fl%assign_to_field(1, p)
+    call fl%assign_to_field(2, s)
+
+    ! Temporal write: 2 steps with distinct values so reading back counter
+    ! 1 cannot accidentally match step 0's data.
+    ! The on-disk name always carries the "_<start_counter>" suffix (here
+    ! "_0") that vtkhdf_file_get_fname() adds for writing; the reader does
+    ! not add it, so it must be read back with that explicit suffix.
+    fname = "test_read_t.vtkhdf"
+    rfname = "test_read_t_0.vtkhdf"
+    call file%init(fname)
+    call test_vtkhdf_fill_rt_fields(p, s, 0.0_rp)
+    call file%write(fl, 0.0_dp)
+    call test_vtkhdf_fill_rt_fields(p, s, 1.0_rp)
+    call file%write(fl, 1.0_dp)
+    call file%free()
+
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
+
+    inquire(file="test_read_t_0.vtkhdf", exist=exists)
+    message = "Temporal output file must exist before read-back"
+    @assertTrue(exists, message = message)
+    inquire(file="test_read_t_0.data/1.h5", exist=exists)
+    message = "Temporal write must create an external data file per step"
+    @assertTrue(exists, message = message)
+
+    ! Guard against a vacuous pass: the expected values must actually be
+    ! non-trivial (never all-zero).
+    mag = maxval(abs(p%x)) + maxval(abs(s%x))
+    message = "Expected step-1 field magnitude must be non-trivial"
+    @assertGreaterThan(mag, 0.0_rp, message = message)
+
+    ! Poison the destination fields so a successful read must overwrite
+    ! every value; a no-op read would otherwise look like a pass.
+    p2%x = -999.0_rp
+    s2%x = -999.0_rp
+
+    call fl%free()
+    call fl%init(2)
+    call fl%assign_to_field(1, p2)
+    call fl%assign_to_field(2, s2)
+
+    call file%init(rfname)
+    call file%set_counter(1)
+    call file%read(fl)
+    call file%free()
+
+    err_p = maxval(abs(p2%x - p%x))
+    err_s = maxval(abs(s2%x - s%x))
+
+    message = "p must round-trip through a temporal VTKHDF read at step 1"
+    @assertEqual(0.0_rp, err_p, message = message)
+    message = "s must round-trip through a temporal VTKHDF read at step 1"
+    @assertEqual(0.0_rp, err_s, message = message)
+
+    call fl%free()
+    call p%free(); call s%free(); call p2%free(); call s2%free()
+    call msh%free()
+    call Xh%free()
+
+  end subroutine test_vtkhdf_read_temporal_counter1
+
+  ! Regression for #150: src/io/vtkhdf_file.F90's vtkhdf_file_read used to
+  ! decide whether a PointData dataset is a virtual dataset (VDS) from
+  ! h5pget_virtual_count_f alone, without checking the HDF5 dataset layout
+  ! or that call's ierr. A contiguous (non-VDS) dataset -- exactly what a
+  ! non-temporal write produces -- left vds_count uninitialised, so the
+  ! reader took the VDS branch and aborted trying to open a garbage source
+  ! file name. This test writes a non-temporal file with Neko's own writer
+  ! and reads it back with Neko's own reader. Before the fix, the read
+  ! below reached a neko_error()/error stop before any of its asserts ran,
+  ! so the entire suite binary aborted here rather than reporting a clean
+  ! pFUnit failure. See #150.
+  @test(npes=[2])
+  subroutine test_vtkhdf_read_nontemporal(this)
+    class (test_vtkhdf), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    integer, parameter :: LX = 4
+    type(field_t) :: p, s, p2, s2
+    type(field_list_t) :: fl
+    character(len=80) :: fname, rfname
+    type(file_t) :: file
+    integer :: unit, ierr
+    logical :: exists
+    character(len=:), allocatable :: message
+    real(kind=rp) :: mag, err_p, err_s
+
+    inquire(file='test_read_nt_0.vtkhdf', exist=exists)
+    if (exists .and. pe_rank .eq. 0) then
+       open(newunit=unit, file='test_read_nt_0.vtkhdf')
+       close(unit, status='delete')
+       call execute_command_line('rm -rf test_read_nt_0.data')
+    end if
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
+
+    ! Create the test mesh and two scalar fields: p (renamed "Pressure" by
+    ! the writer) and s.
+    call test_vtkhdf_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call p%init(msh, Xh, 'p')
+    call s%init(msh, Xh, 's')
+    call p2%init(msh, Xh, 'p')
+    call s2%init(msh, Xh, 's')
+
+    call test_vtkhdf_fill_rt_fields(p, s, 0.0_rp)
+
+    call fl%init(2)
+    call fl%assign_to_field(1, p)
+    call fl%assign_to_field(2, s)
+
+    ! Non-temporal write: fields go straight into PointData as plain
+    ! (non-VDS) datasets -- no "t" argument, no external .data file.
+    ! The on-disk name always carries the "_<start_counter>" suffix (here
+    ! "_0") that vtkhdf_file_get_fname() adds for writing; the reader does
+    ! not add it, so it must be read back with that explicit suffix.
+    fname = "test_read_nt.vtkhdf"
+    rfname = "test_read_nt_0.vtkhdf"
+    call file%init(fname)
+    call file%write(fl)
+    call file%free()
+
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
+
+    inquire(file="test_read_nt_0.vtkhdf", exist=exists)
+    message = "Non-temporal output file must exist before read-back"
+    @assertTrue(exists, message = message)
+    inquire(file="test_read_nt_0.data/0.h5", exist=exists)
+    message = "Non-temporal write must not create an external data file"
+    @assertFalse(exists, message = message)
+
+    ! Guard against a vacuous pass: the expected values must actually be
+    ! non-trivial (never all-zero).
+    mag = maxval(abs(p%x)) + maxval(abs(s%x))
+    message = "Expected field magnitude must be non-trivial"
+    @assertGreaterThan(mag, 0.0_rp, message = message)
+
+    ! Poison the destination fields so a successful read must overwrite
+    ! every value; a no-op read would otherwise look like a pass.
+    p2%x = -999.0_rp
+    s2%x = -999.0_rp
+
+    call fl%free()
+    call fl%init(2)
+    call fl%assign_to_field(1, p2)
+    call fl%assign_to_field(2, s2)
+
+    call file%init(rfname)
+    call file%read(fl)
+    call file%free()
+
+    err_p = maxval(abs(p2%x - p%x))
+    err_s = maxval(abs(s2%x - s%x))
+
+    message = "p must round-trip through a non-temporal VTKHDF read"
+    @assertEqual(0.0_rp, err_p, message = message)
+    message = "s must round-trip through a non-temporal VTKHDF read"
+    @assertEqual(0.0_rp, err_s, message = message)
+
+    call fl%free()
+    call p%free(); call s%free(); call p2%free(); call s2%free()
+    call msh%free()
+    call Xh%free()
+
+  end subroutine test_vtkhdf_read_nontemporal
 
 end module vtkhdf_parallel

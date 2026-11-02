@@ -11,6 +11,10 @@
 
 ## Develop
 
+- Fixed reading VTKHDF files whose point data is stored inline rather than
+  as virtual datasets, such as Neko's own non-temporal output. The reader
+  took every dataset for a virtual one and aborted with `Cannot open VDS
+  source file`; it now decides from the dataset's storage layout.
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping

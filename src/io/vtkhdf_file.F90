@@ -65,14 +65,14 @@ module vtkhdf_file
        h5sselect_hyperslab_f, h5sselect_all_f, h5sget_simple_extent_dims_f, &
        h5dget_space_f, h5dset_extent_f, &
        h5pcreate_f, h5pclose_f, h5pset_fapl_mpio_f, h5pset_dxpl_mpio_f, &
-       h5pget_virtual_count_f, h5pget_virtual_filename_f, &
+       h5pget_virtual_count_f, h5pget_virtual_filename_f, h5pget_layout_f, &
        h5lexists_f, h5ldelete_f, &
        H5P_FILE_ACCESS_F, H5P_DATASET_XFER_F, H5P_DATASET_CREATE_F, &
        H5F_ACC_TRUNC_F, H5F_ACC_RDWR_F, H5F_ACC_RDONLY_F, h5pset_chunk_f, &
        H5T_STD_U8LE, H5T_NATIVE_INTEGER, H5T_FORTRAN_S1, H5T_STR_NULLTERM_F, &
        h5kind_to_type, H5_REAL_KIND, H5_INTEGER_KIND, h5pset_virtual_f, &
        H5S_SCALAR_F, H5S_SELECT_SET_F, H5FD_MPIO_COLLECTIVE_F, h5p_default_f, &
-       H5S_UNLIMITED_F
+       H5S_UNLIMITED_F, H5D_VIRTUAL_F
 #endif
   implicit none
   private
@@ -1543,7 +1543,7 @@ contains
   !! - u/v/w -> Velocity component 1/2/3
   !!
   !! If the dataset is a Virtual Dataset (VDS), HDF5 does not support parallel
-  !! reads on VDS. We detect this by checking h5pget_virtual_count and read
+  !! reads on VDS. We detect this from the dataset's storage layout and read
   !! directly from the external source file instead.
   subroutine vtkhdf_read_field(vtkhdf_grp, fname, counter, fld)
     integer(hid_t), intent(in) :: vtkhdf_grp
@@ -1564,7 +1564,7 @@ contains
     character(len=1024) :: vds_src_file, ext_fname, main_path, main_name, main_suffix
     logical :: exists, is_vds
     real(kind=rp), allocatable :: vec_component(:,:)
-    integer :: mpi_info, mpi_comm, pct_pos, nsteps
+    integer :: mpi_info, mpi_comm, pct_pos, nsteps, layout
     character(len=256) :: error_message
 
     field_name = trim(fld%name)
@@ -1627,13 +1627,25 @@ contains
        call neko_error('VTKHDF PointData field not found: ' // trim(dset_name))
     end if
 
-    ! Open the dataset and check if it's a VDS
+    ! Open the dataset and check if it's a VDS. Only a virtual layout may be
+    ! queried for its mappings; h5pget_virtual_count_f fails on any other.
     call h5dopen_f(pointdata_grp, trim(dset_name), dset_id, ierr)
     call h5dget_create_plist_f(dset_id, dcpl_id, ierr)
-    call h5pget_virtual_count_f(dcpl_id, vds_count, ierr)
-    is_vds = (vds_count .gt. 0_size_t)
+    call h5pget_layout_f(dcpl_id, layout, ierr)
+    if (ierr .ne. 0) then
+       call neko_error('VTKHDF: Cannot get the storage layout of: ' // &
+            trim(dset_name))
+    end if
+    is_vds = (layout .eq. H5D_VIRTUAL_F)
 
+    vds_count = 0_size_t
     if (is_vds) then
+       call h5pget_virtual_count_f(dcpl_id, vds_count, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot get the VDS mappings of: ' // &
+               trim(dset_name))
+       end if
+
        call filename_split(fname, main_path, main_name, main_suffix)
 
        ! Query mapping 0 to detect whether this is a printf-style pattern VDS
@@ -1641,6 +1653,10 @@ contains
        ! placeholder) or a multi-mapping VDS where each timestep has its own
        ! literal source file.
        call h5pget_virtual_filename_f(dcpl_id, 0_size_t, vds_src_file, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot get the VDS source file of: ' // &
+               trim(dset_name))
+       end if
        pct_pos = index(vds_src_file, '%b')
 
        if (pct_pos .gt. 0) then
@@ -1672,6 +1688,10 @@ contains
           end if
           call h5pget_virtual_filename_f(dcpl_id, int(counter, size_t), &
                vds_src_file, ierr)
+          if (ierr .ne. 0) then
+             call neko_error('VTKHDF: Cannot get the VDS source file of: ' // &
+                  trim(dset_name))
+          end if
           if (vds_src_file(1:1) .eq. '/') then
              ext_fname = trim(vds_src_file)
           else
