@@ -216,7 +216,7 @@ __global__ void NEKO_EB_BOUNDS(LX*LX*EB)
 
 #if defined(__gfx90a__) || defined(__gfx942__)
 
-template< typename T, const int LX, const int NWF >
+template< typename T, const int LX, const int NWF, const int TILE >
 __device__ void cdtp_mfma_elem(T * __restrict__ dtx,
                                const T * __restrict__ x,
                                const T * __restrict__ dr,
@@ -235,7 +235,11 @@ __device__ void cdtp_mfma_elem(T * __restrict__ dtx,
      contraction offers one column group, so WPE is 1 and every wavefront gets
      an element of its own rather than idling. */
   enum { EB = NEKO_MFMA_EB_N(NWF, LX, sizeof(T)),
-         WPE = NWF / EB };
+         WPE = NWF / EB,
+         /* Elements the batched single precision tile contracts per
+            call, from the wavefronts of the first element of each
+            batch; one for every other tile, see NEKO_MFMA_NEL_N */
+         NEL = NEKO_MFMA_NEL_N(EB, LX, sizeof(T), TILE) };
   static_assert(WPE * EB == NWF,
                 "wavefronts per block must split evenly over the elements");
 
@@ -294,14 +298,17 @@ __device__ void cdtp_mfma_elem(T * __restrict__ dtx,
   __syncthreads();
 
   /* dtx = Dr^T tar + Ds^T tas + Dt^T tat, accumulated in shout */
-  mfma_contract_sel<T, LX, 0, false, true, WPE>::run(shout + sh, shdxt,
-                                                     shtar + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 0, false, true, WPE, TILE, 0, NEL>::run(
+        shout + sh, shdxt, shtar + sh, lane, sub);
   __syncthreads();
-  mfma_contract_sel<T, LX, 1, false, true, WPE>::run(shout + sh, shdyt,
-                                                     shtas + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 1, false, true, WPE, TILE, 0, NEL>::run(
+        shout + sh, shdyt, shtas + sh, lane, sub);
   __syncthreads();
-  mfma_contract_sel<T, LX, 2, false, true, WPE>::run(shout + sh, shdzt,
-                                                     shtat + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 2, false, true, WPE, TILE, 0, NEL>::run(
+        shout + sh, shdzt, shtat + sh, lane, sub);
   __syncthreads();
 
   if (active) {
@@ -321,7 +328,7 @@ __device__ void cdtp_mfma_elem(T * __restrict__ dtx,
  * the strategy for them, so the no-op is unreachable at runtime, see
  * mfma_lx_supported() and hip_have_mfma() in mfma_kernel.h.
  */
-template< typename T, const int LX, const int NWF >
+template< typename T, const int LX, const int NWF, const int TILE >
 struct cdtp_mfma_dispatch {
   __device__ static void run(T *, const T *, const T *, const T *, const T *,
                              const T *, const T *, const T *, const T *,
@@ -332,8 +339,8 @@ struct cdtp_mfma_dispatch {
 
 /* Keep in sync with mfma_lx_supported() in mfma_kernel.h */
 #define NEKO_CDTP_MFMA_DISPATCH(TYPE, LXV)                                    \
-  template< const int NWF >                                                   \
-  struct cdtp_mfma_dispatch< TYPE, LXV, NWF > {                               \
+  template< const int NWF, const int TILE >                                   \
+  struct cdtp_mfma_dispatch< TYPE, LXV, NWF, TILE > {                         \
     __device__ static void run(TYPE * dtx,                                    \
                                const TYPE * x,                                \
                                const TYPE * dr,                               \
@@ -344,8 +351,8 @@ struct cdtp_mfma_dispatch {
                                const TYPE * dzt,                              \
                                const TYPE * w3,                               \
                                const int nelv) {                              \
-      cdtp_mfma_elem< TYPE, LXV, NWF >(dtx, x, dr, ds, dt, dxt, dyt, dzt,     \
-                                       w3, nelv);                             \
+      cdtp_mfma_elem< TYPE, LXV, NWF, TILE >(dtx, x, dr, ds, dt, dxt, dyt,    \
+                                             dzt, w3, nelv);                  \
     }                                                                         \
   }
 
@@ -359,6 +366,8 @@ NEKO_CDTP_MFMA_DISPATCH(double, 10);
 NEKO_CDTP_MFMA_DISPATCH(double, 11);
 NEKO_CDTP_MFMA_DISPATCH(double, 12);
 
+NEKO_CDTP_MFMA_DISPATCH(float, 2);
+NEKO_CDTP_MFMA_DISPATCH(float, 3);
 NEKO_CDTP_MFMA_DISPATCH(float, 4);
 NEKO_CDTP_MFMA_DISPATCH(float, 5);
 NEKO_CDTP_MFMA_DISPATCH(float, 6);
@@ -376,7 +385,7 @@ NEKO_CDTP_MFMA_DISPATCH(float, 12);
  * ax_helm_kernel_mfma: the kstep kernels ask for three waves per SIMD, and
  * the matrix core kernels were validated without that constraint.
  */
-template< typename T, const int LX, const int NWF >
+template< typename T, const int LX, const int NWF, const int TILE >
 __global__ void __launch_bounds__(64 * NWF)
 cdtp_kernel_mfma(T * __restrict__ dtx,
                  const T * __restrict__ x,
@@ -389,8 +398,8 @@ cdtp_kernel_mfma(T * __restrict__ dtx,
                  const T * __restrict__ w3,
                  const int nelv) {
 
-  cdtp_mfma_dispatch< T, LX, NWF >::run(dtx, x, dr, ds, dt, dxt, dyt, dzt,
-                                        w3, nelv);
+  cdtp_mfma_dispatch< T, LX, NWF, TILE >::run(dtx, x, dr, ds, dt, dxt, dyt, dzt,
+                                              w3, nelv);
 }
 
 #endif // __MATH_CDTP_KERNEL_H__

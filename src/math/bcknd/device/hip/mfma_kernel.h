@@ -38,29 +38,37 @@
  * Shared matrix-core (MFMA) primitives for the spectral-element tensor
  * contractions, used by the Ax-helm autotuner strategy.
  *
- * Recovered onto develop 2026-08-22 from the feature/mfma branch, scoped down
- * to Ax-helm: the other operators it covered (dudxyz, cdtp, conv1,
- * convect_scalar) are the four worst placed in the arithmetic intensity
- * ranking and are not worth carrying without a measurement. The contraction
- * primitives below are unchanged from the hardware-validated versions -- see
- * the layout note on mfma_contract_4x4 for why they must not be re-derived
- * from host simulation alone.
+ * Shared by every operator that offers a matrix core strategy: the scalar,
+ * vector and compressible Ax-helm, dudxyz, opgrad, conv1 and cdtp. The
+ * contraction primitives below are the hardware-validated versions -- see the
+ * layout note on mfma_contract_4x4 for why they must not be re-derived from
+ * host simulation alone -- plus one, mfma_contract_4x4x1, whose layout is
+ * documented rather than measured and which the tuner verifies at runtime
+ * before it is allowed to win, see the note there.
  *
  * Maps a reference derivative-matrix * field contraction onto the AMD matrix
- * cores on CDNA2 (MI250X / gfx90a) and CDNA3 (MI300A / MI300X / gfx942).  Double
- * precision defaults to the batched 4x4x4 tile (v_mfma_f64_4x4x4f64, full
- * M-utilisation for M = LX < 16; see mfma_contract_4x4), single precision uses
- * the 16x16x4 tile (v_mfma_f32_16x16x4f32; no f32 4x4x4 equivalent).  Double
- * precision can be forced back onto 16x16x4 with -DMFMA_F64_USE_16X16.  One
- * thread block is launched as a single 64-lane wavefront (blockDim = (64,1,1),
- * or (64, NWF, 1) for the multi-wavefront Ax-helm) and processes one element;
- * each contraction is a D * U GEMM with M = LX, N = LX^2, K = LX, the partial
- * tiles masked off.
+ * cores on CDNA2 (MI250X / gfx90a) and CDNA3 (MI300A / MI300X / gfx942).  Each
+ * precision has two tiles, which every operator's autotuner measures against
+ * each other (TILE, see NEKO_MFMA_TILE below):
  *
- * Supported for single and double precision and 4 <= LX <= 12; the upper
- * bound is set by the LDS needed to keep the cubes resident (operators stage
- * four cubes plus three LX^2 derivative matrices, 63360 B of f64 at LX = 12
- * with the padded Ax-helm layout, 58752 B without it).
+ *   f64 TILE 0  v_mfma_f64_4x4x4f64    batched, four blocks, mfma_contract_4x4
+ *   f64 TILE 1  v_mfma_f64_16x16x4f64  mfma_contract
+ *   f32 TILE 0  v_mfma_f32_4x4x1f32    batched, sixteen blocks, elements
+ *                                      batched too, mfma_contract_4x4x1
+ *   f32 TILE 1  v_mfma_f32_16x16x4f32  mfma_contract
+ *
+ * -DMFMA_F64_USE_16X16 and -DMFMA_F32_USE_16X16 collapse a precision onto its
+ * 16x16x4 tile.  One thread block is launched as NWF 64-lane wavefronts
+ * (blockDim = (64, NWF, 1)) covering EB elements; each contraction is a D * U
+ * GEMM with M = LX, N = LX^2, K = LX, the partial tiles masked off, and the
+ * f32 4x4x1 tile batches NEL elements into one instruction stream at low
+ * order, see NEKO_MFMA_NEL_N.
+ *
+ * Supported for 4 <= LX <= 12 in double precision and 2 <= LX <= 12 in
+ * single; the upper bound is set by the LDS needed to keep the cubes
+ * resident (operators stage four cubes plus three LX^2 derivative matrices,
+ * 63360 B of f64 at LX = 12 with the padded Ax-helm layout, 58752 B without
+ * it), the lower one by what a tile can still fill, see mfma_lx_supported().
  *
  * 16x16x4 register/lane layout (used by the f32 tile and the f64 16x16x4
  * fallback; the 4x4x4 layout is documented at mfma_contract_4x4).
@@ -170,20 +178,29 @@ static inline bool hip_have_mfma() {
 
 /**
  * Compile-time predicate for the LX values that the MFMA strategy supports.
- * Single or double precision and 4 <= LX <= 12 (bounded above by the LDS
- * needed to keep one element resident).  MUST match the dispatch
- * specialisations in each operator's kernel header.
- */
-/*
- * Both precisions are offered, and both are verified against a reference on
- * gfx90a (mfma_probe, 144 configurations, 2026-08-22). They do not share a
- * code path: f64 goes through the batched 4x4x4 tile, f32 has no 4x4x4
- * instruction and uses the 16x16x4 one. If a future part disagrees, excluding
- * a precision here is a one-line change.
+ * Double precision 4 <= LX <= 12, single precision 2 <= LX <= 12, bounded
+ * above by the LDS needed to keep one element resident.  MUST match the
+ * dispatch specialisations in each operator's kernel header.
+ *
+ * Both precisions are verified against a reference on gfx90a (mfma_probe, 144
+ * configurations, 2026-08-22) on the 16x16x4 tile and, in double precision,
+ * on the 4x4x4 one. The single precision lower bound is 2 because the batched
+ * 4x4x1 tile makes those orders worth having -- sixteen lx = 2 elements or
+ * four lx = 4 elements to one instruction, and p-multigrid smooths at both --
+ * where the 16x16x4 tile would be 2% and 25% utilised. Double precision keeps
+ * 4: its 4x4x4 tile already fills M there and batches nothing across
+ * elements, so lx = 2 would be a 6% utilised instruction. The tuner's
+ * verification pass (NEKO_TUNE_VERIFY, elem_block_tune.h) rejects any
+ * candidate that does not reproduce the reference formulation, so an order
+ * or tile that is wrong on some part fails loudly at tuning rather than
+ * silently in the solve.
  */
 template < const int LX >
 static inline bool mfma_lx_supported() {
-  return (sizeof(real) == 8 || sizeof(real) == 4) && (LX >= 4) && (LX <= 12);
+  if (sizeof(real) == 4) {
+    return (LX >= 2) && (LX <= 12);
+  }
+  return (sizeof(real) == 8) && (LX >= 4) && (LX <= 12);
 }
 
 /*
@@ -205,11 +222,11 @@ static inline bool mfma_lx_supported() {
  * both -- NWF = 2^(C mod 4) and TILE = C / 4 -- so one selector still names a
  * whole geometry and candidates 0..3 mean exactly what they always did.
  *
- * TILE 0 is the precision's default tile: the batched 4x4x4 in double
- * precision, the 16x16x4 in single, where there is no 4x4x4 counterpart
- * (its f32 sibling has K = 1). TILE 1 is the 16x16x4 tile in both, so in
- * single precision the two are the same code and only TILE 0 is offered --
- * see mfma_tile_offered().
+ * TILE 0 is the precision's batched tile: the 4x4x4 in double precision,
+ * the 4x4x1 in single (which also batches elements, see NEKO_MFMA_NEL_N).
+ * TILE 1 is the 16x16x4 tile in both. Under -DMFMA_F64_USE_16X16 /
+ * -DMFMA_F32_USE_16X16 a precision's two tiles are the same code and only
+ * TILE 0 is offered there -- see mfma_tile_offered().
  *
  * WHY THE TILE IS MEASURED RATHER THAN CHOSEN. It used to be a compile-time
  * #ifdef, on the argument that the 4x4x4 tile fills M = LX < 16 exactly where
@@ -353,33 +370,46 @@ static inline bool mfma_lx_supported() {
 /*
  * Whether candidate C's tile is a distinct thing to measure in this build.
  *
- * TILE 1 is the 16x16x4 tile, which is what TILE 0 already resolves to in
- * single precision and under -DMFMA_F64_USE_16X16, so offering it there would
- * time the same kernel twice. The launch macros instantiate both regardless --
- * every (precision, LX, candidate) has to compile -- and this only decides
+ * TILE 1 is the 16x16x4 tile, which is what TILE 0 already resolves to under
+ * -DMFMA_F64_USE_16X16 / -DMFMA_F32_USE_16X16, so offering it there would
+ * time the same kernel twice. The launch macros instantiate both regardless
+ * -- every (precision, LX, candidate) has to compile -- and this only decides
  * what the sweep and the env pin will run.
  */
 static inline bool mfma_tile_offered(const int c) {
   if (NEKO_MFMA_TILE(c) == 0) {
     return true;
   }
+  if (sizeof(real) == 8) {
 #ifdef MFMA_F64_USE_16X16
+    return false;
+#else
+    return true;
+#endif
+  }
+#ifdef MFMA_F32_USE_16X16
   return false;
 #else
-  return sizeof(real) == 8;
+  return sizeof(real) == 4;
 #endif
 }
 
 /* Which tile candidate C names, for the tuner log */
 static inline const char *mfma_tile_name(const int c) {
-#ifdef MFMA_F64_USE_16X16
-  (void) c;
-  return "16x16";
-#else
   if (NEKO_MFMA_TILE(c) != 0) {
     return "16x16";
   }
-  return (sizeof(real) == 8) ? "4x4x4" : "16x16";
+  if (sizeof(real) == 8) {
+#ifdef MFMA_F64_USE_16X16
+    return "16x16";
+#else
+    return "4x4x4";
+#endif
+  }
+#ifdef MFMA_F32_USE_16X16
+  return "16x16";
+#else
+  return "4x4x1";
 #endif
 }
 
@@ -443,6 +473,35 @@ static inline const char *mfma_tile_name(const int c) {
   NEKO_MFMA_EB_N(NEKO_MFMA_NWF(C), LX, sizeof(real))
 /* Wavefronts cooperating on one element */
 #define NEKO_MFMA_WPE(LX, C) (NEKO_MFMA_NWF(C) / NEKO_MFMA_EB(LX, C))
+
+/*
+ * Elements batched into one instruction stream by the single precision
+ * 4x4x1 tile, see mfma_contract_4x4x1.
+ *
+ * That instruction is sixteen independent 4x4 outer products, so its sixteen
+ * blocks can take 4-column quads from different elements: one element fills
+ * it exactly at LX = 8 (64 columns), four do at LX = 4 and sixteen at LX = 2.
+ * NEL is the largest power of two with NEL * LX^2 <= 64 that still divides
+ * EB -- the batch has to be whole elements of one block, staged in LDS side
+ * by side at a stride of one cube, which is what NEKO_MFMA_EB_N's power of
+ * two ladder guarantees. Only the wavefronts of the first element of each
+ * batch issue the contraction (eb % NEL == 0 at the call sites); the others
+ * idle through it exactly as they do with WPE > NGROUPS. Every other tile
+ * batches nothing: 16x16x4 has one 16-column block, and the double precision
+ * 4x4x4 has four blocks that one LX >= 4 element already fills.
+ */
+#define NEKO_MFMA_POW2_FLOOR(X)                                               \
+  ((X) >= 16 ? 16 : (X) >= 8 ? 8 : (X) >= 4 ? 4 : (X) >= 2 ? 2 : 1)
+#ifdef MFMA_F32_USE_16X16
+#define NEKO_MFMA_NEL_N(EB, LX, SZ, TILE) 1
+#else
+#define NEKO_MFMA_NEL_N(EB, LX, SZ, TILE)                                     \
+  (((SZ) == 4 && (TILE) == 0) ?                                               \
+   ((EB) < NEKO_MFMA_POW2_FLOOR(64 / ((LX) * (LX))) ?                         \
+    (EB) : NEKO_MFMA_POW2_FLOOR(64 / ((LX) * (LX)))) : 1)
+#endif
+#define NEKO_MFMA_NEL(LX, C)                                                  \
+  NEKO_MFMA_NEL_N(NEKO_MFMA_EB(LX, C), LX, sizeof(real), NEKO_MFMA_TILE(C))
 
 /*
  * Slots per thread: the CUBE_N slots of one staged cube shared out over the
@@ -556,34 +615,6 @@ static int neko_mfma_pin()
 }
 
 /*
- * The same pin restricted to the wavefront dimension, for the operators that
- * offer only that one.
- *
- * The tile dimension is carried by the Helmholtz operator alone, scalar and
- * vector: it is the operator with the headroom to be worth the doubled
- * instantiation count, and the one every measurement so far is about. The
- * gradient-type operators keep the four wavefront candidates and their
- * contractions stay on the default tile. This exists so that a
- * NEKO_MFMA_TILE=1 pin is ignored there *explicitly* rather than by falling
- * through a switch onto some other candidate.
- */
-static int neko_mfma_nwf_pin()
-{
-  const char *v = getenv("NEKO_MFMA_NWF");
-  int c;
-
-  if (v == NULL) {
-    return -1;
-  }
-
-  c = atoi(v);
-  if (c < 0 || c >= NEKO_MFMA_NWF_CANDIDATES) {
-    c = 0;
-  }
-  return c;
-}
-
-/*
  * Candidates the sweep runs: the wavefront counts on the default tile, and
  * the same again on the 16x16x4 tile wherever this build offers that as a
  * distinct thing to measure, see mfma_tile_offered(). The offered set is
@@ -603,8 +634,9 @@ static inline int neko_mfma_candidates()
   do {                                                                        \
     for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {                          \
       if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
-      sprintf(neko_log_buf, "MFMA  %s %2dwf %-2de %-5s: %9.2f us/call",      \
+      sprintf(neko_log_buf, "MFMA  %s %2dwf %-2de x%-2d %-5s: %9.2f us/call", \
               mfma_tile_name(c), NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c),       \
+              (int) NEKO_MFMA_NEL(LX, c),                                     \
               NEKO_MFMA_PAD_N(LX, sizeof(real)) ? "pad" : "plain",            \
               NEKO_TUNE_US((T3)[c], iters));                                  \
       log_message(neko_log_buf);                                              \
@@ -624,8 +656,10 @@ static inline int neko_mfma_candidates()
   do {                                                                        \
     for (int c = 0; c < NEKO_MFMA_CANDIDATES; c++) {                          \
       if ((T3)[c] >= NEKO_TUNE_INIT) { continue; }                            \
-      sprintf(neko_log_buf, "MFMA  %s %2dwf %-2de %-5s %-4s: %9.2f us/call",  \
+      sprintf(neko_log_buf,                                                   \
+              "MFMA  %s %2dwf %-2de x%-2d %-5s %-4s: %9.2f us/call",          \
               mfma_tile_name(c), NEKO_MFMA_NWF(c), NEKO_MFMA_EB(LX, c),       \
+              (int) NEKO_MFMA_NEL(LX, c),                                     \
               NEKO_MFMA_PAD_N(LX, sizeof(real)) ? "pad" : "plain",            \
               NEKO_MFMA_VECTOR_GREG(LX, c) ? "reg" : "glob",                  \
               NEKO_TUNE_US((T3)[c], iters));                                  \
@@ -777,6 +811,19 @@ void mfma_contract(T * __restrict__ out,
   const int KSTEPS = (LX + 3) / 4;
   const int NPASS  = (NTILES + NWF - 1) / NWF;  // N-tiles handled by this wave
 
+  /* A operand, hoisted: this lane's D(c, l) for every K-step does not depend
+     on the N-tile, so it is read once per contraction rather than once per
+     tile. KSTEPS <= 3 registers, the same values in the same order. */
+  T areg[KSTEPS];
+#pragma unroll
+  for (int ks = 0; ks < KSTEPS; ++ks) {
+    const int l = ks * 4 + g;                   // contraction index
+    areg[ks] = 0;
+    if (c < LX && l < LX)
+      areg[ks] = TRANSPOSE ? dmat[mfma_dmat_idx<LX, PAD>(l, c)]  // D(l,c)
+                           : dmat[mfma_dmat_idx<LX, PAD>(c, l)]; // D(c,l)
+  }
+
 #pragma unroll
   for (int p = 0; p < NPASS; ++p) {
     const int nt = wf + p * NWF;                // this wavefront's N-tile
@@ -786,14 +833,10 @@ void mfma_contract(T * __restrict__ out,
 #pragma unroll
       for (int ks = 0; ks < KSTEPS; ++ks) {
         const int l = ks * 4 + g;               // contraction index
-        T a = 0;
-        if (c < LX && l < LX)
-          a = TRANSPOSE ? dmat[mfma_dmat_idx<LX, PAD>(l, c)]  // D(l,c)
-                        : dmat[mfma_dmat_idx<LX, PAD>(c, l)]; // D(c,l)
         T b = 0;
         if (l < LX && n < LX * LX)
           b = in[mfma_cube_idx<LX, AXIS, PAD>(l, n)];
-        acc = mma_t::mma(a, b, acc);
+        acc = mma_t::mma(areg[ks], b, acc);
       }
       const T dvals[4] = { acc[0], acc[1], acc[2], acc[3] };
 #pragma unroll
@@ -926,29 +969,167 @@ void mfma_contract_4x4(double * __restrict__ out,
 }
 
 /*
+ * Single-precision batched matrix-core contraction using v_mfma_f32_4x4x1f32.
+ *
+ * Same contract as mfma_contract() -- out(m,n) (+)= sum_l D(m,l) in(l,n), with
+ * D(l,m) when TRANSPOSE -- for NEL elements whose cubes sit side by side at a
+ * stride of one cube (mfma_cube<LX, PAD>::SIZE) behind 'in' and 'out', so the
+ * GEMM is M = LX, N = NEL * LX^2, K = LX.
+ *
+ * The instruction is sixteen independent 4x4 outer products (K = 1) in 8
+ * cycles, at the same 256 flop per clock per CU as every other f32 MFMA on
+ * gfx90a / gfx942, so a full tile of it costs a quarter of the cycles of a
+ * 16x16x4 tile for the same work. Its M granularity of four fills LX < 16
+ * where the 16x16x4 tile wastes 12 of 16 rows at LX = 4 and half at LX = 8,
+ * its K = 1 has no K waste at any order, and its sixteen blocks take sixteen
+ * 4-column quads of the batch's columns, so N is filled to within a quad.
+ * Counting issues per element per contraction against the 16x16x4 tile it
+ * saves 2x at LX = 8, 4x at LX = 4 with NEL = 4 and 32x at LX = 2 with
+ * NEL = 16; see NEKO_MFMA_NEL_N.
+ *
+ * Nest: the A operand -- D(m, l) for this lane's rows m = 4*mt + lo, every l
+ * -- is register resident for the whole call, MT * LX values, and the B
+ * operand is read once per (column group, l) and shared by the MT M-tiles,
+ * which keep MT independent accumulator chains. On gfx90a a back-to-back
+ * same-accumulator f32 chain needs no wait states at all (LLVM's hazard
+ * tables give the f64 4x4x4 chain four, and gfx940's two-pass f32 tiles two),
+ * so the chain is free here where mfma_contract_4x4's is not.
+ *
+ * Wave of 64 lanes = 16 blocks x 4 lanes, blk = lane/4, lo = lane%4. Lane
+ * layout, from AMD's matrix instruction calculator for CDNA2, no modifiers:
+ *   A[i][0].block : lane 4*blk + i             -> lane supplies D(4*mt + lo, l)
+ *   B[0][j].block : lane 4*blk + j             -> lane supplies in(l, n),
+ *                                                 n = 64*ng + 4*blk + lo
+ *   D[i][j].block : lane 4*blk + j, register i -> lane holds out(4*mt + r, n)
+ *                                                 in accumulator slot r
+ * All sixteen blocks share the same A rows (one M-tile of D), so the CBSZ /
+ * ABID broadcast could feed them from one block's lanes; it is not used,
+ * every lane simply carries the row its block needs, which costs nothing and
+ * keeps the modifiers at zero.
+ *
+ * DOCUMENTED, NOT MEASURED. This layout has not been read out on hardware
+ * the way the 4x4x4 one was. The same tool reproduces the 4x4x4 f64 layout
+ * that WAS measured (A at 4*block + 16*k + i, D at 16*i + 4*block + j, the
+ * mapping mfma_contract_4x4 carries), which is why it is trusted this far and
+ * no further: the tuner's verification pass compares every candidate with
+ * the reference formulation on a synthetic input before timing it and
+ * rejects a mismatch (NEKO_TUNE_VERIFY, elem_block_tune.h), so a wrong
+ * register index here costs the candidate, not the solve. If the f32 TILE 0
+ * candidates are all rejected on a part, -DMFMA_F32_USE_16X16 restores the
+ * measured 16x16x4 path, and the one-hot read-out that settled the 4x4x4
+ * layout is the way to settle this one.
+ *
+ * NWF cooperating wavefronts stripe the 64-column groups, NG = ceil(NEL *
+ * LX^2 / 64) of them: one at LX <= 8, which is the whole contraction on one
+ * wavefront with the others idle, two at LX = 9..11, three at LX = 12.
+ */
+template< const int LX, const int AXIS,
+          const bool TRANSPOSE, const bool ACCUM, const int NWF = 1,
+          const int PAD = 0, const int NEL = 1 >
+__device__ __forceinline__
+void mfma_contract_4x4x1(float * __restrict__ out,
+                         const float * __restrict__ dmat,
+                         const float * __restrict__ in,
+                         const int lane, const int wf = 0) {
+  typedef mfma_cube<LX, PAD> C;
+  const int blk = lane >> 2;           // 0..15 : which of the sixteen blocks
+  const int lo  = lane & 3;            // 0..3  : A row, B column, D column
+  const int MT    = (LX + 3) / 4;      // M-tiles of four rows
+  const int LX2   = LX * LX;
+  const int NCOL  = NEL * LX2;         // columns across the batch
+  const int NG    = (NCOL + 63) / 64;  // 64-column groups
+  const int NPASS = (NG + NWF - 1) / NWF; // groups handled by this wave
+  const mfma_f32x4 zero = {0.0f, 0.0f, 0.0f, 0.0f};
+
+  /* A operand: D(m, l) -- D(l, m) when TRANSPOSE -- for this lane's rows,
+     every l, zero past M = LX */
+  float areg[MT][LX];
+#pragma unroll
+  for (int mt = 0; mt < MT; ++mt) {
+    const int m_a = mt * 4 + lo;       // A row (input lane layout: i = lo)
+#pragma unroll
+    for (int l = 0; l < LX; ++l) {
+      areg[mt][l] = 0.0f;
+      if (m_a < LX)
+        areg[mt][l] = TRANSPOSE ? dmat[mfma_dmat_idx<LX, PAD>(l, m_a)]
+                                : dmat[mfma_dmat_idx<LX, PAD>(m_a, l)];
+    }
+  }
+
+#pragma unroll
+  for (int gp = 0; gp < NPASS; ++gp) {
+    const int ng = wf + gp * NWF;      // this wavefront's column group
+    if (ng < NG) {
+      const int ncol = ng * 64 + 4 * blk + lo;   // column across the batch
+      const bool live = (ncol < NCOL);
+      const int q = live ? (ncol / LX2) : 0;     // element within the batch
+      const int n = ncol - q * LX2;              // column within that element
+      const float * __restrict__ inq = in + q * C::SIZE;
+      float * __restrict__ outq = out + q * C::SIZE;
+      mfma_f32x4 acc[MT];
+#pragma unroll
+      for (int mt = 0; mt < MT; ++mt)
+        acc[mt] = zero;
+#pragma unroll
+      for (int l = 0; l < LX; ++l) {
+        float b = 0.0f;
+        if (live)
+          b = inq[mfma_cube_idx<LX, AXIS, PAD>(l, n)];
+#pragma unroll
+        for (int mt = 0; mt < MT; ++mt)
+          acc[mt] = __builtin_amdgcn_mfma_f32_4x4x1f32(areg[mt][l], b,
+                                                       acc[mt], 0, 0, 0);
+      }
+#pragma unroll
+      for (int mt = 0; mt < MT; ++mt) {
+#pragma unroll
+        for (int r = 0; r < 4; ++r) {
+          const int m_d = mt * 4 + r;  // D row (output layout: register r)
+          if (live && m_d < LX) {
+            const int idx = mfma_cube_idx<LX, AXIS, PAD>(m_d, n);
+            if (ACCUM) outq[idx] += acc[mt][r];
+            else       outq[idx]  = acc[mt][r];
+          }
+        }
+      }
+    }
+  }
+}
+
+/*
  * Precision- and tile-dispatched tensor contraction, so that one call site
  * covers both precisions and both matrix core tiles.
  *
- * TILE 0 is the precision's default: the batched 4x4x4 tile in double
- * precision (full M-utilisation for M = LX < 16, at half the FLOP rate --
- * see the candidate space note above for why that trade is worth measuring),
- * the 16x16x4 tile in single, which has no 4x4x4 counterpart. TILE 1 is the
- * 16x16x4 tile in both, so in single precision the two are the same code.
+ * TILE 0 is the precision's batched tile: the 4x4x4 in double precision
+ * (full M-utilisation for M = LX < 16, at half the FLOP rate -- see the
+ * candidate space note above for why that trade is worth measuring), the
+ * 4x4x1 in single (full M-utilisation at the full rate, and NEL elements to
+ * an instruction at low order). TILE 1 is the 16x16x4 tile in both.
  *
- * -DMFMA_F64_USE_16X16 makes TILE 0 the 16x16x4 tile in double precision as
- * well, which collapses the tile dimension; the sweep then offers TILE 0
- * alone, see mfma_tile_offered(). It is retained as a way to build without
- * the 4x4x4 path at all, not as the way to choose between them -- that is now
- * the autotuner's job.
+ * -DMFMA_F64_USE_16X16 / -DMFMA_F32_USE_16X16 make TILE 0 the 16x16x4 tile in
+ * that precision as well, which collapses the tile dimension; the sweep then
+ * offers TILE 0 alone, see mfma_tile_offered(). They are retained as a way to
+ * build without the batched paths at all, not as the way to choose between
+ * them -- that is the autotuner's job. In single precision it is also the
+ * fallback should the documented 4x4x1 layout be rejected on a part, see
+ * mfma_contract_4x4x1.
  *
- * Both tiles are hardware verified against a CPU reference on gfx90a
- * (mfma_probe, 144 configurations per tile) and give bit-identical f64
+ * NEL is the number of elements the call covers, see NEKO_MFMA_NEL_N. Only
+ * the single precision batched tile takes NEL > 1; the other dispatches
+ * static_assert it away rather than looping, because the call sites derive
+ * NEL from the same macro and can never ask for it.
+ *
+ * The double precision tiles and the single precision 16x16x4 one are
+ * hardware verified against a CPU reference on gfx90a (mfma_probe, 144
+ * configurations per tile); the double precision tiles give bit-identical
  * results, so which one runs is a performance question only.
  */
 template< typename T, const int LX, const int AXIS,
           const bool TRANSPOSE, const bool ACCUM, const int NWF = 1,
-          const int TILE = 0, const int PAD = 0 >
+          const int TILE = 0, const int PAD = 0, const int NEL = 1 >
 struct mfma_contract_sel {
+  static_assert(NEL == 1,
+                "only the single precision 4x4x1 tile batches elements");
   __device__ __forceinline__
   static void run(T * __restrict__ out, const T * __restrict__ dmat,
                   const T * __restrict__ in, const int lane,
@@ -961,8 +1142,10 @@ struct mfma_contract_sel {
 /* Double precision, TILE 0: the batched 4x4x4 tile, or the 16x16x4 one if the
    build asked for it */
 template< const int LX, const int AXIS, const bool TRANSPOSE, const bool ACCUM,
-          const int NWF, const int PAD >
-struct mfma_contract_sel<double, LX, AXIS, TRANSPOSE, ACCUM, NWF, 0, PAD> {
+          const int NWF, const int PAD, const int NEL >
+struct mfma_contract_sel<double, LX, AXIS, TRANSPOSE, ACCUM, NWF, 0, PAD, NEL> {
+  static_assert(NEL == 1,
+                "only the single precision 4x4x1 tile batches elements");
   __device__ __forceinline__
   static void run(double * __restrict__ out, const double * __restrict__ dmat,
                   const double * __restrict__ in, const int lane,
@@ -981,14 +1164,39 @@ struct mfma_contract_sel<double, LX, AXIS, TRANSPOSE, ACCUM, NWF, 0, PAD> {
    75% at LX = 12, but at twice the FLOP rate of the batched tile, a free
    accumulate chain and a third of its operand traffic at high order */
 template< const int LX, const int AXIS, const bool TRANSPOSE, const bool ACCUM,
-          const int NWF, const int PAD >
-struct mfma_contract_sel<double, LX, AXIS, TRANSPOSE, ACCUM, NWF, 1, PAD> {
+          const int NWF, const int PAD, const int NEL >
+struct mfma_contract_sel<double, LX, AXIS, TRANSPOSE, ACCUM, NWF, 1, PAD, NEL> {
+  static_assert(NEL == 1,
+                "only the single precision 4x4x1 tile batches elements");
   __device__ __forceinline__
   static void run(double * __restrict__ out, const double * __restrict__ dmat,
                   const double * __restrict__ in, const int lane,
                   const int wf = 0) {
     mfma_contract<double, LX, AXIS, TRANSPOSE, ACCUM, NWF, PAD>(out, dmat, in,
                                                                 lane, wf);
+  }
+};
+
+/* Single precision, TILE 0: the batched 4x4x1 tile with NEL elements to a
+   call, or the 16x16x4 one if the build asked for it. TILE 1 is the primary
+   template above. */
+template< const int LX, const int AXIS, const bool TRANSPOSE, const bool ACCUM,
+          const int NWF, const int PAD, const int NEL >
+struct mfma_contract_sel<float, LX, AXIS, TRANSPOSE, ACCUM, NWF, 0, PAD, NEL> {
+  __device__ __forceinline__
+  static void run(float * __restrict__ out, const float * __restrict__ dmat,
+                  const float * __restrict__ in, const int lane,
+                  const int wf = 0) {
+#ifdef MFMA_F32_USE_16X16
+    static_assert(NEL == 1,
+                  "NEKO_MFMA_NEL_N is 1 under MFMA_F32_USE_16X16");
+    mfma_contract<float, LX, AXIS, TRANSPOSE, ACCUM, NWF, PAD>(out, dmat, in,
+                                                               lane, wf);
+#else
+    mfma_contract_4x4x1<LX, AXIS, TRANSPOSE, ACCUM, NWF, PAD, NEL>(out, dmat,
+                                                                   in, lane,
+                                                                   wf);
+#endif
   }
 };
 
