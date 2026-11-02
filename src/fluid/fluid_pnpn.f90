@@ -201,6 +201,9 @@ module fluid_pnpn
      !> Recompute geometry-dependent quantities after the mesh has moved.
      procedure, pass(this) :: recompute_metrics => &
           fluid_pnpn_recompute_metrics
+     !> Shift the velocity history by one time step.
+     procedure, pass(this) :: update_velocity_lags => &
+          fluid_pnpn_update_velocity_lags
      !> Solve for the pressure and velocity.
      procedure, pass(this) :: solve => fluid_pnpn_solve
      !> Restart from a previous solution.
@@ -836,9 +839,7 @@ contains
        call this%recompute_metrics()
     end if
 
-    call this%ulag%update()
-    call this%vlag%update()
-    call this%wlag%update()
+    call this%update_velocity_lags()
 
     call this%solve(time, dt_controller, this%proj_prs, this%proj_vel)
 
@@ -971,6 +972,17 @@ contains
     call this%bc_sym_surface%recompute_normals()
     call profiler_end_region('ALE recompute metrics')
   end subroutine fluid_pnpn_recompute_metrics
+
+  !> Shift the velocity history by one time step. Called once per step,
+  !! after the right-hand side is assembled and before the velocity is
+  !! overwritten.
+  subroutine fluid_pnpn_update_velocity_lags(this)
+    class(fluid_pnpn_t), intent(inout) :: this
+
+    call this%ulag%update()
+    call this%vlag%update()
+    call this%wlag%update()
+  end subroutine fluid_pnpn_update_velocity_lags
 
   !> Solve for the pressure and velocity, given an assembled right-hand side.
   !! @param time The time state.
