@@ -1396,21 +1396,41 @@ contains
          ierr)
 
     if (precision_local .eq. rp) then
-       ! Perform direct write for each component seperatly to avoid extra memory
-       ! allocation
-       call h5dwrite_f(dset_id, precision_hdf, u, dcount, ierr, &
+       ! Perform direct write for each component separately to avoid extra
+       ! memory allocation: the n_local values of one component go into one
+       ! row of the file hyperslab, so the memory space is 1D
+       call h5sclose_f(memspace, ierr)
+       call h5screate_simple_f(1, dcount(2:2), memspace, ierr)
+
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            [0_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
+       call h5dwrite_f(dset_id, precision_hdf, u, dcount(2:2), ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot write vector field: ' // &
+               trim(name))
+       end if
+
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             [1_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
-       call h5dwrite_f(dset_id, precision_hdf, v, dcount, ierr, &
+       call h5dwrite_f(dset_id, precision_hdf, v, dcount(2:2), ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot write vector field: ' // &
+               trim(name))
+       end if
+
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
             [2_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
-       call h5dwrite_f(dset_id, precision_hdf, w, dcount, ierr, &
+       call h5dwrite_f(dset_id, precision_hdf, w, dcount(2:2), ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot write vector field: ' // &
+               trim(name))
+       end if
     else if (precision_local .eq. sp) then
        block
          real(kind=sp), allocatable :: f(:,:)
