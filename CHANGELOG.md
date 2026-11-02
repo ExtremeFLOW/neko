@@ -11,12 +11,6 @@
 
 ## Develop
 
-- Fixed cases with several scalars aborting with "Profile region renamed"
-  when `runtime_statistics` is enabled. The profiling regions of each scalar
-  are now allocated by name instead of sharing fixed region ids. CrayPat and
-  fapp, which only record regions with an id, no longer record the scalar
-  regions. In the statistics table and `profile.csv` the scalar regions now
-  come after the regions with reserved ids.
 - Fix bugs in running average of the dynamic Smgorinsky SGS model.
 - Remove the averaging of the LES filter width on element interfaces.
 - Fixed Mij computation in dynamic Smagorinsky SGS model 
