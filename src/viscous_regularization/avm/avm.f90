@@ -33,6 +33,7 @@
 !
 !> Implements `avm_t`.
 module artificial_viscosity_model
+  use utils, only : NEKO_TYPENAME_LEN
   use num_types, only : rp
   use case, only : case_t
   use field, only : field_t
@@ -155,7 +156,7 @@ module artificial_viscosity_model
   !! registry of custom allocators.
   type allocator_entry
      !> Registered model type name.
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      !> Allocator associated with the model type.
      procedure(avm_allocate), pointer, nopass :: allocator
   end type allocator_entry

@@ -2,14 +2,18 @@
 #include <string>
 #include <iostream>
 #include <ctime>
+#include <device/device_config.h>
 
 // Global Adios2 variables
 adios2::ADIOS adios;
 adios2::IO io_asynchronous;
 adios2::Engine writer_st;
 adios2::Engine reader_st;
-adios2::Variable<double> f2py_field;
-adios2::Variable<double> py2f_field;
+
+// Fields
+adios2::Variable<real> f2py_field;
+adios2::Variable<real> py2f_field;
+
 // Global C variables
 int rank, size;
 unsigned int reader_start;
@@ -48,7 +52,7 @@ extern "C" void adios2_initialize_(
     reader_count = n;
 
     // If the process is asynchronous, define the relevant variables for writer_st
-    f2py_field = io_asynchronous.DefineVariable<double>("f2py_field", {gn}, {start}, {n});
+    f2py_field = io_asynchronous.DefineVariable<real>("f2py_field", {gn}, {start}, {n});
     
     // If asynchronous execution, open the global array
     writer_st = io_asynchronous.Open("globalArray_f2py", adios2::Mode::Write);
@@ -71,23 +75,22 @@ extern "C" void adios2_initialize_(
 extern "C" void adios2_finalize_(){
     writer_st.Close();
     reader_st.Close();
-
 }
 
 extern "C" void adios2_stream_(
-    const double *field
+    const real *field
 ){
     writer_st.BeginStep();
-    writer_st.Put<double>(f2py_field, field);
+    writer_st.Put<real>(f2py_field, field);
     writer_st.EndStep();
 }
 
 extern "C" void adios2_recieve_(
-    double *field
+    real *field
 ){
     reader_st.BeginStep();
-    py2f_field = io_asynchronous.InquireVariable<double>("py2f_field");
+    py2f_field = io_asynchronous.InquireVariable<real>("py2f_field");
     py2f_field.SetSelection({{reader_start}, {reader_count}});
-    reader_st.Get<double>(py2f_field, field);
+    reader_st.Get<real>(py2f_field, field);
     reader_st.EndStep();
 }

@@ -43,6 +43,12 @@
         },
         "oifs_target_cfl": {
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        },
+        "compress_geometric_factors": {
+          "type": "boolean"
+        },
+        "compress_geometric_factors_tolerance": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
         }
       },
       "additionalProperties": false

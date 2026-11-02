@@ -49,7 +49,7 @@ module les_model
   use device, only : device_memcpy, HOST_TO_DEVICE
   use math, only : col2
   use device_math, only : device_col2
-  use utils, only : neko_type_error, neko_error, neko_warning
+  use utils, only : neko_type_error, neko_error, neko_warning, NEKO_TYPENAME_LEN
   use comm, only : pe_rank
   implicit none
   private
@@ -178,7 +178,7 @@ module les_model
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(les_model_allocate), pointer, nopass :: allocator
   end type allocator_entry
 
@@ -382,11 +382,6 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_memcpy(this%delta%x, this%delta%x_d, this%delta%dof%size(),&
               HOST_TO_DEVICE, sync = .false.)
-         call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
-         call device_col2(this%delta%x_d, this%coef%mult_d, this%delta%dof%size())
-      else
-         call this%coef%gs_h%op(this%delta%x, this%delta%dof%size(), GS_OP_ADD)
-         call col2(this%delta%x, this%coef%mult, this%delta%dof%size())
       end if
     end associate
   end subroutine les_model_compute_delta

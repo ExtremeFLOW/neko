@@ -41,15 +41,10 @@ module fluid_scheme_incompressible
   use field, only : field_t
   use space, only : GLL, operator(.ne.)
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
-  use jacobi, only : jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use hsmg, only : hsmg_t
-  use phmg, only : phmg_t
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_factory
   use fluid_stats, only : fluid_stats_t
   use bc, only : bc_t, BC_DIRICHLET
   use bc_list, only : bc_list_t
@@ -166,7 +161,7 @@ contains
     integer :: integer_val, ierr
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
-    type(json_file) :: json_subdict
+    type(json_file) :: json_subdict, solver_params
 
     !
     ! SEM simulation fundamentals
@@ -271,6 +266,23 @@ contains
     write(log_buf, '(A, L1)') 'Full stress: ', full_stress_formulation
     call neko_log%message(log_buf)
 
+    ! Compressed geometric factors, read by the standard Helmholtz
+    ! operators of the fluid, the scalars and the multigrid levels
+    call json_get_or_default(params, &
+         'case.numerics.compress_geometric_factors', logical_val, .false.)
+    write(log_buf, '(A, L1)') 'Compress G : ', logical_val
+    call neko_log%message(log_buf)
+    if (logical_val) then
+       if (params%valid_path( &
+            'case.numerics.compress_geometric_factors_tolerance')) then
+          call json_get_or_lookup(params, &
+               'case.numerics.compress_geometric_factors_tolerance', real_val)
+          call this%c_Xh%enable_geo_compression(real_val)
+       else
+          call this%c_Xh%enable_geo_compression()
+       end if
+    end if
+
 
     !
     ! Setup right-hand side fields.
@@ -285,9 +297,7 @@ contains
     ! Initialize velocity solver
     if (kspv_init) then
        call neko_log%section("Velocity solver")
-       call json_get_or_lookup_or_default(params, &
-            'case.fluid.velocity_solver.max_iterations', &
-            integer_val, KSP_MAX_ITER)
+       call json_get(params, 'case.fluid.velocity_solver', solver_params)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
             string_val2)
@@ -296,9 +306,6 @@ contains
        call json_get_or_lookup(params, &
             'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
-       call json_get_or_default(params, &
-            'case.fluid.velocity_solver.monitor', &
-            logical_val, .false.)
 
        call neko_log%message('Type       : ('// trim(string_val1) // &
             ', ' // trim(string_val2) // ')')
@@ -306,9 +313,9 @@ contains
        write(log_buf, '(A,ES13.6)') 'Abs tol    :', real_val
        call neko_log%message(log_buf)
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, integer_val, real_val, logical_val)
+            solver_params)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
-            this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_vel, &
+            this%c_Xh, this%bcs_vel, &
             string_val2, json_subdict)
        call neko_log%end_section()
     end if
@@ -389,12 +396,12 @@ contains
     end if
 
     if (allocated(this%pc_vel)) then
-       call precon_destroy(this%pc_vel)
+       call this%pc_vel%free()
        deallocate(this%pc_vel)
     end if
 
     if (allocated(this%pc_prs)) then
-       call precon_destroy(this%pc_prs)
+       call this%pc_prs%free()
        deallocate(this%pc_prs)
     end if
 
@@ -579,49 +586,29 @@ contains
 
   end subroutine fluid_scheme_bc_apply_prs
 
-  !> Initialize a linear solver
+  !> Initialize a linear solver from its JSON solver block
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(ksp, n, solver, &
-       max_iter, abstol, monitor)
+  subroutine fluid_scheme_solver_factory(ksp, n, params)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=*), intent(in) :: solver
-    integer, intent(in) :: max_iter
-    real(kind=rp), intent(in) :: abstol
-    logical, intent(in) :: monitor
+    type(json_file), intent(inout) :: params
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
-         monitor = monitor)
+    call krylov_solver_factory(ksp, n, params)
 
   end subroutine fluid_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine fluid_scheme_precon_factory(this, pc, ksp, coef, dof, gs, bclst, &
-       pctype, pcparams)
+  subroutine fluid_scheme_precon_factory(this, pc, ksp, coef, bclst, &
+       pctype, json)
     class(fluid_scheme_incompressible_t), intent(inout) :: this
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
-    type(dofmap_t), target, intent(in) :: dof
-    type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
-    type(json_file), intent(inout) :: pcparams
+    type(json_file), intent(inout) :: json
 
-    call precon_allocator(pc, pctype)
-
-    select type (pcp => pc)
-    type is (jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (sx_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (device_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (hsmg_t)
-       call pcp%init(coef, bclst, pcparams)
-    type is (phmg_t)
-       call pcp%init(coef, bclst, pcparams)
-    end select
+    call precon_factory(pc, pctype, coef, bclst, json)
 
     call ksp%set_pc(pc)
 

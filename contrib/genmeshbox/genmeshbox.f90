@@ -26,6 +26,7 @@ program genmeshbox
   type(file_t) :: dist_x_file, dist_y_file, dist_z_file
   character(len = 80) :: dist_x_fname, dist_y_fname, dist_z_fname
   character(len=80) :: log_fname = "genmeshbox.log"
+  integer :: log_unit
   logical :: file_exists
 
   argc = command_argument_count()
@@ -106,14 +107,15 @@ program genmeshbox
         inquire(file = trim(log_fname), exist = file_exists)
         if (.not. file_exists) then
 
-           open(unit=10, file=trim(log_fname), status = 'new', action = 'write')
-           write (10, '(A,2(F12.6," "),I4,L2)') "xmin, xmax, Nel, periodic:", &
-                x0, x1, nelx, period_x
-           write (10, '(A,2(F12.6," "),I4,L2)') "ymin, ymax, Nel, periodic:", &
-                y0, y1, nely, period_y
-           write (10, '(A,2(F12.6," "),I4,L2)') "zmin, zmax, Nel, periodic:", &
-                z0, z1, nelz, period_z
-           close(10)
+           open(newunit = log_unit, file = trim(log_fname), status = 'new', &
+                action = 'write')
+           write (log_unit, '(A,2(F12.6," "),I4,L2)') &
+                "xmin, xmax, Nel, periodic:", x0, x1, nelx, period_x
+           write (log_unit, '(A,2(F12.6," "),I4,L2)') &
+                "ymin, ymax, Nel, periodic:", y0, y1, nely, period_y
+           write (log_unit, '(A,2(F12.6," "),I4,L2)') &
+                "zmin, zmax, Nel, periodic:", z0, z1, nelz, period_z
+           close(log_unit)
            exit
 
         end if

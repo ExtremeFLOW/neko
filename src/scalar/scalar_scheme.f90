@@ -41,15 +41,11 @@ module scalar_scheme
   use field_list, only : field_list_t
   use space, only : space_t
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER, ksp_monitor_t
+  use krylov, only : ksp_t, krylov_solver_factory, ksp_monitor_t
   use coefs, only : coef_t
-  use jacobi, only : jacobi_t
-  use device_jacobi, only : device_jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
-  use hsmg, only : hsmg_t
   use bc_list, only : bc_list_t
   use bc, only : bc_t
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_factory
   use mesh, only : mesh_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_VERBOSE
@@ -59,7 +55,7 @@ module scalar_scheme
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_TYPENAME_LEN
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
@@ -321,7 +317,7 @@ module scalar_scheme
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type scalar_scheme_allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(scalar_scheme_allocate), pointer, nopass :: allocator
   end type scalar_scheme_allocator_entry
 
@@ -355,12 +351,11 @@ contains
     ! IO buffer for log output
     character(len=LOG_SIZE) :: log_buf
     ! Variables for retrieving json parameters
-    logical :: logical_val
     real(kind=rp) :: real_val, solver_abstol
-    integer :: integer_val, ierr
+    integer :: ierr
     character(len=:), allocatable :: solver_type, solver_precon
     type(json_file) :: precon_params
-    type(json_file) :: json_subdict
+    type(json_file) :: json_subdict, solver_params
     logical :: nut_dependency
 
     this%u => neko_registry%get_field('u')
@@ -464,17 +459,11 @@ contains
     call this%source_term%init(this%f_Xh, this%c_Xh, user, this%name)
     call this%source_term%add(params, 'source_terms')
 
-    ! todo parameter file ksp tol should be added
-    call json_get_or_lookup_or_default(params, &
-         'solver.max_iterations', &
-         integer_val, KSP_MAX_ITER)
-    call json_get_or_default(params, &
-         'solver.monitor', &
-         logical_val, .false.)
+    call json_get(params, 'solver', solver_params)
     call scalar_scheme_solver_factory(this%ksp, this%dm_Xh%size(), &
-         solver_type, integer_val, solver_abstol, logical_val)
+         solver_params)
     call scalar_scheme_precon_factory(this%pc, this%ksp, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs, &
+         this%c_Xh, this%bcs, &
          solver_precon, precon_params)
 
     call neko_log%end_section()
@@ -550,7 +539,7 @@ contains
     end if
 
     if (allocated(this%pc)) then
-       call precon_destroy(this%pc)
+       call this%pc%free()
        deallocate(this%pc)
     end if
 
@@ -634,46 +623,28 @@ contains
 
   end subroutine scalar_scheme_validate
 
-  !> Initialize a linear solver
+  !> Initialize a linear solver from its JSON solver block
   !! @note Currently only supporting Krylov solvers
-  subroutine scalar_scheme_solver_factory(ksp, n, solver, max_iter, &
-       abstol, monitor)
+  subroutine scalar_scheme_solver_factory(ksp, n, params)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
-    integer, intent(in) :: max_iter
-    character(len=*), intent(in) :: solver
-    real(kind=rp) :: abstol
-    logical, intent(in) :: monitor
+    type(json_file), intent(inout) :: params
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, &
-         abstol, monitor = monitor)
+    call krylov_solver_factory(ksp, n, params)
 
   end subroutine scalar_scheme_solver_factory
 
   !> Initialize a Krylov preconditioner
-  subroutine scalar_scheme_precon_factory(pc, ksp, coef, dof, gs, bclst, &
-       pctype, pcparams)
+  subroutine scalar_scheme_precon_factory(pc, ksp, coef, bclst, &
+       pctype, json)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
-    type(dofmap_t), target, intent(in) :: dof
-    type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*) :: pctype
-    type(json_file), intent(inout) :: pcparams
+    type(json_file), intent(inout) :: json
 
-    call precon_allocator(pc, pctype)
-
-    select type (pcp => pc)
-    type is (jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (sx_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (device_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (hsmg_t)
-       call pcp%init(coef, bclst, pcparams)
-    end select
+    call precon_factory(pc, pctype, coef, bclst, json)
 
     call ksp%set_pc(pc)
 

@@ -33,6 +33,8 @@
 !> Jacobi preconditioner accelerator backend
 module device_jacobi
   use precon, only : pc_t
+  use bc_list, only : bc_list_t
+  use json_module, only : json_file
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
   use num_types, only : rp
@@ -55,6 +57,8 @@ module device_jacobi
      type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => device_jacobi_init
+     procedure, pass(this) :: init_from_components => &
+          device_jacobi_init_from_components
      procedure, pass(this) :: free => device_jacobi_free
      procedure, pass(this) :: solve => device_jacobi_solve
      procedure, pass(this) :: update => device_jacobi_update
@@ -106,7 +110,19 @@ module device_jacobi
 
 contains
 
-  subroutine device_jacobi_init(this, coef, dof, gs_h)
+  !> Initialize from the case file. The boundary conditions and the JSON
+  !! dictionary are not needed by this preconditioner.
+  subroutine device_jacobi_init(this, coef, bclst, json)
+    class(device_jacobi_t), intent(inout), target :: this
+    type(coef_t), intent(in), target :: coef
+    type(bc_list_t), intent(inout), target :: bclst
+    type(json_file), intent(inout) :: json
+
+    call this%init_from_components(coef, coef%dof, coef%gs_h)
+
+  end subroutine device_jacobi_init
+
+  subroutine device_jacobi_init_from_components(this, coef, dof, gs_h)
     class(device_jacobi_t), intent(inout) :: this
     type(coef_t), intent(in), target :: coef
     type(dofmap_t), intent(in), target :: dof
@@ -126,7 +142,7 @@ contains
 
     call device_jacobi_update(this)
 
-  end subroutine device_jacobi_init
+  end subroutine device_jacobi_init_from_components
 
   subroutine device_jacobi_free(this)
     class(device_jacobi_t), intent(inout) :: this

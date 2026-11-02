@@ -1,9 +1,9 @@
 module test_crystal_router_parallel
-  use mpi
   use pfunit
   use num_types, only : i8
   use crystal_router, only : crystal_router_transfer
-  use comm, only : NEKO_COMM, pe_rank, pe_size
+  use comm, only : pe_rank, pe_size
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
   implicit none
 
 contains
@@ -17,12 +17,10 @@ contains
   subroutine test_cr_all_to_all(this)
     class(MpiTestMethod), intent(inout) :: this
     integer(i8), allocatable :: buf(:)
-    integer :: n, i, p, dest, rlen, origin, nrec, ierr
+    integer :: n, i, p, dest, rlen, origin, nrec
     logical, allocatable :: seen(:)
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init_test(this%getMpiCommunicator())
 
     ! One record per destination: [dest, len=1, payload=origin]
     n = pe_size * 3
@@ -55,6 +53,7 @@ contains
     @assertTrue(all(seen))
 
     deallocate(buf, seen)
+    call comm_free_test()
   end subroutine test_cr_all_to_all
 
   !> Sparse, variable-length test: each rank sends one record only to a single
@@ -65,11 +64,9 @@ contains
   subroutine test_cr_variable_length(this)
     class(MpiTestMethod), intent(inout) :: this
     integer(i8), allocatable :: buf(:)
-    integer :: n, p, dest, rlen, origin, k, expect_origin, ierr
+    integer :: n, p, dest, rlen, origin, k, expect_origin
 
-    call MPI_Comm_dup(this%getMpiCommunicator(), NEKO_COMM%mpi_val, ierr)
-    pe_rank = this%getProcessRank()
-    pe_size = this%getNumProcesses()
+    call comm_init_test(this%getMpiCommunicator())
 
     ! Send to neighbour (rank+1 mod P). Payload: [origin, then origin+1..origin+L].
     rlen = 1 + mod(pe_rank, 4) + 1   ! varies per rank, >= 2
@@ -101,6 +98,7 @@ contains
     @assertEqual(2 + rlen, n)
 
     deallocate(buf)
+    call comm_free_test()
   end subroutine test_cr_variable_length
 
 end module test_crystal_router_parallel

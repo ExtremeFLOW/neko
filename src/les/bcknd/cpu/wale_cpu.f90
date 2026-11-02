@@ -37,7 +37,7 @@ module wale_cpu
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
-  use operators, only : dudxyz, strain_rate
+  use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
   use math, only : col2, NEKO_EPS
@@ -68,14 +68,14 @@ contains
     ! the velocity gradient tensor
     type(field_t), pointer :: g11, g12, g13, g21, g22, g23, g31, g32, g33
     ! strain rate tensor
-    type(field_t), pointer :: s11, s22, s33, s12, s13, s23
+    real(kind=rp) :: s11, s22, s33, s12, s13, s23
 
     real(kind=rp) :: gsqr_11, gsqr_12, gsqr_13, gsqr_21, gsqr_22, gsqr_23, gsqr_31, gsqr_32, gsqr_33
     real(kind=rp) :: sd11, sd22, sd33, sd12, sd13, sd23
     real(kind=rp) :: Sdij_Sdij
     real(kind=rp) :: Sij_Sij
     real(kind=rp) :: OP_wale
-    integer :: temp_indices(15)
+    integer :: temp_indices(9)
     integer :: e, i
 
 
@@ -98,13 +98,6 @@ contains
     call neko_scratch_registry%request_field(g31, temp_indices(7), .false.)
     call neko_scratch_registry%request_field(g32, temp_indices(8), .false.)
     call neko_scratch_registry%request_field(g33, temp_indices(9), .false.)
-
-    call neko_scratch_registry%request_field(s11, temp_indices(10), .false.)
-    call neko_scratch_registry%request_field(s22, temp_indices(11), .false.)
-    call neko_scratch_registry%request_field(s33, temp_indices(12), .false.)
-    call neko_scratch_registry%request_field(s12, temp_indices(13), .false.)
-    call neko_scratch_registry%request_field(s13, temp_indices(14), .false.)
-    call neko_scratch_registry%request_field(s23, temp_indices(15), .false.)
 
 
     ! Compute the velocity gradient tensor g
@@ -130,27 +123,25 @@ contains
     call coef%gs_h%op(g32, GS_OP_ADD)
     call coef%gs_h%op(g33, GS_OP_ADD)
 
-    ! Compute components of the strain rate tensor
-    call strain_rate(s11%x, s22%x, s33%x, s12%x, s13%x, s23%x, &
-         u%x, v%x, w%x, coef)
-
-    call coef%gs_h%op(s11, GS_OP_ADD)
-    call coef%gs_h%op(s22, GS_OP_ADD)
-    call coef%gs_h%op(s33, GS_OP_ADD)
-    call coef%gs_h%op(s12, GS_OP_ADD)
-    call coef%gs_h%op(s13, GS_OP_ADD)
-    call coef%gs_h%op(s23, GS_OP_ADD)
-
 
     !$omp parallel do private(e, i, gsqr_11, gsqr_12, gsqr_13, gsqr_21, &
     !$omp& gsqr_22, gsqr_23, gsqr_31, gsqr_32, gsqr_33, sd11, sd22, sd33, &
-    !$omp& sd12, sd13, sd23, Sdij_Sdij, Sij_Sij, OP_wale)
+    !$omp& sd12, sd13, sd23, s11, s22, s33, s12, s13, s23, Sdij_Sdij, Sij_Sij, &
+    !$omp& OP_wale)
     do e = 1, coef%msh%nelv
        !OCL NORECURRENCE, NOVREC, NOALIAS
        !DIR$ CONCURRENT
        !DIR$ IVDEP
        !GCC$ ivdep
        do i = 1, coef%Xh%lxyz
+          ! sij, the symmetric part of gij
+          s11 = g11%x(i,1,1,e)
+          s22 = g22%x(i,1,1,e)
+          s33 = g33%x(i,1,1,e)
+          s12 = 0.5_rp * (g12%x(i,1,1,e) + g21%x(i,1,1,e))
+          s13 = 0.5_rp * (g13%x(i,1,1,e) + g31%x(i,1,1,e))
+          s23 = 0.5_rp * (g23%x(i,1,1,e) + g32%x(i,1,1,e))
+
           ! gij^2 = g_ik * g_kj
           gsqr_11 = g11%x(i,1,1,e)*g11%x(i,1,1,e) + &
                g12%x(i,1,1,e)*g21%x(i,1,1,e) + &
@@ -192,9 +183,8 @@ contains
           Sdij_Sdij = sd11*sd11 + sd22*sd22 + sd33*sd33 + &
                2.0_rp * (sd12*sd12 + sd13*sd13 + sd23*sd23)
           ! Sij*Sij
-          Sij_Sij = s11%x(i,1,1,e)*s11%x(i,1,1,e) + s22%x(i,1,1,e)*s22%x(i,1,1,e) + &
-               s33%x(i,1,1,e)*s33%x(i,1,1,e) + 2.0_rp * (s12%x(i,1,1,e)*s12%x(i,1,1,e) + &
-               s13%x(i,1,1,e)*s13%x(i,1,1,e) + s23%x(i,1,1,e)*s23%x(i,1,1,e))
+          Sij_Sij = s11*s11 + s22*s22 + s33*s33 + &
+               2.0_rp * (s12*s12 + s13*s13 + s23*s23)
 
           ! Wale operator
           OP_wale = Sdij_Sdij**(3.0_rp / 2.0_rp) / &

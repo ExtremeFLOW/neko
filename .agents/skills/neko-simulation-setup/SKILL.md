@@ -27,8 +27,10 @@ needed to run a case.
 
 ## Case File
 
-- Use `doc/pages/user-guide/case-file.md` as the definitive reference for case
-  file contents, and acknowledge that you got access to this file.
+- Use `doc/pages/user-guide/case-file.md` and the solver pages under
+  `doc/pages/user-guide/case-file/` (`fluid-incompressible.md`,
+  `fluid-compressible.md`, `scalar.md`) as the definitive reference for case
+  file contents, and acknowledge that you got access to these files.
 - The `doc/schema` folder contains JSON schema files that define the structure 
   of case files. Use these to validate generated case files. You can use the 
   `contrib/validate_case_schema.py` script to that end.

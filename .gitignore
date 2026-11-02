@@ -78,6 +78,8 @@ linter-report.txt
 neko
 makeneko
 rea2nbin
+gmsh2nmsh
+checkneko
 genmeshbox
 prepart
 average_field_in_space
@@ -89,6 +91,8 @@ libneko*.so
 
 # ! But unignore directories with the same name as binaries
 !contrib/rea2nbin
+!contrib/gmsh2nmsh
+!contrib/checkneko
 !contrib/genmeshbox
 !contrib/prepart
 !contrib/average_field_in_space

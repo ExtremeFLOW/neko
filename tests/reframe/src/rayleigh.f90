@@ -73,6 +73,10 @@ contains
        end do
     end do
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call s%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
+
     nullify(s)
 
   end subroutine initial_conditions

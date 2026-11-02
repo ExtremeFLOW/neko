@@ -41,6 +41,7 @@ module utils
 
   integer, parameter :: NEKO_FNAME_LEN = 1024
   integer, parameter :: NEKO_VARNAME_LEN = 256
+  integer, parameter :: NEKO_TYPENAME_LEN = 64
 
   interface neko_error
      module procedure neko_error_plain, neko_error_msg
@@ -74,7 +75,8 @@ module utils
        linear_index, split_string, NEKO_FNAME_LEN, index_is_on_facet, &
        concat_string_array, extract_fld_file_index, neko_type_error, &
        neko_type_registration_error, throw_error, throw_warning, throw_intf, &
-       default_throw_error, default_throw_warning, NEKO_VARNAME_LEN, mkdir, &
+       default_throw_error, default_throw_warning, NEKO_VARNAME_LEN, &
+       NEKO_TYPENAME_LEN, mkdir, &
        read_duration
 
   interface

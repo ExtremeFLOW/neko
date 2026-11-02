@@ -97,7 +97,7 @@ contains
 
   end subroutine test_vector_assign_vector
 
-  @test(npes[1])
+  @test(npes=[1])
   subroutine test_vector_assign_scalar(this)
     class (test_vector), intent(inout) :: this
     integer, parameter :: n = 4711
@@ -157,7 +157,7 @@ contains
 
   end subroutine test_vector_add_vector
 
-  @test(npes[1])
+  @test(npes=[1])
   subroutine test_vector_add_scalar(this)
     class (test_vector), intent(inout) :: this
     integer, parameter :: n = 4711
@@ -219,7 +219,7 @@ contains
 
   end subroutine test_vector_sub_vector
 
-  @test(npes[1])
+  @test(npes=[1])
   subroutine test_vector_cmult_scalar(this)
     class (test_vector), intent(inout) :: this
     integer, parameter :: n = 4711

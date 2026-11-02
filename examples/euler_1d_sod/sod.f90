@@ -62,6 +62,14 @@ contains
           p%x(i,1,1,1) = 0.1
        end if
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call rho%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call p%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine initial_conditions
 
   subroutine material_properties(scheme_name, properties, time)
@@ -85,8 +93,7 @@ contains
        mu = 1.0_rp / (nx * 30)
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(fluid%artificial_visc%x, &
-               fluid%artificial_visc%x_d, n, DEVICE_TO_HOST, sync = .true.)
+          call fluid%artificial_visc%copy_from(DEVICE_TO_HOST, sync = .true.)
        end if
 
        do i = 1, n
@@ -95,8 +102,7 @@ contains
        end do
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_memcpy(fluid%artificial_visc%x, &
-               fluid%artificial_visc%x_d, n, HOST_TO_DEVICE, sync = .false.)
+          call fluid%artificial_visc%copy_from(HOST_TO_DEVICE, sync = .true.)
        end if
     end select
   end subroutine material_properties

@@ -33,7 +33,7 @@ AC_DEFUN([AX_METAL],[
 		AC_LANG_PUSH([C])
 		AC_LANG_ASSERT([C])
 		LIBS_SAVED="$LIBS"
-		METAL_LIBS="-framework Metal -framework CoreGraphics -framework Foundation"
+		METAL_LIBS="-framework Metal -framework CoreGraphics -framework Foundation -framework IOKit"
 		LIBS="$METAL_LIBS $LIBS"
 
 		AC_LINK_IFELSE([AC_LANG_SOURCE([

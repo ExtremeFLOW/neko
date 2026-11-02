@@ -164,7 +164,7 @@ void opencl_mij_compute_part1(void *m11, void *m22, void *m33,
                               void *m12, void *m13, void *m23,
                               void *s_abs, void *s11, void *s22, void *s33,
                               void *s12, void *s13, void *s23,
-                              void *fs_abs, void *fs11, void *fs22, void *fs33,
+                              void *delta, void *fs11, void *fs22, void *fs33,
                               void *fs12, void *fs13, void *fs23,
                               void *fsabss11, void *fsabss22, void *fsabss33,
                               void *fsabss12, void *fsabss13, void *fsabss23,
@@ -190,7 +190,7 @@ void opencl_mij_compute_part1(void *m11, void *m22, void *m33,
   CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &s12));
   CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &s13));
   CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &s23));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &fs_abs));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &delta));
   CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &fs11));
   CL_CHECK(clSetKernelArg(kernel, 15, sizeof(cl_mem), (void *) &fs22));
   CL_CHECK(clSetKernelArg(kernel, 16, sizeof(cl_mem), (void *) &fs33));

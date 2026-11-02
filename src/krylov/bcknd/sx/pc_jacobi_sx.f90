@@ -34,6 +34,8 @@
 module sx_jacobi
   use math, only : col2, col3, addcol3, invcol1
   use precon, only : pc_t
+  use bc_list, only : bc_list_t
+  use json_module, only : json_file
   use coefs, only : coef_t
   use dofmap, only : dofmap_t
   use num_types, only : rp
@@ -49,6 +51,8 @@ module sx_jacobi
      type(coef_t), pointer :: coef
    contains
      procedure, pass(this) :: init => sx_jacobi_init
+     procedure, pass(this) :: init_from_components => &
+          sx_jacobi_init_from_components
      procedure, pass(this) :: free => sx_jacobi_free
      procedure, pass(this) :: solve => sx_jacobi_solve
      procedure, pass(this) :: update => sx_jacobi_update
@@ -56,7 +60,19 @@ module sx_jacobi
 
 contains
 
-  subroutine sx_jacobi_init(this, coef, dof, gs_h)
+  !> Initialize from the case file. The boundary conditions and the JSON
+  !! dictionary are not needed by this preconditioner.
+  subroutine sx_jacobi_init(this, coef, bclst, json)
+    class(sx_jacobi_t), intent(inout), target :: this
+    type(coef_t), intent(in), target :: coef
+    type(bc_list_t), intent(inout), target :: bclst
+    type(json_file), intent(inout) :: json
+
+    call this%init_from_components(coef, coef%dof, coef%gs_h)
+
+  end subroutine sx_jacobi_init
+
+  subroutine sx_jacobi_init_from_components(this, coef, dof, gs_h)
     class(sx_jacobi_t), intent(inout) :: this
     type(coef_t), intent(in), target :: coef
     type(dofmap_t), intent(in), target :: dof
@@ -69,7 +85,7 @@ contains
     allocate(this%d(dof%Xh%lx, dof%Xh%ly, dof%Xh%lz, dof%msh%nelv))
     call sx_jacobi_update(this)
 
-  end subroutine sx_jacobi_init
+  end subroutine sx_jacobi_init_from_components
 
   subroutine sx_jacobi_free(this)
     class(sx_jacobi_t), intent(inout) :: this

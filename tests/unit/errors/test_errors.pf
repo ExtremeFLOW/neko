@@ -2,6 +2,7 @@ module test_errors
   use pfunit
   use utils, only : neko_error, neko_type_error, &
        neko_type_registration_error, neko_warning
+  use error_redirection, only : redirect_warnings, restore_warnings
   implicit none
 
 contains
@@ -34,11 +35,17 @@ contains
     @assertExceptionRaised()
   end subroutine test_neko_type_registration_error_raises
 
-  !> neko_warning raises a pFUnit exception.
+  !> neko_warning raises a pFUnit exception only while warnings are
+  !! redirected.
   @test
-  subroutine test_neko_warning_raises()
+  subroutine test_neko_warning_raises_when_redirected()
+    call redirect_warnings()
     call neko_warning("this is a warning")
     @assertExceptionRaised()
-  end subroutine test_neko_warning_raises
+    call restore_warnings()
+
+    ! With the default behaviour restored the warning is only printed.
+    call neko_warning("this warning is not an exception")
+  end subroutine test_neko_warning_raises_when_redirected
 
 end module test_errors

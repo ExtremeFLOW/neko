@@ -18,7 +18,7 @@ The test name must match: ^[a-z][a-z0-9_]*$
 The parallel flag accepts: true/false, yes/no, 1/0
 """
 
-ADD_FILE_USAGE = """Usage: contrib/add_unit_test/add_file_to_unit_test.sh <suite_name> <pf_name>
+ADD_FILE_USAGE = """Usage: contrib/add_unit_test/add_pf_to_unit_test.sh <suite_name> <pf_name>
 
 Creates tests/unit/<suite_name>/test_<pf_name>.pf from the appropriate pFUnit
 template and wires it into the existing suite Makefile.in and

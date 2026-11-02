@@ -113,7 +113,7 @@
             },
             {
                 "type": "data_streamer", 
-                "fields": ["u", "omega_z", "fluid_stats/mean_u"],
+                "fields": ["u", "curl_z", "fluid_stats/mean_u"],
                 "stream_mesh": true,
                 "compute_control": "tsteps",
                 "compute_value": "strm_update_freq"

@@ -58,6 +58,7 @@ module time_state
      procedure, pass(this) :: reset => time_state_reset
      procedure, pass(this) :: status => time_state_status
      procedure, pass(this) :: is_done => time_state_is_done
+     procedure, pass(this) :: tolerance => time_state_tolerance
   end type time_state_t
 
 contains
@@ -159,12 +160,29 @@ contains
     real(kind=dp) :: span, tol
 
     span = abs(this%end_time - this%start_time)
-    tol = 1.0e-9_dp * max(span, abs(this%dt))
+    tol = this%tolerance()
 
     is_done = sign(1.0_dp, this%end_time - this%start_time) * &
          (this%t - this%start_time) .ge. span - tol &
          .and. this%tstep .gt. 0
 
   end function time_state_is_done
+
+  !> Tolerance for comparing the current time to a fixed time, such as the
+  !! end time of the simulation or a bound of a time window.
+  !! @details The current time is accumulated step by step and carries the
+  !! round-off of the additions, so a time step meant to land on a fixed time
+  !! can end up a few ulps on either side of it. Within this tolerance the two
+  !! are considered equal. It is relative to the span of the simulation is
+  !! always non-negative, also for a simulation marching backwards in time.
+  !! To prevent issues it is also limited to a fraction of the time step size.
+  pure function time_state_tolerance(this) result(tol)
+    class(time_state_t), intent(in) :: this
+    real(kind=dp) :: tol
+
+    tol = 1.0e-9_dp * abs(this%end_time - this%start_time)
+    tol = min(tol, 1.0e-2_dp * abs(this%dt))
+
+  end function time_state_tolerance
 
 end module time_state

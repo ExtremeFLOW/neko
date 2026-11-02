@@ -73,6 +73,10 @@ contains
        end do
     end do
 
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call s%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
+
   end subroutine initial_conditions
 
   ! Forcing
@@ -99,7 +103,7 @@ contains
        ta2pr = ta2*Pr
 
        call field_cmult2(rhs_u, v, Ta2Pr)
-       call field_cmult2(rhs_v, u, Ta2Pr)
+       call field_cmult2(rhs_v, u, -Ta2Pr)
        call field_cmult2(rhs_w, s, rapr)
     end if
   end subroutine forcing_source_term

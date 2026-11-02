@@ -70,6 +70,9 @@ module mean_field_output
      procedure, pass(this) :: free => mean_field_output_free
      !> Sample, i.e. extract the values of the fields, average, and write.
      procedure, pass(this) :: sample => mean_field_output_sample
+     !> Puts the leading fields in the UVW, P and T slots.
+     procedure, pass(this) :: configure_file => &
+          mean_field_output_configure_file
   end type mean_field_output_t
 
 contains
@@ -136,13 +139,6 @@ contains
     end if
 
     call this%init_base(fname)
-    select type (ft => this%file_%file_type)
-    type is (fld_file_t)
-       ft%skip_pressure = .false.
-       ft%skip_velocity = .false.
-       ft%skip_temperature = .false.
-    end select
-
     call this%fields%init(n_fields)
     this%n_fields = n_fields
     this%mean_fields => mean_fields
@@ -201,5 +197,19 @@ contains
     end associate
 
   end subroutine mean_field_output_sample
+
+  !> Puts the leading fields in the UVW, P and T slots
+  !! rather than the scalar block.
+  subroutine mean_field_output_configure_file(this)
+    class(mean_field_output_t), intent(inout) :: this
+
+    select type (ft => this%file_%file_type)
+    type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
+    end select
+
+  end subroutine mean_field_output_configure_file
 
 end module mean_field_output

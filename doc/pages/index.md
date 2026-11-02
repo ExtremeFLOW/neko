@@ -1,4 +1,4 @@
-# Neko Manual {#index}
+# Neko Manual {#mainpage}
 
 Neko is a portable framework for high-order spectral element flow simulations.
 Written in modern Fortran, Neko adopts an object-oriented approach, allowing
@@ -13,8 +13,10 @@ structure and numerical methods are adopted.
 In order to facilitate reading of the documentation. The manual is divided into
 several sections. The [user guides](@ref user-guide) are intended for users of
 the code, while the [developer guides](@ref developer-guide) are intended for
-developers of the code. The [appendix](@ref appendices) contains additional
-information that is not directly related to the usage of the code.
+developers of the code. The [theory and methods](@ref methods) section
+describes the equations and numerical methods, and the
+[appendices](@ref appendices) contain additional information that is not
+directly related to the usage of the code.
 
 - \subpage user-guide
   - [Installation](@ref installation) explains how to download and compile Neko
@@ -58,9 +60,10 @@ information that is not directly related to the usage of the code.
     conventions related to GPU programming in the Neko framework.
   - [Run-time selectable types](@ref rts_types) presents the standard
     programming pattern used to select object types at run time.
-- \subpage appendices
-  - [Environmental variable reference](@ref appendices_env-var)
+- \subpage methods
   - [Governing Equations](@ref governing-equations) used in our solvers.
   - [Mixed boundary-condition resolution](@ref mixed-bc-resolution) describes
     how constraints are selected where boundary faces meet.
+- \subpage appendices
+  - [Environmental variable reference](@ref appendices_env-var)
   - [Publications](@ref publications)

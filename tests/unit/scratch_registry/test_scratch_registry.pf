@@ -17,6 +17,7 @@ module test_scratch_registry
   use comm, only : pe_rank, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
   use, intrinsic :: iso_c_binding, only : c_ptr
+  !$ use omp_lib, only : omp_get_thread_num, omp_get_num_threads
   implicit none
 
   @TestCase
@@ -511,4 +512,79 @@ contains
     call scratch%relinquish(indices(1))
     call scratch%free()
   end subroutine test_srtch_reg_array_indices
+
+  @test
+  subroutine test_srtch_omp_no_col(this)
+    class(test_scratch_reg), intent(inout) :: this
+    type(vector_t), pointer :: v
+    type(scratch_registry_t) :: scratch
+    integer :: ierr, index
+    integer :: i, thread_id, num_threads, n_inuse
+
+    n_inuse = 0
+    thread_id = 0
+    num_threads = 1
+    call scratch%init(1, 1)
+
+    !$omp parallel shared(scratch, n_inuse) private(v, index, thread_id)
+    !$ thread_id = omp_get_thread_num()
+    !$ num_threads = omp_get_num_threads()
+    call scratch%request(v, index, 42 + thread_id, .false.)
+
+    !$omp do
+    do i = 1, 10*num_threads
+       call vector_cfill(v, real(i, kind=rp), 42 + thread_id)
+    end do
+    !$omp end do
+
+    !$omp barrier
+    !$omp single
+    n_inuse = scratch%get_n_inuse()
+    !$omp end single
+
+    call scratch%relinquish(index)
+    !$omp end parallel
+
+    @assertEqual(num_threads, n_inuse, "Number of entries must be equal to number of threads")
+    @assertEqual(num_threads, scratch%get_n_entries(), "Number of entries must be equal to number of threads")
+    @assertEqual(0, scratch%get_n_inuse(), "Registry should be empty after relinquishing all entries")
+    call scratch%free()
+  end subroutine test_srtch_omp_no_col
+
+  @test
+  subroutine test_srtch_omp_max_col(this)
+    class(test_scratch_reg), intent(inout) :: this
+    type(vector_t), pointer :: v
+    type(scratch_registry_t) :: scratch
+    integer :: ierr, index
+    integer :: i, thread_id, num_threads, n_inuse
+
+    n_inuse = 0
+    thread_id = 0
+    num_threads = 1
+    call scratch%init(1, 1)
+
+    !$omp parallel shared(scratch) private(v, index, thread_id) reduction(max:n_inuse)
+    !$ thread_id = omp_get_thread_num()
+    !$ num_threads = omp_get_num_threads()
+
+    !$omp do
+    do i = 1, 10*num_threads
+       call scratch%request(v, index, 42, .true.)
+
+       call vector_cfill(v, real(i, kind=rp), 42)
+       n_inuse = max(n_inuse, scratch%get_n_inuse())
+
+       call scratch%relinquish(index)
+    end do
+    !$omp end do
+
+    !$omp end parallel
+
+    @assertEqual(num_threads, n_inuse, "Max in use must be equal to number of threads")
+    @assertEqual(num_threads, scratch%get_n_entries(), "Number of entries must be equal to number of threads")
+    @assertEqual(0, scratch%get_n_inuse(), "Registry should be empty after relinquishing all entries")
+    call scratch%free()
+  end subroutine test_srtch_omp_max_col
+
 end module test_scratch_registry

@@ -59,6 +59,14 @@ contains
        p%x(i,1,1,1) = p0 + rho0 * V0**2.0 / 16.0 * (cos(2.0*x) + cos(2.0*y)) &
             * (2.0 + cos(2.0 * z))
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call rho%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call p%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine initial_conditions
 
 end module user

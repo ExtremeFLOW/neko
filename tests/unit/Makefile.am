@@ -18,8 +18,10 @@ SUBDIRS = tuple\
 	  ax\
 	  krylov\
 	  bc\
+	  fluid_pnpn_bc\
 	  signal\
 	  jobctrl\
+	  log\
 	  device\
 	  data_types\
 	  device_math\
@@ -39,6 +41,7 @@ SUBDIRS = tuple\
 	  time_scheme_controller\
 	  runge_kutta_scheme\
 	  time_based_controller\
+	  time_step_controller\
 	  json_utils\
 	  utils\
 	  expression\
@@ -48,7 +51,11 @@ SUBDIRS = tuple\
 	  boundary_operation\
 	  checkpoint_payload\
 	  wall_sampling\
+	  map_1d\
+	  runtime_stats\
+	  geo_compression\
 	  restart_consistency\
+	  crystal_router\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -73,8 +80,10 @@ TESTS = device/device_test\
 	ax/ax_test\
 	krylov/krylov_test\
 	bc/bc_test\
+	fluid_pnpn_bc/fluid_pnpn_bc_test\
 	signal/signal_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
 	device_mathops/device_mathops_test\
@@ -92,6 +101,7 @@ TESTS = device/device_test\
 	time_scheme_controller/time_scheme_controller_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
 	time_based_controller/time_based_controller_test\
+	time_step_controller/time_step_controller_test\
 	json_utils/json_utils_test\
 	utils/read_duration_test\
 	expression/expression_test\
@@ -101,7 +111,11 @@ TESTS = device/device_test\
 	boundary_operation/boundary_operation_test\
 	checkpoint_payload/checkpoint_payload_test\
 	wall_sampling/wall_sampling_test\
+	map_1d/map_1d_test\
+	runtime_stats/runtime_stats_test\
+	geo_compression/geo_compression_test\
 	restart_consistency/restart_consistency_test\
+	crystal_router/crystal_router_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -116,11 +130,13 @@ EXTRA_DIST = \
 	tri/test_tri.pf\
 	bc/test_bc.pf\
 	bc/bc_test\
+	fluid_pnpn_bc/test_fluid_pnpn_bc.pf\
 	tuple/test_tuple.pf\
 	point/test_point.pf\
 	signal/test_signal.pf\
 	space/test_space_test.pf\
 	jobctrl/test_jobctrl_parallel.pf\
+	log/test_log_parallel.pf\
 	dofmap/test_dofmap_parallel.pf\
 	field/test_field_parallel.pf\
 	global_interpolation/test_glob_interp_par.pf\
@@ -155,6 +171,7 @@ EXTRA_DIST = \
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	math/math_test\
 	field/field_test\
 	global_interpolation/global_interpolation_test\
@@ -172,6 +189,7 @@ EXTRA_DIST = \
 	registry/test_matrix_registry.pf\
 	errors/test_errors.pf\
 	fixtures/error_redirection.f90\
+	fixtures/mesh_fixture.f90\
 	scratch_registry/test_scratch_registry.pf\
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\
@@ -189,6 +207,7 @@ EXTRA_DIST = \
 	utils/test_read_duration.pf\
 	expression/test_expression.pf\
 	time_based_controller/test_time_based_controller.pf\
+	time_step_controller/test_time_step_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
 	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\
@@ -199,11 +218,20 @@ EXTRA_DIST = \
 	wall_sampling/test_gll.pf\
 	wall_sampling/test_distance.pf\
 	wall_sampling/wall_sampling_test\
+	map_1d/test_map_1d.pf\
+	map_1d/map_1d_test\
+	runtime_stats/test_runtime_stats.pf\
+	runtime_stats/runtime_stats_test\
+	geo_compression/test_geo_compression_parallel.pf\
+	geo_compression/geo_compression_test\
 	restart_consistency/test_restart_consistency.pf\
 	restart_consistency/restart_consistency_test\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
 	checkpoint_payload/test_checkpoint_payload.pf\
+	crystal_router/test_crystal_router_parallel.pf\
+	crystal_router/crystal_router_test\
+	fixtures/mesh_fixture.f90\
 	templates/serial/test_serial.pf
 
 if ENABLE_HDF5

@@ -888,8 +888,14 @@ contains
           ! unexpected message, which exhausts the MPI internal buffer pool
           ! (SIGBUS) under flat MPI at high rank counts. Deadlock-safe: the
           ! matching recv is pre-posted at the top of the peer's iteration.
-          call MPI_Issend(buffer%array(), buffer%size(), MPI_INTEGER, &
-               dst, 0, NEKO_COMM, send_req, ierr)
+          ! The buffer is passed as the stack's own storage, not as the
+          ! result of %array(): a compiler may pass a function result via a
+          ! temporary copy, which is freed while the send is still pending.
+          select type (sbarray => buffer%data)
+          type is (integer)
+             call MPI_Issend(sbarray, buffer%size(), MPI_INTEGER, &
+                  dst, 0, NEKO_COMM, send_req, ierr)
+          end select
        end if
 
        if (this%neigh(src)) then
@@ -1581,8 +1587,13 @@ contains
           ! Synchronous send to avoid eager-buffered unexpected messages
           ! (FJMPI buffer-pool exhaustion / SIGBUS under flat MPI); the
           ! matching recv is pre-posted at the top of the peer's iteration.
-          call MPI_Issend(send_buff%array(), send_buff%size(), MPI_INTEGER, &
-               dst, 0, NEKO_COMM, send_req, ierr)
+          ! Send from the stack's own storage, not from the result of
+          ! %array() (see mesh_generate_external_facet_conn).
+          select type (sbarray => send_buff%data)
+          type is (integer)
+             call MPI_Issend(sbarray, send_buff%size(), MPI_INTEGER, &
+                  dst, 0, NEKO_COMM, send_req, ierr)
+          end select
        end if
 
        if (this%neigh(src)) then

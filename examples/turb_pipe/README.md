@@ -3,36 +3,19 @@
 ## Mesh generation
 
 There is a pre-generated nmsh file that can be used. To regenerate the mesh with
-a different resolution or domain size, one needs gmsh and gmsh2nek, the latter
-available as a tool in Nek5000. To modify the mesh parameters, you should edit
-the .geo file, which serves as input to gmsh.
+a different resolution or domain size, one needs gmsh. To modify the mesh
+parameters, you should edit the .geo file, which serves as input to gmsh.
 
-Once you are happy generate the gmsh mesh with
+Once you are happy generate the gmsh mesh and convert it to Neko's format with
+
 ```
 gmsh -3 ./turb_pipe.geo -order 2
+gmsh2nmsh turb_pipe.msh --periodic=inlet:outlet
 ```
 
-The next stage is to convert the mesh to the .re2 format of Nek5000. Run
-gmsh2nek and the following input when prompted:
-
-```
-Enter mesh dimension: 3
-Input fluid .msh file name: turb_pipe
-Do you have solid mesh ? (0 for no, 1 for yes) 0
- Enter number of periodic boundary surface pairs:
-1
- input surface 1 and  surface 2  Boundary ID
-1 2
- please give re2 file name:
-turb_pipe
-
-```
-This will generate a turb_pipe.re2 file, which can be converted to Neko's format
-with
-
-```
-rea2nbin turb_pipe.re2
-```
+This makes the inlet and outlet periodic, and the wall becomes labeled zone 3,
+which is the zone used in the case files. The second order mesh keeps the
+curvature of the pipe wall.
 
 ## Running
 

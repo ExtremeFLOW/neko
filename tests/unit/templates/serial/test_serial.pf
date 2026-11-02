@@ -1,8 +1,8 @@
 module test_serial
-use pfunit
-use device, only : device_init, device_finalize
-use neko_config, only : NEKO_BCKND_DEVICE
-implicit none
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  implicit none
 
   @TestCase
   type, extends(TestCase) :: serial_template_case
@@ -15,16 +15,17 @@ contains
 
   subroutine setUp(this)
     class(serial_template_case), intent(inout) :: this
-    integer :: ierr
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_init
+       call device_init
     end if
   end subroutine setUp
 
   subroutine tearDown(this)
     class(serial_template_case), intent(inout) :: this
+
     if (NEKO_BCKND_DEVICE .eq. 1) then
-      call device_finalize
+       call device_finalize
     end if
   end subroutine tearDown
 

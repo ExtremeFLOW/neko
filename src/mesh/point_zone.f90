@@ -32,6 +32,7 @@
 !
 ! Implements a zone as a subset of GLL points in the mesh
 module point_zone
+  use utils, only : NEKO_TYPENAME_LEN
   use stack, only: stack_i4_t
   use num_types, only: rp
   use utils, only: neko_error, nonlinear_index, linear_index
@@ -187,7 +188,7 @@ module point_zone
   ! A name-allocator pair for user-defined types. A helper type to define a
   ! registry of custom allocators.
   type allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(point_zone_allocate), pointer, nopass :: allocator
   end type allocator_entry
 

@@ -63,13 +63,17 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
     real(kind=rp) :: uvw(3), x, y, z
-    type (field_t), pointer :: u, v, w
+    type (field_t), pointer :: u, v, w, p
     integer :: i
 
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
+
+       ! Initialize pressure field to zero
+       call field_rzero(p)
 
        do i = 1, u%size()
           x = u%dof%x%x(i,1,1,1)
@@ -82,6 +86,12 @@ contains
           v%x(i,1,1,1) = uvw(2)
           w%x(i,1,1,1) = uvw(3)
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     end if
   end subroutine initial_conditions
 
