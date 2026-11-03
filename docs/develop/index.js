@@ -61,6 +61,7 @@ var index =
         [ "Adding periodicity to an existing <tt>.nmsh</tt>", "d9/df2/meshing.html#adding-periodicity-to-an-existing-nmsh", null ]
       ] ],
       [ "Case File", "dd/d33/case-file.html", [
+        [ "Checking a case file", "dd/d33/case-file.html#case-file_checking", null ],
         [ "High-level structure", "dd/d33/case-file.html#autotoc_md69", null ],
         [ "The case object", "dd/d33/case-file.html#autotoc_md70", [
           [ "Constants", "dd/d33/case-file.html#autotoc_md71", null ],

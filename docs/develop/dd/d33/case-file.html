@@ -102,7 +102,8 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 </div><!--header-->
 <div class="contents">
 <div class="toc"><h3>Table of Contents</h3>
-<ul><li class="level1"><a href="#autotoc_md69">High-level structure</a></li>
+<ul><li class="level1"><a href="#case-file_checking">Checking a case file</a></li>
+<li class="level1"><a href="#autotoc_md69">High-level structure</a></li>
 <li class="level1"><a href="#autotoc_md70">The case object</a><ul><li class="level2"><a href="#autotoc_md71">Constants</a></li>
 <li class="level2"><a href="#case-file_expressions">Expressions</a></li>
 <li class="level2"><a href="#case-file_time-control">Time control</a></li>
@@ -122,6 +123,26 @@ $(document).ready(function(){initNavTree('dd/d33/case-file.html','../../'); init
 <dl class="section note"><dt>Note</dt><dd>We use the <a href="https://github.com/jacobwilliams/json-fortran">json-fortran</a> module to handle the JSON files. In addition to standard JSON, it permits using <code>/</code>, <code>!</code> or <code>#</code> to make line comments and tolerates trailing commas before a closing <code>}</code> or <code>]</code>.</dd></dl>
 <p>A JSON Schema for the case file is available in <code>doc/schemas/</code>. The helper <code>contrib/validate_case_schema.py</code> can be used to validate case files against that schema. This is a convenient way to quickly check that your case file is valid without having to run a simulation.</p>
 <dl class="section warning"><dt>Warning</dt><dd>Neko distinguishes JSON integers such as <code>10</code> from JSON reals such as <code>10.0</code>. Make sure that you use the correct number type for the parameter you are setting.</dd></dl>
+<p>Keys that the schemas do not define are rejected in the objects of built-in components, so that a misspelt key, which Neko would silently ignore, does not go unnoticed. Other keys are accepted at the top level of the file, next to <code>case</code>, for instance for the settings of other tools, in <code>case</code>, <code>case.fluid</code> and <code>case.scalar</code>, and in user-defined components: initial conditions of type <code>user</code>, boundary conditions of the <code>user_*</code> types and source terms of type <code>user</code>, whose parameters the user file defines.</p>
+<h1><a class="anchor" id="case-file_checking"></a>
+Checking a case file</h1>
+<p>A case file can be checked without running Neko with <code>checkneko</code>, which is installed with the other contrib tools and needs neither MPI nor the Neko library:</p>
+<div class="fragment"><div class="line">checkneko cylinder.case</div>
+</div><!-- fragment --><p>Run it in the directory Neko will run in, or give that directory with <code>-d dir</code>, since file names in the case file are relative to it. The case file is parsed the way Neko parses it and validated against the schemas in <code>doc/schemas</code>, which are installed with the tool in <code>share/neko/schemas</code>. It then checks what the schemas cannot:</p>
+<ul>
+<li>A value that names a constant must name one in <code>case.constants</code>, of the kind Neko reads there.</li>
+<li>The files the case reads, such as the mesh and restart files, must exist.</li>
+<li>For an <code>.nmsh</code> mesh, the <code>zone_indices</code> of the boundary conditions of the fluid and the scalars must match the labeled zones of the mesh, with one boundary condition for each zone, as Neko requires.</li>
+<li>Point zones that values refer to must be defined in <code>case.point_zones</code>.</li>
+</ul>
+<p>A table lists the labeled zones with their number of facets and the boundary conditions of the fluid and of each scalar on them, for example</p>
+<div class="fragment"><div class="line">Zone  Facets  Fluid               Scalar temperature</div>
+<div class="line">   1      72  velocity_value      dirichlet</div>
+<div class="line">   2      72  outflow+dong        neumann</div>
+<div class="line">   7      96  no_slip (cylinder)  dirichlet</div>
+</div><!-- fragment --><p>where <code>-</code> means that a field has no boundary condition on a zone, and the <code>name</code> of an entry is given in parentheses. Each problem is then reported on one line with its line number and its location in the case file, for example, with the list of types shortened here,</p>
+<div class="fragment"><div class="line">cylinder.case:67: error: case.fluid.boundary_conditions[5].type: must be one of &quot;symmetry&quot;, &quot;outflow&quot;, ..., got &quot;no_slp&quot; (did you mean &quot;no_slip&quot;?)</div>
+</div><!-- fragment --><p>The exit status is 1 if there are errors. Warnings, for instance about a key that appears twice or a misspelled key in an object that allows any key, do not change the exit status. The tool can also be compiled on its own, for instance when Neko is cross-compiled for another architecture, see <code>contrib/checkneko/README.md</code>.</p>
 <h1><a class="anchor" id="autotoc_md69"></a>
 High-level structure</h1>
 <p>The current high-level structure of the case file is shown below.</p>
@@ -404,7 +425,7 @@ Output frequency control</h1>
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
     <li class="navelem"><a class="el" href="../../index.html">Neko Manual</a></li><li class="navelem"><a class="el" href="../../dd/d04/user-guide.html">User guide</a></li>
-    <li class="footer">Generated on Mon Nov 2 2026 03:36:02 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
+    <li class="footer">Generated on Tue Nov 3 2026 03:35:13 for Neko by <a href="https://www.doxygen.org/index.html"><img class="footer" src="../../doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.9.8 </li>
   </ul>
 </div>
 </body>
