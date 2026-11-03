@@ -1132,13 +1132,15 @@ contains
 
   end subroutine test_vtkhdf_write_time_subdivide
 
-  ! NOTE on field choice: the #150 and #152 read tests below use two
-  ! independent scalar fields, p (renamed "Pressure" by the writer) and s,
-  ! so that each exercises only write_scalar_field and the 1-D read path
-  ! it guards. When they were written, the grouped u/v/w -> "Velocity"
-  ! write in write_vector_field() had a separate bug of its own (#151,
-  ! since fixed) that would have contaminated them. The grouped Velocity
-  ! path is covered by test_vtkhdf_read_velocity_vector and
+  ! NOTE on field choice: the non-temporal and inline-temporal read tests
+  ! below use two independent scalar fields, p (renamed "Pressure" by the
+  ! writer) and s, so that each exercises only write_scalar_field and the
+  ! 1-D read path it guards. When they were written, the grouped u/v/w ->
+  ! "Velocity" write in write_vector_field() had a separate bug of its own
+  ! (v and w were written through a memory selection that did not match
+  ! the file selection; since fixed) that would have contaminated them.
+  ! The grouped Velocity path is covered by
+  ! test_vtkhdf_read_velocity_vector and
   ! test_vtkhdf_read_inline_temporal_velocity.
 
   !> Fill p and s with known, non-trivial, mutually distinct values that
@@ -1157,12 +1159,12 @@ contains
 
   end subroutine test_vtkhdf_fill_rt_fields
 
-  ! CONTROL for the #150 regression below: a temporal (printf-pattern VDS)
-  ! write/read round trip at a step counter > 0. This path already works
-  ! today (h5pget_virtual_count_f genuinely reports vds_count > 0), so this
-  ! test must pass on unfixed code. It proves the read harness itself is
-  ! sound and that a failure in the non-temporal test is specific to the
-  ! bug, not to the test machinery.
+  ! CONTROL for the non-temporal read regression below: a temporal
+  ! (printf-pattern VDS) write/read round trip at a step counter > 0. This
+  ! path already works today (h5pget_virtual_count_f genuinely reports
+  ! vds_count > 0), so this test must pass on unfixed code. It proves the
+  ! read harness itself is sound and that a failure in the non-temporal
+  ! test is specific to the bug, not to the test machinery.
   @test(npes=[2])
   subroutine test_vtkhdf_read_temporal_counter1(this)
     class (test_vtkhdf), intent(inout) :: this
@@ -1258,7 +1260,7 @@ contains
 
   end subroutine test_vtkhdf_read_temporal_counter1
 
-  ! Regression for #150: src/io/vtkhdf_file.F90's vtkhdf_file_read used to
+  ! Regression test: src/io/vtkhdf_file.F90's vtkhdf_file_read used to
   ! decide whether a PointData dataset is a virtual dataset (VDS) from
   ! h5pget_virtual_count_f alone, without checking the HDF5 dataset layout
   ! or that call's ierr. A contiguous (non-VDS) dataset -- exactly what a
@@ -1268,7 +1270,7 @@ contains
   ! and reads it back with Neko's own reader. Before the fix, the read
   ! below reached a neko_error()/error stop before any of its asserts ran,
   ! so the entire suite binary aborted here rather than reporting a clean
-  ! pFUnit failure. See #150.
+  ! pFUnit failure.
   @test(npes=[2])
   subroutine test_vtkhdf_read_nontemporal(this)
     class (test_vtkhdf), intent(inout) :: this
@@ -1383,7 +1385,7 @@ contains
 
   end subroutine test_vtkhdf_fill_velocity
 
-  ! Regression for #151: write_vector_field() (src/io/vtkhdf_file.F90) used
+  ! Regression test: write_vector_field() (src/io/vtkhdf_file.F90) used
   ! to set up the "Velocity" dataset's filespace/memspace hyperslabs for
   ! the first (u) component, then re-select only the *file* hyperslab for
   ! v and w, never the matching memory one. HDF5 rejected those two writes
@@ -1392,7 +1394,7 @@ contains
   ! read out of bounds from u's buffer. Exercises both a non-temporal
   ! (inline) write/read and a temporal (printf-pattern VDS) write/read at
   ! counter > 0, since the bug was in the write path and reproduced either
-  ! way. See #151.
+  ! way.
   @test(npes=[2])
   subroutine test_vtkhdf_read_velocity_vector(this)
     class (test_vtkhdf), intent(inout) :: this
@@ -1649,7 +1651,7 @@ contains
 
   end subroutine test_vtkhdf_inline_temporal
 
-  ! Regression for #152: in the non-VDS branch, vtkhdf_read_field()
+  ! Regression test: in the non-VDS branch, vtkhdf_read_field()
   ! (src/io/vtkhdf_file.F90) used to ignore Steps/PointDataOffsets, so it
   ! always read rows [point_offset, point_offset+local_points), i.e.
   ! always step 0, regardless of the requested counter. Neko's own writer
@@ -1659,7 +1661,7 @@ contains
   ! rewrites each PointData dataset into a plain contiguous dataset
   ! holding all steps concatenated in order (exactly as an external tool
   ! could legally produce), and deletes the external .data files so the
-  ! main file is genuinely self-contained and non-virtual. See #152.
+  ! main file is genuinely self-contained and non-virtual.
   @test(npes=[2])
   subroutine test_vtkhdf_read_inline_temporal_counter(this)
     class (test_vtkhdf), intent(inout) :: this
@@ -1808,7 +1810,8 @@ contains
   ! As test_vtkhdf_read_inline_temporal_counter, but for the 2-D
   ! (3, n_points) Velocity dataset, whose step offset is applied in its own
   ! branch of vtkhdf_read_field() (src/io/vtkhdf_file.F90). Writing a
-  ! correct Velocity dataset to start from needs the #151 fix.
+  ! correct Velocity dataset to start from needs the write_vector_field()
+  ! memory-selection fix (see test_vtkhdf_read_velocity_vector).
   @test(npes=[2])
   subroutine test_vtkhdf_read_inline_temporal_velocity(this)
     class (test_vtkhdf), intent(inout) :: this
