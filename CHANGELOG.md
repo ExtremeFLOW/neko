@@ -11,21 +11,6 @@
 
 ## Develop
 
-- Fixed the grouped `Velocity` dataset of VTKHDF output at the working
-  precision. Of the three component writes, `u` read past the end of its
-  array and HDF5 rejected `v` and `w`, without any error being raised, so
-  the whole dataset was wrong. The defect came with the vector write
-  optimisation of PR#2887, and Velocity output written since then is
-  affected.
-- Fixed reading temporal VTKHDF files whose point data is stored inline,
-  such as Neko output from before the per-step data files. Every step read
-  back as step 0; the reader now starts at `Steps/PointDataOffsets`, or at
-  `Steps/PointOffsets` for a field without them, as the VTKHDF
-  specification does.
-- Fixed reading VTKHDF files whose point data is stored inline rather than
-  as virtual datasets, such as Neko's own non-temporal output. The reader
-  took every dataset for a virtual one and aborted with `Cannot open VDS
-  source file`; it now decides from the dataset's storage layout.
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
