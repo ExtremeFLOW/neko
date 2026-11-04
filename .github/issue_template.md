@@ -20,7 +20,7 @@ Paste job information block here.
 
 ## Steps to Reproduce <!-- Remove if not applicable -->
 [//]: # (Please provide the steps to reproduce the issue. If possible, please)
-[//]: # (provide a minimal code snippet that reproduces the issue.)
+[//]: # (provide a minimal code snippet or case file that reproduces the issue.)
 
 ## Details <!-- Remove if empty -->
 [//]: # (Please provide any extra details, screenshots, or context relevant for)
