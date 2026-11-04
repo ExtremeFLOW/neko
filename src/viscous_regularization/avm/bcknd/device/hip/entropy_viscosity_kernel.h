@@ -106,8 +106,11 @@ __global__ void entropy_visc_apply_element_max_kernel(T * __restrict__ reg_coeff
   sdata[tid] = max_val;
   __syncthreads();
 
-  for (int s = blockDim.x / 2; s > 0; s >>= 1) {
-    if (tid < s) {
+  const int nthreads = blockDim.x;
+  int s = 1;
+  while (s < nthreads) s <<= 1;
+  for (s >>= 1; s > 0; s >>= 1) {
+    if (tid < s && tid + s < nthreads) {
       sdata[tid] = max(sdata[tid], sdata[tid + s]);
     }
     __syncthreads();

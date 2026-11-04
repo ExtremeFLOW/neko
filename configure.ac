@@ -483,6 +483,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/fluid_pnpn_bc/Makefile\
         tests/unit/signal/Makefile\
         tests/unit/jobctrl/Makefile\
+        tests/unit/log/Makefile\
         tests/unit/vtkhdf/Makefile\
         tests/unit/device/Makefile\
         tests/unit/data_types/Makefile\
@@ -514,6 +515,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/checkpoint_payload/Makefile\
         tests/unit/wall_sampling/Makefile\
         tests/unit/map_1d/Makefile\
+        tests/unit/runtime_stats/Makefile\
         tests/unit/crystal_router/Makefile\
         tests/unit/geo_compression/Makefile\
         tests/unit/templates/serial/Makefile])
@@ -534,7 +536,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/psnr/Makefile\
 		    contrib/rea2nbin/rea2nbin.1\
 		    contrib/prepart/prepart.1])
-   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh])
+   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh contrib/checkneko])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])
