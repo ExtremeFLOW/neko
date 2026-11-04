@@ -127,16 +127,11 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
        1. **Done: isotropic, $\gamma=0.25$, $H=1/128$** (`s9_g025_h128`, case README appendix). $E_s(8)$ falls
           4.90× from `s7_g05`, above the 4.5× stop line and 2% short of 5×; remainder 0.27. The user decides
           whether runs 2–4 go ahead.
-       2. **Band-projected, $\gamma=0.25$, $H=1/64$** (about 1 h): `cdi_forms/cdi_proj_band_h64` with
-          $\gamma$ halved. Does a weaker pull let the projection gain?
-          - $E_s(8)$ below its $\gamma=0.5$ value, $1.71\times10^{-2}$ (70%).
-          - Below isotropic $\gamma=0.25$, `s7_g025` 0.0080 (30%).
-          - Worst violation below $2.8\times10^{-2}$ (50%).
-       3. **Band-projected, $\gamma=0.25$, $H=1/128$**, paired with `cdi_proj_band_h64`: the rate question
-          for the projected form. At least 5× (40%).
-       4. **Toward his strength**, if run 1 reaches 5×: $\gamma\approx0.1$ at $H=1/64$ and 0.05 at $1/128$,
-          the isotropic form, and the band form if run 2 gained. Stop where boundedness breaks; the user
-          accepts some loss, his code leaves $[0,1]$ by 5–14%.
+       2. **Done: band-projected, $\gamma=0.25$, $H=1/64$** (appendix). It tracks isotropic $\gamma=0.25$ to
+          $t=7.5$ and ends 26% worse, with a worst violation 12× larger. The projected form does not gain
+          at a weaker pull, so run 3 (its $H=1/128$ pair) is dropped.
+       4. **Toward his strength**: $\gamma=0.1$ at $H=1/64$ and 0.05 at $1/128$, isotropic. Stop where
+          boundedness breaks; the user accepts some loss, his code leaves $[0,1]$ by 5–14%.
        5. **Polynomial order**: $N=4$ and 6 at $H=1/64$ with $\gamma=0.5\cdot5/N$, against his grid cells
           (case README §3.7). Item 4's $N=6$ failure is a boundedness loss, which a weaker pull is not
           expected to fix, so don't read it as a test of item 4.
