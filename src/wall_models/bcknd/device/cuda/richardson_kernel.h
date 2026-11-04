@@ -120,7 +120,7 @@ __device__ T tau_neutral(T magu, T h, T z0, T kappa)
 template<typename T>
 __device__ T heat_flux_neutral(T ti, T ts, T h, T z0h, T utau, T kappa, T Pr)
 {
-    return kappa * utau * (ti - ts) / (Pr * log(h / z0h));
+    return kappa * utau * (ts - ti) / (Pr * log(h / z0h));
 }
 
 /*
