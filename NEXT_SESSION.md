@@ -14,6 +14,7 @@ The measurement scripts are in `examples/rider_kothe/logs/`:
 - `d5_2026-10-06/{full_measures,frag_first,phi_normal_exact}.py`;
 - `d6_2026-10-07/measure.sh`;
 - `s45_2026-10-12/`:
+  - `gamma/`: the $\gamma$ table, the doc check and the observed orders (item 2);
   - `measure.sh` (every measure on every frame) and `summarize.py` (one table per batch);
   - `es_t.py` ($E_s$ at every frame against the exact interface) and `probe_quality.py`;
   - `figs_s45.py` (the three metrics, $|E_v|(t)$, contours with his code);
@@ -106,46 +107,38 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
        $t\ge6.48$, so it cannot say when the irreversible part forms. Running `mass_fine.py` at
        $t=2$–6 needs its sub-point check (c2 in `PREREGISTERED.txt`) to pass there first; the carried
        profile is most compressed mid-run.
-   - **Next: scale $\gamma$ with $\varepsilon$.** $\Gamma$ stays $\gamma u_{\max}(t)$.
-     - **The idea.** What sets the remainder is CDI's relaxation rate against the flow's strain rate,
-       $\beta=(\Gamma/\varepsilon)/(u_{\max}/L)=\gamma L/\varepsilon$, with $\varepsilon=\xi H/N$.
-       - His Eq. (39) re-sharpening runs a pseudo-time $\varepsilon$ at unit compression speed every 0.05
-         (`lvlSet.f`: `nsteps_cls = floor(eps_in*dxave/dt_cls)`; `axhelm_cls` has coefficient 1 on
-         $\phi(1-\phi)$; `cv.par` `userParam02 = 0.05`). That is a dose of $\Gamma_{eff}=20\varepsilon$ per
-         unit time. With $u_{\max}$'s mean over $t\in[0,8]$, $2/\pi$, it equals $\gamma\approx0.098$ at
-         $H=1/64$ and 0.049 at $1/128$ ($N=5$). It is not a high $\gamma$: his bursts stop after about
-         a third of a relaxation time ($\pi^2\varepsilon/3$ for the width of a logistic profile), not at
-         steady state.
-       - Ours, at fixed $\gamma$, grows as $N/H$ against his. At $\gamma=0.5$ it is 5× his at
-         $H=1/64$ and 10× at $1/128$.
-       - It fits what is known. At $H=1/64$, $E_s(8)$ falls with $\gamma$ (0.0222, 0.0182, 0.0114, 0.0080
-         at 2, 1, 0.5, 0.25), and the remainder rises with it.
-       - So $\gamma\propto\varepsilon$, i.e. $\propto H/N$, should hold $\beta$ fixed.
-     - **Runs**, one change each from an existing case, at its $\Delta t$. Generated `.case` files go in
-       `logs/`. Measure as for `cdi_proj_band_h64`: `full_measures.py`, `es_t.py` and window rates;
-       also `mass_fine.py` with `mass_tests.py` for the remainder. Preregister first.
-       1. **Done: isotropic, $\gamma=0.25$, $H=1/128$** (`s9_g025_h128`, case README appendix). $E_s(8)$ falls
-          4.90× from `s7_g05`, above the 4.5× stop line and 2% short of 5×; remainder 0.27. The user decides
-          whether runs 2–4 go ahead.
-       2. **Done: band-projected, $\gamma=0.25$, $H=1/64$** (appendix). It tracks isotropic $\gamma=0.25$ to
-          $t=7.5$ and ends 26% worse, with a worst violation 12× larger. The projected form does not gain
-          at a weaker pull, so run 3 (its $H=1/128$ pair) is dropped.
-       4. **Done: his dose**, $\gamma=0.1$ at $H=1/64$ and 0.05 at $1/128$ (appendix). $E_s(8)$ at $1/128$ is
-          $1.23\times10^{-3}$, 25% below his, at a rate of 6.1× (his 7.4×); worst violation $7\times10^{-3}$.
-          $E_r$ is worse than at $\gamma=0.25$. Whether $\gamma\propto\varepsilon$ becomes the method is the
-          user's call.
-       5. **Done: polynomial order** (appendix). $\gamma=0.5\cdot5/N$ at $H=1/64$ moves $E_s$ by at most 3.6% at
-          $N=4$ and 6; the gaps to his there are not set by $\gamma$. $N=6$'s worst violation halves but stays
-          above $10^{-2}$.
-       6. **Done: $\gamma\propto\sqrt\varepsilon$**, $\gamma=0.177$ at $H=1/128$ (appendix). $E_s(8)$ falls
-          only 3.0× from `s7_g025`, below fixed $\gamma$; width holds ($l/l_0$ 1.02) but $\phi$ breaks into 5
-          pieces. Not a candidate on this run. $\phi$ varies in $z$ by up to 0.42 at $t=8$ in this run
-          (the other $\gamma$ runs at most 0.11), which moves $E_s(8)$ by 24% between $z$-layers; not
-          diagnosed.
-     - **Higher $\gamma$ with the projected form is skipped:** every measure so far says a stronger pull
-       hurts, for both forms.
-     - **If it holds**, $\gamma\propto\varepsilon$ changes the $\phi$ equation's parameter definition
-       (`CDI_METHOD.md` §2) and the coupled files. That is the user's call after the runs.
+   - **$\gamma$: where it stands.** The runs of the $\gamma\propto\varepsilon$ idea are rows in the case
+     README appendix: $\gamma=0.25$ isotropic and band-projected, his dose, $N=4$ and 6, $\gamma\propto\sqrt\varepsilon$.
+     - **Which $\Gamma$ is the user's call.** With $\beta=(\Gamma/\varepsilon)/S_{\max}$ and $S_{\max}=\pi u_{\max}$
+       on Rider–Kothe:
+       - $\Gamma=\gamma u_{\max}$ gives $\beta=\gamma N/(\pi\xi H)$;
+       - $\Gamma=\gamma(\varepsilon/H)u_{\max}$ gives $\beta=\gamma/(\pi H)$, with no $N$ or $\xi$;
+       - $\Gamma=\beta\varepsilon S_{\max}$ holds $\beta$ fixed.
+       At fixed $N$ and $H$ the first two are the same $(\xi,\gamma)$ plane in two coordinates. Only a second
+       $H$ separates them, by which contours stay put. Rider–Kothe cannot separate a $u_{\max}$ form from a
+       strain form (its global $S_{\max}$ is exactly $\pi u_{\max}$), nor the first two over $N=4$–6 at $H=1/64$.
+     - **First, $\phi$'s solver tolerance.** $\phi$'s CG/Jacobi at absolute $10^{-6}$ stops after 2 iterations
+       (test `zt_tol{6,12}` in `logs/s45_2026-10-12/`), and `s12_g0177_h128`'s $E_s(8)$ spreads 24% over
+       $z$-layers. Until a converged run to $t=8$ says otherwise, $\gamma$ differences near 10% are not
+       citable. Changing the committed cases' tolerance is the user's call.
+     - **The measurement** is in `logs/s45_2026-10-12/gamma/`:
+       - `runs.py` registers every run (families, repeats); its `.case` gives $\gamma$, $\varepsilon$, $\Delta t$.
+       - `measure_gamma.py` writes one table, `gamma_table.{txt,csv}`: $E_r$, $E_s$, $|E_v|$, the worst
+         violation, $l/l_0$, the $\phi$ and $\psi$ pieces, the remainder, and $E_r$ split into position and
+         shape.
+       - `doc_claims.py` checks the 118 $\gamma$ numbers in the docs against the dumps; all reproduce.
+       - `fit_orders.py` gives weighted observed orders, with noise from the repeats, plus local orders
+         (`orders.txt`). The noise is measured at one cell only ($H=1/64$, $\gamma=1$: 3.7% in $E_r$, 2.7% in
+         $E_s$), so the orders there are not citable yet.
+     - **Planned, not launched or preregistered.** `gen_gamma_cases.py` generates every case; about 15.5 h of
+       GPU in all.
+       - A third level at $H=1/32$ for each family.
+       - Repeats ($\Delta t\times0.99875$, $r_f=0.1001$) at all three $H$.
+       - $\xi=0.75$ and 1.5 at $H=1/64$, under the first two $\Gamma$.
+       - Mirjalili, Ivey & Mani's shear drop ($T=4$, $\xi=1$, $\gamma=1$). Its scratch binary
+         `mirjalili/neko` reads `case.cdi.rk_T`; its bit-identity check against `output_s1_h64` has not run.
+       - Saini's $1/32$ repeats (`d5/saini/mk_s45_rate32.sh`).
+       - Preregister in `PREREGISTERED.txt` after the solver gate.
    - **Outputs kept.**
      - The $H=1/128$ outputs: `logs/s45_2026-10-12/output_{s2_h128,s8_g05_h128,gd128n*_g05}` and
        `cdi_forms/output_cdi_*_h128`, plus `cdi_forms/output_cdi_proj_band_h64`.
@@ -176,6 +169,31 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
    - `rider_h192.case` and `zalesak_h150.case` ship but have never run: run or remove them.
    - `rider_kothe_xi10` ends at $t=8.00008$, one step past the reversal: decide whether to stop
      exactly at 8.
+   - Undocumented scheme facts in `rider_kothe.f90`.
+     - The conductivity is set at $t_{n+1}$ (line 887) while the compression uses $u_{\max}$ at $t_n$.
+     - Every event restarts $\phi$'s BDF/EXT too, through the shared `ext_bdf` (line 359).
+     - `rider_kothe_s45.f90`'s header says $2.5(N+1)$ pseudo-steps; it runs $25(N+1)$.
+     Document them or align them.
+
+## CDI's knobs: a $(\xi,\gamma)$ map at one $N$
+
+The user's idea: keep $\Gamma=\gamma u_{\max}$ and map boundedness and $E_s$ over $(\xi,\gamma)$ at one $N$.
+It is for a new session, and not on Rider–Kothe.
+- **Order of work.**
+  1. Pass the $\phi$ solver-tolerance gate (item 2).
+  2. Find the exact steady profile of a flat interface under uniform normal strain, squeezing and
+     stretching. It is a 1D ODE in $\beta$: solve it with `solve_bvp`, and check it with an independent
+     1D solver.
+  3. Find the discrete maximum-principle region of the 1D operator at the chosen $N$, from its sign
+     structure.
+  4. Map a log-spaced $(\xi,\gamma)$ grid on a strained test with a known answer, with repeats near the
+     decision boundary.
+  5. Repeat the decision cells at a second $H$, to see which contours collapse: constant $\gamma$ or
+     constant $\beta$.
+- **Preregister** the predictions and the decision rule first.
+- **External checks:** Mirjalili, Ivey & Mani's boundedness derivation and order (JCP 401, 2020); mass to
+  round-off; $z$-uniformity.
+- **Not usable as a test of $\gamma$:** the slab and Zalesak are isometries, so they carry no strain.
 
 ## Parked
 
@@ -192,7 +210,6 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
 - **The compression guard's 0.05** is not a measured stability boundary (`CDI_METHOD.md` §2).
 - **The CDI side.**
   - Queued: ten rotations on $(\xi,\gamma)=(1.5,0.25)$ and $(2,0.25)$ against $(2.8,1)$, about 4 h.
-  - Run $\xi=0.75$ under strain, to see whether the Rider–Kothe cross turns over.
   - The SVV cost at large $\xi$ in 1D: the mechanism is not measured.
 - **The $\psi$ build at $N=3$ stops short of a distance** (24% residual, Zalesak). Saini's Table 3
   compares $N=3$ with $N=7$. An untested cause: `svv_rd` at $N_{svv}=0.75$ gives mode 1 a weight of
