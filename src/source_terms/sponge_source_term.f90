@@ -170,8 +170,8 @@ contains
        ! some kind of `gfldr` function to make this nicer.
     case ("field")
 
-       ! The lines below are just copy pasted from set_flow_ic_int, because we
-       ! want to make sure to separate the JSON constructor
+       ! The lines below are just copy pasted from set_flow_ic_builtin, because
+       ! we want to make sure to separate the JSON constructor
        ! sponge_init_from_json and the constructor from attributes
        ! sponge_init_field.
        call json_get(baseflow_subdict, 'file_name', read_str)
