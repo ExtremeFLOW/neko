@@ -117,10 +117,16 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
        At fixed $N$ and $H$ the first two are the same $(\xi,\gamma)$ plane in two coordinates. Only a second
        $H$ separates them, by which contours stay put. Rider–Kothe cannot separate a $u_{\max}$ form from a
        strain form (its global $S_{\max}$ is exactly $\pi u_{\max}$), nor the first two over $N=4$–6 at $H=1/64$.
-     - **First, $\phi$'s solver tolerance.** $\phi$'s CG/Jacobi at absolute $10^{-6}$ stops after 2 iterations
-       (test `zt_tol{6,12}` in `logs/s45_2026-10-12/`), and `s12_g0177_h128`'s $E_s(8)$ spreads 24% over
-       $z$-layers. Until a converged run to $t=8$ says otherwise, $\gamma$ differences near 10% are not
-       citable. Changing the committed cases' tolerance is the user's call.
+     - **$\phi$'s solver tolerance: it is the $z$-variation, not the in-plane error.** At absolute $10^{-6}$
+       $\phi$'s CG/Jacobi stops after 2 iterations. The Jacobi diagonal differs between $z$-face and interior
+       nodes, so each step leaves a $z$-dependent error of about $10^{-5}$ (test `zt_tol{6,12}` in
+       `logs/s45_2026-10-12/`), which the tail amplifies (0.42 in `s12_g0177_h128`).
+       - Rerun at $10^{-12}$ to $t=8$ (`s12t_g0177_h128`): $z$-spread $4\times10^{-5}$; on one $z$-layer $E_r$
+         is unchanged and $E_s(8)$ moves 0.5% (windows at most 2.6%); $\lvert E_v\rvert$ falls from $10^{-6}$
+         to $10^{-11}$; 56% more wall time.
+       - So all-layer numbers carry the $z$-spread: +15% in `s12`'s $E_r$ and $E_s(8)$, within 5% in the
+         other $\gamma$ runs. `es_t.py` reads $z$-layer 0; `full_measures.py` and `measure_gamma.py` read
+         all layers. Changing the committed cases' tolerance is the user's call.
      - **The measurement** is in `logs/s45_2026-10-12/gamma/`:
        - `runs.py` registers every run (families, repeats); its `.case` gives $\gamma$, $\varepsilon$, $\Delta t$.
        - `measure_gamma.py` writes one table, `gamma_table.{txt,csv}`: $E_r$, $E_s$, $|E_v|$, the worst
