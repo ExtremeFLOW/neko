@@ -112,9 +112,6 @@ module fluid_scheme_incompressible
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_validate
-     !> Set the initial condition and the lagged velocity fields
-     procedure, pass(this) :: set_initial_condition => &
-          fluid_scheme_set_initial_condition
      !> Set the initial condition with the user routine
      procedure, pass(this) :: set_user_initial_condition => &
           fluid_scheme_set_user_initial_condition
@@ -520,25 +517,6 @@ contains
     end if
 
   end subroutine fluid_scheme_validate
-
-  !> Set the initial condition of the velocity and pressure, and copy the
-  !! initial velocity to the lagged velocity fields.
-  !! @param user Type with user-defined procedures.
-  !! @param is_restart Whether the case is restarting from a checkpoint.
-  subroutine fluid_scheme_set_initial_condition(this, user, is_restart)
-    class(fluid_scheme_incompressible_t), intent(inout) :: this
-    type(user_t), intent(in) :: user
-    logical, intent(in) :: is_restart
-
-    call this%set_initial_condition_base(user, is_restart)
-
-    if (.not. is_restart) then
-       call this%ulag%set(this%u)
-       call this%vlag%set(this%v)
-       call this%wlag%set(this%w)
-    end if
-
-  end subroutine fluid_scheme_set_initial_condition
 
   !> Set the initial condition of the velocity and pressure with the user
   !! routine.
