@@ -137,8 +137,11 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
        5. **Done: polynomial order** (appendix). $\gamma=0.5\cdot5/N$ at $H=1/64$ moves $E_s$ by at most 3.6% at
           $N=4$ and 6; the gaps to his there are not set by $\gamma$. $N=6$'s worst violation halves but stays
           above $10^{-2}$.
-       6. **Queued: $\gamma\propto\sqrt\varepsilon$**, $\gamma=0.177$ at $H=1/128$ paired with `s7_g025`
-          (`s12_g0177_h128`, preregistered). Does it keep the $E_s$ rate and hold width and topology?
+       6. **Done: $\gamma\propto\sqrt\varepsilon$**, $\gamma=0.177$ at $H=1/128$ (appendix). $E_s(8)$ falls
+          only 3.0× from `s7_g025`, below fixed $\gamma$; width holds ($l/l_0$ 1.02) but $\phi$ breaks into 5
+          pieces. Not a candidate on this run. $\phi$ varies in $z$ by up to 0.42 at $t=8$ in this run
+          (the other $\gamma$ runs at most 0.11), which moves $E_s(8)$ by 24% between $z$-layers; not
+          diagnosed.
      - **Higher $\gamma$ with the projected form is skipped:** every measure so far says a stronger pull
        hurts, for both forms.
      - **If it holds**, $\gamma\propto\varepsilon$ changes the $\phi$ equation's parameter definition
