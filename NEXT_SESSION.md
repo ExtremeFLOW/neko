@@ -134,9 +134,11 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
           $1.23\times10^{-3}$, 25% below his, at a rate of 6.1× (his 7.4×); worst violation $7\times10^{-3}$.
           $E_r$ is worse than at $\gamma=0.25$. Whether $\gamma\propto\varepsilon$ becomes the method is the
           user's call.
-       5. **Polynomial order**: $N=4$ and 6 at $H=1/64$ with $\gamma=0.5\cdot5/N$, against his grid cells
-          (case README §3.7). Item 4's $N=6$ failure is a boundedness loss, which a weaker pull is not
-          expected to fix, so don't read it as a test of item 4.
+       5. **Done: polynomial order** (appendix). $\gamma=0.5\cdot5/N$ at $H=1/64$ moves $E_s$ by at most 3.6% at
+          $N=4$ and 6; the gaps to his there are not set by $\gamma$. $N=6$'s worst violation halves but stays
+          above $10^{-2}$.
+       6. **Queued: $\gamma\propto\sqrt\varepsilon$**, $\gamma=0.177$ at $H=1/128$ paired with `s7_g025`
+          (`s12_g0177_h128`, preregistered). Does it keep the $E_s$ rate and hold width and topology?
      - **Higher $\gamma$ with the projected form is skipped:** every measure so far says a stronger pull
        hurts, for both forms.
      - **If it holds**, $\gamma\propto\varepsilon$ changes the $\phi$ equation's parameter definition
