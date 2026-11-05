@@ -130,8 +130,10 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
        2. **Done: band-projected, $\gamma=0.25$, $H=1/64$** (appendix). It tracks isotropic $\gamma=0.25$ to
           $t=7.5$ and ends 26% worse, with a worst violation 12× larger. The projected form does not gain
           at a weaker pull, so run 3 (its $H=1/128$ pair) is dropped.
-       4. **Toward his strength**: $\gamma=0.1$ at $H=1/64$ and 0.05 at $1/128$, isotropic. Stop where
-          boundedness breaks; the user accepts some loss, his code leaves $[0,1]$ by 5–14%.
+       4. **Done: his dose**, $\gamma=0.1$ at $H=1/64$ and 0.05 at $1/128$ (appendix). $E_s(8)$ at $1/128$ is
+          $1.23\times10^{-3}$, 25% below his, at a rate of 6.1× (his 7.4×); worst violation $7\times10^{-3}$.
+          $E_r$ is worse than at $\gamma=0.25$. Whether $\gamma\propto\varepsilon$ becomes the method is the
+          user's call.
        5. **Polynomial order**: $N=4$ and 6 at $H=1/64$ with $\gamma=0.5\cdot5/N$, against his grid cells
           (case README §3.7). Item 4's $N=6$ failure is a boundedness loss, which a weaker pull is not
           expected to fix, so don't read it as a test of item 4.
