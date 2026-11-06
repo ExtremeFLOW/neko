@@ -163,6 +163,9 @@ module opencl_prgm_lib
   !> Device rough log-law wall model kernels
   type(c_ptr), public, bind(c) :: rough_log_law_program = C_NULL_PTR
 
+  !> Device Duprat wall model kernels
+  type(c_ptr), public, bind(c) :: duprat_program = C_NULL_PTR
+
   !> Device Spalding wall model kernels
   type(c_ptr), public, bind(c) :: spalding_program = C_NULL_PTR
 
@@ -538,6 +541,13 @@ contains
           call neko_error('Failed to release program')
        end if
        rough_log_law_program = C_NULL_PTR
+    end if
+
+    if (c_associated(duprat_program)) then
+       if (clReleaseProgram(duprat_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       duprat_program = C_NULL_PTR
     end if
 
     if (c_associated(spalding_program)) then

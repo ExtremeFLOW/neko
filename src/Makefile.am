@@ -495,6 +495,9 @@ neko_fortran_SOURCES = \
 	wall_models/bcknd/cpu/cai_sagaut_model_ii_cpu.f90\
 	wall_models/bcknd/device/spalding_device.F90\
 	wall_models/bcknd/device/cai_sagaut_model_ii_device.F90\
+	wall_models/duprat.f90\
+	wall_models/bcknd/cpu/duprat_cpu.f90\
+	wall_models/bcknd/device/duprat_device.F90\
 	wall_models/rough_log_law.f90\
 	wall_models/bcknd/cpu/rough_log_law_cpu.f90\
 	wall_models/bcknd/device/rough_log_law_device.F90\
@@ -607,6 +610,7 @@ libneko_la_SOURCES += \
 	wall_models/bcknd/device/hip/spalding.hip\
 	wall_models/bcknd/device/hip/cai_sagaut_model_ii.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
+	wall_models/bcknd/device/hip/duprat.hip\
 	wall_models/bcknd/device/hip/most.hip\
 	wall_models/bcknd/device/hip/richardson.hip\
 	viscous_regularization/avm/bcknd/device/hip/entropy_viscosity.hip\
@@ -683,6 +687,7 @@ libneko_la_SOURCES += \
 	wall_models/bcknd/device/cuda/spalding.cu\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii.cu\
 	wall_models/bcknd/device/cuda/rough_log_law.cu\
+	wall_models/bcknd/device/cuda/duprat.cu\
 	wall_models/bcknd/device/cuda/most.cu\
 	wall_models/bcknd/device/cuda/richardson.cu\
 	viscous_regularization/avm/bcknd/device/cuda/entropy_viscosity.cu\
@@ -786,6 +791,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/opencl/dynamic_smagorinsky_nut.c\
 	wall_models/bcknd/device/opencl/wall_model.c\
 	wall_models/bcknd/device/opencl/rough_log_law.c\
+	wall_models/bcknd/device/opencl/duprat.c\
 	wall_models/bcknd/device/opencl/spalding.c\
 	wall_models/bcknd/device/opencl/richardson.c\
 	wall_models/bcknd/device/opencl/most.c\
@@ -865,6 +871,7 @@ METAL_OBJS = \
 	les/bcknd/device/metal/dynamic_smagorinsky_nut.lo\
 	wall_models/bcknd/device/metal/wall_model.lo\
 	wall_models/bcknd/device/metal/rough_log_law.lo\
+	wall_models/bcknd/device/metal/duprat.lo\
 	wall_models/bcknd/device/metal/spalding.lo\
 	wall_models/bcknd/device/metal/richardson.lo\
 	wall_models/bcknd/device/metal/most.lo\
@@ -930,6 +937,7 @@ dist_noinst_DATA = \
 	les/bcknd/device/metal/dynamic_smagorinsky_nut.m\
 	wall_models/bcknd/device/metal/wall_model.m\
 	wall_models/bcknd/device/metal/rough_log_law.m\
+	wall_models/bcknd/device/metal/duprat.m\
 	wall_models/bcknd/device/metal/spalding.m\
 	wall_models/bcknd/device/metal/richardson.m\
 	wall_models/bcknd/device/metal/most.m\
@@ -992,6 +1000,7 @@ METAL_KERNELS = \
 	les/bcknd/device/metal/dynamic_smagorinsky_nut_kernel.metal\
 	wall_models/bcknd/device/metal/wall_model_kernel.metal\
 	wall_models/bcknd/device/metal/rough_log_law_kernel.metal\
+	wall_models/bcknd/device/metal/duprat_kernel.metal\
 	wall_models/bcknd/device/metal/spalding_kernel.metal\
 	wall_models/bcknd/device/metal/richardson_kernel.metal\
 	wall_models/bcknd/device/metal/most_kernel.metal\
@@ -1172,6 +1181,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
+	wall_models/bcknd/device/cuda/duprat_kernel.h\
     ale/bcknd/device/hip/ale_kinematics_kernel.h\
 	wall_models/bcknd/device/cuda/most_kernel.h\
 	wall_models/bcknd/device/cuda/richardson_kernel.h\
@@ -1245,6 +1255,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/hip/spalding_kernel.h\
 	wall_models/bcknd/device/hip/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
+	wall_models/bcknd/device/hip/duprat_kernel.h\
 	wall_models/bcknd/device/hip/most_kernel.h\
 	wall_models/bcknd/device/hip/richardson_kernel.h\
 	viscous_regularization/avm/bcknd/device/hip/entropy_viscosity_kernel.h\
@@ -1298,6 +1309,7 @@ EXTRA_DIST = \
 	les/bcknd/device/opencl/dynamic_smagorinsky_nut_kernel.cl\
 	wall_models/bcknd/device/opencl/wall_model_kernel.cl\
 	wall_models/bcknd/device/opencl/rough_log_law_kernel.cl\
+	wall_models/bcknd/device/opencl/duprat_kernel.cl\
 	wall_models/bcknd/device/opencl/spalding_kernel.cl\
 	wall_models/bcknd/device/opencl/richardson_kernel.cl\
 	wall_models/bcknd/device/opencl/most_kernel.cl\
@@ -1369,6 +1381,7 @@ EXTRA_DIST = \
 	les/bcknd/device/metal/dynamic_smagorinsky_nut_kernel.metal\
 	wall_models/bcknd/device/metal/wall_model_kernel.metal\
 	wall_models/bcknd/device/metal/rough_log_law_kernel.metal\
+	wall_models/bcknd/device/metal/duprat_kernel.metal\
 	wall_models/bcknd/device/metal/spalding_kernel.metal\
 	wall_models/bcknd/device/metal/richardson_kernel.metal\
 	wall_models/bcknd/device/metal/most_kernel.metal\

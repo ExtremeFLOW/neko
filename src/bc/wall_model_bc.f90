@@ -48,7 +48,9 @@ module wall_model_bc
 
   !> A shear stress boundary condition, computing the stress values using a
   !! wall model.
-  !! @warning Only works with axis-aligned boundaries.
+  !! @note Requires the full stress formulation. The wall-normal velocity is
+  !! constrained along the resolved node normal, so the condition is not
+  !! restricted to axis-aligned boundaries.
   type, public, extends(shear_stress_t) :: wall_model_bc_t
      !> The wall model to compute the stress.
      class(wall_model_t), allocatable :: wall_model
