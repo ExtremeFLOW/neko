@@ -33,10 +33,11 @@
 !> Logging routines
 module logger
   use neko_config, only : NEKO_VERSION
-  use comm, only : pe_rank
+  use comm, only : pe_rank, pe_size, NEKO_COMM
   use utils, only : neko_error, neko_warning
   use, intrinsic :: iso_fortran_env, only : stdout => output_unit, &
        stderr => error_unit
+  use mpi_f08, only : MPI_INTEGER, MPI_Bcast
   implicit none
   private
 
@@ -105,8 +106,7 @@ contains
     character(len=255) :: log_tab_size
     character(len=255) :: log_file
     character(len=32) :: prefix
-    integer :: envvar_len
-    if (pe_rank .ne. 0) return
+    integer :: envvar_len, ierr
 
     if (present(env_prefix)) then
        prefix = env_prefix
@@ -117,29 +117,37 @@ contains
     this%indent_ = 0
     this%section_id_ = 0
 
-    call get_environment_variable(trim(prefix) // "_LOG_TAB_SIZE", &
-         log_tab_size, envvar_len)
-    if (envvar_len .gt. 0) then
-       read(log_tab_size(1:envvar_len), *) this%tab_size_
-    else
-       this%tab_size_ = 1
+    if (pe_rank .eq. 0) then
+       call get_environment_variable(trim(prefix) // "_LOG_TAB_SIZE", &
+            log_tab_size, envvar_len)
+       if (envvar_len .gt. 0) then
+          read(log_tab_size(1:envvar_len), *) this%tab_size_
+       else
+          this%tab_size_ = 1
+       end if
+
+       call get_environment_variable(trim(prefix) // "_LOG_LEVEL", &
+            log_level, envvar_len)
+       if (envvar_len .gt. 0) then
+          read(log_level(1:envvar_len), *) this%level_
+       else
+          this%level_ = NEKO_LOG_INFO
+       end if
+
+       call get_environment_variable(trim(prefix) // "_LOG_FILE", &
+            log_file, envvar_len)
+       if (envvar_len .gt. 0) then
+          open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
+               action = 'write')
+       else
+          this%unit_ = stdout
+       end if
     end if
 
-    call get_environment_variable(trim(prefix) // "_LOG_LEVEL", &
-         log_level, envvar_len)
-    if (envvar_len .gt. 0) then
-       read(log_level(1:envvar_len), *) this%level_
-    else
-       this%level_ = NEKO_LOG_INFO
-    end if
-
-    call get_environment_variable(trim(prefix) // "_LOG_FILE", &
-         log_file, envvar_len)
-    if (envvar_len .gt. 0) then
-       open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
-            action = 'write')
-    else
-       this%unit_ = stdout
+    if (pe_size .gt. 1) then
+       call MPI_Bcast(this%tab_size_, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+       call MPI_Bcast(this%level_, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+       call MPI_Bcast(this%unit_, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
     end if
 
   end subroutine log_init
@@ -165,7 +173,7 @@ contains
        call this%end_section()
     end if
 
-    if (this%unit_ .ne. stdout) then
+    if (this%unit_ .ne. stdout .and. pe_rank .eq. 0) then
        close(this%unit_)
     end if
 
