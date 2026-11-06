@@ -571,6 +571,7 @@ contains
   !> End a log section (from C)
   !! @note This assumes the global log stream @a neko_log
   subroutine log_end_section_c() bind(c, name = "log_end_section")
+    if (pe_rank .ne. 0) return
 
     call neko_log%end_section()
 
