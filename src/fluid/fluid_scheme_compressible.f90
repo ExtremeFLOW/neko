@@ -174,7 +174,7 @@ contains
     call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
     ! Keep a copy of the fluid parameters
-    if (associated(this%params)) then
+    if (allocated(this%params)) then
        call this%params%destroy()
        deallocate(this%params)
     end if
@@ -363,7 +363,7 @@ contains
 
     call this%material_properties%free()
 
-    if (associated(this%params)) then
+    if (allocated(this%params)) then
        call this%params%destroy()
        deallocate(this%params)
     end if

@@ -200,7 +200,7 @@ contains
     call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
     ! Keep a copy of the fluid parameters
-    if (associated(this%params)) then
+    if (allocated(this%params)) then
        call this%params%destroy()
        deallocate(this%params)
     end if
@@ -489,7 +489,7 @@ contains
     call this%Xh%free()
     nullify(this%msh)
 
-    if (associated(this%params)) then
+    if (allocated(this%params)) then
        call this%params%destroy()
        deallocate(this%params)
     end if

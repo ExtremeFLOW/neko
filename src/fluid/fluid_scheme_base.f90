@@ -92,7 +92,7 @@ module fluid_scheme_base
      type(bc_list_t) :: bcs_vel
 
      !> Copy of the fluid parameters, i.e. `case.fluid`
-     type(json_file), pointer :: params => null()
+     type(json_file), allocatable :: params
      type(mesh_t), pointer :: msh => null() !< Mesh
 
      !> Boundary condition labels (if any)
