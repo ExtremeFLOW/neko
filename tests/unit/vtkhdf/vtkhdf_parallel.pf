@@ -1141,7 +1141,7 @@ contains
   ! the file selection; since fixed) that would have contaminated them.
   ! The grouped Velocity path is covered by
   ! test_vtkhdf_read_velocity_vector and
-  ! test_vtkhdf_read_inline_temporal_velocity.
+  ! test_vtkhdf_read_inline_velocity.
 
   !> Fill p and s with known, non-trivial, mutually distinct values that
   !! depend on both the grid point and @a step, so a round-trip read can be
@@ -1663,7 +1663,7 @@ contains
   ! could legally produce), and deletes the external .data files so the
   ! main file is genuinely self-contained and non-virtual.
   @test(npes=[2])
-  subroutine test_vtkhdf_read_inline_temporal_counter(this)
+  subroutine test_vtkhdf_read_inline_counter(this)
     class (test_vtkhdf), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -1804,16 +1804,16 @@ contains
     call msh%free()
     call Xh%free()
 
-  end subroutine test_vtkhdf_read_inline_temporal_counter
+  end subroutine test_vtkhdf_read_inline_counter
 
   ! Inline temporal read of the grouped "Velocity" dataset at counter > 0.
-  ! As test_vtkhdf_read_inline_temporal_counter, but for the 2-D
+  ! As test_vtkhdf_read_inline_counter, but for the 2-D
   ! (3, n_points) Velocity dataset, whose step offset is applied in its own
   ! branch of vtkhdf_read_field() (src/io/vtkhdf_file.F90). Writing a
   ! correct Velocity dataset to start from needs the write_vector_field()
   ! memory-selection fix (see test_vtkhdf_read_velocity_vector).
   @test(npes=[2])
-  subroutine test_vtkhdf_read_inline_temporal_velocity(this)
+  subroutine test_vtkhdf_read_inline_velocity(this)
     class (test_vtkhdf), intent(inout) :: this
     type(space_t) :: Xh
     type(mesh_t) :: msh
@@ -1927,6 +1927,6 @@ contains
     call msh%free()
     call Xh%free()
 
-  end subroutine test_vtkhdf_read_inline_temporal_velocity
+  end subroutine test_vtkhdf_read_inline_velocity
 
 end module vtkhdf_parallel
