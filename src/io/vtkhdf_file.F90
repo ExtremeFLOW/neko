@@ -46,8 +46,8 @@ module vtkhdf_file
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
-       MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier, MPI_Bcast, MPI_LOGICAL
+       MPI_IN_PLACE, MPI_INTEGER8, MPI_SUM, MPI_MAX, MPI_Comm_size, &
+       MPI_Exscan, MPI_Barrier, MPI_Bcast, MPI_LOGICAL
   use vtk, only : vtk_ordering
   use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
 #ifdef HAVE_HDF5
@@ -176,9 +176,6 @@ contains
     integer(size_t) :: type_len
     integer :: lx, ly, lz
     integer :: local_points, local_cells, local_conn
-    integer :: total_points, total_cells, total_conn
-    integer :: point_offset
-    integer :: max_local_points
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16) :: type_str
@@ -345,19 +342,19 @@ contains
     integer :: ierr, i, ii, jj, kk, el, local_idx
     integer :: lx, ly, lz, npts_per_cell, nodes_per_cell, cells_per_element
     integer :: local_points, local_cells, local_conn
-    integer :: total_points, total_cells, total_conn
-    integer :: point_offset, max_local_points
-    integer :: total_offsets, cell_offset, conn_offset, offsets_offset
-    integer :: max_local_cells, max_local_conn
+    integer(kind=i8) :: total_points, total_cells, total_conn
+    integer(kind=i8) :: point_offset, max_local_points
+    integer(kind=i8) :: total_offsets, cell_offset, conn_offset, offsets_offset
+    integer(kind=i8) :: max_local_cells, max_local_conn
     integer(hid_t) :: xf_id, dset_id, dcpl_id, grp_id, attr_id
     integer(hid_t) :: filespace, memspace, H5T_NEKO_DOUBLE
     integer(hsize_t), dimension(1) :: dcount, vdims, maxdims, doffset, chunkdims
     integer(hsize_t), dimension(2) :: dcount2, vdims2, maxdims2, doffset2
     integer(kind=i8) :: i8_value
     logical :: exists
-    integer, dimension(3) :: component_sizes
-    integer, dimension(3) :: component_offsets
-    integer, dimension(3) :: component_max_sizes
+    integer(kind=i8), dimension(3) :: component_sizes
+    integer(kind=i8), dimension(3) :: component_offsets
+    integer(kind=i8), dimension(3) :: component_max_sizes
 
     lx = dof%Xh%lx
     ly = dof%Xh%ly
@@ -384,19 +381,28 @@ contains
     ! --- Build the number of cells and the connectivity
     local_points = dof%size()
     local_cells = msh%nelv * cells_per_element
+
+    ! Connectivity and Offsets hold part-local values, stored as default
+    ! integers, so unlike the global totals these must fit one on each rank.
+    if (int(local_cells, i8) * int(nodes_per_cell, i8) .gt. &
+         int(huge(local_conn), i8)) then
+       call neko_error('VTKHDF: connectivity of a rank exceeds the range ' // &
+            'of a default integer')
+    end if
     local_conn = local_cells * nodes_per_cell
 
     total_points = dof%global_size()
-    total_cells = msh%glb_nelv * cells_per_element
-    total_conn = total_cells * nodes_per_cell
+    total_cells = int(msh%glb_nelv, i8) * int(cells_per_element, i8)
+    total_conn = total_cells * int(nodes_per_cell, i8)
 
-    component_sizes = [local_points, local_cells, local_conn]
-    component_offsets = 0
-    component_max_sizes = 0
+    component_sizes = [int(local_points, i8), int(local_cells, i8), &
+         int(local_conn, i8)]
+    component_offsets = 0_i8
+    component_max_sizes = 0_i8
 
-    call MPI_Exscan(component_sizes, component_offsets, 3, MPI_INTEGER, &
+    call MPI_Exscan(component_sizes, component_offsets, 3, MPI_INTEGER8, &
          MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(component_sizes, component_max_sizes, 3, MPI_INTEGER, &
+    call MPI_Allreduce(component_sizes, component_max_sizes, 3, MPI_INTEGER8, &
          MPI_MAX, NEKO_COMM, ierr)
 
     point_offset = component_offsets(1)
@@ -453,7 +459,8 @@ contains
 
        vdims2 = [3_hsize_t, int(total_points, hsize_t)]
        maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
-       chunkdims(1) = int(max(1, min(max_local_points, total_points)), hsize_t)
+       chunkdims(1) = vtkhdf_chunk_extent(max_local_points, total_points, &
+            3 * storage_size(1.0_dp) / 8)
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
        H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
@@ -505,7 +512,8 @@ contains
 
     vdims = int(total_conn, hsize_t)
     maxdims = H5S_UNLIMITED_F
-    chunkdims = int(max(1, min(max_local_conn, total_conn)), hsize_t)
+    chunkdims = vtkhdf_chunk_extent(max_local_conn, total_conn, &
+         storage_size(local_conn) / 8)
     dcount = int(local_conn, hsize_t)
     doffset = int(conn_offset, hsize_t)
 
@@ -542,7 +550,8 @@ contains
 
     vdims = int(total_offsets, hsize_t)
     maxdims = H5S_UNLIMITED_F
-    chunkdims = int(max(1, min(max_local_cells + 1, total_offsets)), hsize_t)
+    chunkdims = vtkhdf_chunk_extent(max_local_cells + 1_i8, total_offsets, &
+         storage_size(local_conn) / 8)
     dcount = int(local_cells + 1, hsize_t)
     doffset = int(offsets_offset, hsize_t)
 
@@ -580,7 +589,8 @@ contains
 
     vdims = int(total_cells, hsize_t)
     maxdims = H5S_UNLIMITED_F
-    chunkdims = int(max(1, min(max_local_cells, total_cells)), hsize_t)
+    chunkdims = vtkhdf_chunk_extent(max_local_cells, total_cells, &
+         storage_size(VTK_cell_type) / 8)
     dcount = int(local_cells, hsize_t)
     doffset = int(cell_offset, hsize_t)
 
@@ -769,8 +779,8 @@ contains
     character(len=*), intent(in) :: fname
     real(kind=dp), intent(in), optional :: t
 
-    integer(kind=i8) :: time_offset
-    integer :: local_points, point_offset, total_points
+    integer(kind=i8) :: time_offset, point_offset, total_points
+    integer :: local_points
     integer(hid_t) :: precision_hdf
     integer :: ierr, i, j
     integer :: n_fields
@@ -802,9 +812,7 @@ contains
     ! Compute local/global point counts and MPI offsets
     local_points = fields%item_size(1)
     total_points = fields%items(1)%ptr%dof%global_size()
-    point_offset = 0
-    call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
+    point_offset = vtkhdf_rank_offset(local_points)
 
     ! Sync all the fields
     do i = 1, n_fields
@@ -1036,6 +1044,37 @@ contains
   ! -------------------------------------------------------------------------- !
   ! Helper functions and routines
 
+  !> Offset of this rank's entries in a dataset decomposed by rank.
+  !! @param n_local Number of entries on this rank
+  function vtkhdf_rank_offset(n_local) result(offset)
+    integer, intent(in) :: n_local
+    integer(kind=i8) :: offset, n_local_i8
+    integer :: ierr
+
+    n_local_i8 = int(n_local, i8)
+    offset = 0_i8
+    call MPI_Exscan(n_local_i8, offset, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
+         ierr)
+  end function vtkhdf_rank_offset
+
+  !> Chunk extent along the rank-decomposed dimension of a dataset.
+  !! @details The extent is the largest local block, limited by the size of
+  !! the dataset and by HDF5, which refuses to create a dataset with a chunk of
+  !! 2^32 bytes or more.
+  !! @param max_local Largest number of entries on any rank
+  !! @param total Number of entries in the dataset
+  !! @param entry_bytes Size of one entry in the file, in bytes
+  pure function vtkhdf_chunk_extent(max_local, total, entry_bytes) &
+       result(extent)
+    integer(kind=i8), intent(in) :: max_local, total
+    integer, intent(in) :: entry_bytes
+    integer(hsize_t) :: extent
+    integer(kind=i8), parameter :: max_chunk_bytes = 4294967295_i8
+
+    extent = int(max(1_i8, min(max_local, total, &
+         max_chunk_bytes / int(entry_bytes, i8))), hsize_t)
+  end function vtkhdf_chunk_extent
+
   !> Build local connectivity for VTK cells from a spectral element
   !! tensor-product grid. For linear types (12, 9) subdivides each spectral
   !! element into linear sub-cells. For Lagrange types (72, 70) writes one
@@ -1227,11 +1266,11 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp), dimension(n_local), intent(in) :: x
     integer, intent(in), optional :: precision
-    integer, intent(in), optional :: n_total, offset
+    integer(kind=i8), intent(in), optional :: n_total, offset
 
     integer(hsize_t), dimension(1) :: dims, dcount, doffset
     integer(hid_t) :: xf_id, dset_id, filespace, memspace, precision_hdf
-    integer :: i, ierr, precision_local, n_tot, off
+    integer :: i, ierr, precision_local
 
     ! Setup data sizes, offsets and precision
     dcount = int(n_local, hsize_t)
@@ -1239,17 +1278,15 @@ contains
     if (present(n_total)) then
        dims = int(n_total, hsize_t)
     else
-       call MPI_Allreduce(n_local, n_tot, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       dims = int(n_tot, hsize_t)
+       dims = int(n_local, hsize_t)
+       call MPI_Allreduce(MPI_IN_PLACE, dims(1), 1, MPI_INTEGER8, MPI_SUM, &
+            NEKO_COMM, ierr)
     end if
 
     if (present(offset)) then
        doffset = int(offset, hsize_t)
     else
-       call MPI_Exscan(n_local, off, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       doffset = int(off, hsize_t)
+       doffset = int(vtkhdf_rank_offset(n_local), hsize_t)
     end if
 
     if (present(precision)) then
@@ -1351,11 +1388,11 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp), dimension(n_local), intent(in) :: u, v, w
     integer, intent(in), optional :: precision
-    integer, intent(in), optional :: n_total, offset
+    integer(kind=i8), intent(in), optional :: n_total, offset
 
     integer(hsize_t), dimension(2) :: dims, dcount, doffset
     integer(hid_t) :: xf_id, dset_id, filespace, memspace, precision_hdf
-    integer :: i, ierr, precision_local, n_tot, off
+    integer :: i, ierr, precision_local
 
     ! Setup data sizes, offsets and precision
     dcount = [3_hsize_t, int(n_local, hsize_t)]
@@ -1363,17 +1400,15 @@ contains
     if (present(n_total)) then
        dims = [3_hsize_t, int(n_total, hsize_t)]
     else
-       call MPI_Allreduce(n_local, n_tot, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       dims = [3_hsize_t, int(n_tot, hsize_t)]
+       dims = [3_hsize_t, int(n_local, hsize_t)]
+       call MPI_Allreduce(MPI_IN_PLACE, dims(2), 1, MPI_INTEGER8, MPI_SUM, &
+            NEKO_COMM, ierr)
     end if
 
     if (present(offset)) then
        doffset = [0_hsize_t, int(offset, hsize_t)]
     else
-       call MPI_Exscan(n_local, off, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       doffset = [0_hsize_t, int(off, hsize_t)]
+       doffset = [0_hsize_t, int(vtkhdf_rank_offset(n_local), hsize_t)]
     end if
 
     if (present(precision)) then
@@ -1397,17 +1432,23 @@ contains
 
     if (precision_local .eq. rp) then
        ! Perform direct write for each component seperatly to avoid extra memory
-       ! allocation
+       ! allocation. Each one is a (1, n_local) block in memory and in the file.
+       dcount(1) = 1_hsize_t
+       call h5sclose_f(memspace, ierr)
+       call h5screate_simple_f(2, dcount, memspace, ierr)
+
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            [0_hsize_t, doffset(2)], dcount, ierr)
        call h5dwrite_f(dset_id, precision_hdf, u, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-            [1_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
+            [1_hsize_t, doffset(2)], dcount, ierr)
        call h5dwrite_f(dset_id, precision_hdf, v, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
-            [2_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
+            [2_hsize_t, doffset(2)], dcount, ierr)
        call h5dwrite_f(dset_id, precision_hdf, w, dcount, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
@@ -1552,7 +1593,8 @@ contains
     type(field_t), intent(inout) :: fld
 
     character(len=:), allocatable :: field_name
-    integer :: ierr, local_points, total_points, point_offset, component
+    integer :: ierr, local_points, component
+    integer(kind=i8) :: point_offset
     integer(hid_t) :: pointdata_grp, dset_id, filespace, memspace, xf_id
     integer(hid_t) :: dcpl_id, ext_file_id, ext_plist_id, attr_id
     integer(hid_t) :: H5T_NEKO_REAL
@@ -1587,10 +1629,7 @@ contains
     mpi_comm = NEKO_COMM%mpi_val
 
     local_points = fld%dof%size()
-    total_points = fld%dof%global_size()
-    point_offset = 0
-    call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
+    point_offset = vtkhdf_rank_offset(local_points)
 
     H5T_NEKO_REAL = h5kind_to_type(rp, H5_REAL_KIND)
 
@@ -1630,8 +1669,10 @@ contains
     ! Open the dataset and check if it's a VDS
     call h5dopen_f(pointdata_grp, trim(dset_name), dset_id, ierr)
     call h5dget_create_plist_f(dset_id, dcpl_id, ierr)
+    ! The query fails, leaving the count undefined, if the layout is not virtual
     call h5pget_virtual_count_f(dcpl_id, vds_count, ierr)
-    is_vds = (vds_count .gt. 0_size_t)
+    is_vds = .false.
+    if (ierr .eq. 0) is_vds = (vds_count .gt. 0_size_t)
 
     if (is_vds) then
        call filename_split(fname, main_path, main_name, main_suffix)
