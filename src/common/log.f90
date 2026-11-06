@@ -108,6 +108,8 @@ contains
     character(len=32) :: prefix
     integer :: envvar_len, ierr
 
+    call this%free()
+
     if (present(env_prefix)) then
        prefix = env_prefix
     else
@@ -117,37 +119,32 @@ contains
     this%indent_ = 0
     this%section_id_ = 0
 
-    if (pe_rank .eq. 0) then
-       call get_environment_variable(trim(prefix) // "_LOG_TAB_SIZE", &
-            log_tab_size, envvar_len)
-       if (envvar_len .gt. 0) then
-          read(log_tab_size(1:envvar_len), *) this%tab_size_
-       else
-          this%tab_size_ = 1
-       end if
-
-       call get_environment_variable(trim(prefix) // "_LOG_LEVEL", &
-            log_level, envvar_len)
-       if (envvar_len .gt. 0) then
-          read(log_level(1:envvar_len), *) this%level_
-       else
-          this%level_ = NEKO_LOG_INFO
-       end if
-
-       call get_environment_variable(trim(prefix) // "_LOG_FILE", &
-            log_file, envvar_len)
-       if (envvar_len .gt. 0) then
-          open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
-               action = 'write')
-       else
-          this%unit_ = stdout
-       end if
+    call get_environment_variable(trim(prefix) // "_LOG_TAB_SIZE", &
+         log_tab_size, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(log_tab_size(1:envvar_len), *) this%tab_size_
+    else
+       this%tab_size_ = 1
     end if
 
-    if (pe_size .gt. 1) then
-       call MPI_Bcast(this%tab_size_, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-       call MPI_Bcast(this%level_, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
-       call MPI_Bcast(this%unit_, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+    call get_environment_variable(trim(prefix) // "_LOG_LEVEL", &
+         log_level, envvar_len)
+    if (envvar_len .gt. 0) then
+       read(log_level(1:envvar_len), *) this%level_
+    else
+       this%level_ = NEKO_LOG_INFO
+    end if
+
+    call get_environment_variable(trim(prefix) // "_LOG_FILE", &
+         log_file, envvar_len)
+    if (envvar_len .gt. 0 .and. pe_rank .eq. 0) then
+       open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
+            action = 'write', iostat = ierr)
+       if (ierr .ne. 0) then
+          call neko_error("Failed to open log file: " // trim(log_file))
+       end if
+    else
+       this%unit_ = stdout
     end if
 
   end subroutine log_init
