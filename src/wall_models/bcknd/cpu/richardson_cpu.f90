@@ -95,6 +95,7 @@ contains
     select case (bc_type)
     case ("neumann")
        ! ts not used
+       ts = ti
        q = bc_value
     case ("dirichlet")
        ts = bc_value
@@ -296,7 +297,7 @@ contains
     b = 2.0
     c = 5.3 * a**2 * b * (h/z0h)**0.5
 
-    heat_flux = - a**2 / 0.74 * magu * &
+    heat_flux = - a**2 / Pr * magu * &
          (ti - ts) * f_theta_convective(Ri_b, c)
 
   end function heat_flux_convective
