@@ -14,6 +14,89 @@ to a disk at $t=8$. It is the only case with real strain.
 
 $\xi=\varepsilon N/H$ (`../../CDI_METHOD.md` §1). Paths under `logs/` are gitignored and local.
 
+## 0. $\gamma$: what we got wrong, and the fix
+
+**Setup.** Saini's $\psi$ configuration (§3.4) with our CDI $\phi$, at $N=5$ and $\xi=1$ (his width), on the
+scratch user file. Numbers come from `logs/s45_2026-10-12/gamma/gamma_table.csv` and `verdict_A.txt`. His code is
+rescored to our denominator (§3.6).
+
+**The quantity is $\beta$.** CDI relaxes $\phi$'s profile at the rate $\Gamma/\varepsilon$; the flow strains it at
+$S_{\max}=\pi u_{\max}(t)$. With $\Gamma=\gamma u_{\max}(t)$,
+
+$$\beta=\frac{\Gamma}{\varepsilon S_{\max}}=\frac{\gamma}{\pi\varepsilon}.$$
+
+Saini's Eq. (39) re-sharpening gives $\beta\approx10$ on average (`logs/anim/gamma_eps/README.md`).
+
+**The settings compared.**
+- **$\gamma$** is the knob in the `.case` file (`case.cdi.gamma`).
+- **"Fixed $\gamma$"** keeps that value on every mesh. Because $\varepsilon=\xi H/N$ halves with $H$, $\beta$
+  then doubles at each refinement.
+- **"$\beta=51$" and "$\beta=10$"** set $\gamma$ on each mesh so that $\beta$ stays the same: $\gamma$ halves with
+  $H$, so $\gamma\propto\varepsilon$. They name a rule, not a run, and the number is the CDI pull measured against
+  the strain.
+
+| label in the figures | rule | $\gamma$ at $H=1/32$, $1/64$, $1/128$ | $\beta$ at the same $H$ | runs |
+|---|---|---|---|---|
+| fixed $\gamma=1$ | $\Gamma=u_{\max}$ on every mesh | –, 1, 1 | –, 102, 204 | `s1_h64`, `s2_h128` |
+| fixed $\gamma=0.5$ | $\Gamma=0.5\,u_{\max}$ on every mesh | 0.5, 0.5, 0.5 | 25, 51, 102 | `gd32n5_g05`, `s7_g05`, `s8_g05_h128` |
+| $\beta=51$ | $\gamma$ halved with $H$ | –, 0.5, 0.25 | –, 51, 51 | `s7_g05`, `s9_g025_h128` |
+| $\beta=10$ | $\gamma$ halved with $H$; Saini's average dose | –, 0.1, 0.05 | –, 10, 10 | `s10_g01_h64`, `s10_g005_h128` |
+| Saini's code | no $\gamma$: Eq. (39) re-sharpening every 0.05 | – | about 10 on average | `cv32n5`, `cv64n5`, `cv128n5` |
+
+At $H=1/64$, $\beta=51$ and fixed $\gamma=0.5$ are the same run; the two rules part at $H=1/128$.
+
+**What we did: fixed $\gamma$.** With $\gamma=0.5$ or 1 at every $H$, $\beta$ doubles at each refinement (102 → 204
+at $\gamma=1$). CDI pulls harder against the flow, and $\phi$ carries more of each re-initialization's error forward
+(§3.8).
+- **Level.** At $\gamma=0.5$, $E_s(8)$ is 0.96× his at $H=1/64$ but 2.0× his at $1/128$. At $\gamma=1$ it is 1.5× and
+  2.8×.
+- **Rate.** It falls 3.6× ($\gamma=0.5$) and 4.0× ($\gamma=1$) per doubling; his falls 7.4× (7.1–8.4× over his
+  repeats).
+- **A smaller $\gamma$ alone does not fix the rate.** Fixed $\gamma=0.25$ falls 3.4×.
+
+**The fix: fixed $\beta$, so $\gamma\propto\varepsilon$.** Halve $\gamma$ with $H$.
+- **$\beta=10$** ($\gamma=0.1$ at $H=1/64$, 0.05 at $1/128$) is Saini's dose. It meets or beats every §3.9 criterion
+  at both $H$:
+  - $E_s$ is 0.63× and 0.75× his;
+  - the rate is 6.2×, $p=2.64$ against his 2.89, inside the 0.29 band;
+  - $E_r$ is 0.47× and 0.50× his;
+  - $|E_v|<10^{-5}$;
+  - the worst violation is $7.1\times10^{-3}$ and $5.4\times10^{-3}$, against his 0.086 and 0.048.
+- **$\beta=51$** ($\gamma=0.5$, then 0.25) is the balanced point:
+  - $E_s$ is 0.96× and 1.42× his, at a rate of 5.0×;
+  - $\phi$ stays within $10^{-3}$ of $[0,1]$;
+  - at $H=1/128$, at most 3 pieces, and the width within 3%.
+
+**Where it breaks.**
+- **A strong pull** ($\beta\ge102$) loses shape: $E_s$ is 1.5–2.8× his. At $\gamma=2$ ($\beta=204$, $H=1/64$) the
+  worst violation also reaches $1.7\times10^{-2}$.
+- **A weak pull** ($\beta=10$) has the best shape, but it costs:
+  - boundedness: $\phi$ leaves $[0,1]$ by $5$–$7\times10^{-3}$, against about $10^{-3}$ at $\beta\ge51$ except
+    $\gamma=2$;
+  - width: the profile widens to $1.21\,l_0$, against 1.01–1.07;
+  - topology, at $H=1/128$: the thin tail breaks into up to 6 pieces at $t\approx4.5$, against 3 at $\beta=51$. At
+    $H=1/64$ every $\beta$ gives 4–9.
+
+  His code is worse on all three: 0.05–0.09, 1.25–1.39 $l_0$, 9–19 pieces. The pieces rejoin as the flow reverses, so
+  the $t=8$ metrics miss them; a flow that does not reverse would keep them.
+
+**Not shown.**
+- The $\beta$-fixed families have two $H$ each.
+- The match bands come from noise measured at $H=1/64$ only, and were applied to $\beta$ after the runs were seen.
+- $\varepsilon/H$ was not varied in his configuration.
+- The configuration runs on the scratch file, not in `rider_kothe.f90` (`../../NEXT_SESSION.md` item 1).
+- $N=6$ loses boundedness, and at $H=1/32$ diverges, at $\gamma=0.5$ and 1 alike (§3.7). No $\beta$-fixed run
+  exists there.
+
+**Figures** (`evidence/`, made by `logs/s45_2026-10-12/gamma/gfig_*.py`):
+- `rider_gamma_convergence.png`: $E_r$, $E_s$, $|E_v|$ and the worst violation against $H$. Fixed $\gamma$ falls
+  behind his $E_s$; $\beta=10$ keeps up, and $\beta=51$ falls behind more slowly.
+- `rider_gamma_es_t.png`: $E_s(t)$ at $H=1/64$ and $1/128$, and ours over his. It shows when the gap opens.
+- `rider_gamma_tradeoff.png`: every measure against $\beta$ at both $H$. It shows where each end breaks.
+- `rider_gamma_contours.png`: $\phi=0.5$ against the exact interface at $H=1/128$, for fixed $\gamma=1$,
+  $\beta=51$, $\beta=10$ and his code, at $t=4$, $t\approx4.56$ and $t=8$.
+- `rider_gamma_h128.mp4` (and `.gif`): the same four, animated over $t\in[0,8]$, with $\phi$ and $\psi$.
+
 ## 1. The problem
 
 Saini §4.5. A disk of radius 0.15 at $(0.5,0.75)$ in $[0,1]^2$ is advected by
@@ -540,6 +623,50 @@ where the carried initial profile is sharper than the node spacing (`mass_fine.p
 **Open: why his irreversible remainder falls with $H$ and ours does not** (`../../NEXT_SESSION.md`
 item 2).
 
+### 3.9 Do we match Saini? The verdict
+
+The criterion is in `logs/s45_2026-10-12/PREREGISTERED.txt` ("Part A"). It was written after the table had
+been seen, so it is not blind; its bands come from the noise only. `logs/s45_2026-10-12/gamma/verdict_A.py`
+applies it to `gamma_table.csv` (→ `verdict_A.txt`); §0 and §6 have the figures.
+- **The setup:** $N=5$, $\xi=1$, our CDI $\phi$ with his $\psi$ configuration (§3.4). His code is rescored by
+  `../norms.py` with our denominator.
+- **The bands:** a level matches when ours over his is within $3\sigma$ of the two codes' repeat noise. That
+  is $[0.84,1.19]$ for $E_r$ and $[0.87,1.15]$ for $E_s$. A rate $p=\log_2(E(2H)/E(H))$ matches within 0.37
+  for $E_r$ and 0.29 for $E_s$.
+
+| | $H=1/32$ | $H=1/64$ | $H=1/128$ |
+|---|---|---|---|
+| $E_r$, ours/his, $\gamma=0.5$ | 0.80, better | 0.66, better | 0.48, better |
+| $E_s$, ours/his, $\gamma=0.5$ | 0.99, match | 0.96, match | 1.99, worse |
+| $E_s$, ours/his, $\gamma=0.25$ | – | 0.65, better | 1.42, worse |
+| $E_s$, ours/his, $\gamma=1$ | – | 1.51, worse | 2.82, worse |
+| $E_s$, ours/his, $\beta=51$ ($\gamma\propto\varepsilon$) | – | 0.96, match | 1.42, worse |
+| $E_s$, ours/his, $\beta=10$ ($\gamma\propto\varepsilon$) | – | 0.63, better | 0.75, better |
+| worst violation, ours ($\gamma=0.5$) / his repeats | 0.036 / 0.14 | $9.7\times10^{-4}$ / 0.086–0.092 | $1.0\times10^{-3}$ / 0.048–0.076 |
+
+- **The $\beta$ rows are post hoc.** The criterion was written for fixed $\gamma$; the rows at fixed
+  $\beta=\gamma/(\pi\varepsilon)$ (§0) were added under the same bands after the runs had been seen.
+- **Level.** $E_r$ is better than his at every $H$ and every $\gamma$, except $\gamma=1$ at $H=1/64$
+  (0.92, a match). $E_s$ matches his to $H=1/64$ at $\gamma=0.5$, and is better at $\gamma=0.25$. At
+  $H=1/128$ it is worse at every fixed $\gamma$ (1.4–2.8×), and better at $\beta=10$ (0.75×).
+- **Rate.** From $1/32$ to $1/64$ $E_s$ matches ($p$ 2.39 against 2.35; $\gamma=0.5$ only). From $1/64$ to
+  $1/128$ it is slower at every fixed $\gamma$: $p=1.77$–1.98 (3.4–4.0×), his 2.89 (7.4×). At fixed $\beta$ it is
+  $p=2.32$ (5.0×, slower) at $\beta=51$ and $p=2.64$ (6.2×, a match, $\Delta p=0.25$ against 0.29) at $\beta=10$.
+  Over that pair $E_r$ is faster than his at $\gamma=0.5$, 1 and $\beta=51$, and matches at $\gamma=0.25$ and
+  $\beta=10$.
+- **Boundedness.** Better at every cell: at $H\le1/64$ ours stays within $3\times10^{-3}$ of $[0,1]$ at fixed
+  $\gamma$ and $\beta=51$, and within $7.1\times10^{-3}$ at $\beta=10$; his reaches 0.05–0.09.
+- **$|E_v|$.** Below $10^{-5}$ in every one of our runs, at the $\phi$ solver tolerance. His is below that
+  too, except at $H=1/32$ ($3.7\times10^{-5}$).
+- **So:** at fixed $\gamma=0.5$ and 0.25 we match or beat him in every measure and cell except $E_s$ at $H=1/128$,
+  where its rate falls short (§3.8). At $\gamma=1$, $E_s$ is also worse at $H=1/64$ (1.51×). At $\beta=10$ we match or beat him in every measure at $H=1/64$ and $1/128$, at the
+  costs listed in §0.
+- **Not yet covered** (runs not made):
+  - $\gamma=0.25$ and 1, and $\beta=10$, at $H=1/32$;
+  - $\phi$'s solver tolerance at $10^{-12}$ in any of these cells. On `s12t` it moved layer-0 $E_s$ by 0.5%
+    (`../../NEXT_SESSION.md` item 2).
+  - The $1/32\to1/64$ rate rests on one pair, and the noise was measured at $H=1/64$ only.
+
 ## 4. Limitations and open items
 
 - **Shape.**
@@ -581,6 +708,32 @@ genmeshbox 0 1 0 1 -0.1 0 64 64 1 .true. .true. .true.   # box.nmsh, H = 1/64
 
 Every animation also ships as a GIF.
 
+**The $\gamma$ finding** (§0; `logs/s45_2026-10-12/gamma/gfig_*.py`, every number from `gamma_table.csv` or
+`tables/es_t_*.txt`). $N=5$, $\xi=1$, Saini's $\psi$ configuration. Fixed $\gamma$ is dashed in warm colours,
+fixed $\beta$ solid in cool ones, his code black. Both codes are in our normalisation, the disk area.
+- **`rider_gamma_convergence.png`:** $E_r$, $E_s$, $|E_v|$ at $t=8$ and the worst violation against $H$; repeats
+  hollow.
+  - At $H=1/64$, $\beta=51$ is the fixed $\gamma=0.5$ run.
+  - $E_s$ per doubling of $1/H$: fixed $\gamma=1$ 4.0×, fixed $\gamma=0.5$ 5.3× then 3.6×, $\beta=51$ 5.0×,
+    $\beta=10$ 6.2×, his 5.1× then 7.4×.
+  - The noise is measured at one cell only, so the slopes are not citable orders.
+- **`rider_gamma_es_t.png`:** $E_s(t)$ against the marker-advected exact interface, and ours over his averaged
+  over a 0.4 window, at $H=1/64$ and $1/128$. "His" is his run dumped every 0.04 (`cv*n5_d04`); his other runs are
+  thin black lines. At $H=1/64$ that run is his highest repeat at $t=8$ (0.0138 against 0.0121), so the ratio there
+  reads low.
+  - At $H=1/128$, fixed $\gamma$ and $\beta=51$ rise above his from $t\approx0.8$ and stay
+    there; $\beta=10$ stays within about 20% of his throughout.
+- **`rider_gamma_tradeoff.png`:** $E_s$ and $E_r$ over his, $\max_t|E_v|$, the worst violation, the most
+  $\phi=0.5$ pieces and $\max_t l/l_0$, against $\beta$, one line per $H$; his values dotted, his repeats shaded.
+  $\gamma=2$ at $H=1/64$ ran at half the $\Delta t$.
+- **`rider_gamma_contours.png`:** $\phi=0.5$ against the exact interface at $H=1/128$: fixed $\gamma=1$,
+  $\beta=51$, $\beta=10$ and his code (dumped every 0.04) at $t=4$, its tail, $t=4.56$ and $t=8$. Pieces at
+  $t=4.56$: 1, 3, 6 and 9.
+- **`rider_gamma_h128.mp4`:** the same four columns over $t\in[0,8]$, every 0.04; $\phi$ on top, $\psi$ below
+  (`logs/anim/anim_rk.py`).
+  - Yellow marks $\phi<0$ and green $\phi>1$ at any size. The wide yellow areas at $\beta=10$ are shallow: $\phi$
+    stays at or above $-4\times10^{-4}$ at $t=8$, against his $-1.8\times10^{-2}$ (the box in each panel).
+
 **Saini's configuration against his code, over his grid** (`logs/s45_2026-10-12/figs_saini45.py`; §3.4, §3.7).
 Ours is CDI with his $\psi$ configuration at $\gamma=0.5$. His is his own code on the same cell. Error
 norms are in his normalisation: ours divided by 13.147.
@@ -591,17 +744,6 @@ norms are in his normalisation: ours divided by 13.147.
   - $E_s$ is 0.94–3.2× his.
   - $|E_v|$ is at our solver tolerance.
   - $H=1/32$, $N=6$ diverged.
-- **`rider_saini45_convergence.png`:** what $\gamma$ buys and what it does not. $E_r$, $E_s$, $|E_v|$ at
-  $t=8$ and the worst violation against $H$, $N=5$, ours at $\gamma=0.25$, 0.5 and 1 against his code, with
-  the repeats hollow (`logs/s45_2026-10-12/gamma/conv_fig.py` from `gamma_table.csv`).
-  - Unlike the rest of this group, both codes are in our normalisation, the disk area.
-  - $E_r$ is below his at every $H$ and $\gamma$.
-  - At $\gamma=0.5$, $E_s$ equals his at $H=1/32$ and 1/64 (0.061 and 0.0116 against 0.062 and 0.0121).
-  - From $1/64$ to $1/128$ ours falls 3.4–4.0× at every $\gamma$, his 7.4× (§3.8). $\gamma$ moves the
-    level, not the rate.
-  - The worst violation is about $10^{-3}$ for ours at $H\le1/64$, and 0.05–0.09 for his.
-  - $\gamma=0.25$ and 1 have no $H=1/32$ run.
-  - The noise is measured at one cell only, so the slopes are not citable orders.
 - **`rider_saini45_snapshots.png`:** $\phi$ and $\psi$ at $t=4$ and $t=8$, $H=1/64$, $N=5$, ours at $\gamma=0.5$,
   against the exact interface (dashed); the layout of `rider_snapshots.png` (`logs/s45_2026-10-12/snapshots_s45.py`).
   - $\phi$ is bounded to $3\times10^{-12}$ at $t=4$; at $t=8$ it spans $[-3.2\times10^{-4},\,1+5.7\times10^{-4}]$,
