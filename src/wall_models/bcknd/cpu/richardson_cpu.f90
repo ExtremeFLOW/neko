@@ -201,8 +201,10 @@ contains
        utau = sqrt(tau_ptr(magu, Ri_b, hi, z0, l, kappa))
        select case (bc_type)
        case ("neumann")
-          !!! TEMPORARY: neutral log-law approximation
-          ts = ti - (q * Pr * log(hi/z0h)) / (max(utau, 1e-6_rp) * kappa)
+          ! Compute ts based on stability (C = flux per kelvin)
+          C = heat_flux_ptr(ti, ts, Ri_b, hi, magu, z0h, Pr, l, utau, kappa)
+          if (C < 1e-6) then C = 1e-6
+          ts = ti + q / C
           q = q
        case ("dirichlet")
           ! Compute q
