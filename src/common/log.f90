@@ -33,11 +33,10 @@
 !> Logging routines
 module logger
   use neko_config, only : NEKO_VERSION
-  use comm, only : pe_rank, pe_size, NEKO_COMM
+  use comm, only : pe_rank
   use utils, only : neko_error, neko_warning
   use, intrinsic :: iso_fortran_env, only : stdout => output_unit, &
        stderr => error_unit
-  use mpi_f08, only : MPI_INTEGER, MPI_Bcast
   implicit none
   private
 
@@ -116,9 +115,6 @@ contains
        prefix = "NEKO"
     end if
 
-    this%indent_ = 0
-    this%section_id_ = 0
-
     call get_environment_variable(trim(prefix) // "_LOG_TAB_SIZE", &
          log_tab_size, envvar_len)
     if (envvar_len .gt. 0) then
@@ -170,7 +166,7 @@ contains
        call this%end_section()
     end if
 
-    if (this%unit_ .ne. stdout .and. pe_rank .eq. 0) then
+    if (this%unit_ .ne. stdout) then
        close(this%unit_)
     end if
 
