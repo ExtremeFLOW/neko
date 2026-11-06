@@ -109,8 +109,8 @@ inline real tau_neutral(const real magu, const real h, const real z0,
 
 inline real heat_flux_neutral(const real ti, const real ts, const real h,
                               const real z0h, const real utau,
-                              const real kappa) {
-  return kappa * utau * (ti - ts) / log(h / z0h);
+                              const real kappa, const real Pr) {
++  return kappa * utau * (ts - ti) / (Pr * log(h / z0h));
 }
 
 /**
@@ -229,7 +229,7 @@ inline void richardson_body(__global const real * __restrict__ u_d,
       tau_mag = tau_neutral(magu, hi, z0, kappa);
       utau = sqrt(tau_mag);
       if (bc_type == 1) {
-        q = heat_flux_neutral(ti, ts, hi, z0h, utau, kappa);
+        q = heat_flux_neutral(ti, ts, hi, z0h, utau, kappa, Pr);
       }
     }
 

@@ -116,8 +116,8 @@ static float tau_neutral(const float magu, const float h, const float z0,
 
 static float heat_flux_neutral(const float ti, const float ts, const float h,
                               const float z0h, const float utau,
-                              const float kappa) {
-  return kappa * utau * (ti - ts) / log(h / z0h);
+                              const float kappa, const float Pr) {
++  return kappa * utau * (ts - ti) / (Pr * log(h / z0h));
 }
 
 /**
@@ -236,7 +236,7 @@ static void richardson_body(device const float *u_d,
       tau_mag = tau_neutral(magu, hi, z0, kappa);
       utau = sqrt(tau_mag);
       if (bc_type == 1) {
-        q = heat_flux_neutral(ti, ts, hi, z0h, utau, kappa);
+        q = heat_flux_neutral(ti, ts, hi, z0h, utau, kappa, Pr);
       }
     }
 
