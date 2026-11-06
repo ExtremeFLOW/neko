@@ -591,6 +591,17 @@ norms are in his normalisation: ours divided by 13.147.
   - $E_s$ is 0.94–3.2× his.
   - $|E_v|$ is at our solver tolerance.
   - $H=1/32$, $N=6$ diverged.
+- **`rider_saini45_convergence.png`:** what $\gamma$ buys and what it does not. $E_r$, $E_s$, $|E_v|$ at
+  $t=8$ and the worst violation against $H$, $N=5$, ours at $\gamma=0.25$, 0.5 and 1 against his code, with
+  the repeats hollow (`logs/s45_2026-10-12/gamma/conv_fig.py` from `gamma_table.csv`).
+  - Unlike the rest of this group, both codes are in our normalisation, the disk area.
+  - $E_r$ is below his at every $H$ and $\gamma$.
+  - At $\gamma=0.5$, $E_s$ equals his at $H=1/32$ and 1/64 (0.061 and 0.0116 against 0.062 and 0.0121).
+  - From $1/64$ to $1/128$ ours falls 3.4–4.0× at every $\gamma$, his 7.4× (§3.8). $\gamma$ moves the
+    level, not the rate.
+  - The worst violation is about $10^{-3}$ for ours at $H\le1/64$, and 0.05–0.09 for his.
+  - $\gamma=0.25$ and 1 have no $H=1/32$ run.
+  - The noise is measured at one cell only, so the slopes are not citable orders.
 - **`rider_saini45_snapshots.png`:** $\phi$ and $\psi$ at $t=4$ and $t=8$, $H=1/64$, $N=5$, ours at $\gamma=0.5$,
   against the exact interface (dashed); the layout of `rider_snapshots.png` (`logs/s45_2026-10-12/snapshots_s45.py`).
   - $\phi$ is bounded to $3\times10^{-12}$ at $t=4$; at $t=8$ it spans $[-3.2\times10^{-4},\,1+5.7\times10^{-4}]$,
