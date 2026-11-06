@@ -38,7 +38,9 @@ module fluid_scheme_base
   use field_series, only : field_series_t
   use gather_scatter, only : gs_t
   use json_module, only : json_file
-  use logger, only : LOG_SIZE
+  use json_utils, only : json_get
+  use logger, only : neko_log, LOG_SIZE
+  use flow_ic, only : set_flow_ic_builtin
   use num_types, only : rp, dp
   use checkpoint, only : chkp_t
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBL_LEN
@@ -89,7 +91,8 @@ module fluid_scheme_base
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_vel
 
-     type(json_file), pointer :: params !< Parameters
+     !> Copy of the fluid parameters, i.e. `case.fluid`
+     type(json_file), allocatable :: params
      type(mesh_t), pointer :: msh => null() !< Mesh
 
      !> Boundary condition labels (if any)
@@ -120,6 +123,15 @@ module fluid_scheme_base
      procedure(fluid_scheme_base_step_intrf), pass(this), deferred :: step
      !> Restart from a checkpoint
      procedure(fluid_scheme_base_restart_intrf), pass(this), deferred :: restart
+     !> Set the initial condition
+     procedure, pass(this) :: set_initial_condition => &
+          fluid_scheme_base_set_initial_condition
+     !> Set the initial condition, for overrides of `set_initial_condition`
+     procedure, pass(this) :: set_initial_condition_base => &
+          fluid_scheme_base_set_initial_condition
+     !> Set the initial condition with the user routine
+     procedure(fluid_scheme_base_set_user_initial_condition_intrf), &
+          pass(this), deferred :: set_user_initial_condition
      ! Setup boundary conditions
      procedure(fluid_scheme_setup_bcs_intrf), pass(this), deferred :: setup_bcs
 
@@ -198,8 +210,17 @@ module fluid_scheme_base
   end interface
 
   !> Abstract interface to initialize a fluid formulation
+  !! @param msh The mesh.
+  !! @param lx The number of GLL points in each direction.
+  !! @param params The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  !! @param user Type with user-defined procedures.
+  !! @param chkp Checkpoint for restarts.
+  !! @param output_boundary Whether to write the boundary condition markers
+  !! to file.
   abstract interface
-     subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, user, chkp)
+     subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, &
+          numerics_params, user, chkp, output_boundary)
        import fluid_scheme_base_t
        import json_file
        import mesh_t
@@ -210,8 +231,10 @@ module fluid_scheme_base
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(in) :: lx
        type(json_file), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: numerics_params
        type(user_t), target, intent(in) :: user
        type(chkp_t), target, intent(inout) :: chkp
+       logical, intent(in) :: output_boundary
      end subroutine fluid_scheme_base_init_intrf
   end interface
 
@@ -243,6 +266,16 @@ module fluid_scheme_base
        class(fluid_scheme_base_t), target, intent(inout) :: this
        type(chkp_t), intent(inout) :: chkp
      end subroutine fluid_scheme_base_restart_intrf
+  end interface
+
+  !> Abstract interface to set the initial condition of a fluid scheme with
+  !! the user routine
+  abstract interface
+     subroutine fluid_scheme_base_set_user_initial_condition_intrf(this, user)
+       import fluid_scheme_base_t, user_t
+       class(fluid_scheme_base_t), intent(inout) :: this
+       type(user_t), intent(in) :: user
+     end subroutine fluid_scheme_base_set_user_initial_condition_intrf
   end interface
 
   !> Abstract interface to setup boundary conditions
@@ -290,4 +323,44 @@ module fluid_scheme_base
        character(len=*) :: type_name
      end subroutine fluid_scheme_base_factory
   end interface
+
+contains
+
+  !> Set the initial condition of the velocity and pressure. A built-in
+  !! initial condition is set here, a user one by `set_user_initial_condition`.
+  !! @param user Type with user-defined procedures.
+  !! @param is_restart Whether the case is restarting from a checkpoint.
+  subroutine fluid_scheme_base_set_initial_condition(this, user, is_restart)
+    class(fluid_scheme_base_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+    logical, intent(in) :: is_restart
+    character(len=:), allocatable :: ic_type
+    type(json_file) :: ic_params
+
+    call neko_log%section("Fluid initial condition ")
+
+    if (is_restart) then
+       call neko_log%message("Restart file specified, " // &
+            "initial conditions ignored")
+    else
+       call json_get(this%params, 'initial_condition.type', ic_type)
+
+       ! Common, non-user initial conditions are handled here by the
+       ! base type.
+       if (trim(ic_type) .ne. 'user') then
+          call json_get(this%params, 'initial_condition', ic_params)
+          call set_flow_ic_builtin(this%u, this%v, this%w, this%p, this%c_Xh, &
+               this%gs_Xh, ic_type, ic_params)
+          call ic_params%destroy()
+       else
+          call this%set_user_initial_condition(user)
+       end if
+
+       deallocate(ic_type)
+    end if
+
+    call neko_log%end_section()
+
+  end subroutine fluid_scheme_base_set_initial_condition
+
 end module fluid_scheme_base
