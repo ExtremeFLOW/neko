@@ -181,9 +181,9 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - `rider_kothe_s45.f90`'s header says $2.5(N+1)$ pseudo-steps; it runs $25(N+1)$.
      Document them or align them.
 
-## Where we stand against Saini, then a predicted $(\xi,\gamma)$ map at $N=5$
+## Where we stand against Saini, then a predicted $(\varepsilon/H,\gamma/u_{\max})$ map at $N=5$
 
-This is the next session. $\xi=\varepsilon N/H$ (at $N=5$, $\varepsilon/H$ rescaled by 5).
+This is the next session. The map axis is $\varepsilon/H$; in the repo's $\xi=\varepsilon N/H$, that is $\xi=5\,\varepsilon/H$.
 
 ### A. A verdict against Saini (Rider–Kothe, his configuration)
 
@@ -198,13 +198,13 @@ This is the next session. $\xi=\varepsilon N/H$ (at $N=5$, $\varepsilon/H$ resca
 - **Verdict.** Give level, rate and boundedness separately, and say where the gap is (so far, the
   irreversible remainder, item 2). Part B must not hide a "no" here.
 
-### B. The $(\xi,\gamma/u_{\max})$ map, $\Gamma=\gamma u_{\max}$, $N=5$
+### B. The $(\varepsilon/H,\gamma/u_{\max})$ map, $\Gamma=\gamma u_{\max}$, $N=5$
 
 The alternative $\Gamma=\gamma(\varepsilon/H)u_{\max}$ (item 2) is not used here. A second $H$ decides
 between the two.
 1. **Predict first.**
    - Assemble the 1D discrete operator at $N=5$. Find its maximum-principle (M-matrix) region in
-     $(\xi,\gamma/u_{\max})$.
+     $(\varepsilon/H,\gamma/u_{\max})$.
    - Compare it with Mirjalili, Ivey & Mani's bound (JCP 401, 2020),
      $\varepsilon/\Delta x\ge(\gamma/u_{\max}+1)/(2\gamma/u_{\max})$.
    - Find the exact steady 1D profile with `solve_bvp`, checked by an independent 1D solver.
@@ -230,9 +230,9 @@ between the two.
 5. **The output.**
    - Two kthviz heatmaps per case: $E_s$ at the return time, and boundedness on a log scale with the
      $10^{-3}$ line.
-   - $\xi$ on $y$ and $\gamma/u_{\max}$ on $x$, both log, with the predicted contour overlaid and the
+   - $\varepsilon/H$ on $y$ and $\gamma/u_{\max}$ on $x$, both log, with the predicted contour overlaid and the
      cells within the noise hatched.
-   - A table of $E_r$, $|E_v|$, mass drift, and an ε-free contour error. At fixed $H$ a larger $\xi$
+   - A table of $E_r$, $|E_v|$, mass drift, and an ε-free contour error. At fixed $H$ a larger $\varepsilon/H$
      widens the exact profile, so part of $E_s$ is modelling error.
    - Contour plots of a few cells.
 6. **External checks.**
