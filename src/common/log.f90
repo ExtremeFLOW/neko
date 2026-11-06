@@ -207,7 +207,6 @@ contains
   pure function log_level(this) result(lvl)
     class(log_t), intent(in) :: this
     integer :: lvl
-    if (pe_rank .ne. 0) return
 
     lvl = this%level_
 
