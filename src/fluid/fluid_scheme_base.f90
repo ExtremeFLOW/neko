@@ -48,13 +48,14 @@ module fluid_scheme_base
   use time_scheme_controller, only : time_scheme_controller_t
   use time_step_controller, only : time_step_controller_t
   use user_intf, only : user_t, user_material_properties_intf
-  use utils, only : neko_error
+  use utils, only : neko_error, NEKO_TYPENAME_LEN
   use bc_list, only : bc_list_t
   use field_list, only : field_list_t
   use time_state, only : time_state_t
   implicit none
   private
-  public :: fluid_scheme_base_t, fluid_scheme_base_factory
+  public :: fluid_scheme_base_t, fluid_scheme_factory, fluid_scheme_allocator, &
+       fluid_scheme_allocate, register_fluid_scheme
 
   !> Base type of all fluid formulations.
   type, abstract :: fluid_scheme_base_t
@@ -317,12 +318,73 @@ module fluid_scheme_base
   end interface
 
   interface
-     !> Initialise a fluid scheme
-     module subroutine fluid_scheme_base_factory(object, type_name)
-       class(fluid_scheme_base_t), intent(inout), allocatable :: object
-       character(len=*) :: type_name
-     end subroutine fluid_scheme_base_factory
+     !> Fluid scheme factory. Both constructs and initializes the object.
+     !! @param object The object to be created and initialized.
+     !! @param msh The mesh.
+     !! @param lx The number of GLL points in each direction.
+     !! @param params The fluid parameters, i.e. `case.fluid`.
+     !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+     !! @param user Type with user-defined procedures.
+     !! @param chkp Checkpoint for restarts.
+     !! @param output_boundary Whether to write the boundary condition
+     !! markers to file.
+     module subroutine fluid_scheme_factory(object, msh, lx, params, &
+          numerics_params, user, chkp, output_boundary)
+       class(fluid_scheme_base_t), allocatable, intent(inout) :: object
+       type(mesh_t), target, intent(inout) :: msh
+       integer, intent(in) :: lx
+       type(json_file), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: numerics_params
+       type(user_t), target, intent(in) :: user
+       type(chkp_t), target, intent(inout) :: chkp
+       logical, intent(in) :: output_boundary
+     end subroutine fluid_scheme_factory
   end interface
+
+  interface
+     !> Fluid scheme allocator.
+     !! @param object The object to be allocated.
+     !! @param type_name The name of the fluid scheme type.
+     module subroutine fluid_scheme_allocator(object, type_name)
+       class(fluid_scheme_base_t), allocatable, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine fluid_scheme_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for an object allocator.
+  !! Implemented in the user modules, should allocate the `obj` to the custom
+  !! user type.
+  abstract interface
+     subroutine fluid_scheme_allocate(obj)
+       import fluid_scheme_base_t
+       class(fluid_scheme_base_t), allocatable, intent(inout) :: obj
+     end subroutine fluid_scheme_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom types.
+     module subroutine register_fluid_scheme(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(fluid_scheme_allocate), pointer, intent(in) :: allocator
+     end subroutine register_fluid_scheme
+  end interface
+
+  ! A name-allocator pair for user-defined types. A helper type to define a
+  ! registry of custom allocators.
+  type fluid_scheme_allocator_entry
+     character(len=NEKO_TYPENAME_LEN) :: type_name
+     procedure(fluid_scheme_allocate), pointer, nopass :: allocator
+  end type fluid_scheme_allocator_entry
+
+  !> Registry of allocators for user-defined types
+  type(fluid_scheme_allocator_entry), allocatable :: fluid_scheme_registry(:)
+
+  !> The size of the `fluid_scheme_registry`
+  integer :: fluid_scheme_registry_size = 0
 
 contains
 
