@@ -91,7 +91,8 @@ module fluid_scheme_base
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_vel
 
-     type(json_file), pointer :: params !< Parameters
+     !> Copy of the fluid parameters, i.e. `case.fluid`
+     type(json_file), pointer :: params => null()
      type(mesh_t), pointer :: msh => null() !< Mesh
 
      !> Boundary condition labels (if any)
@@ -209,8 +210,17 @@ module fluid_scheme_base
   end interface
 
   !> Abstract interface to initialize a fluid formulation
+  !! @param msh The mesh.
+  !! @param lx The number of GLL points in each direction.
+  !! @param params The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  !! @param user Type with user-defined procedures.
+  !! @param chkp Checkpoint for restarts.
+  !! @param output_boundary Whether to write the boundary condition markers
+  !! to file.
   abstract interface
-     subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, user, chkp)
+     subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, &
+          numerics_params, user, chkp, output_boundary)
        import fluid_scheme_base_t
        import json_file
        import mesh_t
@@ -221,8 +231,10 @@ module fluid_scheme_base
        type(mesh_t), target, intent(inout) :: msh
        integer, intent(in) :: lx
        type(json_file), target, intent(inout) :: params
+       type(json_file), target, intent(inout) :: numerics_params
        type(user_t), target, intent(in) :: user
        type(chkp_t), target, intent(inout) :: chkp
+       logical, intent(in) :: output_boundary
      end subroutine fluid_scheme_base_init_intrf
   end interface
 
@@ -331,14 +343,12 @@ contains
        call neko_log%message("Restart file specified, " // &
             "initial conditions ignored")
     else
-       call json_get(this%params, 'case.fluid.initial_condition.type', &
-            ic_type)
+       call json_get(this%params, 'initial_condition.type', ic_type)
 
        ! Common, non-user initial conditions are handled here by the
        ! base type.
        if (trim(ic_type) .ne. 'user') then
-          call json_get(this%params, 'case.fluid.initial_condition', &
-               ic_params)
+          call json_get(this%params, 'initial_condition', ic_params)
           call set_flow_ic_builtin(this%u, this%v, this%w, this%p, this%c_Xh, &
                this%gs_Xh, ic_type, ic_params)
           call ic_params%destroy()
