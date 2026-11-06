@@ -32,15 +32,16 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <device/device_config.h>
 #include <device/cuda/check.h>
-#include "ax_helm_kernel.h"
+#include "ax_helm_svv_factorized_kernel.h"
 
 extern "C" {
 
-/** Fortran wrapper for the fused factorized CUDA SVV Helmholtz operator. */
+/** Fortran wrapper for the fused factorized SVV Helmholtz operator. */
 void cuda_ax_helm_svv_factorized(
     void *w, void *u, void *dx, void *dy, void *dz, void *h1,
     void *Br, void *Bs, void *Bt, void *h1_svv,
@@ -52,46 +53,24 @@ void cuda_ax_helm_svv_factorized(
   const dim3 blocks(*nelv, 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-#define LAUNCH(LX) \
-    ax_helm_kernel_kstep<real, LX, 1, false> \
-        <<<blocks, threads, 0, stream>>>( \
-        (real *) w, (real *) u, \
-        (real *) dx, (real *) dy, (real *) dz, (real *) h1, \
-        (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23, *nelv); \
-    CUDA_CHECK(cudaGetLastError()); \
-    ax_helm_kernel_kstep<real, LX, 1, true> \
-        <<<blocks, threads, 0, stream>>>( \
-        (real *) w, (real *) u, \
-        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv, \
-        (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23, *nelv); \
+#define LAUNCH(LX, PAD)                                                        \
+    ax_helm_svv_factorized_kernel<real, LX, PAD>                               \
+        <<<blocks, threads, 0, stream>>>(                                      \
+        (real *) w, (real *) u,                                                \
+        (real *) dx, (real *) dy, (real *) dz, (real *) h1,                    \
+        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv,                \
+        (real *) g11, (real *) g22, (real *) g33,                              \
+        (real *) g12, (real *) g13, (real *) g23);                             \
     CUDA_CHECK(cudaGetLastError())
 
-#define LAUNCH_PADDED(LX) \
-    ax_helm_kernel_kstep_padded<real, LX, 1, false> \
-        <<<blocks, threads, 0, stream>>>( \
-        (real *) w, (real *) u, \
-        (real *) dx, (real *) dy, (real *) dz, (real *) h1, \
-        (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23, *nelv); \
-    CUDA_CHECK(cudaGetLastError()); \
-    ax_helm_kernel_kstep_padded<real, LX, 1, true> \
-        <<<blocks, threads, 0, stream>>>( \
-        (real *) w, (real *) u, \
-        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv, \
-        (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23, *nelv); \
-    CUDA_CHECK(cudaGetLastError())
-
-#define CASE(LX) \
-  case LX: \
-    LAUNCH(LX); \
+#define CASE(LX)                                                               \
+  case LX:                                                                     \
+    LAUNCH(LX, false);                                                         \
     break
 
-#define CASE_PADDED(LX) \
-  case LX: \
-    LAUNCH_PADDED(LX); \
+#define CASE_PADDED(LX)                                                        \
+  case LX:                                                                     \
+    LAUNCH(LX, true);                                                          \
     break
 
   switch (*lx) {

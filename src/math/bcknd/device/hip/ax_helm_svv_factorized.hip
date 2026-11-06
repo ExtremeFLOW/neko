@@ -32,16 +32,17 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include "ax_helm_kernel.h"
+#include "ax_helm_svv_factorized_kernel.h"
 
 extern "C" {
 
-/** Fortran wrapper for the fused factorized HIP SVV Helmholtz operator. */
+/** Fortran wrapper for the fused factorized SVV Helmholtz operator. */
 void hip_ax_helm_svv_factorized(
     void *w, void *u, void *dx, void *dy, void *dz, void *h1,
     void *Br, void *Bs, void *Bt, void *h1_svv,
@@ -51,45 +52,27 @@ void hip_ax_helm_svv_factorized(
 
   const dim3 threads(*lx, *lx, 1);
   const dim3 blocks(*nelv, 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
 
-#define CASE(LX) \
-  case LX: \
-    hipLaunchKernelGGL( \
-        HIP_KERNEL_NAME(ax_helm_kernel_kstep<real, LX, 1, false>), \
-        blocks, threads, 0, (hipStream_t) glb_cmd_queue, \
-        (real *) w, (real *) u, \
-        (real *) dx, (real *) dy, (real *) dz, (real *) h1, \
-        (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23, *nelv); \
-    HIP_CHECK(hipGetLastError()); \
-    hipLaunchKernelGGL( \
-        HIP_KERNEL_NAME(ax_helm_kernel_kstep<real, LX, 1, true>), \
-        blocks, threads, 0, (hipStream_t) glb_cmd_queue, \
-        (real *) w, (real *) u, \
-        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv, \
-        (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23, *nelv); \
-    HIP_CHECK(hipGetLastError()); \
+#define LAUNCH(LX, PAD)                                                        \
+    hipLaunchKernelGGL(                                                        \
+        HIP_KERNEL_NAME(ax_helm_svv_factorized_kernel<real, LX, PAD>),         \
+        blocks, threads, 0, stream,                                            \
+        (real *) w, (real *) u,                                                \
+        (real *) dx, (real *) dy, (real *) dz, (real *) h1,                    \
+        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv,                \
+        (real *) g11, (real *) g22, (real *) g33,                              \
+        (real *) g12, (real *) g13, (real *) g23);                             \
+    HIP_CHECK(hipGetLastError())
+
+#define CASE(LX)                                                               \
+  case LX:                                                                     \
+    LAUNCH(LX, false);                                                         \
     break
 
-#define CASE_PADDED(LX) \
-  case LX: \
-    hipLaunchKernelGGL( \
-        HIP_KERNEL_NAME(ax_helm_kernel_kstep_padded<real, LX, 1, false>), \
-        blocks, threads, 0, (hipStream_t) glb_cmd_queue, \
-        (real *) w, (real *) u, \
-        (real *) dx, (real *) dy, (real *) dz, (real *) h1, \
-        (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23, *nelv); \
-    HIP_CHECK(hipGetLastError()); \
-    hipLaunchKernelGGL( \
-        HIP_KERNEL_NAME(ax_helm_kernel_kstep_padded<real, LX, 1, true>), \
-        blocks, threads, 0, (hipStream_t) glb_cmd_queue, \
-        (real *) w, (real *) u, \
-        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv, \
-        (real *) g11, (real *) g22, (real *) g33, \
-        (real *) g12, (real *) g13, (real *) g23, *nelv); \
-    HIP_CHECK(hipGetLastError()); \
+#define CASE_PADDED(LX)                                                        \
+  case LX:                                                                     \
+    LAUNCH(LX, true);                                                          \
     break
 
   switch (*lx) {

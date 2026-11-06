@@ -32,16 +32,17 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <hip/hip_runtime.h>
 #include <device/device_config.h>
 #include <device/hip/check.h>
-#include "ax_helm_full_kernel.h"
+#include "ax_helm_svv_factorized_full_kernel.h"
 
 extern "C" {
 
-/** Fortran wrapper for the fused factorized full-stress HIP operator. */
+/** Fortran wrapper for the fused factorized SVV full-stress operator. */
 void hip_ax_helm_svv_factorized_full(
     void *au, void *av, void *aw, void *u, void *v, void *w,
     void *dx, void *dy, void *dz, void *h1,
@@ -54,61 +55,30 @@ void hip_ax_helm_svv_factorized_full(
 
   const dim3 threads(*lx, *lx, 1);
   const dim3 blocks(*nelv, 1, 1);
+  const hipStream_t stream = (hipStream_t) glb_cmd_queue;
+
+#define LAUNCH(LX, PAD)                                                        \
+    hipLaunchKernelGGL(                                                        \
+        HIP_KERNEL_NAME(ax_helm_svv_factorized_full_kernel<real, LX, PAD>),    \
+        blocks, threads, 0, stream,                                            \
+        (real *) au, (real *) av, (real *) aw,                                 \
+        (real *) u, (real *) v, (real *) w,                                    \
+        (real *) dx, (real *) dy, (real *) dz, (real *) h1,                    \
+        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv,                \
+        (real *) drdx, (real *) drdy, (real *) drdz,                           \
+        (real *) dsdx, (real *) dsdy, (real *) dsdz,                           \
+        (real *) dtdx, (real *) dtdy, (real *) dtdz,                           \
+        (real *) jacinv, (real *) w3);                                         \
+    HIP_CHECK(hipGetLastError())
 
 #define CASE(LX)                                                               \
   case LX:                                                                     \
-    hipLaunchKernelGGL(                                                        \
-        HIP_KERNEL_NAME(                                                       \
-            ax_helm_stress_kernel_vector_kstep<real, LX, false>),              \
-        blocks, threads, 0, (hipStream_t) glb_cmd_queue,                       \
-        (real *) au, (real *) av, (real *) aw,                                \
-        (real *) u, (real *) v, (real *) w,                                   \
-        (real *) dx, (real *) dy, (real *) dz, (real *) h1,                   \
-        (real *) drdx, (real *) drdy, (real *) drdz,                          \
-        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
-        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
-        (real *) jacinv, (real *) w3);                                        \
-    HIP_CHECK(hipGetLastError());                                              \
-    hipLaunchKernelGGL(                                                        \
-        HIP_KERNEL_NAME(                                                       \
-            ax_helm_stress_kernel_vector_kstep<real, LX, true>),               \
-        blocks, threads, 0, (hipStream_t) glb_cmd_queue,                       \
-        (real *) au, (real *) av, (real *) aw,                                \
-        (real *) u, (real *) v, (real *) w,                                   \
-        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv,               \
-        (real *) drdx, (real *) drdy, (real *) drdz,                          \
-        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
-        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
-        (real *) jacinv, (real *) w3);                                        \
-    HIP_CHECK(hipGetLastError());                                              \
+    LAUNCH(LX, false);                                                         \
     break
 
 #define CASE_PADDED(LX)                                                        \
   case LX:                                                                     \
-    hipLaunchKernelGGL(                                                        \
-        HIP_KERNEL_NAME(                                                       \
-            ax_helm_stress_kernel_vector_kstep_padded<real, LX, false>),       \
-        blocks, threads, 0, (hipStream_t) glb_cmd_queue,                       \
-        (real *) au, (real *) av, (real *) aw,                                \
-        (real *) u, (real *) v, (real *) w,                                   \
-        (real *) dx, (real *) dy, (real *) dz, (real *) h1,                   \
-        (real *) drdx, (real *) drdy, (real *) drdz,                          \
-        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
-        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
-        (real *) jacinv, (real *) w3);                                        \
-    HIP_CHECK(hipGetLastError());                                              \
-    hipLaunchKernelGGL(                                                        \
-        HIP_KERNEL_NAME(                                                       \
-            ax_helm_stress_kernel_vector_kstep_padded<real, LX, true>),        \
-        blocks, threads, 0, (hipStream_t) glb_cmd_queue,                       \
-        (real *) au, (real *) av, (real *) aw,                                \
-        (real *) u, (real *) v, (real *) w,                                   \
-        (real *) Br, (real *) Bs, (real *) Bt, (real *) h1_svv,               \
-        (real *) drdx, (real *) drdy, (real *) drdz,                          \
-        (real *) dsdx, (real *) dsdy, (real *) dsdz,                          \
-        (real *) dtdx, (real *) dtdy, (real *) dtdz,                          \
-        (real *) jacinv, (real *) w3);                                        \
-    HIP_CHECK(hipGetLastError());                                              \
+    LAUNCH(LX, true);                                                          \
     break
 
   switch (*lx) {
