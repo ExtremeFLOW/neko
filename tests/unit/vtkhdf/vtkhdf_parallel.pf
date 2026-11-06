@@ -11,7 +11,7 @@ module vtkhdf_parallel
   use point, only : point_t
   use space, only : space_t, GLL
   use num_types, only : rp, dp
-  use device, only : device_init, device_finalize
+  use device, only : device_init, device_finalize, HOST_TO_DEVICE
   use dofmap, only : dofmap_t
   use comm, only : NEKO_COMM, pe_rank, pe_size
   use pfunit_comm_utils, only : comm_init_test, comm_free_test
@@ -1157,6 +1157,11 @@ contains
     p%x = 1000.0_rp * real(pe_rank, rp) + step + 3.0_rp
     s%x = p%dof%x%x + 10.0_rp * step + 1.0_rp
 
+    ! The writer syncs device -> host first, so the device copy must hold
+    ! the values too
+    call p%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call s%copy_from(HOST_TO_DEVICE, sync = .true.)
+
   end subroutine test_vtkhdf_fill_rt_fields
 
   ! CONTROL for the non-temporal read regression below: a temporal
@@ -1382,6 +1387,13 @@ contains
     v%x = 10.0_rp * u%x
     w%x = 100.0_rp * u%x
     p%x = 1000.0_rp * real(pe_rank, rp) + step + 3.0_rp
+
+    ! The writer syncs device -> host first, so the device copy must hold
+    ! the values too
+    call u%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call v%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call w%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call p%copy_from(HOST_TO_DEVICE, sync = .true.)
 
   end subroutine test_vtkhdf_fill_velocity
 
@@ -1827,7 +1839,7 @@ contains
     integer :: unit, ierr, step, npts
     logical :: exists
     character(len=:), allocatable :: message
-    real(kind=rp) :: step_gap, err_u, err_v, err_w, err_p
+    real(kind=rp) :: mag, step_gap, err_u, err_v, err_w, err_p
 
     inquire(file='test_read_itv_0.vtkhdf', exist=exists)
     if (exists .and. pe_rank .eq. 0) then
@@ -1882,8 +1894,16 @@ contains
     message = "External per-step directory must be gone after conversion"
     @assertFalse(exists, message = message)
 
-    ! u, v, w, p still hold the last step. Guard against a vacuous pass:
-    ! step 0 must differ from it, or reading step 0 would look correct.
+    ! Expected values: the last step, set explicitly rather than relying on
+    ! u, v, w, p surviving the writes. Guard against a vacuous pass: they
+    ! must be non-trivial, and step 0 must differ from them, or reading
+    ! step 0 would look correct.
+    call test_vtkhdf_fill_velocity(u, v, w, p, real(NSTEPS - 1, rp))
+    mag = maxval(abs(u%x)) + maxval(abs(v%x)) + maxval(abs(w%x)) + &
+         maxval(abs(p%x))
+    message = "Expected last-step field magnitude must be non-trivial"
+    @assertGreaterThan(mag, 0.0_rp, message = message)
+
     call test_vtkhdf_fill_velocity(u2, v2, w2, p2, 0.0_rp)
     step_gap = maxval(abs(u2%x - u%x)) + maxval(abs(v2%x - v%x)) + &
          maxval(abs(w2%x - w%x)) + maxval(abs(p2%x - p%x))
