@@ -460,7 +460,9 @@ contains
     n = this%dm_Xh%size()
     call neko_scratch_registry%request_field(rho_cp, rho_cp_index, .false.)
 
-    call profiler_start_region(trim(this%name), 2)
+    ! The regions are named after the scalar, so they take no fixed id:
+    ! another scalar would start the same id under a different name.
+    call profiler_start_region(trim(this%name))
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
          cp => this%cp, rho => this%rho, lambda_tot => this%lambda_tot, &
          ds => this%ds, &
@@ -534,7 +536,7 @@ contains
       call this%apply_strong_bcs(time)
 
       ! Compute scalar residual.
-      call profiler_start_region(trim(this%name) // '_residual', 20)
+      call profiler_start_region(trim(this%name) // '_residual')
       call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
            rho_cp, ext_bdf%diffusion_coeffs%x(1), &
            real(dt, kind=rp), dm_Xh%size())
@@ -544,16 +546,16 @@ contains
       ! Zero-out residual at Dirichlet nodes before solving.
       call this%bc_projector%apply(s_res%x, dm_Xh%size())
 
-      call profiler_end_region(trim(this%name) // '_residual', 20)
+      call profiler_end_region(trim(this%name) // '_residual')
 
       call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
-      call profiler_start_region(trim(this%name) // '_solve', 21)
+      call profiler_start_region(trim(this%name) // '_solve')
       ksp_results = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bc_projector, gs_Xh)
       ksp_results%name = trim(this%name)
-      call profiler_end_region(trim(this%name) // '_solve', 21)
+      call profiler_end_region(trim(this%name) // '_solve')
 
       call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bc_projector, gs_Xh, &
            n, tstep, dt_controller)
@@ -567,7 +569,7 @@ contains
 
     end associate
     call neko_scratch_registry%relinquish_field(rho_cp_index)
-    call profiler_end_region(trim(this%name), 2)
+    call profiler_end_region(trim(this%name))
   end subroutine scalar_pnpn_step
 
   subroutine print_debug(this)
