@@ -229,7 +229,7 @@ contains
       call this%compute_delta()
 
       select type (fluid)
-      type is (fluid_pnpn_t)
+      class is (fluid_pnpn_t)
          this%ulag => fluid%ulag
          this%vlag => fluid%vlag
          this%wlag => fluid%wlag

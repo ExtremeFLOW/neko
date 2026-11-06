@@ -65,6 +65,7 @@ module fluid_scheme_incompressible
        device_memcpy
   use time_state, only : time_state_t
   use spectral_vanishing_viscosity, only : svv_t
+  use flow_ic, only : set_flow_ic_user_incompressible
   implicit none
   private
 
@@ -111,6 +112,9 @@ module fluid_scheme_incompressible
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_validate
+     !> Set the initial condition with the user routine
+     procedure, pass(this) :: set_user_initial_condition => &
+          fluid_scheme_set_user_initial_condition
      !> Apply pressure boundary conditions
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      !> Apply velocity boundary conditions
@@ -130,29 +134,32 @@ module fluid_scheme_incompressible
      procedure, pass(this) :: precon_factory_ => fluid_scheme_precon_factory
   end type fluid_scheme_incompressible_t
 
-  interface
-     !> Initialise a fluid scheme
-     module subroutine fluid_scheme_factory(object, type_name)
-       class(fluid_scheme_base_t), intent(inout), allocatable :: object
-       character(len=*) :: type_name
-     end subroutine fluid_scheme_factory
-  end interface
-
-  public :: fluid_scheme_incompressible_t, fluid_scheme_factory
+  public :: fluid_scheme_incompressible_t
 
 contains
 
   !> Initialize common data for the current scheme
-  subroutine fluid_scheme_init_base(this, msh, lx, params, scheme, user, &
-       kspv_init)
+  !! @param msh The mesh.
+  !! @param lx The number of GLL points in each direction.
+  !! @param params The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  !! @param scheme The name of the scheme, used in the log.
+  !! @param user Type with user-defined procedures.
+  !! @param kspv_init Whether to initialize the velocity solver.
+  !! @param output_boundary Whether the boundary condition markers are
+  !! written to file, used in the log.
+  subroutine fluid_scheme_init_base(this, msh, lx, params, numerics_params, &
+       scheme, user, kspv_init, output_boundary)
     implicit none
     class(fluid_scheme_incompressible_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
-    character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
+    character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
     logical, intent(in) :: kspv_init
+    logical, intent(in) :: output_boundary
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
@@ -184,8 +191,16 @@ contains
     ! Assign Dofmap to scratch registry
     call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
+    ! Keep a copy of the fluid parameters
+    if (associated(this%params)) then
+       call this%params%destroy()
+       deallocate(this%params)
+    end if
+    allocate(this%params)
+    this%params = params
+
     ! Assign a name
-    call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
+    call json_get_or_default(params, 'name', this%name, "fluid")
 
     !
     ! First section of fluid log
@@ -212,24 +227,24 @@ contains
 
     ! Projection spaces
     call json_get_or_lookup_or_default(params, &
-         'case.fluid.velocity_solver.projection_space_size', &
+         'velocity_solver.projection_space_size', &
          this%vel_projection_dim, 0)
     call json_get_or_lookup_or_default(params, &
-         'case.fluid.pressure_solver.projection_space_size', &
+         'pressure_solver.projection_space_size', &
          this%pr_projection_dim, 0)
     call json_get_or_lookup_or_default(params, &
-         'case.fluid.velocity_solver.projection_hold_steps', &
+         'velocity_solver.projection_hold_steps', &
          this%vel_projection_activ_step, 5)
     call json_get_or_lookup_or_default(params, &
-         'case.fluid.pressure_solver.projection_hold_steps', &
+         'pressure_solver.projection_hold_steps', &
          this%pr_projection_activ_step, 5)
     call json_get_or_default(params, &
-         'case.fluid.pressure_solver.projection_reorthogonalize_basis', &
+         'pressure_solver.projection_reorthogonalize_basis', &
          this%pr_projection_reorthogonalize_basis, .false.)
 
-    call json_get_or_default(params, 'case.fluid.freeze', this%freeze, .false.)
+    call json_get_or_default(params, 'freeze', this%freeze, .false.)
 
-    if (params%valid_path("case.fluid.flow_rate_force")) then
+    if (params%valid_path("flow_rate_force")) then
        this%forced_flow_rate = .true.
     end if
 
@@ -251,32 +266,30 @@ contains
     call neko_log%message(log_buf)
 
 
-    call json_get(params, 'case.numerics.dealias', logical_val)
+    call json_get(numerics_params, 'dealias', logical_val)
     write(log_buf, '(A, L1)') 'Dealias    : ', logical_val
     call neko_log%message(log_buf)
 
 
-    call json_get_or_default(params, 'case.output_boundary', logical_val, &
-         .false.)
-    write(log_buf, '(A, L1)') 'Save bdry  : ', logical_val
+    write(log_buf, '(A, L1)') 'Save bdry  : ', output_boundary
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, "case.fluid.full_stress_formulation", &
+    call json_get_or_default(params, "full_stress_formulation", &
          full_stress_formulation, .false.)
     write(log_buf, '(A, L1)') 'Full stress: ', full_stress_formulation
     call neko_log%message(log_buf)
 
     ! Compressed geometric factors, read by the standard Helmholtz
     ! operators of the fluid, the scalars and the multigrid levels
-    call json_get_or_default(params, &
-         'case.numerics.compress_geometric_factors', logical_val, .false.)
+    call json_get_or_default(numerics_params, &
+         'compress_geometric_factors', logical_val, .false.)
     write(log_buf, '(A, L1)') 'Compress G : ', logical_val
     call neko_log%message(log_buf)
     if (logical_val) then
-       if (params%valid_path( &
-            'case.numerics.compress_geometric_factors_tolerance')) then
-          call json_get_or_lookup(params, &
-               'case.numerics.compress_geometric_factors_tolerance', real_val)
+       if (numerics_params%valid_path( &
+            'compress_geometric_factors_tolerance')) then
+          call json_get_or_lookup(numerics_params, &
+               'compress_geometric_factors_tolerance', real_val)
           call this%c_Xh%enable_geo_compression(real_val)
        else
           call this%c_Xh%enable_geo_compression()
@@ -297,14 +310,14 @@ contains
     ! Initialize velocity solver
     if (kspv_init) then
        call neko_log%section("Velocity solver")
-       call json_get(params, 'case.fluid.velocity_solver', solver_params)
-       call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
-       call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
+       call json_get(params, 'velocity_solver', solver_params)
+       call json_get(params, 'velocity_solver.type', string_val1)
+       call json_get(params, 'velocity_solver.preconditioner.type', &
             string_val2)
        call json_get(params, &
-            'case.fluid.velocity_solver.preconditioner', json_subdict)
+            'velocity_solver.preconditioner', json_subdict)
        call json_get_or_lookup(params, &
-            'case.fluid.velocity_solver.absolute_tolerance', &
+            'velocity_solver.absolute_tolerance', &
             real_val)
 
        call neko_log%message('Type       : ('// trim(string_val1) // &
@@ -321,10 +334,10 @@ contains
     end if
 
     ! Strict convergence for the velocity solver
-    call json_get_or_default(params, 'case.fluid.strict_convergence', &
+    call json_get_or_default(params, 'strict_convergence', &
          this%strict_convergence, .false.)
     ! Allow stabilization period where we do not warn about non-convergence
-    call json_get_or_default(params, 'case.fluid.allow_stabilization', &
+    call json_get_or_default(params, 'allow_stabilization', &
          this%allow_stabilization, .false.)
 
 
@@ -344,12 +357,11 @@ contains
     call neko_log%section('Fluid Source term')
     call this%source_term%init(this%f_x, this%f_y, this%f_z, this%c_Xh, user, &
          this%name)
-    call this%source_term%add(params, 'case.fluid.source_terms')
+    call this%source_term%add(params, 'source_terms')
     call neko_log%end_section()
 
-    if (params%valid_path('case.fluid.svv')) then
-       call json_get(params, 'case.fluid', json_subdict)
-       call json_get_or_default(json_subdict, 'svv.enabled', &
+    if (params%valid_path('svv')) then
+       call json_get_or_default(params, 'svv.enabled', &
             this%svv_enabled, .false.)
        if (this%svv_enabled) then
           if (.not. kspv_init) then
@@ -365,7 +377,7 @@ contains
              end if
           end if
           allocate(this%svv)
-          call this%svv%init(json_subdict, this%c_Xh, this%rho)
+          call this%svv%init(params, this%c_Xh, this%rho)
        end if
     end if
 
@@ -469,6 +481,11 @@ contains
     call this%Xh%free()
     nullify(this%msh)
 
+    if (associated(this%params)) then
+       call this%params%destroy()
+       deallocate(this%params)
+    end if
+
   end subroutine fluid_scheme_free
 
   !> Validate that all fields, solvers etc necessary for
@@ -510,6 +527,18 @@ contains
     end if
 
   end subroutine fluid_scheme_validate
+
+  !> Set the initial condition of the velocity and pressure with the user
+  !! routine.
+  !! @param user Type with user-defined procedures.
+  subroutine fluid_scheme_set_user_initial_condition(this, user)
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+
+    call set_flow_ic_user_incompressible(this%u, this%v, this%w, this%p, &
+         this%c_Xh, this%gs_Xh, user%initial_conditions, this%name)
+
+  end subroutine fluid_scheme_set_user_initial_condition
 
   !> Apply all boundary conditions defined for velocity
   !! Here we perform additional gs operations to take care of
@@ -698,13 +727,13 @@ contains
     else
        this%user_material_properties => dummy_user_material_properties
        ! Incorrect user input
-       if (params%valid_path('case.fluid.Re') .and. &
-            (params%valid_path('case.fluid.mu') .or. &
-            params%valid_path('case.fluid.rho'))) then
+       if (params%valid_path('Re') .and. &
+            (params%valid_path('mu') .or. &
+            params%valid_path('rho'))) then
           call neko_error("To set the material properties for the fluid, " // &
                "either provide Re OR mu and rho in the case file.")
 
-       else if (params%valid_path('case.fluid.Re')) then
+       else if (params%valid_path('Re')) then
           ! Non-dimensional case
           write(log_buf, '(A)') 'Non-dimensional fluid material properties &
           & input.'
@@ -714,7 +743,7 @@ contains
           call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
           ! Read Re into mu for further manipulation.
-          call json_get_or_lookup(params, 'case.fluid.Re', const_mu)
+          call json_get_or_lookup(params, 'Re', const_mu)
           write(log_buf, '(A)') 'Read non-dimensional material properties'
           call neko_log%message(log_buf)
           write(log_buf, '(A,ES13.6)') 'Re         :', const_mu
@@ -726,8 +755,8 @@ contains
           const_mu = 1.0_rp/const_mu
        else
           ! Dimensional case
-          call json_get_or_lookup(params, 'case.fluid.mu', const_mu)
-          call json_get_or_lookup(params, 'case.fluid.rho', const_rho)
+          call json_get_or_lookup(params, 'mu', const_mu)
+          call json_get_or_lookup(params, 'rho', const_rho)
        end if
     end if
 
