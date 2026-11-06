@@ -181,25 +181,67 @@ The aim is to replicate Saini §4.5 with our CDI $\phi$ and his $\psi$ machinery
      - `rider_kothe_s45.f90`'s header says $2.5(N+1)$ pseudo-steps; it runs $25(N+1)$.
      Document them or align them.
 
-## CDI's knobs: a $(\xi,\gamma)$ map at one $N$
+## Where we stand against Saini, then a predicted $(\xi,\gamma)$ map at $N=5$
 
-The user's idea: keep $\Gamma=\gamma u_{\max}$ and map boundedness and $E_s$ over $(\xi,\gamma)$ at one $N$.
-It is for a new session, and not on Rider–Kothe.
-- **Order of work.**
-  1. Pass the $\phi$ solver-tolerance gate (item 2).
-  2. Find the exact steady profile of a flat interface under uniform normal strain, squeezing and
-     stretching. It is a 1D ODE in $\beta$: solve it with `solve_bvp`, and check it with an independent
-     1D solver.
-  3. Find the discrete maximum-principle region of the 1D operator at the chosen $N$, from its sign
-     structure.
-  4. Map a log-spaced $(\xi,\gamma)$ grid on a strained test with a known answer, with repeats near the
-     decision boundary.
-  5. Repeat the decision cells at a second $H$, to see which contours collapse: constant $\gamma$ or
-     constant $\beta$.
-- **Preregister** the predictions and the decision rule first.
-- **External checks:** Mirjalili, Ivey & Mani's boundedness derivation and order (JCP 401, 2020); mass to
-  round-off; $z$-uniformity.
-- **Not usable as a test of $\gamma$:** the slab and Zalesak are isometries, so they carry no strain.
+This is the next session. $\xi=\varepsilon N/H$ (at $N=5$, $\varepsilon/H$ rescaled by 5).
+
+### A. A verdict against Saini (Rider–Kothe, his configuration)
+
+- **Define "matches" first.** In `PREREGISTERED.txt`, write a ratio band for $E_r$, $E_s$ and $|E_v|$ at
+  $H=1/32$, 1/64 and 1/128, and the observed order with its repeat noise.
+- **Measure from raw dumps only.**
+  - His side: `cv*_d04` and his code over his grid.
+  - Our side: `output_*`.
+  - Both go through `norms.py`, with his outside-area denominator handled.
+  - Use our best $\gamma$, φ's tolerance at $10^{-12}$, and report boundedness,
+    $\max_t\max(\phi-1,-\phi)$, beside the three metrics.
+- **Verdict.** Give level, rate and boundedness separately, and say where the gap is (so far, the
+  irreversible remainder, item 2). Part B must not hide a "no" here.
+
+### B. The $(\xi,\gamma/u_{\max})$ map, $\Gamma=\gamma u_{\max}$, $N=5$
+
+The alternative $\Gamma=\gamma(\varepsilon/H)u_{\max}$ (item 2) is not used here. A second $H$ decides
+between the two.
+1. **Predict first.**
+   - Assemble the 1D discrete operator at $N=5$. Find its maximum-principle (M-matrix) region in
+     $(\xi,\gamma/u_{\max})$.
+   - Compare it with Mirjalili, Ivey & Mani's bound (JCP 401, 2020),
+     $\varepsilon/\Delta x\ge(\gamma/u_{\max}+1)/(2\gamma/u_{\max})$.
+   - Find the exact steady 1D profile with `solve_bvp`, checked by an independent 1D solver.
+   - Preregister the predicted boundedness contour, the predicted $E_s$ ridge and the decision rule.
+2. **The cases.**
+   - Zalesak, as its primary (redistancing off).
+   - A diagonally advecting drop, ported from `../neko-multiphase/examples/advecting_drop_multiphase/`
+     into the ψ-normal file. The new case and its `.case` set need the user's OK before they ship.
+   - Both have an exact return shape.
+   - Fix and record $H$, $\Delta t$, `svv_psi` $c_0$ (Zalesak's 1.0 against 0.1: decide first), φ's
+     tolerance at $10^{-12}$, and the end time.
+   - These flows carry no strain, so this map is the isometric baseline, not a test of $\gamma$ against
+     strain.
+3. **The grid.**
+   - Log-spaced, about 7×7.
+   - Set its range from the raw outputs of the earlier sweeps in `../neko-multiphase*`.
+   - Repeat the cells next to the predicted boundary ($\Delta t\times0.99875$).
+4. **The pipeline.**
+   - A generator writes the cases and a manifest (git hash, binary hash, parameters) to the gitignored
+     `logs/`, plus a Slurm job array for NAISS.
+   - Run a local pilot of about 3×3 first, to check the pipeline end to end and the cost per cell.
+     Then submit.
+5. **The output.**
+   - Two kthviz heatmaps per case: $E_s$ at the return time, and boundedness on a log scale with the
+     $10^{-3}$ line.
+   - $\xi$ on $y$ and $\gamma/u_{\max}$ on $x$, both log, with the predicted contour overlaid and the
+     cells within the noise hatched.
+   - A table of $E_r$, $|E_v|$, mass drift, and an ε-free contour error. At fixed $H$ a larger $\xi$
+     widens the exact profile, so part of $E_s$ is modelling error.
+   - Contour plots of a few cells.
+6. **External checks.**
+   - Does the measured edge fall on the prediction?
+   - Does mass hold to round-off? Is the result free of $z$-variation?
+   - Does the diagonal drop agree with an axis-aligned one?
+   - Repeat the decision cells at a second $H$, to see which contours collapse (constant $\gamma$ or
+     constant $\beta$), and on one strained case (Rider–Kothe or Mirjalili's shear drop), to see whether
+     the optimum moves.
 
 ## Parked
 
