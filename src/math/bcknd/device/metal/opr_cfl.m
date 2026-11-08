@@ -58,7 +58,6 @@ static id<MTLComputePipelineState> pso_cfl[13] = { nil };
  */
 static id<MTLComputePipelineState>
 get_cfl_pipeline(const char *name) {
-  id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = neko_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
   id<MTLFunction> func = [lib newFunctionWithName:nsName];
@@ -68,7 +67,7 @@ get_cfl_pipeline(const char *name) {
   }
   NSError *error = nil;
   id<MTLComputePipelineState> pso =
-    [device newComputePipelineStateWithFunction:func error:&error];
+    neko_metal_new_pipeline(func, NEKO_METAL_MAX_THREADS, &error);
   METAL_CHECK(error);
   return pso;
 }
@@ -133,6 +132,7 @@ real metal_cfl(real *dt, void *u, void *v, void *w,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 
   const real *cfl = (const real *)[cfl_d contents];
   real cfl_max = 0.0f;
