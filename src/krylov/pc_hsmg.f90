@@ -533,7 +533,12 @@ contains
        ! on the global queue.
        call device_event_record(this%hsmg_event, glb_cmd_queue)
 
-       !$omp parallel private(thrdid, nthrds)
+       ! Only threads 0 and 1 have work here (Schwarz and coarse grid), so
+       ! ask for a team of two rather than the full team spinning at the
+       ! join. Capped by the default team size so a single-threaded run,
+       ! which initialised MPI without thread support, stays single-threaded.
+       !$omp parallel num_threads(min(2, omp_get_max_threads())) &
+       !$omp private(thrdid, nthrds)
 
        thrdid = 0
        nthrds = 1
