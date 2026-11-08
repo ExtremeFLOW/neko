@@ -40,6 +40,7 @@ module vreman_device
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use device, only : glb_cmd_event
   use device_math, only : device_col2
   use device_vreman_nut, only : device_vreman_nut_compute, &
        device_vreman_nut_compute_buoy
@@ -128,15 +129,12 @@ contains
     call dudxyz(a32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
     call dudxyz(a33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call coef%gs_h%op(a11, GS_OP_ADD)
-    call coef%gs_h%op(a12, GS_OP_ADD)
-    call coef%gs_h%op(a13, GS_OP_ADD)
-    call coef%gs_h%op(a21, GS_OP_ADD)
-    call coef%gs_h%op(a22, GS_OP_ADD)
-    call coef%gs_h%op(a23, GS_OP_ADD)
-    call coef%gs_h%op(a31, GS_OP_ADD)
-    call coef%gs_h%op(a32, GS_OP_ADD)
-    call coef%gs_h%op(a33, GS_OP_ADD)
+    call coef%gs_h%op(a11%x, a12%x, a13%x, a11%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
+    call coef%gs_h%op(a21%x, a22%x, a23%x, a21%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
+    call coef%gs_h%op(a31%x, a32%x, a33%x, a31%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
 
     if (if_corr) then
        temperature => neko_registry%get_field_by_name(scalar_name)
@@ -171,7 +169,7 @@ contains
             c, NEKO_EPS, a11%dof%size())
     end if
 
-    call coef%gs_h%op(nut, GS_OP_ADD)
+    call coef%gs_h%op(nut, GS_OP_ADD, glb_cmd_event)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)

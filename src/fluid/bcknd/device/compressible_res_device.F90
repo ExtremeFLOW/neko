@@ -49,7 +49,7 @@ module compressible_res_device
        compressible_ops_device_ns_flux_finalize, &
        compressible_ops_device_ns_flux_temperature
   use device_math, only : device_copy, device_add2
-  use device, only : device_event_sync, glb_cmd_event
+  use device, only : glb_cmd_event
   use bc_list, only : bc_list_t
   use time_state, only : time_state_t
 
@@ -711,10 +711,8 @@ contains
 
     call gs%op(rhs_rho_field, GS_OP_ADD, glb_cmd_event)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 1, coef)
-    call device_event_sync(glb_cmd_event)
     call gs%op(rhs_m_x%x, rhs_m_y%x, rhs_m_z%x, n, GS_OP_ADD, glb_cmd_event)
     call rotate_cyc(rhs_m_x%x_d, rhs_m_y%x_d, rhs_m_z%x_d, 0, coef)
-    call device_event_sync(glb_cmd_event)
     call gs%op(rhs_E, GS_OP_ADD, glb_cmd_event)
 
 #ifdef HAVE_HIP
@@ -758,14 +756,10 @@ contains
             visc_E, rho_field, p, u, v, w, mu, kappa, Ax, Ax_stress, coef)
     end if
 
-    call device_event_sync(glb_cmd_event)
-
     call gs%op(visc_rho, GS_OP_ADD, glb_cmd_event)
     call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 1, coef)
-    call device_event_sync(glb_cmd_event)
     call gs%op(visc_m_x%x, visc_m_y%x, visc_m_z%x, n, GS_OP_ADD, glb_cmd_event)
     call rotate_cyc(visc_m_x%x_d, visc_m_y%x_d, visc_m_z%x_d, 0, coef)
-    call device_event_sync(glb_cmd_event)
     call gs%op(visc_E, GS_OP_ADD, glb_cmd_event)
 
     ! Apply artificial viscosity - the coefficient is already in the Laplacian
@@ -787,8 +781,6 @@ contains
          rhs_m_y%x_d, rhs_m_z%x_d, rhs_E%x_d, visc_rho%x_d, visc_m_x%x_d, &
          visc_m_y%x_d, visc_m_z%x_d, visc_E%x_d, coef%Binv_d, coef%h1_d, n)
 #endif
-
-    call device_event_sync(glb_cmd_event)
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
