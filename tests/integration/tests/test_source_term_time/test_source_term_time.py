@@ -50,7 +50,7 @@ def build(tmp_path_factory):
         [
             get_genmeshbox(),
             "0", "1", "0", "1", "0", "1",
-            "2", "2", "2",
+            "3", "3", "3",
             ".true.", ".true.", ".true.",
         ],
         cwd=build_dir,
