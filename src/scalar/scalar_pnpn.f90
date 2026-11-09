@@ -55,7 +55,7 @@ module scalar_pnpn
   use device_math, only : device_add2s2, device_col2
   use time_scheme_controller, only : time_scheme_controller_t
   use projection, only : projection_t
-  use math, only : col2, add2s2
+  use math, only : col2, add2s2, rzero
   use field_math, only : field_col2, field_col3, field_glsc2
   use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
@@ -354,10 +354,16 @@ contains
     ! the copies with a gather-scatter. On a plain restart that is the
     ! identity in exact arithmetic but not in floating point, and would put
     ! about one ulp of error on every shared node. Same guard as the fluid.
-    interpolated = allocated(chkp%previous_mesh%elements) .or. &
-         chkp%previous_Xh%lx .ne. this%Xh%lx
+    interpolated = chkp%is_interpolated(this%Xh)
 
     if (interpolated) then
+       ! The RHS history is weighted by the mass matrix of the checkpoint's
+       ! discretisation, so its interpolated values are meaningless. The
+       ! case restart lowers the time order to rebuild it, see
+       ! case_restart_from_checkpoint.
+       call rzero(this%abx1%x, n)
+       call rzero(this%abx2%x, n)
+
        call col2(this%s%x, this%c_Xh%mult, n)
        call col2(this%slag%lf(1)%x, this%c_Xh%mult, n)
        call col2(this%slag%lf(2)%x, this%c_Xh%mult, n)

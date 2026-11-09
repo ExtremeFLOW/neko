@@ -78,6 +78,7 @@ module fluid_pnpn
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
+  use math, only : rzero
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error, NEKO_TYPENAME_LEN
   use field_math, only : field_add2, field_copy
@@ -595,10 +596,22 @@ contains
     type(chkp_t), intent(inout) :: chkp
     integer :: i, j, n
     class(bc_t), pointer :: bc_i
+    logical :: interpolated
 
     n = this%u%dof%size()
-    if (allocated(chkp%previous_mesh%elements) .or. &
-         chkp%previous_Xh%lx .ne. this%Xh%lx) then
+    interpolated = chkp%is_interpolated(this%Xh)
+    if (interpolated) then
+       ! The RHS history is weighted by the mass matrix of the checkpoint's
+       ! discretisation, so its interpolated values are meaningless. The
+       ! case restart lowers the time order to rebuild it, see
+       ! case_restart_from_checkpoint.
+       call rzero(this%abx1%x, n)
+       call rzero(this%abx2%x, n)
+       call rzero(this%aby1%x, n)
+       call rzero(this%aby2%x, n)
+       call rzero(this%abz1%x, n)
+       call rzero(this%abz2%x, n)
+
        associate(u => this%u, v => this%v, w => this%w, p => this%p, &
             c_Xh => this%c_Xh, ulag => this%ulag, vlag => this%vlag, &
             wlag => this%wlag)
@@ -671,8 +684,7 @@ contains
     ! Do not do this for lagged rhs
     ! (derivatives are not necessairly coninous across elements)
 
-    if (allocated(chkp%previous_mesh%elements) &
-         .or. chkp%previous_Xh%lx .ne. this%Xh%lx) then
+    if (interpolated) then
 
        call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
        call this%gs_Xh%op(this%u, GS_OP_ADD)
