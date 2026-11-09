@@ -1,8 +1,7 @@
 <map id="bicgstab_part1_kernel" name="bicgstab_part1_kernel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,171,72"/>
-<area shape="rect" id="Node000002" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="237,5,352,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,44,223,29,224,35,153,49"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="219,79,371,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="155,69,206,79,205,85,154,75"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="256,80,254,70,260,61,274,55,295,53,319,56,332,63,329,68,317,61,295,58,275,60,263,65,259,71,261,78"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,170,60"/>
+<area shape="rect" id="Node000002" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="218,5,332,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,32,205,29,200,30,170,37"/>
+<area shape="rect" id="Node000003" href="$d9/d50/cuda_2math__kernel_8h.html#a15613cd77811a43c5ac891767e0de507" title=" " alt="" coords="223,57,327,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="170,54,210,62,205,62,170,60"/>
 </map>

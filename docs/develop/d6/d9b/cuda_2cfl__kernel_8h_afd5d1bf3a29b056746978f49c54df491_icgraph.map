@@ -1,0 +1,16 @@
+<map id="cfl_reduce_warp" name="cfl_reduce_warp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="563,32,690,60"/>
+<area shape="rect" id="Node000002" href="$d6/d9b/cuda_2cfl__kernel_8h.html#ac43a12ee87c7a95b8550adc9b3c63bcd" title=" " alt="" coords="406,5,490,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="545,34,490,28,490,23,550,34"/>
+<area shape="rect" id="Node000005" href="$d6/d9b/cuda_2cfl__kernel_8h.html#aab5fe3bf08714ff8d0b71d99f53a0bb7" title=" " alt="" coords="381,57,515,85"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="545,57,516,64,516,59,551,57"/>
+<area shape="rect" id="Node000003" href="$da/d03/opr__cfl_8c.html#a33d3be8119ed3fee00f7ed860a169be3" title=" " alt="" coords="247,5,333,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,20,334,22,333,17,393,19"/>
+<area shape="rect" id="Node000004" href="$d3/d4d/namespaceopr__device.html#a566378180652b788704f0de7377d9626" title=" " alt="" coords="5,32,199,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="229,28,200,35,198,29,234,27"/>
+<area shape="rect" id="Node000006" href="$da/d37/opr__cfl_8cu.html#aef1f506b4432f0f92b1dad3c0d0a5a1c" title=" " alt="" coords="253,57,327,85"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="363,71,328,74,327,69,368,71"/>
+<area shape="rect" id="Node000007" href="$d1/d38/opr__cfl_8hip.html#a847957f11f2cd5d9ca4d11c794a6f66c" title=" " alt="" coords="258,109,322,137"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="392,90,323,115,321,110,386,91"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="235,65,199,62,199,56,240,64"/>
+</map>

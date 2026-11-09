@@ -1,9 +1,7 @@
 <map id="hip_rzero" name="hip_rzero">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,88,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="292,29,444,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,47,278,47,278,52,88,52"/>
-<area shape="rect" id="Node000003" href="$dd/d8d/unified_8hip.html#aad05e3f5d48c2067250ca82a1f5b4d73" title=" " alt="" coords="136,62,244,87"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="89,54,123,60,122,65,88,59"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="334,30,332,20,338,11,350,5,368,3,389,6,400,13,397,17,387,11,368,8,351,10,341,15,338,21,340,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="244,64,278,59,279,65,245,70"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,87,60"/>
+<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html#ad5f8d96e61697db52e655327aac268db" title=" " alt="" coords="143,5,234,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,36,130,29,125,32,88,41"/>
+<area shape="rect" id="Node000003" href="$dd/d8d/unified_8hip.html#aad05e3f5d48c2067250ca82a1f5b4d73" title=" " alt="" coords="135,57,242,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="87,50,122,58,117,60,87,56"/>
 </map>

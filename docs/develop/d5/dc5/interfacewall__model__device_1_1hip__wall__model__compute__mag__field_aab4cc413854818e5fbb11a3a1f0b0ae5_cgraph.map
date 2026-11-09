@@ -1,16 +1,13 @@
 <map id="wall_model_device::hip_wall_model_compute_mag_field::hip_wall_model_compute_mag_field" name="wall_model_device::hip_wall_model_compute_mag_field::hip_wall_model_compute_mag_field">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,20,208,89"/>
-<area shape="rect" id="Node000002" href="$db/d0e/namespacewall__model__device.html#afa43959f0a01c6ded4a8ff52afac29f2" title="Compute the wall shear stress&#39;s magnitude on device." alt="" coords="256,27,453,82"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,52,243,52,243,57,208,57"/>
-<area shape="rect" id="Node000003" href="$d3/d8d/wall__model_8cu.html#a91ad59712f180d93a09e493a3e60d637" title=" " alt="" coords="760,5,959,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="453,46,746,29,746,35,454,52"/>
-<area shape="rect" id="Node000005" href="$d3/db7/wall__model_8c.html#a8f017bbe5c2d70aa774d03febb1dd00a" title=" " alt="" coords="501,63,712,103"/>
-<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="454,63,488,67,487,72,453,68"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1007,63,1159,103"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="939,43,994,57,993,62,937,48"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="1041,63,1039,53,1045,44,1060,38,1083,36,1109,39,1123,46,1120,51,1107,44,1083,41,1061,43,1049,48,1044,54,1046,62"/>
-<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="712,80,993,80,993,85,712,85"/>
-<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="793,121,925,146"/>
-<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="707,100,782,115,781,121,706,105"/>
-<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="916,118,993,100,994,105,917,123"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,23,208,102"/>
+<area shape="rect" id="Node000002" href="$db/d0e/namespacewall__model__device.html#afa43959f0a01c6ded4a8ff52afac29f2" title="Compute the wall shear stress&#39;s magnitude on device." alt="" coords="256,32,452,93"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,60,243,62,238,63,208,65"/>
+<area shape="rect" id="Node000003" href="$d3/d8d/wall__model_8cu.html#a91ad59712f180d93a09e493a3e60d637" title=" " alt="" coords="506,5,704,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,46,493,43,488,44,453,51"/>
+<area shape="rect" id="Node000005" href="$d3/db7/wall__model_8c.html#a8f017bbe5c2d70aa774d03febb1dd00a" title=" " alt="" coords="500,75,710,119"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="452,73,487,80,482,80,452,79"/>
+<area shape="rect" id="Node000004" href="$d1/d0f/cuda_2wall__model__kernel_8h.html#a4d6b0bafa02feed9c09ed959675ab3f9" title=" " alt="" coords="758,5,919,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="705,25,745,27,740,28,705,30"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="773,83,904,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="711,94,760,97,754,97,711,100"/>
 </map>

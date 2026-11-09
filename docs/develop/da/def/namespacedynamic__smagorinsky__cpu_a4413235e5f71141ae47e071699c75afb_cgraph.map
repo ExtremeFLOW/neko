@@ -1,17 +1,17 @@
 <map id="dynamic_smagorinsky_cpu::dynamic_smagorinsky_compute_cpu" name="dynamic_smagorinsky_cpu::dynamic_smagorinsky_compute_cpu">
-<area shape="rect" id="Node000001" title="Compute eddy viscosity on the CPU." alt="" coords="5,80,212,135"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="322,5,413,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,77,259,41,308,27,309,32,261,46,169,82"/>
-<area shape="rect" id="Node000003" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a30745e0cf7ea898af7a777cec4b533ea" title="Compute Germano Identity on the CPU." alt="" coords="283,55,451,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="212,92,269,85,270,90,213,97"/>
-<area shape="rect" id="Node000006" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7" title="Compute M_ij on the CPU. M_ij = delta_test^2 |S_test| S_ij_test." alt="" coords="280,119,455,159"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="213,117,267,124,266,130,212,123"/>
-<area shape="rect" id="Node000007" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909" title="Compute numerator and denominator for c_dyn on the CPU." alt="" coords="260,183,475,223"/>
-<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="171,132,261,169,283,177,282,182,259,174,169,137"/>
-<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="525,67,615,92"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="452,74,511,76,511,81,452,80"/>
-<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="523,120,617,145"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="439,93,512,114,510,119,438,98"/>
-<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="435,117,513,93,514,98,437,122"/>
-<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="455,134,508,132,509,137,455,139"/>
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the CPU." alt="" coords="5,83,211,145"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="320,5,410,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,80,258,42,307,30,303,32,260,47,171,85"/>
+<area shape="rect" id="Node000003" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a30745e0cf7ea898af7a777cec4b533ea" title="Compute Germano Identity on the CPU." alt="" coords="282,57,449,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="210,97,269,91,264,94,212,103"/>
+<area shape="rect" id="Node000006" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a3451ae6ed3c633d99cfe5b8dd3c0fea7" title="Compute M_ij on the CPU. M_ij = delta_test^2 |S_test| S_ij_test." alt="" coords="278,126,452,171"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="211,125,265,134,260,135,211,130"/>
+<area shape="rect" id="Node000007" href="$da/def/namespacedynamic__smagorinsky__cpu.html#a943f162fc6c5b0d7695ceec20c11a909" title="Compute numerator and denominator for c_dyn on the CPU." alt="" coords="259,196,472,240"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="173,143,260,181,279,190,274,190,258,186,172,148"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="522,71,612,98"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="449,79,509,82,504,83,450,84"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#ae5c7dccf37f335028d7a5d3111ed3afe" title="Vector substraction ." alt="" coords="520,127,614,154"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="441,99,508,122,502,122,441,105"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="437,123,505,104,510,103,439,128"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="453,142,507,143,502,143,453,148"/>
 </map>

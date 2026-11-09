@@ -1,0 +1,9 @@
+<map id="scatter_kernel" name="scatter_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="414,40,527,68"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#a98e630bcda65453c48119b53e17c875e" title=" " alt="" coords="215,14,366,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="396,44,366,42,366,36,401,44"/>
+<area shape="rect" id="Node000004" href="$da/d57/gs_8hip.html#a2a8f3b90ee14d37fc957a00e61234ffb" title=" " alt="" coords="220,66,360,94"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="401,64,361,72,361,67,396,65"/>
+<area shape="rect" id="Node000003" href="$d8/dcd/namespacegs__device.html#ad02afb791b2b2ec5343d8ed1188760ae" title="Scatter kernel." alt="" coords="5,5,167,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="197,28,168,30,167,25,202,27"/>
+</map>

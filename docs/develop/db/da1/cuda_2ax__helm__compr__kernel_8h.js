@@ -1,10 +1,10 @@
 var cuda_2ax__helm__compr__kernel_8h =
 [
-    [ "ax_helm_compr_dmma_dispatch< T, LX, NW >", "da/d6e/structax__helm__compr__dmma__dispatch.html", "da/d6e/structax__helm__compr__dmma__dispatch" ],
-    [ "ax_helm_compr_dmma_tma_dispatch< T, LX, NW >", "d7/dec/structax__helm__compr__dmma__tma__dispatch.html", "d7/dec/structax__helm__compr__dmma__tma__dispatch" ],
-    [ "ax_helm_compr_dmma_vector_dispatch< T, LX, NW >", "d5/d97/structax__helm__compr__dmma__vector__dispatch.html", "d5/d97/structax__helm__compr__dmma__vector__dispatch" ],
-    [ "ax_helm_compr_dmma_tma_vector_dispatch< T, LX, NW >", "d6/deb/structax__helm__compr__dmma__tma__vector__dispatch.html", "d6/deb/structax__helm__compr__dmma__tma__vector__dispatch" ],
-    [ "ax_helm_compr_dmma_tma_batch_dispatch< T, LX, NW >", "da/d8f/structax__helm__compr__dmma__tma__batch__dispatch.html", "da/d8f/structax__helm__compr__dmma__tma__batch__dispatch" ],
+    [ "ax_helm_compr_dmma_dispatch&lt; T, LX, NW &gt;", "da/d6e/structax__helm__compr__dmma__dispatch.html", "da/d6e/structax__helm__compr__dmma__dispatch" ],
+    [ "ax_helm_compr_dmma_tma_dispatch&lt; T, LX, NW &gt;", "d7/dec/structax__helm__compr__dmma__tma__dispatch.html", "d7/dec/structax__helm__compr__dmma__tma__dispatch" ],
+    [ "ax_helm_compr_dmma_vector_dispatch&lt; T, LX, NW &gt;", "d5/d97/structax__helm__compr__dmma__vector__dispatch.html", "d5/d97/structax__helm__compr__dmma__vector__dispatch" ],
+    [ "ax_helm_compr_dmma_tma_vector_dispatch&lt; T, LX, NW &gt;", "d6/deb/structax__helm__compr__dmma__tma__vector__dispatch.html", "d6/deb/structax__helm__compr__dmma__tma__vector__dispatch" ],
+    [ "ax_helm_compr_dmma_tma_batch_dispatch&lt; T, LX, NW &gt;", "da/d8f/structax__helm__compr__dmma__tma__batch__dispatch.html", "da/d8f/structax__helm__compr__dmma__tma__batch__dispatch" ],
     [ "__launch_bounds__", "db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae2e64608fd4a69ccd92f750f5d3fe95a", null ],
     [ "__launch_bounds__", "db/da1/cuda_2ax__helm__compr__kernel_8h.html#a900c6a2c2e5f0b5484cc6b20c369412a", null ],
     [ "__syncthreads", "db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],

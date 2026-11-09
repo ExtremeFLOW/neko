@@ -1,0 +1,9 @@
+<map id="gather_kernel_add" name="gather_kernel_add">
+<area shape="rect" id="Node000001" title=" " alt="" coords="408,40,549,68"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#a92dd9777088d543713dc659d261fda68" title=" " alt="" coords="212,14,360,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="390,42,360,41,360,35,395,42"/>
+<area shape="rect" id="Node000004" href="$da/d57/gs_8hip.html#ac0621fe6febaf9acc5dffd88733c2d2f" title=" " alt="" coords="217,66,354,94"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="395,65,355,73,355,68,390,66"/>
+<area shape="rect" id="Node000003" href="$d8/dcd/namespacegs__device.html#a89055bd6c1485bfd35554067912769bf" title="Gather kernel." alt="" coords="5,5,164,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="193,28,165,30,164,25,198,27"/>
+</map>

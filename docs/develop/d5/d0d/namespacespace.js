@@ -1,8 +1,8 @@
 var namespacespace =
 [
+    [ "space_t", "da/d99/structspace_1_1space__t.html", "da/d99/structspace_1_1space__t" ],
     [ "operator(.eq.)", "d2/d73/interfacespace_1_1operator_07_8eq_8_08.html", "d2/d73/interfacespace_1_1operator_07_8eq_8_08" ],
     [ "operator(.ne.)", "de/d17/interfacespace_1_1operator_07_8ne_8_08.html", "de/d17/interfacespace_1_1operator_07_8ne_8_08" ],
-    [ "space_t", "da/d99/structspace_1_1space__t.html", "da/d99/structspace_1_1space__t" ],
     [ "space_compute_dist", "d5/d0d/namespacespace.html#abf1624ea96d6d74c2ad4d96272959544", null ],
     [ "space_eq", "d5/d0d/namespacespace.html#a84595225e4f9f9af5761f7aeeaa009ef", null ],
     [ "space_free", "d5/d0d/namespacespace.html#ae0b8a6c7d8cb34ac618be6d7564460d4", null ],

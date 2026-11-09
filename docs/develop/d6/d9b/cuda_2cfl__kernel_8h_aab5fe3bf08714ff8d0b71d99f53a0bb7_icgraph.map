@@ -1,0 +1,9 @@
+<map id="cfl_reduce_kernel" name="cfl_reduce_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="369,32,503,60"/>
+<area shape="rect" id="Node000002" href="$da/d37/opr__cfl_8cu.html#aef1f506b4432f0f92b1dad3c0d0a5a1c" title=" " alt="" coords="247,5,321,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="351,31,321,28,321,23,356,31"/>
+<area shape="rect" id="Node000004" href="$d1/d38/opr__cfl_8hip.html#a847957f11f2cd5d9ca4d11c794a6f66c" title=" " alt="" coords="252,57,316,85"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="356,59,316,69,316,63,351,60"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#a566378180652b788704f0de7377d9626" title=" " alt="" coords="5,5,199,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="229,20,200,22,199,17,234,19"/>
+</map>

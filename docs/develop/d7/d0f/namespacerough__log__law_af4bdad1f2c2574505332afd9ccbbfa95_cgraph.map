@@ -1,18 +1,15 @@
 <map id="rough_log_law::rough_log_law_compute" name="rough_log_law::rough_log_law_compute">
-<area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,41,165,81"/>
-<area shape="rect" id="Node000002" href="$dc/d1f/namespacerough__log__law__cpu.html#ad75e97e969cb38b6affdeab6aa9c745d" title="Compute the wall shear stress on CPU using the rough log&#45;law model." alt="" coords="213,5,424,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,46,200,41,200,46,166,52"/>
-<area shape="rect" id="Node000003" href="$db/d78/namespacerough__log__law__device.html#a90ec9198d5b3cc192144e2fabb0fdb87" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="225,70,413,125"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,71,212,78,211,83,165,76"/>
-<area shape="rect" id="Node000004" href="$d1/dc9/rough__log__law_8cu.html#aeaabbd89e903fe8ddf3613d4b2930834" title=" " alt="" coords="687,48,841,88"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="413,89,673,71,673,77,413,94"/>
-<area shape="rect" id="Node000006" href="$d4/dc0/rough__log__law_8c.html#a3952aaa83ec67bd17993cf2951e90955" title=" " alt="" coords="472,105,639,145"/>
-<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="413,106,459,111,458,117,413,111"/>
-<area shape="rect" id="Node000005" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="889,105,1041,145"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="836,85,882,99,881,104,834,91"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="928,106,925,96,931,87,945,81,965,79,989,82,1002,89,999,94,987,87,965,84,946,86,935,91,931,97,933,104"/>
-<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="639,123,876,123,876,128,639,128"/>
-<area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="698,163,830,189"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="639,143,698,157,697,163,637,148"/>
-<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="815,161,875,145,876,150,816,166"/>
+<area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,44,165,89"/>
+<area shape="rect" id="Node000002" href="$dc/d1f/namespacerough__log__law__cpu.html#ad75e97e969cb38b6affdeab6aa9c745d" title="Compute the wall shear stress on CPU using the rough log&#45;law model." alt="" coords="213,5,422,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,51,200,47,195,49,166,56"/>
+<area shape="rect" id="Node000003" href="$db/d78/namespacerough__log__law__device.html#a90ec9198d5b3cc192144e2fabb0fdb87" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="224,74,411,136"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="165,77,211,86,206,88,165,82"/>
+<area shape="rect" id="Node000004" href="$d1/dc9/rough__log__law_8cu.html#aeaabbd89e903fe8ddf3613d4b2930834" title=" " alt="" coords="476,48,629,93"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="411,89,463,83,458,84,412,94"/>
+<area shape="rect" id="Node000006" href="$d4/dc0/rough__log__law_8c.html#a3952aaa83ec67bd17993cf2951e90955" title=" " alt="" coords="470,117,635,162"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="412,116,457,125,452,125,412,122"/>
+<area shape="rect" id="Node000005" href="$db/d9a/cuda_2rough__log__law__kernel_8h.html#ae2ba0942fef2dde042358d8c3c12c439" title=" " alt="" coords="683,56,863,84"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="629,68,670,70,665,71,630,73"/>
+<area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="707,126,839,154"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="636,137,694,140,689,140,636,142"/>
 </map>

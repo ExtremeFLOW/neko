@@ -1,8 +1,5 @@
 <map id="opgrad_kernel_1d" name="opgrad_kernel_1d">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,143,72"/>
-<area shape="rect" id="Node000002" href="$da/da7/cuda_2opgrad__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="209,5,324,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,44,196,30,197,36,134,49"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="191,79,343,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="137,69,178,78,177,83,135,75"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="230,80,228,70,234,61,247,55,267,53,289,56,302,63,299,67,288,61,267,58,248,60,237,65,233,71,236,78"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,142,33"/>
+<area shape="rect" id="Node000002" href="$da/da7/cuda_2opgrad__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="190,5,304,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="142,17,177,19,172,19,142,22"/>
 </map>

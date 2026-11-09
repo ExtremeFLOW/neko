@@ -1,7 +1,7 @@
 <map id="hip_pipecg_vecops" name="hip_pipecg_vecops">
-<area shape="rect" id="Node000001" title=" " alt="" coords="435,13,580,38"/>
-<area shape="rect" id="Node000002" href="$da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0" title=" " alt="" coords="220,5,387,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="421,28,387,28,387,23,421,23"/>
-<area shape="rect" id="Node000003" href="$da/d46/namespacepipecg__device.html#a7668ed15eabc2865fb0bc57ad3c1f8f5" title="Pipelined PCG solve." alt="" coords="5,5,172,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="206,28,172,28,172,23,206,23"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="432,14,576,42"/>
+<area shape="rect" id="Node000002" href="$da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0" title=" " alt="" coords="219,5,384,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="414,28,385,30,384,25,419,28"/>
+<area shape="rect" id="Node000003" href="$da/d46/namespacepipecg__device.html#a7668ed15eabc2865fb0bc57ad3c1f8f5" title="Pipelined PCG solve." alt="" coords="5,5,171,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="201,28,171,30,171,25,206,27"/>
 </map>

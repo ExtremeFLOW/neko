@@ -1,8 +1,7 @@
 <map id="glsum_kernel" name="glsum_kernel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,115,72"/>
-<area shape="rect" id="Node000002" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="181,5,296,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,44,170,31,171,36,116,49"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="163,79,315,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="116,69,150,77,149,82,115,74"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="205,80,203,70,208,61,220,55,239,53,260,56,271,63,268,67,258,61,239,58,222,60,212,65,208,71,210,78"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,114,60"/>
+<area shape="rect" id="Node000002" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="162,5,276,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,34,149,30,144,32,115,39"/>
+<area shape="rect" id="Node000003" href="$d9/d50/cuda_2math__kernel_8h.html#a15613cd77811a43c5ac891767e0de507" title=" " alt="" coords="167,57,271,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="114,52,154,60,149,61,114,57"/>
 </map>

@@ -1,0 +1,16 @@
+<map id="/home/runner/work/neko/neko/src/les/bcknd/device/hip/vreman_nut.hip" name="/home/runner/work/neko/neko/src/les/bcknd/device/hip/vreman_nut.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="102,5,295,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="96,191,232,218"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="101,57,53,80,32,96,14,116,9,128,9,138,13,148,22,157,48,172,83,185,79,188,46,177,18,161,9,151,4,140,4,127,10,114,28,92,50,75,104,52"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="25,115,194,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,66,135,106,131,102,167,69"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="218,115,360,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="229,65,268,104,263,104,228,70"/>
+<area shape="rect" id="Node000005" href="$d7/de9/hip_2vreman__nut__kernel_8h.html" title=" " alt="" coords="385,115,543,143"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="288,65,413,109,408,110,287,70"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="269,143,200,185,198,180,264,144"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="383,191,446,218"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="457,142,433,180,430,175,453,144"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="470,191,554,218"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="474,141,498,179,493,177,471,146"/>
+</map>

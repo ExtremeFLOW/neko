@@ -6,9 +6,9 @@ var ale__rigid__kinematics_8f90 =
     [ "ale_rigid_kinematics::body_kinematics_t", "de/da9/structale__rigid__kinematics_1_1body__kinematics__t.html", "de/da9/structale__rigid__kinematics_1_1body__kinematics__t" ],
     [ "ale_rigid_kinematics::pivot_state_t", "d6/ddf/structale__rigid__kinematics_1_1pivot__state__t.html", "d6/ddf/structale__rigid__kinematics_1_1pivot__state__t" ],
     [ "ale_rigid_kinematics::point_tracker_t", "db/dcf/structale__rigid__kinematics_1_1point__tracker__t.html", "db/dcf/structale__rigid__kinematics_1_1point__tracker__t" ],
-    [ "ab_integrate_point_pos", "da/d01/ale__rigid__kinematics_8f90.html#a257f12f49ce4612c972e7dd418e35f8c", null ],
-    [ "advance_point_tracker", "da/d01/ale__rigid__kinematics_8f90.html#a2bf9b37c78f6c41adaeca3d64750eac9", null ],
-    [ "compute_body_kinematics_built_in", "da/d01/ale__rigid__kinematics_8f90.html#a082cfde8889f407134e0ada3a33e8e8f", null ],
-    [ "init_pivot_state", "da/d01/ale__rigid__kinematics_8f90.html#a739218ae2456939a6ceefb1ad4128845", null ],
-    [ "update_pivot_location", "da/d01/ale__rigid__kinematics_8f90.html#a9dc6bcd441b7b4f7b6134132fd290659", null ]
+    [ "ale_rigid_kinematics::ab_integrate_point_pos", "d1/d65/namespaceale__rigid__kinematics.html#a257f12f49ce4612c972e7dd418e35f8c", null ],
+    [ "ale_rigid_kinematics::advance_point_tracker", "d1/d65/namespaceale__rigid__kinematics.html#a2bf9b37c78f6c41adaeca3d64750eac9", null ],
+    [ "ale_rigid_kinematics::compute_body_kinematics_built_in", "d1/d65/namespaceale__rigid__kinematics.html#a082cfde8889f407134e0ada3a33e8e8f", null ],
+    [ "ale_rigid_kinematics::init_pivot_state", "d1/d65/namespaceale__rigid__kinematics.html#a739218ae2456939a6ceefb1ad4128845", null ],
+    [ "ale_rigid_kinematics::update_pivot_location", "d1/d65/namespaceale__rigid__kinematics.html#a9dc6bcd441b7b4f7b6134132fd290659", null ]
 ];

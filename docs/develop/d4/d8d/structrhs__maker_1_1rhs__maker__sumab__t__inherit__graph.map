@@ -1,9 +1,9 @@
 <map id="rhs_maker::rhs_maker_sumab_t" name="rhs_maker::rhs_maker_sumab_t">
-<area shape="rect" id="Node000001" title="Abstract type to compute extrapolated velocity field for the pressure equation." alt="" coords="5,69,172,109"/>
-<area shape="rect" id="Node000002" href="$df/dbe/structrhs__maker__cpu_1_1rhs__maker__sumab__cpu__t.html" title=" " alt="" coords="233,5,395,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,63,242,43,244,48,174,68"/>
-<area shape="rect" id="Node000003" href="$d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t.html" title=" " alt="" coords="223,69,405,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,87,222,87,222,92,186,92"/>
-<area shape="rect" id="Node000004" href="$d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html" title=" " alt="" coords="220,133,408,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="174,111,244,131,242,136,172,116"/>
+<area shape="rect" id="Node000001" title="Abstract type to compute extrapolated velocity field for the pressure equation." alt="" coords="5,75,171,119"/>
+<area shape="rect" id="Node000002" href="$df/dbe/structrhs__maker__cpu_1_1rhs__maker__sumab__cpu__t.html" title=" " alt="" coords="231,5,394,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,67,240,49,235,52,178,72"/>
+<area shape="rect" id="Node000003" href="$d0/df8/structrhs__maker__device_1_1rhs__maker__sumab__device__t.html" title=" " alt="" coords="221,75,404,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="186,94,223,96,218,98,187,100"/>
+<area shape="rect" id="Node000004" href="$d9/d26/structrhs__maker__sx_1_1rhs__maker__sumab__sx__t.html" title=" " alt="" coords="219,144,406,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="177,122,240,143,235,144,177,127"/>
 </map>

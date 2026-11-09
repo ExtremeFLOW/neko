@@ -1,14 +1,40 @@
 <map id="lpt_wall_collision_device::lpt_handle_elastic_wall_collisions_device" name="lpt_wall_collision_device::lpt_handle_elastic_wall_collisions_device">
-<area shape="rect" id="Node000001" title="Launch device kernel for elastic wall&#45;collision reflection." alt="" coords="5,20,180,89"/>
-<area shape="rect" id="Node000002" href="$d8/d85/lpt__wall__collision_8cu.html#a40b037dec28d1045e545080095ab2791" title=" " alt="" coords="467,5,645,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,47,453,29,453,34,180,52"/>
-<area shape="rect" id="Node000004" href="$d3/db7/lpt__wall__collision_8c.html#a0472d562d1fd8bb57091cecac3d30e4c" title=" " alt="" coords="228,63,419,103"/>
-<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="181,63,215,67,214,72,180,68"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="693,63,845,103"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="632,43,682,56,680,62,630,48"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="729,63,727,53,733,44,748,38,769,36,794,39,808,46,805,51,793,44,769,41,749,43,737,48,732,54,734,62"/>
-<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="419,80,679,80,679,85,419,85"/>
-<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="490,121,622,146"/>
-<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="416,100,485,115,483,120,415,105"/>
-<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="610,118,679,101,681,106,611,123"/>
+<area shape="rect" id="Node000001" title="Launch device kernel for elastic wall&#45;collision reflection." alt="" coords="5,173,179,252"/>
+<area shape="rect" id="Node000002" href="$d8/d85/lpt__wall__collision_8cu.html#a40b037dec28d1045e545080095ab2791" title=" " alt="" coords="233,155,410,200"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,197,220,192,215,195,180,202"/>
+<area shape="rect" id="Node000015" href="$d3/db7/lpt__wall__collision_8c.html#a0472d562d1fd8bb57091cecac3d30e4c" title=" " alt="" coords="227,225,416,269"/>
+<area shape="poly" id="edge21_Node000001_Node000015" title=" " alt="" coords="179,223,214,230,209,231,180,228"/>
+<area shape="rect" id="Node000003" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#aef6a70471dabbe9ee1e2612e2bc05df3" title=" " alt="" coords="464,155,634,200"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="410,175,451,177,446,178,411,180"/>
+<area shape="rect" id="Node000004" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a89c4f2454cd3e3a8d2b05cb651b43b5a" title=" " alt="" coords="1172,61,1260,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="562,153,582,125,609,93,642,62,681,38,745,17,811,6,879,3,945,7,1009,16,1068,27,1164,56,1158,56,1066,33,1008,21,945,12,879,8,812,11,746,22,683,43,645,66,612,96,586,128,566,157"/>
+<area shape="rect" id="Node000005" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a56480ee247de66c9fb9d85e888156c23" title=" " alt="" coords="687,52,832,80"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="592,152,716,88,721,86,594,157"/>
+<area shape="rect" id="Node000006" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#ae9faad5732680fa5efed8d3b6341828b" title=" " alt="" coords="692,125,827,169"/>
+<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="634,163,680,158,675,160,636,168"/>
+<area shape="rect" id="Node000007" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a645700440ac5037ec028291fc933d930" title=" " alt="" coords="901,267,1062,294"/>
+<area shape="poly" id="edge8_Node000003_Node000007" title=" " alt="" coords="595,198,683,241,734,254,787,263,888,277,883,277,786,268,733,259,681,246,594,203"/>
+<area shape="rect" id="Node000010" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#abc79b36404908b18baa12d6198daebe4" title=" " alt="" coords="682,204,837,232"/>
+<area shape="poly" id="edge11_Node000003_Node000010" title=" " alt="" coords="635,191,671,200,666,201,635,197"/>
+<area shape="rect" id="Node000012" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a48041fe97248d2d02fb9e74c0e8610a1" title=" " alt="" coords="899,319,1064,346"/>
+<area shape="poly" id="edge20_Node000003_Node000012" title=" " alt="" coords="602,198,636,220,651,235,660,250,668,263,684,275,732,298,783,313,835,323,886,331,881,331,834,328,782,318,730,303,681,280,664,267,655,253,647,238,633,224,601,203"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="832,57,885,54,981,50,1078,54,1160,65,1154,66,1078,59,981,56,885,59,833,62"/>
+<area shape="poly" id="edge7_Node000006_Node000004" title=" " alt="" coords="822,122,884,104,957,92,1031,83,1160,76,1155,77,1032,88,958,97,885,110,823,127"/>
+<area shape="rect" id="Node000008" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a2549c174550a24f6462108bf3cee0d1e" title=" " alt="" coords="1152,240,1280,268"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="1062,269,1134,263,1140,262,1062,274"/>
+<area shape="rect" id="Node000009" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a3eb5b5c70aa4b245a96bf795967ff254" title=" " alt="" coords="1160,292,1272,320"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="1062,286,1147,298,1141,298,1062,292"/>
+<area shape="poly" id="edge12_Node000010_Node000004" title=" " alt="" coords="792,201,835,179,859,163,884,149,936,130,979,121,1077,104,1160,88,1155,89,1079,110,980,126,938,135,886,154,862,168,838,184,794,206"/>
+<area shape="poly" id="edge15_Node000010_Node000007" title=" " alt="" coords="810,230,885,251,916,262,911,262,884,256,810,235"/>
+<area shape="rect" id="Node000011" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a28c513d5488c3d26c79ffe43e260ddbd" title=" " alt="" coords="885,215,1078,242"/>
+<area shape="poly" id="edge13_Node000010_Node000011" title=" " alt="" coords="837,219,871,223,866,223,837,224"/>
+<area shape="poly" id="edge16_Node000010_Node000012" title=" " alt="" coords="778,229,825,266,886,303,905,314,900,313,883,308,822,271,776,235"/>
+<area shape="rect" id="Node000014" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a5c4943059633b1db6d2ef661bf795a12" title=" " alt="" coords="910,163,1052,190"/>
+<area shape="poly" id="edge19_Node000010_Node000014" title=" " alt="" coords="836,201,897,192,892,193,837,206"/>
+<area shape="poly" id="edge14_Node000011_Node000004" title=" " alt="" coords="1049,211,1077,199,1111,177,1143,150,1192,102,1196,99,1146,154,1114,181,1079,204,1051,217"/>
+<area shape="poly" id="edge18_Node000012_Node000009" title=" " alt="" coords="1064,320,1142,314,1147,314,1065,326"/>
+<area shape="rect" id="Node000013" href="$d0/d39/cuda_2coef__kernel_8h.html#ab1704ac3b488ae29041c290c9111220b" title=" " alt="" coords="1126,344,1306,372"/>
+<area shape="poly" id="edge17_Node000012_Node000013" title=" " alt="" coords="1065,339,1113,346,1108,346,1064,344"/>
+<area shape="rect" id="Node000016" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="484,233,615,261"/>
+<area shape="poly" id="edge22_Node000015_Node000016" title=" " alt="" coords="416,244,471,247,465,248,417,250"/>
 </map>

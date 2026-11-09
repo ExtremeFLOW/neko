@@ -10,7 +10,7 @@ var searchData=
   ['gmres_5faux_2ecu_7',['gmres_aux.cu',['../d6/d29/gmres__aux_8cu.html',1,'']]],
   ['gmres_5faux_2ehip_8',['gmres_aux.hip',['../da/d1d/gmres__aux_8hip.html',1,'']]],
   ['gmres_5fdevice_2ef90_9',['gmres_device.F90',['../d2/d58/gmres__device_8F90.html',1,'']]],
-  ['gmres_5fkernel_2eh_10',['gmres_kernel.h',['../d0/d70/hip_2gmres__kernel_8h.html',1,'(Global Namespace)'],['../de/d1a/cuda_2gmres__kernel_8h.html',1,'(Global Namespace)']]],
+  ['gmres_5fkernel_2eh_10',['gmres_kernel.h',['../de/d1a/cuda_2gmres__kernel_8h.html',1,'(Global Namespace)'],['../d0/d70/hip_2gmres__kernel_8h.html',1,'(Global Namespace)']]],
   ['gmres_5fsx_2ef90_11',['gmres_sx.f90',['../d1/dde/gmres__sx_8f90.html',1,'']]],
   ['governing_2dequations_2emd_12',['governing-equations.md',['../d2/d46/governing-equations_8md.html',1,'']]],
   ['gradient_5fjump_5fpenalty_2ec_13',['gradient_jump_penalty.c',['../de/dd5/gradient__jump__penalty_8c.html',1,'']]],

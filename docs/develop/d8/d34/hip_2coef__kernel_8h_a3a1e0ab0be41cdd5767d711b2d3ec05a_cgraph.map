@@ -1,8 +1,5 @@
 <map id="coef_generate_dxyz_kernel" name="coef_generate_dxyz_kernel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,39,159,79"/>
-<area shape="rect" id="Node000002" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="225,5,340,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,41,211,30,212,35,159,46"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="207,79,359,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="159,72,193,79,192,84,158,77"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="245,80,243,70,249,61,262,55,283,53,306,56,319,63,316,68,304,61,283,58,264,60,252,65,248,71,250,78"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,158,50"/>
+<area shape="rect" id="Node000002" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="206,14,320,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,25,193,27,188,28,158,30"/>
 </map>

@@ -67,7 +67,7 @@ var searchData=
   ['fusedcg_5fcpld_5faux_2ecu_64',['fusedcg_cpld_aux.cu',['../d6/d7a/fusedcg__cpld__aux_8cu.html',1,'']]],
   ['fusedcg_5fcpld_5faux_2ehip_65',['fusedcg_cpld_aux.hip',['../d4/dc3/fusedcg__cpld__aux_8hip.html',1,'']]],
   ['fusedcg_5fcpld_5fdevice_2ef90_66',['fusedcg_cpld_device.F90',['../dc/dfd/fusedcg__cpld__device_8F90.html',1,'']]],
-  ['fusedcg_5fcpld_5fkernel_2eh_67',['fusedcg_cpld_kernel.h',['../de/d7d/hip_2fusedcg__cpld__kernel_8h.html',1,'(Global Namespace)'],['../d3/d59/cuda_2fusedcg__cpld__kernel_8h.html',1,'(Global Namespace)']]],
+  ['fusedcg_5fcpld_5fkernel_2eh_67',['fusedcg_cpld_kernel.h',['../d3/d59/cuda_2fusedcg__cpld__kernel_8h.html',1,'(Global Namespace)'],['../de/d7d/hip_2fusedcg__cpld__kernel_8h.html',1,'(Global Namespace)']]],
   ['fusedcg_5fdevice_2ef90_68',['fusedcg_device.F90',['../de/d66/fusedcg__device_8F90.html',1,'']]],
-  ['fusedcg_5fkernel_2eh_69',['fusedcg_kernel.h',['../db/d87/hip_2fusedcg__kernel_8h.html',1,'(Global Namespace)'],['../d9/d05/cuda_2fusedcg__kernel_8h.html',1,'(Global Namespace)']]]
+  ['fusedcg_5fkernel_2eh_69',['fusedcg_kernel.h',['../d9/d05/cuda_2fusedcg__kernel_8h.html',1,'(Global Namespace)'],['../db/d87/hip_2fusedcg__kernel_8h.html',1,'(Global Namespace)']]]
 ];

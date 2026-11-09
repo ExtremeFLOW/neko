@@ -1,0 +1,18 @@
+<map id="/home/runner/work/neko/neko/src/common/bcknd/device/hip/rhs_maker.hip" name="/home/runner/work/neko/neko/src/common/bcknd/device/hip/rhs_maker.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="354,5,541,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="70,191,206,218"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="351,42,258,50,157,64,69,85,36,100,15,117,9,127,9,136,21,154,45,169,78,184,73,186,43,174,17,157,3,137,4,125,11,113,34,95,67,80,156,58,258,45,356,39"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="25,115,195,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="352,65,175,113,173,108,355,60"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="219,115,361,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="398,66,327,109,325,105,393,69"/>
+<area shape="rect" id="Node000005" href="$d9/d37/hip_2sumab__kernel_8h.html" title=" " alt="" coords="385,115,510,143"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="449,65,450,101,445,98,446,70"/>
+<area shape="rect" id="Node000006" href="$db/d20/hip_2makeext__kernel_8h.html" title=" " alt="" coords="533,115,671,143"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="500,65,570,107,564,107,498,70"/>
+<area shape="rect" id="Node000007" href="$db/d6b/hip_2makebdf__kernel_8h.html" title=" " alt="" coords="695,115,832,143"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="542,62,706,110,701,111,541,67"/>
+<area shape="rect" id="Node000008" href="$d7/d2b/hip_2makeoifs__kernel_8h.html" title=" " alt="" coords="856,115,996,143"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="542,53,844,111,839,112,541,58"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="266,143,180,186,178,181,260,144"/>
+</map>

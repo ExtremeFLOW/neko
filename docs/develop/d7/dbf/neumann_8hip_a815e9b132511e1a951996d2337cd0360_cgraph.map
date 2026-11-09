@@ -1,6 +1,7 @@
 <map id="hip_neumann_apply_scalar" name="hip_neumann_apply_scalar">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,204,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="252,29,404,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,47,238,47,238,52,204,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="287,30,284,20,291,10,306,5,328,3,354,6,368,13,366,18,352,11,328,8,307,10,294,15,289,21,292,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,14,204,42"/>
+<area shape="rect" id="Node000002" href="$d2/d07/cuda_2neumann__kernel_8h.html#a88c2701262662ed739f7b5e2306650e3" title=" " alt="" coords="252,5,423,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,25,239,27,233,28,204,30"/>
+<area shape="rect" id="Node000003" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="471,14,596,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="424,25,458,28,453,28,424,30"/>
 </map>

@@ -2,7 +2,7 @@ var searchData=
 [
   ['makebdf_5fkernel_2eh_0',['makebdf_kernel.h',['../df/d1f/cuda_2makebdf__kernel_8h.html',1,'(Global Namespace)'],['../db/d6b/hip_2makebdf__kernel_8h.html',1,'(Global Namespace)']]],
   ['makeext_5fkernel_2eh_1',['makeext_kernel.h',['../d0/d1e/cuda_2makeext__kernel_8h.html',1,'(Global Namespace)'],['../db/d20/hip_2makeext__kernel_8h.html',1,'(Global Namespace)']]],
-  ['makeoifs_5fkernel_2eh_2',['makeoifs_kernel.h',['../d7/d2b/hip_2makeoifs__kernel_8h.html',1,'(Global Namespace)'],['../d2/d91/cuda_2makeoifs__kernel_8h.html',1,'(Global Namespace)']]],
+  ['makeoifs_5fkernel_2eh_2',['makeoifs_kernel.h',['../d2/d91/cuda_2makeoifs__kernel_8h.html',1,'(Global Namespace)'],['../d7/d2b/hip_2makeoifs__kernel_8h.html',1,'(Global Namespace)']]],
   ['map_2ef90_3',['map.f90',['../d6/dd0/map_8f90.html',1,'']]],
   ['map_5f1d_2ef90_4',['map_1d.f90',['../d7/da8/map__1d_8f90.html',1,'']]],
   ['map_5f2d_2ef90_5',['map_2d.f90',['../d4/d7a/map__2d_8f90.html',1,'']]],

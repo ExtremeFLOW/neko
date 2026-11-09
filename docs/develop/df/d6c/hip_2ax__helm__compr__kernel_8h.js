@@ -1,7 +1,7 @@
 var hip_2ax__helm__compr__kernel_8h =
 [
-    [ "ax_helm_compr_mfma_dispatch< T, LX, NWF, TILE >", "d3/de5/structax__helm__compr__mfma__dispatch.html", "d3/de5/structax__helm__compr__mfma__dispatch" ],
-    [ "ax_helm_compr_mfma_vector_dispatch< T, LX, NWF, TILE >", "d0/dbe/structax__helm__compr__mfma__vector__dispatch.html", "d0/dbe/structax__helm__compr__mfma__vector__dispatch" ],
+    [ "ax_helm_compr_mfma_dispatch&lt; T, LX, NWF, TILE &gt;", "d3/de5/structax__helm__compr__mfma__dispatch.html", "d3/de5/structax__helm__compr__mfma__dispatch" ],
+    [ "ax_helm_compr_mfma_vector_dispatch&lt; T, LX, NWF, TILE &gt;", "d0/dbe/structax__helm__compr__mfma__vector__dispatch.html", "d0/dbe/structax__helm__compr__mfma__vector__dispatch" ],
     [ "__launch_bounds__", "df/d6c/hip_2ax__helm__compr__kernel_8h.html#a900c6a2c2e5f0b5484cc6b20c369412a", null ],
     [ "__launch_bounds__", "df/d6c/hip_2ax__helm__compr__kernel_8h.html#af1d665091523239413598b1d7168f0c8", null ],
     [ "__syncthreads", "df/d6c/hip_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],

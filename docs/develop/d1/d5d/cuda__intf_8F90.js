@@ -28,8 +28,8 @@ var cuda__intf_8F90 =
     [ "cuda_intf::cuda_device_total_mem", "d3/dfc/interfacecuda__intf_1_1cuda__device__total__mem.html", "d3/dfc/interfacecuda__intf_1_1cuda__device__total__mem" ],
     [ "cuda_intf::cudagetdevice", "d6/d4c/interfacecuda__intf_1_1cudagetdevice.html", "d6/d4c/interfacecuda__intf_1_1cudagetdevice" ],
     [ "cuda_intf::cudasetdevice", "d2/db0/interfacecuda__intf_1_1cudasetdevice.html", "d2/db0/interfacecuda__intf_1_1cudasetdevice" ],
-    [ "cuda_device_count", "d1/d5d/cuda__intf_8F90.html#a4c6829041b1ce806df2141185b6e705b", null ],
-    [ "cuda_device_name", "d1/d5d/cuda__intf_8F90.html#a05388b77b2bea0507b51694ea4bceb1f", null ],
-    [ "cuda_finalize", "d1/d5d/cuda__intf_8F90.html#a10bd37fe379b2bd6d63b3713be546ebf", null ],
-    [ "cuda_init", "d1/d5d/cuda__intf_8F90.html#a7be9d4a8d82859375deb54ec039b58fc", null ]
+    [ "cuda_intf::cuda_device_count", "db/d9a/namespacecuda__intf.html#a4c6829041b1ce806df2141185b6e705b", null ],
+    [ "cuda_intf::cuda_device_name", "db/d9a/namespacecuda__intf.html#a05388b77b2bea0507b51694ea4bceb1f", null ],
+    [ "cuda_intf::cuda_finalize", "db/d9a/namespacecuda__intf.html#a10bd37fe379b2bd6d63b3713be546ebf", null ],
+    [ "cuda_intf::cuda_init", "db/d9a/namespacecuda__intf.html#a7be9d4a8d82859375deb54ec039b58fc", null ]
 ];

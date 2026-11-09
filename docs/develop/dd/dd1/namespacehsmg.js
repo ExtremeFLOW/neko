@@ -1,7 +1,7 @@
 var namespacehsmg =
 [
-    [ "hsmg_t", "dd/d81/structhsmg_1_1hsmg__t.html", "dd/d81/structhsmg_1_1hsmg__t" ],
     [ "multigrid_t", "dd/d1b/structhsmg_1_1multigrid__t.html", "dd/d1b/structhsmg_1_1multigrid__t" ],
+    [ "hsmg_t", "dd/d81/structhsmg_1_1hsmg__t.html", "dd/d81/structhsmg_1_1hsmg__t" ],
     [ "hsmg_fill_grid", "dd/dd1/namespacehsmg.html#ac9484fe847707b07cf9cfa347569ee8e", null ],
     [ "hsmg_free", "dd/dd1/namespacehsmg.html#a74343fce57f519e87cbff9557ee65a27", null ],
     [ "hsmg_init", "dd/dd1/namespacehsmg.html#a00402a723ca5643736b1bd2d9ac0b8a7", null ],

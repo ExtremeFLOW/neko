@@ -1,5 +1,5 @@
 <map id="gmres_device::device_gmres_part2" name="gmres_device::device_gmres_part2">
-<area shape="rect" id="Node000001" title=" " alt="" coords="216,5,380,45"/>
-<area shape="rect" id="Node000002" href="$de/df2/namespacegmres__device.html#acdfd846f0f2c95fed9ed788773cbc6b4" title="Standard GMRES solve." alt="" coords="5,5,168,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,28,168,28,168,23,203,23"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="215,5,378,50"/>
+<area shape="rect" id="Node000002" href="$de/df2/namespacegmres__device.html#acdfd846f0f2c95fed9ed788773cbc6b4" title="Standard GMRES solve." alt="" coords="5,5,167,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,28,167,30,167,25,201,27"/>
 </map>

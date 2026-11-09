@@ -11,11 +11,11 @@ var rhs__maker__device_8F90 =
     [ "rhs_maker_device::scalar_rhs_maker_bdf_hip", "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip.html", "dc/d3e/interfacerhs__maker__device_1_1scalar__rhs__maker__bdf__hip" ],
     [ "rhs_maker_device::rhs_maker_oifs_hip", "d7/db9/interfacerhs__maker__device_1_1rhs__maker__oifs__hip.html", "d7/db9/interfacerhs__maker__device_1_1rhs__maker__oifs__hip" ],
     [ "rhs_maker_device::scalar_rhs_maker_oifs_hip", "d9/d5d/interfacerhs__maker__device_1_1scalar__rhs__maker__oifs__hip.html", "d9/d5d/interfacerhs__maker__device_1_1scalar__rhs__maker__oifs__hip" ],
-    [ "rhs_maker_bdf_device", "d9/d93/rhs__maker__device_8F90.html#a84f2d286ed4000e245cfdcc4302a2878", null ],
-    [ "rhs_maker_ext_device", "d9/d93/rhs__maker__device_8F90.html#ac1263f64319e0bda5966fac0e67f3f3f", null ],
-    [ "rhs_maker_oifs_device", "d9/d93/rhs__maker__device_8F90.html#a46d2bbbc55b8973af39448d17dab92bc", null ],
-    [ "rhs_maker_sumab_device", "d9/d93/rhs__maker__device_8F90.html#a3ab42ff71df2fb175fade36961369027", null ],
-    [ "scalar_rhs_maker_bdf_device", "d9/d93/rhs__maker__device_8F90.html#a1f1b802af2eb9e7d81c19396f3ba920d", null ],
-    [ "scalar_rhs_maker_ext_device", "d9/d93/rhs__maker__device_8F90.html#a366e686ce3b83cd0f5303290cdd689f8", null ],
-    [ "scalar_rhs_maker_oifs_device", "d9/d93/rhs__maker__device_8F90.html#aa82bee374be1e87a9eb90d4e9144f546", null ]
+    [ "rhs_maker_device::rhs_maker_bdf_device", "d1/d29/namespacerhs__maker__device.html#a84f2d286ed4000e245cfdcc4302a2878", null ],
+    [ "rhs_maker_device::rhs_maker_ext_device", "d1/d29/namespacerhs__maker__device.html#ac1263f64319e0bda5966fac0e67f3f3f", null ],
+    [ "rhs_maker_device::rhs_maker_oifs_device", "d1/d29/namespacerhs__maker__device.html#a46d2bbbc55b8973af39448d17dab92bc", null ],
+    [ "rhs_maker_device::rhs_maker_sumab_device", "d1/d29/namespacerhs__maker__device.html#a3ab42ff71df2fb175fade36961369027", null ],
+    [ "rhs_maker_device::scalar_rhs_maker_bdf_device", "d1/d29/namespacerhs__maker__device.html#a1f1b802af2eb9e7d81c19396f3ba920d", null ],
+    [ "rhs_maker_device::scalar_rhs_maker_ext_device", "d1/d29/namespacerhs__maker__device.html#a366e686ce3b83cd0f5303290cdd689f8", null ],
+    [ "rhs_maker_device::scalar_rhs_maker_oifs_device", "d1/d29/namespacerhs__maker__device.html#aa82bee374be1e87a9eb90d4e9144f546", null ]
 ];

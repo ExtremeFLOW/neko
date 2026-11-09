@@ -1,0 +1,14 @@
+<map id="/home/runner/work/neko/neko/src/bc/bcknd/device/hip/symmetry_aligned.hip" name="/home/runner/work/neko/neko/src/bc/bcknd/device/hip/symmetry_aligned.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="121,5,316,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="125,191,261,218"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="118,52,91,62,62,76,36,93,15,116,9,131,10,143,17,153,29,163,66,179,113,191,108,194,65,184,27,168,13,157,5,144,4,130,11,114,33,89,59,71,89,57,122,48"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="26,115,110,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,69,104,109,101,104,170,65"/>
+<area shape="rect" id="Node000004" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="134,115,303,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,65,221,100,216,98,217,70"/>
+<area shape="rect" id="Node000005" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="327,115,470,143"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="279,65,361,107,356,108,278,70"/>
+<area shape="rect" id="Node000006" href="$d2/dc0/hip_2symmetry__aligned__kernel_8h.html" title=" " alt="" coords="493,115,696,143"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="317,58,527,110,523,112,316,64"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="364,143,245,188,243,182,359,144"/>
+</map>

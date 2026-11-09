@@ -1,26 +1,26 @@
 <map id="schwarz::schwarz_init" name="schwarz::schwarz_init">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,120,169,145"/>
-<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="241,5,396,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,118,151,80,216,41,239,32,241,37,218,46,154,84,105,122"/>
-<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="239,55,399,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="139,117,225,96,226,101,140,123"/>
-<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="518,43,611,68"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="169,134,289,129,355,120,419,105,443,92,467,77,504,65,506,70,469,82,446,96,421,110,356,125,290,135,170,139"/>
-<area shape="rect" id="Node000005" href="$d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="217,171,420,196"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="147,143,247,165,246,170,146,148"/>
-<area shape="rect" id="Node000012" href="$d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe" title=" " alt="" coords="231,220,406,245"/>
-<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="108,143,157,174,218,205,243,214,241,219,216,210,154,179,106,148"/>
-<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="381,168,418,149,434,132,441,114,449,95,466,77,503,61,506,65,470,82,454,98,446,116,438,135,422,153,384,173"/>
-<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="516,92,613,117"/>
-<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="363,168,419,149,467,126,502,115,504,121,469,131,421,154,365,173"/>
-<area shape="rect" id="Node000007" href="$d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="468,141,661,167"/>
-<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="420,169,454,164,455,170,420,174"/>
-<area shape="rect" id="Node000008" href="$d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0" title="Same as schwarz_extrude but for the case when arr1 and arr2 are the same array. Avoids aliasing by us..." alt="" coords="468,191,661,231"/>
-<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="420,192,455,196,454,201,420,197"/>
-<area shape="rect" id="Node000009" href="$d2/d37/namespaceschwarz.html#ade8d64f2437a4224082b3711ca027645" title="Setup schwarz weights, 2d, second step." alt="" coords="475,255,654,295"/>
-<area shape="poly" id="edge9_Node000005_Node000009" title=" " alt="" coords="390,194,421,205,446,223,469,241,483,248,481,252,467,246,443,227,419,210,389,199"/>
-<area shape="rect" id="Node000010" href="$d2/d37/namespaceschwarz.html#aa6ed48c46882c077ddab2ea62c6db125" title="Setup schwarz weights, 3d, second step." alt="" coords="475,319,654,359"/>
-<area shape="poly" id="edge10_Node000005_Node000010" title=" " alt="" coords="403,194,422,205,434,218,441,230,447,256,453,281,459,293,470,305,475,310,472,314,466,309,455,296,448,283,442,257,436,232,429,221,418,209,400,198"/>
-<area shape="rect" id="Node000011" href="$d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970" title="convert array a from extended size to regular" alt="" coords="468,384,661,409"/>
-<area shape="poly" id="edge11_Node000005_Node000011" title=" " alt="" coords="406,194,422,205,438,226,446,247,447,289,448,330,455,350,470,369,476,375,473,379,466,373,450,352,443,331,442,289,440,248,433,229,418,209,403,198"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,125,169,153"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a87905d572ea607609a71d54effdb0ab9" title="Allocate memory on the device." alt="" coords="241,5,394,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,123,150,83,182,61,215,42,233,37,229,40,218,47,185,65,153,87,106,126"/>
+<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479" title="Create a device event queue." alt="" coords="238,57,397,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="141,123,225,102,221,106,144,127"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a6a2786eeaf4fa795dab048bb6c8d56c4" title="Set all elements to one." alt="" coords="516,41,608,69"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="168,142,225,141,288,137,354,128,417,111,431,105,441,97,465,79,503,68,498,70,467,84,444,101,434,109,419,116,355,133,289,143,226,147,170,147"/>
+<area shape="rect" id="Node000005" href="$d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="217,176,418,204"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="152,151,239,171,234,174,154,156"/>
+<area shape="rect" id="Node000012" href="$d2/d37/namespaceschwarz.html#aac3358ce98e9c604fb514399d8e95cbe" title=" " alt="" coords="230,228,404,256"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="108,151,158,182,218,213,240,222,235,224,216,218,155,187,109,156"/>
+<area shape="poly" id="edge5_Node000005_Node000004" title=" " alt="" coords="384,173,416,156,432,138,439,119,447,99,464,80,504,63,499,66,468,84,452,102,444,121,437,140,420,160,387,178"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="514,93,610,121"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="368,173,417,155,465,131,501,122,496,124,467,136,419,160,370,178"/>
+<area shape="rect" id="Node000007" href="$d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="466,145,658,173"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="418,175,453,172,448,174,419,180"/>
+<area shape="rect" id="Node000008" href="$d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0" title="Same as schwarz_extrude but for the case when arr1 and arr2 are the same array. Avoids aliasing by us..." alt="" coords="466,197,658,242"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="418,199,453,205,448,206,419,205"/>
+<area shape="rect" id="Node000009" href="$d2/d37/namespaceschwarz.html#ade8d64f2437a4224082b3711ca027645" title="Setup schwarz weights, 2d, second step." alt="" coords="473,266,651,311"/>
+<area shape="poly" id="edge9_Node000005_Node000009" title=" " alt="" coords="387,202,419,214,444,233,467,252,479,259,474,259,465,256,441,237,417,219,387,207"/>
+<area shape="rect" id="Node000010" href="$d2/d37/namespaceschwarz.html#aa6ed48c46882c077ddab2ea62c6db125" title="Setup schwarz weights, 3d, second step." alt="" coords="473,336,651,380"/>
+<area shape="poly" id="edge10_Node000005_Node000010" title=" " alt="" coords="399,201,420,214,432,228,439,241,445,269,451,295,457,308,468,321,472,327,467,326,464,325,452,311,445,297,440,270,434,243,428,231,416,219,398,207"/>
+<area shape="rect" id="Node000011" href="$d2/d37/namespaceschwarz.html#a27c7d0c843a7c38b51e7550059b65970" title="convert array a from extended size to regular" alt="" coords="466,404,658,432"/>
+<area shape="poly" id="edge11_Node000005_Node000011" title=" " alt="" coords="401,202,420,215,437,237,444,260,445,304,445,348,452,370,468,391,471,396,466,394,464,394,447,372,440,349,439,305,439,261,432,239,416,218,401,207"/>
 </map>

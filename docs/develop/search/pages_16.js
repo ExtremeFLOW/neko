@@ -1,0 +1,25 @@
+var searchData=
+[
+  ['u_0',['Vector fields (X and U)',['../d8/d00/fld-format.html#autotoc_md14',1,'']]],
+  ['updating_20phmg_20when_20the_20mesh_20changes_1',['Updating phmg when the mesh changes',['../d6/dcf/case-file_fluid.html#autotoc_md96',1,'']]],
+  ['usage_2',['Example Usage',['../dd/d61/global-interpolation.html#autotoc_md128',1,'']]],
+  ['usage_3',['Example usage',['../d3/d84/simcomps.html#autotoc_md184',1,'']]],
+  ['user_20access_20to_20solver_20internals_4',['User access to solver internals',['../d6/def/user-file.html#user-file_access',1,'']]],
+  ['user_20defined_20geometrical_20shapes_5',['User-defined geometrical shapes',['../da/dd0/point-zones.html#autotoc_md176',1,'']]],
+  ['user_20defined_20geometry_20deformation_6',['User-defined geometry deformation',['../d9/df2/meshing.html#autotoc_md157',1,'']]],
+  ['user_20file_7',['User File',['../d6/def/user-file.html',1,'user-guide']]],
+  ['user_20file_20template_8',['A user file template',['../dir_385db79e6f7b56731a21812b19c444c1.html#autotoc_md202',1,'']]],
+  ['user_20functions_9',['user functions',['../d6/def/user-file.html#user-file_ale',1,'Arbitrary Lagrangian-Eulerian (ALE) user functions'],['../d6/def/user-file.html#autotoc_md198',1,'Case-specific user functions'],['../d6/def/user-file.html#autotoc_md197',1,'Default user functions']]],
+  ['user_20guide_10',['User guide',['../dd/d04/user-guide.html',1,'index']]],
+  ['user_20statistics_11',['User statistics',['../d3/d84/simcomps.html#user_stats',1,'']]],
+  ['user_20type_20templates_12',['User-type templates',['../dir_39c8a76219c38196bcb91cd152dab53f.html#autotoc_md208',1,'']]],
+  ['user_20wall_20sampling_13',['User wall sampling',['../d6/def/user-file.html#user-file_wall-sampling',1,'']]],
+  ['users_14',['Note to users',['../df/d8f/statistics-guide.html#note-to-users',1,'']]],
+  ['using_20a_20docker_20container_15',['Using a Docker container',['../d5/dfc/installation.html#autotoc_md152',1,'']]],
+  ['using_20pixi_16',['Installing using pixi',['../d5/dfc/installation.html#autotoc_md150',1,'']]],
+  ['using_20point_20zones_17',['Using point zones',['../da/dd0/point-zones.html#point-zones_using-point-zones',1,'']]],
+  ['using_20registries_18',['Using registries',['../dir_385db79e6f7b56731a21812b19c444c1.html#autotoc_md205',1,'']]],
+  ['using_20statistics_19',['Using statistics',['../df/d8f/statistics-guide.html#autotoc_md186',1,'Using statistics'],['../df/d8f/statistics-guide.html#autotoc_md189',1,'Using statistics'],['../df/d8f/statistics-guide.html#autotoc_md191',1,'Using statistics'],['../df/d8f/statistics-guide.html#autotoc_md193',1,'Using statistics']]],
+  ['utofu_20backend_20',['uTofu backend',['../dc/d3c/performance.html#performance-utofu-backend',1,'']]],
+  ['utofu_20injection_20details_21',['uTofu injection details',['../da/dd6/appendices.html#autotoc_md6',1,'']]]
+];

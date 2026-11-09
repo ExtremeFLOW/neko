@@ -1,0 +1,12 @@
+<map id="/home/runner/work/neko/neko/src/bc/bcknd/device/hip/constrain_mixed_bc.hip" name="/home/runner/work/neko/neko/src/bc/bcknd/device/hip/constrain_mixed_bc.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="99,5,301,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="71,208,206,235"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,59,52,81,32,97,16,116,8,137,16,158,39,183,70,201,65,203,36,187,11,161,3,137,11,114,29,93,50,77,100,54"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="26,124,195,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,66,135,114,131,110,171,69"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="220,124,362,151"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="229,65,271,112,266,112,227,70"/>
+<area shape="rect" id="Node000005" href="$dd/dc5/hip_2constrain__mixed__bc__kernel_8h.html" title=" " alt="" coords="386,115,537,160"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="280,65,393,108,387,110,280,70"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="269,151,178,202,175,198,264,152"/>
+</map>

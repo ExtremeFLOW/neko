@@ -1,5 +1,5 @@
 <map id="space::space_generate_transformation_matrices" name="space::space_generate_transformation_matrices">
-<area shape="rect" id="Node000001" title="Generate spectral tranform matrices." alt="" coords="188,5,379,45"/>
-<area shape="rect" id="Node000002" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="5,13,140,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,28,141,28,141,23,174,23"/>
+<area shape="rect" id="Node000001" title="Generate spectral tranform matrices." alt="" coords="187,5,376,50"/>
+<area shape="rect" id="Node000002" href="$d5/d0d/namespacespace.html#aea7cdf9a8933056da79e3b73f4e0ed49" title="Initialize a function space s with given polynomial dimensions." alt="" coords="5,14,139,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,28,139,30,139,25,174,27"/>
 </map>

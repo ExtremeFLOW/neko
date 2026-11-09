@@ -1,8 +1,7 @@
 <map id="fusedcg_device::device_fusedcg_update_p" name="fusedcg_device::device_fusedcg_update_p">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,180,69"/>
-<area shape="rect" id="Node000002" href="$db/df7/fusedcg__aux_8hip.html#a9cc3940ab477454bca2f83d72f77853c" title=" " alt="" coords="228,37,395,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,47,214,47,214,52,181,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="443,29,595,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="395,47,429,47,429,52,395,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="480,30,478,20,484,11,498,5,519,3,543,6,556,13,553,18,541,11,519,8,499,10,487,15,483,21,485,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,179,50"/>
+<area shape="rect" id="Node000002" href="$db/df7/fusedcg__aux_8hip.html#a9cc3940ab477454bca2f83d72f77853c" title=" " alt="" coords="227,14,393,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,25,214,27,209,28,179,30"/>
+<area shape="rect" id="Node000003" href="$d9/d05/cuda_2fusedcg__kernel_8h.html#a11412f070fecd1f34ae9f908e2bbd02d" title=" " alt="" coords="441,14,627,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="393,25,428,28,423,28,393,30"/>
 </map>

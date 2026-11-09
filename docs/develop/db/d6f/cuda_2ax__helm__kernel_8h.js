@@ -1,10 +1,10 @@
 var cuda_2ax__helm__kernel_8h =
 [
-    [ "ax_helm_dmma_dispatch< T, LX, NW >", "d7/dc9/structax__helm__dmma__dispatch.html", "d7/dc9/structax__helm__dmma__dispatch" ],
-    [ "ax_helm_dmma_tma_dispatch< T, LX, NW >", "d2/d5c/structax__helm__dmma__tma__dispatch.html", "d2/d5c/structax__helm__dmma__tma__dispatch" ],
-    [ "ax_helm_dmma_vector_dispatch< T, LX, NW >", "dc/d57/structax__helm__dmma__vector__dispatch.html", "dc/d57/structax__helm__dmma__vector__dispatch" ],
-    [ "ax_helm_dmma_tma_vector_dispatch< T, LX, NW >", "dd/dbd/structax__helm__dmma__tma__vector__dispatch.html", "dd/dbd/structax__helm__dmma__tma__vector__dispatch" ],
-    [ "ax_helm_dmma_tma_batch_dispatch< T, LX, NW >", "da/da4/structax__helm__dmma__tma__batch__dispatch.html", "da/da4/structax__helm__dmma__tma__batch__dispatch" ],
+    [ "ax_helm_dmma_dispatch&lt; T, LX, NW &gt;", "d7/dc9/structax__helm__dmma__dispatch.html", "d7/dc9/structax__helm__dmma__dispatch" ],
+    [ "ax_helm_dmma_tma_dispatch&lt; T, LX, NW &gt;", "d2/d5c/structax__helm__dmma__tma__dispatch.html", "d2/d5c/structax__helm__dmma__tma__dispatch" ],
+    [ "ax_helm_dmma_vector_dispatch&lt; T, LX, NW &gt;", "dc/d57/structax__helm__dmma__vector__dispatch.html", "dc/d57/structax__helm__dmma__vector__dispatch" ],
+    [ "ax_helm_dmma_tma_vector_dispatch&lt; T, LX, NW &gt;", "dd/dbd/structax__helm__dmma__tma__vector__dispatch.html", "dd/dbd/structax__helm__dmma__tma__vector__dispatch" ],
+    [ "ax_helm_dmma_tma_batch_dispatch&lt; T, LX, NW &gt;", "da/da4/structax__helm__dmma__tma__batch__dispatch.html", "da/da4/structax__helm__dmma__tma__batch__dispatch" ],
     [ "__launch_bounds__", "db/d6f/cuda_2ax__helm__kernel_8h.html#a23c3d084e6a95f6f3f04daf54a9e303e", null ],
     [ "__launch_bounds__", "db/d6f/cuda_2ax__helm__kernel_8h.html#a81c969ff38ec03020e67fac1f69b25df", null ],
     [ "__syncthreads", "db/d6f/cuda_2ax__helm__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],

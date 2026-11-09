@@ -1,0 +1,9 @@
+<map id="/home/runner/work/neko/neko/src/scalar/bcknd/device/cuda/scalar_residual.cu" name="/home/runner/work/neko/neko/src/scalar/bcknd/device/cuda/scalar_residual.cu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="163,5,388,67"/>
+<area shape="rect" id="Node000002" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="5,124,175,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,67,129,118,127,113,216,68"/>
+<area shape="rect" id="Node000003" href="$d5/d08/cuda_2check_8h.html" title=" " alt="" coords="199,124,352,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="277,66,278,109,273,106,273,70"/>
+<area shape="rect" id="Node000004" href="$d7/da7/cuda_2scalar__residual__update__kernel_8h.html" title=" " alt="" coords="376,115,548,160"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="333,65,411,107,405,107,332,70"/>
+</map>

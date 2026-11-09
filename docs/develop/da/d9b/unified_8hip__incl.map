@@ -1,0 +1,16 @@
+<map id="/home/runner/work/neko/neko/src/device/hip/unified.hip" name="/home/runner/work/neko/neko/src/device/hip/unified.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="159,5,381,50"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,98,71,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,53,87,96,84,91,209,48"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="95,98,165,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="231,52,166,92,164,88,235,49"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="188,98,258,126"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="260,49,240,86,236,82,256,52"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="283,98,353,126"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="284,48,305,85,300,84,282,53"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="378,174,514,201"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="303,48,366,96,429,162,423,162,363,100,302,53"/>
+<area shape="rect" id="Node000007" href="$d7/d47/unified_8h.html" title=" " alt="" coords="428,98,576,126"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="332,48,453,92,448,93,331,53"/>
+<area shape="poly" id="edge7_Node000007_Node000006" title=" " alt="" coords="494,125,466,164,464,159,490,127"/>
+</map>

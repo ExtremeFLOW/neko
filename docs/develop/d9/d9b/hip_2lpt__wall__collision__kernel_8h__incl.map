@@ -1,7 +1,7 @@
 <map id="/home/runner/work/neko/neko/src/lpt/bcknd/device/hip/lpt_wall_collision_kernel.h" name="/home/runner/work/neko/neko/src/lpt/bcknd/device/hip/lpt_wall_collision_kernel.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,227,60"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="13,115,81,141"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,62,66,106,62,102,94,59"/>
-<area shape="rect" id="Node000003" href="$d8/d34/hip_2coef__kernel_8h.html" title=" " alt="" coords="105,108,269,148"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="138,59,166,96,162,99,134,62"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,226,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="12,124,80,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,66,66,112,62,109,92,69"/>
+<area shape="rect" id="Node000003" href="$d8/d34/hip_2coef__kernel_8h.html" title=" " alt="" coords="104,115,268,160"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="138,65,164,102,159,102,136,70"/>
 </map>

@@ -1,16 +1,13 @@
 <map id="dirichlet::dirichlet_apply_scalar_dev" name="dirichlet::dirichlet_apply_scalar_dev">
-<area shape="rect" id="Node000001" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)" alt="" coords="5,35,148,75"/>
-<area shape="rect" id="Node000002" href="$d0/d0d/namespacedevice__dirichlet.html#a8427c5bf729b68a92dfbbd1cc34a2274" title=" " alt="" coords="196,35,372,75"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,52,182,52,182,57,148,57"/>
-<area shape="rect" id="Node000003" href="$d4/d09/dirichlet_8cu.html#ae9fc49c9ca11009e0f2858edec3f2879" title=" " alt="" coords="636,5,792,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="372,46,622,29,623,34,373,51"/>
-<area shape="rect" id="Node000005" href="$d0/d06/dirichlet_8c.html#a4734eb80bb9f0226673b804fc40ee1c2" title=" " alt="" coords="420,63,588,103"/>
-<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="373,63,407,68,406,73,372,69"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="840,63,992,103"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="786,43,833,56,831,61,784,48"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="878,63,876,53,882,44,896,38,916,36,940,39,952,46,950,51,938,44,916,41,897,43,885,48,881,54,883,62"/>
-<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="588,80,826,80,826,85,588,85"/>
-<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="648,121,780,146"/>
-<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="588,100,648,115,646,120,587,105"/>
-<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="765,118,826,102,828,108,766,123"/>
+<area shape="rect" id="Node000001" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)." alt="" coords="5,40,147,85"/>
+<area shape="rect" id="Node000002" href="$d0/d0d/namespacedevice__dirichlet.html#a8427c5bf729b68a92dfbbd1cc34a2274" title=" " alt="" coords="195,40,370,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,60,181,62,176,63,147,65"/>
+<area shape="rect" id="Node000003" href="$d4/d09/dirichlet_8cu.html#ae9fc49c9ca11009e0f2858edec3f2879" title=" " alt="" coords="424,5,579,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="370,46,411,42,406,43,371,51"/>
+<area shape="rect" id="Node000005" href="$d0/d06/dirichlet_8c.html#a4734eb80bb9f0226673b804fc40ee1c2" title=" " alt="" coords="418,75,585,119"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="371,74,405,81,400,81,370,79"/>
+<area shape="rect" id="Node000004" href="$db/d11/cuda_2dirichlet__kernel_8h.html#ac2cb217184f95ca86456f610f72bd533" title=" " alt="" coords="633,5,797,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="579,25,620,27,615,28,580,30"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="649,83,781,111"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="586,94,636,97,631,97,586,100"/>
 </map>

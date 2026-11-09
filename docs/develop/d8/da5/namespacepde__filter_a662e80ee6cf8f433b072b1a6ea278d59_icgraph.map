@@ -1,5 +1,5 @@
 <map id="pde_filter::filter_precon_factory" name="pde_filter::filter_precon_factory">
-<area shape="rect" id="Node000001" title="Initialize a Krylov preconditioner." alt="" coords="228,5,355,45"/>
-<area shape="rect" id="Node000002" href="$d8/da5/namespacepde__filter.html#ab75503909e84867392a2c5140c9ace08" title="Actual constructor." alt="" coords="5,5,180,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,28,180,28,180,23,215,23"/>
+<area shape="rect" id="Node000001" title="Initialize a Krylov preconditioner." alt="" coords="228,5,353,50"/>
+<area shape="rect" id="Node000002" href="$d8/da5/namespacepde__filter.html#ab75503909e84867392a2c5140c9ace08" title="Actual constructor." alt="" coords="5,5,180,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,28,180,30,180,25,215,27"/>
 </map>

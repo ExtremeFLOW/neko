@@ -1,5 +1,5 @@
 <map id="gs_find_blks" name="gs_find_blks">
-<area shape="rect" id="Node000001" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="192,13,295,38"/>
-<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="5,5,144,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="178,28,144,28,144,23,178,23"/>
+<area shape="rect" id="Node000001" title="Find blocks sharing dofs in non&#45;facet data." alt="" coords="192,14,293,42"/>
+<area shape="rect" id="Node000002" href="$d0/d78/namespacegather__scatter.html#a116426a5fc51d480ab0f080002328566" title="Setup mapping of dofs to gather&#45;scatter operations." alt="" coords="5,5,144,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,28,144,30,144,25,179,27"/>
 </map>

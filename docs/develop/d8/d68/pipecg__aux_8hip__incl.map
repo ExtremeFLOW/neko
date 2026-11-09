@@ -1,0 +1,21 @@
+<map id="/home/runner/work/neko/neko/src/krylov/bcknd/device/hip/pipecg_aux.hip" name="/home/runner/work/neko/neko/src/krylov/bcknd/device/hip/pipecg_aux.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="193,5,387,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="72,199,207,227"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,54,85,80,41,97,15,117,9,128,9,138,14,149,22,158,49,176,83,192,79,195,47,181,19,162,9,151,4,140,4,127,10,113,39,92,83,75,194,50"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="25,115,195,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="228,69,151,110,148,105,232,65"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="219,115,361,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="291,65,292,100,287,98,289,70"/>
+<area shape="rect" id="Node000005" href="$db/d68/hip_2buffer_8h.html" title=" " alt="" coords="385,115,526,143"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="345,65,421,107,415,108,345,70"/>
+<area shape="rect" id="Node000007" href="$d5/d02/hip_2pipecg__kernel_8h.html" title=" " alt="" coords="550,115,673,143"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="388,62,553,110,548,111,387,68"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="263,145,178,194,175,189,268,142"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="419,199,492,227"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="457,141,457,185,453,182,453,145"/>
+<area shape="rect" id="Node000008" href="$d8/d17/hip_2math__kernel_8h.html" title=" " alt="" coords="521,191,691,235"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="612,141,610,176,606,173,609,145"/>
+<area shape="rect" id="Node000009" href="$dc/d61/wave_8h.html" title=" " alt="" coords="633,283,701,311"/>
+<area shape="poly" id="edge10_Node000007_Node000009" title=" " alt="" coords="647,141,679,160,694,173,706,190,711,211,708,233,689,273,685,269,703,231,706,211,701,192,690,177,676,164,646,146"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="623,233,651,272,646,270,621,238"/>
+</map>

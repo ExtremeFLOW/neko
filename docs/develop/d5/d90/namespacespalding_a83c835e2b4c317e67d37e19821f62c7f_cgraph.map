@@ -1,20 +1,19 @@
 <map id="spalding::spalding_compute" name="spalding::spalding_compute">
-<area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,37,145,77"/>
-<area shape="rect" id="Node000002" href="$da/d2d/namespacespalding__cpu.html#a0ab9ff0f00be5ccf819a8596cca90c31" title="Compute the wall shear stress on cpu using Spalding&#39;s model." alt="" coords="203,5,374,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,44,189,38,190,43,146,49"/>
-<area shape="rect" id="Node000004" href="$d2/d9a/namespacespalding__device.html#ab6035171a362c40d09520a03a70bbbcd" title="Compute the wall shear stress on device using Spalding&#39;s model." alt="" coords="193,69,384,109"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="146,65,181,70,180,76,145,70"/>
-<area shape="rect" id="Node000003" href="$da/d2d/namespacespalding__cpu.html#a7ad0d1c56c5c9ea6633c4b5724472dca" title="Newton solver for the algebraic equation defined by the law on cpu." alt="" coords="437,13,617,38"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,23,424,23,424,28,375,28"/>
-<area shape="rect" id="Node000005" href="$d3/d8b/spalding_8cu.html#ad5a0601953b93f1083465b95b3d2548d" title=" " alt="" coords="671,70,849,95"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="384,85,657,81,657,87,384,91"/>
-<area shape="rect" id="Node000007" href="$d7/d10/spalding_8c.html#a36f5c96792145aeb130f9f3fa275411b" title=" " alt="" coords="432,121,623,146"/>
-<area shape="poly" id="edge7_Node000004_Node000007" title=" " alt="" coords="385,104,445,116,444,121,384,110"/>
-<area shape="rect" id="Node000006" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="897,113,1049,153"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="815,93,885,110,883,115,814,98"/>
-<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="933,114,931,104,937,94,952,89,973,87,998,90,1012,97,1009,102,997,95,973,92,953,94,941,99,936,105,938,112"/>
-<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="623,131,883,131,883,136,623,136"/>
-<area shape="rect" id="Node000008" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="694,171,826,197"/>
-<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="587,144,689,166,687,171,586,149"/>
-<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="814,169,883,152,885,157,815,174"/>
+<area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,40,145,85"/>
+<area shape="rect" id="Node000002" href="$da/d2d/namespacespalding__cpu.html#a0ab9ff0f00be5ccf819a8596cca90c31" title="Compute the wall shear stress on cpu using Spalding&#39;s model." alt="" coords="203,5,372,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="144,48,190,43,185,45,146,54"/>
+<area shape="rect" id="Node000004" href="$d2/d9a/namespacespalding__device.html#ab6035171a362c40d09520a03a70bbbcd" title="Compute the wall shear stress on device using Spalding&#39;s model." alt="" coords="193,75,382,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="145,71,180,78,175,80,145,76"/>
+<area shape="rect" id="Node000003" href="$da/d2d/namespacespalding__cpu.html#a7ad0d1c56c5c9ea6633c4b5724472dca" title="Newton solver for the algebraic equation defined by the law on cpu." alt="" coords="436,14,615,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="372,25,422,27,417,28,373,30"/>
+<area shape="rect" id="Node000005" href="$d3/d8b/spalding_8cu.html#ad5a0601953b93f1083465b95b3d2548d" title=" " alt="" coords="436,74,614,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="382,91,423,91,418,92,383,96"/>
+<area shape="rect" id="Node000008" href="$d7/d10/spalding_8c.html#a36f5c96792145aeb130f9f3fa275411b" title=" " alt="" coords="430,126,620,154"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="383,111,432,123,426,122,382,117"/>
+<area shape="rect" id="Node000006" href="$d1/dca/cuda_2spalding__kernel_8h.html#a42a82a9710ab6a8dd4bae5b314ff672c" title=" " alt="" coords="668,74,809,102"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="614,85,656,88,650,88,615,90"/>
+<area shape="rect" id="Node000007" href="$d1/dca/cuda_2spalding__kernel_8h.html#a54a3eb1a5c6e2b00e208c5c32948b133" title=" " alt="" coords="857,74,913,102"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="809,85,843,88,838,88,809,90"/>
+<area shape="rect" id="Node000009" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="673,126,804,154"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="621,137,660,140,655,140,621,142"/>
 </map>

@@ -1,0 +1,13 @@
+<map id="wall_model_compute_mag_field" name="wall_model_compute_mag_field">
+<area shape="rect" id="Node000001" title=" " alt="" coords="746,100,907,144"/>
+<area shape="rect" id="Node000002" href="$d3/d8d/wall__model_8cu.html#a91ad59712f180d93a09e493a3e60d637" title=" " alt="" coords="500,65,698,110"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="728,107,699,105,699,100,734,108"/>
+<area shape="rect" id="Node000006" href="$de/dac/wall__model_8hip.html#a995a86e3533e18745622645986bf7459" title=" " alt="" coords="506,134,693,179"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="734,136,693,145,693,140,728,137"/>
+<area shape="rect" id="Node000003" href="$db/d0e/namespacewall__model__device.html#afa43959f0a01c6ded4a8ff52afac29f2" title="Compute the wall shear stress&#39;s magnitude on device." alt="" coords="256,56,452,118"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="482,88,453,90,452,85,487,87"/>
+<area shape="rect" id="Node000004" href="$d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html#aab4cc413854818e5fbb11a3a1f0b0ae5" title=" " alt="" coords="5,5,208,84"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="238,68,208,65,208,59,243,67"/>
+<area shape="rect" id="Node000005" href="$da/ddd/namespacewall__model.html#ad6397879860434184e35416478a6fd17" title=" " alt="" coords="17,108,196,152"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="237,108,197,117,196,112,243,106"/>
+</map>

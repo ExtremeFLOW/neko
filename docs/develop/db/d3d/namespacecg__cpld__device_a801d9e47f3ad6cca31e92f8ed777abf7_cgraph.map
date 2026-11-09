@@ -1,5 +1,5 @@
 <map id="cg_cpld_device::cg_cpld_device_free" name="cg_cpld_device::cg_cpld_device_free">
-<area shape="rect" id="Node000001" title="Deallocate a device based PCG solver." alt="" coords="5,5,149,45"/>
-<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="197,5,357,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,23,184,23,184,28,149,28"/>
+<area shape="rect" id="Node000001" title="Deallocate a device based PCG solver." alt="" coords="5,5,149,50"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="197,5,356,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,25,184,27,178,28,149,30"/>
 </map>

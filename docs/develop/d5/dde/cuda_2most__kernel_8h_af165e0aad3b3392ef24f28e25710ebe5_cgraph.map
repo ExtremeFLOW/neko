@@ -1,6 +1,11 @@
 <map id="f_dirichlet_convective" name="f_dirichlet_convective">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,171,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="219,29,371,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,47,205,47,205,52,171,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="256,30,254,20,260,11,274,5,295,3,319,6,332,13,329,18,317,11,295,8,275,10,263,15,259,21,261,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,170,60"/>
+<area shape="rect" id="Node000002" href="$d5/dde/cuda_2most__kernel_8h.html#ac984780938d14be15af643a9991b54b4" title=" " alt="" coords="220,5,364,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,33,207,30,202,31,170,38"/>
+<area shape="rect" id="Node000004" href="$d5/dde/cuda_2most__kernel_8h.html#a35e07fac4c416059455fea6e45072749" title=" " alt="" coords="218,57,367,85"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="170,53,205,60,199,60,170,59"/>
+<area shape="rect" id="Node000003" href="$d5/dde/cuda_2most__kernel_8h.html#a6f28833582a3d21258dd7eecc1281c37" title=" " alt="" coords="418,5,557,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,17,405,19,399,19,365,22"/>
+<area shape="rect" id="Node000005" href="$d5/dde/cuda_2most__kernel_8h.html#a9b611d0c7edef79f6d789b66a31e4def" title=" " alt="" coords="415,57,559,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="367,69,402,71,397,71,367,74"/>
 </map>

@@ -1,6 +1,5 @@
 <map id="pnpn_prs_res_part3_hip" name="pnpn_prs_res_part3_hip">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,181,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="229,29,381,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="182,47,215,47,215,52,182,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="266,30,263,20,270,10,284,5,305,3,330,6,343,13,341,18,328,11,305,8,285,10,273,15,269,21,271,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,181,33"/>
+<area shape="rect" id="Node000002" href="$db/d30/cuda_2prs__res__kernel_8h.html#ac406c19f0af153e7df13be2b48f00e6a" title=" " alt="" coords="229,5,385,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,17,216,19,211,19,181,22"/>
 </map>

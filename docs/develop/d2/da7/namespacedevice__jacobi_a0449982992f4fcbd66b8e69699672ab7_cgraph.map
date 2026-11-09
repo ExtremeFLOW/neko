@@ -1,5 +1,5 @@
 <map id="device_jacobi::device_jacobi_free" name="device_jacobi::device_jacobi_free">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,168,45"/>
-<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="216,5,376,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,23,202,23,202,28,168,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,167,50"/>
+<area shape="rect" id="Node000002" href="$d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141" title="Destroy a device event." alt="" coords="215,5,374,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,25,202,27,196,28,167,30"/>
 </map>

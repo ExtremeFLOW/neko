@@ -1,7 +1,7 @@
 var namespacepoint =
 [
-    [ "point_ptr", "d7/d33/structpoint_1_1point__ptr.html", "d7/d33/structpoint_1_1point__ptr" ],
     [ "point_t", "db/d6f/structpoint_1_1point__t.html", "db/d6f/structpoint_1_1point__t" ],
+    [ "point_ptr", "d7/d33/structpoint_1_1point__ptr.html", "d7/d33/structpoint_1_1point__ptr" ],
     [ "point_add", "d8/dbc/namespacepoint.html#adf10ffea141065b2c9c075b689e5fc2e", null ],
     [ "point_assign", "d8/dbc/namespacepoint.html#a928f67359c8af4dc8d535b92ff03c1c2", null ],
     [ "point_eq", "d8/dbc/namespacepoint.html#a42208f69a12ef243812a7f784ebcd2f3", null ],

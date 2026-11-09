@@ -1,18 +1,13 @@
 <map id="legendre_rst_finder::find_rst_legendre_device" name="legendre_rst_finder::find_rst_legendre_device">
-<area shape="rect" id="Node000001" title="Using the Legendre polynomials to find the rst coordinates on GPU." alt="" coords="5,48,152,103"/>
-<area shape="rect" id="Node000002" href="$d2/d4a/namespacedevice__local__interpolation.html#aa67d59c6c6cc83f90345c633abf9a450" title=" " alt="" coords="200,23,393,63"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,62,186,57,187,62,153,67"/>
-<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#a95cc8e9b0db9b0662baa3d33529f1767" title="Compute multiplication sum ." alt="" coords="218,87,375,127"/>
-<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="153,83,204,91,204,96,152,89"/>
-<area shape="rect" id="Node000003" href="$db/d3f/local__interpolation_8cu.html#ae1c28445a73e6d30f63ea56a4128a06e" title=" " alt="" coords="673,5,845,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="394,35,659,21,659,26,394,41"/>
-<area shape="rect" id="Node000005" href="$d8/df1/local__interpolation_8c.html#a2245bb5ac2416b3536fe9294816cd4d6" title=" " alt="" coords="441,56,625,81"/>
-<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="394,51,428,55,428,60,393,56"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="893,49,1045,89"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="814,28,880,45,879,50,812,33"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="930,49,928,39,934,30,948,24,969,22,994,25,1007,32,1004,37,992,30,969,27,949,29,937,34,933,40,935,48"/>
-<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="626,66,880,66,880,71,626,71"/>
-<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="693,107,825,132"/>
-<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="592,79,690,101,688,106,590,84"/>
-<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="812,104,879,88,880,93,814,109"/>
+<area shape="rect" id="Node000001" title="Using the Legendre polynomials to find the rst coordinates on GPU." alt="" coords="5,48,152,110"/>
+<area shape="rect" id="Node000002" href="$d2/d4a/namespacedevice__local__interpolation.html#aa67d59c6c6cc83f90345c633abf9a450" title=" " alt="" coords="200,22,392,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,65,187,61,182,63,153,70"/>
+<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#a95cc8e9b0db9b0662baa3d33529f1767" title="Compute multiplication sum ." alt="" coords="218,92,374,136"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="152,88,205,99,200,99,152,93"/>
+<area shape="rect" id="Node000003" href="$db/d3f/local__interpolation_8cu.html#ae1c28445a73e6d30f63ea56a4128a06e" title=" " alt="" coords="446,5,617,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="392,32,433,30,428,31,393,37"/>
+<area shape="rect" id="Node000004" href="$d8/df1/local__interpolation_8c.html#a2245bb5ac2416b3536fe9294816cd4d6" title=" " alt="" coords="440,57,623,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="392,53,427,59,422,59,392,58"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="671,57,803,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="624,69,659,71,653,71,624,74"/>
 </map>

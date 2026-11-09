@@ -1,15 +1,15 @@
 <map id="wall_model::wall_model_t" name="wall_model::wall_model_t">
-<area shape="rect" id="Node000001" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="5,149,197,174"/>
-<area shape="rect" id="Node000002" href="$d9/d4a/structcai__sagaut__model__ii_1_1cai__sagaut__model__ii__t.html" title="Explicit wall model based on Model&#45;II from Cai and Sagaut (2021)." alt="" coords="249,5,424,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,138,178,97,244,55,270,43,273,48,247,60,181,101,129,142"/>
-<area shape="rect" id="Node000003" href="$de/d0b/structmost_1_1most__t.html" title="Wall model based on the Monin&#45;Obukhov Similarity Theory for atmospheric boundary layer flows...." alt="" coords="283,70,391,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="145,141,244,104,283,93,284,98,246,109,146,146"/>
-<area shape="rect" id="Node000004" href="$dd/df1/structrichardson_1_1richardson__t.html" title="Wall model similar to the Monin&#45;Obukhov Similarity Theory for atmospheric boundary layer flows,..." alt="" coords="247,119,426,145"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="211,145,247,140,247,146,211,150"/>
-<area shape="rect" id="Node000005" href="$df/d21/structrough__log__law_1_1rough__log__law__t.html" title="Wall model based on the log&#45;law for a rough wall. The formula defining the law is ...." alt="" coords="257,169,417,209"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="211,172,257,177,256,183,211,177"/>
-<area shape="rect" id="Node000006" href="$df/df1/structspalding_1_1spalding__t.html" title="Wall model based on Spalding&#39;s law of the wall. Reference: http://dx.doi.org/10.1115/1...." alt="" coords="261,234,413,259"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="143,177,246,219,287,231,285,236,244,224,141,182"/>
-<area shape="rect" id="Node000007" href="$de/d77/structwall__model__template_1_1wall__model__template__t.html" title=" " alt="" coords="245,284,428,324"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="128,181,181,224,247,268,275,282,273,286,244,273,177,229,125,185"/>
+<area shape="rect" id="Node000001" title="Base abstract type for wall&#45;stress models for wall&#45;modelled LES." alt="" coords="5,156,197,184"/>
+<area shape="rect" id="Node000002" href="$d9/d4a/structcai__sagaut__model__ii_1_1cai__sagaut__model__ii__t.html" title="Explicit wall model based on Model&#45;II from Cai and Sagaut (2021)." alt="" coords="249,5,423,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,144,180,102,243,60,271,49,267,52,246,65,183,107,131,148"/>
+<area shape="rect" id="Node000003" href="$de/d0b/structmost_1_1most__t.html" title="Wall model based on the Monin&#45;Obukhov Similarity Theory for atmospheric boundary layer flows...." alt="" coords="282,74,390,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="149,148,244,112,285,101,281,104,246,117,152,153"/>
+<area shape="rect" id="Node000004" href="$dd/df1/structrichardson_1_1richardson__t.html" title="Wall model similar to the Monin&#45;Obukhov Similarity Theory for atmospheric boundary layer flows,..." alt="" coords="247,126,424,154"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="211,153,249,150,244,152,213,158"/>
+<area shape="rect" id="Node000005" href="$df/d21/structrough__log__law_1_1rough__log__law__t.html" title="Wall model based on the log&#45;law for a rough wall. The formula defining the law is ...." alt="" coords="256,177,416,222"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="212,182,258,189,253,191,213,187"/>
+<area shape="rect" id="Node000006" href="$df/df1/structspalding_1_1spalding__t.html" title="Wall model based on Spalding&#39;s law of the wall. Reference: http://dx.doi.org/10.1115/1...." alt="" coords="260,246,412,274"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="145,189,246,232,281,245,276,246,244,237,144,194"/>
+<area shape="rect" id="Node000007" href="$de/d77/structwall__model__template_1_1wall__model__template__t.html" title=" " alt="" coords="245,297,427,342"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="128,192,181,238,246,283,271,297,265,297,243,287,178,242,127,198"/>
 </map>

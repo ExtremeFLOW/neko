@@ -1,6 +1,7 @@
 <map id="hip_lpt_periodic_bc_wrap_rotational" name="hip_lpt_periodic_bc_wrap_rotational">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,152,69"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="200,29,352,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,47,186,47,186,52,152,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="239,30,237,20,242,11,256,5,276,3,299,6,312,13,309,18,298,11,276,8,257,10,246,15,242,21,244,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,152,50"/>
+<area shape="rect" id="Node000002" href="$dd/d25/cuda_2lpt__periodic__bc__kernel_8h.html#ab14b0498019b4e7b4f3729365c5c1815" title=" " alt="" coords="200,5,358,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,25,186,27,181,28,152,30"/>
+<area shape="rect" id="Node000003" href="$dd/d25/cuda_2lpt__periodic__bc__kernel_8h.html#a1f7f8e5308ae59beea632cc3098599b1" title=" " alt="" coords="406,14,513,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="358,25,393,28,387,28,358,30"/>
 </map>

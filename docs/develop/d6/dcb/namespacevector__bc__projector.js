@@ -1,14 +1,14 @@
 var namespacevector__bc__projector =
 [
-    [ "coupled_vector_bc_projector_t", "db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html", "db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t" ],
+    [ "vector_bc_projector_t", "d9/d93/structvector__bc__projector_1_1vector__bc__projector__t.html", "d9/d93/structvector__bc__projector_1_1vector__bc__projector__t" ],
     [ "segregated_vector_bc_projector_t", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t.html", "d0/d38/structvector__bc__projector_1_1segregated__vector__bc__projector__t" ],
-    [ "vector_bc_projector_apply_intrf", "dc/d8b/interfacevector__bc__projector_1_1vector__bc__projector__apply__intrf.html", "dc/d8b/interfacevector__bc__projector_1_1vector__bc__projector__apply__intrf" ],
-    [ "vector_bc_projector_finalize_intrf", "d0/d99/interfacevector__bc__projector_1_1vector__bc__projector__finalize__intrf.html", "d0/d99/interfacevector__bc__projector_1_1vector__bc__projector__finalize__intrf" ],
+    [ "coupled_vector_bc_projector_t", "db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html", "db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t" ],
     [ "vector_bc_projector_free_intrf", "d0/db8/interfacevector__bc__projector_1_1vector__bc__projector__free__intrf.html", "d0/db8/interfacevector__bc__projector_1_1vector__bc__projector__free__intrf" ],
     [ "vector_bc_projector_init_intrf", "d4/d6d/interfacevector__bc__projector_1_1vector__bc__projector__init__intrf.html", "d4/d6d/interfacevector__bc__projector_1_1vector__bc__projector__init__intrf" ],
+    [ "vector_bc_projector_finalize_intrf", "d0/d99/interfacevector__bc__projector_1_1vector__bc__projector__finalize__intrf.html", "d0/d99/interfacevector__bc__projector_1_1vector__bc__projector__finalize__intrf" ],
+    [ "vector_bc_projector_apply_intrf", "dc/d8b/interfacevector__bc__projector_1_1vector__bc__projector__apply__intrf.html", "dc/d8b/interfacevector__bc__projector_1_1vector__bc__projector__apply__intrf" ],
     [ "vector_bc_projector_mark_bc_intrf", "d5/d8b/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__intrf.html", "d5/d8b/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__intrf" ],
     [ "vector_bc_projector_mark_bc_list_intrf", "da/d16/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__list__intrf.html", "da/d16/interfacevector__bc__projector_1_1vector__bc__projector__mark__bc__list__intrf" ],
-    [ "vector_bc_projector_t", "d9/d93/structvector__bc__projector_1_1vector__bc__projector__t.html", "d9/d93/structvector__bc__projector_1_1vector__bc__projector__t" ],
     [ "coupled_vector_bc_projector_apply", "d6/dcb/namespacevector__bc__projector.html#a5453e00a463042510055e4ff55f114ae", null ],
     [ "coupled_vector_bc_projector_clear_basis", "d6/dcb/namespacevector__bc__projector.html#a9b2f5725c5cea5f2b87f3b640716d891", null ],
     [ "coupled_vector_bc_projector_clear_masks", "d6/dcb/namespacevector__bc__projector.html#a2ef44aacb6afe1535283ec3cfa0fa74a", null ],

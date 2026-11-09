@@ -1,6 +1,5 @@
 <map id="hip_cdiv" name="hip_cdiv">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,81,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="129,29,281,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,47,115,47,115,52,82,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="175,29,173,20,178,11,189,5,205,3,224,6,235,13,232,17,222,11,205,8,190,10,181,14,178,21,180,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,81,33"/>
+<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html#a1e0387687417d4310377bb1ead7794ec" title=" " alt="" coords="129,5,224,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,17,116,19,110,20,81,22"/>
 </map>

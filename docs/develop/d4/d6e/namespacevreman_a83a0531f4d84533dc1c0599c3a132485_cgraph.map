@@ -1,35 +1,32 @@
 <map id="vreman::vreman_compute" name="vreman::vreman_compute">
-<area shape="rect" id="Node000001" title="Compute eddy viscosity." alt="" coords="5,115,200,140"/>
-<area shape="rect" id="Node000002" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="258,47,418,87"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="153,112,245,88,246,93,154,117"/>
-<area shape="rect" id="Node000005" href="$dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37" title="Compute eddy viscosity on the device." alt="" coords="248,139,428,179"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="197,137,235,143,234,148,196,143"/>
-<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="557,55,648,80"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="418,65,544,65,544,70,418,70"/>
-<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a155d47fa505e5ff12ff46fd4a8003875" title="Compute multiplication sum ." alt="" coords="553,5,652,31"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="418,50,539,27,540,32,419,55"/>
-<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="507,233,698,259"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="379,177,425,198,477,218,512,228,510,233,475,223,423,203,377,182"/>
-<area shape="rect" id="Node000007" href="$db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="495,105,710,145"/>
-<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="428,145,481,138,482,143,428,150"/>
-<area shape="rect" id="Node000012" href="$db/d3c/namespacedevice__vreman__nut.html#acb6233012f81d00a8afa12fd5e6d58f9" title=" " alt="" coords="476,169,729,209"/>
-<area shape="poly" id="edge14_Node000005_Node000012" title=" " alt="" coords="428,167,463,170,462,176,428,172"/>
-<area shape="rect" id="Node000008" href="$d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48" title=" " alt="" coords="1098,52,1301,77"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="710,105,777,97,1084,69,1085,75,778,102,711,111"/>
-<area shape="rect" id="Node000010" href="$d8/da1/vreman__nut_8c.html#a43f4f3bbf402316fc2377beaac8e8bc5" title=" " alt="" coords="797,112,1011,137"/>
-<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="710,122,783,122,783,127,710,127"/>
-<area shape="rect" id="Node000009" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1368,146,1520,186"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1261,75,1321,94,1363,114,1402,136,1399,141,1361,119,1319,99,1259,80"/>
-<area shape="poly" id="edge9_Node000009_Node000009" title=" " alt="" coords="1399,146,1396,136,1403,127,1419,121,1444,119,1472,122,1488,129,1485,134,1471,127,1444,125,1421,127,1406,131,1401,137,1404,145"/>
-<area shape="poly" id="edge11_Node000010_Node000009" title=" " alt="" coords="1011,121,1158,125,1320,138,1355,143,1354,149,1320,143,1158,130,1011,127"/>
-<area shape="rect" id="Node000011" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1133,153,1265,179"/>
-<area shape="poly" id="edge12_Node000010_Node000011" title=" " alt="" coords="996,135,1120,152,1119,158,995,140"/>
-<area shape="poly" id="edge13_Node000011_Node000009" title=" " alt="" coords="1266,163,1354,163,1354,169,1266,169"/>
-<area shape="rect" id="Node000013" href="$d7/dff/vreman__nut_8cu.html#ae7c1e3020468ff890690b760e9bbdf62" title=" " alt="" coords="1079,255,1320,280"/>
-<area shape="poly" id="edge15_Node000012_Node000013" title=" " alt="" coords="730,205,778,211,1080,250,1080,256,777,217,729,210"/>
-<area shape="rect" id="Node000014" href="$d8/da1/vreman__nut_8c.html#ac6ad8e6f5bfa3e4a82ebd15c3aa7ca47" title=" " alt="" coords="777,176,1031,201"/>
-<area shape="poly" id="edge17_Node000012_Node000014" title=" " alt="" coords="729,186,764,186,764,191,729,191"/>
-<area shape="poly" id="edge16_Node000013_Node000009" title=" " alt="" coords="1259,252,1319,233,1361,213,1399,191,1402,196,1363,218,1321,238,1261,257"/>
-<area shape="poly" id="edge18_Node000014_Node000009" title=" " alt="" coords="1031,194,1170,196,1320,189,1354,184,1355,189,1320,194,1170,202,1031,199"/>
-<area shape="poly" id="edge19_Node000014_Node000011" title=" " alt="" coords="1031,176,1119,169,1120,175,1031,182"/>
+<area shape="rect" id="Node000001" title="Compute eddy viscosity." alt="" coords="5,113,199,141"/>
+<area shape="rect" id="Node000002" href="$d9/da0/namespacevreman__cpu.html#aa03fd0abec8a671168f801c2c28552e7" title="Compute eddy viscosity on the CPU." alt="" coords="257,49,416,94"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,110,244,92,240,95,164,115"/>
+<area shape="rect" id="Node000005" href="$dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37" title="Compute eddy viscosity on the device." alt="" coords="247,140,426,184"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="199,139,234,145,229,147,200,144"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="555,5,645,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,53,542,30,537,32,417,58"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a155d47fa505e5ff12ff46fd4a8003875" title="Compute multiplication sum ." alt="" coords="552,57,649,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="416,69,538,70,533,72,417,74"/>
+<area shape="rect" id="Node000006" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="505,109,695,137"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="426,146,492,139,487,140,427,151"/>
+<area shape="rect" id="Node000007" href="$db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="494,161,707,206"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="426,166,481,173,475,174,427,172"/>
+<area shape="rect" id="Node000012" href="$db/d3c/namespacedevice__vreman__nut.html#acb6233012f81d00a8afa12fd5e6d58f9" title=" " alt="" coords="474,230,726,275"/>
+<area shape="poly" id="edge11_Node000005_Node000012" title=" " alt="" coords="389,182,475,215,500,225,494,225,473,220,389,187"/>
+<area shape="rect" id="Node000008" href="$d7/dff/vreman__nut_8cu.html#a122418b267f58b58a53de723ad8e1f48" title=" " alt="" coords="800,125,1001,153"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="707,165,789,155,784,156,708,170"/>
+<area shape="rect" id="Node000010" href="$d8/da1/vreman__nut_8c.html#a43f4f3bbf402316fc2377beaac8e8bc5" title=" " alt="" coords="794,177,1007,205"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="707,183,781,188,775,188,707,189"/>
+<area shape="rect" id="Node000009" href="$d3/d00/cuda_2vreman__nut__kernel_8h.html#a15dd53900eaf0926d219760be54527e8" title=" " alt="" coords="1094,125,1258,153"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="1002,137,1081,139,1076,139,1002,142"/>
+<area shape="rect" id="Node000011" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1110,203,1242,230"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="1008,198,1097,209,1092,209,1008,204"/>
+<area shape="rect" id="Node000013" href="$d7/dff/vreman__nut_8cu.html#ae7c1e3020468ff890690b760e9bbdf62" title=" " alt="" coords="780,281,1021,309"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="727,268,786,279,781,279,727,273"/>
+<area shape="rect" id="Node000015" href="$d8/da1/vreman__nut_8c.html#ac6ad8e6f5bfa3e4a82ebd15c3aa7ca47" title=" " alt="" coords="774,229,1027,257"/>
+<area shape="poly" id="edge14_Node000012_Node000015" title=" " alt="" coords="727,246,762,247,756,248,727,251"/>
+<area shape="rect" id="Node000014" href="$d3/d00/cuda_2vreman__nut__kernel_8h.html#a5c122bd41a54b2a6cf5b2bf2c52d24b6" title=" " alt="" coords="1075,281,1277,309"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="1021,293,1062,295,1056,295,1021,298"/>
+<area shape="poly" id="edge15_Node000015_Node000011" title=" " alt="" coords="1027,228,1092,225,1097,224,1027,234"/>
 </map>

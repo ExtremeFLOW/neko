@@ -1,7 +1,7 @@
 var namespacevector =
 [
-    [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
     [ "vector_t", "d3/d5b/structvector_1_1vector__t.html", "d3/d5b/structvector_1_1vector__t" ],
+    [ "vector_ptr_t", "d5/d0b/structvector_1_1vector__ptr__t.html", "d5/d0b/structvector_1_1vector__ptr__t" ],
     [ "vector_allocate", "d7/d34/namespacevector.html#a85184caa495bc1504afd3359df307548", null ],
     [ "vector_assign_array", "d7/d34/namespacevector.html#ad7a0eb4d39026ff50a8f2ed6f8e4a12a", null ],
     [ "vector_assign_scalar", "d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d", null ],

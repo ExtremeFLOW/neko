@@ -1,0 +1,5 @@
+<map id="pyneko.intf.case_fluid_dofmap" name="pyneko.intf.case_fluid_dofmap">
+<area shape="rect" id="Node000001" title=" " alt="" coords="251,5,413,50"/>
+<area shape="rect" id="Node000002" href="$de/dc2/namespacepyneko_1_1intf.html#a21d990c9ded5ed787eba6c5e2bb5c9f6" title=" " alt="" coords="5,14,203,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,28,203,30,203,25,238,27"/>
+</map>

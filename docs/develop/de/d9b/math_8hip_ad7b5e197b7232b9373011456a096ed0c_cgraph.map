@@ -1,6 +1,5 @@
 <map id="hip_sub3" name="hip_sub3">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,85,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="133,29,285,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,47,120,47,120,52,86,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="178,29,176,20,181,11,192,5,209,3,229,6,239,13,236,17,227,11,209,8,194,10,185,14,182,21,183,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,85,33"/>
+<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html#aac433119d38ee2b1e1f498b8d3730438" title=" " alt="" coords="133,5,232,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,17,120,19,114,20,85,22"/>
 </map>

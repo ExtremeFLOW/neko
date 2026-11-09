@@ -1,7 +1,7 @@
 var namespacephmg =
 [
-    [ "phmg_hrchy_t", "da/dde/structphmg_1_1phmg__hrchy__t.html", "da/dde/structphmg_1_1phmg__hrchy__t" ],
     [ "phmg_lvl_t", "d5/dec/structphmg_1_1phmg__lvl__t.html", "d5/dec/structphmg_1_1phmg__lvl__t" ],
+    [ "phmg_hrchy_t", "da/dde/structphmg_1_1phmg__hrchy__t.html", "da/dde/structphmg_1_1phmg__hrchy__t" ],
     [ "phmg_t", "d8/d4e/structphmg_1_1phmg__t.html", "d8/d4e/structphmg_1_1phmg__t" ],
     [ "phmg_free", "d1/d38/namespacephmg.html#a653cec208d7427a4e8ab49ed998d7fe2", null ],
     [ "phmg_init", "d1/d38/namespacephmg.html#ab56f564d7813e3289674f90fd5d109d7", null ],

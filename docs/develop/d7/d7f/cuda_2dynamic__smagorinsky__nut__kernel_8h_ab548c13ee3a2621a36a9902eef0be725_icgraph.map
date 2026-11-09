@@ -1,0 +1,15 @@
+<map id="mij_nut_compute_part2" name="mij_nut_compute_part2">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1108,100,1283,127"/>
+<area shape="rect" id="Node000002" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ad0df6bec2e5ce933b33c390d005f33c4" title=" " alt="" coords="887,56,1060,101"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1090,97,1060,95,1060,90,1095,98"/>
+<area shape="rect" id="Node000007" href="$d3/d45/dynamic__smagorinsky__nut_8hip.html#a70984678d41f4efcb17f70fb66cec6e0" title=" " alt="" coords="893,126,1054,170"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1095,129,1055,138,1055,133,1090,130"/>
+<area shape="rect" id="Node000003" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba" title="part 1 of the computing of the mij field" alt="" coords="578,56,839,101"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="869,79,840,81,839,76,874,79"/>
+<area shape="rect" id="Node000004" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aeb6ad20071c91bb06dedc412094bb61e" title="Compute M_ij and nut on the device." alt="" coords="321,5,488,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="560,59,489,51,489,45,565,58"/>
+<area shape="rect" id="Node000006" href="$d5/d58/interfacedevice__dynamic__smagorinsky__nut_1_1hip__mij__nut__compute__part2.html#adaaa41cd7e60e2552367285f1b7757f5" title=" " alt="" coords="279,91,530,152"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="565,99,531,106,530,101,560,100"/>
+<area shape="rect" id="Node000005" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aad7c438416e36302a7eefa1042cd2529" title="Compute eddy viscosity on the device." alt="" coords="5,5,231,67"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="302,37,232,39,231,34,307,35"/>
+</map>

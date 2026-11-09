@@ -1,0 +1,20 @@
+<map id="/home/runner/work/neko/neko/src/math/bcknd/device/hip/ax_helm_full.hip" name="/home/runner/work/neko/neko/src/math/bcknd/device/hip/ax_helm_full.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="254,5,462,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,115,76,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="253,70,92,116,90,111,254,64"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="99,115,168,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="281,69,182,111,179,106,285,66"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="193,115,258,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="316,66,259,108,256,104,312,69"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="380,191,515,218"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="337,66,321,105,320,124,325,141,348,165,379,185,373,184,345,169,321,144,314,124,316,104,333,69"/>
+<area shape="rect" id="Node000006" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="334,115,504,143"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="379,65,404,103,399,101,377,70"/>
+<area shape="rect" id="Node000007" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="528,115,670,143"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="439,65,553,109,547,109,438,70"/>
+<area shape="rect" id="Node000008" href="$df/d1b/hip_2ax__helm__full__kernel_8h.html" title=" " alt="" coords="694,115,859,143"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="462,57,704,111,699,112,462,63"/>
+<area shape="rect" id="Node000009" href="$d4/d8d/neko__log_8h.html" title=" " alt="" coords="883,115,1035,143"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="462,50,870,112,865,115,462,56"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="575,143,488,186,487,181,569,144"/>
+</map>

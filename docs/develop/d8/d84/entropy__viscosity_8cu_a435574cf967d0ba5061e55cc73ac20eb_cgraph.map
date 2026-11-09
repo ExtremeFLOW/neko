@@ -1,6 +1,7 @@
 <map id="cuda_entropy_visc_apply_element_max" name="cuda_entropy_visc_apply_element_max">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,192,69"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="240,29,392,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,47,226,47,226,52,192,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="275,30,273,20,280,10,294,5,316,3,341,6,355,13,353,18,340,11,316,8,295,10,283,15,278,21,281,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,191,50"/>
+<area shape="rect" id="Node000002" href="$d1/d7a/cuda_2entropy__viscosity__kernel_8h.html#a9fc3da9f6e24d7e12688365e9b0b0165" title=" " alt="" coords="239,5,404,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="191,25,225,27,220,28,191,30"/>
+<area shape="rect" id="Node000003" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="452,14,566,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="404,25,439,28,434,28,404,30"/>
 </map>

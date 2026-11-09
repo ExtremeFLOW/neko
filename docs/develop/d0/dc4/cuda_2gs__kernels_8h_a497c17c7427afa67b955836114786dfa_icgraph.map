@@ -1,0 +1,15 @@
+<map id="gs_unpack_add_vec_kernel" name="gs_unpack_add_vec_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="717,110,916,138"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789" title=" " alt="" coords="511,83,669,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="699,110,670,109,670,104,705,110"/>
+<area shape="rect" id="Node000007" href="$da/d57/gs_8hip.html#abfe62ab2fefa05d72189f70ebbc02f7c" title=" " alt="" coords="516,135,664,163"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="705,136,665,143,664,138,699,137"/>
+<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#ae3660cf75165daf9fcf3ddb97affefc7" title="Reduce n delivered positions into the component&#45;outer shared vector." alt="" coords="295,5,440,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="526,78,440,53,441,48,531,78"/>
+<area shape="rect" id="Node000005" href="$d9/dfa/namespacegs__device__mpi.html#a5ff8b80324d32c136ca9c472c80ba066" title="Wait for a fused nc&#45;component exchange and unpack/reduce into u." alt="" coords="272,75,463,119"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="493,97,464,100,463,94,498,97"/>
+<area shape="rect" id="Node000006" href="$de/dcf/namespacegs__device__nccl.html#ad2efc97538f12f659e7d4b532c2a0a22" title="Fused nc&#45;component send/recv + unpack." alt="" coords="275,144,460,189"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="531,115,442,146,441,141,526,116"/>
+<area shape="rect" id="Node000004" href="$da/dd9/namespacegs__device__crystal.html#a352f746d8e1e1eecaeedcbb956e32cc8" title="Drive the remaining routing stages and reduce what is delivered into the shared vector,..." alt="" coords="5,5,224,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="277,29,225,30,223,25,281,27"/>
+</map>

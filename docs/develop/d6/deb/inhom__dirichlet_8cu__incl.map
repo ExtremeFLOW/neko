@@ -1,0 +1,9 @@
+<map id="/home/runner/work/neko/neko/src/bc/bcknd/device/cuda/inhom_dirichlet.cu" name="/home/runner/work/neko/neko/src/bc/bcknd/device/cuda/inhom_dirichlet.cu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="202,5,390,67"/>
+<area shape="rect" id="Node000002" href="$d1/d54/cuda_2inhom__dirichlet__kernel_8h.html" title=" " alt="" coords="5,115,187,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="232,67,140,111,138,106,227,68"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="211,115,381,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="298,66,298,101,294,98,294,69"/>
+<area shape="rect" id="Node000004" href="$d5/d08/cuda_2check_8h.html" title=" " alt="" coords="405,115,558,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="358,65,443,108,438,108,357,70"/>
+</map>

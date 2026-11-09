@@ -1,0 +1,13 @@
+<map id="cai_sagaut_model_ii_compute" name="cai_sagaut_model_ii_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="750,96,905,141"/>
+<area shape="rect" id="Node000002" href="$d8/d79/cai__sagaut__model__ii_8cu.html#a788c4023e385cbc187c2d6fd6e9db325" title=" " alt="" coords="525,62,702,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="732,104,703,101,703,96,738,104"/>
+<area shape="rect" id="Node000006" href="$d9/d4b/cai__sagaut__model__ii_8hip.html#a9959734ce92124b7b4479f8c2befdad5" title=" " alt="" coords="530,131,697,176"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="737,134,697,143,697,137,732,134"/>
+<area shape="rect" id="Node000003" href="$df/d3e/namespacecai__sagaut__model__ii__device.html#aad4578bff6aa64af51076713c74a9bb5" title="Evaluate the device wall&#45;model kernel for Model&#45;II." alt="" coords="279,53,477,115"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="507,84,478,87,477,82,512,84"/>
+<area shape="rect" id="Node000004" href="$d0/d21/namespacecai__sagaut__model__ii.html#a93d1df6deba4bdd4c31086f27a1d6f61" title="Evaluate wall shear stresses with the Cai&#45;Sagaut Model&#45;II closure." alt="" coords="37,5,199,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="261,64,200,54,200,48,266,62"/>
+<area shape="rect" id="Node000005" href="$da/d6a/interfacecai__sagaut__model__ii__device_1_1hip__cai__sagaut__model__ii__compute.html#a55a298b5a563cb40cb2eb5ef5270e30b" title=" " alt="" coords="5,92,231,170"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="261,105,231,113,230,108,266,104"/>
+</map>

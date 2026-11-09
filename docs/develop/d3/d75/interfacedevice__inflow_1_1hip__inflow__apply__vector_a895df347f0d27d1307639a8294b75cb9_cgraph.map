@@ -1,16 +1,13 @@
 <map id="device_inflow::hip_inflow_apply_vector::hip_inflow_apply_vector" name="device_inflow::hip_inflow_apply_vector::hip_inflow_apply_vector">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,20,192,75"/>
-<area shape="rect" id="Node000002" href="$d6/d78/namespacedevice__inflow.html#adf41eadb9c59e823c921d03824e546b9" title=" " alt="" coords="240,27,401,67"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,45,226,45,226,50,192,50"/>
-<area shape="rect" id="Node000003" href="$df/de5/inflow_8cu.html#ac491fd6063cbe1e48a09e3f7c4d2568d" title=" " alt="" coords="652,5,843,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="402,39,638,23,639,28,402,44"/>
-<area shape="rect" id="Node000005" href="$d0/dff/inflow_8c.html#afad0b4e2ee64e49e0f667e721bc4dcc8" title=" " alt="" coords="449,55,604,95"/>
-<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="402,56,436,60,435,66,401,61"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="891,49,1043,89"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="804,28,878,45,877,51,803,33"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="926,49,923,39,930,30,944,24,967,22,992,25,1006,32,1004,37,991,30,967,27,946,29,933,34,928,40,931,48"/>
-<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="604,72,877,67,877,73,604,77"/>
-<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="681,107,813,132"/>
-<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="605,88,670,101,669,107,604,93"/>
-<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="803,104,877,87,878,92,804,109"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,28,192,89"/>
+<area shape="rect" id="Node000002" href="$d6/d78/namespacedevice__inflow.html#adf41eadb9c59e823c921d03824e546b9" title=" " alt="" coords="240,36,400,81"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,56,227,58,222,59,192,61"/>
+<area shape="rect" id="Node000003" href="$df/de5/inflow_8cu.html#ac491fd6063cbe1e48a09e3f7c4d2568d" title=" " alt="" coords="448,14,637,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="400,45,435,42,430,43,401,50"/>
+<area shape="rect" id="Node000005" href="$d0/dff/inflow_8c.html#afad0b4e2ee64e49e0f667e721bc4dcc8" title=" " alt="" coords="466,65,619,110"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="401,66,453,76,448,76,401,72"/>
+<area shape="rect" id="Node000004" href="$d8/d66/cuda_2inflow__kernel_8h.html#a7867ff15e170718f169e421f37df417a" title=" " alt="" coords="685,5,837,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="638,25,672,27,667,28,638,30"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="695,74,827,102"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="619,85,683,88,677,88,619,90"/>
 </map>

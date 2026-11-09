@@ -1,7 +1,7 @@
 var namespacefield__subsampler =
 [
-    [ "compute_intrf", "db/d77/interfacefield__subsampler_1_1compute__intrf.html", "db/d77/interfacefield__subsampler_1_1compute__intrf" ],
     [ "field_subsampler_t", "df/df8/structfield__subsampler_1_1field__subsampler__t.html", "df/df8/structfield__subsampler_1_1field__subsampler__t" ],
+    [ "compute_intrf", "db/d77/interfacefield__subsampler_1_1compute__intrf.html", "db/d77/interfacefield__subsampler_1_1compute__intrf" ],
     [ "compute_wrapper", "d8/dae/namespacefield__subsampler.html#a840b304a56dc81ebd743c7195519af09", null ],
     [ "dummy_compute", "d8/dae/namespacefield__subsampler.html#a0ffbb0abd2ea84aa2ea06364cb62cdd8", null ],
     [ "field_subsampler_check", "d8/dae/namespacefield__subsampler.html#aeaeb9226266e30c7376977029c2036bf", null ],

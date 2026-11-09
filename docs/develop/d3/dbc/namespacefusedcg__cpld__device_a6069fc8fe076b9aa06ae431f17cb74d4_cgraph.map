@@ -1,8 +1,7 @@
 <map id="fusedcg_cpld_device::device_fusedcg_cpld_update_p" name="fusedcg_cpld_device::device_fusedcg_cpld_update_p">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,22,171,77"/>
-<area shape="rect" id="Node000002" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#aa8dc1aa6e62cf9d100bc6edc34d17ea4" title=" " alt="" coords="219,37,420,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,47,205,47,205,52,171,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="468,29,620,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="421,47,454,47,454,52,421,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="502,30,500,20,506,10,521,5,544,3,570,6,584,13,582,18,569,11,544,8,522,10,510,15,505,21,507,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,170,67"/>
+<area shape="rect" id="Node000002" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#aa8dc1aa6e62cf9d100bc6edc34d17ea4" title=" " alt="" coords="218,22,418,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,34,204,36,199,36,170,39"/>
+<area shape="rect" id="Node000003" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#a02b5640ce7bb494ee59bdf28eb9f2156" title=" " alt="" coords="466,14,624,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="418,34,453,36,448,36,418,39"/>
 </map>

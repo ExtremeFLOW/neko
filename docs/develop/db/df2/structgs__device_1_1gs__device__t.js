@@ -1,13 +1,13 @@
 var structgs__device_1_1gs__device__t =
 [
-    [ "free", "db/df2/structgs__device_1_1gs__device__t.html#a8bc52a6bf2fb18c16fba3a4acb75f12c", null ],
     [ "free", "db/df2/structgs__device_1_1gs__device__t.html#ab4aa15dd7d3f56d9d104819ff9a46b3d", null ],
-    [ "gather", "db/df2/structgs__device_1_1gs__device__t.html#a0f4a6fe52ed09e86d3056fd52faabcee", null ],
+    [ "free", "db/df2/structgs__device_1_1gs__device__t.html#a8bc52a6bf2fb18c16fba3a4acb75f12c", null ],
     [ "gather", "db/df2/structgs__device_1_1gs__device__t.html#a7eec880570906eae1a09de2ee0e04f09", null ],
-    [ "init", "db/df2/structgs__device_1_1gs__device__t.html#a61dcff32b3bafb80df9e80fa374ca10f", null ],
+    [ "gather", "db/df2/structgs__device_1_1gs__device__t.html#a0f4a6fe52ed09e86d3056fd52faabcee", null ],
     [ "init", "db/df2/structgs__device_1_1gs__device__t.html#acc5e9cf147ff64d856ee670d75713364", null ],
-    [ "scatter", "db/df2/structgs__device_1_1gs__device__t.html#a702c3dc9b47aa968a17b5cbbd10b5344", null ],
+    [ "init", "db/df2/structgs__device_1_1gs__device__t.html#a61dcff32b3bafb80df9e80fa374ca10f", null ],
     [ "scatter", "db/df2/structgs__device_1_1gs__device__t.html#abe2921d1088b440a7d072ac5c5626483", null ],
+    [ "scatter", "db/df2/structgs__device_1_1gs__device__t.html#a702c3dc9b47aa968a17b5cbbd10b5344", null ],
     [ "gather_event", "db/df2/structgs__device_1_1gs__device__t.html#a70a153fe874e0867f1042f6e68783304", null ],
     [ "gs_stream", "db/df2/structgs__device_1_1gs__device__t.html#a96464bcba094589dfbf7689bacf1ec44", null ],
     [ "local_blk_len_d", "db/df2/structgs__device_1_1gs__device__t.html#a2f93d6d4cada2ec854538ffacda026ee", null ],

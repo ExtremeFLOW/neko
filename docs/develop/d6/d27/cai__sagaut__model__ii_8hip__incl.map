@@ -1,0 +1,18 @@
+<map id="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/cai_sagaut_model_ii.hip" name="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/cai_sagaut_model_ii.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="95,5,305,84"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="51,225,186,252"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,73,51,97,31,114,16,133,8,154,15,175,36,199,64,217,59,219,33,203,11,178,3,154,11,131,27,110,48,93,96,68"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="26,140,195,168"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,83,133,130,129,126,166,87"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="219,140,362,168"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,82,272,128,267,128,232,87"/>
+<area shape="rect" id="Node000005" href="$db/d07/hip_2cai__sagaut__model__ii__kernel_8h.html" title=" " alt="" coords="385,132,540,177"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="295,82,398,125,393,126,294,87"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="266,169,161,220,159,215,260,169"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="339,225,397,252"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="440,176,396,217,393,212,435,178"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="420,225,505,252"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="464,175,465,211,460,207,461,179"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="529,225,591,252"/>
+<area shape="poly" id="edge8_Node000005_Node000008" title=" " alt="" coords="489,175,535,215,530,214,487,180"/>
+</map>

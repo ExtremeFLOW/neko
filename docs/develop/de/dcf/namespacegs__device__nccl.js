@@ -1,12 +1,12 @@
 var namespacegs__device__nccl =
 [
-    [ "device_nccl_sendrecv", "d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv.html", "d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv" ],
     [ "gs_device_nccl_buf_t", "d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t.html", "d5/dda/structgs__device__nccl_1_1gs__device__nccl__buf__t" ],
     [ "gs_device_nccl_t", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t.html", "db/ddf/structgs__device__nccl_1_1gs__device__nccl__t" ],
     [ "hip_gs_pack", "dd/d40/interfacegs__device__nccl_1_1hip__gs__pack.html", "dd/d40/interfacegs__device__nccl_1_1hip__gs__pack" ],
-    [ "hip_gs_pack_vec", "d1/dbe/interfacegs__device__nccl_1_1hip__gs__pack__vec.html", "d1/dbe/interfacegs__device__nccl_1_1hip__gs__pack__vec" ],
     [ "hip_gs_unpack", "d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack.html", "d4/d4d/interfacegs__device__nccl_1_1hip__gs__unpack" ],
+    [ "hip_gs_pack_vec", "d1/dbe/interfacegs__device__nccl_1_1hip__gs__pack__vec.html", "d1/dbe/interfacegs__device__nccl_1_1hip__gs__pack__vec" ],
     [ "hip_gs_unpack_vec", "db/d82/interfacegs__device__nccl_1_1hip__gs__unpack__vec.html", "db/d82/interfacegs__device__nccl_1_1hip__gs__unpack__vec" ],
+    [ "device_nccl_sendrecv", "d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv.html", "d2/d11/interfacegs__device__nccl_1_1device__nccl__sendrecv" ],
     [ "gs_device_nccl_buf_free", "de/dcf/namespacegs__device__nccl.html#aefc2ac685c287cff92cd6de2cde7bc0f", null ],
     [ "gs_device_nccl_buf_init", "de/dcf/namespacegs__device__nccl.html#a7fd02aded867f9843400ccda5550adf1", null ],
     [ "gs_device_nccl_buf_init_vec", "de/dcf/namespacegs__device__nccl.html#a9057ee599ffb51333c54378a5a0a9052", null ],

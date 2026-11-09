@@ -1,37 +1,37 @@
 <map id="mesh::mesh_finalize" name="mesh::mesh_finalize">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,202,161,227"/>
-<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba" title="Generate element&#45;to&#45;element connectivity." alt="" coords="209,173,415,198"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,202,199,197,200,202,162,207"/>
-<area shape="rect" id="Node000018" href="$db/dfc/namespacemesh.html#a000e4a4dd37ff5e6b9a914d2b538705f" title=" " alt="" coords="229,223,395,263"/>
-<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="162,222,215,228,215,233,161,227"/>
-<area shape="rect" id="Node000003" href="$db/dfc/namespacemesh.html#a35d97ddb7d486cd79f3c1e4ee4ea2cfc" title="Generate element&#45;element connectivity via edges both between internal and between PEs." alt="" coords="463,5,629,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="324,171,380,116,419,84,461,55,472,49,475,54,464,60,422,88,383,120,327,174"/>
-<area shape="rect" id="Node000004" href="$db/dfc/namespacemesh.html#a7e6dc9442c9b730ac2d1bde72e2598d8" title="Enumerate the unique edges of the local mesh." alt="" coords="463,69,629,109"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="341,170,462,119,479,112,481,117,464,124,343,175"/>
-<area shape="rect" id="Node000006" href="$db/dfc/namespacemesh.html#ac54b7d89e17024d5105cf449551a5335" title="Generate element&#45;element connectivity via facets between PEs." alt="" coords="463,133,629,173"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="405,170,449,164,449,169,406,175"/>
-<area shape="rect" id="Node000007" href="$db/dfc/namespacemesh.html#aadcee020052d3a876ded460252b3a42a" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="463,197,629,237"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="406,195,449,201,449,207,405,201"/>
-<area shape="rect" id="Node000015" href="$db/dfc/namespacemesh.html#abdce89e30848fddb624b996aa13993c3" title="Enumerate the unique faces of the local mesh." alt="" coords="463,261,629,301"/>
-<area shape="poly" id="edge14_Node000002_Node000015" title=" " alt="" coords="383,196,416,208,441,227,464,247,476,253,473,258,461,252,437,232,413,213,381,201"/>
-<area shape="rect" id="Node000017" href="$db/dfc/namespacemesh.html#a18664cc50a3043167f74ea0da7291237" title="Generate a unique facet numbering." alt="" coords="463,325,629,365"/>
-<area shape="poly" id="edge16_Node000002_Node000017" title=" " alt="" coords="395,196,416,209,429,221,436,234,442,261,448,286,454,299,465,311,470,316,466,320,461,315,449,302,443,288,437,262,431,236,424,224,413,213,392,200"/>
-<area shape="rect" id="Node000005" href="$db/dfc/namespacemesh.html#a124bca50d5092d38bb63883cf359bd51" title="Add a unique edge represented as a 2&#45;tuple to the mesh." alt="" coords="677,77,849,102"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="630,87,663,87,663,92,630,92"/>
-<area shape="rect" id="Node000008" href="$d8/d75/namespacecrystal__router.html#a8feca47eb70b004800b3c053fca83f9c" title="Append one record to a packed crystal&#45;router buffer." alt="" coords="681,136,845,176"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="617,195,678,177,680,182,618,200"/>
-<area shape="rect" id="Node000009" href="$d8/d75/namespacecrystal__router.html#a3748daf852207d528e6b3651a74bb6d3" title="Route packed records to their destination ranks." alt="" coords="681,200,845,240"/>
-<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="630,216,668,216,668,221,630,221"/>
-<area shape="rect" id="Node000010" href="$d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="897,72,1029,112"/>
-<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="828,198,848,186,863,171,871,155,880,139,896,122,901,117,905,122,899,126,884,142,876,158,867,174,851,190,831,202"/>
-<area shape="rect" id="Node000011" href="$d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="897,136,1029,176"/>
-<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="826,197,887,178,888,183,827,202"/>
-<area shape="rect" id="Node000012" href="$d8/d75/namespacecrystal__router.html#a6545979889a469f3d0108e0d3fa36c41" title="Rebuild buf as the concatenation a(1:na) ++ b(1:nb)." alt="" coords="897,200,1029,240"/>
-<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="845,217,884,217,884,223,845,223"/>
-<area shape="rect" id="Node000013" href="$d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="897,264,1029,304"/>
-<area shape="poly" id="edge12_Node000009_Node000013" title=" " alt="" coords="827,238,888,257,887,262,826,243"/>
-<area shape="rect" id="Node000014" href="$d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="897,328,1029,368"/>
-<area shape="poly" id="edge13_Node000009_Node000014" title=" " alt="" coords="824,238,851,254,867,269,876,284,885,299,899,314,905,319,902,323,896,318,880,302,871,287,862,273,848,258,821,242"/>
-<area shape="rect" id="Node000016" href="$db/dfc/namespacemesh.html#a93f13da2d15f0978e5c8167d91725d64" title="Add a unique face represented as a 4&#45;tuple to the mesh." alt="" coords="679,269,847,294"/>
-<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="630,279,666,279,666,284,630,284"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,218,161,246"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#adda9934c988fca3015a777470bbf43ba" title="Generate element&#45;to&#45;element connectivity." alt="" coords="209,187,413,215"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,219,196,215,191,218,162,224"/>
+<area shape="rect" id="Node000018" href="$db/dfc/namespacemesh.html#a000e4a4dd37ff5e6b9a914d2b538705f" title=" " alt="" coords="228,239,394,283"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="161,239,215,247,210,249,162,244"/>
+<area shape="rect" id="Node000003" href="$db/dfc/namespacemesh.html#a35d97ddb7d486cd79f3c1e4ee4ea2cfc" title="Generate element&#45;element connectivity via edges both between internal and between PEs." alt="" coords="461,5,627,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="323,185,378,126,417,92,460,60,471,56,466,59,462,65,421,96,382,130,326,189"/>
+<area shape="rect" id="Node000004" href="$db/dfc/namespacemesh.html#a7e6dc9442c9b730ac2d1bde72e2598d8" title="Enumerate the unique edges of the local mesh." alt="" coords="461,75,627,119"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="341,184,460,129,477,125,472,127,462,134,343,189"/>
+<area shape="rect" id="Node000006" href="$db/dfc/namespacemesh.html#ac54b7d89e17024d5105cf449551a5335" title="Generate element&#45;element connectivity via facets between PEs." alt="" coords="461,144,627,189"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="408,184,448,180,443,182,409,189"/>
+<area shape="rect" id="Node000007" href="$db/dfc/namespacemesh.html#aadcee020052d3a876ded460252b3a42a" title="Generate element&#45;element connectivity via points between PEs." alt="" coords="461,213,627,258"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="408,213,448,221,443,221,409,218"/>
+<area shape="rect" id="Node000015" href="$db/dfc/namespacemesh.html#abdce89e30848fddb624b996aa13993c3" title="Enumerate the unique faces of the local mesh." alt="" coords="461,283,627,327"/>
+<area shape="poly" id="edge14_Node000002_Node000015" title=" " alt="" coords="388,213,414,224,430,235,439,246,449,257,463,268,471,275,466,275,459,273,445,261,435,249,426,239,412,229,387,218"/>
+<area shape="rect" id="Node000017" href="$db/dfc/namespacemesh.html#a18664cc50a3043167f74ea0da7291237" title="Generate a unique facet numbering." alt="" coords="461,352,627,397"/>
+<area shape="poly" id="edge16_Node000002_Node000017" title=" " alt="" coords="396,213,415,224,428,238,435,253,441,281,446,310,452,324,463,338,467,343,461,342,459,341,447,327,440,311,435,282,430,254,423,241,411,228,396,218"/>
+<area shape="rect" id="Node000005" href="$db/dfc/namespacemesh.html#a124bca50d5092d38bb63883cf359bd51" title="Add a unique edge represented as a 2&#45;tuple to the mesh." alt="" coords="675,83,847,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="627,94,662,96,657,98,628,100"/>
+<area shape="rect" id="Node000008" href="$d8/d75/namespacecrystal__router.html#a8feca47eb70b004800b3c053fca83f9c" title="Append one record to a packed crystal&#45;router buffer." alt="" coords="679,148,843,193"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="620,210,673,197,668,198,621,215"/>
+<area shape="rect" id="Node000009" href="$d8/d75/namespacecrystal__router.html#a3748daf852207d528e6b3651a74bb6d3" title="Route packed records to their destination ranks." alt="" coords="679,217,843,262"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="627,235,666,238,661,238,628,240"/>
+<area shape="rect" id="Node000010" href="$d8/d75/namespacecrystal__router.html#a54d76dcc595fd13d9a6ce2276360e2f3" title="Append e(1:ne) to buf(1:n) in place." alt="" coords="895,79,1026,123"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="828,214,845,203,860,186,869,170,877,152,893,134,896,134,901,131,897,138,882,155,874,172,865,189,848,207,830,219"/>
+<area shape="rect" id="Node000011" href="$d8/d75/namespacecrystal__router.html#a6efdb59be41d218ae48e5f9a86af3f4c" title="Abort if any record destination falls outside ." alt="" coords="895,148,1026,193"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="827,214,877,199,882,198,828,219"/>
+<area shape="rect" id="Node000012" href="$d8/d75/namespacecrystal__router.html#a6545979889a469f3d0108e0d3fa36c41" title="Rebuild buf as the concatenation a(1:na) ++ b(1:nb)." alt="" coords="895,217,1026,262"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="843,237,882,239,877,240,843,242"/>
+<area shape="rect" id="Node000013" href="$d8/d75/namespacecrystal__router.html#aa0c58681b064c8fdbc41a29bccda3995" title="Size&#45;negotiated bidirectional exchange with a partner. Either dst or src may be MPI_PROC_NULL to make..." alt="" coords="895,287,1026,331"/>
+<area shape="poly" id="edge12_Node000009_Node000013" title=" " alt="" coords="828,260,882,281,877,281,827,265"/>
+<area shape="rect" id="Node000014" href="$d8/d75/namespacecrystal__router.html#a7ad4715e59a971d678ed51337a5fb3e9" title="Partition buf into records kept locally and records to be sent. A record is kept when the side of its..." alt="" coords="895,356,1026,401"/>
+<area shape="poly" id="edge13_Node000009_Node000014" title=" " alt="" coords="821,260,848,278,864,294,873,310,882,325,897,342,901,348,896,346,893,346,878,329,869,313,860,297,845,282,820,265"/>
+<area shape="rect" id="Node000016" href="$db/dfc/namespacemesh.html#a93f13da2d15f0978e5c8167d91725d64" title="Add a unique face represented as a 4&#45;tuple to the mesh." alt="" coords="677,291,845,319"/>
+<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="628,302,664,305,659,305,628,308"/>
 </map>

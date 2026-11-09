@@ -1,7 +1,7 @@
 <map id="boundary_data_writer_simcomp::boundary_data_writer_init_from_json" name="boundary_data_writer_simcomp::boundary_data_writer_init_from_json">
-<area shape="rect" id="Node000001" title="Constructor from json." alt="" coords="5,5,200,60"/>
-<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="248,20,396,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,30,234,30,234,35,200,35"/>
-<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="444,13,592,53"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,30,430,30,430,35,396,35"/>
+<area shape="rect" id="Node000001" title="Constructor from json." alt="" coords="5,5,199,67"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="247,22,394,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,34,234,36,228,36,199,39"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="442,14,589,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="394,34,429,36,423,36,395,39"/>
 </map>

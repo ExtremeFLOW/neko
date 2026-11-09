@@ -1,8 +1,15 @@
 <map id="gs_device_mpi::gs_device_mpi_nbwait_vec" name="gs_device_mpi::gs_device_mpi_nbwait_vec">
-<area shape="rect" id="Node000001" title="Wait for a fused nc&#45;component exchange and unpack/reduce into u." alt="" coords="5,29,197,69"/>
-<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789" title=" " alt="" coords="245,37,404,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="198,47,232,47,232,52,198,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="452,29,604,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="404,47,438,47,438,52,404,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="490,30,488,20,494,11,507,5,528,3,552,6,565,13,562,18,550,11,528,8,509,10,497,15,493,21,495,28"/>
+<area shape="rect" id="Node000001" title="Wait for a fused nc&#45;component exchange and unpack/reduce into u." alt="" coords="5,49,197,94"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789" title=" " alt="" coords="245,57,403,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="197,69,231,71,226,72,197,74"/>
+<area shape="rect" id="Node000003" href="$d0/dc4/cuda_2gs__kernels_8h.html#a497c17c7427afa67b955836114786dfa" title=" " alt="" coords="454,5,652,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="388,54,471,38,476,36,389,59"/>
+<area shape="rect" id="Node000004" href="$d0/dc4/cuda_2gs__kernels_8h.html#a4b54207953f9f014b0f74894dea93097" title=" " alt="" coords="451,57,654,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="403,69,438,71,433,71,404,74"/>
+<area shape="rect" id="Node000006" href="$d0/dc4/cuda_2gs__kernels_8h.html#abe44df3df104255f340152220e6cd006" title=" " alt="" coords="453,109,652,137"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="388,83,476,105,471,105,388,88"/>
+<area shape="rect" id="Node000005" href="$d0/dc4/cuda_2gs__kernels_8h.html#a053232fae2dba9bae6ec16e67b0f2596" title=" " alt="" coords="702,57,830,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="654,69,689,71,684,71,655,74"/>
+<area shape="rect" id="Node000007" href="$d0/dc4/cuda_2gs__kernels_8h.html#a59f36e28cf42772db39280516613af6a" title=" " alt="" coords="704,109,828,137"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="653,121,692,123,686,123,653,126"/>
 </map>

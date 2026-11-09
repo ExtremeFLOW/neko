@@ -1,26 +1,26 @@
 <map id="speclib::zwgljd" name="speclib::zwgljd">
-<area shape="rect" id="Node000001" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="5,172,124,197"/>
-<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93" title=" " alt="" coords="341,73,459,99"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="108,169,342,100,343,105,110,175"/>
-<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad" title=" " alt="" coords="172,29,291,55"/>
-<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="79,169,203,62,207,66,83,174"/>
-<area shape="rect" id="Node000005" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="517,299,633,324"/>
-<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="84,195,125,226,187,266,260,305,339,334,387,341,435,340,481,334,521,325,522,330,482,339,435,345,386,346,338,339,258,310,184,271,122,231,80,200"/>
-<area shape="rect" id="Node000006" href="$dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="174,197,289,223"/>
-<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="125,191,161,197,160,202,124,196"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="372,75,366,65,369,55,381,49,400,47,423,50,433,59,429,63,421,55,400,52,382,54,373,59,371,64,376,72"/>
-<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="509,111,640,136"/>
-<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="460,96,502,105,501,110,459,101"/>
-<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="546,112,540,102,543,93,555,86,575,84,599,88,609,96,605,100,596,92,575,89,556,91,547,96,545,102,550,109"/>
-<area shape="poly" id="edge7_Node000004_Node000003" title=" " alt="" coords="291,27,373,21,418,24,462,34,489,47,514,63,554,98,551,102,511,67,487,51,460,39,417,29,373,26,291,32"/>
-<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="204,31,198,21,201,11,212,5,231,3,254,6,264,15,260,19,252,11,231,8,214,10,205,15,203,20,208,28"/>
-<area shape="poly" id="edge10_Node000006_Node000003" title=" " alt="" coords="289,207,371,200,416,192,460,181,504,163,542,141,544,146,506,167,462,186,417,197,372,205,289,212"/>
-<area shape="poly" id="edge13_Node000006_Node000005" title=" " alt="" coords="276,220,518,292,517,297,275,225"/>
-<area shape="rect" id="Node000007" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="349,299,451,324"/>
-<area shape="poly" id="edge11_Node000006_Node000007" title=" " alt="" coords="253,221,340,277,362,290,360,294,337,282,250,225"/>
-<area shape="rect" id="Node000008" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="339,147,461,172"/>
-<area shape="poly" id="edge14_Node000006_Node000008" title=" " alt="" coords="274,195,343,173,345,179,275,200"/>
-<area shape="poly" id="edge12_Node000007_Node000005" title=" " alt="" coords="452,309,503,309,503,314,452,314"/>
-<area shape="poly" id="edge15_Node000008_Node000003" title=" " alt="" coords="461,144,498,136,499,142,462,149"/>
-<area shape="poly" id="edge16_Node000008_Node000008" title=" " alt="" coords="372,148,366,138,369,129,381,122,400,120,423,123,433,132,429,136,421,128,400,125,382,127,373,132,371,138,376,145"/>
+<area shape="rect" id="Node000001" title="Generate NP GAUSS LOBATTO JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(al..." alt="" coords="5,173,123,201"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#ac3838666020ca4150da3b691fe5f9c93" title=" " alt="" coords="338,72,457,100"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="111,170,336,102,334,107,113,175"/>
+<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#ae4d2f7c4f8ec88a4c0b11d7fb67b87ad" title=" " alt="" coords="171,29,289,57"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="80,171,201,65,200,70,83,175"/>
+<area shape="rect" id="Node000005" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="514,300,629,328"/>
+<area shape="poly" id="edge8_Node000001_Node000005" title=" " alt="" coords="83,199,127,231,187,270,260,308,338,337,382,343,427,343,471,338,507,332,513,332,471,343,427,348,381,349,336,342,258,313,185,274,124,235,83,204"/>
+<area shape="rect" id="Node000006" href="$dd/df0/namespacespeclib.html#a80692f5a33b00328a2600d1d409035f7" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="173,199,286,226"/>
+<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="123,194,160,200,156,203,124,199"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="368,71,364,63,367,54,379,47,398,45,418,48,430,57,425,57,416,53,398,51,381,53,371,57,369,63,373,72"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="506,111,637,138"/>
+<area shape="poly" id="edge3_Node000002_Node000003" title=" " alt="" coords="457,96,494,106,489,107,458,102"/>
+<area shape="poly" id="edge4_Node000003_Node000003" title=" " alt="" coords="541,109,536,102,540,92,552,86,572,84,592,87,605,95,599,95,591,92,571,89,554,91,544,96,542,101,546,111"/>
+<area shape="poly" id="edge7_Node000004_Node000003" title=" " alt="" coords="288,28,371,21,416,24,459,34,486,46,510,62,550,99,545,99,507,67,483,51,457,39,415,29,371,26,290,33"/>
+<area shape="poly" id="edge6_Node000004_Node000004" title=" " alt="" coords="200,29,196,20,200,11,211,5,230,3,250,5,262,13,256,15,248,10,230,8,213,10,204,15,201,20,206,29"/>
+<area shape="poly" id="edge10_Node000006_Node000003" title=" " alt="" coords="287,210,369,203,414,196,457,185,500,167,536,148,540,146,502,171,459,190,415,201,369,209,288,215"/>
+<area shape="poly" id="edge13_Node000006_Node000005" title=" " alt="" coords="280,224,510,294,505,296,279,230"/>
+<area shape="rect" id="Node000007" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="346,300,449,328"/>
+<area shape="poly" id="edge11_Node000006_Node000007" title=" " alt="" coords="253,224,338,280,358,293,353,292,336,284,251,229"/>
+<area shape="rect" id="Node000008" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="337,148,458,176"/>
+<area shape="poly" id="edge14_Node000006_Node000008" title=" " alt="" coords="277,196,337,180,332,182,279,201"/>
+<area shape="poly" id="edge12_Node000007_Node000005" title=" " alt="" coords="449,311,501,314,496,314,450,316"/>
+<area shape="poly" id="edge15_Node000008_Node000003" title=" " alt="" coords="458,146,494,141,489,143,460,151"/>
+<area shape="poly" id="edge16_Node000008_Node000008" title=" " alt="" coords="368,147,364,139,367,130,379,123,398,121,418,124,430,133,425,133,416,129,398,127,381,129,371,133,369,139,373,148"/>
 </map>

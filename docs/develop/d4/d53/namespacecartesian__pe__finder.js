@@ -1,7 +1,7 @@
 var namespacecartesian__pe__finder =
 [
-    [ "cartesian_pe_finder_t", "d0/d41/structcartesian__pe__finder_1_1cartesian__pe__finder__t.html", "d0/d41/structcartesian__pe__finder_1_1cartesian__pe__finder__t" ],
     [ "i8_mpi_t", "d6/da5/structcartesian__pe__finder_1_1i8__mpi__t.html", "d6/da5/structcartesian__pe__finder_1_1i8__mpi__t" ],
+    [ "cartesian_pe_finder_t", "d0/d41/structcartesian__pe__finder_1_1cartesian__pe__finder__t.html", "d0/d41/structcartesian__pe__finder_1_1cartesian__pe__finder__t" ],
     [ "cartesian_pe_finder_find", "d4/d53/namespacecartesian__pe__finder.html#a3fb1f831dc098822f000cc5381bc4d5f", null ],
     [ "cartesian_pe_finder_find_batch", "d4/d53/namespacecartesian__pe__finder.html#a922992add048aaedbc54e4472f9eaca1", null ],
     [ "cartesian_pe_finder_free", "d4/d53/namespacecartesian__pe__finder.html#af24253e6c013d069f66f6018735916b0", null ],

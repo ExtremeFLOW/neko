@@ -1,0 +1,11 @@
+<map id="bicgstab_part2_kernel" name="bicgstab_part2_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="671,40,836,68"/>
+<area shape="rect" id="Node000002" href="$d2/d51/bicgstab__aux_8cu.html#a732c162bd2b7a7708beb01e1c5dc8613" title=" " alt="" coords="468,14,623,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="654,42,623,40,624,35,659,42"/>
+<area shape="rect" id="Node000005" href="$d9/d13/bicgstab__aux_8hip.html#aa49e586f8e355a60061c43e7355cf4dd" title=" " alt="" coords="474,66,618,94"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="659,66,618,74,618,68,654,66"/>
+<area shape="rect" id="Node000003" href="$df/dba/namespacebicgstab__device.html#af3de60528edac39791dd35faa10146fb" title="BiCGStab part 2, &#160;and ." alt="" coords="243,5,420,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="450,28,421,30,420,25,456,27"/>
+<area shape="rect" id="Node000004" href="$df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7" title="Solve a linear system with the device BiCGStab method." alt="" coords="5,5,195,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="224,28,196,30,195,25,230,27"/>
+</map>

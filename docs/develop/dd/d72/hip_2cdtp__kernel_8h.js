@@ -1,6 +1,6 @@
 var hip_2cdtp__kernel_8h =
 [
-    [ "cdtp_mfma_dispatch< T, LX, NWF, TILE >", "d6/dce/structcdtp__mfma__dispatch.html", "d6/dce/structcdtp__mfma__dispatch" ],
+    [ "cdtp_mfma_dispatch&lt; T, LX, NWF, TILE &gt;", "d6/dce/structcdtp__mfma__dispatch.html", "d6/dce/structcdtp__mfma__dispatch" ],
     [ "__launch_bounds__", "dd/d72/hip_2cdtp__kernel_8h.html#a9a3322ef71ea8136f44ed419b5f53270", null ],
     [ "__launch_bounds__", "dd/d72/hip_2cdtp__kernel_8h.html#a35801c37c634918b41acc01cef582c04", null ],
     [ "__syncthreads", "dd/d72/hip_2cdtp__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],

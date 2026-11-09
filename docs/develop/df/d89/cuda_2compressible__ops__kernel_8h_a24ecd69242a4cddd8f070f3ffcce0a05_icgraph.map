@@ -1,0 +1,13 @@
+<map id="compute_entropy_kernel" name="compute_entropy_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="719,92,902,119"/>
+<area shape="rect" id="Node000002" href="$db/de5/compressible__ops__compute__entropy_8cu.html#a0ab2a3e31e801c696cd71590e7fc7363" title=" " alt="" coords="498,65,671,93"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="701,93,672,92,672,86,707,93"/>
+<area shape="rect" id="Node000006" href="$db/d09/compressible__ops__compute__entropy_8hip.html#a55cd3ffe3836460cf15e5a3f8c6042b8" title=" " alt="" coords="504,117,666,145"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="706,117,667,124,666,119,701,118"/>
+<area shape="rect" id="Node000003" href="$dc/da9/namespacecompressible__ops__device.html#a1ad819b1bfd41a2fcc598b3246825363" title="Compute entropy field S = 1/(gamma&#45;1) * rho * (log(p) &#45; gamma * log(rho)) on device." alt="" coords="254,48,450,110"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="480,79,451,81,450,76,485,79"/>
+<area shape="rect" id="Node000004" href="$dd/d61/namespaceentropy__viscosity.html#adb6bcd0b2fdc96d2add4d4f20a11466f" title="Compute entropy from the current pressure and density." alt="" coords="5,5,206,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="235,60,206,56,206,51,241,59"/>
+<area shape="rect" id="Node000005" href="$d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="10,91,201,152"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="236,99,202,108,201,102,241,98"/>
+</map>

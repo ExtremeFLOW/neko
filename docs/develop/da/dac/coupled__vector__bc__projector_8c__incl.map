@@ -1,17 +1,17 @@
 <map id="/home/runner/work/neko/neko/src/bc/bcknd/device/opencl/coupled_vector_bc_projector.c" name="/home/runner/work/neko/neko/src/bc/bcknd/device/opencl/coupled_vector_bc_projector.c">
-<area shape="rect" id="Node000001" title=" " alt="" coords="283,5,478,75"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="262,211,328,236"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="283,52,206,62,127,77,60,98,36,110,20,124,11,138,8,150,10,160,16,169,39,185,74,198,164,213,248,218,248,224,163,218,73,203,37,190,12,173,5,162,3,149,6,136,16,121,33,106,58,93,126,72,205,57,282,47"/>
-<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="30,130,200,155"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="293,77,159,128,157,123,291,72"/>
-<area shape="rect" id="Node000004" href="$d4/d0f/jit_8h.html" title=" " alt="" coords="224,130,366,155"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="353,77,316,121,312,118,349,73"/>
-<area shape="rect" id="Node000005" href="$d1/df7/prgm__lib_8h.html" title=" " alt="" coords="390,123,541,163"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="411,73,442,110,438,113,407,77"/>
-<area shape="rect" id="Node000006" href="$d0/d05/opencl_2check_8h.html" title=" " alt="" coords="565,130,732,155"/>
-<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="471,72,606,123,604,128,469,77"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="756,123,964,163"/>
-<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="479,59,757,117,756,122,477,64"/>
-<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="298,156,298,197,292,197,292,156"/>
-<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="597,158,342,214,341,209,596,153"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="281,5,474,84"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="261,225,326,252"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="278,57,204,70,126,86,60,107,36,120,20,134,11,147,8,159,10,170,16,179,39,196,74,209,162,226,248,235,243,236,161,231,72,214,36,201,12,183,5,171,3,159,6,145,16,130,33,115,58,102,125,80,203,64,283,54"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="30,140,200,168"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="281,86,162,137,160,132,285,83"/>
+<area shape="rect" id="Node000004" href="$d4/d0f/jit_8h.html" title=" " alt="" coords="223,140,364,168"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="349,83,315,130,311,126,345,86"/>
+<area shape="rect" id="Node000005" href="$d1/df7/prgm__lib_8h.html" title=" " alt="" coords="388,132,538,177"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="409,82,439,120,434,119,407,87"/>
+<area shape="rect" id="Node000006" href="$d0/d05/opencl_2check_8h.html" title=" " alt="" coords="562,140,727,168"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="474,82,600,134,595,134,473,87"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="751,132,959,177"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="475,65,746,127,741,129,475,70"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="295,167,296,211,291,208,292,171"/>
+<area shape="poly" id="edge7_Node000006_Node000002" title=" " alt="" coords="591,169,341,229,340,224,585,169"/>
 </map>

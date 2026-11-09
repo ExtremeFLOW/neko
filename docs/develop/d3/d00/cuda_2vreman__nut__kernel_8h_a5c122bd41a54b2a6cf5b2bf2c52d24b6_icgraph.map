@@ -1,0 +1,15 @@
+<map id="vreman_nut_compute_buoy" name="vreman_nut_compute_buoy">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1074,100,1276,128"/>
+<area shape="rect" id="Node000002" href="$d7/dff/vreman__nut_8cu.html#ae7c1e3020468ff890690b760e9bbdf62" title=" " alt="" coords="785,74,1026,101"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1055,102,1026,102,1026,97,1061,103"/>
+<area shape="rect" id="Node000007" href="$de/dbe/vreman__nut_8hip.html#a8cc305228a449005f2dea1597c321910" title=" " alt="" coords="791,126,1020,153"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="1061,125,1021,131,1020,126,1055,125"/>
+<area shape="rect" id="Node000003" href="$db/d3c/namespacedevice__vreman__nut.html#acb6233012f81d00a8afa12fd5e6d58f9" title=" " alt="" coords="485,65,737,110"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="767,87,738,90,738,85,772,87"/>
+<area shape="rect" id="Node000004" href="$dc/d46/interfacedevice__vreman__nut_1_1hip__vreman__nut__compute__buoy.html#a16ecb643dd5acdb329f0b243936a793f" title=" " alt="" coords="247,5,437,84"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="467,65,438,62,438,57,473,65"/>
+<area shape="rect" id="Node000005" href="$dd/dcb/namespacevreman__device.html#a32773bd59b9b5ff0a00f963ba940ef37" title="Compute eddy viscosity on the device." alt="" coords="252,108,432,152"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="472,109,432,118,431,113,467,110"/>
+<area shape="rect" id="Node000006" href="$d4/d6e/namespacevreman.html#a83a0531f4d84533dc1c0599c3a132485" title="Compute eddy viscosity." alt="" coords="5,116,199,144"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="234,130,199,133,199,127,239,130"/>
+</map>

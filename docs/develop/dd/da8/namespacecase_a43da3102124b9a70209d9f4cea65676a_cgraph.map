@@ -1,28 +1,28 @@
 <map id="case::case_init_from_file" name="case::case_init_from_file">
-<area shape="rect" id="Node000001" title="Initialize a case from an input file case_file." alt="" coords="5,152,188,177"/>
-<area shape="rect" id="Node000002" href="$dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68" title="Initialize a case from its (loaded) params object." alt="" coords="236,152,419,177"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,162,222,162,222,167,188,167"/>
-<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a85683446e8c3ce364595da95f5bf70e9" title="Extract file name components." alt="" coords="467,49,617,75"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="347,150,399,118,466,84,483,77,485,82,468,88,402,122,349,154"/>
-<area shape="rect" id="Node000006" href="$d6/d84/namespaceutils.html#ac672259ace5aad4a319f09625537d4b8" title="Recursively create a directory and all parent directories if they do not exist. This should be safer ..." alt="" coords="494,123,590,148"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="419,150,480,141,481,146,420,155"/>
-<area shape="rect" id="Node000007" href="$d1/dd7/namespaceparmetis.html#a7015f5a8d7bb32005378d0df25fc45e7" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="469,173,615,213"/>
-<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="420,174,455,179,454,184,419,179"/>
-<area shape="rect" id="Node000011" href="$db/dbb/namespaceredist.html#a0495227a7bc72edb4553026a816d7ebf" title="Redistribute a mesh msh according to new partitions." alt="" coords="469,280,615,305"/>
-<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="351,175,510,271,507,275,348,180"/>
-<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="667,5,855,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="605,47,683,31,684,36,606,52"/>
-<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#ad9815de9718b5cfbff1bc1da8ea997e4" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="665,55,856,80"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="618,61,652,62,652,67,618,67"/>
-<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="507,124,500,114,503,104,518,98,542,96,572,100,583,109,580,113,570,105,542,101,519,103,507,108,505,114,511,121"/>
-<area shape="rect" id="Node000008" href="$d1/dd7/namespaceparmetis.html#a4d14c4d16427d26c17bd770369629803" title="Compute the (parallel) vertex distribution of the dual graph." alt="" coords="672,116,849,141"/>
-<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="604,170,665,151,697,142,698,147,666,157,606,175"/>
-<area shape="rect" id="Node000009" href="$d1/dd7/namespaceparmetis.html#a167b3313549fa07a2cd414118bd40489" title="Fill mesh field according to new partitions." alt="" coords="687,166,834,206"/>
-<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="616,188,673,186,673,191,616,193"/>
-<area shape="rect" id="Node000010" href="$d1/dd7/namespaceparmetis.html#af3f78958dd47849888ed6650aed8e129" title="Setup weights and balance constraints for the dual graph." alt="" coords="672,231,849,256"/>
-<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="616,207,693,225,691,230,615,212"/>
-<area shape="rect" id="Node000012" href="$db/dbb/namespaceredist.html#ae07ae81a5fb1331996356b54d531fa72" title="Fill redistribution list for zone data." alt="" coords="687,280,834,305"/>
-<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="616,290,673,290,673,295,616,295"/>
-<area shape="rect" id="Node000013" href="$db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700" title="Fill redistribution list for zone data." alt="" coords="689,329,832,355"/>
-<area shape="poly" id="edge13_Node000011_Node000013" title=" " alt="" coords="600,303,691,324,690,329,598,308"/>
+<area shape="rect" id="Node000001" title="Initialize a case from an input file case_file." alt="" coords="5,159,188,186"/>
+<area shape="rect" id="Node000002" href="$dd/da8/namespacecase.html#ac7d52a7009f92ec7c1cf6abf9e33ae68" title="Initialize a case from its (loaded) params object." alt="" coords="236,159,417,186"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,170,223,171,218,174,189,175"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a85683446e8c3ce364595da95f5bf70e9" title="Extract file name components." alt="" coords="465,52,614,80"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="348,156,400,124,464,90,483,84,478,87,466,95,403,129,351,160"/>
+<area shape="rect" id="Node000006" href="$d6/d84/namespaceutils.html#ac672259ace5aad4a319f09625537d4b8" title="Recursively create a directory and all parent directories if they do not exist. This should be safer ..." alt="" coords="492,128,587,156"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="417,157,479,150,474,152,418,162"/>
+<area shape="rect" id="Node000007" href="$d1/dd7/namespaceparmetis.html#a7015f5a8d7bb32005378d0df25fc45e7" title="Compute a k&#45;way partitioning of a mesh msh." alt="" coords="467,180,612,224"/>
+<area shape="poly" id="edge7_Node000002_Node000007" title=" " alt="" coords="417,182,454,189,449,190,418,188"/>
+<area shape="rect" id="Node000011" href="$db/dbb/namespaceredist.html#a0495227a7bc72edb4553026a816d7ebf" title="Redistribute a mesh msh according to new partitions." alt="" coords="466,293,613,321"/>
+<area shape="poly" id="edge11_Node000002_Node000011" title=" " alt="" coords="351,184,506,284,501,285,349,189"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="664,5,851,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="606,49,677,36,672,38,608,54"/>
+<area shape="rect" id="Node000005" href="$d6/d84/namespaceutils.html#ad9815de9718b5cfbff1bc1da8ea997e4" title="Find position (in the string) of a filename&#39;s trailing slash." alt="" coords="662,57,853,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="614,65,649,68,644,69,615,70"/>
+<area shape="poly" id="edge6_Node000006_Node000006" title=" " alt="" coords="503,127,497,119,502,109,516,103,540,101,565,104,580,113,575,113,563,109,540,107,518,109,505,113,502,119,508,128"/>
+<area shape="rect" id="Node000008" href="$d1/dd7/namespaceparmetis.html#a4d14c4d16427d26c17bd770369629803" title="Compute the (parallel) vertex distribution of the dual graph." alt="" coords="669,121,846,149"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="605,176,662,158,689,153,684,154,663,163,606,181"/>
+<area shape="rect" id="Node000009" href="$d1/dd7/namespaceparmetis.html#a167b3313549fa07a2cd414118bd40489" title="Fill mesh field according to new partitions." alt="" coords="685,173,830,218"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="612,197,672,197,667,198,613,202"/>
+<area shape="rect" id="Node000010" href="$d1/dd7/namespaceparmetis.html#af3f78958dd47849888ed6650aed8e129" title="Setup weights and balance constraints for the dual graph." alt="" coords="669,241,846,269"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="613,217,686,237,680,237,613,222"/>
+<area shape="rect" id="Node000012" href="$db/dbb/namespaceredist.html#ae07ae81a5fb1331996356b54d531fa72" title="Fill redistribution list for zone data." alt="" coords="684,293,831,321"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="613,305,671,307,666,307,613,310"/>
+<area shape="rect" id="Node000013" href="$db/dbb/namespaceredist.html#a95ec995daa3e10e200586e964ec37700" title="Fill redistribution list for zone data." alt="" coords="687,345,828,373"/>
+<area shape="poly" id="edge13_Node000011_Node000013" title=" " alt="" coords="601,319,684,341,679,341,601,324"/>
 </map>

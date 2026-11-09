@@ -1,8 +1,5 @@
 <map id="gs_unpack_min_kernel" name="gs_unpack_min_kernel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,66,176,91"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="224,29,376,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,64,210,59,211,64,176,69"/>
-<area shape="rect" id="Node000003" href="$d0/dc4/cuda_2gs__kernels_8h.html#a59f36e28cf42772db39280516613af6a" title=" " alt="" coords="238,94,362,119"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="176,87,224,94,224,99,176,93"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="261,30,259,20,265,10,279,5,300,3,324,6,338,13,335,18,323,11,300,8,280,10,268,15,264,21,266,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,175,33"/>
+<area shape="rect" id="Node000002" href="$d0/dc4/cuda_2gs__kernels_8h.html#a59f36e28cf42772db39280516613af6a" title=" " alt="" coords="223,5,346,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,17,210,19,204,19,175,22"/>
 </map>

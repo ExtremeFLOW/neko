@@ -1,10 +1,10 @@
 var namespacedevice__jacobi =
 [
-    [ "cuda_jacobi_update", "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html", "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update" ],
     [ "device_jacobi_t", "d8/dca/structdevice__jacobi_1_1device__jacobi__t.html", "d8/dca/structdevice__jacobi_1_1device__jacobi__t" ],
     [ "hip_jacobi_update", "dd/d3d/interfacedevice__jacobi_1_1hip__jacobi__update.html", "dd/d3d/interfacedevice__jacobi_1_1hip__jacobi__update" ],
-    [ "metal_jacobi_update", "da/db9/interfacedevice__jacobi_1_1metal__jacobi__update.html", "da/db9/interfacedevice__jacobi_1_1metal__jacobi__update" ],
+    [ "cuda_jacobi_update", "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update.html", "df/d89/interfacedevice__jacobi_1_1cuda__jacobi__update" ],
     [ "opencl_jacobi_update", "de/daf/interfacedevice__jacobi_1_1opencl__jacobi__update.html", "de/daf/interfacedevice__jacobi_1_1opencl__jacobi__update" ],
+    [ "metal_jacobi_update", "da/db9/interfacedevice__jacobi_1_1metal__jacobi__update.html", "da/db9/interfacedevice__jacobi_1_1metal__jacobi__update" ],
     [ "device_jacobi_free", "d2/da7/namespacedevice__jacobi.html#a0449982992f4fcbd66b8e69699672ab7", null ],
     [ "device_jacobi_init", "d2/da7/namespacedevice__jacobi.html#ada9cd259b7023f8d86853255cf046398", null ],
     [ "device_jacobi_init_from_components", "d2/da7/namespacedevice__jacobi.html#aa94e2d1677d854254663e966f01ad9f4", null ],

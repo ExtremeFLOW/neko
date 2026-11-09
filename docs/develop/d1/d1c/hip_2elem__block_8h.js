@@ -1,7 +1,7 @@
 var hip_2elem__block_8h =
 [
-    [ "elem_block< LX, C >", "de/d3c/structelem__block.html", "de/d3c/structelem__block" ],
-    [ "chunk_block< LX, C >", "d4/d68/structchunk__block.html", "d4/d68/structchunk__block" ],
+    [ "elem_block&lt; LX, C &gt;", "de/d3c/structelem__block.html", "de/d3c/structelem__block" ],
+    [ "chunk_block&lt; LX, C &gt;", "d4/d68/structchunk__block.html", "d4/d68/structchunk__block" ],
     [ "NEKO_CHUNKS", "d1/d1c/hip_2elem__block_8h.html#aab4789eb81e0bfbeac8cc3504c92e2a7", null ],
     [ "NEKO_CHUNKS_CANDIDATES", "d1/d1c/hip_2elem__block_8h.html#a7dd9e042115b1383492628d27a9f1a60", null ],
     [ "NEKO_CHUNKS_NTHRDS", "d1/d1c/hip_2elem__block_8h.html#ad7356aa2983bd1331438bcf6af92ffbe", null ],

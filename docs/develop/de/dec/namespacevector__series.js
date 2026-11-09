@@ -1,7 +1,7 @@
 var namespacevector__series =
 [
-    [ "vector_series_ptr_t", "df/d78/structvector__series_1_1vector__series__ptr__t.html", "df/d78/structvector__series_1_1vector__series__ptr__t" ],
     [ "vector_series_t", "d3/dba/structvector__series_1_1vector__series__t.html", "d3/dba/structvector__series_1_1vector__series__t" ],
+    [ "vector_series_ptr_t", "df/d78/structvector__series_1_1vector__series__ptr__t.html", "df/d78/structvector__series_1_1vector__series__ptr__t" ],
     [ "vector_series_filled_size", "de/dec/namespacevector__series.html#a1d27f4716a32e823c461ba759cddff0a", null ],
     [ "vector_series_free", "de/dec/namespacevector__series.html#a371dfd8030035a76186da87aabd0b374", null ],
     [ "vector_series_init", "de/dec/namespacevector__series.html#a831a7d9579abcbf90e53d431dfec1790", null ],

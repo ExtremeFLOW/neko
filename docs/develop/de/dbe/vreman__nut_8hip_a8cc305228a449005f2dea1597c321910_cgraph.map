@@ -1,6 +1,5 @@
 <map id="hip_vreman_nut_compute_buoy" name="hip_vreman_nut_compute_buoy">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,236,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="284,29,436,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="236,47,270,47,270,52,236,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="316,30,313,20,320,10,336,5,360,3,388,6,403,13,400,18,386,11,360,8,337,10,323,15,318,21,321,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,235,33"/>
+<area shape="rect" id="Node000002" href="$d3/d00/cuda_2vreman__nut__kernel_8h.html#a5c122bd41a54b2a6cf5b2bf2c52d24b6" title=" " alt="" coords="283,5,485,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="235,17,270,19,264,19,235,22"/>
 </map>

@@ -1,8 +1,15 @@
 <map id="gs_device_crystal::cr_scatter_vec" name="gs_device_crystal::cr_scatter_vec">
-<area shape="rect" id="Node000001" title="Reduce n delivered positions into the component&#45;outer shared vector." alt="" coords="5,29,152,69"/>
-<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789" title=" " alt="" coords="200,37,359,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="152,47,187,47,187,52,152,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="407,29,559,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,47,393,47,393,52,359,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="444,30,442,20,448,11,462,5,483,3,506,6,519,13,517,18,505,11,483,8,463,10,452,15,447,21,450,28"/>
+<area shape="rect" id="Node000001" title="Reduce n delivered positions into the component&#45;outer shared vector." alt="" coords="5,49,151,94"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789" title=" " alt="" coords="199,57,357,85"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="151,69,186,70,180,72,151,74"/>
+<area shape="rect" id="Node000003" href="$d0/dc4/cuda_2gs__kernels_8h.html#a497c17c7427afa67b955836114786dfa" title=" " alt="" coords="408,5,606,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="342,54,430,36,425,38,343,59"/>
+<area shape="rect" id="Node000004" href="$d0/dc4/cuda_2gs__kernels_8h.html#a4b54207953f9f014b0f74894dea93097" title=" " alt="" coords="405,57,608,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="357,69,392,71,387,71,358,74"/>
+<area shape="rect" id="Node000006" href="$d0/dc4/cuda_2gs__kernels_8h.html#abe44df3df104255f340152220e6cd006" title=" " alt="" coords="407,109,606,137"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="342,83,430,105,425,105,342,88"/>
+<area shape="rect" id="Node000005" href="$d0/dc4/cuda_2gs__kernels_8h.html#a053232fae2dba9bae6ec16e67b0f2596" title=" " alt="" coords="656,57,784,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="608,69,643,71,638,71,609,74"/>
+<area shape="rect" id="Node000007" href="$d0/dc4/cuda_2gs__kernels_8h.html#a59f36e28cf42772db39280516613af6a" title=" " alt="" coords="658,109,782,137"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="607,121,646,123,640,123,607,126"/>
 </map>

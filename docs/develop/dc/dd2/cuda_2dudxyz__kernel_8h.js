@@ -1,7 +1,7 @@
 var cuda_2dudxyz__kernel_8h =
 [
-    [ "dudxyz_dmma_dispatch< T, LX, NW >", "d5/dd1/structdudxyz__dmma__dispatch.html", "d5/dd1/structdudxyz__dmma__dispatch" ],
-    [ "dudxyz_dmma_tma_dispatch< T, LX, NW >", "d3/d63/structdudxyz__dmma__tma__dispatch.html", "d3/d63/structdudxyz__dmma__tma__dispatch" ],
+    [ "dudxyz_dmma_dispatch&lt; T, LX, NW &gt;", "d5/dd1/structdudxyz__dmma__dispatch.html", "d5/dd1/structdudxyz__dmma__dispatch" ],
+    [ "dudxyz_dmma_tma_dispatch&lt; T, LX, NW &gt;", "d3/d63/structdudxyz__dmma__tma__dispatch.html", "d3/d63/structdudxyz__dmma__tma__dispatch" ],
     [ "__launch_bounds__", "dc/dd2/cuda_2dudxyz__kernel_8h.html#a160d40a8bcb2346d8157dffb9fd9997a", null ],
     [ "__launch_bounds__", "dc/dd2/cuda_2dudxyz__kernel_8h.html#aae2b77faaaada004c97bdcb3659a2e22", null ],
     [ "__syncthreads", "dc/dd2/cuda_2dudxyz__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],

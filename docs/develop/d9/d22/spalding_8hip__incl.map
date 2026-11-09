@@ -1,0 +1,16 @@
+<map id="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/spalding.hip" name="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/spalding.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="89,5,308,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="89,191,225,218"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,61,47,84,29,98,14,116,9,128,9,138,13,147,21,156,47,171,81,184,76,187,45,176,18,160,9,150,4,139,4,127,9,114,25,95,44,79,90,57"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="24,115,194,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,66,134,106,131,102,167,69"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="218,115,360,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="229,65,268,104,263,104,228,70"/>
+<area shape="rect" id="Node000005" href="$d2/dec/hip_2spalding__kernel_8h.html" title=" " alt="" coords="384,115,519,143"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="283,65,403,109,398,110,283,70"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="268,143,195,185,193,180,263,144"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="371,191,434,218"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="445,142,421,180,418,175,441,144"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="458,191,542,218"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="462,141,485,179,480,177,459,146"/>
+</map>

@@ -1,0 +1,13 @@
+<map id="opchsign_kernel" name="opchsign_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="643,75,770,103"/>
+<area shape="rect" id="Node000002" href="$dd/db5/mathops_8cu.html#a1289f482b3e1dd687ca1ef4e1c4ae9cc" title=" " alt="" coords="478,48,595,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="625,77,596,74,596,69,631,77"/>
+<area shape="rect" id="Node000006" href="$d5/d0f/mathops_8hip.html#a7a48ad1940a1b6e8443d90c295ba657c" title=" " alt="" coords="484,100,590,128"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="631,100,591,109,590,104,625,101"/>
+<area shape="rect" id="Node000003" href="$d7/de8/namespacedevice__mathops.html#a8e8c095aec871774aeaaa17c4bad7453" title=" " alt="" coords="251,40,430,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="460,63,431,65,430,60,465,62"/>
+<area shape="rect" id="Node000004" href="$d6/d21/namespacefluid__volflow.html#a003e20288f366dbf084c6bdc75e4d4a2" title="Compute flow adjustment." alt="" coords="31,5,177,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="233,48,178,41,178,36,238,46"/>
+<area shape="rect" id="Node000005" href="$d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html#a5597cd7cda317185fc5ce9f6558befa3" title=" " alt="" coords="5,75,203,119"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="233,78,204,85,203,80,238,77"/>
+</map>

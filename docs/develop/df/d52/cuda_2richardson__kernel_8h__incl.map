@@ -1,7 +1,7 @@
 <map id="/home/runner/work/neko/neko/src/wall_models/bcknd/device/cuda/richardson_kernel.h" name="/home/runner/work/neko/neko/src/wall_models/bcknd/device/cuda/richardson_kernel.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,224,75"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="34,123,97,148"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,76,80,112,76,109,95,74"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="121,123,207,148"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="135,74,154,109,149,112,130,76"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,224,84"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="35,132,98,160"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,83,82,119,77,116,94,86"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="122,132,206,160"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="135,82,153,118,148,117,132,87"/>
 </map>

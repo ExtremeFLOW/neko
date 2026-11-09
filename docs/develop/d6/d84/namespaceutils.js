@@ -1,9 +1,9 @@
 var namespaceutils =
 [
-    [ "c_mkdir", "d2/daa/interfaceutils_1_1c__mkdir.html", "d2/daa/interfaceutils_1_1c__mkdir" ],
     [ "neko_error", "d7/d83/interfaceutils_1_1neko__error.html", "d7/d83/interfaceutils_1_1neko__error" ],
     [ "read_duration", "dd/d91/interfaceutils_1_1read__duration.html", "dd/d91/interfaceutils_1_1read__duration" ],
     [ "throw_intf", "da/dda/interfaceutils_1_1throw__intf.html", "da/dda/interfaceutils_1_1throw__intf" ],
+    [ "c_mkdir", "d2/daa/interfaceutils_1_1c__mkdir.html", "d2/daa/interfaceutils_1_1c__mkdir" ],
     [ "concat_string_array", "d6/d84/namespaceutils.html#a1118aac17fca960a9444986355db28ad", null ],
     [ "default_throw_error", "d6/d84/namespaceutils.html#a3b42fa80f3602b0ab45ac623156295ec", null ],
     [ "default_throw_warning", "d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1", null ],

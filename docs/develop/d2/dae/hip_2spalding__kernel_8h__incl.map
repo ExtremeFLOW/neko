@@ -1,7 +1,7 @@
 <map id="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/spalding_kernel.h" name="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/spalding_kernel.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,200,75"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="22,123,85,148"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,76,68,112,64,109,83,74"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="109,123,195,148"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="123,74,142,109,137,112,118,76"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,200,84"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="23,132,86,160"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,83,70,119,65,116,82,86"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="110,132,194,160"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="123,82,141,118,136,117,120,87"/>
 </map>

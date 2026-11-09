@@ -1,9 +1,9 @@
 var namespaceneko__api__user =
 [
+    [ "api_ic_callback", "de/d85/interfaceneko__api__user_1_1api__ic__callback.html", "de/d85/interfaceneko__api__user_1_1api__ic__callback" ],
     [ "api_bc_callback", "d7/d0b/interfaceneko__api__user_1_1api__bc__callback.html", "d7/d0b/interfaceneko__api__user_1_1api__bc__callback" ],
     [ "api_ft_callback", "d5/d21/interfaceneko__api__user_1_1api__ft__callback.html", "d5/d21/interfaceneko__api__user_1_1api__ft__callback" ],
     [ "api_gn_callback", "dc/da4/interfaceneko__api__user_1_1api__gn__callback.html", "dc/da4/interfaceneko__api__user_1_1api__gn__callback" ],
-    [ "api_ic_callback", "de/d85/interfaceneko__api__user_1_1api__ic__callback.html", "de/d85/interfaceneko__api__user_1_1api__ic__callback" ],
     [ "api_user_cb", "da/d5d/structneko__api__user_1_1api__user__cb.html", "da/d5d/structneko__api__user_1_1api__user__cb" ],
     [ "neko_api_user_cb_get_field", "d0/ddf/interfaceneko__api__user_1_1neko__api__user__cb__get__field.html", "d0/ddf/interfaceneko__api__user_1_1neko__api__user__cb__get__field" ],
     [ "neko_api_set_cb_field_list", "d9/d9a/namespaceneko__api__user.html#a2b4d4c87c5eec8e086d6bb103ec02d8f", null ],

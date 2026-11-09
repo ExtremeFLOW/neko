@@ -1,9 +1,9 @@
 <map id="global_interpolation::global_interpolation_find_coords" name="global_interpolation::global_interpolation_find_coords">
-<area shape="rect" id="Node000001" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,45,165,100"/>
-<area shape="rect" id="Node000002" href="$dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,5,373,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,55,199,48,200,53,166,60"/>
-<area shape="rect" id="Node000004" href="$dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,84,373,139"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="166,85,200,91,199,97,165,90"/>
-<area shape="rect" id="Node000003" href="$dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="421,13,573,53"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="374,30,408,30,408,35,374,35"/>
+<area shape="rect" id="Node000001" title="Finds the corresponding r,s,t coordinates in the correct global element as well as which process that..." alt="" coords="5,48,165,110"/>
+<area shape="rect" id="Node000002" href="$dd/de1/namespaceglobal__interpolation.html#ac86ce66619281a9b322688bf9d527c28" title="Common routine for finding the points." alt="" coords="213,5,372,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="164,60,200,55,195,57,166,65"/>
+<area shape="rect" id="Node000004" href="$dd/de1/namespaceglobal__interpolation.html#a419e4bc704c8fcd7549a4de09f5dfbb3" title=" " alt="" coords="213,91,372,152"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="165,93,200,102,195,102,165,98"/>
+<area shape="rect" id="Node000003" href="$dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="420,14,571,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="372,34,407,36,402,37,373,39"/>
 </map>

@@ -1,6 +1,5 @@
 <map id="tau_convective" name="tau_convective">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,127,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="175,29,327,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,47,161,47,161,52,127,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="216,30,214,20,219,11,232,5,251,3,272,6,284,13,281,17,271,11,251,8,233,10,223,15,219,21,221,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,126,33"/>
+<area shape="rect" id="Node000002" href="$da/d4a/cuda_2richardson__kernel_8h.html#aca253e762facac15cfede81005fc8988" title=" " alt="" coords="174,5,306,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,17,161,19,156,19,126,22"/>
 </map>

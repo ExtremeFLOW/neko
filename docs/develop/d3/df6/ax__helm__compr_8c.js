@@ -5,7 +5,7 @@ var ax__helm__compr_8c =
     [ "CASE_KSTEP", "d3/df6/ax__helm__compr_8c.html#a113d00a9c278f19c0831f6adac79ff43", null ],
     [ "CASE_LARGE", "d3/df6/ax__helm__compr_8c.html#a6da2275131442637a01cb5dea579a604", null ],
     [ "CASE_VECTOR", "d3/df6/ax__helm__compr_8c.html#a0e633116639902b6dbb336d5ffd095e0", null ],
-    [ "STR", "d3/df6/ax__helm__compr_8c.html#aae57f17e11e61cf0519e2004414f5629", null ],
+    [ "STR", "d3/df6/ax__helm__compr_8c.html#a094e78545e8c2514c9c3e6e2f887cb58", null ],
     [ "STR", "d3/df6/ax__helm__compr_8c.html#aae57f17e11e61cf0519e2004414f5629", null ],
     [ "opencl_ax_helm_compr", "d3/df6/ax__helm__compr_8c.html#a53c29665410866d3758ef501dba7797c", null ],
     [ "opencl_ax_helm_compr_vector", "d3/df6/ax__helm__compr_8c.html#aae13e0963b9c3ebf079161847b3592a2", null ],

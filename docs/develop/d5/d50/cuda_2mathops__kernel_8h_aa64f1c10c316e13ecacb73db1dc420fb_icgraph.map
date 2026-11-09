@@ -1,0 +1,11 @@
+<map id="opadd2col_kernel" name="opadd2col_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="652,40,788,68"/>
+<area shape="rect" id="Node000002" href="$dd/db5/mathops_8cu.html#a961fb77bbbc6433bfa57d0f9506c3846" title=" " alt="" coords="478,14,604,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="635,42,604,40,605,34,640,42"/>
+<area shape="rect" id="Node000005" href="$d5/d0f/mathops_8hip.html#a8eb50586110009d03bbd1e261df4ec53" title=" " alt="" coords="484,66,599,94"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="640,66,600,74,599,69,635,66"/>
+<area shape="rect" id="Node000003" href="$d7/de8/namespacedevice__mathops.html#a902393d1adbb4c35e678944af95039e7" title=" " alt="" coords="251,5,430,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="460,28,431,30,430,25,465,27"/>
+<area shape="rect" id="Node000004" href="$d6/dfb/interfacedevice__mathops_1_1hip__opadd2col.html#a5597cd7cda317185fc5ce9f6558befa3" title=" " alt="" coords="5,5,203,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="233,28,204,30,203,25,238,27"/>
+</map>

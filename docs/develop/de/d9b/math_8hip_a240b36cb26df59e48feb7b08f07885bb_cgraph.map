@@ -1,6 +1,5 @@
 <map id="hip_absval" name="hip_absval">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,97,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="145,29,297,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="98,47,132,47,132,52,98,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="189,30,187,20,192,11,204,5,221,3,241,6,252,13,249,17,239,11,221,8,205,10,196,15,193,21,194,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,97,33"/>
+<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html#af3aae76f7760a538ad1966c92f4024c1" title=" " alt="" coords="145,5,256,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="97,17,132,19,126,19,97,22"/>
 </map>

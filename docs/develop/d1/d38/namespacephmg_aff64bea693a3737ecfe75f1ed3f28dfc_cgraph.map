@@ -1,11 +1,11 @@
 <map id="phmg::phmg_init_from_components" name="phmg::phmg_init_from_components">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,176,87"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="263,5,358,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,46,249,29,250,34,177,51"/>
-<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="237,55,385,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="176,65,223,65,223,70,176,70"/>
-<area shape="rect" id="Node000005" href="$d1/d38/namespacephmg.html#ab48ada80640b1d78132c82130722f4de" title=" " alt="" coords="224,104,397,129"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="177,84,241,98,239,104,175,89"/>
-<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="445,47,593,87"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="385,65,432,65,432,70,385,70"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,49,175,94"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="262,5,356,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,49,249,33,244,35,176,54"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="235,57,382,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,69,222,71,217,72,175,74"/>
+<area shape="rect" id="Node000005" href="$d1/d38/namespacephmg.html#ab48ada80640b1d78132c82130722f4de" title=" " alt="" coords="223,109,395,137"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="175,89,236,105,230,106,175,94"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="443,49,590,94"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="383,69,430,71,425,71,383,74"/>
 </map>

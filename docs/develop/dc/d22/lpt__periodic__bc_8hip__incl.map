@@ -1,0 +1,14 @@
+<map id="/home/runner/work/neko/neko/src/lpt/bcknd/device/hip/lpt_periodic_bc.hip" name="/home/runner/work/neko/neko/src/lpt/bcknd/device/hip/lpt_periodic_bc.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="105,5,295,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="72,208,208,235"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,56,55,79,33,96,16,116,8,137,16,158,39,183,70,200,65,203,36,187,11,161,3,137,11,114,30,92,53,75,106,52"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="26,124,195,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,66,135,114,131,110,171,69"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="220,124,362,151"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="229,65,271,112,266,112,227,70"/>
+<area shape="rect" id="Node000005" href="$d5/d1c/hip_2lpt__periodic__bc__kernel_8h.html" title=" " alt="" coords="386,115,569,160"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="285,65,405,109,400,110,285,70"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="269,151,179,202,176,198,264,152"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="444,208,511,235"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="479,158,480,194,475,190,476,162"/>
+</map>

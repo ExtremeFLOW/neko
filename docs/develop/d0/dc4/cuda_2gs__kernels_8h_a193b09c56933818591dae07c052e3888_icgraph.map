@@ -1,0 +1,15 @@
+<map id="gs_unpack_max_kernel" name="gs_unpack_max_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="657,110,831,138"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3" title=" " alt="" coords="481,83,609,111"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="640,110,610,108,610,103,645,110"/>
+<area shape="rect" id="Node000007" href="$da/d57/gs_8hip.html#a29e94d459cc2467c8228104988f90d93" title=" " alt="" coords="486,135,604,163"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="645,136,604,144,604,139,640,137"/>
+<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#a9032b45f197584ebf9ae325acf142d43" title="Reduce n delivered words into the shared vector under op." alt="" coords="265,5,410,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="484,78,406,53,407,48,490,78"/>
+<area shape="rect" id="Node000005" href="$d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518" title="Wait for non&#45;blocking operations." alt="" coords="242,75,433,119"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="463,97,434,100,433,94,468,97"/>
+<area shape="rect" id="Node000006" href="$de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc" title="Wait for non&#45;blocking operations." alt="" coords="260,144,415,189"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="489,116,407,146,406,141,484,117"/>
+<area shape="rect" id="Node000004" href="$da/dd9/namespacegs__device__crystal.html#a9cb36820c465ac7ea08ca39a72f5ab24" title="Drive the remaining routing stages and reduce what is delivered into the shared vector." alt="" coords="5,5,194,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="247,29,195,30,193,25,252,27"/>
+</map>

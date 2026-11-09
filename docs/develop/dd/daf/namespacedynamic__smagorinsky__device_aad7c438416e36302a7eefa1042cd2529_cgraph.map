@@ -1,68 +1,63 @@
 <map id="dynamic_smagorinsky_device::dynamic_smagorinsky_compute_device" name="dynamic_smagorinsky_device::dynamic_smagorinsky_compute_device">
-<area shape="rect" id="Node000001" title="Compute eddy viscosity on the device." alt="" coords="5,381,232,435"/>
-<area shape="rect" id="Node000002" href="$dd/daf/namespacedynamic__smagorinsky__device.html#af52abfb3c8d81e9a1c55864cb1ad273a" title="Compute Germano Identity on the device." alt="" coords="291,245,459,299"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,378,310,304,312,308,173,383"/>
-<area shape="rect" id="Node000013" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aeb6ad20071c91bb06dedc412094bb61e" title="Compute M_ij and nut on the device." alt="" coords="291,347,459,402"/>
-<area shape="poly" id="edge21_Node000001_Node000013" title=" " alt="" coords="232,391,277,385,278,390,232,396"/>
-<area shape="rect" id="Node000020" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="280,478,471,503"/>
-<area shape="poly" id="edge36_Node000001_Node000020" title=" " alt="" coords="205,433,323,471,321,476,203,438"/>
-<area shape="rect" id="Node000021" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ac84f2458b7e3844fb271bb114231ea03" title="Compute the s_abs field for the Sigma model indevice." alt="" coords="541,444,759,484"/>
-<area shape="poly" id="edge37_Node000001_Node000021" title=" " alt="" coords="232,417,527,449,527,454,232,423"/>
-<area shape="rect" id="Node000003" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a22bc401b3e2a942519a5f5d7b9b4d978" title="part 1 of the computing of the lij field" alt="" coords="537,252,763,292"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="459,269,524,269,524,275,459,275"/>
-<area shape="rect" id="Node000010" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ad2a7f3e8548b2a06ad85f699241afebc" title="part 2 of the computing of the lij field" alt="" coords="537,188,763,228"/>
-<area shape="poly" id="edge14_Node000002_Node000010" title=" " alt="" coords="459,250,550,229,551,234,460,255"/>
-<area shape="rect" id="Node000004" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ab95ad8f0eaeaa97b02e66151ff78c056" title=" " alt="" coords="1307,63,1484,89"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="758,250,780,238,795,223,803,207,811,190,828,174,884,144,945,120,1007,102,1070,89,1190,74,1293,70,1293,75,1190,79,1071,94,1008,107,946,125,887,149,831,178,815,193,807,209,799,226,783,242,760,254"/>
-<area shape="rect" id="Node000006" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a7ffecb341c33e72ebb34fc4a7e8eb79b" title=" " alt="" coords="848,252,996,292"/>
-<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="763,269,834,269,834,275,763,275"/>
-<area shape="rect" id="Node000005" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1532,309,1684,349"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1452,87,1486,106,1527,151,1559,202,1583,253,1599,295,1594,297,1578,255,1554,205,1523,154,1482,110,1449,91"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1568,310,1566,300,1572,291,1587,285,1608,283,1633,286,1646,293,1644,298,1631,291,1608,288,1588,290,1576,295,1571,301,1574,308"/>
-<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="982,249,1081,224,1141,212,1208,203,1277,198,1347,200,1417,209,1485,227,1514,240,1540,258,1582,297,1579,301,1537,262,1511,245,1483,232,1416,214,1347,205,1277,204,1208,208,1142,217,1082,229,984,255"/>
-<area shape="rect" id="Node000007" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a8db9d8bf3e3f93c1f2137ce048a17036" title=" " alt="" coords="1067,266,1255,291"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="996,272,1053,273,1052,278,996,277"/>
-<area shape="rect" id="Node000009" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ae740553f29296f824b6643b533c4c255" title=" " alt="" coords="1063,317,1259,342"/>
-<area shape="poly" id="edge12_Node000006_Node000009" title=" " alt="" coords="997,287,1095,311,1093,316,995,292"/>
-<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="1206,264,1262,251,1332,242,1409,240,1447,244,1485,252,1533,273,1573,299,1571,304,1530,277,1483,257,1447,250,1409,246,1333,247,1263,256,1207,269"/>
-<area shape="rect" id="Node000008" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1329,266,1461,291"/>
-<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="1255,276,1315,276,1315,281,1255,281"/>
-<area shape="poly" id="edge11_Node000008_Node000005" title=" " alt="" coords="1450,289,1519,306,1518,311,1449,294"/>
-<area shape="poly" id="edge13_Node000009_Node000005" title=" " alt="" coords="1259,327,1518,327,1518,332,1259,332"/>
-<area shape="rect" id="Node000011" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#afd1b9f81889807e524c8f98ae3a84a8b" title=" " alt="" coords="1307,13,1484,38"/>
-<area shape="poly" id="edge15_Node000010_Node000011" title=" " alt="" coords="665,186,693,155,731,118,777,83,828,55,888,35,949,21,1012,11,1075,5,1193,4,1293,10,1293,15,1193,9,1075,11,1013,16,950,26,889,40,830,60,780,87,734,122,697,159,669,190"/>
-<area shape="rect" id="Node000012" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ad52f4efe9a25bd5fbedca22548bffe45" title=" " alt="" coords="848,188,996,228"/>
-<area shape="poly" id="edge17_Node000010_Node000012" title=" " alt="" coords="763,205,834,205,834,211,763,211"/>
-<area shape="poly" id="edge16_Node000011_Node000005" title=" " alt="" coords="1463,36,1486,50,1512,77,1534,109,1569,176,1591,242,1604,295,1599,297,1586,243,1564,178,1530,111,1508,81,1482,54,1460,41"/>
-<area shape="poly" id="edge18_Node000012_Node000005" title=" " alt="" coords="995,185,1095,165,1155,157,1220,153,1287,152,1355,158,1422,172,1485,194,1519,214,1548,241,1591,296,1586,299,1544,244,1516,218,1483,199,1420,177,1354,164,1287,158,1220,158,1156,163,1096,171,996,191"/>
-<area shape="poly" id="edge19_Node000012_Node000007" title=" " alt="" coords="991,226,1105,260,1103,265,990,231"/>
-<area shape="poly" id="edge20_Node000012_Node000009" title=" " alt="" coords="996,226,1016,238,1032,255,1041,271,1049,287,1064,302,1076,309,1074,314,1061,306,1045,290,1036,274,1028,258,1013,242,993,231"/>
-<area shape="rect" id="Node000014" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a991f74cd947360479f2b3d776ddd316a" title="part 1 of the computing of the mij field" alt="" coords="533,380,767,420"/>
-<area shape="poly" id="edge22_Node000013_Node000014" title=" " alt="" coords="460,380,519,385,519,391,459,385"/>
-<area shape="rect" id="Node000017" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba" title="part 1 of the computing of the mij field" alt="" coords="519,316,781,356"/>
-<area shape="poly" id="edge29_Node000013_Node000017" title=" " alt="" coords="459,360,504,354,505,359,460,366"/>
-<area shape="rect" id="Node000015" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#af065763bfab5875f5c847f8da20cb358" title=" " alt="" coords="1067,578,1254,603"/>
-<area shape="poly" id="edge23_Node000014_Node000015" title=" " alt="" coords="766,418,783,430,796,445,803,461,807,493,811,523,818,537,831,550,868,566,924,577,1054,587,1053,593,923,582,866,571,828,554,814,540,806,525,802,494,798,463,792,448,780,434,763,422"/>
-<area shape="rect" id="Node000016" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a52d1df75bfd4ce78dada6babafba38b2" title=" " alt="" coords="843,380,1001,420"/>
-<area shape="poly" id="edge25_Node000014_Node000016" title=" " alt="" coords="768,397,830,397,830,403,768,403"/>
-<area shape="poly" id="edge24_Node000015_Node000005" title=" " alt="" coords="1222,601,1281,608,1349,608,1419,597,1452,585,1483,569,1508,548,1529,524,1563,468,1585,410,1598,362,1603,363,1590,412,1568,470,1534,527,1511,552,1485,573,1454,590,1420,602,1349,614,1280,613,1221,606"/>
-<area shape="poly" id="edge26_Node000016_Node000005" title=" " alt="" coords="1001,396,1219,386,1351,375,1484,358,1522,350,1523,355,1484,363,1352,380,1219,391,1001,402"/>
-<area shape="poly" id="edge27_Node000016_Node000007" title=" " alt="" coords="993,378,1013,366,1028,351,1036,335,1045,319,1061,303,1077,294,1080,299,1064,308,1049,322,1041,338,1032,354,1016,370,996,382"/>
-<area shape="poly" id="edge28_Node000016_Node000009" title=" " alt="" coords="990,378,1103,344,1105,349,991,383"/>
-<area shape="rect" id="Node000018" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ad0df6bec2e5ce933b33c390d005f33c4" title=" " alt="" coords="1309,519,1482,559"/>
-<area shape="poly" id="edge30_Node000017_Node000018" title=" " alt="" coords="766,354,783,366,796,381,803,397,807,428,811,457,818,471,831,483,865,501,913,514,971,524,1036,531,1173,538,1295,539,1295,544,1173,544,1036,537,970,530,912,519,863,506,828,488,814,474,806,459,802,428,798,398,792,384,780,370,763,358"/>
-<area shape="rect" id="Node000019" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ace5d89b2c62a078cb94b3406d9e1afad" title=" " alt="" coords="829,316,1015,356"/>
-<area shape="poly" id="edge32_Node000017_Node000019" title=" " alt="" coords="782,333,816,333,816,339,782,339"/>
-<area shape="poly" id="edge31_Node000018_Node000005" title=" " alt="" coords="1453,516,1482,498,1516,466,1545,429,1588,360,1593,363,1550,432,1520,469,1486,502,1456,521"/>
-<area shape="poly" id="edge33_Node000019_Node000005" title=" " alt="" coords="1015,348,1063,352,1186,356,1310,353,1518,337,1519,342,1311,358,1186,361,1062,357,1015,353"/>
-<area shape="poly" id="edge34_Node000019_Node000007" title=" " alt="" coords="1005,314,1093,292,1095,297,1007,319"/>
-<area shape="poly" id="edge35_Node000019_Node000009" title=" " alt="" coords="1015,331,1049,330,1049,335,1015,336"/>
-<area shape="rect" id="Node000022" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a3ba526d7aa8fbe99c9db3d49c09e6e84" title=" " alt="" coords="1080,633,1241,658"/>
-<area shape="poly" id="edge38_Node000021_Node000022" title=" " alt="" coords="672,483,737,544,782,576,830,602,889,621,951,634,1011,641,1066,644,1066,650,1011,647,950,639,888,626,828,607,779,580,734,548,668,486"/>
-<area shape="rect" id="Node000023" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ac4eff79f3e17285fda8ed57543c8128b" title=" " alt="" coords="835,447,1009,473"/>
-<area shape="poly" id="edge40_Node000021_Node000023" title=" " alt="" coords="760,460,821,459,822,464,760,465"/>
-<area shape="poly" id="edge39_Node000022_Node000005" title=" " alt="" coords="1231,656,1290,660,1356,658,1423,644,1454,631,1482,614,1511,588,1535,558,1554,524,1569,489,1590,420,1601,363,1606,364,1595,421,1574,491,1559,527,1539,561,1515,592,1486,618,1456,636,1424,649,1356,663,1290,666,1230,661"/>
-<area shape="poly" id="edge41_Node000023_Node000005" title=" " alt="" coords="1009,454,1107,448,1227,435,1356,415,1483,384,1522,370,1558,354,1560,358,1524,375,1485,389,1357,420,1227,440,1107,453,1009,460"/>
-<area shape="poly" id="edge42_Node000023_Node000007" title=" " alt="" coords="989,445,1013,430,1025,415,1032,400,1036,368,1040,336,1047,319,1061,304,1071,296,1074,300,1065,307,1052,322,1045,337,1041,369,1037,401,1030,418,1016,434,992,450"/>
-<area shape="poly" id="edge43_Node000023_Node000009" title=" " alt="" coords="974,445,1013,430,1080,390,1133,349,1136,353,1083,394,1016,435,976,450"/>
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the device." alt="" coords="5,316,231,378"/>
+<area shape="rect" id="Node000002" href="$dd/daf/namespacedynamic__smagorinsky__device.html#af52abfb3c8d81e9a1c55864cb1ad273a" title="Compute Germano Identity on the device." alt="" coords="290,170,458,231"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,314,307,237,304,242,175,318"/>
+<area shape="rect" id="Node000014" href="$dd/daf/namespacedynamic__smagorinsky__device.html#aeb6ad20071c91bb06dedc412094bb61e" title="Compute M_ij and nut on the device." alt="" coords="290,282,458,343"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="230,329,277,324,273,327,232,334"/>
+<area shape="rect" id="Node000023" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="279,417,469,445"/>
+<area shape="poly" id="edge28_Node000001_Node000023" title=" " alt="" coords="214,376,317,411,312,413,214,381"/>
+<area shape="rect" id="Node000024" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ac84f2458b7e3844fb271bb114231ea03" title="Compute the s_abs field for the Sigma model indevice." alt="" coords="539,386,756,431"/>
+<area shape="poly" id="edge29_Node000001_Node000024" title=" " alt="" coords="231,358,525,392,522,396,231,363"/>
+<area shape="rect" id="Node000003" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a22bc401b3e2a942519a5f5d7b9b4d978" title="part 1 of the computing of the lij field" alt="" coords="536,178,760,223"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="457,198,522,199,517,202,459,203"/>
+<area shape="rect" id="Node000010" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#ad2a7f3e8548b2a06ad85f699241afebc" title="part 2 of the computing of the lij field" alt="" coords="536,109,760,154"/>
+<area shape="poly" id="edge9_Node000002_Node000010" title=" " alt="" coords="457,177,544,157,539,159,459,182"/>
+<area shape="rect" id="Node000004" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ab95ad8f0eaeaa97b02e66151ff78c056" title=" " alt="" coords="831,57,1007,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="756,175,777,164,792,147,800,130,808,112,825,94,831,94,835,91,828,99,812,115,805,132,797,150,780,168,759,180"/>
+<area shape="rect" id="Node000006" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a7ffecb341c33e72ebb34fc4a7e8eb79b" title=" " alt="" coords="845,178,993,223"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="760,198,832,200,827,201,761,203"/>
+<area shape="rect" id="Node000005" href="$d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#abf4850e218286d1d3009582e2c08108d" title=" " alt="" coords="1088,57,1226,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1007,69,1075,71,1070,72,1008,74"/>
+<area shape="rect" id="Node000007" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a8db9d8bf3e3f93c1f2137ce048a17036" title=" " alt="" coords="1064,283,1251,310"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="987,221,1013,233,1037,251,1061,267,1080,277,1075,277,1058,272,1034,255,1010,237,987,226"/>
+<area shape="rect" id="Node000009" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ae740553f29296f824b6643b533c4c255" title=" " alt="" coords="1060,231,1255,258"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="993,211,1067,227,1061,228,993,217"/>
+<area shape="rect" id="Node000008" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1303,283,1434,310"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="1251,294,1290,296,1285,297,1252,299"/>
+<area shape="rect" id="Node000011" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#afd1b9f81889807e524c8f98ae3a84a8b" title=" " alt="" coords="831,5,1007,33"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="690,106,753,75,825,43,851,37,846,39,827,48,756,79,693,111"/>
+<area shape="rect" id="Node000013" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ad52f4efe9a25bd5fbedca22548bffe45" title=" " alt="" coords="845,109,993,154"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="760,129,832,130,827,132,761,134"/>
+<area shape="rect" id="Node000012" href="$d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#ac6568ad2541797c51186143273fe8697" title=" " alt="" coords="1088,5,1226,33"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="1007,17,1075,18,1070,20,1008,22"/>
+<area shape="poly" id="edge13_Node000013_Node000007" title=" " alt="" coords="994,150,1013,164,1025,177,1032,191,1038,218,1044,244,1050,256,1061,268,1069,275,1063,274,1058,272,1046,259,1039,246,1032,219,1027,193,1021,180,1010,168,993,155"/>
+<area shape="poly" id="edge14_Node000013_Node000009" title=" " alt="" coords="984,151,1013,163,1122,222,1116,222,1011,168,984,157"/>
+<area shape="rect" id="Node000015" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a991f74cd947360479f2b3d776ddd316a" title="part 1 of the computing of the mij field" alt="" coords="531,317,764,362"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="458,318,518,326,513,327,458,323"/>
+<area shape="rect" id="Node000019" href="$df/d29/namespacedevice__dynamic__smagorinsky__nut.html#a3770ef9a40097a3c73eec0fde91564ba" title="part 1 of the computing of the mij field" alt="" coords="517,248,778,292"/>
+<area shape="poly" id="edge22_Node000014_Node000019" title=" " alt="" coords="457,297,504,292,499,294,459,302"/>
+<area shape="rect" id="Node000016" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#af065763bfab5875f5c847f8da20cb358" title=" " alt="" coords="826,505,1012,533"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="762,359,780,372,793,387,800,403,805,433,809,464,816,478,828,492,833,498,828,496,824,496,812,481,804,465,800,434,795,404,789,390,777,376,761,365"/>
+<area shape="rect" id="Node000018" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#a52d1df75bfd4ce78dada6babafba38b2" title=" " alt="" coords="841,317,997,362"/>
+<area shape="poly" id="edge19_Node000015_Node000018" title=" " alt="" coords="765,337,828,339,823,340,765,342"/>
+<area shape="rect" id="Node000017" href="$d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#a5a63f35aa3e125cec1cfdb6e004311cc" title=" " alt="" coords="1084,505,1231,533"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="1012,517,1071,519,1065,519,1012,522"/>
+<area shape="poly" id="edge20_Node000018_Node000007" title=" " alt="" coords="997,323,1064,313,1059,314,998,328"/>
+<area shape="poly" id="edge21_Node000018_Node000009" title=" " alt="" coords="986,314,1010,302,1034,285,1058,269,1075,265,1080,263,1061,274,1037,290,1013,307,987,319"/>
+<area shape="rect" id="Node000020" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#ad0df6bec2e5ce933b33c390d005f33c4" title=" " alt="" coords="833,437,1005,482"/>
+<area shape="poly" id="edge23_Node000019_Node000020" title=" " alt="" coords="762,290,780,303,793,317,801,333,806,363,810,393,817,408,828,423,832,428,827,427,824,426,812,411,805,395,800,364,796,334,789,320,777,306,761,295"/>
+<area shape="rect" id="Node000022" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ace5d89b2c62a078cb94b3406d9e1afad" title=" " alt="" coords="827,248,1011,292"/>
+<area shape="poly" id="edge25_Node000019_Node000022" title=" " alt="" coords="778,267,814,269,809,270,779,272"/>
+<area shape="rect" id="Node000021" href="$d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#ab548c13ee3a2621a36a9902eef0be725" title=" " alt="" coords="1070,445,1245,473"/>
+<area shape="poly" id="edge24_Node000020_Node000021" title=" " alt="" coords="1006,457,1057,459,1051,459,1006,462"/>
+<area shape="poly" id="edge26_Node000022_Node000007" title=" " alt="" coords="1012,278,1051,284,1045,285,1012,283"/>
+<area shape="poly" id="edge27_Node000022_Node000009" title=" " alt="" coords="1011,257,1047,256,1041,257,1012,263"/>
+<area shape="rect" id="Node000025" href="$d7/d91/dynamic__smagorinsky__nut_8cu.html#a3ba526d7aa8fbe99c9db3d49c09e6e84" title=" " alt="" coords="839,557,999,585"/>
+<area shape="poly" id="edge30_Node000024_Node000025" title=" " alt="" coords="673,428,740,485,783,516,828,542,845,552,840,551,825,547,780,520,737,489,671,434"/>
+<area shape="rect" id="Node000027" href="$de/d8a/dynamic__smagorinsky__nut_8c.html#ac4eff79f3e17285fda8ed57543c8128b" title=" " alt="" coords="833,385,1005,413"/>
+<area shape="poly" id="edge32_Node000024_Node000027" title=" " alt="" coords="756,402,820,402,815,403,757,407"/>
+<area shape="rect" id="Node000026" href="$d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html#ad354e1f812ac194529092301a0e50d31" title=" " alt="" coords="1096,557,1218,585"/>
+<area shape="poly" id="edge31_Node000025_Node000026" title=" " alt="" coords="999,569,1083,571,1078,571,999,574"/>
+<area shape="poly" id="edge33_Node000027_Node000007" title=" " alt="" coords="979,382,1011,371,1069,344,1118,319,1123,318,1071,349,1013,376,981,387"/>
+<area shape="poly" id="edge34_Node000027_Node000009" title=" " alt="" coords="993,382,1010,372,1021,360,1027,348,1033,322,1039,295,1046,282,1058,269,1064,268,1068,265,1061,273,1050,285,1044,297,1038,323,1032,350,1025,363,1013,376,996,387"/>
 </map>

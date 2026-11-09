@@ -1,29 +1,29 @@
 <map id="source_term::source_term_t" name="source_term::source_term_t">
-<area shape="rect" id="Node000001" title="Base abstract type for source terms." alt="" coords="5,405,160,445"/>
-<area shape="rect" id="Node000002" href="$d1/d30/structboussinesq__source__term_1_1boussinesq__source__term__t.html" title="Bouyancy source term accroding to the Boussinesq approximation." alt="" coords="208,5,411,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,391,91,322,111,232,126,184,147,138,173,94,206,55,222,43,225,48,210,59,178,97,152,140,131,186,116,233,96,323,88,392"/>
-<area shape="rect" id="Node000003" href="$dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html" title="A Brinkman source term. The region and strength are controlled by assigning regions types and brinkma..." alt="" coords="213,69,405,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="86,391,97,333,119,260,135,222,155,185,178,150,206,119,223,107,226,112,210,123,182,153,159,187,140,224,124,262,103,334,91,392"/>
-<area shape="rect" id="Node000004" href="$d3/d76/structcentrifugal__source__term_1_1centrifugal__source__term__t.html" title="This source term adds the centrifugal force." alt="" coords="215,134,403,189"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="92,391,108,348,133,297,165,245,206,199,224,187,227,191,210,203,169,248,137,300,113,350,97,393"/>
-<area shape="rect" id="Node000005" href="$d9/db9/structconst__source__term_1_1const__source__term__t.html" title="A constant source term. The strength is specified with the values keyword, which should be an array,..." alt="" coords="231,213,388,253"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="99,392,142,327,172,293,206,263,229,251,232,255,210,268,176,296,146,330,103,395"/>
-<area shape="rect" id="Node000006" href="$db/dbf/structcoriolis__source__term_1_1coriolis__source__term__t.html" title="This source term adds the Coriolis force." alt="" coords="221,277,398,317"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="114,394,156,359,207,327,234,315,236,320,209,332,159,364,117,398"/>
-<area shape="rect" id="Node000007" href="$d4/dc1/structcustom__types_1_1my__source__term__t.html" title=" " alt="" coords="213,341,405,381"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="167,399,237,379,239,384,168,404"/>
-<area shape="rect" id="Node000008" href="$d5/d82/structfield__source__term_1_1field__source__term__t.html" title="A source term that grabs the values from fields in the registry. The fields are specified with the fi..." alt="" coords="234,405,385,445"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="174,423,234,423,234,428,174,428"/>
-<area shape="rect" id="Node000009" href="$d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html" title="Implements the gradient jump penalty." alt="" coords="213,469,405,509"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="168,447,239,467,237,472,167,452"/>
-<area shape="rect" id="Node000010" href="$dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html" title="High&#45;pass filter relaxation source term." alt="" coords="233,533,386,573"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="117,453,159,487,209,519,236,531,234,536,207,524,156,491,114,457"/>
-<area shape="rect" id="Node000011" href="$d3/d54/structsource__term__template_1_1source__term__template__t.html" title=" " alt="" coords="215,597,404,637"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="103,456,146,521,176,554,210,583,231,595,228,600,206,588,172,558,142,524,99,459"/>
-<area shape="rect" id="Node000012" href="$d1/d27/structsponge__source__term_1_1sponge__source__term__t.html" title=" " alt="" coords="221,661,398,701"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="96,458,112,501,136,552,168,603,210,647,228,659,225,664,206,651,164,606,131,554,107,503,91,459"/>
-<area shape="rect" id="Node000013" href="$df/dd9/structtranslation__source__term_1_1translation__source__term__t.html" title="This source term adds the translation force." alt="" coords="215,726,403,781"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="92,458,105,512,128,580,162,650,184,682,210,711,226,724,222,728,206,715,180,686,158,653,123,582,100,514,87,459"/>
-<area shape="rect" id="Node000014" href="$db/da2/structuser__source__term_1_1user__source__term__t.html" title="A source term wrapping the user source term routine. Stores fields that are passed to the user routin..." alt="" coords="222,805,397,845"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="88,459,96,527,116,616,132,663,152,709,178,752,210,790,227,803,224,807,206,794,174,755,148,712,127,665,111,618,91,528,83,459"/>
+<area shape="rect" id="Node000001" title="Base abstract type for source terms." alt="" coords="5,437,159,482"/>
+<area shape="rect" id="Node000002" href="$d1/d30/structboussinesq__source__term_1_1boussinesq__source__term__t.html" title="Bouyancy source term accroding to the Boussinesq approximation." alt="" coords="207,5,409,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="82,421,88,347,107,250,123,199,144,149,171,102,205,60,223,48,220,53,209,64,175,105,149,152,128,201,112,252,94,347,87,422"/>
+<area shape="rect" id="Node000003" href="$dc/dcc/structbrinkman__source__term_1_1brinkman__source__term__t.html" title="A Brinkman source term. The region and strength are controlled by assigning regions types and brinkma..." alt="" coords="212,75,404,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="85,421,95,359,117,281,132,240,152,200,176,163,205,130,223,118,221,122,208,134,180,166,157,203,137,242,122,283,100,360,90,422"/>
+<area shape="rect" id="Node000004" href="$d3/d76/structcentrifugal__source__term_1_1centrifugal__source__term__t.html" title="This source term adds the centrifugal force." alt="" coords="214,144,402,205"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="91,422,107,375,131,320,163,264,205,215,223,203,220,208,209,219,167,268,135,323,112,377,96,423"/>
+<area shape="rect" id="Node000005" href="$d9/db9/structconst__source__term_1_1const__source__term__t.html" title="A constant source term. The strength is specified with the values keyword, which should be an array,..." alt="" coords="230,229,386,274"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="98,423,141,353,170,316,205,284,231,271,228,275,208,288,174,320,145,356,103,425"/>
+<area shape="rect" id="Node000006" href="$db/dbf/structcoriolis__source__term_1_1coriolis__source__term__t.html" title="This source term adds the Coriolis force." alt="" coords="220,299,396,343"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="114,425,156,388,205,353,233,342,229,346,208,358,159,392,118,428"/>
+<area shape="rect" id="Node000007" href="$d4/dc1/structcustom__types_1_1my__source__term__t.html" title=" " alt="" coords="212,368,404,413"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="170,430,234,411,231,415,173,434"/>
+<area shape="rect" id="Node000008" href="$d5/d82/structfield__source__term_1_1field__source__term__t.html" title="A source term that grabs the values from fields in the registry. The fields are specified with the fi..." alt="" coords="233,437,382,482"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="173,457,235,458,230,461,176,462"/>
+<area shape="rect" id="Node000009" href="$d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html" title="Implements the gradient jump penalty." alt="" coords="212,507,404,551"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="171,485,235,505,230,507,172,490"/>
+<area shape="rect" id="Node000010" href="$dc/dd6/structhpfrt__source__term_1_1hpfrt__source__term__t.html" title="High&#45;pass filter relaxation source term." alt="" coords="232,576,384,621"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="115,490,159,527,208,561,234,575,229,576,205,566,156,532,116,495"/>
+<area shape="rect" id="Node000011" href="$d3/d54/structsource__term__template_1_1source__term__template__t.html" title=" " alt="" coords="214,645,402,690"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="100,493,145,564,174,600,208,631,228,644,223,645,205,635,170,603,141,567,100,498"/>
+<area shape="rect" id="Node000012" href="$d1/d27/structsponge__source__term_1_1sponge__source__term__t.html" title=" " alt="" coords="220,715,396,759"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="93,495,111,543,134,598,166,653,186,678,208,700,226,714,221,714,205,704,182,682,162,656,129,600,106,545,93,500"/>
+<area shape="rect" id="Node000013" href="$df/dd9/structtranslation__source__term_1_1translation__source__term__t.html" title="This source term adds the translation force." alt="" coords="214,784,402,845"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="89,495,104,556,126,628,160,703,182,738,209,770,223,783,217,783,205,774,178,742,155,706,121,630,98,557,88,500"/>
+<area shape="rect" id="Node000014" href="$db/da2/structuser__source__term_1_1user__source__term__t.html" title="A source term wrapping the user source term routine. Stores fields that are passed to the user routin..." alt="" coords="221,869,394,914"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="85,495,94,572,112,668,128,718,149,768,175,814,209,855,224,869,219,868,205,859,171,817,144,770,123,720,107,669,88,573,84,500"/>
 </map>

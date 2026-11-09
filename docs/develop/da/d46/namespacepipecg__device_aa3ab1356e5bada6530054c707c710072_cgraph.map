@@ -1,8 +1,7 @@
 <map id="pipecg_device::device_cg_update_xp" name="pipecg_device::device_cg_update_xp">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,172,69"/>
-<area shape="rect" id="Node000002" href="$da/d9a/pipecg__aux_8hip.html#a4ac59ecc540cb19e2ceca9beeaae179b" title=" " alt="" coords="220,37,359,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,47,206,47,206,52,172,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="407,29,559,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,47,393,47,393,52,359,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="446,30,444,20,450,11,463,5,483,3,505,6,518,13,515,17,504,11,483,8,464,10,453,15,449,21,452,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,171,50"/>
+<area shape="rect" id="Node000002" href="$da/d9a/pipecg__aux_8hip.html#a4ac59ecc540cb19e2ceca9beeaae179b" title=" " alt="" coords="219,14,357,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,25,206,27,200,28,171,30"/>
+<area shape="rect" id="Node000003" href="$d1/d49/cuda_2pipecg__kernel_8h.html#a9d207e79b1c7f3c467c6f57babd04d20" title=" " alt="" coords="405,14,563,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="357,25,392,28,387,28,358,30"/>
 </map>

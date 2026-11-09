@@ -1,9 +1,5 @@
 <map id="sighdl_trap_usr" name="sighdl_trap_usr">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,127,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="284,29,436,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,47,270,47,270,52,127,52"/>
-<area shape="rect" id="Node000003" href="$da/d1e/sighdl_8c.html#a09ba75678949b7855e9cb33dd30c4df9" title=" " alt="" coords="175,62,236,87"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="127,58,162,64,161,69,126,63"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="330,29,328,20,333,11,344,5,360,3,379,6,389,13,385,17,376,11,360,8,346,10,337,14,334,21,335,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="236,67,270,61,271,67,237,72"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,126,33"/>
+<area shape="rect" id="Node000002" href="$da/d1e/sighdl_8c.html#a09ba75678949b7855e9cb33dd30c4df9" title=" " alt="" coords="174,5,234,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="126,17,161,19,155,19,126,22"/>
 </map>

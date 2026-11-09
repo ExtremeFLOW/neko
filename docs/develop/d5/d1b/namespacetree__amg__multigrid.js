@@ -1,7 +1,7 @@
 var namespacetree__amg__multigrid =
 [
-    [ "tamg_solver_t", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t" ],
     [ "tamg_wrk_t", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t.html", "d0/d51/structtree__amg__multigrid_1_1tamg__wrk__t" ],
+    [ "tamg_solver_t", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t.html", "de/d30/structtree__amg__multigrid_1_1tamg__solver__t" ],
     [ "build_agg_csr", "d5/d1b/namespacetree__amg__multigrid.html#a58d594927b8d7a5b8e4dee65c1b2460f", null ],
     [ "calc_resid", "d5/d1b/namespacetree__amg__multigrid.html#a085e46ea755e94f5227bdd58963dc9fc", null ],
     [ "fill_lvl_map", "d5/d1b/namespacetree__amg__multigrid.html#aa0ebd4855c075a56ae22ef03102f9309", null ],

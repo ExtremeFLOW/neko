@@ -1,7 +1,7 @@
 var cuda_2opgrad__kernel_8h =
 [
-    [ "opgrad_dmma_dispatch< T, LX, NW >", "df/d08/structopgrad__dmma__dispatch.html", "df/d08/structopgrad__dmma__dispatch" ],
-    [ "opgrad_dmma_tma_dispatch< T, LX, NW >", "d6/d17/structopgrad__dmma__tma__dispatch.html", "d6/d17/structopgrad__dmma__tma__dispatch" ],
+    [ "opgrad_dmma_dispatch&lt; T, LX, NW &gt;", "df/d08/structopgrad__dmma__dispatch.html", "df/d08/structopgrad__dmma__dispatch" ],
+    [ "opgrad_dmma_tma_dispatch&lt; T, LX, NW &gt;", "d6/d17/structopgrad__dmma__tma__dispatch.html", "d6/d17/structopgrad__dmma__tma__dispatch" ],
     [ "__launch_bounds__", "da/da7/cuda_2opgrad__kernel_8h.html#a9d9f655ab69da127f348638540bb87f3", null ],
     [ "__launch_bounds__", "da/da7/cuda_2opgrad__kernel_8h.html#af71e8f51d35de826e85e40da364f6fed", null ],
     [ "__syncthreads", "da/da7/cuda_2opgrad__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],

@@ -1,7 +1,11 @@
 <map id="pyneko.intf.wrap_space" name="pyneko.intf.wrap_space">
-<area shape="rect" id="Node000001" title=" " alt="" coords="224,42,399,67"/>
-<area shape="rect" id="Node000002" href="$de/dc2/namespacepyneko_1_1intf.html#a08ede4a33c462ae36be07f92a827df95" title=" " alt="" coords="9,5,172,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,44,172,39,173,33,211,39"/>
-<area shape="rect" id="Node000003" href="$de/dc2/namespacepyneko_1_1intf.html#a55a2356bbfbc2efff34ebd5d9c01388d" title=" " alt="" coords="5,70,176,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,70,176,75,176,69,210,65"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="423,44,597,72"/>
+<area shape="rect" id="Node000002" href="$de/dc2/namespacepyneko_1_1intf.html#a08ede4a33c462ae36be07f92a827df95" title=" " alt="" coords="209,5,371,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="405,44,372,42,372,36,410,44"/>
+<area shape="rect" id="Node000003" href="$de/dc2/namespacepyneko_1_1intf.html#a55a2356bbfbc2efff34ebd5d9c01388d" title=" " alt="" coords="205,74,375,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="405,72,376,79,375,74,410,72"/>
+<area shape="rect" id="Node000004" href="$de/dc2/namespacepyneko_1_1intf.html#a08d52523e95517a31f00aa97a25fa695" title=" " alt="" coords="5,35,157,79"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="186,73,157,71,157,65,192,72"/>
+<area shape="rect" id="Node000005" href="$de/dc2/namespacepyneko_1_1intf.html#a23e907a5de101fd111218a6e132a33d3" title=" " alt="" coords="18,103,144,131"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="186,102,145,111,144,106,192,101"/>
 </map>

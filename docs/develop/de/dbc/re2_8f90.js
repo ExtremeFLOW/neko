@@ -10,6 +10,6 @@ var re2_8f90 =
     [ "re2::re2v2_xy_t", "de/daa/structre2_1_1re2v2__xy__t.html", "de/daa/structre2_1_1re2v2__xy__t" ],
     [ "re2::re2v2_curve_t", "d8/dc1/structre2_1_1re2v2__curve__t.html", "d8/dc1/structre2_1_1re2v2__curve__t" ],
     [ "re2::re2v2_bc_t", "d9/dc9/structre2_1_1re2v2__bc__t.html", "d9/dc9/structre2_1_1re2v2__bc__t" ],
-    [ "re2_endian_test", "de/dbc/re2_8f90.html#a162b527c3a715e68dca5f3977e2e5f35", null ],
-    [ "re2_hdr_size", "de/dbc/re2_8f90.html#a76ca9c8b3600d50d46e71875a3e51fff", null ]
+    [ "re2::re2_endian_test", "dd/da1/namespacere2.html#a162b527c3a715e68dca5f3977e2e5f35", null ],
+    [ "re2::re2_hdr_size", "dd/da1/namespacere2.html#a76ca9c8b3600d50d46e71875a3e51fff", null ]
 ];

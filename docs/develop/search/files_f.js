@@ -5,7 +5,7 @@ var searchData=
   ['opencl_5fmappings_2ef90_2',['opencl_mappings.f90',['../d3/d9d/opencl__mappings_8f90.html',1,'']]],
   ['opencl_5fmath_2ef90_3',['opencl_math.f90',['../d1/d96/opencl__math_8f90.html',1,'']]],
   ['operators_2ef90_4',['operators.f90',['../dd/dbf/operators_8f90.html',1,'']]],
-  ['opgrad_5fkernel_2eh_5',['opgrad_kernel.h',['../dd/d9e/hip_2opgrad__kernel_8h.html',1,'(Global Namespace)'],['../da/da7/cuda_2opgrad__kernel_8h.html',1,'(Global Namespace)']]],
+  ['opgrad_5fkernel_2eh_5',['opgrad_kernel.h',['../da/da7/cuda_2opgrad__kernel_8h.html',1,'(Global Namespace)'],['../dd/d9e/hip_2opgrad__kernel_8h.html',1,'(Global Namespace)']]],
   ['opr_5fcdtp_2ec_6',['opr_cdtp.c',['../d6/d10/opr__cdtp_8c.html',1,'']]],
   ['opr_5fcdtp_2ecu_7',['opr_cdtp.cu',['../df/d14/opr__cdtp_8cu.html',1,'']]],
   ['opr_5fcdtp_2ehip_8',['opr_cdtp.hip',['../d9/d63/opr__cdtp_8hip.html',1,'']]],
@@ -34,7 +34,7 @@ var searchData=
   ['opr_5frotate_5fcyc_2ehip_31',['opr_rotate_cyc.hip',['../dd/d46/opr__rotate__cyc_8hip.html',1,'']]],
   ['opr_5fsx_2ef90_32',['opr_sx.f90',['../d4/d06/opr__sx_8f90.html',1,'']]],
   ['opr_5fxsmm_2ef90_33',['opr_xsmm.F90',['../d6/d05/opr__xsmm_8F90.html',1,'']]],
-  ['output_2ef90_34',['output.f90',['../d1/d2b/src_2io_2output_8f90.html',1,'(Global Namespace)'],['../dc/d31/examples_2programming_2output_8f90.html',1,'(Global Namespace)']]],
+  ['output_2ef90_34',['output.f90',['../dc/d31/examples_2programming_2output_8f90.html',1,'(Global Namespace)'],['../d1/d2b/src_2io_2output_8f90.html',1,'(Global Namespace)']]],
   ['output_5fcontroller_2ef90_35',['output_controller.f90',['../d6/d94/output__controller_8f90.html',1,'']]],
   ['overset_5finterface_2ef90_36',['overset_interface.f90',['../de/dfe/overset__interface_8f90.html',1,'']]],
   ['overset_5finterface_5fvector_2ef90_37',['overset_interface_vector.f90',['../d8/d48/overset__interface__vector_8f90.html',1,'']]]

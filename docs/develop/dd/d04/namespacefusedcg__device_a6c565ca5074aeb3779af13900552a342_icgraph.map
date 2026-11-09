@@ -1,5 +1,5 @@
 <map id="fusedcg_device::device_fusedcg_update_x" name="fusedcg_device::device_fusedcg_update_x">
-<area shape="rect" id="Node000001" title=" " alt="" coords="236,5,411,45"/>
-<area shape="rect" id="Node000002" href="$dd/d04/namespacefusedcg__device.html#aa3a07e16519ee1e35e9571215cfed260" title="Pipelined PCG solve." alt="" coords="5,5,188,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,28,188,28,188,23,222,23"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="235,5,408,50"/>
+<area shape="rect" id="Node000002" href="$dd/d04/namespacefusedcg__device.html#aa3a07e16519ee1e35e9571215cfed260" title="Pipelined PCG solve." alt="" coords="5,5,187,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="217,28,187,30,187,25,222,27"/>
 </map>

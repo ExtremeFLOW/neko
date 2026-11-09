@@ -1,6 +1,5 @@
 <map id="cuda_cheby_part2" name="cuda_cheby_part2">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,145,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="193,29,345,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="146,47,180,47,180,52,146,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="233,30,231,20,237,11,250,5,269,3,292,6,304,13,302,17,290,11,269,8,251,10,240,15,236,21,238,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,145,33"/>
+<area shape="rect" id="Node000002" href="$d8/dc2/cheby__aux_8cu.html#a95c3de380f8ae12491cc44883d48d1dc" title=" " alt="" coords="193,5,294,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="145,17,180,19,175,19,145,22"/>
 </map>

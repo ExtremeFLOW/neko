@@ -1,9 +1,9 @@
 var namespacepyneko_1_1intf =
 [
-    [ "neko_coef_t", "d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html", "d6/dc4/classpyneko_1_1intf_1_1neko__coef__t" ],
     [ "neko_dofmap_t", "d1/d11/classpyneko_1_1intf_1_1neko__dofmap__t.html", "d1/d11/classpyneko_1_1intf_1_1neko__dofmap__t" ],
-    [ "neko_field_t", "d3/dc9/classpyneko_1_1intf_1_1neko__field__t.html", "d3/dc9/classpyneko_1_1intf_1_1neko__field__t" ],
     [ "neko_space_t", "df/dd3/classpyneko_1_1intf_1_1neko__space__t.html", "df/dd3/classpyneko_1_1intf_1_1neko__space__t" ],
+    [ "neko_field_t", "d3/dc9/classpyneko_1_1intf_1_1neko__field__t.html", "d3/dc9/classpyneko_1_1intf_1_1neko__field__t" ],
+    [ "neko_coef_t", "d6/dc4/classpyneko_1_1intf_1_1neko__coef__t.html", "d6/dc4/classpyneko_1_1intf_1_1neko__coef__t" ],
     [ "bc_mask", "de/dc2/namespacepyneko_1_1intf.html#a141de1e5c1e8f3732edeb5fa60ea0e9e", null ],
     [ "callback_field", "de/dc2/namespacepyneko_1_1intf.html#a08d52523e95517a31f00aa97a25fa695", null ],
     [ "callback_field_name", "de/dc2/namespacepyneko_1_1intf.html#a4cfb89af4820245bd2b632164ae78dd1", null ],

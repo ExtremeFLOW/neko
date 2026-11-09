@@ -1,0 +1,13 @@
+<map id="compute_cheap_dist_kernel" name="compute_cheap_dist_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="923,40,1078,85"/>
+<area shape="rect" id="Node000002" href="$d9/d17/ale__kinematics_8cu.html#a462090a94f71cff736d24f603274b4df" title=" " alt="" coords="681,22,875,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="904,52,875,50,875,45,910,52"/>
+<area shape="rect" id="Node000006" href="$d3/d1d/ale__kinematics_8hip.html#ae590d0673e45821d2bea4517cc69a6a1" title=" " alt="" coords="687,74,869,102"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="910,73,870,80,869,75,905,74"/>
+<area shape="rect" id="Node000003" href="$d4/d50/namespaceale__routines__device.html#a4297360ce8c877ef730920a28492db6f" title="Cheap dist device implementation." alt="" coords="470,5,633,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="663,36,634,39,634,34,669,36"/>
+<area shape="rect" id="Node000004" href="$dd/db4/namespaceale__manager.html#aadb4d8b03fb126dbfd684fe551c739e5" title=" " alt="" coords="251,14,422,58"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="452,36,423,39,422,34,457,36"/>
+<area shape="rect" id="Node000005" href="$dd/db4/namespaceale__manager.html#a657d2ef58db3d7baab4bb7e6e84e92c4" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,14,203,58"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="232,37,203,39,203,34,237,36"/>
+</map>

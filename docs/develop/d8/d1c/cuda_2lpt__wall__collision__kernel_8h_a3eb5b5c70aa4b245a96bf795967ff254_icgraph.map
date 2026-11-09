@@ -1,14 +1,22 @@
 <map id="lpt_wall_imax" name="lpt_wall_imax">
-<area shape="rect" id="Node000001" title=" " alt="" coords="641,31,755,56"/>
-<area shape="rect" id="Node000002" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a645700440ac5037ec028291fc933d930" title=" " alt="" coords="429,5,591,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="627,37,591,32,591,26,628,31"/>
-<area shape="rect" id="Node000005" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a48041fe97248d2d02fb9e74c0e8610a1" title=" " alt="" coords="427,55,593,80"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="628,55,594,59,593,54,627,50"/>
-<area shape="rect" id="Node000003" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#aef6a70471dabbe9ee1e2612e2bc05df3" title=" " alt="" coords="5,22,176,62"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="416,16,323,14,224,19,177,26,176,21,224,14,323,9,416,10"/>
-<area shape="rect" id="Node000004" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#abc79b36404908b18baa12d6198daebe4" title=" " alt="" coords="224,29,379,55"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="416,31,379,36,378,30,415,26"/>
-<area shape="poly" id="edge4_Node000004_Node000003" title=" " alt="" coords="210,45,176,45,176,39,210,39"/>
-<area shape="poly" id="edge6_Node000005_Node000003" title=" " alt="" coords="413,75,321,75,224,70,176,63,177,58,224,65,321,70,413,69"/>
-<area shape="poly" id="edge7_Node000005_Node000004" title=" " alt="" coords="413,58,379,54,379,49,414,53"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="1308,75,1421,103"/>
+<area shape="rect" id="Node000002" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a645700440ac5037ec028291fc933d930" title=" " alt="" coords="1098,49,1258,76"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1290,79,1258,77,1259,71,1296,79"/>
+<area shape="rect" id="Node000009" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#a48041fe97248d2d02fb9e74c0e8610a1" title=" " alt="" coords="1095,101,1260,128"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="1296,99,1261,106,1261,101,1290,99"/>
+<area shape="rect" id="Node000003" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#aef6a70471dabbe9ee1e2612e2bc05df3" title=" " alt="" coords="674,66,845,110"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="1079,58,990,60,893,65,846,72,845,67,892,60,990,55,1085,58"/>
+<area shape="rect" id="Node000008" href="$d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html#abc79b36404908b18baa12d6198daebe4" title=" " alt="" coords="893,74,1047,102"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="1085,74,1048,81,1047,76,1079,74"/>
+<area shape="rect" id="Node000004" href="$d8/d85/lpt__wall__collision_8cu.html#a40b037dec28d1045e545080095ab2791" title=" " alt="" coords="449,31,626,76"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="656,72,627,70,627,64,662,72"/>
+<area shape="rect" id="Node000007" href="$d2/d92/lpt__wall__collision_8hip.html#a605e40c27da9a9984e5be75827b34f4f" title=" " alt="" coords="454,100,621,145"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="662,103,622,112,621,107,656,104"/>
+<area shape="rect" id="Node000005" href="$da/d7c/namespacelpt__wall__collision__device.html#a1d60c140e5b180c339bb165b4a99d5c4" title="Launch device kernel for elastic wall&#45;collision reflection." alt="" coords="228,14,401,92"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="431,53,402,56,401,51,436,53"/>
+<area shape="rect" id="Node000006" href="$db/de6/interfacelpt__wall__collision__device_1_1hip__lpt__handle__elastic__wall__collisions.html#a04b6ef1df987924841e5c9a0c514b792" title=" " alt="" coords="5,5,180,101"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="209,54,181,56,180,51,214,52"/>
+<area shape="poly" id="edge8_Node000008_Node000003" title=" " alt="" coords="875,88,845,90,845,85,880,88"/>
+<area shape="poly" id="edge10_Node000009_Node000003" title=" " alt="" coords="1077,119,989,121,892,116,845,109,845,104,893,111,989,116,1082,118"/>
+<area shape="poly" id="edge11_Node000009_Node000008" title=" " alt="" coords="1077,102,1047,100,1047,95,1082,102"/>
 </map>

@@ -1,0 +1,9 @@
+<map id="prs_stress_res_part1_kernel" name="prs_stress_res_part1_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="431,48,586,93"/>
+<area shape="rect" id="Node000002" href="$d4/dc2/pnpn__stress__res_8cu.html#a515ddc97bd0736eff250b72af26b4bb5" title=" " alt="" coords="230,14,383,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="413,55,383,52,383,47,419,55"/>
+<area shape="rect" id="Node000004" href="$d0/de1/pnpn__stress__res_8hip.html#aa77b3e20d7b91ae24eaefee214fc1823" title=" " alt="" coords="230,83,383,128"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="419,86,383,95,383,90,413,87"/>
+<area shape="rect" id="Node000003" href="$dd/d1f/namespacepnpn__res__stress__device.html#a9c09a9089caa70d30de4f4b7b087d19e" title=" " alt="" coords="5,5,182,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="211,37,183,39,182,34,216,35"/>
+</map>

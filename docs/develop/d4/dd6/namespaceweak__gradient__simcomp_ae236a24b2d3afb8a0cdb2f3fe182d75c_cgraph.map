@@ -1,26 +1,21 @@
 <map id="weak_gradient_simcomp::weak_gradient_compute" name="weak_gradient_simcomp::weak_gradient_compute">
-<area shape="rect" id="Node000001" title="Compute the weak_gradient field." alt="" coords="5,111,196,151"/>
-<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="244,119,381,144"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,129,230,129,230,134,196,134"/>
-<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#aff4b07360fbf23f86ec7e19ad579632b" title=" " alt="" coords="429,62,601,102"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="365,116,419,103,420,108,366,121"/>
-<area shape="rect" id="Node000008" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="431,143,599,183"/>
-<area shape="poly" id="edge10_Node000002_Node000008" title=" " alt="" coords="382,140,418,145,417,151,381,145"/>
-<area shape="rect" id="Node000004" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="947,5,1052,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="601,62,649,54,802,34,933,21,933,26,802,40,650,59,602,67"/>
-<area shape="rect" id="Node000006" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="702,69,819,95"/>
-<area shape="poly" id="edge6_Node000003_Node000006" title=" " alt="" coords="602,79,689,79,689,85,602,85"/>
-<area shape="rect" id="Node000005" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1127,49,1279,89"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="1052,28,1114,44,1113,49,1051,33"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="1164,49,1162,39,1168,30,1182,24,1203,22,1226,25,1239,32,1237,37,1225,30,1203,27,1183,29,1172,34,1167,40,1170,48"/>
-<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="819,78,1113,69,1113,74,820,83"/>
-<area shape="rect" id="Node000007" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="933,107,1065,132"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="820,88,920,104,919,110,819,94"/>
-<area shape="poly" id="edge9_Node000007_Node000005" title=" " alt="" coords="1051,104,1113,88,1114,93,1052,109"/>
-<area shape="rect" id="Node000009" href="$d9/d5a/namespaceopr__xsmm.html#afced4474e6070b5f75f9767b4b107aaf" title=" " alt="" coords="673,151,848,176"/>
-<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="600,161,659,161,659,166,600,166"/>
-<area shape="rect" id="Node000011" href="$d9/d5a/namespaceopr__xsmm.html#a005ad99d806e0b64c65c52b0819b08ec" title=" " alt="" coords="649,200,872,225"/>
-<area shape="poly" id="edge13_Node000008_Node000011" title=" " alt="" coords="600,178,684,195,683,200,599,183"/>
-<area shape="rect" id="Node000010" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="920,156,1079,181"/>
-<area shape="poly" id="edge12_Node000009_Node000010" title=" " alt="" coords="848,163,906,164,906,169,848,168"/>
+<area shape="rect" id="Node000001" title="Compute the weak_gradient field." alt="" coords="5,80,195,124"/>
+<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="243,88,379,116"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="195,99,230,101,225,103,196,104"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#aff4b07360fbf23f86ec7e19ad579632b" title=" " alt="" coords="427,45,598,90"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="379,87,414,84,409,85,380,93"/>
+<area shape="rect" id="Node000007" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="429,114,596,159"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="380,111,416,119,411,120,380,116"/>
+<area shape="rect" id="Node000004" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="705,5,809,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="598,48,692,32,687,33,599,53"/>
+<area shape="rect" id="Node000005" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="699,57,815,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="599,66,686,70,681,70,599,71"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="929,57,1060,85"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="816,69,916,71,910,71,816,74"/>
+<area shape="rect" id="Node000008" href="$d9/d5a/namespaceopr__xsmm.html#afced4474e6070b5f75f9767b4b107aaf" title=" " alt="" coords="670,117,844,145"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="597,132,657,133,652,134,597,137"/>
+<area shape="rect" id="Node000010" href="$d9/d5a/namespaceopr__xsmm.html#a005ad99d806e0b64c65c52b0819b08ec" title=" " alt="" coords="646,169,868,197"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="597,150,669,166,663,166,597,155"/>
+<area shape="rect" id="Node000009" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="916,117,1073,145"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="844,129,902,131,897,131,844,134"/>
 </map>

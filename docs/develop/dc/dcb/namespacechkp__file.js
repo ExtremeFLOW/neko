@@ -1,7 +1,7 @@
 var namespacechkp__file =
 [
-    [ "chkp_file_t", "dd/dd2/structchkp__file_1_1chkp__file__t.html", "dd/dd2/structchkp__file_1_1chkp__file__t" ],
     [ "legacy_checkpoint_view_t", "d6/dfe/structchkp__file_1_1legacy__checkpoint__view__t.html", "d6/dfe/structchkp__file_1_1legacy__checkpoint__view__t" ],
+    [ "chkp_file_t", "dd/dd2/structchkp__file_1_1chkp__file__t.html", "dd/dd2/structchkp__file_1_1chkp__file__t" ],
     [ "chkp_build_legacy_view", "dc/dcb/namespacechkp__file.html#ac8e5c80d28809b5024f9412b19a1338f", null ],
     [ "chkp_file_get_next_output_fname", "dc/dcb/namespacechkp__file.html#a6899407e25ef17d5097beddc6ce9f22f", null ],
     [ "chkp_file_read", "dc/dcb/namespacechkp__file.html#a4fee4d082fd1bdc65e9873aa954d7108", null ],

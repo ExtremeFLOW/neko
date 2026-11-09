@@ -1,11 +1,11 @@
 <map id="device_math::device_addcol3s2" name="device_math::device_addcol3s2">
-<area shape="rect" id="Node000001" title="Returns ." alt="" coords="476,35,633,75"/>
-<area shape="rect" id="Node000002" href="$dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="258,5,398,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="462,45,398,37,399,32,462,40"/>
-<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#ac1961ed199e8a2b4833049a6687a53fd" title="Returns ." alt="" coords="228,70,428,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="462,69,429,73,428,68,462,63"/>
-<area shape="rect" id="Node000004" href="$d1/d26/namespacemean__field.html#a8ddeb536cd296d2da2a483c4a1cb565c" title="Update the mean field using the pointwise product &#160;as the sample, without the need for a work field h..." alt="" coords="5,31,180,71"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="220,71,180,65,180,60,221,65"/>
-<area shape="rect" id="Node000005" href="$d1/d26/namespacemean__field.html#a450822c9ed2fc89ba3edc33505cfcbfa" title="Update the mean field using &#160;as the sample, without the need for a work field holding the sum." alt="" coords="5,95,180,135"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="221,100,180,105,180,100,220,95"/>
+<area shape="rect" id="Node000001" title="Returns ." alt="" coords="474,36,630,81"/>
+<area shape="rect" id="Node000002" href="$dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732" title="Add the advection term for the fluid, i.e. , to the RHS using the OIFS method." alt="" coords="257,5,396,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="456,46,396,40,396,34,461,45"/>
+<area shape="rect" id="Node000003" href="$d5/de6/namespacefield__math.html#ac1961ed199e8a2b4833049a6687a53fd" title="Returns ." alt="" coords="227,74,426,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="456,71,427,77,426,72,461,70"/>
+<area shape="rect" id="Node000004" href="$d1/d26/namespacemean__field.html#a8ddeb536cd296d2da2a483c4a1cb565c" title="Update the mean field using the pointwise product &#160;as the sample, without the need for a work field h..." alt="" coords="5,31,179,75"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="211,71,179,68,179,63,216,70"/>
+<area shape="rect" id="Node000005" href="$d1/d26/namespacemean__field.html#a450822c9ed2fc89ba3edc33505cfcbfa" title="Update the mean field using &#160;as the sample, without the need for a work field holding the sum." alt="" coords="5,100,179,145"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="211,105,179,112,179,107,216,104"/>
 </map>

@@ -1,0 +1,11 @@
+<map id="pipecg_vecops_kernel" name="pipecg_vecops_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="635,32,800,60"/>
+<area shape="rect" id="Node000002" href="$d8/d3b/pipecg__aux_8cu.html#a19cb59402da7dfa4a95826ad44878d58" title=" " alt="" coords="432,5,587,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="618,33,587,32,588,26,623,33"/>
+<area shape="rect" id="Node000003" href="$da/d9a/pipecg__aux_8hip.html#a5a0e60ff01db773d2d0f0737b5982a6a" title=" " alt="" coords="438,57,582,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="623,57,582,65,582,60,618,58"/>
+<area shape="rect" id="Node000004" href="$da/d46/namespacepipecg__device.html#a20e5112bf3c11f03f58a2bd09e8f27a0" title=" " alt="" coords="219,49,384,94"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="419,71,385,74,384,69,425,71"/>
+<area shape="rect" id="Node000005" href="$da/d46/namespacepipecg__device.html#a7668ed15eabc2865fb0bc57ad3c1f8f5" title="Pipelined PCG solve." alt="" coords="5,49,171,94"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="201,71,171,74,171,69,206,71"/>
+</map>

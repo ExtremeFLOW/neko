@@ -1,5 +1,5 @@
 <map id="lpt_wall_collision_cpu::reflect_position" name="lpt_wall_collision_cpu::reflect_position">
-<area shape="rect" id="Node000001" title="Reflect the particle center across the contact plane located one radius inward from the wall plane." alt="" coords="232,13,392,53"/>
-<area shape="rect" id="Node000002" href="$d1/d45/namespacelpt__wall__collision__cpu.html#af44cf65b2bdf1db0f589222412d531d0" title="Reflect inertial particles that hit configured wall facets on the CPU." alt="" coords="5,5,184,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="218,35,184,35,184,30,218,30"/>
+<area shape="rect" id="Node000001" title="Reflect the particle center across the contact plane located one radius inward from the wall plane." alt="" coords="231,14,390,58"/>
+<area shape="rect" id="Node000002" href="$d1/d45/namespacelpt__wall__collision__cpu.html#af44cf65b2bdf1db0f589222412d531d0" title="Reflect inertial particles that hit configured wall facets on the CPU." alt="" coords="5,5,183,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="212,36,183,39,183,34,218,36"/>
 </map>

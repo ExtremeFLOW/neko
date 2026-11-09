@@ -1,0 +1,13 @@
+<map id="rough_log_law_compute" name="rough_log_law_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="757,92,937,119"/>
+<area shape="rect" id="Node000002" href="$d1/dc9/rough__log__law_8cu.html#aeaabbd89e903fe8ddf3613d4b2930834" title=" " alt="" coords="530,52,683,97"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="739,92,683,87,683,82,745,92"/>
+<area shape="rect" id="Node000006" href="$d2/dea/rough__log__law_8hip.html#add87c21e1823de35205508c6838bb4d1" title=" " alt="" coords="503,121,709,149"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="745,118,710,125,710,120,739,118"/>
+<area shape="rect" id="Node000003" href="$db/d78/namespacerough__log__law__device.html#a90ec9198d5b3cc192144e2fabb0fdb87" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="268,44,455,106"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="511,75,456,77,455,72,516,75"/>
+<area shape="rect" id="Node000004" href="$da/de5/interfacerough__log__law__device_1_1hip__rough__log__law__compute.html#a124a0bae4514fa4b9566f009f9737c3a" title=" " alt="" coords="5,5,220,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="250,58,220,56,220,50,255,57"/>
+<area shape="rect" id="Node000005" href="$d7/d0f/namespacerough__log__law.html#af4bdad1f2c2574505332afd9ccbbfa95" title="Compute the wall shear stress." alt="" coords="33,91,192,136"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="250,92,193,104,192,98,255,91"/>
+</map>

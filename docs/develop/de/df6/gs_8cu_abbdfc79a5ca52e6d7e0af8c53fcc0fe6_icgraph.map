@@ -1,11 +1,11 @@
 <map id="cuda_gs_pack_vec" name="cuda_gs_pack_vec">
-<area shape="rect" id="Node000001" title=" " alt="" coords="516,77,659,102"/>
-<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#a8de110eaf7662b606bd479c2cd04a231" title="Gather n positions of the component&#45;outer src (stride ns) into the interleaved dst." alt="" coords="299,5,445,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="530,75,439,48,441,43,531,70"/>
-<area shape="rect" id="Node000004" href="$d9/dfa/namespacegs__device__mpi.html#a17db3c0e3beb34c55469decf725739af" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="276,69,468,109"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="502,92,468,92,468,87,502,87"/>
-<area shape="rect" id="Node000005" href="$de/dcf/namespacegs__device__nccl.html#a0b15d59b84aa2d8d7d9253229a894678" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="277,133,467,173"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="531,109,441,136,439,131,530,104"/>
-<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#aee55ef043790386c489ec084895b3c53" title="Pack the shared vector and post the send of the first routing stage, fused nc&#45;component." alt="" coords="5,5,228,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="285,28,228,28,228,23,285,23"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="514,83,656,111"/>
+<area shape="rect" id="Node000002" href="$da/dd9/namespacegs__device__crystal.html#a8de110eaf7662b606bd479c2cd04a231" title="Gather n positions of the component&#45;outer src (stride ns) into the interleaved dst." alt="" coords="298,5,443,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="523,78,442,53,442,48,528,78"/>
+<area shape="rect" id="Node000004" href="$d9/dfa/namespacegs__device__mpi.html#a17db3c0e3beb34c55469decf725739af" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="275,75,466,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="496,97,467,100,466,94,501,97"/>
+<area shape="rect" id="Node000005" href="$de/dcf/namespacegs__device__nccl.html#a0b15d59b84aa2d8d7d9253229a894678" title="Fused nc&#45;component send. u is the compact shared device buffer (component&#45;outer, per&#45;component stride..." alt="" coords="276,144,464,189"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="528,116,443,146,441,141,523,117"/>
+<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#aee55ef043790386c489ec084895b3c53" title="Pack the shared vector and post the send of the first routing stage, fused nc&#45;component." alt="" coords="5,5,227,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="280,29,228,30,227,25,285,27"/>
 </map>

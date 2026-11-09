@@ -1,5 +1,5 @@
 <map id="registry_entry::get_integer_scalar" name="registry_entry::get_integer_scalar">
-<area shape="rect" id="Node000001" title="Get the integer scalar pointer of the registry entry." alt="" coords="216,13,357,53"/>
-<area shape="rect" id="Node000002" href="$db/d1a/structregistry_1_1registry__t.html#a7d72e4ead172070f4998472ebeebc219" title="Get pointer to a stored integer scalar by name." alt="" coords="5,5,168,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="202,35,168,35,168,30,202,30"/>
+<area shape="rect" id="Node000001" title="Get the integer scalar pointer of the registry entry." alt="" coords="215,14,355,58"/>
+<area shape="rect" id="Node000002" href="$db/d1a/structregistry_1_1registry__t.html#a7d72e4ead172070f4998472ebeebc219" title="Get pointer to a stored integer scalar by name." alt="" coords="5,5,167,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="196,36,167,39,167,34,202,36"/>
 </map>

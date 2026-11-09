@@ -1,48 +1,46 @@
 <map id="force_torque::force_torque_compute" name="force_torque::force_torque_compute">
-<area shape="rect" id="Node000001" title="Compute the force_torque field." alt="" coords="5,421,151,461"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="243,71,337,96"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,420,85,359,103,275,119,230,139,185,165,143,197,107,212,96,228,89,230,94,214,101,200,111,169,146,144,187,124,232,108,276,90,360,83,421"/>
-<area shape="rect" id="Node000003" href="$d0/d6f/namespacedrag__torque.html#a5067723230fde31368ad47fb10c8da77" title="Calculate drag and torque from array of points." alt="" coords="203,121,377,161"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="88,419,134,342,197,247,259,169,264,173,201,250,138,345,93,422"/>
-<area shape="rect" id="Node000008" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="215,261,365,301"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="91,419,135,365,164,336,197,310,207,304,210,309,200,315,168,340,139,369,95,422"/>
-<area shape="rect" id="Node000014" href="$d2/d73/namespacedevice__math.html#a2bfbeed670b2e6b704a1a2c4e5bc03c4" title="Sum a vector of length n." alt="" coords="211,325,369,365"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="112,418,198,374,214,367,217,372,200,379,115,423"/>
-<area shape="rect" id="Node000015" href="$d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="199,389,381,429"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="150,427,185,422,186,427,151,432"/>
-<area shape="rect" id="Node000016" href="$d2/d73/namespacedevice__math.html#a573e8b6d58c6e9bf4b86d081e8d820fa" title="Compute a cross product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="211,453,369,493"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="151,449,198,456,197,461,150,454"/>
-<area shape="rect" id="Node000017" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="238,541,342,567"/>
-<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="118,458,254,532,252,537,115,463"/>
-<area shape="rect" id="Node000018" href="$dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="208,591,372,631"/>
-<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="94,459,137,517,167,548,200,576,212,583,209,587,197,580,163,552,133,520,90,462"/>
-<area shape="rect" id="Node000019" href="$d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="218,655,362,695"/>
-<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="88,460,103,498,127,547,159,598,200,641,208,647,204,651,197,645,155,601,122,550,98,501,83,462"/>
-<area shape="rect" id="Node000022" href="$dd/d47/namespacemath.html#af014991361eebeb6b753b3deba502bc9" title="Compute a cross product &#160;assuming vector components &#160;etc." alt="" coords="237,720,343,745"/>
-<area shape="poly" id="edge24_Node000001_Node000022" title=" " alt="" coords="85,460,96,510,117,576,151,646,174,678,200,705,224,719,222,724,197,709,169,681,146,649,112,578,91,511,80,461"/>
-<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="479,5,570,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="358,118,380,105,395,89,403,73,411,56,428,40,465,24,467,28,431,44,415,59,407,75,399,92,383,109,360,123"/>
-<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="479,55,570,80"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="345,118,429,89,465,78,467,84,430,94,347,123"/>
-<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="476,104,573,129"/>
-<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="377,129,462,120,463,126,378,134"/>
-<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="474,153,575,179"/>
-<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="378,147,461,157,460,162,377,153"/>
-<area shape="rect" id="Node000009" href="$d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89" title="Multiplication by constant c ." alt="" coords="446,203,603,243"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="365,260,432,243,434,248,366,265"/>
-<area shape="rect" id="Node000010" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="429,268,620,293"/>
-<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="365,278,416,278,416,283,365,283"/>
-<area shape="rect" id="Node000011" href="$d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23" title="Vector multiplication with 3 vectors ." alt="" coords="429,317,620,343"/>
-<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="366,294,451,312,450,317,365,299"/>
-<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="446,367,603,407"/>
-<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="358,298,383,310,407,331,431,352,446,359,443,364,428,356,404,335,380,315,356,303"/>
-<area shape="rect" id="Node000013" href="$d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="446,431,603,471"/>
-<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="366,299,383,311,395,324,402,338,408,366,413,392,420,405,431,417,436,422,433,426,427,421,416,408,408,394,403,367,397,340,391,327,380,315,363,303"/>
-<area shape="poly" id="edge17_Node000017_Node000017" title=" " alt="" coords="255,543,248,533,252,523,266,517,290,515,319,518,331,527,328,532,317,523,290,520,268,522,256,527,253,532,260,540"/>
-<area shape="rect" id="Node000020" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="461,663,588,688"/>
-<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="362,673,448,673,448,678,362,678"/>
-<area shape="poly" id="edge23_Node000020_Node000020" title=" " alt="" coords="489,664,481,654,485,644,500,638,525,636,555,640,567,649,564,653,553,645,525,641,501,643,489,648,486,654,493,661"/>
-<area shape="rect" id="Node000021" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="668,655,820,695"/>
-<area shape="poly" id="edge21_Node000020_Node000021" title=" " alt="" coords="588,673,654,673,654,678,588,678"/>
-<area shape="poly" id="edge22_Node000021_Node000021" title=" " alt="" coords="703,656,701,646,707,636,722,631,744,629,770,632,784,639,781,644,768,637,744,634,723,636,710,641,706,647,708,654"/>
+<area shape="rect" id="Node000001" title="Compute the force_torque field." alt="" coords="5,446,150,491"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a439630d12cb3027eb78f58e0519b8bc6" title="Add a scalar to vector ." alt="" coords="241,75,336,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="77,445,83,380,101,291,116,242,136,195,162,151,196,112,228,95,225,99,199,116,167,154,141,197,121,244,106,292,88,381,82,446"/>
+<area shape="rect" id="Node000003" href="$d0/d6f/namespacedrag__torque.html#a5067723230fde31368ad47fb10c8da77" title="Calculate drag and torque from array of points." alt="" coords="202,126,375,171"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="88,445,133,362,195,259,259,180,256,185,200,262,137,364,93,447"/>
+<area shape="rect" id="Node000008" href="$d0/d6f/namespacedrag__torque.html#a70a6c2b95914784b94819fb918ff8b15" title="Calculate drag and torque from array of points." alt="" coords="213,273,364,318"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="91,445,134,387,163,355,196,328,207,323,203,327,199,332,167,359,138,390,95,447"/>
+<area shape="rect" id="Node000014" href="$d2/d73/namespacedevice__math.html#a2bfbeed670b2e6b704a1a2c4e5bc03c4" title="Sum a vector of length n." alt="" coords="210,342,366,387"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="113,444,196,397,212,391,209,395,199,402,116,448"/>
+<area shape="rect" id="Node000015" href="$d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="198,412,379,456"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="148,454,184,450,180,453,151,459"/>
+<area shape="rect" id="Node000016" href="$d2/d73/namespacedevice__math.html#a573e8b6d58c6e9bf4b86d081e8d820fa" title="Compute a cross product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="210,481,366,526"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="149,478,197,486,193,489,151,483"/>
+<area shape="rect" id="Node000017" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="237,573,340,601"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="117,489,199,536,250,565,245,566,196,540,117,494"/>
+<area shape="rect" id="Node000018" href="$dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="207,625,370,670"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="92,488,137,549,166,582,199,610,207,617,201,617,196,615,162,586,133,552,92,494"/>
+<area shape="rect" id="Node000019" href="$d0/d6f/namespacedrag__torque.html#a0c3183c7695dac7a0f04a13c5ca244f6" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="217,694,360,739"/>
+<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="86,488,103,531,126,581,158,634,199,680,206,687,201,686,196,684,154,637,121,584,98,533,86,494"/>
+<area shape="rect" id="Node000022" href="$dd/d47/namespacemath.html#af014991361eebeb6b753b3deba502bc9" title="Compute a cross product &#160;assuming vector components &#160;etc." alt="" coords="236,763,341,790"/>
+<area shape="poly" id="edge22_Node000001_Node000022" title=" " alt="" coords="82,489,94,544,115,614,130,651,149,687,172,720,199,749,224,765,218,765,196,753,168,723,144,689,125,653,110,616,89,545,81,494"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="477,5,567,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="359,124,377,112,392,95,400,78,409,61,425,44,464,28,460,31,429,48,413,64,405,80,397,98,381,116,363,127"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="477,57,567,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="347,123,426,95,464,85,460,89,428,100,350,128"/>
+<area shape="rect" id="Node000006" href="$dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="474,109,570,137"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="374,137,461,128,457,132,376,141"/>
+<area shape="rect" id="Node000007" href="$dd/d47/namespacemath.html#ac6b1aa1e5e708afa691fde3c54956283" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="472,161,572,189"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="374,156,459,166,455,169,376,161"/>
+<area shape="rect" id="Node000009" href="$d2/d73/namespacedevice__math.html#a5bc420eefcedaedd955663f62d9e5e89" title="Multiplication by constant c ." alt="" coords="444,213,600,258"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="363,274,431,257,427,261,365,278"/>
+<area shape="rect" id="Node000010" href="$d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="427,281,617,309"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="363,293,414,294,409,296,365,298"/>
+<area shape="rect" id="Node000011" href="$d2/d73/namespacedevice__math.html#ada32e4bb9b2ce2ff39e708510146ff23" title="Vector multiplication with 3 vectors ." alt="" coords="427,333,617,361"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="363,309,444,328,439,330,365,314"/>
+<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="444,385,600,430"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="356,315,381,328,405,349,429,370,439,377,433,378,425,375,401,353,377,332,357,321"/>
+<area shape="rect" id="Node000013" href="$d2/d73/namespacedevice__math.html#a6c3ea57885e144ac36cab4fefde393d7" title="Compute a dot product &#160;(3&#45;d version) assuming vector components &#160;etc." alt="" coords="444,454,600,499"/>
+<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="363,315,381,328,393,342,400,357,406,385,411,413,417,426,429,440,434,446,429,446,425,444,413,429,406,415,400,386,395,359,388,345,377,332,364,321"/>
+<area shape="poly" id="edge17_Node000017_Node000017" title=" " alt="" coords="252,573,246,564,251,555,265,549,288,547,313,549,328,558,323,558,312,554,288,552,266,554,254,559,252,564,257,573"/>
+<area shape="rect" id="Node000020" href="$d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b" title="Compute (i,j,k,l) array given linear index with sizes (1:lx, 1:ly, 1:lz, :)." alt="" coords="442,703,603,730"/>
+<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="360,714,429,716,423,717,360,719"/>
+<area shape="rect" id="Node000021" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)." alt="" coords="665,703,803,730"/>
+<area shape="poly" id="edge21_Node000020_Node000021" title=" " alt="" coords="603,714,652,716,647,717,603,719"/>
 </map>

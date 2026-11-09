@@ -1,0 +1,13 @@
+<map id="dirichlet_apply_scalar_kernel" name="dirichlet_apply_scalar_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="680,79,844,123"/>
+<area shape="rect" id="Node000002" href="$d4/d09/dirichlet_8cu.html#ae9fc49c9ca11009e0f2858edec3f2879" title=" " alt="" coords="477,44,632,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="662,85,633,82,633,77,667,85"/>
+<area shape="rect" id="Node000006" href="$de/d49/dirichlet_8hip.html#a568fdfe70f08ec92eb5162df8e15a8d7" title=" " alt="" coords="482,113,627,158"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="668,117,627,126,627,121,662,118"/>
+<area shape="rect" id="Node000003" href="$d0/d0d/namespacedevice__dirichlet.html#a8427c5bf729b68a92dfbbd1cc34a2274" title=" " alt="" coords="254,44,429,89"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="459,67,430,69,429,64,464,66"/>
+<area shape="rect" id="Node000004" href="$da/ddb/namespacedirichlet.html#a29d5229390400488580f8a6039c54035" title="Boundary condition apply for a generic Dirichlet condition to a vector x (device version)." alt="" coords="35,5,176,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="236,50,177,42,176,37,241,49"/>
+<area shape="rect" id="Node000005" href="$d6/df8/interfacedevice__dirichlet_1_1hip__dirichlet__apply__vector.html#a8a76616954bf82dfc0663ca081785400" title=" " alt="" coords="5,74,206,136"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="236,84,207,91,206,86,241,83"/>
+</map>

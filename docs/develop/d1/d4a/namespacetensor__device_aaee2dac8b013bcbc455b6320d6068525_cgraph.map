@@ -1,17 +1,11 @@
 <map id="tensor_device::tnsr3d_device" name="tensor_device::tnsr3d_device">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,44,168,84"/>
-<area shape="rect" id="Node000002" href="$d9/d0b/tensor_8cu.html#a6df9c12fe7b8cbdb29aebd6480f65c61" title=" " alt="" coords="222,26,323,51"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,50,208,45,208,50,169,56"/>
-<area shape="rect" id="Node000005" href="$d9/dbd/tensor_8c.html#a1c1f3461770465a6b3d4d1b3358e8527" title=" " alt="" coords="216,77,329,102"/>
-<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="169,73,203,77,202,83,168,78"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="575,44,727,84"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="315,24,377,11,452,3,485,4,527,11,565,21,600,36,598,41,563,27,526,16,485,10,452,8,378,16,316,29"/>
-<area shape="rect" id="Node000004" href="$d9/d0b/tensor_8cu.html#ae73bd351f4f0ac33d3073feb2b618c8f" title=" " alt="" coords="377,26,527,51"/>
-<area shape="poly" id="edge4_Node000002_Node000004" title=" " alt="" coords="324,36,363,36,363,41,324,41"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="613,44,611,34,617,25,630,20,651,17,674,20,687,28,684,32,672,25,651,23,632,25,621,29,616,35,619,43"/>
-<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="527,46,561,50,560,55,527,51"/>
-<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="329,83,561,67,561,73,330,88"/>
-<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="386,127,518,153"/>
-<area shape="poly" id="edge8_Node000005_Node000006" title=" " alt="" coords="319,100,394,121,392,126,318,105"/>
-<area shape="poly" id="edge9_Node000006_Node000003" title=" " alt="" coords="485,125,584,87,586,92,487,130"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,24,167,68"/>
+<area shape="rect" id="Node000002" href="$d9/d0b/tensor_8cu.html#a6df9c12fe7b8cbdb29aebd6480f65c61" title=" " alt="" coords="221,5,321,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,32,208,28,202,29,168,37"/>
+<area shape="rect" id="Node000004" href="$d9/dbd/tensor_8c.html#a1c1f3461770465a6b3d4d1b3358e8527" title=" " alt="" coords="215,57,327,85"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="167,54,202,61,197,62,167,60"/>
+<area shape="rect" id="Node000003" href="$d9/d0b/tensor_8cu.html#ae73bd351f4f0ac33d3073feb2b618c8f" title=" " alt="" coords="375,5,523,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="321,17,362,19,357,19,322,22"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="384,57,515,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="327,69,370,71,365,71,327,74"/>
 </map>

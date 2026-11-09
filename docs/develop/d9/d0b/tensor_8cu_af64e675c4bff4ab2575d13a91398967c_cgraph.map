@@ -1,6 +1,7 @@
 <map id="set_tnsr3d_large_shmem_attr" name="set_tnsr3d_large_shmem_attr">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,221,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="269,29,421,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,47,256,47,256,52,222,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="302,30,299,20,306,10,322,5,345,3,372,6,387,13,385,18,371,11,345,8,323,10,310,15,305,21,307,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,221,33"/>
+<area shape="rect" id="Node000002" href="$dc/dd2/cuda_2tensor__kernel_8h.html#a9e950172cd4bc675c830b16fef1eca16" title=" " alt="" coords="269,5,418,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="221,17,256,19,250,19,221,22"/>
+<area shape="rect" id="Node000003" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="466,5,580,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="418,17,453,19,448,19,418,22"/>
 </map>

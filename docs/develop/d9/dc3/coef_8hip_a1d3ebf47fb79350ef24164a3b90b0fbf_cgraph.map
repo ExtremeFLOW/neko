@@ -1,6 +1,5 @@
 <map id="hip_coef_generate_dxyzdrst" name="hip_coef_generate_dxyzdrst">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,211,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="259,29,411,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="211,47,245,47,245,52,211,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="292,30,290,20,297,10,312,5,335,3,361,6,376,13,373,18,360,11,335,8,313,10,300,15,295,21,297,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,14,210,42"/>
+<area shape="rect" id="Node000002" href="$d0/d39/cuda_2coef__kernel_8h.html#a77009b648361e0d3028e6390054db600" title=" " alt="" coords="258,5,404,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,25,245,27,239,28,210,30"/>
 </map>

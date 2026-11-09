@@ -1,0 +1,9 @@
+<map id="sumab_kernel" name="sumab_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="450,40,562,68"/>
+<area shape="rect" id="Node000002" href="$d0/d67/rhs__maker_8cu.html#ac810b20abb837bd73a4781ea94144a37" title=" " alt="" coords="224,14,402,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="432,45,403,43,403,37,437,45"/>
+<area shape="rect" id="Node000004" href="$d9/dfc/rhs__maker_8hip.html#a5e087cef04d182182feea85d2c60d6d3" title=" " alt="" coords="229,66,396,94"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="437,63,397,71,397,66,432,64"/>
+<area shape="rect" id="Node000003" href="$d1/d29/namespacerhs__maker__device.html#a3ab42ff71df2fb175fade36961369027" title=" " alt="" coords="5,5,176,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="206,28,176,30,176,25,211,27"/>
+</map>

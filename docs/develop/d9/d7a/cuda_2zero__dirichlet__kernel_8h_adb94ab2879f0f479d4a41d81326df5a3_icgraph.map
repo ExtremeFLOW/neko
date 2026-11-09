@@ -1,0 +1,13 @@
+<map id="zero_dirichlet_apply_scalar_kernel" name="zero_dirichlet_apply_scalar_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="665,100,818,144"/>
+<area shape="rect" id="Node000002" href="$d5/d6c/zero__dirichlet_8cu.html#a55b3e2a9adf8a8d8ec8f0d1c81113fe5" title=" " alt="" coords="470,65,617,110"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="647,106,618,103,618,98,652,106"/>
+<area shape="rect" id="Node000006" href="$d7/d19/zero__dirichlet_8hip.html#acaae905375e98a4634aaa8bd8426e72e" title=" " alt="" coords="476,134,612,179"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="653,138,612,147,612,142,647,138"/>
+<area shape="rect" id="Node000003" href="$d2/d25/namespacedevice__zero__dirichlet.html#a29760e75889a48b8b3793db2ba3c18ba" title=" " alt="" coords="255,56,422,118"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="452,88,423,90,422,85,457,87"/>
+<area shape="rect" id="Node000004" href="$d3/db3/interfacedevice__zero__dirichlet_1_1hip__zero__dirichlet__apply__vector.html#aa73547c61c3e172e4b8cc15724119678" title=" " alt="" coords="18,5,194,84"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="237,70,194,63,194,58,242,68"/>
+<area shape="rect" id="Node000005" href="$da/ddc/namespacezero__dirichlet.html#aa0a406729e8b0a811966ac7c691587ec" title="Apply boundary condition to a scalar field, device version." alt="" coords="5,108,207,152"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="237,106,208,114,206,109,242,105"/>
+</map>

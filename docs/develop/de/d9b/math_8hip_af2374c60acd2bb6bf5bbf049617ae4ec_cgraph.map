@@ -1,6 +1,5 @@
 <map id="hip_cmult" name="hip_cmult">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,92,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="140,29,292,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="92,47,126,47,126,52,92,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="184,30,182,20,188,11,199,5,216,3,236,6,246,13,243,17,234,11,216,8,200,10,191,15,188,21,190,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,91,33"/>
+<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html#a6d7111b5670b9651b385bf199aec75c6" title=" " alt="" coords="139,5,244,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,17,126,19,120,20,91,22"/>
 </map>

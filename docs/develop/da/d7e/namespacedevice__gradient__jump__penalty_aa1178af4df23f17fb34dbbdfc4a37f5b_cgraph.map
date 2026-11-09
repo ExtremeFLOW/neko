@@ -1,14 +1,11 @@
 <map id="device_gradient_jump_penalty::device_pick_facet_value_hex" name="device_gradient_jump_penalty::device_pick_facet_value_hex">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,16,172,71"/>
-<area shape="rect" id="Node000002" href="$da/d26/gradient__jump__penalty_8cu.html#ae4ce5c41e3a9df1ba2f9a52dee29dd50" title=" " alt="" coords="481,5,683,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,36,468,21,468,26,172,42"/>
-<area shape="rect" id="Node000004" href="$de/dd5/gradient__jump__penalty_8c.html#a567d53452f24af453b29427ec02e9528" title=" " alt="" coords="220,56,433,81"/>
-<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="173,50,207,53,206,59,172,55"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="731,49,883,89"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="640,28,718,46,717,51,639,33"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="765,49,762,39,769,30,784,24,807,22,833,25,847,32,845,37,831,30,807,27,785,29,772,34,767,40,770,48"/>
-<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="433,66,717,66,717,71,433,71"/>
-<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="516,107,648,132"/>
-<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="392,79,504,101,503,107,391,84"/>
-<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="639,104,717,86,718,91,640,109"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,28,171,89"/>
+<area shape="rect" id="Node000002" href="$da/d26/gradient__jump__penalty_8cu.html#ae4ce5c41e3a9df1ba2f9a52dee29dd50" title=" " alt="" coords="225,16,425,44"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,46,212,43,207,45,172,51"/>
+<area shape="rect" id="Node000004" href="$de/dd5/gradient__jump__penalty_8c.html#a567d53452f24af453b29427ec02e9528" title=" " alt="" coords="219,70,431,98"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="171,65,206,70,200,71,171,70"/>
+<area shape="rect" id="Node000003" href="$d0/d60/cuda_2gradient__jump__penalty__kernel_8h.html#a3fcb5fc1e9a104d5b84250c298bb23b6" title=" " alt="" coords="479,5,641,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,27,466,28,461,29,426,32"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="494,74,626,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="432,83,482,86,477,86,432,88"/>
 </map>

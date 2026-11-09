@@ -1,7 +1,7 @@
 var namespacerichardson__cpu =
 [
-    [ "heat_flux_interface", "d4/da1/interfacerichardson__cpu_1_1heat__flux__interface.html", "d4/da1/interfacerichardson__cpu_1_1heat__flux__interface" ],
     [ "tau_interface", "d0/d9b/interfacerichardson__cpu_1_1tau__interface.html", "d0/d9b/interfacerichardson__cpu_1_1tau__interface" ],
+    [ "heat_flux_interface", "d4/da1/interfacerichardson__cpu_1_1heat__flux__interface.html", "d4/da1/interfacerichardson__cpu_1_1heat__flux__interface" ],
     [ "assign_bc_value", "d4/d09/namespacerichardson__cpu.html#a0a8c76b53d0bdedb36ec98a1c21c1ec5", null ],
     [ "compute_ri_b", "d4/d09/namespacerichardson__cpu.html#aecc3d61378ca08eb69291355923e6823", null ],
     [ "f_tau_convective", "d4/d09/namespacerichardson__cpu.html#ab4ba78a64b7945c05e5527144d4e2c43", null ],

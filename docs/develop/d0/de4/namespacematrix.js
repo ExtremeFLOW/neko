@@ -1,7 +1,7 @@
 var namespacematrix =
 [
-    [ "matrix_ptr_t", "dd/da3/structmatrix_1_1matrix__ptr__t.html", "dd/da3/structmatrix_1_1matrix__ptr__t" ],
     [ "matrix_t", "da/d95/structmatrix_1_1matrix__t.html", "da/d95/structmatrix_1_1matrix__t" ],
+    [ "matrix_ptr_t", "dd/da3/structmatrix_1_1matrix__ptr__t.html", "dd/da3/structmatrix_1_1matrix__ptr__t" ],
     [ "cpu_matrix_inverse", "d0/de4/namespacematrix.html#aa00f35c664dd475891a304d88579170d", null ],
     [ "matrix_allocate", "d0/de4/namespacematrix.html#afbeaae394e9e3d5838bffc21085a0184", null ],
     [ "matrix_assign_matrix", "d0/de4/namespacematrix.html#a36163990dadbd00ca417c0ef70c015be", null ],

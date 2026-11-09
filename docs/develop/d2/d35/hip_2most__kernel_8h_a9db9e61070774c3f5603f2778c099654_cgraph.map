@@ -1,6 +1,11 @@
 <map id="f_dirichlet_stable" name="f_dirichlet_stable">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,140,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="188,29,340,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="141,47,174,47,174,52,141,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="228,30,226,20,232,11,245,5,264,3,286,6,299,13,296,17,285,11,264,8,246,10,235,15,231,21,233,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,139,60"/>
+<area shape="rect" id="Node000002" href="$d5/dde/cuda_2most__kernel_8h.html#a3d7212d4e06430260963f5d6aef20dbb" title=" " alt="" coords="189,5,302,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="138,33,176,29,171,31,140,38"/>
+<area shape="rect" id="Node000004" href="$d5/dde/cuda_2most__kernel_8h.html#ab8eca98a87448273850d00eecf96949d" title=" " alt="" coords="187,57,305,85"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="139,53,174,60,169,61,139,58"/>
+<area shape="rect" id="Node000003" href="$d5/dde/cuda_2most__kernel_8h.html#ab0dba26bda5902f4ae1291f4426662a1" title=" " alt="" coords="356,5,464,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="303,17,343,19,337,19,303,22"/>
+<area shape="rect" id="Node000005" href="$d5/dde/cuda_2most__kernel_8h.html#ae0c97d84a828f4194dbabc331cf3c270" title=" " alt="" coords="353,57,466,85"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="305,69,340,71,334,71,305,74"/>
 </map>

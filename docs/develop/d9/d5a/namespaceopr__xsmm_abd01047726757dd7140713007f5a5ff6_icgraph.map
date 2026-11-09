@@ -1,9 +1,9 @@
 <map id="opr_xsmm::opr_xsmm_dudxyz" name="opr_xsmm::opr_xsmm_dudxyz">
-<area shape="rect" id="Node000001" title=" " alt="" coords="252,69,420,109"/>
-<area shape="rect" id="Node000002" href="$db/d5a/interfaceoperators_1_1dudxyz.html#a09aeed57ec3a82e68b48218c8c403ffd" title="Compute derivative of a scalar field along a single direction." alt="" coords="31,5,178,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="249,68,177,48,178,43,251,63"/>
-<area shape="rect" id="Node000003" href="$db/d5a/interfaceoperators_1_1dudxyz.html#ad6ccdb3f34539d2dd3273b0cf92ebadd" title="Compute derivative of a scalar field along a single direction." alt="" coords="31,69,178,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="238,92,178,92,178,87,238,87"/>
-<area shape="rect" id="Node000004" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="5,134,204,159"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="242,115,157,137,156,131,241,110"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="252,75,419,119"/>
+<area shape="rect" id="Node000002" href="$db/d5a/interfaceoperators_1_1dudxyz.html#a09aeed57ec3a82e68b48218c8c403ffd" title="Compute derivative of a scalar field along a single direction." alt="" coords="31,5,178,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,71,178,52,178,47,247,69"/>
+<area shape="rect" id="Node000003" href="$db/d5a/interfaceoperators_1_1dudxyz.html#ad6ccdb3f34539d2dd3273b0cf92ebadd" title="Compute derivative of a scalar field along a single direction." alt="" coords="31,75,178,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,98,179,100,178,94,239,96"/>
+<area shape="rect" id="Node000004" href="$d9/d5a/namespaceopr__xsmm.html#ab2c8d872dd95468772dcef5fafcd4cc1" title=" " alt="" coords="5,143,204,171"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="239,122,204,134,162,145,161,140,203,129,234,124"/>
 </map>

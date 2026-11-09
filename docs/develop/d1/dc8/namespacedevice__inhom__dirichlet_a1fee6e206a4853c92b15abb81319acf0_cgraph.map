@@ -1,14 +1,11 @@
 <map id="device_inhom_dirichlet::device_inhom_dirichlet_apply_scalar" name="device_inhom_dirichlet::device_inhom_dirichlet_apply_scalar">
-<area shape="rect" id="Node000001" title="Apply an inhomogeneous Dirichlet condition to a scalar field on the device." alt="" coords="5,27,187,82"/>
-<area shape="rect" id="Node000002" href="$df/df6/inhom__dirichlet_8cu.html#a02998f8c07cfc688b29e7c89837a87a7" title=" " alt="" coords="456,5,617,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="187,46,442,29,442,34,187,51"/>
-<area shape="rect" id="Node000004" href="$d6/dfc/inhom__dirichlet_8c.html#a812777b8ee15255337fd2f79fb6f80f8" title=" " alt="" coords="235,63,408,103"/>
-<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="188,63,221,68,221,73,187,69"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="665,63,817,103"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="609,43,657,56,656,61,608,48"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="703,63,701,53,707,44,721,38,741,36,765,39,778,46,775,51,763,44,741,41,722,43,710,48,706,54,708,62"/>
-<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="408,80,652,80,652,85,408,85"/>
-<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="471,121,603,146"/>
-<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="407,100,469,115,468,120,406,105"/>
-<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="588,118,651,102,652,107,590,123"/>
+<area shape="rect" id="Node000001" title="Apply an inhomogeneous Dirichlet condition to a scalar field on the device." alt="" coords="5,32,186,93"/>
+<area shape="rect" id="Node000002" href="$df/df6/inhom__dirichlet_8cu.html#a02998f8c07cfc688b29e7c89837a87a7" title=" " alt="" coords="240,5,400,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,46,227,42,222,43,186,51"/>
+<area shape="rect" id="Node000004" href="$d6/dfc/inhom__dirichlet_8c.html#a812777b8ee15255337fd2f79fb6f80f8" title=" " alt="" coords="234,75,406,119"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="186,74,221,81,215,82,186,79"/>
+<area shape="rect" id="Node000003" href="$d1/d54/cuda_2inhom__dirichlet__kernel_8h.html#a4928bcd399d3dfe09f0299e9c739eda1" title=" " alt="" coords="454,5,619,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="400,25,441,27,436,28,401,30"/>
+<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="471,83,602,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="406,94,458,97,453,97,406,100"/>
 </map>

@@ -1,9 +1,9 @@
 <map id="/home/runner/work/neko/neko/src/device/opencl/buffer.h" name="/home/runner/work/neko/neko/src/device/opencl/buffer.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="213,5,393,60"/>
-<area shape="rect" id="Node000002" href="$d3/d8b/buffer_8c.html" title=" " alt="" coords="5,108,185,163"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="238,68,151,110,148,106,236,63"/>
-<area shape="rect" id="Node000003" href="$d7/d6b/bicgstab_8c.html" title=" " alt="" coords="210,108,397,163"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="306,74,306,108,301,108,301,74"/>
-<area shape="rect" id="Node000004" href="$d6/da3/math_8c.html" title=" " alt="" coords="421,108,629,163"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="374,63,468,106,466,110,372,68"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="212,5,391,67"/>
+<area shape="rect" id="Node000002" href="$d3/d8b/buffer_8c.html" title=" " alt="" coords="5,115,185,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="233,73,154,117,152,112,228,75"/>
+<area shape="rect" id="Node000003" href="$d7/d6b/bicgstab_8c.html" title=" " alt="" coords="209,115,394,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="303,81,304,116,299,113,300,85"/>
+<area shape="rect" id="Node000004" href="$d6/da3/math_8c.html" title=" " alt="" coords="418,115,625,177"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="378,72,463,114,457,114,377,77"/>
 </map>

@@ -1,6 +1,5 @@
 <map id="hip_amg_cheby_solve_part1" name="hip_amg_cheby_solve_part1">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,172,69"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="220,29,372,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,47,206,47,206,52,172,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="257,30,255,20,261,11,275,5,296,3,320,6,333,13,331,18,318,11,296,8,276,10,265,15,260,21,262,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,171,50"/>
+<area shape="rect" id="Node000002" href="$d5/dc5/amg__cheby_8cu.html#af88a31e5a124e84798585b9c5e01634d" title=" " alt="" coords="219,14,398,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="171,25,206,27,200,28,171,30"/>
 </map>

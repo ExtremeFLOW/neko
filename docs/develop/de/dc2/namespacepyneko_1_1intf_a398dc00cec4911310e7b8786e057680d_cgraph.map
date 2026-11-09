@@ -1,15 +1,9 @@
 <map id="pyneko.intf.case_init" name="pyneko.intf.case_init">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,161,56"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="617,34,769,74"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,28,164,17,209,9,315,3,422,7,521,19,604,33,603,38,520,24,421,13,315,8,210,14,165,22,125,33"/>
-<area shape="rect" id="Node000003" href="$de/dc2/namespacepyneko_1_1intf.html#a8870e3dc2c5affcffd247e960d84a854" title=" " alt="" coords="209,24,352,64"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="162,41,196,41,196,46,162,46"/>
-<area shape="rect" id="Node000005" href="$de/dc2/namespacepyneko_1_1intf.html#a020d42f4ee8e5da16c06025947ebe581" title=" " alt="" coords="400,127,569,152"/>
-<area shape="poly" id="edge7_Node000001_Node000005" title=" " alt="" coords="134,54,210,73,415,121,413,126,209,78,132,59"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="654,35,652,25,658,15,672,10,693,8,718,10,731,18,728,22,716,16,693,13,673,15,661,20,657,26,659,33"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="352,42,569,48,603,49,603,54,569,53,352,48"/>
-<area shape="rect" id="Node000004" href="$de/dc2/namespacepyneko_1_1intf.html#a26c84afc3a9fe66a8fe6c4b3ded4a062" title=" " alt="" coords="413,62,556,102"/>
-<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="353,54,401,64,400,69,352,60"/>
-<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="556,70,603,64,604,69,557,75"/>
-<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="532,124,568,112,641,78,643,83,570,117,534,129"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,44,161,72"/>
+<area shape="rect" id="Node000002" href="$de/dc2/namespacepyneko_1_1intf.html#a8870e3dc2c5affcffd247e960d84a854" title=" " alt="" coords="222,5,364,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="160,44,209,40,204,41,161,50"/>
+<area shape="rect" id="Node000004" href="$de/dc2/namespacepyneko_1_1intf.html#a020d42f4ee8e5da16c06025947ebe581" title=" " alt="" coords="209,74,377,102"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="161,67,196,74,190,74,161,72"/>
+<area shape="rect" id="Node000003" href="$de/dc2/namespacepyneko_1_1intf.html#a26c84afc3a9fe66a8fe6c4b3ded4a062" title=" " alt="" coords="425,5,567,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,25,412,27,406,28,365,30"/>
 </map>

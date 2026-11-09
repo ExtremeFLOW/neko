@@ -1,12 +1,16 @@
 <map id="cuda_project_on" name="cuda_project_on">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,133,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="393,29,545,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="115,34,181,21,263,15,346,21,380,26,379,32,345,27,263,21,182,27,116,39"/>
-<area shape="rect" id="Node000003" href="$db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="186,37,341,62"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="134,47,172,47,172,52,134,52"/>
-<area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="181,87,345,127"/>
-<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="114,60,183,80,181,85,112,65"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="431,30,428,20,435,11,448,5,469,3,493,6,507,13,504,18,492,11,469,8,450,10,438,15,434,21,436,28"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="341,47,380,47,380,52,341,52"/>
-<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="335,84,383,71,384,76,337,89"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,125,133,153"/>
+<area shape="rect" id="Node000002" href="$db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="187,5,340,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,123,122,83,150,61,179,42,193,38,189,41,182,47,153,66,126,87,85,127"/>
+<area shape="rect" id="Node000003" href="$d1/da7/device__mpi__reduce_8c.html#a9742e0b5ee4886d19d49dcc99a39b2ab" title=" " alt="" coords="182,57,346,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="115,122,177,105,173,108,118,127"/>
+<area shape="rect" id="Node000004" href="$d9/d50/cuda_2math__kernel_8h.html#a636511c75dc8c99556d1f0f46d3db5c6" title=" " alt="" coords="191,125,337,153"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="133,137,177,138,173,140,134,142"/>
+<area shape="rect" id="Node000006" href="$d9/d50/cuda_2math__kernel_8h.html#abbc9c787ace0eb406122b320fe85a38c" title=" " alt="" coords="187,177,340,205"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="124,151,197,171,192,174,124,156"/>
+<area shape="rect" id="Node000007" href="$d3/d18/cuda_2projection__kernel_8h.html#ac1ecc27abfa7ebb2d670b2765e95d3fe" title=" " alt="" coords="181,229,347,257"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="88,151,130,182,182,214,199,224,194,223,179,219,127,187,87,156"/>
+<area shape="rect" id="Node000005" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="395,152,509,180"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="337,147,382,155,377,156,338,152"/>
+<area shape="poly" id="edge6_Node000006_Node000005" title=" " alt="" coords="340,178,382,175,377,176,341,183"/>
 </map>

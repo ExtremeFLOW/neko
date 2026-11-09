@@ -1,0 +1,11 @@
+<map id="/home/runner/work/neko/neko/src/math/bcknd/device/cuda/schwarz.cu" name="/home/runner/work/neko/neko/src/math/bcknd/device/cuda/schwarz.cu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="236,5,444,67"/>
+<area shape="rect" id="Node000002" href="$d3/d4e/cuda_2schwarz__kernel_8h.html" title=" " alt="" coords="5,115,139,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,70,126,112,125,107,249,66"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="163,115,333,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="312,66,274,106,271,102,307,68"/>
+<area shape="rect" id="Node000004" href="$d5/d08/cuda_2check_8h.html" title=" " alt="" coords="357,115,510,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="372,65,411,104,406,103,370,70"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="534,115,599,143"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="416,65,523,109,517,109,415,70"/>
+</map>

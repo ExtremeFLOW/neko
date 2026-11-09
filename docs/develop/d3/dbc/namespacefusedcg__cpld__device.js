@@ -1,10 +1,10 @@
 var namespacefusedcg__cpld__device =
 [
+    [ "fusedcg_cpld_device_t", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t" ],
     [ "cuda_fusedcg_cpld_part1", "d0/db6/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part1.html", "d0/db6/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part1" ],
-    [ "cuda_fusedcg_cpld_part2", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2" ],
     [ "cuda_fusedcg_cpld_update_p", "d0/d09/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__p.html", "d0/d09/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__p" ],
     [ "cuda_fusedcg_cpld_update_x", "de/d2a/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__x.html", "de/d2a/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__update__x" ],
-    [ "fusedcg_cpld_device_t", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html", "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t" ],
+    [ "cuda_fusedcg_cpld_part2", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2.html", "da/d17/interfacefusedcg__cpld__device_1_1cuda__fusedcg__cpld__part2" ],
     [ "device_fusedcg_cpld_part1", "d3/dbc/namespacefusedcg__cpld__device.html#afe309b31da74ce440ba28172cd0b6514", null ],
     [ "device_fusedcg_cpld_part2", "d3/dbc/namespacefusedcg__cpld__device.html#acaca8f2d5150c2c04e3564fd17176f61", null ],
     [ "device_fusedcg_cpld_update_p", "d3/dbc/namespacefusedcg__cpld__device.html#a6069fc8fe076b9aa06ae431f17cb74d4", null ],

@@ -1,0 +1,13 @@
+<map id="entropy_visc_compute_residual_kernel" name="entropy_visc_compute_residual_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="764,96,933,141"/>
+<area shape="rect" id="Node000002" href="$d8/d84/entropy__viscosity_8cu.html#aa3902b56acb5624462672bc4227f9113" title=" " alt="" coords="510,62,716,106"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="746,104,717,102,717,97,752,104"/>
+<area shape="rect" id="Node000006" href="$de/d93/entropy__viscosity_8hip.html#aa534fe9e42158ace87d48559f66e66d3" title=" " alt="" coords="516,131,711,176"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="751,133,711,142,711,136,746,134"/>
+<area shape="rect" id="Node000003" href="$d0/d70/namespaceentropy__viscosity__device.html#acf127351f0b6ee837c55c187bd5f01fb" title="Compute entropy residual on a device." alt="" coords="254,53,462,115"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="491,84,463,87,462,82,497,84"/>
+<area shape="rect" id="Node000004" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="5,5,206,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="235,62,206,58,206,53,241,61"/>
+<area shape="rect" id="Node000005" href="$dd/d60/interfaceentropy__viscosity__device_1_1hip__entropy__visc__smooth__divide.html#a739adbea8d0deced8d606a95ce8d3415" title=" " alt="" coords="8,92,203,170"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="236,107,204,115,203,110,241,106"/>
+</map>

@@ -1,7 +1,7 @@
 <map id="coefs::coef_generate_mass" name="coefs::coef_generate_mass">
-<area shape="rect" id="Node000001" title="Generate mass matrix B for the given mesh and space." alt="" coords="224,35,424,60"/>
-<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="19,5,163,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="210,36,162,30,163,24,211,30"/>
-<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2" title="Recompute and update geometric factors (ALE)" alt="" coords="5,55,176,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="211,64,176,68,176,62,210,58"/>
+<area shape="rect" id="Node000001" title="Generate mass matrix B for the given mesh and space." alt="" coords="223,36,422,64"/>
+<area shape="rect" id="Node000002" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="18,5,162,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="205,35,162,31,162,26,210,34"/>
+<area shape="rect" id="Node000003" href="$d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2" title="Recompute and update geometric factors (ALE)." alt="" coords="5,57,175,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="204,65,176,71,175,66,210,64"/>
 </map>

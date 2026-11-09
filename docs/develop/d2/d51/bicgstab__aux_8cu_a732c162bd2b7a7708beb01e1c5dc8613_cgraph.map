@@ -1,18 +1,20 @@
 <map id="cuda_bicgstab_part2" name="cuda_bicgstab_part2">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,50,161,75"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="625,42,777,82"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,47,214,28,325,11,451,3,515,5,578,13,613,22,647,35,645,40,612,27,577,18,515,10,451,8,326,16,215,33,131,52"/>
-<area shape="rect" id="Node000003" href="$d2/d51/bicgstab__aux_8cu.html#a408327a54d220b7b277eeef5e23846a0" title=" " alt="" coords="223,50,351,75"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="162,60,209,60,209,65,162,65"/>
-<area shape="rect" id="Node000006" href="$db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="209,124,364,150"/>
-<area shape="poly" id="edge9_Node000001_Node000006" title=" " alt="" coords="120,73,239,117,238,122,118,78"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="663,43,660,33,667,24,680,18,701,16,725,19,739,26,736,31,724,24,701,21,682,23,670,28,666,34,668,41"/>
-<area shape="poly" id="edge4_Node000003_Node000002" title=" " alt="" coords="338,47,412,34,495,29,578,34,612,39,611,45,577,40,495,34,412,40,339,52"/>
-<area shape="rect" id="Node000004" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="413,50,577,75"/>
-<area shape="poly" id="edge5_Node000003_Node000004" title=" " alt="" coords="351,60,399,60,399,65,351,65"/>
-<area shape="rect" id="Node000005" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="412,99,577,124"/>
-<area shape="poly" id="edge7_Node000003_Node000005" title=" " alt="" coords="342,73,428,93,426,98,340,78"/>
-<area shape="poly" id="edge6_Node000004_Node000002" title=" " alt="" coords="577,60,611,60,611,65,577,65"/>
-<area shape="poly" id="edge8_Node000005_Node000002" title=" " alt="" coords="548,97,611,81,612,86,549,102"/>
-<area shape="poly" id="edge10_Node000006_Node000002" title=" " alt="" coords="365,146,467,150,522,145,577,135,623,115,664,88,667,93,626,119,578,140,523,151,467,155,364,151"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,136,161,164"/>
+<area shape="rect" id="Node000002" href="$d3/dec/cuda_2bicgstab__kernel_8h.html#af2ab9da5d9c8eca9ac57a48fd547c8db" title=" " alt="" coords="209,109,373,137"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="161,137,196,135,191,137,162,142"/>
+<area shape="rect" id="Node000005" href="$d2/d51/bicgstab__aux_8cu.html#a408327a54d220b7b277eeef5e23846a0" title=" " alt="" coords="227,57,354,85"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="116,133,208,95,232,89,227,92,210,100,118,138"/>
+<area shape="rect" id="Node000008" href="$db/d39/buffer_8cu.html#aaa1a142ea69ca4455d49ef718c8a72b6" title=" " alt="" coords="214,161,368,189"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="161,157,201,163,196,165,162,162"/>
+<area shape="rect" id="Node000009" href="$d9/d50/cuda_2math__kernel_8h.html#abbc9c787ace0eb406122b320fe85a38c" title=" " alt="" coords="214,213,368,241"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="118,162,210,198,232,208,227,208,208,203,117,167"/>
+<area shape="rect" id="Node000003" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="446,187,560,214"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="337,135,374,147,456,180,450,181,372,152,337,140"/>
+<area shape="rect" id="Node000004" href="$d9/d50/cuda_2math__kernel_8h.html#a15613cd77811a43c5ac891767e0de507" title=" " alt="" coords="451,109,555,137"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="373,121,438,123,433,124,374,126"/>
+<area shape="rect" id="Node000006" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="422,5,585,33"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="350,54,431,36,426,38,351,59"/>
+<area shape="rect" id="Node000007" href="$d3/dd2/device__nccl__reduce_8c.html#a371589d8f587766faf29bea073bd3e34" title=" " alt="" coords="421,57,585,85"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="355,69,408,70,403,72,356,74"/>
+<area shape="poly" id="edge9_Node000009_Node000003" title=" " alt="" coords="368,215,428,210,433,209,368,220"/>
 </map>

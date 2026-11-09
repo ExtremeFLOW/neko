@@ -1,45 +1,45 @@
 <map id="math::cfill" name="math::cfill">
-<area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="760,385,847,410"/>
-<area shape="rect" id="Node000002" href="$d3/d1b/namespaceale__routines__cpu.html#a1ed25c9746da32ed29a3a1adc93069bc" title="Implementation of cheap_dist in Nek5000 (CPU)" alt="" coords="515,5,712,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="800,371,798,308,787,225,776,180,760,137,738,96,710,59,696,48,699,44,714,55,743,93,765,134,781,179,792,224,804,308,806,371"/>
-<area shape="rect" id="Node000003" href="$d3/d1b/namespaceale__routines__cpu.html#a8fa1e9c2d30882c5ca4edeab07beb1b7" title="Compute cheap_dist field by passing distance information throughout an entire local element before do..." alt="" coords="515,69,712,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="798,371,793,319,779,253,753,183,734,151,710,123,695,112,698,107,714,119,738,148,757,181,784,251,798,318,804,371"/>
-<area shape="rect" id="Node000006" href="$d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511" title="Write fields showing the coupled projector mask and basis." alt="" coords="522,134,705,189"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="794,372,784,334,767,289,743,242,710,202,696,191,699,187,714,198,747,240,772,287,789,332,799,370"/>
-<area shape="rect" id="Node000007" href="$d6/dcb/namespacevector__bc__projector.html#ad58aa46600184054af778683a40f6a0e" title="Rebuild the resolved masks and local constraint flags." alt="" coords="519,213,708,267"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="786,374,755,327,734,302,710,281,693,270,696,265,714,277,738,299,759,324,791,371"/>
-<area shape="rect" id="Node000008" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="535,291,692,317"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="777,377,746,353,711,332,677,319,679,314,713,327,749,349,780,373"/>
-<area shape="rect" id="Node000014" href="$dc/d12/namespacematrix__math.html#a6ce1c435eb24d66895f5e8abb492d5ae" title="Set all elements to a constant c ." alt="" coords="535,341,692,381"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="746,389,692,379,693,374,747,384"/>
-<area shape="rect" id="Node000015" href="$db/d19/namespacespectral__vanishing__viscosity.html#a8c0bdf5b707bccf135352b810d4ad61c" title="Construct an SVV object from case parameters." alt="" coords="541,406,686,461"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="747,411,687,422,686,417,746,405"/>
-<area shape="rect" id="Node000016" href="$d5/d0e/namespacetensor3.html#afc899831b2c95d8e336ef6b6aba10c75" title="Allocate a tensor of size n1*n2*n3." alt="" coords="520,485,707,510"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="782,422,751,449,713,474,681,487,679,482,711,470,748,445,779,418"/>
-<area shape="rect" id="Node000017" href="$df/d15/namespacetensor4.html#a7083d22d36b8b4ee94625615fc53c628" title="Allocate a tensor of size n1*n2*n3*n4." alt="" coords="520,534,707,559"/>
-<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="793,423,762,474,740,501,713,524,688,536,686,532,711,519,736,497,758,471,788,421"/>
-<area shape="rect" id="Node000018" href="$d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d" title="Assignment ." alt="" coords="533,584,694,624"/>
-<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="798,424,786,458,769,498,745,538,714,573,694,586,691,582,710,569,741,535,764,495,781,456,793,423"/>
-<area shape="rect" id="Node000020" href="$d3/d0d/namespacevector__math.html#a6ce84a8990d28c992750dbd6de338390" title="Set all elements to a constant c ." alt="" coords="537,648,690,688"/>
-<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="802,425,794,470,779,527,753,586,735,614,714,638,692,653,689,649,710,634,731,610,748,584,774,526,789,469,797,424"/>
-<area shape="rect" id="Node000022" href="$d7/d34/namespacevector.html#a00a29a87ffacaccda3a3b75effa7a7e9" title="Initialise a vector of size n." alt="" coords="543,713,683,738"/>
-<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="805,424,801,482,789,556,777,596,761,634,741,670,714,702,685,719,682,715,710,698,736,667,757,632,772,594,784,555,796,481,800,424"/>
-<area shape="rect" id="Node000004" href="$dd/db4/namespaceale__manager.html#aadb4d8b03fb126dbfd684fe551c739e5" title=" " alt="" coords="273,63,445,103"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="501,89,445,88,446,82,501,84"/>
-<area shape="rect" id="Node000005" href="$dd/db4/namespaceale__manager.html#a657d2ef58db3d7baab4bb7e6e84e92c4" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,63,204,103"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="259,85,204,85,204,80,259,80"/>
-<area shape="rect" id="Node000009" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="259,127,460,182"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="523,287,513,281,495,259,488,237,481,216,465,195,449,184,452,180,469,191,486,214,493,236,500,257,516,277,526,283"/>
-<area shape="rect" id="Node000010" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="259,206,460,261"/>
-<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="548,290,514,281,451,263,453,258,515,276,549,285"/>
-<area shape="rect" id="Node000011" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="263,285,456,339"/>
-<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="521,310,456,312,456,306,521,304"/>
-<area shape="rect" id="Node000012" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="252,363,467,418"/>
-<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="544,323,516,332,468,353,436,366,434,361,466,348,514,327,543,318"/>
-<area shape="rect" id="Node000013" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="275,442,444,497"/>
-<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="525,325,516,331,505,343,499,354,493,379,487,405,480,418,468,431,446,447,443,443,465,427,475,415,482,403,487,378,494,353,501,340,513,327,522,321"/>
-<area shape="rect" id="Node000019" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="255,591,463,617"/>
-<area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="519,607,464,607,464,601,519,601"/>
-<area shape="rect" id="Node000021" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="264,655,455,681"/>
-<area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="523,671,455,671,455,665,523,665"/>
+<area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="756,414,843,442"/>
+<area shape="rect" id="Node000002" href="$d3/d1b/namespaceale__routines__cpu.html#a1ed25c9746da32ed29a3a1adc93069bc" title="Implementation of cheap_dist in Nek5000 (CPU)." alt="" coords="512,5,708,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="792,397,781,321,762,221,737,126,722,89,706,64,695,53,694,48,710,61,727,87,742,124,767,220,786,320,797,400"/>
+<area shape="rect" id="Node000003" href="$d3/d1b/namespaceale__routines__cpu.html#a8fa1e9c2d30882c5ca4edeab07beb1b7" title="Compute cheap_dist field by passing distance information throughout an entire local element before do..." alt="" coords="512,75,708,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="795,397,790,343,776,272,765,235,750,198,731,164,706,134,694,122,694,117,710,130,735,161,755,196,770,233,782,271,795,342,800,400"/>
+<area shape="rect" id="Node000006" href="$d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511" title="Write fields showing the coupled projector mask and basis." alt="" coords="519,144,701,205"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="790,397,780,359,764,311,739,262,706,219,695,208,695,203,710,215,744,259,769,309,785,358,795,399"/>
+<area shape="rect" id="Node000007" href="$d6/dcb/namespacevector__bc__projector.html#ad58aa46600184054af778683a40f6a0e" title="Rebuild the resolved masks and local constraint flags." alt="" coords="516,229,704,290"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="781,400,751,353,730,328,707,306,690,294,690,288,710,302,734,325,755,350,787,401"/>
+<area shape="rect" id="Node000008" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="532,315,688,343"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="772,403,743,380,707,357,682,346,681,341,710,352,746,375,777,404"/>
+<area shape="rect" id="Node000014" href="$dc/d12/namespacematrix__math.html#a6ce1c435eb24d66895f5e8abb492d5ae" title="Set all elements to a constant c ." alt="" coords="532,367,688,411"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="739,416,689,408,689,402,744,415"/>
+<area shape="rect" id="Node000015" href="$db/d19/namespacespectral__vanishing__viscosity.html#a8c0bdf5b707bccf135352b810d4ad61c" title="Construct an SVV object from case parameters." alt="" coords="538,436,682,497"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="739,440,684,454,682,449,744,439"/>
+<area shape="rect" id="Node000016" href="$d5/d0e/namespacetensor3.html#afc899831b2c95d8e336ef6b6aba10c75" title="Allocate a tensor of size n1*n2*n3." alt="" coords="517,522,703,550"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="779,451,748,484,710,511,681,524,679,519,707,507,744,480,774,454"/>
+<area shape="rect" id="Node000017" href="$df/d15/namespacetensor4.html#a7083d22d36b8b4ee94625615fc53c628" title="Allocate a tensor of size n1*n2*n3*n4." alt="" coords="517,574,703,602"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="789,454,759,511,736,539,710,563,686,576,684,571,707,559,733,536,754,508,785,457"/>
+<area shape="rect" id="Node000018" href="$d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d" title="Assignment ." alt="" coords="530,625,690,670"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="793,455,783,493,766,535,742,578,710,615,692,628,690,623,707,611,738,575,761,533,778,491,790,459"/>
+<area shape="rect" id="Node000020" href="$d3/d0d/namespacevector__math.html#a6ce84a8990d28c992750dbd6de338390" title="Set all elements to a constant c ." alt="" coords="534,695,686,739"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="798,455,791,506,776,567,750,629,732,658,710,684,688,700,686,695,707,680,728,655,745,627,771,565,786,505,794,459"/>
+<area shape="rect" id="Node000022" href="$d7/d34/namespacevector.html#a00a29a87ffacaccda3a3b75effa7a7e9" title="Initialise a vector of size n." alt="" coords="540,763,680,791"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="801,455,799,519,787,598,776,640,760,681,738,720,710,754,681,771,680,766,707,750,734,717,755,679,771,639,782,597,794,518,797,459"/>
+<area shape="rect" id="Node000004" href="$dd/db4/namespaceale__manager.html#aadb4d8b03fb126dbfd684fe551c739e5" title=" " alt="" coords="272,67,443,111"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="494,95,445,94,443,89,499,92"/>
+<area shape="rect" id="Node000005" href="$dd/db4/namespaceale__manager.html#a657d2ef58db3d7baab4bb7e6e84e92c4" title="Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blendi..." alt="" coords="5,67,203,111"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="254,91,205,91,202,87,258,87"/>
+<area shape="rect" id="Node000009" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="257,136,458,197"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="517,308,510,304,492,281,485,257,479,234,462,211,450,200,449,195,466,207,483,232,490,256,496,279,514,300,522,307"/>
+<area shape="rect" id="Node000010" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="257,221,458,282"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="537,311,511,305,452,286,451,280,513,300,542,310"/>
+<area shape="rect" id="Node000011" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="261,306,454,368"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="514,333,455,336,453,331,519,331"/>
+<area shape="rect" id="Node000012" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="251,392,464,453"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="529,349,513,357,489,369,465,382,440,393,437,389,463,377,487,364,511,352,533,346"/>
+<area shape="rect" id="Node000013" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="273,477,442,538"/>
+<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="516,351,514,356,502,369,495,382,490,409,485,438,478,452,466,467,443,484,440,479,462,463,473,450,479,436,485,408,490,380,498,366,510,352,520,348"/>
+<area shape="rect" id="Node000019" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="254,634,461,662"/>
+<area shape="poly" id="edge18_Node000018_Node000019" title=" " alt="" coords="512,648,462,650,461,645,517,647"/>
+<area shape="rect" id="Node000021" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="262,703,452,731"/>
+<area shape="poly" id="edge20_Node000020_Node000021" title=" " alt="" coords="516,717,453,720,453,714,521,717"/>
 </map>

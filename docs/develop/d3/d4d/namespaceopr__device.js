@@ -1,12 +1,12 @@
 var namespaceopr__device =
 [
+    [ "hip_dudxyz", "db/df6/interfaceopr__device_1_1hip__dudxyz.html", "db/df6/interfaceopr__device_1_1hip__dudxyz" ],
     [ "hip_cdtp", "db/d39/interfaceopr__device_1_1hip__cdtp.html", "db/d39/interfaceopr__device_1_1hip__cdtp" ],
-    [ "hip_cfl", "d5/d51/interfaceopr__device_1_1hip__cfl.html", "d5/d51/interfaceopr__device_1_1hip__cfl" ],
     [ "hip_conv1", "df/d14/interfaceopr__device_1_1hip__conv1.html", "df/d14/interfaceopr__device_1_1hip__conv1" ],
     [ "hip_convect_scalar", "df/da4/interfaceopr__device_1_1hip__convect__scalar.html", "df/da4/interfaceopr__device_1_1hip__convect__scalar" ],
-    [ "hip_dudxyz", "db/df6/interfaceopr__device_1_1hip__dudxyz.html", "db/df6/interfaceopr__device_1_1hip__dudxyz" ],
-    [ "hip_lambda2", "df/dfd/interfaceopr__device_1_1hip__lambda2.html", "df/dfd/interfaceopr__device_1_1hip__lambda2" ],
     [ "hip_opgrad", "d8/dd7/interfaceopr__device_1_1hip__opgrad.html", "d8/dd7/interfaceopr__device_1_1hip__opgrad" ],
+    [ "hip_lambda2", "df/dfd/interfaceopr__device_1_1hip__lambda2.html", "df/dfd/interfaceopr__device_1_1hip__lambda2" ],
+    [ "hip_cfl", "d5/d51/interfaceopr__device_1_1hip__cfl.html", "d5/d51/interfaceopr__device_1_1hip__cfl" ],
     [ "hip_rotate_cyc", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc" ],
     [ "hip_set_convect_rst", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst.html", "d5/d24/interfaceopr__device_1_1hip__set__convect__rst" ],
     [ "device_ortho", "d3/d4d/namespaceopr__device.html#a98b6c537e40cda3676ab93c5523d7bc7", null ],

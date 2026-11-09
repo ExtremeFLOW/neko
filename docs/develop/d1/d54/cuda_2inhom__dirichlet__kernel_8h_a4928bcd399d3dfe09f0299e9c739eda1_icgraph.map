@@ -1,0 +1,13 @@
+<map id="inhom_dirichlet_apply_scalar_kernel" name="inhom_dirichlet_apply_scalar_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="651,91,817,136"/>
+<area shape="rect" id="Node000002" href="$df/df6/inhom__dirichlet_8cu.html#a02998f8c07cfc688b29e7c89837a87a7" title=" " alt="" coords="443,56,603,101"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="633,97,604,95,604,89,639,97"/>
+<area shape="rect" id="Node000006" href="$d4/dbc/inhom__dirichlet_8hip.html#a2866ccf032648ba77577fca509c538e9" title=" " alt="" coords="448,126,598,170"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="639,129,599,138,598,133,634,130"/>
+<area shape="rect" id="Node000003" href="$d1/dc8/namespacedevice__inhom__dirichlet.html#a1fee6e206a4853c92b15abb81319acf0" title="Apply an inhomogeneous Dirichlet condition to a scalar field on the device." alt="" coords="215,48,395,110"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="425,79,396,81,395,76,430,78"/>
+<area shape="rect" id="Node000004" href="$db/de8/namespaceexpression__dirichlet.html#a77a37fadf5dd3f6440c55df4fc92099c" title="Apply the condition to a scalar field (device version)." alt="" coords="6,5,166,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="197,59,167,54,166,49,202,58"/>
+<area shape="rect" id="Node000005" href="$d2/d2f/namespacenon__normal__aligned.html#a5eada82e2385f69881c89bf301ad8e57" title="Apply the tangential components of the prescribed vector on the device." alt="" coords="5,91,167,152"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="197,100,168,108,167,103,202,99"/>
+</map>

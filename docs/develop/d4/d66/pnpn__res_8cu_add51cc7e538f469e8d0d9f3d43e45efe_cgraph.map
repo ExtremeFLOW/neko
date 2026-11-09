@@ -1,6 +1,5 @@
 <map id="pnpn_vel_res_update_cuda" name="pnpn_vel_res_update_cuda">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,204,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="252,29,404,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="204,47,238,47,238,52,204,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="287,30,284,20,291,10,306,5,328,3,354,6,368,13,366,18,352,11,328,8,307,10,294,15,289,21,292,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,203,33"/>
+<area shape="rect" id="Node000002" href="$de/d43/cuda_2vel__res__update__kernel_8h.html#a0304466e689cb0591b8b07707750d511" title=" " alt="" coords="251,5,418,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="203,17,238,19,232,19,203,22"/>
 </map>

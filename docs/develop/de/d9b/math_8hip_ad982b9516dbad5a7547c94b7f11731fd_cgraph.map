@@ -1,6 +1,9 @@
 <map id="hip_face_masked_gather_copy" name="hip_face_masked_gather_copy">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,228,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="276,29,428,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="228,47,262,47,262,52,228,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="308,30,306,20,313,10,328,5,352,3,379,6,394,13,392,18,378,11,352,8,329,10,316,15,311,21,313,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,36,227,64"/>
+<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html#a21a2346368659893c78cfcb9f81d6bd3" title=" " alt="" coords="275,28,431,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,47,262,49,257,50,227,52"/>
+<area shape="rect" id="Node000003" href="$d9/d50/cuda_2math__kernel_8h.html#a4f999997eeae7272be23d9c07cac9c88" title=" " alt="" coords="500,5,625,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="431,36,482,31,487,30,432,41"/>
+<area shape="rect" id="Node000004" href="$d9/d50/cuda_2math__kernel_8h.html#a2bcab113056673f4a32bf2d79cd3adc9" title=" " alt="" coords="479,57,645,102"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="431,58,466,65,461,65,431,63"/>
 </map>

@@ -1,9 +1,9 @@
 <map id="most::most_init_from_components" name="most::most_init_from_components">
-<area shape="rect" id="Node000001" title="Constructor from components." alt="" coords="5,35,168,75"/>
-<area shape="rect" id="Node000002" href="$de/dfa/namespacemost.html#a1f824feea5bc71a9b94a7b889c8e584a" title=" " alt="" coords="216,5,372,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="168,41,202,36,203,41,169,46"/>
-<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="220,70,368,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,63,207,68,206,74,168,68"/>
-<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="420,63,568,103"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="368,80,406,80,406,85,368,85"/>
+<area shape="rect" id="Node000001" title="Constructor from components." alt="" coords="5,36,167,81"/>
+<area shape="rect" id="Node000002" href="$de/dfa/namespacemost.html#a1f824feea5bc71a9b94a7b889c8e584a" title=" " alt="" coords="215,5,370,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,44,202,41,197,42,168,49"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="219,74,366,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,67,206,75,201,75,167,73"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="418,65,565,110"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="366,85,405,88,400,88,366,90"/>
 </map>

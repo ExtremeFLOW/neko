@@ -1,0 +1,11 @@
+<map id="fusedcg_part2_kernel" name="fusedcg_part2_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="655,32,816,60"/>
+<area shape="rect" id="Node000002" href="$d2/dba/fusedcg__aux_8cu.html#a0d3d53e8ce39bb62fab78e6878ddbefa" title=" " alt="" coords="456,5,607,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="637,33,608,32,608,26,643,33"/>
+<area shape="rect" id="Node000003" href="$db/df7/fusedcg__aux_8hip.html#a115cf98ddf6ab441ca3e3806db6d1945" title=" " alt="" coords="462,57,602,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="643,57,602,65,602,60,638,58"/>
+<area shape="rect" id="Node000004" href="$dd/d04/namespacefusedcg__device.html#a37d7ee87c969306b6428c008592d4646" title=" " alt="" coords="235,49,408,94"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="443,71,409,74,408,69,449,71"/>
+<area shape="rect" id="Node000005" href="$dd/d04/namespacefusedcg__device.html#aa3a07e16519ee1e35e9571215cfed260" title="Pipelined PCG solve." alt="" coords="5,49,187,94"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="217,71,187,74,187,69,222,71"/>
+</map>

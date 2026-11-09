@@ -1,0 +1,9 @@
+<map id="prs_res_part1_kernel" name="prs_res_part1_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="477,40,633,68"/>
+<area shape="rect" id="Node000002" href="$d4/d66/pnpn__res_8cu.html#af64a7f09510056e94871bf99c327701d" title=" " alt="" coords="243,14,429,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="459,43,429,42,430,36,465,43"/>
+<area shape="rect" id="Node000004" href="$dd/d79/pnpn__res_8hip.html#ae8f38fbe68b34183834eec447e3a9979" title=" " alt="" coords="248,66,424,94"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="464,65,424,72,424,67,459,65"/>
+<area shape="rect" id="Node000003" href="$d8/dea/namespacepnpn__res__device.html#a3e57cd69551328b4f51766b33d4b4d3d" title=" " alt="" coords="5,5,195,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="224,28,196,30,195,25,229,27"/>
+</map>

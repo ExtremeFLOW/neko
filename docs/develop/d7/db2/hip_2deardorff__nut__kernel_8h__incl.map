@@ -1,7 +1,7 @@
 <map id="/home/runner/work/neko/neko/src/les/bcknd/device/hip/deardorff_nut_kernel.h" name="/home/runner/work/neko/neko/src/les/bcknd/device/hip/deardorff_nut_kernel.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,201,60"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="23,108,85,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="91,61,70,97,65,95,86,59"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="110,108,195,133"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,59,141,95,137,97,116,61"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,201,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="24,115,86,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,66,71,103,67,99,85,69"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="110,115,194,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="121,65,141,102,135,101,118,70"/>
 </map>

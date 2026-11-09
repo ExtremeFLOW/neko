@@ -1,51 +1,51 @@
 <map id="legendre_rst_finder::find_rst_legendre_cpu" name="legendre_rst_finder::find_rst_legendre_cpu">
-<area shape="rect" id="Node000001" title="Using the Legendre polynomials to find the rst coordinates." alt="" coords="5,635,177,675"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a3febc8c0f61710eb0359fb2afd291bfa" title=" " alt="" coords="233,309,360,335"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,634,278,345,283,348,107,636"/>
-<area shape="rect" id="Node000004" href="$d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361" title="Three&#45;dimensional tensor product on a single element." alt="" coords="225,663,368,703"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="178,664,212,669,211,674,177,670"/>
-<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a85aae15001ebab74ab24940d98b0c701" title="Performs a direct calculation of the inverse of a 3×3 matrix. M33INV and M44INV by David G...." alt="" coords="428,5,547,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="297,308,307,259,327,188,343,149,362,110,386,74,414,41,421,35,425,40,418,45,390,77,367,113,347,151,332,190,312,260,302,309"/>
-<area shape="rect" id="Node000005" href="$d4/d59/namespacetensor__cpu.html#abb61a7d7f4670e284c5e852e1fcb2730" title="Single&#45;element evaluation at one point, specialised for nu = 10." alt="" coords="416,55,559,95"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="300,663,365,346,371,309,373,276,372,219,374,192,381,165,393,136,414,106,416,103,421,106,418,109,398,139,386,166,380,193,378,219,378,276,376,309,371,346,305,664"/>
-<area shape="rect" id="Node000006" href="$d4/d59/namespacetensor__cpu.html#a01467879083490dd6aa8af33bd852961" title="Single&#45;element evaluation at one point, specialised for nu = 12." alt="" coords="416,119,559,159"/>
-<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="300,662,358,389,391,243,414,170,417,166,421,170,418,173,397,244,363,390,305,663"/>
-<area shape="rect" id="Node000007" href="$d4/d59/namespacetensor__cpu.html#aad02f950cb928a783274df814ff87d35" title="Single&#45;element evaluation at one point, specialised for nu = 4." alt="" coords="416,183,559,223"/>
-<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="300,662,352,430,386,304,401,259,414,234,417,230,421,234,418,237,406,261,391,306,358,431,305,664"/>
-<area shape="rect" id="Node000008" href="$d4/d59/namespacetensor__cpu.html#a269d59b31e795b0b45a1d9a0518fd3d9" title="Single&#45;element evaluation at one point, specialised for nu = 6." alt="" coords="416,247,559,287"/>
-<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="296,663,302,595,319,499,334,446,355,393,381,343,414,298,417,294,421,298,418,301,385,346,359,395,339,448,324,500,307,596,301,663"/>
-<area shape="rect" id="Node000009" href="$d4/d59/namespacetensor__cpu.html#a1dbf3556584780f8ee60924bbc1187c8" title="Single&#45;element evaluation at one point, specialised for nu = 8." alt="" coords="416,311,559,351"/>
-<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="297,663,307,605,327,526,342,482,361,439,385,398,414,362,418,358,422,362,418,365,389,401,366,442,347,484,332,527,312,607,303,664"/>
-<area shape="rect" id="Node000010" href="$d4/d59/namespacetensor__cpu.html#a8686f2b2429111b3f7b08169275bfb88" title="Single&#45;element evaluation at one point, for arbitrary nu." alt="" coords="416,375,559,415"/>
-<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="300,663,312,616,334,553,368,486,389,454,414,425,419,421,422,425,418,429,394,457,373,488,339,555,317,617,305,664"/>
-<area shape="rect" id="Node000011" href="$d4/d59/namespacetensor__cpu.html#ae77f9f382e817bbca7f543e4200a89ad" title="Single&#45;element tensor product specialised for nv = nu = 10." alt="" coords="416,439,559,479"/>
-<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="303,662,319,626,343,580,375,532,414,489,420,485,423,489,418,493,379,536,348,583,324,628,308,664"/>
-<area shape="rect" id="Node000012" href="$d4/d59/namespacetensor__cpu.html#a6ee3afd547cd3b31d340815b515f9768" title="Single&#45;element tensor product specialised for nv = nu = 11." alt="" coords="416,503,559,543"/>
-<area shape="poly" id="edge11_Node000004_Node000012" title=" " alt="" coords="310,662,354,609,383,580,414,553,422,548,425,552,418,557,386,584,358,613,314,665"/>
-<area shape="rect" id="Node000013" href="$d4/d59/namespacetensor__cpu.html#aaa1ff29408272d8433eb0e7c34b16d5a" title="Single&#45;element tensor product specialised for nv = nu = 12." alt="" coords="416,567,559,607"/>
-<area shape="poly" id="edge12_Node000004_Node000013" title=" " alt="" coords="333,661,415,617,428,611,430,616,417,622,335,665"/>
-<area shape="rect" id="Node000014" href="$d4/d59/namespacetensor__cpu.html#a44277389ebdf9ab51550824ea349f47d" title="Single&#45;element tensor product specialised for nv = nu = 13." alt="" coords="416,631,559,671"/>
-<area shape="poly" id="edge13_Node000004_Node000014" title=" " alt="" coords="368,669,402,663,403,668,368,674"/>
-<area shape="rect" id="Node000015" href="$d4/d59/namespacetensor__cpu.html#ae748e019e3cc44176bff6507a2aba05d" title="Single&#45;element tensor product specialised for nv = nu = 14." alt="" coords="416,695,559,735"/>
-<area shape="poly" id="edge14_Node000004_Node000015" title=" " alt="" coords="368,693,403,698,402,704,368,698"/>
-<area shape="rect" id="Node000016" href="$d4/d59/namespacetensor__cpu.html#aa7d61c1bdd9c277de9033425e25dfff5" title="Single&#45;element tensor product specialised for nv = nu = 2." alt="" coords="416,759,559,799"/>
-<area shape="poly" id="edge15_Node000004_Node000016" title=" " alt="" coords="335,701,417,745,430,751,428,756,415,750,333,706"/>
-<area shape="rect" id="Node000017" href="$d4/d59/namespacetensor__cpu.html#a5656651b5ce73aa77a20cac5fdf541a7" title="Single&#45;element tensor product specialised for nv = nu = 3." alt="" coords="416,823,559,863"/>
-<area shape="poly" id="edge16_Node000004_Node000017" title=" " alt="" coords="314,702,358,754,386,783,418,809,425,814,422,819,414,813,383,787,354,758,310,705"/>
-<area shape="rect" id="Node000018" href="$d4/d59/namespacetensor__cpu.html#ab4945eadb44a72d32c111d364eae6b8b" title="Single&#45;element tensor product specialised for nv = nu = 4." alt="" coords="416,887,559,927"/>
-<area shape="poly" id="edge17_Node000004_Node000018" title=" " alt="" coords="308,702,324,738,348,784,379,831,418,873,423,878,420,882,414,877,375,834,343,786,319,740,303,704"/>
-<area shape="rect" id="Node000019" href="$d4/d59/namespacetensor__cpu.html#a1988aacf2efb9c8d811fa4db12e6385e" title="Single&#45;element tensor product specialised for nv = nu = 5." alt="" coords="416,951,559,991"/>
-<area shape="poly" id="edge18_Node000004_Node000019" title=" " alt="" coords="305,703,317,750,339,812,373,878,394,909,418,937,422,941,419,945,414,941,389,913,368,881,334,814,312,751,300,704"/>
-<area shape="rect" id="Node000020" href="$d4/d59/namespacetensor__cpu.html#aa17ce182a82dec3113b4281d1faffc57" title="Single&#45;element tensor product specialised for nv = nu = 6." alt="" coords="416,1015,559,1055"/>
-<area shape="poly" id="edge19_Node000004_Node000020" title=" " alt="" coords="303,703,312,760,332,839,347,882,366,925,389,965,418,1002,422,1005,418,1009,414,1005,385,968,361,927,342,884,327,841,307,761,297,704"/>
-<area shape="rect" id="Node000021" href="$d4/d59/namespacetensor__cpu.html#a6ec00a49f043f4b60c336ce63e77809c" title="Single&#45;element tensor product specialised for nv = nu = 7." alt="" coords="416,1079,559,1119"/>
-<area shape="poly" id="edge20_Node000004_Node000021" title=" " alt="" coords="301,703,307,771,324,867,339,919,359,971,385,1021,418,1066,421,1069,417,1072,414,1069,381,1024,355,973,334,921,319,868,302,771,296,704"/>
-<area shape="rect" id="Node000022" href="$d4/d59/namespacetensor__cpu.html#afe5d871bd675d7737bfc26b84192fa62" title="Single&#45;element tensor product specialised for nv = nu = 8." alt="" coords="416,1143,559,1183"/>
-<area shape="poly" id="edge21_Node000004_Node000022" title=" " alt="" coords="300,703,303,780,317,893,332,955,353,1017,381,1076,418,1130,421,1133,417,1136,414,1133,377,1079,348,1019,327,956,312,894,297,781,295,704"/>
-<area shape="rect" id="Node000023" href="$d4/d59/namespacetensor__cpu.html#aa02177bbe1b001870fd0e1b41c19944a" title="Single&#45;element tensor product specialised for nv = nu = 9." alt="" coords="416,1207,559,1247"/>
-<area shape="poly" id="edge22_Node000004_Node000023" title=" " alt="" coords="303,704,316,805,341,952,356,1027,375,1097,395,1154,418,1194,421,1197,417,1200,414,1197,391,1156,370,1098,351,1029,335,953,311,806,298,704"/>
-<area shape="rect" id="Node000024" href="$d4/d59/namespacetensor__cpu.html#ad97f3d6179a480e00c0bab11ef16afd8" title="Single&#45;element tensor product with nv = nu, for arbitrary order." alt="" coords="416,1271,559,1311"/>
-<area shape="poly" id="edge23_Node000004_Node000024" title=" " alt="" coords="302,704,314,817,337,982,353,1068,372,1147,393,1212,418,1258,421,1261,416,1264,414,1261,388,1215,366,1148,347,1069,332,983,309,817,297,704"/>
-<area shape="rect" id="Node000025" href="$d4/d59/namespacetensor__cpu.html#ae4744f0b8f4479debd1a4ccbc5174e50" title="Single&#45;element tensor product for arbitrary nu and nv." alt="" coords="416,1335,559,1375"/>
-<area shape="poly" id="edge24_Node000004_Node000025" title=" " alt="" coords="302,703,312,827,333,1012,349,1108,368,1197,391,1271,404,1300,418,1322,420,1324,416,1327,414,1325,399,1302,386,1273,363,1198,344,1109,328,1013,306,828,297,704"/>
+<area shape="rect" id="Node000001" title="Using the Legendre polynomials to find the rst coordinates." alt="" coords="5,686,177,731"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a3febc8c0f61710eb0359fb2afd291bfa" title=" " alt="" coords="233,335,358,362"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,685,279,373,278,378,107,687"/>
+<area shape="rect" id="Node000004" href="$d4/d59/namespacetensor__cpu.html#ad676f5ad81cd24008b8e0433bb237361" title="Three&#45;dimensional tensor product on a single element." alt="" coords="225,716,366,760"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,719,212,724,207,727,179,723"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#a85aae15001ebab74ab24940d98b0c701" title="Performs a direct calculation of the inverse of a 3×3 matrix. M33INV and M44INV by David G...." alt="" coords="426,5,543,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="295,334,304,280,323,203,338,160,358,118,382,78,412,43,418,40,415,44,416,46,386,81,362,120,343,162,328,204,309,281,301,335"/>
+<area shape="rect" id="Node000005" href="$d4/d59/namespacetensor__cpu.html#abb61a7d7f4670e284c5e852e1fcb2730" title="Single&#45;element evaluation at one point, specialised for nu = 10." alt="" coords="414,57,555,102"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="298,714,363,373,369,333,370,298,369,236,371,207,377,177,390,146,412,112,417,110,414,115,416,115,395,148,382,179,376,207,374,236,375,298,374,334,369,374,304,715"/>
+<area shape="rect" id="Node000006" href="$d4/d59/namespacetensor__cpu.html#a01467879083490dd6aa8af33bd852961" title="Single&#45;element evaluation at one point, specialised for nu = 12." alt="" coords="414,126,555,171"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="298,714,356,419,389,261,412,182,417,179,414,184,416,184,394,262,361,420,304,716"/>
+<area shape="rect" id="Node000007" href="$d4/d59/namespacetensor__cpu.html#aad02f950cb928a783274df814ff87d35" title="Single&#45;element evaluation at one point, specialised for nu = 4." alt="" coords="414,196,555,240"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="298,715,350,463,384,327,399,278,412,251,417,249,414,253,416,254,404,280,389,329,355,464,304,716"/>
+<area shape="rect" id="Node000008" href="$d4/d59/namespacetensor__cpu.html#a269d59b31e795b0b45a1d9a0518fd3d9" title="Single&#45;element evaluation at one point, specialised for nu = 6." alt="" coords="414,265,555,310"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="294,715,299,642,316,538,331,481,351,424,378,370,412,320,417,317,414,322,416,323,382,372,356,426,336,483,321,539,304,643,300,716"/>
+<area shape="rect" id="Node000009" href="$d4/d59/namespacetensor__cpu.html#a1dbf3556584780f8ee60924bbc1187c8" title="Single&#45;element evaluation at one point, specialised for nu = 8." alt="" coords="414,334,555,379"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="296,714,304,653,324,567,339,520,358,474,382,430,412,389,417,387,414,391,416,393,387,432,363,476,344,522,329,568,309,653,301,716"/>
+<area shape="rect" id="Node000010" href="$d4/d59/namespacetensor__cpu.html#a8686f2b2429111b3f7b08169275bfb88" title="Single&#45;element evaluation at one point, for arbitrary nu." alt="" coords="414,404,555,448"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="298,714,310,664,332,596,365,524,387,490,412,459,418,456,415,460,416,462,391,493,370,527,337,598,315,665,303,716"/>
+<area shape="rect" id="Node000011" href="$d4/d59/namespacetensor__cpu.html#ae77f9f382e817bbca7f543e4200a89ad" title="Single&#45;element tensor product specialised for nv = nu = 10." alt="" coords="414,473,555,518"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="302,714,317,675,341,626,373,574,412,528,419,525,416,529,416,532,377,577,346,629,322,677,307,716"/>
+<area shape="rect" id="Node000012" href="$d4/d59/namespacetensor__cpu.html#a6ee3afd547cd3b31d340815b515f9768" title="Single&#45;element tensor product specialised for nv = nu = 11." alt="" coords="414,542,555,587"/>
+<area shape="poly" id="edge11_Node000004_Node000012" title=" " alt="" coords="309,714,352,657,381,626,412,597,420,594,417,598,416,601,384,629,356,661,314,717"/>
+<area shape="rect" id="Node000013" href="$d4/d59/namespacetensor__cpu.html#aaa1ff29408272d8433eb0e7c34b16d5a" title="Single&#45;element tensor product specialised for nv = nu = 12." alt="" coords="414,612,555,656"/>
+<area shape="poly" id="edge12_Node000004_Node000013" title=" " alt="" coords="332,713,413,666,425,662,421,666,415,671,336,717"/>
+<area shape="rect" id="Node000014" href="$d4/d59/namespacetensor__cpu.html#a44277389ebdf9ab51550824ea349f47d" title="Single&#45;element tensor product specialised for nv = nu = 13." alt="" coords="414,681,555,726"/>
+<area shape="poly" id="edge13_Node000004_Node000014" title=" " alt="" coords="365,723,401,717,397,720,368,727"/>
+<area shape="rect" id="Node000015" href="$d4/d59/namespacetensor__cpu.html#ae748e019e3cc44176bff6507a2aba05d" title="Single&#45;element tensor product specialised for nv = nu = 14." alt="" coords="414,750,555,795"/>
+<area shape="poly" id="edge14_Node000004_Node000015" title=" " alt="" coords="365,748,401,756,397,758,367,753"/>
+<area shape="rect" id="Node000016" href="$d4/d59/namespacetensor__cpu.html#aa7d61c1bdd9c277de9033425e25dfff5" title="Single&#45;element tensor product specialised for nv = nu = 2." alt="" coords="414,820,555,864"/>
+<area shape="poly" id="edge15_Node000004_Node000016" title=" " alt="" coords="333,758,415,805,426,811,420,813,413,809,334,763"/>
+<area shape="rect" id="Node000017" href="$d4/d59/namespacetensor__cpu.html#a5656651b5ce73aa77a20cac5fdf541a7" title="Single&#45;element tensor product specialised for nv = nu = 3." alt="" coords="414,889,555,934"/>
+<area shape="poly" id="edge16_Node000004_Node000017" title=" " alt="" coords="311,758,356,815,384,846,416,874,421,880,416,880,412,879,381,850,352,819,312,763"/>
+<area shape="rect" id="Node000018" href="$d4/d59/namespacetensor__cpu.html#ab4945eadb44a72d32c111d364eae6b8b" title="Single&#45;element tensor product specialised for nv = nu = 4." alt="" coords="414,958,555,1003"/>
+<area shape="poly" id="edge17_Node000004_Node000018" title=" " alt="" coords="305,758,322,798,346,847,377,898,416,944,420,948,414,949,412,948,373,901,341,850,317,801,304,763"/>
+<area shape="rect" id="Node000019" href="$d4/d59/namespacetensor__cpu.html#a1988aacf2efb9c8d811fa4db12e6385e" title="Single&#45;element tensor product specialised for nv = nu = 5." alt="" coords="414,1028,555,1072"/>
+<area shape="poly" id="edge18_Node000004_Node000019" title=" " alt="" coords="301,758,315,811,337,877,370,949,391,983,416,1013,419,1018,414,1018,412,1017,387,986,365,952,332,879,310,812,300,763"/>
+<area shape="rect" id="Node000020" href="$d4/d59/namespacetensor__cpu.html#aa17ce182a82dec3113b4281d1faffc57" title="Single&#45;element tensor product specialised for nv = nu = 6." alt="" coords="414,1097,555,1142"/>
+<area shape="poly" id="edge19_Node000004_Node000020" title=" " alt="" coords="299,758,309,822,329,907,344,953,363,999,387,1043,416,1083,418,1087,413,1086,412,1086,382,1046,358,1002,339,955,324,909,304,823,298,763"/>
+<area shape="rect" id="Node000021" href="$d4/d59/namespacetensor__cpu.html#a6ec00a49f043f4b60c336ce63e77809c" title="Single&#45;element tensor product specialised for nv = nu = 7." alt="" coords="414,1166,555,1211"/>
+<area shape="poly" id="edge20_Node000004_Node000021" title=" " alt="" coords="297,758,304,833,321,936,336,993,356,1049,382,1103,416,1152,418,1156,413,1156,412,1155,378,1106,351,1051,331,994,316,937,299,834,296,763"/>
+<area shape="rect" id="Node000022" href="$d4/d59/namespacetensor__cpu.html#afe5d871bd675d7737bfc26b84192fa62" title="Single&#45;element tensor product specialised for nv = nu = 8." alt="" coords="414,1236,555,1280"/>
+<area shape="poly" id="edge21_Node000004_Node000022" title=" " alt="" coords="296,758,300,844,305,901,313,965,328,1032,349,1099,378,1163,416,1222,418,1225,413,1224,412,1225,373,1166,344,1101,323,1033,308,966,299,902,295,844,295,763"/>
+<area shape="rect" id="Node000023" href="$d4/d59/namespacetensor__cpu.html#aa02177bbe1b001870fd0e1b41c19944a" title="Single&#45;element tensor product specialised for nv = nu = 9." alt="" coords="414,1305,555,1350"/>
+<area shape="poly" id="edge22_Node000004_Node000023" title=" " alt="" coords="299,758,314,871,338,1029,353,1110,372,1185,393,1248,416,1291,418,1295,413,1294,412,1294,388,1250,367,1187,348,1111,332,1030,309,871,298,763"/>
+<area shape="rect" id="Node000024" href="$d4/d59/namespacetensor__cpu.html#ad97f3d6179a480e00c0bab11ef16afd8" title="Single&#45;element tensor product with nv = nu, for arbitrary order." alt="" coords="414,1374,555,1419"/>
+<area shape="poly" id="edge23_Node000004_Node000024" title=" " alt="" coords="299,758,312,883,334,1062,349,1154,368,1240,390,1311,416,1360,418,1364,413,1363,412,1363,386,1313,363,1241,344,1155,328,1062,306,883,298,763"/>
+<area shape="rect" id="Node000025" href="$d4/d59/namespacetensor__cpu.html#ae4744f0b8f4479debd1a4ccbc5174e50" title="Single&#45;element tensor product for arbitrary nu and nv." alt="" coords="414,1444,555,1488"/>
+<area shape="poly" id="edge24_Node000004_Node000025" title=" " alt="" coords="298,758,310,895,330,1094,345,1198,365,1294,388,1374,402,1405,416,1430,418,1434,413,1432,412,1433,397,1408,383,1376,360,1295,340,1199,325,1095,304,895,297,763"/>
 </map>

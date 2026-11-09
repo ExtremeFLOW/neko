@@ -1,14 +1,31 @@
 <map id="richardson_device::richardson_compute_device" name="richardson_device::richardson_compute_device">
-<area shape="rect" id="Node000001" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="5,23,209,63"/>
-<area shape="rect" id="Node000002" href="$d3/ddd/richardson_8cu.html#ac6107294c6a28b395e2a27e3656ec803" title=" " alt="" coords="509,5,701,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,36,496,21,496,26,210,41"/>
-<area shape="rect" id="Node000004" href="$d1/da4/richardson_8c.html#a3d349adb3a7e03ccb34b62db43f386a7" title=" " alt="" coords="257,56,461,81"/>
-<area shape="poly" id="edge4_Node000001_Node000004" title=" " alt="" coords="210,51,244,54,243,60,209,56"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="749,49,901,89"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="662,28,737,46,735,51,661,33"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="784,49,782,39,788,30,803,24,825,22,851,25,865,32,862,37,849,30,825,27,804,29,792,34,787,40,789,48"/>
-<area shape="poly" id="edge5_Node000004_Node000003" title=" " alt="" coords="462,66,736,66,736,71,462,71"/>
-<area shape="rect" id="Node000005" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="539,107,671,132"/>
-<area shape="poly" id="edge6_Node000004_Node000005" title=" " alt="" coords="423,79,530,101,529,106,422,84"/>
-<area shape="poly" id="edge7_Node000005_Node000003" title=" " alt="" coords="661,104,735,87,737,92,662,109"/>
+<area shape="rect" id="Node000001" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="5,154,209,199"/>
+<area shape="rect" id="Node000002" href="$d3/ddd/richardson_8cu.html#ac6107294c6a28b395e2a27e3656ec803" title=" " alt="" coords="263,136,454,164"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,163,249,161,244,163,210,168"/>
+<area shape="rect" id="Node000014" href="$d1/da4/richardson_8c.html#a3d349adb3a7e03ccb34b62db43f386a7" title=" " alt="" coords="257,188,460,216"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="209,184,244,189,238,191,209,189"/>
+<area shape="rect" id="Node000003" href="$da/d4a/cuda_2richardson__kernel_8h.html#ae3ca444aa846fdc12c5a4a1bd8d1ff2f" title=" " alt="" coords="508,136,661,164"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="454,147,495,149,490,150,455,152"/>
+<area shape="rect" id="Node000004" href="$da/d4a/cuda_2richardson__kernel_8h.html#a62ddc2320f6eb2286b3160f33a9e8a42" title=" " alt="" coords="709,5,869,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="598,133,644,90,675,65,708,44,720,40,725,38,711,48,678,70,647,94,601,138"/>
+<area shape="rect" id="Node000006" href="$da/d4a/cuda_2richardson__kernel_8h.html#a4d0dafaaad422c48ae93acc3d577553e" title=" " alt="" coords="722,57,856,85"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="617,133,708,95,727,91,732,90,710,100,619,138"/>
+<area shape="rect" id="Node000007" href="$da/d4a/cuda_2richardson__kernel_8h.html#ac2814a22732eca4c30a0c8cbcd7ab42f" title=" " alt="" coords="725,109,853,137"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="661,137,713,133,707,134,662,142"/>
+<area shape="rect" id="Node000009" href="$da/d4a/cuda_2richardson__kernel_8h.html#a4bc5296cee245d3f8633310bd127a3b7" title=" " alt="" coords="729,161,849,189"/>
+<area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="662,157,716,166,711,166,662,162"/>
+<area shape="rect" id="Node000011" href="$da/d4a/cuda_2richardson__kernel_8h.html#a59df68e443b14ca8e02935af81ee61ed" title=" " alt="" coords="741,213,837,241"/>
+<area shape="poly" id="edge10_Node000003_Node000011" title=" " alt="" coords="630,162,662,174,710,198,730,208,725,207,708,203,660,179,629,167"/>
+<area shape="rect" id="Node000012" href="$da/d4a/cuda_2richardson__kernel_8h.html#a7c4013773641aa9afcc26fb57f838967" title=" " alt="" coords="744,265,834,293"/>
+<area shape="poly" id="edge11_Node000003_Node000012" title=" " alt="" coords="641,162,663,174,680,194,688,214,695,232,711,250,732,265,727,264,708,255,691,235,683,216,675,197,660,179,640,167"/>
+<area shape="rect" id="Node000005" href="$da/d4a/cuda_2richardson__kernel_8h.html#a9df9d0bd360b6ae889de1fe53e8759e1" title=" " alt="" coords="917,5,1062,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="869,17,904,19,899,20,869,22"/>
+<area shape="rect" id="Node000008" href="$da/d4a/cuda_2richardson__kernel_8h.html#aff7e09cb332be0a4a35b56cacd8cb419" title=" " alt="" coords="932,109,1046,137"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="853,121,919,123,914,123,854,126"/>
+<area shape="rect" id="Node000010" href="$da/d4a/cuda_2richardson__kernel_8h.html#aca253e762facac15cfede81005fc8988" title=" " alt="" coords="923,161,1056,189"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="849,173,910,175,905,175,850,178"/>
+<area shape="rect" id="Node000013" href="$da/d4a/cuda_2richardson__kernel_8h.html#a1b1272209656c7784c8f560bec8b0660" title=" " alt="" coords="939,265,1040,293"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="834,277,926,279,920,279,834,282"/>
+<area shape="rect" id="Node000015" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="519,188,650,216"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="460,199,506,202,500,202,461,204"/>
 </map>

@@ -1,0 +1,34 @@
+<map id="glsc3_reduce_kernel" name="glsc3_reduce_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="720,271,874,299"/>
+<area shape="rect" id="Node000002" href="$d2/d51/bicgstab__aux_8cu.html#a732c162bd2b7a7708beb01e1c5dc8613" title=" " alt="" coords="510,16,665,44"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="785,255,770,214,746,162,713,108,671,62,647,47,647,42,674,58,717,105,750,159,775,212,790,257"/>
+<area shape="rect" id="Node000005" href="$d2/d51/bicgstab__aux_8cu.html#a32c81bb9a77f185af15d67a7f8e9656f" title=" " alt="" coords="502,72,672,117"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="778,257,734,196,705,161,671,131,653,120,654,115,674,127,708,158,739,193,783,258"/>
+<area shape="rect" id="Node000007" href="$de/d1e/math_8cu.html#ae3e2cc7295db04332dc66b42e50b6d30" title=" " alt="" coords="518,140,656,168"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="770,260,726,222,671,183,644,171,644,166,674,179,730,218,775,261"/>
+<area shape="rect" id="Node000008" href="$d9/dab/projection_8cu.html#ad72e240b0f6d781c9b9d4a0e229e4822" title=" " alt="" coords="524,192,651,220"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="747,265,671,235,637,223,637,218,673,231,753,264"/>
+<area shape="rect" id="Node000010" href="$d9/dab/projection_8cu.html#a63794abd66ff5f2611aa96a8280f0ba2" title=" " alt="" coords="514,244,660,272"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="702,274,661,270,660,265,708,273"/>
+<area shape="rect" id="Node000012" href="$d9/d13/bicgstab__aux_8hip.html#aa49e586f8e355a60061c43e7355cf4dd" title=" " alt="" coords="515,296,659,324"/>
+<area shape="poly" id="edge12_Node000001_Node000012" title=" " alt="" coords="702,297,661,304,659,299,707,295"/>
+<area shape="rect" id="Node000013" href="$d9/d13/bicgstab__aux_8hip.html#a3b681af8861c195dc23c502ec3051225" title=" " alt="" coords="508,348,667,393"/>
+<area shape="poly" id="edge13_Node000001_Node000013" title=" " alt="" coords="749,304,645,350,643,345,744,306"/>
+<area shape="rect" id="Node000014" href="$de/d9b/math_8hip.html#a87e8b15974eb35428d5b7cf40e7fb841" title=" " alt="" coords="524,416,650,444"/>
+<area shape="poly" id="edge14_Node000001_Node000014" title=" " alt="" coords="778,310,733,361,705,386,674,407,650,418,648,413,671,403,701,382,729,357,773,312"/>
+<area shape="rect" id="Node000015" href="$d9/d09/projection_8hip.html#a520b26405c8b712cc5329f49033acfa8" title=" " alt="" coords="529,468,645,496"/>
+<area shape="poly" id="edge15_Node000001_Node000015" title=" " alt="" coords="785,311,742,386,711,424,674,458,647,472,645,467,671,453,707,421,738,382,781,314"/>
+<area shape="rect" id="Node000016" href="$d9/d09/projection_8hip.html#a42860edd1d4001a5cd1275feeda44795" title=" " alt="" coords="520,520,654,548"/>
+<area shape="poly" id="edge16_Node000001_Node000016" title=" " alt="" coords="790,312,775,357,751,410,717,463,697,488,674,510,653,522,651,517,671,506,693,484,713,460,746,407,770,355,785,315"/>
+<area shape="rect" id="Node000003" href="$df/dba/namespacebicgstab__device.html#af3de60528edac39791dd35faa10146fb" title="BiCGStab part 2, &#160;and ." alt="" coords="260,5,437,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="491,30,438,31,436,26,496,28"/>
+<area shape="rect" id="Node000004" href="$df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7" title="Solve a linear system with the device BiCGStab method." alt="" coords="5,40,195,85"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="242,44,196,51,193,47,246,40"/>
+<area shape="rect" id="Node000006" href="$df/dba/namespacebicgstab__device.html#a8bfe8ea73df4da522a959da4da165df7" title="Weighted inner product and squared norm in one reduction." alt="" coords="243,75,454,119"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="484,97,455,98,453,93,489,94"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="225,81,196,78,194,73,229,79"/>
+<area shape="rect" id="Node000009" href="$de/dc5/namespacedevice__projection.html#a0bb3b31f91395343dec55bc5880dbbe2" title=" " alt="" coords="276,176,420,221"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="506,205,422,203,420,198,510,203"/>
+<area shape="rect" id="Node000011" href="$de/dc5/namespacedevice__projection.html#ab7758606931232b4bf341124a5fcca6b" title=" " alt="" coords="270,245,427,290"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="497,263,428,267,427,262,502,261"/>
+</map>

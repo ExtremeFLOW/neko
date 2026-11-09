@@ -1,18 +1,18 @@
 <map id="boundary_flux::boundary_flux_compute" name="boundary_flux::boundary_flux_compute">
-<area shape="rect" id="Node000001" title="Compute and optionally output the total boundary flux." alt="" coords="5,85,188,125"/>
-<area shape="rect" id="Node000002" href="$d1/d36/namespaceboundary__flux.html#afead7529dd56da6c3ac3fad619c30514" title="Left&#45;pad a string to a fixed width." alt="" coords="240,35,415,61"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,83,262,61,263,67,178,88"/>
-<area shape="rect" id="Node000003" href="$d3/d0d/namespacevector__math.html#a956fad3c60febe102ee6455ad32c80f0" title=" " alt="" coords="251,85,404,125"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,103,237,103,237,108,188,108"/>
-<area shape="rect" id="Node000006" href="$d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de" title="Gather a vector to reduced contigous array ." alt="" coords="236,149,419,189"/>
-<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="170,123,242,143,241,148,169,128"/>
-<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa" title="Weighted inner product ." alt="" coords="479,5,637,45"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="385,83,486,47,487,52,387,88"/>
-<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="509,94,607,119"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="405,103,495,104,495,109,405,108"/>
-<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="521,96,513,86,517,76,532,70,558,67,590,71,603,81,599,85,588,76,558,73,533,75,520,80,518,85,525,92"/>
-<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="467,147,649,187"/>
-<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="419,166,453,165,453,171,419,171"/>
-<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="476,211,640,251"/>
-<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="404,187,470,204,468,210,403,192"/>
+<area shape="rect" id="Node000001" title="Compute and optionally output the total boundary flux." alt="" coords="5,87,188,131"/>
+<area shape="rect" id="Node000002" href="$d1/d36/namespaceboundary__flux.html#afead7529dd56da6c3ac3fad619c30514" title="Left&#45;pad a string to a fixed width." alt="" coords="240,35,413,63"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="183,84,258,66,254,69,185,89"/>
+<area shape="rect" id="Node000003" href="$d3/d0d/namespacevector__math.html#a956fad3c60febe102ee6455ad32c80f0" title=" " alt="" coords="250,87,402,131"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,106,237,108,232,110,189,112"/>
+<area shape="rect" id="Node000006" href="$d3/d0d/namespacevector__math.html#a102c3fdd6473f46807a9cd38290910de" title="Gather a vector to reduced contigous array ." alt="" coords="236,156,417,201"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="173,129,238,150,233,152,173,135"/>
+<area shape="rect" id="Node000004" href="$d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa" title="Weighted inner product ." alt="" coords="478,5,634,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="390,84,479,55,474,57,392,89"/>
+<area shape="rect" id="Node000005" href="$dd/d47/namespacemath.html#a662e670921645de8b50d2cdbe93ab1ed" title="Weighted inner product ." alt="" coords="507,98,604,126"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="403,107,494,110,489,112,403,113"/>
+<area shape="poly" id="edge5_Node000005_Node000005" title=" " alt="" coords="516,97,510,89,515,79,531,73,556,71,583,74,599,83,593,82,581,79,556,76,532,78,519,83,515,89,521,98"/>
+<area shape="rect" id="Node000007" href="$d2/d73/namespacedevice__math.html#ab5d60404a08d01766f7d764fd0f144a1" title="Gather a masked vector ." alt="" coords="465,153,646,198"/>
+<area shape="poly" id="edge7_Node000006_Node000007" title=" " alt="" coords="417,175,452,177,447,177,418,180"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#a93ebdef19d8a165651d852f29d2bf5b7" title="Gather a masked vector to reduced contigous vector ." alt="" coords="474,223,637,267"/>
+<area shape="poly" id="edge8_Node000006_Node000008" title=" " alt="" coords="406,199,464,218,459,218,405,204"/>
 </map>

@@ -1,8 +1,8 @@
 <map id="vector_math::vector_glmin" name="vector_math::vector_glmin">
-<area shape="rect" id="Node000001" title="Global minimum of all elements in a vector ." alt="" coords="5,47,159,87"/>
-<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#af00b600598c7ff6b471bd19815e11d1c" title="Min of a vector of length n." alt="" coords="207,5,364,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="159,48,193,41,194,47,160,54"/>
-<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e" title="Min of a vector of length n." alt="" coords="235,94,336,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="160,79,222,91,220,97,159,84"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="252,96,245,86,249,76,262,70,285,67,314,71,325,80,321,84,311,76,285,73,264,75,252,79,250,85,256,92"/>
+<area shape="rect" id="Node000001" title="Global minimum of all elements in a vector ." alt="" coords="5,48,158,93"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#af00b600598c7ff6b471bd19815e11d1c" title="Min of a vector of length n." alt="" coords="206,5,362,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,52,193,46,188,48,159,57"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aee45fd2307691bcc94e2986af286775e" title="Min of a vector of length n." alt="" coords="234,98,334,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="159,83,221,98,216,99,158,89"/>
+<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="249,96,243,89,248,79,262,73,284,71,308,74,322,83,317,82,306,79,284,76,263,78,251,83,249,89,254,98"/>
 </map>

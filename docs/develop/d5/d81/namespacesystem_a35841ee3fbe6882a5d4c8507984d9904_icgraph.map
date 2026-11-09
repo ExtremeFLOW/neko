@@ -1,7 +1,25 @@
 <map id="system::system_cpu_name" name="system::system_cpu_name">
-<area shape="rect" id="Node000001" title="Retrieve the system&#39;s CPU name (type)" alt="" coords="221,35,421,60"/>
-<area shape="rect" id="Node000002" href="$dd/d62/namespaceneko.html#a12ac3a3e9d30fbc66d5a77e012e90edb" title="Display job information, number of MPI ranks, CPU type and selected hardware backend." alt="" coords="14,5,165,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,36,164,30,165,25,208,30"/>
-<area shape="rect" id="Node000003" href="$d7/d90/interfacesystem_1_1system__cpuid.html#a0436c489fe2d6d9911e3ef7b7e084010" title=" " alt="" coords="5,55,173,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="208,64,174,68,173,63,207,58"/>
+<area shape="rect" id="Node000001" title="Retrieve the system&#39;s CPU name (type)." alt="" coords="635,161,835,189"/>
+<area shape="rect" id="Node000002" href="$dd/d62/namespaceneko.html#a12ac3a3e9d30fbc66d5a77e012e90edb" title="Display job information, number of MPI ranks, CPU type and selected hardware backend." alt="" coords="428,131,579,158"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="617,160,579,157,579,152,622,160"/>
+<area shape="rect" id="Node000012" href="$d7/d90/interfacesystem_1_1system__cpuid.html#a0436c489fe2d6d9911e3ef7b7e084010" title=" " alt="" coords="420,182,587,227"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="617,190,588,197,587,191,622,189"/>
+<area shape="rect" id="Node000003" href="$d5/dd3/namespaceneko__api.html#a4400b3d8102e65c6cb49de4b8de929f3" title="Display job information." alt="" coords="227,93,372,138"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,132,373,128,372,123,416,131"/>
+<area shape="rect" id="Node000004" href="$dd/d62/namespaceneko.html#a7428543ecc3d1960dc260270d94466bd" title="Initialise Neko." alt="" coords="240,161,359,189"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="411,159,360,169,359,164,416,157"/>
+<area shape="rect" id="Node000005" href="$d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,5,179,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="227,153,225,152,213,138,206,125,200,98,195,72,188,60,177,48,160,36,159,31,180,44,192,57,200,71,206,97,211,123,218,135,229,148,233,153"/>
+<area shape="rect" id="Node000006" href="$d3/dc7/average__fields__in__time_8f90.html#ac6905300ca74b33833aa210ef56e2bb7" title="Program to sum up averaged fields computed for statistics and mean field Martin Karp 27/01&#45;23." alt="" coords="6,57,178,85"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="231,155,225,152,210,139,201,125,192,112,177,100,154,88,153,83,180,96,196,109,205,122,214,135,228,148,237,154"/>
+<area shape="rect" id="Node000007" href="$dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,109,145,137"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="224,158,145,139,145,134,229,156"/>
+<area shape="rect" id="Node000008" href="$d5/dd3/namespaceneko__api.html#afa3748b2eb116fe51b3eb603236c36e1" title="Initialise Neko." alt="" coords="5,161,179,189"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="222,176,180,178,178,173,227,174"/>
+<area shape="rect" id="Node000009" href="$d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,213,179,241"/>
+<area shape="poly" id="edge8_Node000004_Node000009" title=" " alt="" coords="224,195,151,215,149,210,228,192"/>
+<area shape="rect" id="Node000010" href="$d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,265,131,293"/>
+<area shape="poly" id="edge9_Node000004_Node000010" title=" " alt="" coords="270,197,228,228,180,255,133,272,131,267,178,250,225,224,265,199"/>
+<area shape="rect" id="Node000011" href="$d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,317,135,345"/>
+<area shape="poly" id="edge10_Node000004_Node000011" title=" " alt="" coords="282,201,239,256,211,283,180,307,136,325,135,320,177,302,208,279,235,252,278,203"/>
 </map>

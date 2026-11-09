@@ -1,9 +1,9 @@
 <map id="mesh::mesh_init_dist" name="mesh::mesh_init_dist">
-<area shape="rect" id="Node000001" title="Initialise a mesh this based on a distribution dist." alt="" coords="5,31,167,56"/>
-<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a84fb89799d74a310f3612f5334cf5b74" title=" " alt="" coords="215,5,409,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,32,201,28,201,33,167,37"/>
-<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="238,55,386,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,49,225,55,224,61,166,55"/>
-<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="457,47,605,87"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="386,65,443,65,443,70,386,70"/>
+<area shape="rect" id="Node000001" title="Initialise a mesh this based on a distribution dist." alt="" coords="5,32,166,60"/>
+<area shape="rect" id="Node000002" href="$db/dfc/namespacemesh.html#a84fb89799d74a310f3612f5334cf5b74" title=" " alt="" coords="214,5,407,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,34,201,32,196,33,166,39"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="237,57,384,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="166,52,224,61,218,62,166,58"/>
+<area shape="rect" id="Node000004" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="455,49,602,94"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="384,69,442,71,437,71,384,74"/>
 </map>

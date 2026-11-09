@@ -1,0 +1,21 @@
+<map id="/home/runner/work/neko/neko/src/les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu" name="/home/runner/work/neko/neko/src/les/bcknd/device/cuda/dynamic_smagorinsky_nut.cu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="240,5,494,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,124,76,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,69,166,92,88,118,83,119,80,115,86,112,164,87,245,66"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="99,124,168,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="292,69,183,117,179,119,176,115,181,113,297,66"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="193,124,258,151"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="326,66,258,117,256,112,322,69"/>
+<area shape="rect" id="Node000005" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="282,124,452,151"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="369,65,369,109,365,106,366,70"/>
+<area shape="rect" id="Node000006" href="$d5/d08/cuda_2check_8h.html" title=" " alt="" coords="476,124,629,151"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="424,65,517,116,512,116,423,70"/>
+<area shape="rect" id="Node000007" href="$d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html" title=" " alt="" coords="653,115,820,160"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="480,65,644,110,639,111,480,70"/>
+<area shape="rect" id="Node000010" href="$d4/d8d/neko__log_8h.html" title=" " alt="" coords="844,124,997,151"/>
+<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="495,54,656,80,833,112,856,120,851,119,832,118,656,85,494,59"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="656,208,718,235"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="726,159,704,196,701,192,721,161"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="742,208,827,235"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="750,158,771,195,767,193,748,162"/>
+</map>

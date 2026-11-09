@@ -1,7 +1,7 @@
 <map id="scalar_stats_simcomp::scalar_stats_simcomp_restart" name="scalar_stats_simcomp::scalar_stats_simcomp_restart">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,180,60"/>
-<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="228,20,387,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,30,214,30,214,35,180,35"/>
-<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="435,20,623,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="387,30,421,30,421,35,387,35"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,180,67"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#ab63ac98c412c96a48161b7ad74e5fa85" title="Extract a filename&#39;s suffix." alt="" coords="228,22,385,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,34,215,36,209,36,181,39"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#ae2d9d80ae0bcff7643db09d1c1860542" title="Find position (in the string) of a filename&#39;s suffix." alt="" coords="433,22,620,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="386,34,420,36,415,36,386,39"/>
 </map>

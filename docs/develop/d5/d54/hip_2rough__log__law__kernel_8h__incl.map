@@ -1,7 +1,7 @@
 <map id="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/rough_log_law_kernel.h" name="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/rough_log_law_kernel.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,185,75"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="15,123,77,148"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="80,76,61,112,56,109,75,74"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="102,123,187,148"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="115,74,134,109,130,112,111,76"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,185,84"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="16,132,78,160"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="78,83,62,119,58,116,74,86"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="102,132,186,160"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="116,82,134,118,128,117,113,87"/>
 </map>

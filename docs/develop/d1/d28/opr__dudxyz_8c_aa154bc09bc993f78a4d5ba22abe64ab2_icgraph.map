@@ -1,11 +1,11 @@
 <map id="opencl_dudxyz" name="opencl_dudxyz">
-<area shape="rect" id="Node000001" title=" " alt="" coords="451,35,569,60"/>
-<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#a99baf3e0c295d2b3603f603e7d11f458" title=" " alt="" coords="200,5,403,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="436,40,391,33,392,28,437,34"/>
-<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#a5632ede2d3218f86fb2ec080703b3a5b" title=" " alt="" coords="215,55,387,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="437,60,388,66,387,61,436,54"/>
-<area shape="rect" id="Node000004" href="$db/d5a/interfaceoperators_1_1dudxyz.html#a09aeed57ec3a82e68b48218c8c403ffd" title="Compute derivative of a scalar field along a single direction." alt="" coords="5,23,152,63"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="201,64,152,56,153,51,202,58"/>
-<area shape="rect" id="Node000005" href="$db/d5a/interfaceoperators_1_1dudxyz.html#ad6ccdb3f34539d2dd3273b0cf92ebadd" title="Compute derivative of a scalar field along a single direction." alt="" coords="5,87,152,127"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="202,92,153,99,152,94,201,87"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="450,36,568,64"/>
+<area shape="rect" id="Node000002" href="$d3/d4d/namespaceopr__device.html#a99baf3e0c295d2b3603f603e7d11f458" title=" " alt="" coords="200,5,402,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="432,39,399,36,399,31,437,39"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#a5632ede2d3218f86fb2ec080703b3a5b" title=" " alt="" coords="215,57,386,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="432,61,387,70,386,64,437,60"/>
+<area shape="rect" id="Node000004" href="$db/d5a/interfaceoperators_1_1dudxyz.html#a09aeed57ec3a82e68b48218c8c403ffd" title="Compute derivative of a scalar field along a single direction." alt="" coords="5,22,152,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="197,64,152,59,152,53,202,63"/>
+<area shape="rect" id="Node000005" href="$db/d5a/interfaceoperators_1_1dudxyz.html#ad6ccdb3f34539d2dd3273b0cf92ebadd" title="Compute derivative of a scalar field along a single direction." alt="" coords="5,92,152,136"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="197,95,153,105,152,100,203,94"/>
 </map>

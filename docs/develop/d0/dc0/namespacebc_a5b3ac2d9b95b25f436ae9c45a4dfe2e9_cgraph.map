@@ -1,7 +1,7 @@
 <map id="bc::bc_mark_labeled_zone" name="bc::bc_mark_labeled_zone">
-<area shape="rect" id="Node000001" title="Mark all facets from a labeled zone." alt="" coords="5,13,200,38"/>
-<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="248,13,396,38"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,23,234,23,234,28,200,28"/>
-<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="444,5,592,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,23,430,23,430,28,396,28"/>
+<area shape="rect" id="Node000001" title="Mark all facets from a labeled zone." alt="" coords="5,14,199,42"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#a8de91e60607d8bf98d265d9e9a90f88f" title="Reports a warning to standard output." alt="" coords="247,14,394,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="199,25,234,27,228,28,199,30"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a9d0e38f6ffcd4c728be74f8b39b9ffc1" title="Default throw method for warnings. Does nothing." alt="" coords="442,5,589,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="394,25,429,28,423,28,395,30"/>
 </map>

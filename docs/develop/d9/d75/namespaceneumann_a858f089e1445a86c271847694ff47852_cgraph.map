@@ -1,9 +1,7 @@
 <map id="neumann::neumann_apply_vector" name="neumann::neumann_apply_vector">
-<area shape="rect" id="Node000001" title="Boundary condition apply for a generic Neumann condition to vectors x, y and z." alt="" coords="5,29,200,69"/>
-<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="248,37,375,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,47,234,47,234,52,200,52"/>
-<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="280,38,274,28,277,18,290,12,311,10,337,14,348,22,344,26,335,18,311,15,292,17,281,22,279,28,285,35"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="423,29,575,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="375,47,409,47,409,52,375,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="463,30,461,20,467,11,480,5,499,3,521,6,533,13,530,17,519,11,499,8,481,10,470,15,466,21,468,28"/>
+<area shape="rect" id="Node000001" title="Boundary condition apply for a generic Neumann condition to vectors x, y and z." alt="" coords="5,5,200,50"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b" title="Compute (i,j,k,l) array given linear index with sizes (1:lx, 1:ly, 1:lz, :)." alt="" coords="248,14,409,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="200,25,235,27,230,28,200,30"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)." alt="" coords="457,14,594,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="409,25,444,28,439,28,409,30"/>
 </map>

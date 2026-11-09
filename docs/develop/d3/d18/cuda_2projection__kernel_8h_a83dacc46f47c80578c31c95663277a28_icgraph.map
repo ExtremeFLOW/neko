@@ -1,0 +1,9 @@
+<map id="project_ortho_vec_kernel" name="project_ortho_vec_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="404,40,588,68"/>
+<area shape="rect" id="Node000002" href="$d9/dab/projection_8cu.html#a63794abd66ff5f2611aa96a8280f0ba2" title=" " alt="" coords="211,14,356,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="386,41,356,39,356,34,391,41"/>
+<area shape="rect" id="Node000004" href="$d9/d09/projection_8hip.html#a42860edd1d4001a5cd1275feeda44795" title=" " alt="" coords="216,66,350,94"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="391,67,351,74,351,69,386,67"/>
+<area shape="rect" id="Node000003" href="$de/dc5/namespacedevice__projection.html#ab7758606931232b4bf341124a5fcca6b" title=" " alt="" coords="5,5,163,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="193,28,164,30,163,25,198,27"/>
+</map>

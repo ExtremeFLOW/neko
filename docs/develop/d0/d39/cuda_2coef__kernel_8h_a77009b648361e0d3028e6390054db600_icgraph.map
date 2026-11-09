@@ -1,0 +1,15 @@
+<map id="coef_generate_drst_kernel" name="coef_generate_drst_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="906,58,1052,103"/>
+<area shape="rect" id="Node000002" href="$d4/d95/coef_8cu.html#ae353b24ed06280c0189697af736a6b7d" title=" " alt="" coords="679,28,832,72"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="887,68,832,63,832,58,893,68"/>
+<area shape="rect" id="Node000007" href="$d9/dc3/coef_8hip.html#a1d3ebf47fb79350ef24164a3b90b0fbf" title=" " alt="" coords="653,96,858,124"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="893,92,858,99,858,94,887,92"/>
+<area shape="rect" id="Node000003" href="$df/d80/namespacedevice__coef.html#a6bf9ddbe771387016c5f4cd71fe51256" title=" " alt="" coords="428,28,605,72"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="661,50,606,52,606,47,666,50"/>
+<area shape="rect" id="Node000004" href="$d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e" title=" " alt="" coords="223,28,380,72"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="410,50,381,52,380,47,415,50"/>
+<area shape="rect" id="Node000005" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="18,5,162,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="205,37,162,32,162,27,210,35"/>
+<area shape="rect" id="Node000006" href="$d6/dbe/namespacecoefs.html#a3c508acdffbb2d6dbcc566f978e990f2" title="Recompute and update geometric factors (ALE)." alt="" coords="5,57,175,102"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="205,64,176,70,175,65,210,62"/>
+</map>

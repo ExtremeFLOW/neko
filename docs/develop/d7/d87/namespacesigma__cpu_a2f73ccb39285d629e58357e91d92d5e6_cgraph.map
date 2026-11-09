@@ -1,5 +1,5 @@
 <map id="sigma_cpu::sigma_compute_cpu" name="sigma_cpu::sigma_compute_cpu">
-<area shape="rect" id="Node000001" title="Compute eddy viscosity on the CPU." alt="" coords="5,5,240,31"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="288,5,379,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="240,15,274,15,274,21,240,21"/>
+<area shape="rect" id="Node000001" title="Compute eddy viscosity on the CPU." alt="" coords="5,5,239,33"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="287,5,377,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,17,273,19,268,19,239,22"/>
 </map>

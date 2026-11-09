@@ -1,8 +1,8 @@
 var namespaceexpression =
 [
-    [ "expression_t", "d1/dcf/structexpression_1_1expression__t.html", "d1/dcf/structexpression_1_1expression__t" ],
-    [ "parser_t", "da/d23/structexpression_1_1parser__t.html", "da/d23/structexpression_1_1parser__t" ],
     [ "token_t", "dc/df0/structexpression_1_1token__t.html", "dc/df0/structexpression_1_1token__t" ],
+    [ "parser_t", "da/d23/structexpression_1_1parser__t.html", "da/d23/structexpression_1_1parser__t" ],
+    [ "expression_t", "d1/dcf/structexpression_1_1expression__t.html", "d1/dcf/structexpression_1_1expression__t" ],
     [ "emit", "df/d95/namespaceexpression.html#ac78197d179f186708845842cfef1663a", null ],
     [ "expr_error", "df/d95/namespaceexpression.html#a38f30fba25d591fa867c41f27b5de43b", null ],
     [ "expr_tokenize", "df/d95/namespaceexpression.html#ae4880e732acd449c40c5452c1771c19d", null ],

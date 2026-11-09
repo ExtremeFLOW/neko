@@ -1,6 +1,5 @@
 <map id="scalar_rhs_maker_ext_cuda" name="scalar_rhs_maker_ext_cuda">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,208,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="256,29,408,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="208,47,242,47,242,52,208,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="290,30,288,20,294,10,309,5,332,3,358,6,372,13,370,18,357,11,332,8,310,10,298,15,293,21,295,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,207,33"/>
+<area shape="rect" id="Node000002" href="$d0/d1e/cuda_2makeext__kernel_8h.html#a11c2209c65b154a3aeab3abeb9927189" title=" " alt="" coords="255,5,426,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,17,242,19,236,19,207,22"/>
 </map>

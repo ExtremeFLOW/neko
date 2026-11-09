@@ -1,0 +1,17 @@
+<map id="/home/runner/work/neko/neko/src/fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip" name="/home/runner/work/neko/neko/src/fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="158,5,352,84"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,149,71,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="172,87,85,134,72,142,68,138,82,130,175,82"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="95,149,165,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="216,83,157,141,153,137,212,86"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="198,242,334,269"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="240,82,227,137,226,165,230,193,248,230,243,228,225,194,220,165,222,136,237,86"/>
+<area shape="rect" id="Node000005" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="377,242,547,269"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="332,82,365,104,395,130,430,179,454,228,449,226,426,182,391,134,362,108,331,87"/>
+<area shape="rect" id="Node000006" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="239,149,381,177"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="275,82,300,136,295,135,272,87"/>
+<area shape="rect" id="Node000007" href="$d6/d47/hip_2compressible__ops__kernel_8h.html" title=" " alt="" coords="455,132,621,194"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="350,82,453,125,448,126,350,87"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="306,176,281,230,277,226,301,178"/>
+<area shape="poly" id="edge8_Node000007_Node000005" title=" " alt="" coords="515,193,484,232,481,227,510,195"/>
+</map>

@@ -1,9 +1,7 @@
 <map id="field_neumann::field_neumann_apply_scalar" name="field_neumann::field_neumann_apply_scalar">
-<area shape="rect" id="Node000001" title="Apply scalar by adding weak neumann contribution." alt="" coords="5,29,184,69"/>
-<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="232,37,359,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="185,47,218,47,218,52,185,52"/>
-<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="264,38,258,28,261,18,274,12,295,10,321,14,332,22,328,26,319,18,295,15,276,17,265,22,263,28,269,35"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="407,29,559,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="359,47,393,47,393,52,359,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="447,30,445,20,451,11,464,5,483,3,505,6,517,13,514,17,503,11,483,8,465,10,454,15,450,21,452,28"/>
+<area shape="rect" id="Node000001" title="Apply scalar by adding weak neumann contribution." alt="" coords="5,5,184,50"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b" title="Compute (i,j,k,l) array given linear index with sizes (1:lx, 1:ly, 1:lz, :)." alt="" coords="232,14,393,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,25,219,27,214,28,184,30"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)." alt="" coords="441,14,578,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="393,25,428,28,423,28,393,30"/>
 </map>

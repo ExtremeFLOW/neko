@@ -1,0 +1,12 @@
+<map id="/home/runner/work/neko/neko/src/viscous_regularization/avm/bcknd/device/hip/entropy_viscosity.hip" name="/home/runner/work/neko/neko/src/viscous_regularization/avm/bcknd/device/hip/entropy_viscosity.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="42,5,271,84"/>
+<area shape="rect" id="Node000002" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="5,208,175,235"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="87,86,67,108,50,133,46,149,50,164,68,196,63,196,45,166,41,149,45,131,63,104,90,82"/>
+<area shape="rect" id="Node000003" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="279,132,421,160"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="233,82,314,124,309,125,232,87"/>
+<area shape="rect" id="Node000005" href="$d9/d27/hip_2entropy__viscosity__kernel_8h.html" title=" " alt="" coords="59,132,254,160"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="158,82,159,117,154,115,155,87"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="282,208,418,235"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="352,158,352,194,348,190,348,162"/>
+<area shape="poly" id="edge5_Node000005_Node000002" title=" " alt="" coords="147,159,114,198,110,194,142,161"/>
+</map>

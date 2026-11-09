@@ -1,15 +1,15 @@
 <map id="speclib::zwgjd" name="speclib::zwgjd">
-<area shape="rect" id="Node000001" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="5,76,120,102"/>
-<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="339,39,469,64"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="75,74,113,41,139,24,167,12,219,3,272,7,322,18,363,31,361,37,320,23,272,12,220,9,169,17,142,29,117,45,78,78"/>
-<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="178,100,281,126"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="121,95,164,101,164,106,120,100"/>
-<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="346,114,462,139"/>
-<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="85,100,123,120,169,136,210,142,253,143,332,137,333,142,253,149,210,147,167,141,121,124,83,104"/>
-<area shape="rect" id="Node000005" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="168,51,291,76"/>
-<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="120,78,154,72,155,78,121,83"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="375,40,369,31,372,21,384,15,404,12,428,16,438,25,434,29,426,21,404,18,386,20,376,24,374,30,380,37"/>
-<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="281,114,332,118,332,124,281,120"/>
-<area shape="poly" id="edge7_Node000005_Node000002" title=" " alt="" coords="291,57,324,54,325,60,291,62"/>
-<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="202,52,196,43,199,33,210,27,229,24,252,28,262,36,258,40,250,33,229,30,212,32,203,36,201,42,206,49"/>
+<area shape="rect" id="Node000001" title="Generate NP GAUSS JACOBI points (Z) and weights (W) associated with Jacobi polynomial P(N)(alpha&gt;&#45;1,..." alt="" coords="5,93,119,121"/>
+<area shape="rect" id="Node000002" href="$dd/df0/namespacespeclib.html#a4048cd0103898d95f6f8064c13fe5294" title=" " alt="" coords="336,29,466,57"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="75,91,113,58,138,41,166,29,206,19,248,17,329,25,324,27,248,22,207,25,168,34,141,46,116,62,78,95"/>
+<area shape="rect" id="Node000003" href="$dd/df0/namespacespeclib.html#a42f3304560e837ccc11d02fac0d17598" title="Compute NP Gauss points XJAC, which are the zeros of the Jacobi polynomial J(NP) with parameters ALPH..." alt="" coords="176,119,278,146"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="119,113,163,122,158,123,119,119"/>
+<area shape="rect" id="Node000004" href="$dd/df0/namespacespeclib.html#a7b6b7a991f7a4deaff63144237f6b161" title="Computes the Jacobi polynomial (POLY) and its derivative (PDER) of degree N at X." alt="" coords="344,144,459,172"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="86,119,123,139,167,155,208,162,250,165,325,166,330,166,250,171,207,167,166,160,121,144,85,124"/>
+<area shape="rect" id="Node000005" href="$dd/df0/namespacespeclib.html#a3d3ffb215920d3ac2599832211842480" title=" " alt="" coords="167,67,288,94"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="119,95,154,92,149,94,120,101"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="371,28,366,20,370,11,382,5,401,3,422,5,434,14,429,14,420,10,401,8,383,10,374,15,371,20,376,30"/>
+<area shape="poly" id="edge4_Node000003_Node000004" title=" " alt="" coords="279,137,331,147,326,147,279,143"/>
+<area shape="poly" id="edge7_Node000005_Node000002" title=" " alt="" coords="288,65,323,60,318,61,289,70"/>
+<area shape="poly" id="edge8_Node000005_Node000005" title=" " alt="" coords="198,65,194,58,197,48,209,42,227,40,247,43,259,51,254,51,245,48,227,45,210,47,201,52,199,57,203,67"/>
 </map>

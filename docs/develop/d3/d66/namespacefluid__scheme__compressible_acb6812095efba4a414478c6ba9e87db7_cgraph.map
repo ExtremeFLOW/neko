@@ -1,6 +1,6 @@
 <map id="fluid_scheme_compressible::fluid_scheme_compressible_init" name="fluid_scheme_compressible::fluid_scheme_compressible_init">
-<area shape="rect" id="Node000001" title="Initialize common data for compressible fluid scheme." alt="" coords="5,22,244,62"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="292,29,396,55"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="244,39,278,39,278,45,244,45"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="308,31,301,21,305,11,319,5,344,3,374,6,386,15,383,20,372,11,344,8,321,10,308,15,306,20,312,28"/>
+<area shape="rect" id="Node000001" title="Initialize common data for compressible fluid scheme." alt="" coords="5,21,243,66"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a79605e1f64791cdd50be86db3e5bec75" title="Sum a vector of length n." alt="" coords="291,29,394,57"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,41,278,43,273,43,243,46"/>
+<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="305,28,299,20,304,11,318,5,342,3,368,5,383,14,378,14,367,10,342,8,320,10,307,15,304,20,310,30"/>
 </map>

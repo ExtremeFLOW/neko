@@ -1,18 +1,18 @@
 var comm_8F90 =
 [
     [ "comm::neko_comm_wrapper_init", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init.html", "d3/d3a/interfacecomm_1_1neko__comm__wrapper__init" ],
-    [ "comm_free", "d1/db1/comm_8F90.html#a064af56a87bebfb8224de6dd655ea7b3", null ],
-    [ "comm_init", "d1/db1/comm_8F90.html#a08a353f1ee66ac93674f48d999819eec", null ],
-    [ "is_mpmd", "d1/db1/comm_8F90.html#af6773c5e1f197ca836a300f02226f2cd", null ],
-    [ "shmem_check_thread_level", "d1/db1/comm_8F90.html#aa8ddde0090060fc67f9299432f93fd86", null ],
-    [ "global_pe_rank", "d1/db1/comm_8F90.html#a49ecc104d9449bfa2c82e20961e03be2", null ],
-    [ "global_pe_size", "d1/db1/comm_8F90.html#a6f12f8d4e58022c341882f61ff607fe6", null ],
-    [ "mpi_extra_precision", "d1/db1/comm_8F90.html#ae24abe270df5000b8f0534eaeb00245f", null ],
-    [ "mpi_real_precision", "d1/db1/comm_8F90.html#a3119ac9b00aa5192f43296a1edb405bc", null ],
-    [ "neko_comm", "d1/db1/comm_8F90.html#a7c785ed9ced1166fa0d1591e62ad5d3d", null ],
-    [ "neko_global_comm", "d1/db1/comm_8F90.html#a18e98b3ee477514f502cf3a518062ecb", null ],
-    [ "neko_mpi_thread_provided", "d1/db1/comm_8F90.html#a84340aedcfd2d541b686ecbdedb718f7", null ],
-    [ "nio", "d1/db1/comm_8F90.html#a0ccb24a83a4a6180bf03c191ca525bb8", null ],
-    [ "pe_rank", "d1/db1/comm_8F90.html#a5d73a7756860779f8bbc7e2eecf5fdde", null ],
-    [ "pe_size", "d1/db1/comm_8F90.html#a50dc807442d4f821f0befa31b86f735d", null ]
+    [ "comm::comm_free", "d3/d8f/namespacecomm.html#a064af56a87bebfb8224de6dd655ea7b3", null ],
+    [ "comm::comm_init", "d3/d8f/namespacecomm.html#a08a353f1ee66ac93674f48d999819eec", null ],
+    [ "comm::is_mpmd", "d3/d8f/namespacecomm.html#af6773c5e1f197ca836a300f02226f2cd", null ],
+    [ "comm::shmem_check_thread_level", "d3/d8f/namespacecomm.html#aa8ddde0090060fc67f9299432f93fd86", null ],
+    [ "comm::global_pe_rank", "d3/d8f/namespacecomm.html#a49ecc104d9449bfa2c82e20961e03be2", null ],
+    [ "comm::global_pe_size", "d3/d8f/namespacecomm.html#a6f12f8d4e58022c341882f61ff607fe6", null ],
+    [ "comm::mpi_extra_precision", "d3/d8f/namespacecomm.html#ae24abe270df5000b8f0534eaeb00245f", null ],
+    [ "comm::mpi_real_precision", "d3/d8f/namespacecomm.html#a3119ac9b00aa5192f43296a1edb405bc", null ],
+    [ "comm::neko_comm", "d3/d8f/namespacecomm.html#a7c785ed9ced1166fa0d1591e62ad5d3d", null ],
+    [ "comm::neko_global_comm", "d3/d8f/namespacecomm.html#a18e98b3ee477514f502cf3a518062ecb", null ],
+    [ "comm::neko_mpi_thread_provided", "d3/d8f/namespacecomm.html#a84340aedcfd2d541b686ecbdedb718f7", null ],
+    [ "comm::nio", "d3/d8f/namespacecomm.html#a0ccb24a83a4a6180bf03c191ca525bb8", null ],
+    [ "comm::pe_rank", "d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde", null ],
+    [ "comm::pe_size", "d3/d8f/namespacecomm.html#a50dc807442d4f821f0befa31b86f735d", null ]
 ];

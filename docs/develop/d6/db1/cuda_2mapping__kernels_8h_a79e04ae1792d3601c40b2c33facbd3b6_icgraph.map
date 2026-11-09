@@ -1,0 +1,7 @@
+<map id="permeability_kernel" name="permeability_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="196,32,347,60"/>
+<area shape="rect" id="Node000002" href="$d2/d53/mappings_8cu.html#abcc30cb9f6ebe9c359b08c722378f576" title=" " alt="" coords="5,5,148,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="177,34,148,32,148,26,183,33"/>
+<area shape="rect" id="Node000003" href="$db/df3/mappings_8hip.html#a87db429c6af9288f51558fff88407c9c" title=" " alt="" coords="11,57,142,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="177,58,143,65,142,60,183,57"/>
+</map>

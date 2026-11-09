@@ -1,6 +1,5 @@
 <map id="hip_lpt_periodic_bc_wrap_translational" name="hip_lpt_periodic_bc_wrap_translational">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,29,156,69"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="204,29,356,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="156,47,190,47,190,52,156,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="243,30,241,20,246,11,260,5,280,3,303,6,316,13,313,18,302,11,280,8,261,10,250,15,246,21,248,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,155,50"/>
+<area shape="rect" id="Node000002" href="$dd/d25/cuda_2lpt__periodic__bc__kernel_8h.html#a2b2f75b479a076b2f5da87770a8bd7d8" title=" " alt="" coords="203,5,361,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="155,25,190,27,184,28,155,30"/>
 </map>

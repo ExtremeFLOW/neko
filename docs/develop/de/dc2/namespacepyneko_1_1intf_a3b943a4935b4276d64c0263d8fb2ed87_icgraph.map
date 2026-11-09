@@ -1,7 +1,13 @@
 <map id="pyneko.intf.wrap_dofmap" name="pyneko.intf.wrap_dofmap">
-<area shape="rect" id="Node000001" title=" " alt="" coords="236,42,423,67"/>
-<area shape="rect" id="Node000002" href="$de/dc2/namespacepyneko_1_1intf.html#ab365b6f8055fe95718526fca43d78a62" title=" " alt="" coords="15,5,178,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,44,178,38,178,33,223,39"/>
-<area shape="rect" id="Node000003" href="$de/dc2/namespacepyneko_1_1intf.html#ad30b09c1e7c00c2efecfece5555cf493" title=" " alt="" coords="5,70,188,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="223,70,189,74,188,69,222,65"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="481,44,667,72"/>
+<area shape="rect" id="Node000002" href="$de/dc2/namespacepyneko_1_1intf.html#ab365b6f8055fe95718526fca43d78a62" title=" " alt="" coords="261,5,423,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="463,44,424,41,423,36,469,44"/>
+<area shape="rect" id="Node000004" href="$de/dc2/namespacepyneko_1_1intf.html#ad30b09c1e7c00c2efecfece5555cf493" title=" " alt="" coords="251,74,433,102"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="463,72,434,79,433,74,468,72"/>
+<area shape="rect" id="Node000003" href="$de/dc2/namespacepyneko_1_1intf.html#a21d990c9ded5ed787eba6c5e2bb5c9f6" title=" " alt="" coords="5,14,203,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="242,29,204,30,203,25,247,27"/>
+<area shape="rect" id="Node000005" href="$de/dc2/namespacepyneko_1_1intf.html#a08d52523e95517a31f00aa97a25fa695" title=" " alt="" coords="28,65,180,110"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="233,88,180,90,180,85,238,87"/>
+<area shape="rect" id="Node000006" href="$de/dc2/namespacepyneko_1_1intf.html#a23e907a5de101fd111218a6e132a33d3" title=" " alt="" coords="41,134,167,162"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="272,105,163,136,161,131,267,106"/>
 </map>

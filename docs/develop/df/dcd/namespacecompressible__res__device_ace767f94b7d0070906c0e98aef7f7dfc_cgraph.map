@@ -1,55 +1,50 @@
 <map id="compressible_res_device::add_navier_stokes_flux_device" name="compressible_res_device::add_navier_stokes_flux_device">
-<area shape="rect" id="Node000001" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="5,247,192,301"/>
-<area shape="rect" id="Node000002" href="$dc/da9/namespacecompressible__ops__device.html#a597a887b09162829f92337891966d778" title="Finish physical Navier&#45;Stokes flux assembly." alt="" coords="484,55,681,109"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,244,239,209,492,111,494,116,241,214,160,249"/>
-<area shape="rect" id="Node000007" href="$dc/da9/namespacecompressible__ops__device.html#a48ed299c02a469f99c2927eac4a7cf19" title="Prepare physical Navier&#45;Stokes flux work arrays." alt="" coords="484,156,681,211"/>
-<area shape="poly" id="edge9_Node000001_Node000007" title=" " alt="" coords="192,254,470,202,471,207,193,259"/>
-<area shape="rect" id="Node000010" href="$dc/da9/namespacecompressible__ops__device.html#ade5958b4b78ea420dfca766226cbb09f" title="Prepare temperature and conductivity coefficient for energy flux." alt="" coords="484,247,681,301"/>
-<area shape="poly" id="edge15_Node000001_Node000010" title=" " alt="" coords="192,271,470,271,470,277,192,277"/>
-<area shape="rect" id="Node000013" href="$d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="240,372,436,397"/>
-<area shape="poly" id="edge21_Node000001_Node000013" title=" " alt="" coords="140,299,187,329,241,357,265,366,263,371,239,362,184,334,137,304"/>
-<area shape="rect" id="Node000014" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="269,323,407,348"/>
-<area shape="poly" id="edge22_Node000001_Node000014" title=" " alt="" coords="193,295,275,317,274,322,192,300"/>
-<area shape="rect" id="Node000003" href="$df/d00/compressible__ops__update_8cu.html#a4c545cb29992c96b5f13d4a1626da9c3" title=" " alt="" coords="1017,5,1177,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="681,61,729,54,1003,23,1004,29,730,59,682,67"/>
-<area shape="rect" id="Node000005" href="$d4/d47/compressible__ops__update_8c.html#af11464bc020b04bac7ac1e6057d49984" title=" " alt="" coords="755,69,927,95"/>
-<area shape="poly" id="edge5_Node000002_Node000005" title=" " alt="" coords="682,79,740,79,740,85,682,85"/>
-<area shape="rect" id="Node000004" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="1243,201,1395,241"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="1158,28,1196,48,1232,80,1262,117,1304,187,1300,190,1257,120,1228,84,1193,52,1155,33"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="1277,201,1275,191,1281,182,1296,176,1319,174,1345,177,1359,184,1356,189,1343,182,1319,179,1297,181,1285,186,1280,192,1282,200"/>
-<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="913,67,976,61,1048,60,1123,69,1160,78,1196,92,1228,111,1257,136,1299,187,1295,191,1253,139,1225,115,1194,96,1159,84,1123,74,1048,66,976,66,914,72"/>
-<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1031,208,1163,233"/>
-<area shape="poly" id="edge7_Node000005_Node000006" title=" " alt="" coords="867,92,1062,199,1060,204,864,97"/>
-<area shape="poly" id="edge8_Node000006_Node000004" title=" " alt="" coords="1164,218,1229,218,1229,223,1164,223"/>
-<area shape="rect" id="Node000008" href="$df/d00/compressible__ops__update_8cu.html#a22b9f758aabb20afee1349dce148454b" title=" " alt="" coords="1016,107,1179,132"/>
-<area shape="poly" id="edge10_Node000007_Node000008" title=" " alt="" coords="681,163,729,155,1002,125,1003,130,730,161,682,168"/>
-<area shape="rect" id="Node000009" href="$d4/d47/compressible__ops__update_8c.html#a79ba4105bdb8283eabbada12968ad636" title=" " alt="" coords="753,171,928,196"/>
-<area shape="poly" id="edge12_Node000007_Node000009" title=" " alt="" coords="682,181,739,181,739,186,682,186"/>
-<area shape="poly" id="edge11_Node000008_Node000004" title=" " alt="" coords="1144,130,1196,149,1275,191,1273,196,1194,154,1142,135"/>
-<area shape="poly" id="edge13_Node000009_Node000004" title=" " alt="" coords="928,180,1054,182,1195,193,1229,198,1229,203,1194,198,1054,187,928,185"/>
-<area shape="poly" id="edge14_Node000009_Node000006" title=" " alt="" coords="929,193,1018,207,1017,212,928,199"/>
-<area shape="rect" id="Node000011" href="$df/d00/compressible__ops__update_8cu.html#a97b993ba6ba1acb1db75ca4ac7ff5656" title=" " alt="" coords="1000,309,1195,335"/>
-<area shape="poly" id="edge16_Node000010_Node000011" title=" " alt="" coords="682,280,986,309,986,314,681,286"/>
-<area shape="rect" id="Node000012" href="$d4/d47/compressible__ops__update_8c.html#ac6781d278b99c26c82bb4be963037b1d" title=" " alt="" coords="737,232,944,257"/>
-<area shape="poly" id="edge18_Node000010_Node000012" title=" " alt="" coords="681,260,723,255,724,261,682,265"/>
-<area shape="poly" id="edge17_Node000011_Node000004" title=" " alt="" coords="1142,307,1194,288,1273,246,1275,250,1196,292,1144,312"/>
-<area shape="poly" id="edge19_Node000012_Node000004" title=" " alt="" coords="944,247,1064,249,1194,242,1229,237,1229,243,1195,247,1064,254,944,253"/>
-<area shape="poly" id="edge20_Node000012_Node000006" title=" " alt="" coords="944,232,1018,225,1018,231,944,238"/>
-<area shape="rect" id="Node000015" href="$d3/d4d/namespaceopr__device.html#aff4b07360fbf23f86ec7e19ad579632b" title=" " alt="" coords="497,326,669,366"/>
-<area shape="poly" id="edge23_Node000014_Node000015" title=" " alt="" coords="407,336,483,339,483,344,407,341"/>
-<area shape="rect" id="Node000018" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="499,427,667,467"/>
-<area shape="poly" id="edge29_Node000014_Node000018" title=" " alt="" coords="403,346,437,357,494,386,544,417,541,422,492,390,435,362,402,351"/>
-<area shape="rect" id="Node000016" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="1045,411,1150,436"/>
-<area shape="poly" id="edge24_Node000015_Node000016" title=" " alt="" coords="669,358,730,367,1031,412,1030,417,729,373,668,363"/>
-<area shape="rect" id="Node000017" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="782,333,899,359"/>
-<area shape="poly" id="edge26_Node000015_Node000017" title=" " alt="" coords="669,343,769,343,769,349,669,349"/>
-<area shape="poly" id="edge25_Node000016_Node000004" title=" " alt="" coords="1149,410,1172,401,1193,389,1228,358,1257,321,1300,252,1304,255,1262,324,1232,361,1196,393,1174,406,1151,415"/>
-<area shape="poly" id="edge27_Node000017_Node000004" title=" " alt="" coords="898,356,960,366,1036,370,1116,365,1156,356,1194,344,1225,326,1253,302,1295,251,1299,254,1257,305,1228,330,1196,348,1157,362,1117,370,1036,376,960,371,897,361"/>
-<area shape="poly" id="edge28_Node000017_Node000006" title=" " alt="" coords="867,331,1057,237,1059,242,869,336"/>
-<area shape="rect" id="Node000019" href="$d9/d5a/namespaceopr__xsmm.html#afced4474e6070b5f75f9767b4b107aaf" title=" " alt="" coords="753,484,928,509"/>
-<area shape="poly" id="edge30_Node000018_Node000019" title=" " alt="" coords="667,461,761,479,760,484,666,466"/>
-<area shape="rect" id="Node000021" href="$d9/d5a/namespaceopr__xsmm.html#a005ad99d806e0b64c65c52b0819b08ec" title=" " alt="" coords="729,435,952,460"/>
-<area shape="poly" id="edge32_Node000018_Node000021" title=" " alt="" coords="667,445,715,445,715,450,667,450"/>
-<area shape="rect" id="Node000020" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="1018,484,1177,509"/>
-<area shape="poly" id="edge31_Node000019_Node000020" title=" " alt="" coords="928,494,1004,494,1004,499,928,499"/>
+<area shape="rect" id="Node000001" title="Add the physical Navier&#45;Stokes flux contribution to the viscous residual." alt="" coords="5,219,191,281"/>
+<area shape="rect" id="Node000002" href="$dc/da9/namespacecompressible__ops__device.html#a597a887b09162829f92337891966d778" title="Finish physical Navier&#45;Stokes flux assembly." alt="" coords="239,40,435,102"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="127,217,177,169,237,120,259,108,255,112,240,124,180,173,131,220"/>
+<area shape="rect" id="Node000007" href="$dc/da9/namespacecompressible__ops__device.html#a48ed299c02a469f99c2927eac4a7cf19" title="Prepare physical Navier&#45;Stokes flux work arrays." alt="" coords="239,134,435,195"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="185,216,236,199,232,203,188,221"/>
+<area shape="rect" id="Node000011" href="$dc/da9/namespacecompressible__ops__device.html#ade5958b4b78ea420dfca766226cbb09f" title="Prepare temperature and conductivity coefficient for energy flux." alt="" coords="239,219,435,281"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="190,247,226,249,221,251,192,252"/>
+<area shape="rect" id="Node000015" href="$d2/d73/namespacedevice__math.html#a2599f84bce1660a18c72dc3eddb17bfe" title="Vector addition ." alt="" coords="239,305,434,333"/>
+<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="191,276,239,290,270,300,265,301,238,295,191,281"/>
+<area shape="rect" id="Node000016" href="$dd/d30/namespaceoperators.html#a3bb0b2a911e0cd08e32a255510d65c84" title="Compute the weak gradient of a scalar field, i.e. the gradient multiplied by the mass matrix." alt="" coords="269,361,405,389"/>
+<area shape="poly" id="edge17_Node000001_Node000016" title=" " alt="" coords="139,279,187,312,240,342,268,355,263,356,237,347,184,316,139,284"/>
+<area shape="rect" id="Node000003" href="$df/d00/compressible__ops__update_8cu.html#a4c545cb29992c96b5f13d4a1626da9c3" title=" " alt="" coords="506,7,665,34"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="434,49,502,37,497,39,437,54"/>
+<area shape="rect" id="Node000005" href="$d4/d47/compressible__ops__update_8c.html#af11464bc020b04bac7ac1e6057d49984" title=" " alt="" coords="761,57,933,85"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="435,69,748,70,744,73,436,74"/>
+<area shape="rect" id="Node000004" href="$df/d89/cuda_2compressible__ops__kernel_8h.html#af7e7e47e6bb4c384633993cc75037dd1" title=" " alt="" coords="763,5,931,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="665,18,750,19,745,21,666,23"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="1019,220,1150,248"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="930,83,959,96,993,120,1023,150,1069,208,1063,207,1019,153,990,124,956,100,930,88"/>
+<area shape="rect" id="Node000008" href="$df/d00/compressible__ops__update_8cu.html#a22b9f758aabb20afee1349dce148454b" title=" " alt="" coords="504,109,667,137"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="434,146,492,138,487,140,436,151"/>
+<area shape="rect" id="Node000010" href="$d4/d47/compressible__ops__update_8c.html#a79ba4105bdb8283eabbada12968ad636" title=" " alt="" coords="498,161,673,189"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="435,166,486,170,481,172,436,171"/>
+<area shape="rect" id="Node000009" href="$df/d89/cuda_2compressible__ops__kernel_8h.html#ababa54e93bb0d1a454faea2c295eccc3" title=" " alt="" coords="761,109,933,137"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="667,121,748,122,743,124,668,126"/>
+<area shape="poly" id="edge10_Node000010_Node000006" title=" " alt="" coords="673,173,808,179,958,197,1027,215,1022,215,957,202,807,185,674,178"/>
+<area shape="rect" id="Node000012" href="$df/d00/compressible__ops__update_8cu.html#a97b993ba6ba1acb1db75ca4ac7ff5656" title=" " alt="" coords="489,221,682,249"/>
+<area shape="poly" id="edge12_Node000011_Node000012" title=" " alt="" coords="435,241,476,241,471,243,436,247"/>
+<area shape="rect" id="Node000014" href="$d4/d47/compressible__ops__update_8c.html#ac6781d278b99c26c82bb4be963037b1d" title=" " alt="" coords="483,277,688,305"/>
+<area shape="poly" id="edge14_Node000011_Node000014" title=" " alt="" coords="435,264,486,274,481,275,436,269"/>
+<area shape="rect" id="Node000013" href="$df/d89/cuda_2compressible__ops__kernel_8h.html#a45836eebdf653d0c02de53862f28c1aa" title=" " alt="" coords="769,212,925,256"/>
+<area shape="poly" id="edge13_Node000012_Node000013" title=" " alt="" coords="683,232,757,234,751,235,683,237"/>
+<area shape="poly" id="edge15_Node000014_Node000006" title=" " alt="" coords="688,288,817,282,957,266,1027,252,1022,253,958,271,818,287,689,293"/>
+<area shape="rect" id="Node000017" href="$d3/d4d/namespaceopr__device.html#aff4b07360fbf23f86ec7e19ad579632b" title=" " alt="" coords="500,353,671,398"/>
+<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="405,373,487,375,482,376,406,378"/>
+<area shape="rect" id="Node000020" href="$d9/d5a/namespaceopr__xsmm.html#ac368e7ac69182681cdbea4a3f378bc50" title=" " alt="" coords="502,426,669,471"/>
+<area shape="poly" id="edge22_Node000016_Node000020" title=" " alt="" coords="387,387,495,421,490,421,387,392"/>
+<area shape="rect" id="Node000018" href="$d6/d68/opr__opgrad_8cu.html#a47a2678dd1f3bc0187df518f5fce764d" title=" " alt="" coords="795,331,899,358"/>
+<area shape="poly" id="edge19_Node000017_Node000018" title=" " alt="" coords="671,362,782,352,777,353,672,368"/>
+<area shape="rect" id="Node000019" href="$d0/d82/opr__opgrad_8c.html#a8844437d901cf613744a5f9b55d1a72c" title=" " alt="" coords="789,383,905,410"/>
+<area shape="poly" id="edge20_Node000017_Node000019" title=" " alt="" coords="672,379,776,390,771,391,672,385"/>
+<area shape="poly" id="edge21_Node000019_Node000006" title=" " alt="" coords="905,386,932,379,956,368,990,343,1019,315,1064,262,1068,259,1023,318,993,347,959,372,933,384,906,392"/>
+<area shape="rect" id="Node000021" href="$d9/d5a/namespaceopr__xsmm.html#afced4474e6070b5f75f9767b4b107aaf" title=" " alt="" coords="760,435,934,462"/>
+<area shape="poly" id="edge23_Node000020_Node000021" title=" " alt="" coords="670,446,748,448,742,449,670,451"/>
+<area shape="rect" id="Node000023" href="$d9/d5a/namespaceopr__xsmm.html#a005ad99d806e0b64c65c52b0819b08ec" title=" " alt="" coords="736,487,958,514"/>
+<area shape="poly" id="edge25_Node000020_Node000023" title=" " alt="" coords="670,463,762,483,756,483,670,468"/>
+<area shape="rect" id="Node000022" href="$d1/d15/namespacemxm__wrapper.html#ab3632911ec4db7f1ffe82b006aa287ed" title="Compute matrix&#45;matrix product &#160;for contiguously packed matrices A,B, and C." alt="" coords="1006,435,1163,462"/>
+<area shape="poly" id="edge24_Node000021_Node000022" title=" " alt="" coords="934,446,992,448,987,449,934,451"/>
 </map>

@@ -1,5 +1,5 @@
 <map id="registry_entry::get_real_scalar" name="registry_entry::get_real_scalar">
-<area shape="rect" id="Node000001" title="Get the real scalar pointer of the registry entry." alt="" coords="195,13,336,53"/>
-<area shape="rect" id="Node000002" href="$db/d1a/structregistry_1_1registry__t.html#a5e3b10872501fdaae2a6e2ce4e8ec75a" title="Get pointer to a stored real scalar by name." alt="" coords="5,5,147,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,35,147,35,147,30,181,30"/>
+<area shape="rect" id="Node000001" title="Get the real scalar pointer of the registry entry." alt="" coords="194,14,334,58"/>
+<area shape="rect" id="Node000002" href="$db/d1a/structregistry_1_1registry__t.html#a5e3b10872501fdaae2a6e2ce4e8ec75a" title="Get pointer to a stored real scalar by name." alt="" coords="5,5,146,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,37,146,39,146,34,181,36"/>
 </map>

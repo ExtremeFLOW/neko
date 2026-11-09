@@ -1,9 +1,9 @@
 <map id="hip_rzero" name="hip_rzero">
-<area shape="rect" id="Node000001" title=" " alt="" coords="152,55,235,80"/>
-<area shape="rect" id="Node000002" href="$de/d9b/math_8hip.html#a4aad67a439fd53e2bcf7d8c56deb413e" title=" " alt="" coords="5,5,104,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,52,90,33,92,28,145,47"/>
-<area shape="rect" id="Node000003" href="$de/d9b/math_8hip.html#a10a0295dde2f468e56b2b4340a946ec8" title=" " alt="" coords="9,55,100,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="138,70,100,70,100,65,138,65"/>
-<area shape="rect" id="Node000004" href="$de/d9b/math_8hip.html#a85996a20535a20a44f75f8ff8cef144c" title=" " alt="" coords="11,104,98,129"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="145,87,92,106,90,101,143,82"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="151,57,232,85"/>
+<area shape="rect" id="Node000002" href="$de/d9b/math_8hip.html#a4aad67a439fd53e2bcf7d8c56deb413e" title=" " alt="" coords="5,5,103,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="136,52,93,36,93,31,141,50"/>
+<area shape="rect" id="Node000003" href="$de/d9b/math_8hip.html#a10a0295dde2f468e56b2b4340a946ec8" title=" " alt="" coords="9,57,99,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,72,99,74,98,69,137,70"/>
+<area shape="rect" id="Node000004" href="$de/d9b/math_8hip.html#a85996a20535a20a44f75f8ff8cef144c" title=" " alt="" coords="11,109,97,137"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="141,90,94,111,92,106,136,92"/>
 </map>

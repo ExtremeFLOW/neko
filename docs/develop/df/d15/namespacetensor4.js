@@ -1,7 +1,7 @@
 var namespacetensor4 =
 [
-    [ "tensor4_ptr_t", "da/d0e/structtensor4_1_1tensor4__ptr__t.html", "da/d0e/structtensor4_1_1tensor4__ptr__t" ],
     [ "tensor4_t", "d2/de3/structtensor4_1_1tensor4__t.html", "d2/de3/structtensor4_1_1tensor4__t" ],
+    [ "tensor4_ptr_t", "da/d0e/structtensor4_1_1tensor4__ptr__t.html", "da/d0e/structtensor4_1_1tensor4__ptr__t" ],
     [ "tensor4_allocate", "df/d15/namespacetensor4.html#a7083d22d36b8b4ee94625615fc53c628", null ],
     [ "tensor4_assign_scalar", "df/d15/namespacetensor4.html#ae2713573c05b2b665b440e48e8a2e36e", null ],
     [ "tensor4_assign_tensor4", "df/d15/namespacetensor4.html#ae08744c85a855409f4f79012f9162f34", null ],

@@ -1,77 +1,77 @@
 <map id="device_math::device_cfill" name="device_math::device_cfill">
-<area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="708,723,865,763"/>
-<area shape="rect" id="Node000002" href="$d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511" title="Write fields showing the coupled projector mask and basis." alt="" coords="472,49,655,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="780,710,768,580,744,404,727,314,708,231,684,164,658,117,647,106,650,102,662,114,689,162,713,230,733,313,749,403,773,580,785,709"/>
-<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a56438566f7449a19439b2992c66d712d" title="Set all elements to one." alt="" coords="467,128,660,153"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="780,710,770,624,748,506,732,440,712,373,687,307,658,245,640,218,619,193,579,155,583,152,623,189,644,214,662,242,692,305,717,371,738,438,754,504,775,623,785,709"/>
-<area shape="rect" id="Node000008" href="$dd/d52/namespaceelementwise__filter.html#a809075f358333a3dd230ecf3caff48ab" title="Actual Constructor." alt="" coords="476,256,651,311"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="782,710,776,632,757,530,742,475,720,421,693,370,658,324,646,313,649,309,662,320,697,367,725,418,747,473,763,529,781,632,787,709"/>
-<area shape="rect" id="Node000009" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="485,335,642,360"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="781,710,774,639,755,549,739,501,718,455,691,412,658,375,640,362,643,358,662,371,696,409,723,453,744,500,760,548,779,639,787,709"/>
-<area shape="rect" id="Node000015" href="$d6/d21/namespacefluid__volflow.html#a003e20288f366dbf084c6bdc75e4d4a2" title="Compute flow adjustment." alt="" coords="490,385,637,425"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="778,711,767,652,744,579,729,541,709,504,686,469,658,439,635,423,638,419,662,435,690,466,714,501,734,539,750,577,772,651,784,710"/>
-<area shape="rect" id="Node000016" href="$d0/de4/namespacematrix.html#afbeaae394e9e3d5838bffc21085a0184" title="Allocate a matrix of size nrows*ncols." alt="" coords="476,449,651,475"/>
-<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="776,711,762,661,739,601,705,541,683,513,658,489,638,477,640,473,662,485,687,510,709,538,743,599,767,660,781,709"/>
-<area shape="rect" id="Node000017" href="$d0/de4/namespacematrix.html#af9c0fe0434823ffbdc86e5fedb934867" title="Assignment ." alt="" coords="481,499,646,539"/>
-<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="770,712,752,675,728,632,696,590,658,553,639,542,642,537,662,549,700,586,732,630,757,673,775,710"/>
-<area shape="rect" id="Node000019" href="$dc/d12/namespacematrix__math.html#a6ce1c435eb24d66895f5e8abb492d5ae" title="Set all elements to a constant c ." alt="" coords="485,563,642,603"/>
-<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="760,714,716,665,689,639,659,618,635,606,638,601,661,613,692,635,720,661,764,711"/>
-<area shape="rect" id="Node000020" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="487,627,639,667"/>
-<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="736,719,659,682,628,670,630,665,661,677,738,714"/>
-<area shape="rect" id="Node000021" href="$d8/dea/namespacepnpn__res__device.html#a3e57cd69551328b4f51766b33d4b4d3d" title=" " alt="" coords="468,691,659,731"/>
-<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="694,733,658,728,659,722,694,727"/>
-<area shape="rect" id="Node000022" href="$d8/dea/namespacepnpn__res__device.html#a7634678695c23385c494115658ff88cd" title=" " alt="" coords="468,755,659,795"/>
-<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="694,759,659,764,658,759,694,754"/>
-<area shape="rect" id="Node000023" href="$db/d19/namespacespectral__vanishing__viscosity.html#a8c0bdf5b707bccf135352b810d4ad61c" title="Construct an SVV object from case parameters." alt="" coords="491,820,636,875"/>
-<area shape="poly" id="edge22_Node000001_Node000023" title=" " alt="" coords="737,772,661,810,633,822,631,818,659,805,735,767"/>
-<area shape="rect" id="Node000024" href="$dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0" title="Initialization of a TreeAMG level." alt="" coords="475,899,652,924"/>
-<area shape="poly" id="edge23_Node000001_Node000024" title=" " alt="" coords="768,777,724,834,694,863,661,888,634,901,632,896,659,884,691,859,720,831,763,774"/>
-<area shape="rect" id="Node000028" href="$d5/d0e/namespacetensor3.html#afc899831b2c95d8e336ef6b6aba10c75" title="Allocate a tensor of size n1*n2*n3." alt="" coords="470,948,657,973"/>
-<area shape="poly" id="edge27_Node000001_Node000028" title=" " alt="" coords="775,778,758,815,733,858,701,901,662,938,637,950,635,946,658,933,697,898,728,855,753,813,770,775"/>
-<area shape="rect" id="Node000029" href="$d5/d0e/namespacetensor3.html#a5bf4b523bc9c1da15ca20dc16502fddc" title="Assignment ." alt="" coords="475,998,652,1038"/>
-<area shape="poly" id="edge28_Node000001_Node000029" title=" " alt="" coords="779,777,764,824,740,880,706,937,685,963,662,987,642,1000,639,996,658,983,681,960,702,934,735,878,759,822,774,776"/>
-<area shape="rect" id="Node000031" href="$df/d15/namespacetensor4.html#a7083d22d36b8b4ee94625615fc53c628" title="Allocate a tensor of size n1*n2*n3*n4." alt="" coords="470,1063,657,1088"/>
-<area shape="poly" id="edge30_Node000001_Node000031" title=" " alt="" coords="784,778,773,837,751,911,735,949,715,987,691,1022,662,1052,641,1065,639,1060,658,1048,687,1018,710,984,730,947,746,909,768,835,779,777"/>
-<area shape="rect" id="Node000032" href="$df/d15/namespacetensor4.html#ae2713573c05b2b665b440e48e8a2e36e" title="Assignment ." alt="" coords="475,1113,652,1153"/>
-<area shape="poly" id="edge31_Node000001_Node000032" title=" " alt="" coords="786,777,776,844,756,931,740,977,719,1022,693,1064,662,1101,644,1115,641,1110,658,1097,689,1061,714,1019,735,975,751,929,771,843,780,776"/>
-<area shape="rect" id="Node000034" href="$d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d" title="Assignment ." alt="" coords="483,1177,644,1217"/>
-<area shape="poly" id="edge33_Node000001_Node000034" title=" " alt="" coords="788,778,782,856,764,960,749,1015,727,1070,698,1121,662,1167,646,1179,643,1175,658,1163,694,1118,722,1067,744,1014,759,959,777,855,783,777"/>
-<area shape="rect" id="Node000036" href="$d3/d0d/namespacevector__math.html#a6ce84a8990d28c992750dbd6de338390" title="Set all elements to a constant c ." alt="" coords="487,1241,640,1281"/>
-<area shape="poly" id="edge35_Node000001_Node000036" title=" " alt="" coords="783,778,768,881,741,1015,725,1083,706,1145,685,1195,662,1230,642,1246,639,1241,658,1227,680,1193,701,1143,719,1082,736,1014,762,880,778,777"/>
-<area shape="rect" id="Node000038" href="$d7/d34/namespacevector.html#a00a29a87ffacaccda3a3b75effa7a7e9" title="Initialise a vector of size n." alt="" coords="493,1305,633,1331"/>
-<area shape="poly" id="edge37_Node000001_Node000038" title=" " alt="" coords="785,778,771,894,747,1048,730,1126,711,1197,688,1255,662,1295,635,1312,632,1307,658,1291,683,1252,706,1195,725,1125,742,1047,766,893,779,777"/>
-<area shape="rect" id="Node000004" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="239,5,383,31"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="477,125,465,117,448,99,440,79,433,61,417,44,383,29,385,24,420,40,437,58,445,77,453,96,468,113,480,120"/>
-<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#a7b40c8c5bbf9d100cf0a8588a047ebf9" title="Set all elements to one." alt="" coords="230,55,393,80"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="492,127,466,118,442,106,418,94,379,83,381,77,420,89,444,101,468,113,494,122"/>
-<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#aec766cddc07526bf93dc2e9de9797ea6" title="Set all elements to one." alt="" coords="215,104,408,129"/>
-<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="453,133,408,129,408,123,453,127"/>
-<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#ae230a7be11fda2b4e3a193c8f3e172c2" title="Set all elements to one." alt="" coords="217,153,406,179"/>
-<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="453,154,406,159,406,154,452,149"/>
-<area shape="rect" id="Node000010" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="211,203,412,257"/>
-<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="481,332,465,324,449,311,440,297,431,284,417,271,398,260,401,255,420,267,436,280,445,294,453,307,468,320,483,327"/>
-<area shape="rect" id="Node000011" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="211,281,412,336"/>
-<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="470,336,412,327,413,321,471,331"/>
-<area shape="rect" id="Node000012" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="215,360,408,415"/>
-<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="472,365,409,375,408,369,471,359"/>
-<area shape="rect" id="Node000013" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="204,439,419,493"/>
-<area shape="poly" id="edge12_Node000009_Node000013" title=" " alt="" coords="483,367,468,375,453,387,445,400,435,414,420,428,398,441,395,436,417,424,431,411,440,397,449,384,465,370,481,363"/>
-<area shape="rect" id="Node000014" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="227,517,396,572"/>
-<area shape="poly" id="edge13_Node000009_Node000014" title=" " alt="" coords="476,369,469,375,455,390,448,406,444,438,441,472,434,489,421,507,398,524,395,519,417,503,429,487,436,471,439,438,443,404,451,387,465,371,472,365"/>
-<area shape="rect" id="Node000018" href="$da/d95/structmatrix_1_1matrix__t.html#a9792ca7b039e419af3db58bf91723c10" title="Assignment ." alt="" coords="205,596,417,621"/>
-<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="483,547,468,554,444,570,420,586,383,598,381,593,418,581,441,566,465,549,481,542"/>
-<area shape="rect" id="Node000025" href="$da/d77/namespacetree__amg__aggregate.html#a98e7b195bc43fad16dcf171919c3e38d" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="222,849,401,889"/>
-<area shape="poly" id="edge24_Node000024_Node000025" title=" " alt="" coords="474,899,401,886,401,881,475,894"/>
-<area shape="rect" id="Node000027" href="$d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a0d96163f772b2c0804305f6ac7b6ac98" title=" " alt="" coords="214,913,409,953"/>
-<area shape="poly" id="edge26_Node000024_Node000027" title=" " alt="" coords="461,923,409,927,409,922,461,917"/>
-<area shape="rect" id="Node000026" href="$d5/d1b/namespacetree__amg__multigrid.html#a1c25f4c912c4d5e3cb04d6767af80a7b" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,849,156,889"/>
-<area shape="poly" id="edge25_Node000025_Node000026" title=" " alt="" coords="209,871,156,871,156,866,209,866"/>
-<area shape="rect" id="Node000030" href="$d2/d24/structtensor3_1_1tensor3__t.html#a590a9c00f263ca98817518b66a098107" title="Assignment ." alt="" coords="241,998,381,1038"/>
-<area shape="poly" id="edge29_Node000029_Node000030" title=" " alt="" coords="461,1021,382,1021,382,1015,461,1015"/>
-<area shape="rect" id="Node000033" href="$d2/de3/structtensor4_1_1tensor4__t.html#af2270b8eca066f2786e0d1c3850f82cf" title="Assignment ." alt="" coords="241,1113,381,1153"/>
-<area shape="poly" id="edge32_Node000032_Node000033" title=" " alt="" coords="461,1135,382,1135,382,1130,461,1130"/>
-<area shape="rect" id="Node000035" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="207,1184,415,1209"/>
-<area shape="poly" id="edge34_Node000034_Node000035" title=" " alt="" coords="469,1199,416,1199,416,1194,469,1194"/>
-<area shape="rect" id="Node000037" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="216,1248,407,1273"/>
-<area shape="poly" id="edge36_Node000036_Node000037" title=" " alt="" coords="473,1263,407,1263,407,1258,473,1258"/>
+<area shape="rect" id="Node000001" title="Set all elements to a constant c ." alt="" coords="704,773,861,818"/>
+<area shape="rect" id="Node000002" href="$d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511" title="Write fields showing the coupled projector mask and basis." alt="" coords="469,48,651,110"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="776,757,764,619,741,431,724,335,705,248,681,175,654,125,644,113,643,108,658,122,686,173,710,246,730,334,746,430,769,619,781,758"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#a56438566f7449a19439b2992c66d712d" title="Set all elements to one." alt="" coords="464,135,656,162"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="776,757,766,666,744,540,728,470,708,399,684,329,654,262,636,233,615,206,578,165,577,160,619,202,641,230,659,259,689,327,713,397,734,469,750,539,771,665,781,758"/>
+<area shape="rect" id="Node000008" href="$dd/d52/namespaceelementwise__filter.html#a809075f358333a3dd230ecf3caff48ab" title="Actual Constructor." alt="" coords="473,272,647,334"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="778,757,772,676,754,568,738,510,717,452,689,398,654,349,643,337,642,332,658,345,694,395,722,450,743,508,759,566,778,675,783,758"/>
+<area shape="rect" id="Node000009" href="$d5/de6/namespacefield__math.html#a5f4fa1c48a8799a2d0d956fb7c9807e0" title="Set all elements to a constant c ." alt="" coords="482,359,638,386"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="778,756,772,682,753,586,738,535,716,486,689,440,655,400,639,388,638,383,658,396,693,437,721,483,743,533,759,584,777,681,783,758"/>
+<area shape="rect" id="Node000015" href="$d6/d21/namespacefluid__volflow.html#a003e20288f366dbf084c6bdc75e4d4a2" title="Compute flow adjustment." alt="" coords="487,410,633,455"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="774,756,763,695,741,618,726,578,706,539,683,502,655,469,634,454,633,449,658,465,687,499,711,536,731,576,747,616,768,694,780,758"/>
+<area shape="rect" id="Node000016" href="$d0/de4/namespacematrix.html#afbeaae394e9e3d5838bffc21085a0184" title="Allocate a matrix of size nrows*ncols." alt="" coords="473,479,647,506"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="772,756,759,704,736,640,702,575,680,546,655,520,640,510,639,504,658,516,684,542,707,572,741,638,764,703,777,758"/>
+<area shape="rect" id="Node000017" href="$d0/de4/namespacematrix.html#af9c0fe0434823ffbdc86e5fedb934867" title="Assignment ." alt="" coords="478,530,642,575"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="765,758,748,720,724,674,693,629,655,589,639,578,638,573,658,585,697,625,729,672,753,718,771,759"/>
+<area shape="rect" id="Node000019" href="$dc/d12/namespacematrix__math.html#a6ce1c435eb24d66895f5e8abb492d5ae" title="Set all elements to a constant c ." alt="" coords="482,600,638,644"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="755,760,712,709,685,682,655,659,636,647,635,642,658,654,688,678,716,705,760,760"/>
+<area shape="rect" id="Node000020" href="$d8/da5/namespacepde__filter.html#aed804b27a5deacc75f58d30f5b2bd65d" title="Apply the filter." alt="" coords="484,669,636,714"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="728,765,655,728,629,717,628,711,657,723,733,764"/>
+<area shape="rect" id="Node000021" href="$d8/dea/namespacepnpn__res__device.html#a3e57cd69551328b4f51766b33d4b4d3d" title=" " alt="" coords="466,738,655,783"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="686,781,656,778,654,773,691,780"/>
+<area shape="rect" id="Node000022" href="$d8/dea/namespacepnpn__res__device.html#a7634678695c23385c494115658ff88cd" title=" " alt="" coords="466,808,655,852"/>
+<area shape="poly" id="edge21_Node000001_Node000022" title=" " alt="" coords="686,811,656,817,654,813,691,809"/>
+<area shape="rect" id="Node000023" href="$db/d19/namespacespectral__vanishing__viscosity.html#a8c0bdf5b707bccf135352b810d4ad61c" title="Construct an SVV object from case parameters." alt="" coords="488,876,632,938"/>
+<area shape="poly" id="edge22_Node000001_Node000023" title=" " alt="" coords="727,827,658,867,634,878,631,874,655,862,731,824"/>
+<area shape="rect" id="Node000024" href="$dc/d1a/namespacetree__amg.html#ad89ff7cb0a5789fa030a730c4f4260c0" title="Initialization of a TreeAMG level." alt="" coords="472,963,648,990"/>
+<area shape="poly" id="edge23_Node000001_Node000024" title=" " alt="" coords="763,829,720,894,691,925,658,952,633,964,631,960,655,948,687,921,716,890,759,833"/>
+<area shape="rect" id="Node000028" href="$d5/d0e/namespacetensor3.html#afc899831b2c95d8e336ef6b6aba10c75" title="Allocate a tensor of size n1*n2*n3." alt="" coords="467,1015,653,1042"/>
+<area shape="poly" id="edge27_Node000001_Node000028" title=" " alt="" coords="771,829,754,873,730,919,698,965,658,1004,636,1016,633,1012,655,1000,694,961,725,916,750,870,767,834"/>
+<area shape="rect" id="Node000029" href="$d5/d0e/namespacetensor3.html#a5bf4b523bc9c1da15ca20dc16502fddc" title="Assignment ." alt="" coords="472,1066,648,1111"/>
+<area shape="poly" id="edge28_Node000001_Node000029" title=" " alt="" coords="774,831,760,883,737,943,703,1003,682,1031,658,1056,641,1068,639,1063,655,1052,678,1027,699,1000,732,940,755,881,771,835"/>
+<area shape="rect" id="Node000031" href="$df/d15/namespacetensor4.html#a7083d22d36b8b4ee94625615fc53c628" title="Allocate a tensor of size n1*n2*n3*n4." alt="" coords="467,1135,653,1162"/>
+<area shape="poly" id="edge30_Node000001_Node000031" title=" " alt="" coords="779,830,770,896,749,975,733,1016,713,1056,688,1093,658,1125,642,1136,639,1132,655,1121,684,1089,708,1053,728,1014,744,973,765,895,776,835"/>
+<area shape="rect" id="Node000032" href="$df/d15/namespacetensor4.html#ae2713573c05b2b665b440e48e8a2e36e" title="Assignment ." alt="" coords="472,1186,648,1231"/>
+<area shape="poly" id="edge31_Node000001_Node000032" title=" " alt="" coords="781,830,774,904,753,996,738,1044,717,1091,691,1136,658,1176,643,1188,640,1183,654,1172,686,1133,712,1089,733,1042,748,994,768,904,778,835"/>
+<area shape="rect" id="Node000034" href="$d7/d34/namespacevector.html#a452b730b055f00cd54a256caa182638d" title="Assignment ." alt="" coords="480,1256,640,1300"/>
+<area shape="poly" id="edge33_Node000001_Node000034" title=" " alt="" coords="783,831,780,917,762,1026,746,1085,724,1142,695,1196,658,1245,642,1258,640,1254,654,1241,691,1194,719,1140,741,1083,757,1025,774,916,780,836"/>
+<area shape="rect" id="Node000036" href="$d3/d0d/namespacevector__math.html#a6ce84a8990d28c992750dbd6de338390" title="Set all elements to a constant c ." alt="" coords="484,1325,636,1370"/>
+<area shape="poly" id="edge35_Node000001_Node000036" title=" " alt="" coords="778,831,764,943,738,1086,722,1158,703,1223,682,1277,658,1314,638,1330,636,1325,654,1311,677,1274,698,1221,717,1156,733,1085,759,942,775,835"/>
+<area shape="rect" id="Node000038" href="$d7/d34/namespacevector.html#a00a29a87ffacaccda3a3b75effa7a7e9" title="Initialise a vector of size n." alt="" coords="490,1393,630,1421"/>
+<area shape="poly" id="edge37_Node000001_Node000038" title=" " alt="" coords="780,831,768,957,745,1121,728,1204,709,1279,685,1341,658,1384,631,1401,629,1396,654,1380,681,1339,704,1278,723,1203,740,1121,763,956,777,835"/>
+<area shape="rect" id="Node000004" href="$d6/dbe/namespacecoefs.html#a4fd6fc1c4fc98d7fa254f37aedf70f92" title="Initialize coefficients." alt="" coords="238,5,381,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="470,128,462,124,445,105,438,85,430,66,414,48,382,32,380,27,418,44,435,63,443,83,450,102,466,120,475,126"/>
+<area shape="rect" id="Node000005" href="$d5/de6/namespacefield__math.html#a7b40c8c5bbf9d100cf0a8588a047ebf9" title="Set all elements to one." alt="" coords="228,57,390,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="484,131,463,124,415,100,378,88,376,83,417,95,465,119,489,128"/>
+<area shape="rect" id="Node000006" href="$dc/d12/namespacematrix__math.html#aec766cddc07526bf93dc2e9de9797ea6" title="Set all elements to one." alt="" coords="213,109,406,137"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="446,139,407,135,405,131,451,136"/>
+<area shape="rect" id="Node000007" href="$d3/d0d/namespacevector__math.html#ae230a7be11fda2b4e3a193c8f3e172c2" title="Set all elements to one." alt="" coords="215,161,404,189"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="447,162,406,167,402,163,451,159"/>
+<area shape="rect" id="Node000010" href="$dd/d61/namespaceentropy__viscosity.html#a829906b2ecb74b192bc9e759fdfe420d" title="Compute the BDF entropy residual." alt="" coords="209,214,410,275"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="472,353,462,348,446,333,437,318,429,304,414,289,399,278,397,273,418,285,433,301,442,316,450,330,466,344,477,351"/>
+<area shape="rect" id="Node000011" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="209,299,410,361"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="465,358,411,349,409,344,469,355"/>
+<area shape="rect" id="Node000012" href="$dd/d61/namespaceentropy__viscosity.html#a61bd45b0d923d7c027704cad17a6cbef" title="Cross&#45;element smoothing via gather&#45;scatter averaging. Averages viscosity values at shared nodes betwe..." alt="" coords="213,384,406,446"/>
+<area shape="poly" id="edge11_Node000009_Node000012" title=" " alt="" coords="465,390,408,401,405,397,469,387"/>
+<area shape="rect" id="Node000013" href="$d7/dff/namespacefluid__scheme__incompressible.html#a052a68c343e9896c679cece6f6d400f5" title="Sets rho and mu." alt="" coords="203,470,416,531"/>
+<area shape="poly" id="edge12_Node000009_Node000013" title=" " alt="" coords="470,395,466,400,450,414,442,429,433,444,418,460,400,471,396,468,414,456,429,441,437,426,446,411,462,396,474,391"/>
+<area shape="rect" id="Node000014" href="$da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415" title="Set lamdba and cp." alt="" coords="225,555,394,617"/>
+<area shape="poly" id="edge13_Node000009_Node000014" title=" " alt="" coords="468,396,466,400,452,417,445,434,442,470,439,507,432,526,418,545,396,562,392,559,414,541,427,523,434,506,436,469,440,433,447,414,462,396,471,391"/>
+<area shape="rect" id="Node000018" href="$da/d95/structmatrix_1_1matrix__t.html#a9792ca7b039e419af3db58bf91723c10" title="Assignment ." alt="" coords="204,641,415,669"/>
+<area shape="poly" id="edge17_Node000017_Node000018" title=" " alt="" coords="472,584,465,589,452,600,442,610,432,621,417,631,388,643,384,639,415,626,429,617,438,606,448,596,463,585,476,580"/>
+<area shape="rect" id="Node000025" href="$da/d77/namespacetree__amg__aggregate.html#a98e7b195bc43fad16dcf171919c3e38d" title="Aggregaiton on finest level Aggregates all dofs in an element into a single aggregate." alt="" coords="221,906,398,951"/>
+<area shape="poly" id="edge24_Node000024_Node000025" title=" " alt="" coords="467,960,399,948,398,943,472,958"/>
+<area shape="rect" id="Node000027" href="$d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html#a0d96163f772b2c0804305f6ac7b6ac98" title=" " alt="" coords="213,976,406,1020"/>
+<area shape="poly" id="edge26_Node000024_Node000027" title=" " alt="" coords="454,987,408,992,406,987,459,984"/>
+<area shape="rect" id="Node000026" href="$d5/d1b/namespacetree__amg__multigrid.html#a1c25f4c912c4d5e3cb04d6767af80a7b" title="Initialization of the TreeAMG multigrid solver." alt="" coords="5,906,155,951"/>
+<area shape="poly" id="edge25_Node000025_Node000026" title=" " alt="" coords="203,930,157,931,154,926,207,927"/>
+<area shape="rect" id="Node000030" href="$d2/d24/structtensor3_1_1tensor3__t.html#a590a9c00f263ca98817518b66a098107" title="Assignment ." alt="" coords="240,1066,379,1111"/>
+<area shape="poly" id="edge29_Node000029_Node000030" title=" " alt="" coords="454,1090,380,1091,379,1086,459,1087"/>
+<area shape="rect" id="Node000033" href="$d2/de3/structtensor4_1_1tensor4__t.html#af2270b8eca066f2786e0d1c3850f82cf" title="Assignment ." alt="" coords="240,1186,379,1231"/>
+<area shape="poly" id="edge32_Node000032_Node000033" title=" " alt="" coords="454,1209,380,1211,379,1206,459,1208"/>
+<area shape="rect" id="Node000035" href="$d3/d5b/structvector_1_1vector__t.html#a8f29bca1297a39ebaf57648e3e72b5d1" title="Assignments." alt="" coords="206,1264,413,1292"/>
+<area shape="poly" id="edge34_Node000034_Node000035" title=" " alt="" coords="462,1278,414,1280,413,1275,467,1277"/>
+<area shape="rect" id="Node000037" href="$dd/d2c/namespacelpt.html#ae31979c0367c47ba95eda57175d6b370" title="Estimate particle acceleration from local carrier&#45;fluid velocity." alt="" coords="214,1333,404,1361"/>
+<area shape="poly" id="edge36_Node000036_Node000037" title=" " alt="" coords="466,1347,405,1350,405,1345,471,1347"/>
 </map>

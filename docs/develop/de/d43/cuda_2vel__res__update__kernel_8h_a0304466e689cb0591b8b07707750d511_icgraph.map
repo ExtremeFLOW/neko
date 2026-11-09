@@ -1,0 +1,11 @@
+<map id="vel_res_update_kernel" name="vel_res_update_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="488,79,655,107"/>
+<area shape="rect" id="Node000002" href="$d4/d66/pnpn__res_8cu.html#add51cc7e538f469e8d0d9f3d43e45efe" title=" " alt="" coords="243,52,440,80"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="470,82,441,80,441,75,475,81"/>
+<area shape="rect" id="Node000005" href="$dd/d79/pnpn__res_8hip.html#a224090e29bda77d5becaf4d71740a946" title=" " alt="" coords="248,104,434,132"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="475,104,435,111,435,105,470,104"/>
+<area shape="rect" id="Node000003" href="$d8/dea/namespacepnpn__res__device.html#a7634678695c23385c494115658ff88cd" title=" " alt="" coords="5,5,195,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="233,50,195,46,195,40,238,49"/>
+<area shape="rect" id="Node000004" href="$dd/d1f/namespacepnpn__res__stress__device.html#a62cedb09bbf5da8ce1c248095b493b39" title=" " alt="" coords="12,74,188,136"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="233,84,189,94,188,88,238,83"/>
+</map>

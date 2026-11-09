@@ -1,5 +1,5 @@
 <map id="ax_helm_template::ax_helm_template_register_types" name="ax_helm_template::ax_helm_template_register_types">
-<area shape="rect" id="Node000001" title="Register the user&#45;defined Helmholtz operator." alt="" coords="259,5,487,45"/>
-<area shape="rect" id="Node000002" href="$db/d0b/structax__helm__template_1_1ax__helm__template__t.html#af93c060317a853efb4e698575890975e" title="Apply the user&#45;defined Helmholtz matrix&#45;vector product." alt="" coords="5,5,211,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="245,28,211,28,211,23,245,23"/>
+<area shape="rect" id="Node000001" title="Register the user&#45;defined Helmholtz operator." alt="" coords="258,5,485,50"/>
+<area shape="rect" id="Node000002" href="$db/d0b/structax__helm__template_1_1ax__helm__template__t.html#af93c060317a853efb4e698575890975e" title="Apply the user&#45;defined Helmholtz matrix&#45;vector product." alt="" coords="5,5,210,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="239,28,210,30,210,25,245,27"/>
 </map>

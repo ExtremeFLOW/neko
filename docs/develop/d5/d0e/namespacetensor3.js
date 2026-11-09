@@ -1,7 +1,7 @@
 var namespacetensor3 =
 [
-    [ "tensor3_ptr_t", "d8/d29/structtensor3_1_1tensor3__ptr__t.html", "d8/d29/structtensor3_1_1tensor3__ptr__t" ],
     [ "tensor3_t", "d2/d24/structtensor3_1_1tensor3__t.html", "d2/d24/structtensor3_1_1tensor3__t" ],
+    [ "tensor3_ptr_t", "d8/d29/structtensor3_1_1tensor3__ptr__t.html", "d8/d29/structtensor3_1_1tensor3__ptr__t" ],
     [ "tensor3_allocate", "d5/d0e/namespacetensor3.html#afc899831b2c95d8e336ef6b6aba10c75", null ],
     [ "tensor3_assign_scalar", "d5/d0e/namespacetensor3.html#a5bf4b523bc9c1da15ca20dc16502fddc", null ],
     [ "tensor3_assign_tensor3", "d5/d0e/namespacetensor3.html#ae1b0f31e9efd7bd1097e947eda384f40", null ],

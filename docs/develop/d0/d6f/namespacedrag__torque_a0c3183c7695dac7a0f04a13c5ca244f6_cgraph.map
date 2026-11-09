@@ -1,9 +1,7 @@
 <map id="drag_torque::setup_normals" name="drag_torque::setup_normals">
-<area shape="rect" id="Node000001" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="5,29,149,69"/>
-<area shape="rect" id="Node000002" href="$d1/d74/cuda_2bc__utils_8h.html#a97af2a5f58e9e047d747424d0f89132d" title=" " alt="" coords="197,37,324,62"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,47,183,47,183,52,150,52"/>
-<area shape="poly" id="edge4_Node000002_Node000002" title=" " alt="" coords="231,38,224,28,228,19,240,12,261,10,286,14,296,22,293,26,283,18,261,15,242,17,232,22,229,28,235,35"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="372,29,524,69"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="324,47,358,47,358,52,324,52"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="413,30,411,20,416,11,429,5,448,3,470,6,482,13,479,17,468,11,448,8,430,10,420,15,416,21,418,28"/>
+<area shape="rect" id="Node000001" title="Computes the normals for a given set of boundary points accessed by the mask." alt="" coords="5,5,149,50"/>
+<area shape="rect" id="Node000002" href="$d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b" title="Compute (i,j,k,l) array given linear index with sizes (1:lx, 1:ly, 1:lz, :)." alt="" coords="197,14,358,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,25,184,27,178,28,149,30"/>
+<area shape="rect" id="Node000003" href="$d6/d84/namespaceutils.html#a4c8e13ce7a50b4ecdbc01c590018bea7" title="Compute the address of a (i,j,k,l) array with sizes (1:lx, 1:ly, 1:lz, :)." alt="" coords="406,14,543,42"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="358,25,393,28,388,28,358,30"/>
 </map>

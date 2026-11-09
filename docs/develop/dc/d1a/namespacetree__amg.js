@@ -1,8 +1,8 @@
 var namespacetree__amg =
 [
-    [ "tamg_hierarchy_t", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t" ],
-    [ "tamg_lvl_t", "d8/d61/structtree__amg_1_1tamg__lvl__t.html", "d8/d61/structtree__amg_1_1tamg__lvl__t" ],
     [ "tamg_node_t", "d5/db1/structtree__amg_1_1tamg__node__t.html", "d5/db1/structtree__amg_1_1tamg__node__t" ],
+    [ "tamg_lvl_t", "d8/d61/structtree__amg_1_1tamg__lvl__t.html", "d8/d61/structtree__amg_1_1tamg__lvl__t" ],
+    [ "tamg_hierarchy_t", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t.html", "d8/d1a/structtree__amg_1_1tamg__hierarchy__t" ],
     [ "lvl_free", "dc/d1a/namespacetree__amg.html#a3c96008587748cc09454c3f6f70209e7", null ],
     [ "node_free", "dc/d1a/namespacetree__amg.html#aa87bc06b58316c1d1ff4fc93cdc01749", null ],
     [ "tamg_device_matvec_flat_impl", "dc/d1a/namespacetree__amg.html#a0bd847019daf93122564c3d2435aa9ea", null ],

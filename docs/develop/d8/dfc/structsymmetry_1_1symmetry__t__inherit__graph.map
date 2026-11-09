@@ -1,7 +1,7 @@
 <map id="symmetry::symmetry_t" name="symmetry::symmetry_t">
-<area shape="rect" id="Node000001" title="Symmetry boundary condition constraining the normal vector component." alt="" coords="5,152,180,177"/>
-<area shape="rect" id="Node000002" href="$d0/de5/structmixed__bc_1_1mixed__bc__t.html" title="Base type for mixed boundary conditions that need projector&#45;provided local&#45;basis data on the physical..." alt="" coords="9,79,176,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="95,118,95,152,90,152,90,118"/>
-<area shape="rect" id="Node000003" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="57,5,129,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="95,44,95,79,90,79,90,44"/>
+<area shape="rect" id="Node000001" title="Symmetry boundary condition constraining the normal vector component." alt="" coords="5,157,180,184"/>
+<area shape="rect" id="Node000002" href="$d0/de5/structmixed__bc_1_1mixed__bc__t.html" title="Base type for mixed boundary conditions that need projector&#45;provided local&#45;basis data on the physical..." alt="" coords="10,81,175,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="94,123,95,157,90,155,91,126"/>
+<area shape="rect" id="Node000003" href="$d6/db3/structbc_1_1bc__t.html" title="Base type for a boundary condition." alt="" coords="57,5,128,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="94,46,95,81,90,80,91,51"/>
 </map>

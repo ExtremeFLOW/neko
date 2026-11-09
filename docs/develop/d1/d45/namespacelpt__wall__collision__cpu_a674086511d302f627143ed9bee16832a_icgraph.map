@@ -1,7 +1,7 @@
 <map id="lpt_wall_collision_cpu::reflect_vector" name="lpt_wall_collision_cpu::reflect_vector">
-<area shape="rect" id="Node000001" title="Reflect a vector across a plane with the supplied normal." alt="" coords="429,13,579,53"/>
-<area shape="rect" id="Node000002" href="$d1/d45/namespacelpt__wall__collision__cpu.html#ab901b4860d4c8db01f369f3486d8bafe" title="Reflect vector components across a plane with the supplied normal." alt="" coords="232,5,381,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="415,35,382,35,382,30,415,30"/>
-<area shape="rect" id="Node000003" href="$d1/d45/namespacelpt__wall__collision__cpu.html#af44cf65b2bdf1db0f589222412d531d0" title="Reflect inertial particles that hit configured wall facets on the CPU." alt="" coords="5,5,184,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="218,35,184,35,184,30,218,30"/>
+<area shape="rect" id="Node000001" title="Reflect a vector across a plane with the supplied normal." alt="" coords="427,14,575,58"/>
+<area shape="rect" id="Node000002" href="$d1/d45/namespacelpt__wall__collision__cpu.html#ab901b4860d4c8db01f369f3486d8bafe" title="Reflect vector components across a plane with the supplied normal." alt="" coords="231,5,379,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="409,36,380,39,379,34,414,36"/>
+<area shape="rect" id="Node000003" href="$d1/d45/namespacelpt__wall__collision__cpu.html#af44cf65b2bdf1db0f589222412d531d0" title="Reflect inertial particles that hit configured wall facets on the CPU." alt="" coords="5,5,183,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="212,36,183,39,183,34,218,36"/>
 </map>

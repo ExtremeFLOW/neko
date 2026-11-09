@@ -1,0 +1,13 @@
+<map id="/home/runner/work/neko/neko/src/bc/bcknd/device/hip/zero_dirichlet.hip" name="/home/runner/work/neko/neko/src/bc/bcknd/device/hip/zero_dirichlet.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="107,5,296,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="225,191,360,218"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,58,63,73,27,92,15,103,9,114,9,127,17,141,29,151,46,160,95,175,152,186,212,196,207,197,151,192,93,180,44,165,26,155,13,144,4,128,4,113,11,100,24,88,61,68,109,54"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="28,115,197,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="174,66,138,106,134,102,170,69"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="221,115,363,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="233,65,271,104,266,104,231,70"/>
+<area shape="rect" id="Node000005" href="$d0/de6/hip_2zero__dirichlet__kernel_8h.html" title=" " alt="" coords="388,115,556,143"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="292,65,421,109,416,110,292,70"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="294,141,295,176,290,173,290,145"/>
+<area shape="poly" id="edge6_Node000005_Node000002" title=" " alt="" coords="443,143,339,187,337,182,438,144"/>
+</map>

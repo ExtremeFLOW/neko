@@ -1,0 +1,19 @@
+<map id="glsc3_many_kernel" name="glsc3_many_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="404,136,550,164"/>
+<area shape="rect" id="Node000002" href="$de/d1e/math_8cu.html#ae3e2cc7295db04332dc66b42e50b6d30" title=" " alt="" coords="215,5,352,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="449,124,408,87,355,48,331,36,331,31,357,44,411,83,455,125"/>
+<area shape="rect" id="Node000003" href="$d9/dab/projection_8cu.html#ad72e240b0f6d781c9b9d4a0e229e4822" title=" " alt="" coords="220,57,347,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="428,130,355,100,325,88,324,83,357,95,433,129"/>
+<area shape="rect" id="Node000005" href="$d9/dab/projection_8cu.html#a63794abd66ff5f2611aa96a8280f0ba2" title=" " alt="" coords="211,109,356,137"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="386,138,357,136,356,131,391,137"/>
+<area shape="rect" id="Node000007" href="$de/d9b/math_8hip.html#a87e8b15974eb35428d5b7cf40e7fb841" title=" " alt="" coords="220,161,346,189"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="386,162,348,170,346,164,391,161"/>
+<area shape="rect" id="Node000008" href="$d9/d09/projection_8hip.html#a520b26405c8b712cc5329f49033acfa8" title=" " alt="" coords="225,213,342,241"/>
+<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="432,169,357,203,325,215,323,210,355,198,427,171"/>
+<area shape="rect" id="Node000009" href="$d9/d09/projection_8hip.html#a42860edd1d4001a5cd1275feeda44795" title=" " alt="" coords="216,265,350,293"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="454,174,411,216,357,255,331,267,330,262,355,250,407,212,449,176"/>
+<area shape="rect" id="Node000004" href="$de/dc5/namespacedevice__projection.html#a0bb3b31f91395343dec55bc5880dbbe2" title=" " alt="" coords="12,41,156,86"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="202,69,158,69,156,64,206,67"/>
+<area shape="rect" id="Node000006" href="$de/dc5/namespacedevice__projection.html#ab7758606931232b4bf341124a5fcca6b" title=" " alt="" coords="5,110,163,155"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="193,129,164,131,162,126,198,126"/>
+</map>

@@ -1,0 +1,11 @@
+<map id="compute_max_wave_speed_kernel" name="compute_max_wave_speed_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="743,48,946,93"/>
+<area shape="rect" id="Node000002" href="$d7/dec/compressible__ops__compute__max__wave__speed_8cu.html#a2ad3835641db8219575f54a302250164" title=" " alt="" coords="501,14,695,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="725,54,696,53,696,47,731,54"/>
+<area shape="rect" id="Node000005" href="$d4/dca/compressible__ops__compute__max__wave__speed_8hip.html#a0418b743089ce550f4f40ec32c7b4638" title=" " alt="" coords="506,83,690,128"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="731,87,691,95,690,90,726,87"/>
+<area shape="rect" id="Node000003" href="$dc/da9/namespacecompressible__ops__device.html#a8d270756022cd91d660758d3004487f8" title="Compute maximum wave speed for compressible flows on device." alt="" coords="244,5,453,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="483,36,454,39,453,34,488,36"/>
+<area shape="rect" id="Node000004" href="$d3/d95/interfacecompressible__ops__device_1_1hip__ns__flux__temperature.html#a84b251a5423eccec5fe6f92da42519ae" title=" " alt="" coords="5,5,196,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="225,37,197,39,196,34,231,35"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="/home/runner/work/neko/neko/src/krylov/bcknd/device/cuda/pc_jacobi.cu" name="/home/runner/work/neko/neko/src/krylov/bcknd/device/cuda/pc_jacobi.cu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="36,5,224,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,115,71,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="102,66,64,106,60,102,97,69"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="95,115,165,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,65,132,100,128,98,128,69"/>
+<area shape="rect" id="Node000004" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="189,115,359,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="179,65,243,106,238,107,177,70"/>
+</map>

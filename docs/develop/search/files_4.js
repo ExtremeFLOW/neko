@@ -62,15 +62,15 @@ var searchData=
   ['dong_5foutflow_2ecu_59',['dong_outflow.cu',['../dc/d78/dong__outflow_8cu.html',1,'']]],
   ['dong_5foutflow_2ef90_60',['dong_outflow.f90',['../d0/d58/dong__outflow_8f90.html',1,'']]],
   ['dong_5foutflow_2ehip_61',['dong_outflow.hip',['../d3/d52/dong__outflow_8hip.html',1,'']]],
-  ['dong_5foutflow_5fkernel_2eh_62',['dong_outflow_kernel.h',['../dd/de7/hip_2dong__outflow__kernel_8h.html',1,'(Global Namespace)'],['../d0/d02/cuda_2dong__outflow__kernel_8h.html',1,'(Global Namespace)']]],
+  ['dong_5foutflow_5fkernel_2eh_62',['dong_outflow_kernel.h',['../d0/d02/cuda_2dong__outflow__kernel_8h.html',1,'(Global Namespace)'],['../dd/de7/hip_2dong__outflow__kernel_8h.html',1,'(Global Namespace)']]],
   ['drag_5ftorque_2ef90_63',['drag_torque.f90',['../d9/df1/drag__torque_8f90.html',1,'']]],
   ['driver_2ef90_64',['driver.f90',['../d0/dd9/driver_8f90.html',1,'']]],
-  ['dudxyz_5fkernel_2eh_65',['dudxyz_kernel.h',['../dd/dd4/hip_2dudxyz__kernel_8h.html',1,'(Global Namespace)'],['../dc/dd2/cuda_2dudxyz__kernel_8h.html',1,'(Global Namespace)']]],
+  ['dudxyz_5fkernel_2eh_65',['dudxyz_kernel.h',['../dc/dd2/cuda_2dudxyz__kernel_8h.html',1,'(Global Namespace)'],['../dd/dd4/hip_2dudxyz__kernel_8h.html',1,'(Global Namespace)']]],
   ['dynamic_5fsmagorinsky_2ef90_66',['dynamic_smagorinsky.f90',['../db/d7b/dynamic__smagorinsky_8f90.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fcpu_2ef90_67',['dynamic_smagorinsky_cpu.f90',['../d2/d0e/dynamic__smagorinsky__cpu_8f90.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fdevice_2ef90_68',['dynamic_smagorinsky_device.f90',['../de/d95/dynamic__smagorinsky__device_8f90.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fnut_2ec_69',['dynamic_smagorinsky_nut.c',['../de/d8a/dynamic__smagorinsky__nut_8c.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fnut_2ecu_70',['dynamic_smagorinsky_nut.cu',['../d7/d91/dynamic__smagorinsky__nut_8cu.html',1,'']]],
   ['dynamic_5fsmagorinsky_5fnut_2ehip_71',['dynamic_smagorinsky_nut.hip',['../d3/d45/dynamic__smagorinsky__nut_8hip.html',1,'']]],
-  ['dynamic_5fsmagorinsky_5fnut_5fkernel_2eh_72',['dynamic_smagorinsky_nut_kernel.h',['../d1/d4e/hip_2dynamic__smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)'],['../d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)']]]
+  ['dynamic_5fsmagorinsky_5fnut_5fkernel_2eh_72',['dynamic_smagorinsky_nut_kernel.h',['../d7/d7f/cuda_2dynamic__smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)'],['../d1/d4e/hip_2dynamic__smagorinsky__nut__kernel_8h.html',1,'(Global Namespace)']]]
 ];

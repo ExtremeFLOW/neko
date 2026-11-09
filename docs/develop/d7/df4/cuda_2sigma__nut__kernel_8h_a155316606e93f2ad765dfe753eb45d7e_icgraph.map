@@ -1,0 +1,15 @@
+<map id="sigma_nut_compute" name="sigma_nut_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="941,88,1094,115"/>
+<area shape="rect" id="Node000002" href="$d9/d43/sigma__nut_8cu.html#a2c790968b8045a4db5f04a04ceecada0" title=" " alt="" coords="701,61,893,89"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="923,90,893,89,893,84,928,90"/>
+<area shape="rect" id="Node000007" href="$d5/d0f/sigma__nut_8hip.html#a5b0bd1a87c55bbeb00792e60aee1abe5" title=" " alt="" coords="707,113,887,141"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="928,112,888,119,887,114,923,112"/>
+<area shape="rect" id="Node000003" href="$d8/d87/namespacedevice__sigma__nut.html#a3093446b8bc4cd55ce6c59ade2fbf8a7" title="Compute the eddy viscosity field for the Sigma model indevice." alt="" coords="463,52,653,97"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="683,75,654,77,654,72,689,75"/>
+<area shape="rect" id="Node000004" href="$d7/dc9/interfacedevice__sigma__nut_1_1hip__sigma__nut__compute.html#af068d2e8c7eaf0e33962d0646ef5a159" title=" " alt="" coords="227,5,415,67"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="445,57,416,54,416,49,450,57"/>
+<area shape="rect" id="Node000005" href="$d4/d88/namespacesigma__device.html#a81c865394c4dff48cad4ebb1d6cbd5ff" title="Compute eddy viscosity on device." alt="" coords="241,91,400,136"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="450,93,401,103,401,98,445,93"/>
+<area shape="rect" id="Node000006" href="$d6/dcd/namespacesigma.html#a4382f10d4f01fe94f14c5b63666c8a01" title="Compute eddy viscosity." alt="" coords="5,100,179,127"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="223,114,179,116,179,111,228,113"/>
+</map>

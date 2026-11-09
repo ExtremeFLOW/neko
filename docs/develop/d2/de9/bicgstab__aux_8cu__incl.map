@@ -1,0 +1,24 @@
+<map id="/home/runner/work/neko/neko/src/krylov/bcknd/device/cuda/bicgstab_aux.cu" name="/home/runner/work/neko/neko/src/krylov/bcknd/device/cuda/bicgstab_aux.cu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="276,5,488,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,124,71,151"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="273,62,181,86,83,118,79,119,75,115,81,112,180,81,277,58"/>
+<area shape="rect" id="Node000003" href="$d3/dec/cuda_2bicgstab__kernel_8h.html" title=" " alt="" coords="94,124,230,151"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="313,69,206,119,203,115,317,66"/>
+<area shape="rect" id="Node000005" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="183,300,352,328"/>
+<area shape="poly" id="edge6_Node000001_Node000005" title=" " alt="" coords="338,66,315,91,296,116,279,160,271,206,267,249,267,286,263,284,262,249,265,205,274,158,292,114,311,87,334,69"/>
+<area shape="rect" id="Node000007" href="$d5/d08/cuda_2check_8h.html" title=" " alt="" coords="305,124,459,151"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="383,65,384,109,380,107,381,70"/>
+<area shape="rect" id="Node000008" href="$de/d4f/cuda_2buffer_8h.html" title=" " alt="" coords="483,124,636,151"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="436,65,525,115,520,116,436,70"/>
+<area shape="rect" id="Node000010" href="$d0/d4a/device__mpi__reduce_8h.html" title=" " alt="" coords="659,115,852,160"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="489,63,661,110,656,111,488,68"/>
+<area shape="rect" id="Node000011" href="$db/d37/device__mpi__op_8h.html" title=" " alt="" coords="875,115,1068,160"/>
+<area shape="poly" id="edge11_Node000001_Node000011" title=" " alt="" coords="489,51,862,113,858,116,489,56"/>
+<area shape="rect" id="Node000004" href="$d9/d50/cuda_2math__kernel_8h.html" title=" " alt="" coords="49,208,230,252"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="160,149,151,193,146,191,157,154"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="174,250,237,291,232,292,173,256"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="90,300,159,328"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="137,251,132,286,127,283,134,255"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="523,216,596,244"/>
+<area shape="poly" id="edge9_Node000008_Node000009" title=" " alt="" coords="561,150,562,202,557,199,558,154"/>
+</map>

@@ -1,7 +1,31 @@
 <map id="atomicMaxFloat" name="atomicMaxFloat">
-<area shape="rect" id="Node000001" title=" " alt="" coords="257,31,385,56"/>
-<area shape="rect" id="Node000002" href="$d0/dc4/cuda_2gs__kernels_8h.html#a193b09c56933818591dae07c052e3888" title=" " alt="" coords="20,5,195,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="243,37,194,31,195,26,244,32"/>
-<area shape="rect" id="Node000003" href="$d0/dc4/cuda_2gs__kernels_8h.html#a4b54207953f9f014b0f74894dea93097" title=" " alt="" coords="5,55,209,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="244,55,210,59,209,53,244,49"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="969,240,1096,268"/>
+<area shape="rect" id="Node000002" href="$d0/dc4/cuda_2gs__kernels_8h.html#a193b09c56933818591dae07c052e3888" title=" " alt="" coords="732,196,906,224"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="951,238,890,227,890,222,956,238"/>
+<area shape="rect" id="Node000009" href="$d0/dc4/cuda_2gs__kernels_8h.html#a4b54207953f9f014b0f74894dea93097" title=" " alt="" coords="717,266,921,294"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="951,264,921,270,921,265,956,263"/>
+<area shape="rect" id="Node000003" href="$de/df6/gs_8cu.html#a18fd2b312917f32020b2915f9eacafa3" title=" " alt="" coords="526,118,654,146"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="759,191,633,149,633,143,765,191"/>
+<area shape="rect" id="Node000008" href="$da/d57/gs_8hip.html#a29e94d459cc2467c8228104988f90d93" title=" " alt="" coords="532,196,649,224"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="714,211,650,213,649,208,720,210"/>
+<area shape="rect" id="Node000004" href="$da/dd9/namespacegs__device__crystal.html#a9032b45f197584ebf9ae325acf142d43" title="Reduce n delivered words into the shared vector under op." alt="" coords="295,5,440,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="550,110,462,65,435,53,435,48,464,60,555,109"/>
+<area shape="rect" id="Node000006" href="$d9/dfa/namespacegs__device__mpi.html#a3c4cdecb2527137b5665bfbb823e0518" title="Wait for non&#45;blocking operations." alt="" coords="272,75,463,119"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="508,120,464,115,463,109,513,119"/>
+<area shape="rect" id="Node000007" href="$de/dcf/namespacegs__device__nccl.html#a6ce3a7bef43ec31cbe113f8073b40abc" title="Wait for non&#45;blocking operations." alt="" coords="290,144,445,189"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="508,145,446,157,445,152,513,143"/>
+<area shape="rect" id="Node000005" href="$da/dd9/namespacegs__device__crystal.html#a9cb36820c465ac7ea08ca39a72f5ab24" title="Drive the remaining routing stages and reduce what is delivered into the shared vector." alt="" coords="20,5,209,50"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="277,29,210,30,208,25,281,26"/>
+<area shape="rect" id="Node000010" href="$de/df6/gs_8cu.html#acd0089231c4a794722be2218d9efa789" title=" " alt="" coords="511,266,669,294"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="699,280,670,282,670,277,705,279"/>
+<area shape="rect" id="Node000015" href="$da/d57/gs_8hip.html#abfe62ab2fefa05d72189f70ebbc02f7c" title=" " alt="" coords="516,318,664,346"/>
+<area shape="poly" id="edge14_Node000009_Node000015" title=" " alt="" coords="743,297,655,320,654,315,737,298"/>
+<area shape="rect" id="Node000011" href="$da/dd9/namespacegs__device__crystal.html#ae3660cf75165daf9fcf3ddb97affefc7" title="Reduce n delivered positions into the component&#45;outer shared vector." alt="" coords="295,213,440,258"/>
+<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="499,263,441,253,441,247,505,262"/>
+<area shape="rect" id="Node000013" href="$d9/dfa/namespacegs__device__mpi.html#a5ff8b80324d32c136ca9c472c80ba066" title="Wait for a fused nc&#45;component exchange and unpack/reduce into u." alt="" coords="272,283,463,327"/>
+<area shape="poly" id="edge12_Node000010_Node000013" title=" " alt="" coords="493,291,464,297,463,291,498,290"/>
+<area shape="rect" id="Node000014" href="$de/dcf/namespacegs__device__nccl.html#ad2efc97538f12f659e7d4b532c2a0a22" title="Fused nc&#45;component send/recv + unpack." alt="" coords="275,352,460,397"/>
+<area shape="poly" id="edge13_Node000010_Node000014" title=" " alt="" coords="528,299,512,309,488,325,464,342,438,354,437,349,462,337,485,321,510,304,523,300"/>
+<area shape="rect" id="Node000012" href="$da/dd9/namespacegs__device__crystal.html#a352f746d8e1e1eecaeedcbb956e32cc8" title="Drive the remaining routing stages and reduce what is delivered into the shared vector,..." alt="" coords="5,213,224,258"/>
+<area shape="poly" id="edge11_Node000011_Node000012" title=" " alt="" coords="277,237,225,238,223,233,281,235"/>
 </map>

@@ -1,0 +1,9 @@
+<map id="/home/runner/work/neko/neko/src/bc/bcknd/device/cuda/inflow.cu" name="/home/runner/work/neko/neko/src/bc/bcknd/device/cuda/inflow.cu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="139,5,327,67"/>
+<area shape="rect" id="Node000002" href="$d8/d66/cuda_2inflow__kernel_8h.html" title=" " alt="" coords="5,115,125,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,67,104,110,102,105,174,68"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="148,115,318,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="235,66,235,101,231,98,231,69"/>
+<area shape="rect" id="Node000004" href="$d5/d08/cuda_2check_8h.html" title=" " alt="" coords="342,115,495,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="295,65,380,108,375,108,294,70"/>
+</map>

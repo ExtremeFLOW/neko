@@ -1,5 +1,5 @@
 <map id="global_interpolation::global_interpolation_find_common" name="global_interpolation::global_interpolation_find_common">
-<area shape="rect" id="Node000001" title="Common routine for finding the points." alt="" coords="5,5,165,60"/>
-<area shape="rect" id="Node000002" href="$dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="213,13,365,53"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,30,200,30,200,35,166,35"/>
+<area shape="rect" id="Node000001" title="Common routine for finding the points." alt="" coords="5,5,165,67"/>
+<area shape="rect" id="Node000002" href="$dd/de1/namespaceglobal__interpolation.html#a829324239907e3b2115c45ac52ab3d51" title="Compares two sets of rst coordinates and checks whether rst2 is better than rst1 given a tolerance re..." alt="" coords="213,14,364,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,34,200,36,195,36,165,39"/>
 </map>

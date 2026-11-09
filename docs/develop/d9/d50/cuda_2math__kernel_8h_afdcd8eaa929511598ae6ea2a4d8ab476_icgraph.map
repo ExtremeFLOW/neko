@@ -1,0 +1,13 @@
+<map id="reduce_min_warp" name="reduce_min_warp">
+<area shape="rect" id="Node000001" title=" " alt="" coords="342,32,478,60"/>
+<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html#a971ed11ab2089b33e00ac9997e846248" title=" " alt="" coords="169,5,274,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="324,34,275,29,275,24,330,34"/>
+<area shape="rect" id="Node000005" href="$d9/d50/cuda_2math__kernel_8h.html#ae16173e57d4c267c1eb5218548774a78" title=" " alt="" coords="150,57,294,85"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="329,57,295,64,294,59,324,57"/>
+<area shape="rect" id="Node000003" href="$de/d1e/math_8cu.html#a2e74d9e1a6ccf5c295800cf3756eff54" title=" " alt="" coords="5,5,102,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="151,20,103,22,102,17,156,18"/>
+<area shape="rect" id="Node000004" href="$de/d9b/math_8hip.html#a85996a20535a20a44f75f8ff8cef144c" title=" " alt="" coords="11,57,96,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="163,37,98,61,96,55,158,39"/>
+<area shape="poly" id="edge5_Node000005_Node000003" title=" " alt="" coords="157,53,100,36,101,31,162,51"/>
+<area shape="poly" id="edge6_Node000005_Node000004" title=" " alt="" coords="131,71,97,74,97,69,137,71"/>
+</map>

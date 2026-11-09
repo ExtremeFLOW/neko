@@ -1,13 +1,13 @@
 var namespacescalar__scheme =
 [
-    [ "scalar_scheme_allocate", "d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate.html", "d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate" ],
-    [ "scalar_scheme_allocator_entry", "d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry.html", "d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry" ],
-    [ "scalar_scheme_free_intrf", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf" ],
+    [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ],
     [ "scalar_scheme_init_intrf", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf.html", "db/d60/interfacescalar__scheme_1_1scalar__scheme__init__intrf" ],
     [ "scalar_scheme_restart_intrf", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf.html", "d1/da1/interfacescalar__scheme_1_1scalar__scheme__restart__intrf" ],
+    [ "scalar_scheme_free_intrf", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf.html", "d0/dfe/interfacescalar__scheme_1_1scalar__scheme__free__intrf" ],
     [ "scalar_scheme_step_intrf", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf.html", "dd/d55/interfacescalar__scheme_1_1scalar__scheme__step__intrf" ],
-    [ "scalar_scheme_t", "dd/ded/structscalar__scheme_1_1scalar__scheme__t.html", "dd/ded/structscalar__scheme_1_1scalar__scheme__t" ],
     [ "scalar_scheme_wrapper_t", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t.html", "dc/dcd/structscalar__scheme_1_1scalar__scheme__wrapper__t" ],
+    [ "scalar_scheme_allocate", "d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate.html", "d1/d36/interfacescalar__scheme_1_1scalar__scheme__allocate" ],
+    [ "scalar_scheme_allocator_entry", "d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry.html", "d2/d82/structscalar__scheme_1_1scalar__scheme__allocator__entry" ],
     [ "scalar_scheme_free", "da/de3/namespacescalar__scheme.html#a57f35ef15b838ab8da7ab18d002a352b", null ],
     [ "scalar_scheme_init", "da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9", null ],
     [ "scalar_scheme_precon_factory", "da/de3/namespacescalar__scheme.html#ab4c8e192fe61bb325c7598193bb878a6", null ],

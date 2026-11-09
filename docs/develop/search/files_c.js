@@ -21,7 +21,7 @@ var searchData=
   ['lpt_5fperiodic_5fbc_2ehip_18',['lpt_periodic_bc.hip',['../db/df4/lpt__periodic__bc_8hip.html',1,'']]],
   ['lpt_5fperiodic_5fbc_5fcpu_2ef90_19',['lpt_periodic_bc_cpu.f90',['../d1/d33/lpt__periodic__bc__cpu_8f90.html',1,'']]],
   ['lpt_5fperiodic_5fbc_5fdevice_2ef90_20',['lpt_periodic_bc_device.F90',['../d0/dfa/lpt__periodic__bc__device_8F90.html',1,'']]],
-  ['lpt_5fperiodic_5fbc_5fkernel_2eh_21',['lpt_periodic_bc_kernel.h',['../d5/d1c/hip_2lpt__periodic__bc__kernel_8h.html',1,'(Global Namespace)'],['../dd/d25/cuda_2lpt__periodic__bc__kernel_8h.html',1,'(Global Namespace)']]],
+  ['lpt_5fperiodic_5fbc_5fkernel_2eh_21',['lpt_periodic_bc_kernel.h',['../dd/d25/cuda_2lpt__periodic__bc__kernel_8h.html',1,'(Global Namespace)'],['../d5/d1c/hip_2lpt__periodic__bc__kernel_8h.html',1,'(Global Namespace)']]],
   ['lpt_5fperiodic_5fparams_2eh_22',['lpt_periodic_params.h',['../df/da8/lpt__periodic__params_8h.html',1,'']]],
   ['lpt_5fsimcomp_2ef90_23',['lpt_simcomp.f90',['../de/d2d/lpt__simcomp_8f90.html',1,'']]],
   ['lpt_5fwall_5fcollision_2ec_24',['lpt_wall_collision.c',['../d3/db7/lpt__wall__collision_8c.html',1,'']]],
@@ -30,5 +30,5 @@ var searchData=
   ['lpt_5fwall_5fcollision_2ehip_27',['lpt_wall_collision.hip',['../d2/d92/lpt__wall__collision_8hip.html',1,'']]],
   ['lpt_5fwall_5fcollision_5fcpu_2ef90_28',['lpt_wall_collision_cpu.f90',['../dd/d55/lpt__wall__collision__cpu_8f90.html',1,'']]],
   ['lpt_5fwall_5fcollision_5fdevice_2ef90_29',['lpt_wall_collision_device.F90',['../d9/d97/lpt__wall__collision__device_8F90.html',1,'']]],
-  ['lpt_5fwall_5fcollision_5fkernel_2eh_30',['lpt_wall_collision_kernel.h',['../d3/d4f/hip_2lpt__wall__collision__kernel_8h.html',1,'(Global Namespace)'],['../d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html',1,'(Global Namespace)']]]
+  ['lpt_5fwall_5fcollision_5fkernel_2eh_30',['lpt_wall_collision_kernel.h',['../d8/d1c/cuda_2lpt__wall__collision__kernel_8h.html',1,'(Global Namespace)'],['../d3/d4f/hip_2lpt__wall__collision__kernel_8h.html',1,'(Global Namespace)']]]
 ];

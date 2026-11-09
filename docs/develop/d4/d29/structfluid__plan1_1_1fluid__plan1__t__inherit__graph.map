@@ -1,7 +1,7 @@
 <map id="fluid_plan1::fluid_plan1_t" name="fluid_plan1::fluid_plan1_t">
-<area shape="rect" id="Node000001" title=" " alt="" coords="58,181,187,221"/>
-<area shape="rect" id="Node000002" href="$d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html" title="Base type of all fluid formulations." alt="" coords="5,93,240,133"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="125,147,125,181,120,181,120,147"/>
-<area shape="rect" id="Node000003" href="$db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html" title="Base type of all fluid formulations." alt="" coords="43,5,202,45"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="125,59,125,93,120,93,120,59"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="58,191,186,235"/>
+<area shape="rect" id="Node000002" href="$d5/d0e/structfluid__scheme__incompressible_1_1fluid__scheme__incompressible__t.html" title="Base type of all fluid formulations." alt="" coords="5,98,239,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,156,124,192,120,189,120,160"/>
+<area shape="rect" id="Node000003" href="$db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html" title="Base type of all fluid formulations." alt="" coords="43,5,201,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="123,63,125,99,119,97,121,68"/>
 </map>

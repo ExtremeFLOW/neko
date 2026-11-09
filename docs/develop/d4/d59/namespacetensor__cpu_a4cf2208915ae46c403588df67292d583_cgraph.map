@@ -1,13 +1,13 @@
 <map id="tensor_cpu::tnsr3d_cpu" name="tensor_cpu::tnsr3d_cpu">
-<area shape="rect" id="Node000001" title="Three&#45;dimensional tensor product over a list of elements." alt="" coords="5,141,177,166"/>
-<area shape="rect" id="Node000002" href="$d4/d59/namespacetensor__cpu.html#a29cba931c011f7c7bf2799c65e906460" title="Tensor&#45;product evaluation specialised for nu = 12, generic in nv." alt="" coords="225,5,368,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="107,138,158,99,224,55,234,49,237,54,227,60,161,104,110,143"/>
-<area shape="rect" id="Node000003" href="$d4/d59/namespacetensor__cpu.html#a5bc753fd95ff31b7899987e76a6e9ecf" title="Batched tensor product specialised for nu = 2, nv = 4." alt="" coords="225,69,368,109"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="132,138,218,111,220,116,134,143"/>
-<area shape="rect" id="Node000004" href="$d4/d59/namespacetensor__cpu.html#ad367fb18271b3a7b328d1e911316427b" title="Batched tensor product specialised for nu = 4, generic in nv." alt="" coords="225,133,368,173"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="177,151,211,151,211,156,177,156"/>
-<area shape="rect" id="Node000005" href="$d4/d59/namespacetensor__cpu.html#a9a2c07e35fabc0fba2ff92018521a375" title="Tensor&#45;product evaluation specialised for nu = 8, generic in nv." alt="" coords="225,197,368,237"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="134,164,220,191,218,196,132,169"/>
-<area shape="rect" id="Node000006" href="$d4/d59/namespacetensor__cpu.html#a68d125d230f5d64bbc077467af881ee1" title="Generic tensor&#45;product evaluation for arbitrary nu, nv." alt="" coords="225,261,368,301"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="110,164,161,203,227,247,237,253,234,257,224,252,158,208,107,168"/>
+<area shape="rect" id="Node000001" title="Three&#45;dimensional tensor product over a list of elements." alt="" coords="5,152,177,180"/>
+<area shape="rect" id="Node000002" href="$d4/d59/namespacetensor__cpu.html#a29cba931c011f7c7bf2799c65e906460" title="Tensor&#45;product evaluation specialised for nu = 12, generic in nv." alt="" coords="225,5,366,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,150,157,108,223,60,234,56,230,60,226,65,160,112,110,154"/>
+<area shape="rect" id="Node000003" href="$d4/d59/namespacetensor__cpu.html#a5bc753fd95ff31b7899987e76a6e9ecf" title="Batched tensor product specialised for nu = 2, nv = 4." alt="" coords="225,75,366,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="133,150,215,123,211,127,135,154"/>
+<area shape="rect" id="Node000004" href="$d4/d59/namespacetensor__cpu.html#ad367fb18271b3a7b328d1e911316427b" title="Batched tensor product specialised for nu = 4, generic in nv." alt="" coords="225,144,366,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="176,164,212,165,207,167,178,169"/>
+<area shape="rect" id="Node000005" href="$d4/d59/namespacetensor__cpu.html#a9a2c07e35fabc0fba2ff92018521a375" title="Tensor&#45;product evaluation specialised for nu = 8, generic in nv." alt="" coords="225,213,366,258"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="134,178,215,207,211,209,134,183"/>
+<area shape="rect" id="Node000006" href="$d4/d59/namespacetensor__cpu.html#a68d125d230f5d64bbc077467af881ee1" title="Generic tensor&#45;product evaluation for arbitrary nu, nv." alt="" coords="225,283,366,327"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="109,178,160,221,226,268,235,275,230,275,223,273,157,225,108,183"/>
 </map>

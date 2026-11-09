@@ -1,8 +1,8 @@
 <map id="/home/runner/work/neko/neko/src/krylov/bcknd/device/hip/fusedcg_cpld_kernel.h" name="/home/runner/work/neko/neko/src/krylov/bcknd/device/hip/fusedcg_cpld_kernel.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="61,5,243,75"/>
-<area shape="rect" id="Node000002" href="$d8/d17/hip_2math__kernel_8h.html" title=" " alt="" coords="5,123,176,163"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="134,77,112,112,107,109,129,74"/>
-<area shape="rect" id="Node000003" href="$dc/d61/wave_8h.html" title=" " alt="" coords="117,211,187,236"/>
-<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="175,74,190,116,193,140,191,163,172,201,167,198,185,162,188,140,185,117,170,76"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="108,161,137,198,132,201,103,165"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="61,5,242,84"/>
+<area shape="rect" id="Node000002" href="$d8/d17/hip_2math__kernel_8h.html" title=" " alt="" coords="5,132,175,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,82,112,120,108,117,128,87"/>
+<area shape="rect" id="Node000003" href="$dc/d61/wave_8h.html" title=" " alt="" coords="117,225,186,252"/>
+<area shape="poly" id="edge3_Node000001_Node000003" title=" " alt="" coords="174,82,190,128,193,153,190,177,173,213,169,210,185,176,188,153,185,129,172,87"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="107,175,135,212,130,212,105,179"/>
 </map>

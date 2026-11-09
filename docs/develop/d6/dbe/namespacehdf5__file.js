@@ -1,7 +1,7 @@
 var namespacehdf5__file =
 [
-    [ "hdf5_checkpoint_layout_t", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t.html", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t" ],
     [ "hdf5_file_t", "df/d0b/structhdf5__file_1_1hdf5__file__t.html", "df/d0b/structhdf5__file_1_1hdf5__file__t" ],
+    [ "hdf5_checkpoint_layout_t", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t.html", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t" ],
     [ "file_get_fname", "d6/dbe/namespacehdf5__file.html#a0a53b70eacc7db0ae404d09f20311313", null ],
     [ "hdf5_checkpoint_layout_free", "d6/dbe/namespacehdf5__file.html#acd1868d3251fa311be50476e741b5f2c", null ],
     [ "hdf5_file_close", "d6/dbe/namespacehdf5__file.html#ab2a4dc599cb5d2b4ad76f3d230407974", null ],

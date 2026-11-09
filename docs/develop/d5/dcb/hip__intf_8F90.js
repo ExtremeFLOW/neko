@@ -28,8 +28,8 @@ var hip__intf_8F90 =
     [ "hip_intf::hipeventcreatewithflags", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags.html", "d9/dcb/interfacehip__intf_1_1hipeventcreatewithflags" ],
     [ "hip_intf::hipeventrecord", "db/d71/interfacehip__intf_1_1hipeventrecord.html", "db/d71/interfacehip__intf_1_1hipeventrecord" ],
     [ "hip_intf::hipeventsynchronize", "d9/d67/interfacehip__intf_1_1hipeventsynchronize.html", "d9/d67/interfacehip__intf_1_1hipeventsynchronize" ],
-    [ "hip_device_count", "d5/dcb/hip__intf_8F90.html#ae76e470dcd046e7ef62b0273edd6c56d", null ],
-    [ "hip_device_name", "d5/dcb/hip__intf_8F90.html#a1c8e3cf5e89ffe1b50253b6b38e45a93", null ],
-    [ "hip_finalize", "d5/dcb/hip__intf_8F90.html#a89de67459398a401efed275ac5c3dc07", null ],
-    [ "hip_init", "d5/dcb/hip__intf_8F90.html#a71cf325d479bbed01658a08561e54a48", null ]
+    [ "hip_intf::hip_device_count", "d0/d4e/namespacehip__intf.html#ae76e470dcd046e7ef62b0273edd6c56d", null ],
+    [ "hip_intf::hip_device_name", "d0/d4e/namespacehip__intf.html#a1c8e3cf5e89ffe1b50253b6b38e45a93", null ],
+    [ "hip_intf::hip_finalize", "d0/d4e/namespacehip__intf.html#a89de67459398a401efed275ac5c3dc07", null ],
+    [ "hip_intf::hip_init", "d0/d4e/namespacehip__intf.html#a71cf325d479bbed01658a08561e54a48", null ]
 ];

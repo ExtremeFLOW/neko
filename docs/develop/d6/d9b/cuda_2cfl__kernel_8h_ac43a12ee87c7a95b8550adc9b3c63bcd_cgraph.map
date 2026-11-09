@@ -1,8 +1,7 @@
 <map id="cfl_kernel" name="cfl_kernel">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,47,89,72"/>
-<area shape="rect" id="Node000002" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="156,5,271,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="89,46,148,32,149,37,90,52"/>
-<area shape="rect" id="Node000003" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="137,79,289,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="90,67,124,75,123,80,89,72"/>
-<area shape="poly" id="edge3_Node000003_Node000003" title=" " alt="" coords="182,80,180,70,185,61,196,55,213,53,233,56,244,63,241,67,231,61,213,58,198,60,189,65,185,71,187,78"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,89,60"/>
+<area shape="rect" id="Node000002" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="143,5,257,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="88,36,130,31,125,33,90,41"/>
+<area shape="rect" id="Node000003" href="$d6/d9b/cuda_2cfl__kernel_8h.html#afd5d1bf3a29b056746978f49c54df491" title=" " alt="" coords="137,57,263,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="89,50,124,58,119,59,89,55"/>
 </map>

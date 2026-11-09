@@ -1,0 +1,18 @@
+<map id="/home/runner/work/neko/neko/src/krylov/bcknd/device/cuda/pipecg_aux.cu" name="/home/runner/work/neko/neko/src/krylov/bcknd/device/cuda/pipecg_aux.cu">
+<area shape="rect" id="Node000001" title=" " alt="" coords="181,5,381,67"/>
+<area shape="rect" id="Node000002" href="$d1/d49/cuda_2pipecg__kernel_8h.html" title=" " alt="" coords="48,115,172,143"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="222,69,149,110,146,105,226,65"/>
+<area shape="rect" id="Node000004" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="139,283,308,311"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="268,65,251,116,235,198,228,269,223,266,230,197,246,114,265,70"/>
+<area shape="rect" id="Node000006" href="$d5/d08/cuda_2check_8h.html" title=" " alt="" coords="262,115,415,143"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="301,65,324,102,319,101,299,70"/>
+<area shape="rect" id="Node000007" href="$de/d4f/cuda_2buffer_8h.html" title=" " alt="" coords="439,115,592,143"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="359,65,470,108,465,110,359,70"/>
+<area shape="rect" id="Node000003" href="$d9/d50/cuda_2math__kernel_8h.html" title=" " alt="" coords="5,191,186,235"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="109,141,105,176,100,174,107,146"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="130,233,193,274,188,275,129,239"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="47,283,115,311"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="94,234,88,269,83,267,90,238"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="479,199,552,227"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="517,141,518,185,513,182,514,145"/>
+</map>

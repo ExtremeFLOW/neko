@@ -1,31 +1,43 @@
 <map id="device::device_event_destroy" name="device::device_event_destroy">
-<area shape="rect" id="Node000001" title="Destroy a device event." alt="" coords="447,356,607,396"/>
-<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#a801d9e47f3ad6cca31e92f8ed777abf7" title="Deallocate a device based PCG solver." alt="" coords="227,5,371,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="519,343,507,282,485,206,469,166,450,127,426,91,397,59,370,42,373,38,400,55,430,88,454,125,474,164,491,204,513,281,524,342"/>
-<area shape="rect" id="Node000003" href="$d6/d60/namespacecg__device.html#aabcb47b12d07f0931e0b9e6d7bb66023" title="Deallocate a device based PCG solver." alt="" coords="203,70,396,95"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="517,344,503,292,480,228,445,164,423,135,397,110,376,98,379,93,400,106,427,132,450,161,485,226,508,290,522,342"/>
-<area shape="rect" id="Node000004" href="$d4/dc5/namespacecheby__device.html#aa0ac1e13e350c208f5b20a9c674b8c4a" title=" " alt="" coords="220,120,379,160"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="511,344,494,305,469,259,437,213,397,174,377,162,380,157,400,170,441,210,473,256,498,303,516,342"/>
-<area shape="rect" id="Node000005" href="$d0/dbe/namespacedevice.html#a1e3084493809835d96d99e4ddeeba980" title=" " alt="" coords="214,185,385,210"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="505,346,461,283,431,252,397,225,371,212,373,208,400,220,435,248,465,280,510,343"/>
-<area shape="rect" id="Node000007" href="$d2/da7/namespacedevice__jacobi.html#a0449982992f4fcbd66b8e69699672ab7" title=" " alt="" coords="218,235,381,275"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="489,350,447,318,397,289,370,277,372,272,400,284,450,314,493,345"/>
-<area shape="rect" id="Node000008" href="$d3/dbc/namespacefusedcg__cpld__device.html#a57396f2309510cfbef357ad61c695ae2" title="Deallocate a pipelined PCG solver." alt="" coords="200,299,399,339"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="433,355,379,341,380,336,434,350"/>
-<area shape="rect" id="Node000009" href="$d8/dcd/namespacegs__device.html#acb55cb0b9872ab64f6a6465b793176df" title="Dummy backend deallocation." alt="" coords="203,363,396,389"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="433,379,396,379,396,373,433,373"/>
-<area shape="rect" id="Node000010" href="$d9/dfa/namespacegs__device__mpi.html#a467e70ece8c5500ace71594579ccd501" title="Deallocate MPI based communication method." alt="" coords="203,413,395,453"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="434,402,380,416,379,411,433,397"/>
-<area shape="rect" id="Node000011" href="$de/dcf/namespacegs__device__nccl.html#aef31fde09a39eebc0ee90e008cba5bb5" title="Deallocate MPI based communication method." alt="" coords="228,477,371,517"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="493,407,450,438,400,468,372,480,370,475,397,463,447,434,489,402"/>
-<area shape="rect" id="Node000012" href="$d0/d2a/namespacegs__device__shmem.html#ac47b0494a4a3bce988d5419447951920" title="Deallocate MPI based communication method." alt="" coords="216,541,383,581"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="509,409,464,471,434,504,400,532,378,544,376,539,397,527,431,500,460,468,505,406"/>
-<area shape="rect" id="Node000013" href="$dd/dd1/namespacehsmg.html#a74343fce57f519e87cbff9557ee65a27" title=" " alt="" coords="232,606,367,631"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="518,410,501,453,477,503,443,553,400,596,368,612,366,607,397,591,439,550,472,500,496,451,513,408"/>
-<area shape="rect" id="Node000014" href="$da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34" title="Deallocate a pipelined PCG solver." alt="" coords="216,656,383,696"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="521,410,507,462,483,524,448,589,426,618,400,645,381,658,378,654,397,641,422,615,443,586,478,522,502,460,516,409"/>
-<area shape="rect" id="Node000015" href="$d2/d37/namespaceschwarz.html#aed04e84332557d214a95921525db8443" title=" " alt="" coords="215,721,384,746"/>
-<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="525,410,515,474,494,555,478,597,457,638,432,677,400,710,381,723,378,718,397,706,427,673,453,636,473,595,489,553,510,473,520,409"/>
-<area shape="rect" id="Node000006" href="$dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title="Finalize Neko." alt="" coords="5,185,152,210"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="200,200,152,200,152,195,200,195"/>
+<area shape="rect" id="Node000001" title="Destroy a device event." alt="" coords="665,375,825,419"/>
+<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#a801d9e47f3ad6cca31e92f8ed777abf7" title="Deallocate a device based PCG solver." alt="" coords="447,5,590,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="737,359,726,296,704,217,688,176,669,136,644,98,616,64,591,47,590,42,619,60,649,95,673,133,693,174,709,216,731,295,742,360"/>
+<area shape="rect" id="Node000003" href="$d6/d60/namespacecg__device.html#aabcb47b12d07f0931e0b9e6d7bb66023" title="Deallocate a device based PCG solver." alt="" coords="422,74,615,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="735,358,722,305,699,239,664,172,642,141,616,115,601,105,600,100,619,111,646,138,669,169,704,237,727,303,740,360"/>
+<area shape="rect" id="Node000004" href="$d4/dc5/namespacecheby__device.html#aa0ac1e13e350c208f5b20a9c674b8c4a" title=" " alt="" coords="440,125,597,170"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="728,359,711,320,687,273,655,225,616,184,598,172,597,167,619,180,659,222,691,270,716,318,734,361"/>
+<area shape="rect" id="Node000005" href="$d0/dbe/namespacedevice.html#a1e3084493809835d96d99e4ddeeba980" title=" " alt="" coords="434,194,603,222"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="723,360,680,297,650,263,616,235,596,225,596,219,619,231,654,259,684,293,728,361"/>
+<area shape="rect" id="Node000013" href="$d2/da7/namespacedevice__jacobi.html#a0449982992f4fcbd66b8e69699672ab7" title=" " alt="" coords="438,245,599,290"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="704,365,664,335,616,305,593,293,592,288,619,300,667,330,710,365"/>
+<area shape="rect" id="Node000014" href="$d3/dbc/namespacefusedcg__cpld__device.html#a57396f2309510cfbef357ad61c695ae2" title="Deallocate a pipelined PCG solver." alt="" coords="420,315,617,359"/>
+<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="648,372,606,363,605,357,653,371"/>
+<area shape="rect" id="Node000015" href="$d8/dcd/namespacegs__device.html#acb55cb0b9872ab64f6a6465b793176df" title="Dummy backend deallocation." alt="" coords="422,383,615,411"/>
+<area shape="poly" id="edge14_Node000001_Node000015" title=" " alt="" coords="647,398,616,400,615,394,652,396"/>
+<area shape="rect" id="Node000016" href="$d9/dfa/namespacegs__device__mpi.html#a467e70ece8c5500ace71594579ccd501" title="Deallocate MPI based communication method." alt="" coords="423,435,614,479"/>
+<area shape="poly" id="edge15_Node000001_Node000016" title=" " alt="" coords="648,423,606,437,604,432,653,421"/>
+<area shape="rect" id="Node000017" href="$de/dcf/namespacegs__device__nccl.html#aef31fde09a39eebc0ee90e008cba5bb5" title="Deallocate MPI based communication method." alt="" coords="448,504,590,549"/>
+<area shape="poly" id="edge16_Node000001_Node000017" title=" " alt="" coords="709,428,667,464,619,494,591,507,589,502,616,489,664,459,705,431"/>
+<area shape="rect" id="Node000018" href="$d0/d2a/namespacegs__device__shmem.html#ac47b0494a4a3bce988d5419447951920" title="Deallocate MPI based communication method." alt="" coords="436,573,601,618"/>
+<area shape="poly" id="edge17_Node000001_Node000018" title=" " alt="" coords="726,431,682,500,653,534,619,563,599,575,596,570,616,559,649,530,678,496,722,435"/>
+<area shape="rect" id="Node000019" href="$dd/dd1/namespacehsmg.html#a74343fce57f519e87cbff9557ee65a27" title=" " alt="" coords="452,642,586,670"/>
+<area shape="poly" id="edge18_Node000001_Node000019" title=" " alt="" coords="735,433,720,481,696,534,663,587,642,611,619,633,587,649,585,644,616,628,638,608,658,584,691,532,715,479,732,437"/>
+<area shape="rect" id="Node000020" href="$da/d46/namespacepipecg__device.html#aeac2e2e47dadc8df22ea517657edae34" title="Deallocate a pipelined PCG solver." alt="" coords="436,693,601,738"/>
+<area shape="poly" id="edge19_Node000001_Node000020" title=" " alt="" coords="739,433,726,490,702,556,667,624,645,655,619,683,602,695,600,690,616,679,641,652,663,621,697,554,720,488,735,437"/>
+<area shape="rect" id="Node000021" href="$d2/d37/namespaceschwarz.html#aed04e84332557d214a95921525db8443" title=" " alt="" coords="434,762,603,790"/>
+<area shape="poly" id="edge20_Node000001_Node000021" title=" " alt="" coords="743,433,735,503,714,589,698,633,677,677,651,717,619,752,602,764,600,759,616,748,647,714,673,674,693,631,709,587,730,502,740,437"/>
+<area shape="rect" id="Node000006" href="$dd/d62/namespaceneko.html#a11ff0635183fc4cd90027907c86cbfe8" title="Finalize Neko." alt="" coords="227,194,372,222"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="416,209,374,210,371,205,421,206"/>
+<area shape="rect" id="Node000007" href="$d9/dd1/average__field__in__space_8f90.html#a37dc68f9f9805d99614ae0ca36d971a3" title="Program to sum up a field in space in a homogenous direction Martin Karp 17/02&#45;23." alt="" coords="5,51,179,79"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="275,182,233,138,206,114,177,94,153,82,151,77,180,89,210,110,237,134,280,181"/>
+<area shape="rect" id="Node000008" href="$dc/da2/genmeshbox_8f90.html#ac2c2abdf1b6ab8a11de24035862245d5" title="Simple program to generate a mesh for a box Gives some insight into how one can use built in function..." alt="" coords="39,103,145,131"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="260,187,178,145,146,133,144,128,180,140,265,185"/>
+<area shape="rect" id="Node000009" href="$d5/dd3/namespaceneko__api.html#a1976f22c2e58a334c9115138734aa63f" title="Finalize Neko." alt="" coords="19,155,165,199"/>
+<area shape="poly" id="edge8_Node000006_Node000009" title=" " alt="" coords="209,196,167,190,164,185,213,193"/>
+<area shape="rect" id="Node000010" href="$d1/dd9/postprocess__fluid__stats_8f90.html#a54f8c504cff2703e12c6c4fce128f532" title="Somewhat preliminary program to sum up averaged fields computed for statistics and mean field Martin ..." alt="" coords="5,223,179,251"/>
+<area shape="poly" id="edge9_Node000006_Node000010" title=" " alt="" coords="210,222,181,227,178,223,214,218"/>
+<area shape="rect" id="Node000011" href="$d7/d64/rea2nbin_8f90.html#ab8d17097ee23bae0a0911d8d65590e5e" title=" " alt="" coords="53,275,131,303"/>
+<area shape="poly" id="edge10_Node000006_Node000011" title=" " alt="" coords="255,230,180,265,133,280,130,276,178,260,258,226"/>
+<area shape="rect" id="Node000012" href="$d0/dd9/driver_8f90.html#a30d609876f05bf02c9ca79b0448dc937" title="Main driver for TurboNeko." alt="" coords="49,327,135,355"/>
+<area shape="poly" id="edge11_Node000006_Node000012" title=" " alt="" coords="275,235,235,276,180,317,137,334,134,330,177,312,232,272,278,230"/>
 </map>

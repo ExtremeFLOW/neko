@@ -1,14 +1,14 @@
 <map id="cheby::cheby_power" name="cheby::cheby_power">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,128,160,153"/>
-<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="215,5,324,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,126,143,85,207,40,217,34,220,39,209,44,146,89,99,130"/>
-<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="222,55,317,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="115,125,222,83,224,88,117,130"/>
-<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="220,128,319,153"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="160,138,206,138,206,143,160,143"/>
-<area shape="rect" id="Node000005" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="208,178,331,218"/>
-<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="126,151,196,173,194,178,124,156"/>
-<area shape="rect" id="Node000006" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="208,242,331,282"/>
-<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="102,151,149,187,209,228,217,233,215,237,207,232,146,191,99,156"/>
-<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="238,129,232,120,235,110,248,104,269,101,295,105,306,114,302,118,293,110,269,107,250,109,239,113,237,119,243,126"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,133,159,161"/>
+<area shape="rect" id="Node000002" href="$dd/d47/namespacemath.html#a0aa2bdfb2fdb9eae6679d958a82fd200" title="Multiplication by constant c ." alt="" coords="213,5,322,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="96,131,143,89,205,44,219,38,215,42,208,48,146,94,100,135"/>
+<area shape="rect" id="Node000003" href="$dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="220,57,314,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="117,130,219,89,216,94,119,135"/>
+<area shape="rect" id="Node000004" href="$dd/d47/namespacemath.html#a22f2f98aad6feae117b800fa20fa43ed" title="Weighted inner product ." alt="" coords="219,133,316,161"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="158,145,206,146,201,148,160,150"/>
+<area shape="rect" id="Node000005" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="207,185,328,230"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="127,159,194,182,189,184,127,164"/>
+<area shape="rect" id="Node000006" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="207,254,328,299"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="101,159,149,197,208,240,215,246,210,245,205,244,146,201,100,164"/>
+<area shape="poly" id="edge4_Node000004_Node000004" title=" " alt="" coords="235,132,230,124,234,115,247,109,267,107,289,109,303,118,297,118,288,114,267,112,248,114,238,119,235,124,240,133"/>
 </map>

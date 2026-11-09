@@ -11,7 +11,7 @@ var searchData=
   ['bicgstab_5faux_2ehip_8',['bicgstab_aux.hip',['../d9/d13/bicgstab__aux_8hip.html',1,'']]],
   ['bicgstab_5fcoupled_2ef90_9',['bicgstab_coupled.f90',['../da/da0/bicgstab__coupled_8f90.html',1,'']]],
   ['bicgstab_5fdevice_2ef90_10',['bicgstab_device.F90',['../da/d2e/bicgstab__device_8F90.html',1,'']]],
-  ['bicgstab_5fkernel_2eh_11',['bicgstab_kernel.h',['../d8/d0b/hip_2bicgstab__kernel_8h.html',1,'(Global Namespace)'],['../d3/dec/cuda_2bicgstab__kernel_8h.html',1,'(Global Namespace)']]],
+  ['bicgstab_5fkernel_2eh_11',['bicgstab_kernel.h',['../d3/dec/cuda_2bicgstab__kernel_8h.html',1,'(Global Namespace)'],['../d8/d0b/hip_2bicgstab__kernel_8h.html',1,'(Global Namespace)']]],
   ['blasius_2ef90_12',['blasius.f90',['../db/d18/blasius_8f90.html',1,'']]],
   ['boundary_5fdata_2ef90_13',['boundary_data.f90',['../dc/d8f/boundary__data_8f90.html',1,'']]],
   ['boundary_5fdata_5fwriter_5fsimcomp_2ef90_14',['boundary_data_writer_simcomp.f90',['../d7/d5a/boundary__data__writer__simcomp_8f90.html',1,'']]],

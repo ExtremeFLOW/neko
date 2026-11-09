@@ -1,9 +1,9 @@
 <map id="/home/runner/work/neko/neko/src/krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h" name="/home/runner/work/neko/neko/src/krylov/bcknd/device/cuda/fusedcg_cpld_kernel.h">
-<area shape="rect" id="Node000001" title=" " alt="" coords="66,5,259,75"/>
-<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html" title=" " alt="" coords="72,123,253,163"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="165,75,165,108,160,108,160,75"/>
-<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="5,211,176,236"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="147,165,113,202,109,199,143,161"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="200,211,269,236"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="182,161,217,199,213,202,178,165"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="64,5,257,84"/>
+<area shape="rect" id="Node000002" href="$d9/d50/cuda_2math__kernel_8h.html" title=" " alt="" coords="70,132,251,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,82,163,117,158,116,159,87"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="5,225,175,252"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="144,176,113,215,109,211,140,178"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="198,225,267,252"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="181,175,214,213,208,212,179,180"/>
 </map>

@@ -1,7 +1,7 @@
 <map id="checkpoint_payload::add_array_2d" name="checkpoint_payload::add_array_2d">
-<area shape="rect" id="Node000001" title="Add a rank&#45;two contiguous real array." alt="" coords="5,13,157,53"/>
-<area shape="rect" id="Node000002" href="$de/d70/namespacecheckpoint__payload.html#a823f4a1402f1f16f9cc065ea23c5c6a2" title="Store a flattened real array in a payload." alt="" coords="205,5,365,60"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="158,30,192,30,192,35,158,35"/>
-<area shape="rect" id="Node000003" href="$de/d70/namespacecheckpoint__payload.html#a39217b979a120a7d1078e365b596452d" title="Validate that a dataset name is non&#45;empty and unique in a payload." alt="" coords="413,5,573,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="365,30,399,30,399,35,365,35"/>
+<area shape="rect" id="Node000001" title="Add a rank&#45;two contiguous real array." alt="" coords="5,14,157,58"/>
+<area shape="rect" id="Node000002" href="$de/d70/namespacecheckpoint__payload.html#a823f4a1402f1f16f9cc065ea23c5c6a2" title="Store a flattened real array in a payload." alt="" coords="205,5,364,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="157,34,192,36,186,37,157,39"/>
+<area shape="rect" id="Node000003" href="$de/d70/namespacecheckpoint__payload.html#a39217b979a120a7d1078e365b596452d" title="Validate that a dataset name is non&#45;empty and unique in a payload." alt="" coords="412,5,571,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="364,34,399,36,394,36,364,39"/>
 </map>

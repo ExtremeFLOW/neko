@@ -55,12 +55,12 @@ var searchData=
   ['projection_2ecu_52',['projection.cu',['../d9/dab/projection_8cu.html',1,'']]],
   ['projection_2ef90_53',['projection.f90',['../d6/d51/projection_8f90.html',1,'']]],
   ['projection_2ehip_54',['projection.hip',['../d9/d09/projection_8hip.html',1,'']]],
-  ['projection_5fkernel_2eh_55',['projection_kernel.h',['../d9/d19/hip_2projection__kernel_8h.html',1,'(Global Namespace)'],['../d3/d18/cuda_2projection__kernel_8h.html',1,'(Global Namespace)']]],
+  ['projection_5fkernel_2eh_55',['projection_kernel.h',['../d3/d18/cuda_2projection__kernel_8h.html',1,'(Global Namespace)'],['../d9/d19/hip_2projection__kernel_8h.html',1,'(Global Namespace)']]],
   ['projection_5fvel_2ef90_56',['projection_vel.f90',['../d0/db7/projection__vel_8f90.html',1,'']]],
   ['props_2ecu_57',['props.cu',['../dd/d00/props_8cu.html',1,'']]],
-  ['props_2eh_58',['props.h',['../d1/df9/hip_2props_8h.html',1,'(Global Namespace)'],['../d2/dce/cuda_2props_8h.html',1,'(Global Namespace)']]],
+  ['props_2eh_58',['props.h',['../d2/dce/cuda_2props_8h.html',1,'(Global Namespace)'],['../d1/df9/hip_2props_8h.html',1,'(Global Namespace)']]],
   ['props_2ehip_59',['props.hip',['../dc/d45/props_8hip.html',1,'']]],
-  ['prs_5fres_5fkernel_2eh_60',['prs_res_kernel.h',['../d8/dc2/hip_2prs__res__kernel_8h.html',1,'(Global Namespace)'],['../db/d30/cuda_2prs__res__kernel_8h.html',1,'(Global Namespace)']]],
-  ['prs_5fstress_5fres_5fkernel_2eh_61',['prs_stress_res_kernel.h',['../dc/d4f/hip_2prs__stress__res__kernel_8h.html',1,'(Global Namespace)'],['../d5/de5/cuda_2prs__stress__res__kernel_8h.html',1,'(Global Namespace)']]],
+  ['prs_5fres_5fkernel_2eh_60',['prs_res_kernel.h',['../db/d30/cuda_2prs__res__kernel_8h.html',1,'(Global Namespace)'],['../d8/dc2/hip_2prs__res__kernel_8h.html',1,'(Global Namespace)']]],
+  ['prs_5fstress_5fres_5fkernel_2eh_61',['prs_stress_res_kernel.h',['../d5/de5/cuda_2prs__stress__res__kernel_8h.html',1,'(Global Namespace)'],['../dc/d4f/hip_2prs__stress__res__kernel_8h.html',1,'(Global Namespace)']]],
   ['publications_2emd_62',['publications.md',['../dd/dae/publications_8md.html',1,'']]]
 ];

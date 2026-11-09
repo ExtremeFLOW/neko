@@ -1,7 +1,7 @@
 <map id="expression_dirichlet::expression_dirichlet_t::update" name="expression_dirichlet::expression_dirichlet_t::update">
-<area shape="rect" id="Node000001" title="Bring g up to date with the current time." alt="" coords="5,5,167,60"/>
-<area shape="rect" id="Node000002" href="$db/de8/namespaceexpression__dirichlet.html#ab23c00748f30e2646b49ac4d5222c899" title="Tabulate the coordinates of the points of the mask of a boundary condition." alt="" coords="215,13,409,53"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="167,30,201,30,201,35,167,35"/>
-<area shape="rect" id="Node000003" href="$db/de8/namespaceexpression__dirichlet.html#a4fd72b42495a2e9e749ca7e75469515a" title="Gather the coordinates of the masked points into contiguous arrays." alt="" coords="457,13,611,53"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="410,30,444,30,444,35,410,35"/>
+<area shape="rect" id="Node000001" title="Bring g up to date with the current time." alt="" coords="5,5,166,67"/>
+<area shape="rect" id="Node000002" href="$db/de8/namespaceexpression__dirichlet.html#ab23c00748f30e2646b49ac4d5222c899" title="Tabulate the coordinates of the points of the mask of a boundary condition." alt="" coords="214,14,407,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="166,34,201,36,195,36,166,39"/>
+<area shape="rect" id="Node000003" href="$db/de8/namespaceexpression__dirichlet.html#a4fd72b42495a2e9e749ca7e75469515a" title="Gather the coordinates of the masked points into contiguous arrays." alt="" coords="455,14,607,58"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="407,34,442,36,437,36,407,39"/>
 </map>

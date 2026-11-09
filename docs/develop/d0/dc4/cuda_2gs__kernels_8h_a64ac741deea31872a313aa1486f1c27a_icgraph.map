@@ -1,0 +1,19 @@
+<map id="gs_pack_kernel" name="gs_pack_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="671,179,793,207"/>
+<area shape="rect" id="Node000002" href="$de/df6/gs_8cu.html#a7ce5d7eddaca70d46e33391af8561115" title=" " alt="" coords="511,152,623,180"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="653,181,624,178,624,173,658,181"/>
+<area shape="rect" id="Node000009" href="$da/d57/gs_8hip.html#a6fb58c9abf4c1e74a4cc5695173a6b68" title=" " alt="" coords="516,204,618,232"/>
+<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="659,204,618,213,618,208,653,205"/>
+<area shape="rect" id="Node000003" href="$da/dd9/namespacegs__device__crystal.html#a3e80865e0ca51fdd794a9885c0f1975d" title="Gather n words of src into dst through the 1&#45;based index list idx_d, i.e. dst(j) = src(idx(j))." alt="" coords="295,75,440,119"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="508,147,434,123,434,117,513,147"/>
+<area shape="rect" id="Node000007" href="$d9/dfa/namespacegs__device__mpi.html#af149a413dba89bc1fed2d20d646cc066" title="Post non&#45;blocking send operations." alt="" coords="272,144,463,189"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="493,167,464,169,463,164,498,166"/>
+<area shape="rect" id="Node000008" href="$de/dcf/namespacegs__device__nccl.html#a4a698ddba8ad717a48415e7611189407" title="Post non&#45;blocking send operations." alt="" coords="288,213,446,258"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="513,185,435,215,433,210,508,186"/>
+<area shape="rect" id="Node000004" href="$da/dd9/namespacegs__device__crystal.html#ae4a8e74a66c3c6371d57d17b30c23acb" title="Pack the shared vector and post the send of the first routing stage." alt="" coords="19,5,210,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="277,74,199,53,198,48,282,72"/>
+<area shape="rect" id="Node000005" href="$da/dd9/namespacegs__device__crystal.html#a9cb36820c465ac7ea08ca39a72f5ab24" title="Drive the remaining routing stages and reduce what is delivered into the shared vector." alt="" coords="20,75,209,119"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="277,98,210,100,208,94,281,96"/>
+<area shape="rect" id="Node000006" href="$da/dd9/namespacegs__device__crystal.html#a352f746d8e1e1eecaeedcbb956e32cc8" title="Drive the remaining routing stages and reduce what is delivered into the shared vector,..." alt="" coords="5,144,224,189"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="277,122,199,146,198,141,282,120"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="/home/runner/work/neko/neko/src/device/hip/props.hip" name="/home/runner/work/neko/neko/src/device/hip/props.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="46,5,260,50"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,98,141,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="130,52,99,88,95,85,134,48"/>
+<area shape="rect" id="Node000003" href="$d1/df9/hip_2props_8h.html" title=" " alt="" coords="164,98,304,126"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="175,48,213,87,208,87,174,53"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="198,174,271,201"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="236,124,237,159,232,157,232,128"/>
+</map>

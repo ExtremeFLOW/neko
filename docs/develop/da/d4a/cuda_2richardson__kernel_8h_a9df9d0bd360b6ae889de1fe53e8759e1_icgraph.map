@@ -1,0 +1,17 @@
+<map id="f_theta_convective" name="f_theta_convective">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1141,88,1286,115"/>
+<area shape="rect" id="Node000002" href="$da/d4a/cuda_2richardson__kernel_8h.html#a62ddc2320f6eb2286b3160f33a9e8a42" title=" " alt="" coords="934,88,1093,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1123,102,1094,104,1094,99,1128,101"/>
+<area shape="rect" id="Node000003" href="$da/d4a/cuda_2richardson__kernel_8h.html#ae3ca444aa846fdc12c5a4a1bd8d1ff2f" title=" " alt="" coords="732,88,886,115"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="916,102,886,104,886,99,921,101"/>
+<area shape="rect" id="Node000004" href="$d3/ddd/richardson_8cu.html#ac6107294c6a28b395e2a27e3656ec803" title=" " alt="" coords="493,61,684,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="715,90,685,89,685,84,720,90"/>
+<area shape="rect" id="Node000008" href="$dc/db4/richardson_8hip.html#a8d9996ed16353b33c01f8415ca47275f" title=" " alt="" coords="498,113,679,141"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="720,112,679,119,679,114,714,112"/>
+<area shape="rect" id="Node000005" href="$d5/d35/namespacerichardson__device.html#a5ec10cce0adb9a2f1806fae82fed2c6e" title="Compute the wall shear stress on device using the rough log&#45;law model." alt="" coords="242,52,445,97"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="474,75,446,77,445,72,480,75"/>
+<area shape="rect" id="Node000006" href="$da/d24/interfacerichardson__device_1_1hip__richardson__compute.html#a328b2478e61d9731dc1966c354945ae2" title=" " alt="" coords="5,5,194,67"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="223,57,194,54,194,48,229,56"/>
+<area shape="rect" id="Node000007" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="17,91,182,136"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="224,94,183,103,182,98,229,93"/>
+</map>

@@ -1,6 +1,7 @@
 <map id="cuda_coef_get_normal" name="cuda_coef_get_normal">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,37,175,62"/>
-<area shape="rect" id="Node000002" href="$d3/d06/cuda_2ale__kinematics__kernel_8h.html#ad4350b4cac096924ce42615d376f4759" title=" " alt="" coords="223,29,375,69"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="175,47,209,47,209,52,175,52"/>
-<area shape="poly" id="edge2_Node000002_Node000002" title=" " alt="" coords="260,30,257,20,263,10,277,5,299,3,323,6,336,13,334,18,321,11,299,8,279,10,267,15,262,21,265,28"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,5,174,33"/>
+<area shape="rect" id="Node000002" href="$d0/d39/cuda_2coef__kernel_8h.html#a494d31d10d5c3f21e64fa29baa478636" title=" " alt="" coords="222,5,399,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="174,17,209,19,203,19,174,22"/>
+<area shape="rect" id="Node000003" href="$d0/d39/cuda_2coef__kernel_8h.html#ab1704ac3b488ae29041c290c9111220b" title=" " alt="" coords="447,5,627,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="400,17,434,19,429,19,400,22"/>
 </map>

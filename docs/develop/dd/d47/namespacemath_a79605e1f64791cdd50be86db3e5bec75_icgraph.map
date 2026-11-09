@@ -1,38 +1,38 @@
 <map id="math::glsum" name="math::glsum">
-<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="759,237,863,263"/>
-<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="850,228,839,219,811,216,787,218,775,223,772,228,779,236,775,239,767,229,771,219,786,213,811,211,841,214,853,223"/>
-<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="504,20,679,45"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="801,225,790,187,771,142,745,97,709,60,678,44,680,39,712,56,749,94,776,140,795,185,806,223"/>
-<area shape="rect" id="Node000004" href="$d3/d66/namespacefluid__scheme__compressible.html#acb6812095efba4a414478c6ba9e87db7" title="Initialize common data for compressible fluid scheme." alt="" coords="472,70,711,110"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="795,227,760,174,737,147,709,124,687,112,690,108,712,120,740,143,765,171,799,224"/>
-<area shape="rect" id="Node000005" href="$d7/dff/namespacefluid__scheme__incompressible.html#ae963806c56d3a2fa15861f95c54dc505" title="Initialise a fluid scheme." alt="" coords="484,134,699,174"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="781,231,748,209,710,188,679,177,680,172,712,184,750,204,784,227"/>
-<area shape="rect" id="Node000006" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="519,198,664,238"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="745,243,664,231,664,226,746,238"/>
-<area shape="rect" id="Node000007" href="$d6/daa/namespaceforce__torque.html#ae9ae027762ffb4b12cc853766cb415bb" title="Common part of constructors." alt="" coords="510,262,673,302"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="745,262,673,273,672,268,745,257"/>
-<area shape="rect" id="Node000008" href="$dc/d12/namespacematrix__math.html#a134fab8efe57504296cae27152a3d657" title="Global sum of all elements in a matrix ." alt="" coords="513,326,670,366"/>
-<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="784,273,750,296,712,316,671,331,669,326,710,312,748,291,781,269"/>
-<area shape="rect" id="Node000009" href="$dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="528,391,655,416"/>
-<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="799,276,765,330,741,357,712,380,685,393,656,401,655,396,683,388,709,376,737,353,761,326,795,274"/>
-<area shape="rect" id="Node000010" href="$d3/d0d/namespacevector__math.html#a83da312e1061e280d36d8ae363663f0f" title=" " alt="" coords="515,441,668,481"/>
-<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="804,277,792,312,773,353,746,394,712,429,692,442,669,451,667,446,689,438,709,425,742,391,768,350,787,309,799,275"/>
-<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="221,5,423,60"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="490,35,423,35,423,30,490,30"/>
-<area shape="rect" id="Node000011" href="$df/dd1/namespaceboundary__data.html#a647c50f24010ceb4a651154e64a80c40" title="Area weighted geometric centre of the zones." alt="" coords="228,277,416,317"/>
-<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="500,447,470,429,459,417,451,404,445,379,439,354,433,342,422,331,405,319,408,315,426,327,437,339,444,352,450,378,456,402,463,414,474,425,503,442"/>
-<area shape="rect" id="Node000012" href="$df/dd1/namespaceboundary__data.html#a0d69114bbcdc1a4683b8bb8bbf0d5f46" title="Unweighted mean of the boundary point coordinates." alt="" coords="228,341,416,381"/>
-<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="500,442,471,430,446,412,423,395,395,383,397,378,425,390,449,408,473,425,502,437"/>
-<area shape="rect" id="Node000013" href="$df/dd1/namespaceboundary__data.html#a9c27a60ea3609978a961c35a52cd508b" title="Total surface area of the zones." alt="" coords="228,405,416,445"/>
-<area shape="poly" id="edge13_Node000010_Node000013" title=" " alt="" coords="501,451,416,440,416,435,501,446"/>
-<area shape="rect" id="Node000014" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="242,469,402,524"/>
-<area shape="poly" id="edge14_Node000010_Node000014" title=" " alt="" coords="502,475,403,489,402,483,501,470"/>
-<area shape="rect" id="Node000015" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="220,548,424,573"/>
-<area shape="poly" id="edge15_Node000010_Node000015" title=" " alt="" coords="539,489,485,514,425,538,382,550,381,545,423,533,483,509,537,484"/>
-<area shape="rect" id="Node000017" href="$d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="239,598,405,638"/>
-<area shape="poly" id="edge17_Node000010_Node000017" title=" " alt="" coords="560,492,500,541,425,588,398,600,395,596,423,584,497,536,557,488"/>
-<area shape="rect" id="Node000016" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="9,548,169,573"/>
-<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="206,563,169,563,169,558,206,558"/>
-<area shape="rect" id="Node000018" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,598,172,638"/>
-<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="224,621,172,621,172,615,224,615"/>
+<area shape="rect" id="Node000001" title="Sum a vector of length n." alt="" coords="755,256,859,283"/>
+<area shape="poly" id="edge7_Node000001_Node000001" title=" " alt="" coords="843,240,831,237,807,234,784,236,772,241,769,246,774,256,769,255,763,247,768,237,783,231,807,229,833,232,848,240"/>
+<area shape="rect" id="Node000002" href="$d5/de6/namespacefield__math.html#a695417ff1e9677f8de61d1d44c79d9c5" title=" " alt="" coords="502,22,675,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="798,240,787,201,769,152,743,104,726,82,706,64,676,48,675,42,709,59,729,79,747,101,774,150,792,199,803,241"/>
+<area shape="rect" id="Node000004" href="$d3/d66/namespacefluid__scheme__compressible.html#acb6812095efba4a414478c6ba9e87db7" title="Initialize common data for compressible fluid scheme." alt="" coords="470,74,707,118"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="790,241,757,187,734,158,706,133,687,122,687,116,709,129,737,154,762,184,796,242"/>
+<area shape="rect" id="Node000005" href="$d7/dff/namespacefluid__scheme__incompressible.html#ae963806c56d3a2fa15861f95c54dc505" title="Initialise a fluid scheme." alt="" coords="482,143,695,188"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="774,246,743,224,706,203,679,191,679,186,709,198,746,220,780,246"/>
+<area shape="rect" id="Node000006" href="$d6/daa/namespaceforce__torque.html#a04fd3661b7bbe9d298cb5c3109ac9499" title="Compute the force_torque field." alt="" coords="516,212,661,257"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="738,260,662,249,661,244,743,258"/>
+<area shape="rect" id="Node000007" href="$d6/daa/namespaceforce__torque.html#ae9ae027762ffb4b12cc853766cb415bb" title="Common part of constructors." alt="" coords="508,282,670,326"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="738,281,671,294,669,289,743,279"/>
+<area shape="rect" id="Node000008" href="$dc/d12/namespacematrix__math.html#a134fab8efe57504296cae27152a3d657" title="Global sum of all elements in a matrix ." alt="" coords="510,351,667,396"/>
+<area shape="poly" id="edge8_Node000001_Node000008" title=" " alt="" coords="779,292,746,319,708,341,668,357,666,352,706,336,743,315,775,295"/>
+<area shape="rect" id="Node000009" href="$dd/d30/namespaceoperators.html#a1691d2dad396026d7c10196f76ebe574" title="Othogonalize with regard to vector (1,1,1,1,1,1...,1)^T." alt="" coords="526,420,651,447"/>
+<area shape="poly" id="edge9_Node000001_Node000009" title=" " alt="" coords="796,296,762,356,738,386,709,410,682,424,653,431,651,426,680,419,706,406,734,382,758,353,792,299"/>
+<area shape="rect" id="Node000010" href="$d3/d0d/namespacevector__math.html#a83da312e1061e280d36d8ae363663f0f" title=" " alt="" coords="512,471,665,516"/>
+<area shape="poly" id="edge10_Node000001_Node000010" title=" " alt="" coords="800,296,789,336,770,380,744,423,709,461,689,474,666,484,664,479,686,469,706,457,739,420,765,377,784,334,797,300"/>
+<area shape="rect" id="Node000003" href="$dd/d61/namespaceentropy__viscosity.html#a7c66cb381c6418f63ea5d9b8e9191df7" title="Compute and limit the entropy viscosity coefficient." alt="" coords="220,5,420,67"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="484,38,422,39,420,34,488,35"/>
+<area shape="rect" id="Node000011" href="$df/dd1/namespaceboundary__data.html#a647c50f24010ceb4a651154e64a80c40" title="Area weighted geometric centre of the zones." alt="" coords="227,294,414,338"/>
+<area shape="poly" id="edge11_Node000010_Node000011" title=" " alt="" coords="495,476,468,461,456,447,449,433,443,406,438,379,431,366,420,353,406,342,406,336,424,349,436,363,443,377,448,405,454,431,460,444,472,457,501,476"/>
+<area shape="rect" id="Node000012" href="$df/dd1/namespaceboundary__data.html#a0d69114bbcdc1a4683b8bb8bbf0d5f46" title="Unweighted mean of the boundary point coordinates." alt="" coords="227,363,414,408"/>
+<area shape="poly" id="edge12_Node000010_Node000012" title=" " alt="" coords="495,471,469,461,444,442,421,422,398,411,397,406,423,418,448,438,471,457,501,471"/>
+<area shape="rect" id="Node000013" href="$df/dd1/namespaceboundary__data.html#a9c27a60ea3609978a961c35a52cd508b" title="Total surface area of the zones." alt="" coords="227,432,414,477"/>
+<area shape="poly" id="edge13_Node000010_Node000013" title=" " alt="" coords="494,481,415,471,414,466,500,480"/>
+<area shape="rect" id="Node000014" href="$df/d21/namespaceboundary__operation.html#af93337275d76664b10544bc13755b90f" title="Compute and optionally output the requested boundary operations." alt="" coords="241,501,400,563"/>
+<area shape="poly" id="edge14_Node000010_Node000014" title=" " alt="" coords="494,507,401,523,400,518,499,506"/>
+<area shape="rect" id="Node000015" href="$de/dfa/namespacemost.html#a7127aab1e216615af579a7098e1f41a1" title=" " alt="" coords="219,588,422,615"/>
+<area shape="poly" id="edge15_Node000010_Node000015" title=" " alt="" coords="536,523,481,553,423,577,385,590,383,584,421,572,479,548,531,524"/>
+<area shape="rect" id="Node000017" href="$d3/d22/namespacerichardson.html#a21876c302c8bbb83882d77251432e958" title=" " alt="" coords="238,639,403,684"/>
+<area shape="poly" id="edge17_Node000010_Node000017" title=" " alt="" coords="556,525,496,580,423,629,398,641,397,636,421,625,493,575,551,528"/>
+<area shape="rect" id="Node000016" href="$de/dfa/namespacemost.html#a4702ba20a0d3cac74e9e03377427dab6" title="Compute the wall shear stress." alt="" coords="8,588,168,615"/>
+<area shape="poly" id="edge16_Node000015_Node000016" title=" " alt="" coords="201,602,169,604,168,599,206,601"/>
+<area shape="rect" id="Node000018" href="$d3/d22/namespacerichardson.html#a37303822979f671c98c36e6719449f4d" title="Compute the wall shear stress." alt="" coords="5,639,171,684"/>
+<area shape="poly" id="edge18_Node000017_Node000018" title=" " alt="" coords="220,662,171,664,171,659,225,661"/>
 </map>

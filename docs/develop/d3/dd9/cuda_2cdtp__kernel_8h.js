@@ -1,7 +1,7 @@
 var cuda_2cdtp__kernel_8h =
 [
-    [ "cdtp_dmma_dispatch< T, LX, NW >", "d4/dbf/structcdtp__dmma__dispatch.html", "d4/dbf/structcdtp__dmma__dispatch" ],
-    [ "cdtp_dmma_tma_dispatch< T, LX, NW >", "df/de3/structcdtp__dmma__tma__dispatch.html", "df/de3/structcdtp__dmma__tma__dispatch" ],
+    [ "cdtp_dmma_dispatch&lt; T, LX, NW &gt;", "d4/dbf/structcdtp__dmma__dispatch.html", "d4/dbf/structcdtp__dmma__dispatch" ],
+    [ "cdtp_dmma_tma_dispatch&lt; T, LX, NW &gt;", "df/de3/structcdtp__dmma__tma__dispatch.html", "df/de3/structcdtp__dmma__tma__dispatch" ],
     [ "__launch_bounds__", "d3/dd9/cuda_2cdtp__kernel_8h.html#a994082a96d93f12248f8fb3e40484b23", null ],
     [ "__launch_bounds__", "d3/dd9/cuda_2cdtp__kernel_8h.html#a9a3322ef71ea8136f44ed419b5f53270", null ],
     [ "__syncthreads", "d3/dd9/cuda_2cdtp__kernel_8h.html#ae687dbe50139c5805369b59554bddc67", null ],

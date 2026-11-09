@@ -1,0 +1,11 @@
+<map id="gmres_part2_kernel" name="gmres_part2_kernel">
+<area shape="rect" id="Node000001" title=" " alt="" coords="615,40,766,68"/>
+<area shape="rect" id="Node000002" href="$d6/d29/gmres__aux_8cu.html#a3952e21e8b02d7069a6d91b3708cffca" title=" " alt="" coords="426,14,567,42"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="597,42,567,40,568,35,602,42"/>
+<area shape="rect" id="Node000005" href="$da/d1d/gmres__aux_8hip.html#ad1130bc0fe9218ff1432134acd57f48d" title=" " alt="" coords="432,66,562,94"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="603,66,562,74,562,69,597,66"/>
+<area shape="rect" id="Node000003" href="$de/df2/namespacegmres__device.html#a0a158df824f0f1613e4f18806ea3a81e" title=" " alt="" coords="215,5,378,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="408,28,379,30,378,25,413,27"/>
+<area shape="rect" id="Node000004" href="$de/df2/namespacegmres__device.html#acdfd846f0f2c95fed9ed788773cbc6b4" title="Standard GMRES solve." alt="" coords="5,5,167,50"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="196,28,168,30,167,25,201,27"/>
+</map>

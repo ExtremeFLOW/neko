@@ -1,5 +1,5 @@
 <map id="combine_point_zone::combine_point_zone_init_from_json" name="combine_point_zone::combine_point_zone_init_from_json">
-<area shape="rect" id="Node000001" title="Constructor from json object file. Reads." alt="" coords="5,5,169,60"/>
-<area shape="rect" id="Node000002" href="$db/dc1/namespacecombine__point__zone.html#a191349ad9515ab7191f84609f326de2e" title=" " alt="" coords="217,13,373,53"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="170,30,203,30,203,35,170,35"/>
+<area shape="rect" id="Node000001" title="Constructor from json object file. Reads." alt="" coords="5,5,169,67"/>
+<area shape="rect" id="Node000002" href="$db/dc1/namespacecombine__point__zone.html#a191349ad9515ab7191f84609f326de2e" title=" " alt="" coords="217,14,372,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="169,34,203,36,198,36,169,39"/>
 </map>

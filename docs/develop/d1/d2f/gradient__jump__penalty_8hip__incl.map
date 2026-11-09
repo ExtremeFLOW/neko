@@ -1,0 +1,14 @@
+<map id="/home/runner/work/neko/neko/src/source_terms/bcknd/device/hip/gradient_jump_penalty.hip" name="/home/runner/work/neko/neko/src/source_terms/bcknd/device/hip/gradient_jump_penalty.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="195,5,388,84"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="72,225,207,252"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="192,50,146,59,97,74,52,99,33,115,16,133,8,154,16,175,39,200,70,218,66,220,36,204,12,178,3,154,12,131,29,111,49,94,95,70,145,54,196,47"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="27,140,196,168"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="224,86,148,134,145,130,228,83"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="220,140,362,168"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="293,82,294,126,289,124,290,87"/>
+<area shape="rect" id="Node000005" href="$d6/d51/hip_2gradient__jump__penalty__kernel_8h.html" title=" " alt="" coords="387,132,558,177"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="357,82,426,124,421,124,356,87"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="583,140,648,168"/>
+<area shape="poly" id="edge6_Node000001_Node000006" title=" " alt="" coords="388,70,478,97,571,130,577,134,572,134,569,134,476,102,388,75"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="269,168,178,219,176,215,264,169"/>
+</map>

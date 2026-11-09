@@ -1,7 +1,7 @@
 <map id="nmsh::nmsh_quad_t" name="nmsh::nmsh_quad_t">
-<area shape="rect" id="Node000001" title="Neko quad element data." alt="" coords="67,93,221,119"/>
-<area shape="rect" id="Node000002" href="$dc/d5a/structnmsh_1_1nmsh__t.html" title="Neko binary mesh element data." alt="" coords="5,5,120,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="85,39,135,91,131,95,81,43"/>
-<area shape="rect" id="Node000003" href="$d2/d94/structnmsh_1_1nmsh__vertex__t.html" title="Neko binary mesh vertex data." alt="" coords="144,5,307,31"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="207,43,157,95,153,91,203,39"/>
+<area shape="rect" id="Node000001" title="Neko quad element data." alt="" coords="66,106,218,134"/>
+<area shape="rect" id="Node000002" href="$dc/d5a/structnmsh_1_1nmsh__t.html" title="Neko binary mesh element data." alt="" coords="5,5,119,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="83,42,134,105,129,106,80,47"/>
+<area shape="rect" id="Node000003" href="$d2/d94/structnmsh_1_1nmsh__vertex__t.html" title="Neko binary mesh vertex data." alt="" coords="142,5,304,33"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="206,44,155,107,151,103,201,45"/>
 </map>
