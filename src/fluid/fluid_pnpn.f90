@@ -728,14 +728,17 @@ contains
     type(user_t), intent(in) :: user
     logical, intent(in) :: is_restart
 
+    ! Set before the IC
+    if (.not. is_restart) then
+       call this%ale%set_initial_mesh_velocity(this%c_Xh)
+    end if
+
     call this%set_initial_condition_base(user, is_restart)
 
     if (.not. is_restart) then
        call this%ulag%set(this%u)
        call this%vlag%set(this%v)
        call this%wlag%set(this%w)
-
-       call this%ale%set_initial_mesh_velocity(this%c_Xh)
     end if
 
   end subroutine fluid_pnpn_set_initial_condition
