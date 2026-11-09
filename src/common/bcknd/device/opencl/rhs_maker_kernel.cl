@@ -81,7 +81,6 @@ __kernel void makeext_kernel(__global real * __restrict__ abx1,
                              __global real * __restrict__ bfx,
                              __global real * __restrict__ bfy,
                              __global real * __restrict__ bfz,
-                             const real rho,
                              const real ab1,
                              const real ab2,
                              const real ab3,
@@ -102,9 +101,9 @@ __kernel void makeext_kernel(__global real * __restrict__ abx1,
     aby1[i] = bfy[i];
     abz1[i] = bfz[i];
 
-    bfx[i] = (ab1 * bfx[i] + ta1_val) * rho;
-    bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
-    bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
+    bfx[i] = ab1 * bfx[i] + ta1_val;
+    bfy[i] = ab1 * bfy[i] + ta2_val;
+    bfz[i] = ab1 * bfz[i] + ta3_val;
   }
 
 }

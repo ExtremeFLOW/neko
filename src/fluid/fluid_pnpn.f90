@@ -80,7 +80,7 @@ module fluid_pnpn
   use mathops, only : opadd2cm, opcolv
   use zero_dirichlet, only : zero_dirichlet_t
   use utils, only : neko_error, neko_type_error, NEKO_TYPENAME_LEN
-  use field_math, only : field_add2, field_copy
+  use field_math, only : field_add2, field_col2, field_copy
   use bc, only : bc_t, BC_DIRICHLET
   use mixed_bc, only : mixed_bc_t
   use scalar_bc_projector, only : scalar_bc_projector_t
@@ -866,10 +866,6 @@ contains
       ! Compute the source terms that are extrapolated in time below
       call this%source_term%compute(time, extrapolate = .true.)
 
-      ! Add Neumann bc contributions to the RHS
-      call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
-           this%dm_Xh%size(), time, strong = .false.)
-
       if (this%ale%active) then
          if (oifs) then
             call neko_error("ALE is not yet supported " // &
@@ -882,44 +878,42 @@ contains
               Xh, c_Xh, dm_Xh%size())
       end if
 
-
       if (oifs) then
-         ! Add the advection operators to the right-hand-side.
+         ! The advection operator is integrated separately by OIFS.
          call this%adv%compute(u, v, w, &
               this%advx, this%advy, this%advz, &
               Xh, this%c_Xh, dm_Xh%size(), real(dt, kind=rp))
-
-         ! At this point the RHS contains the sum of the advection operator and
-         ! additional source terms, evaluated using the velocity field from the
-         ! previous time-step. Now, this value is used in the explicit time
-         ! scheme to advance both terms in time.
-
-         call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-              this%abx2, this%aby2, this%abz2, &
-              f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
-
-         ! Now, the source terms from the previous time step are added to the
-         ! RHS.
-         call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
-              f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), real(dt, kind=rp), n)
       else
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
               f_x, f_y, f_z, &
               Xh, this%c_Xh, dm_Xh%size())
+      end if
 
-         ! At this point the RHS contains the sum of the advection operator and
-         ! additional source terms, evaluated using the velocity field from the
-         ! previous time-step. Now, this value is used in the explicit time
-         ! scheme to advance both terms in time.
+      ! The source and advection terms are per unit mass, so they are
+      ! multiplied by the density.
+      call field_col2(f_x, rho, n)
+      call field_col2(f_y, rho, n)
+      call field_col2(f_z, rho, n)
 
-         call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
-              this%abx2, this%aby2, this%abz2, &
+      ! Add the Neumann bc contributions, which are tractions, to the RHS.
+      call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, n, time, &
+           strong = .false.)
+
+      ! At this point the RHS contains the explicit terms, evaluated using the
+      ! velocity field from the previous time step. They are extrapolated in
+      ! time with the explicit scheme.
+      call makeabf%compute_fluid(this%abx1, this%aby1, this%abz1,&
+           this%abx2, this%aby2, this%abz2, &
+           f_x%x, f_y%x, f_z%x, &
+           ext_bdf%advection_coeffs%x, n)
+
+      if (oifs) then
+         ! Add the velocity advected by OIFS to the RHS.
+         call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
-
+              rho%x(1,1,1,1), real(dt, kind=rp), n)
+      else
          ! Add the RHS contributions coming from the BDF scheme.
          ! Blag and Blaglag are history of B matrices, mainly used for ALE.
          ! For a normal simulation (no moving mesh), Blag and Blaglag
@@ -928,7 +922,6 @@ contains
               u, v, w, c_Xh%B, c_Xh%Blag, c_Xh%Blaglag, rho%x(1,1,1,1), &
               real(dt, kind=rp), &
               ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
-
       end if
 
       ! Source terms that must not be extrapolated in time are added as

@@ -45,7 +45,6 @@ __global__ void makeext_kernel(T * __restrict__ abx1,
                                T * __restrict__ bfx,
                                T * __restrict__ bfy,
                                T * __restrict__ bfz,
-                               const T rho,
                                const T ab1,
                                const T ab2,
                                const T ab3,
@@ -66,9 +65,9 @@ __global__ void makeext_kernel(T * __restrict__ abx1,
     aby1[i] = bfy[i];
     abz1[i] = bfz[i];
 
-    bfx[i] = (ab1 * bfx[i] + ta1_val) * rho;
-    bfy[i] = (ab1 * bfy[i] + ta2_val) * rho;
-    bfz[i] = (ab1 * bfz[i] + ta3_val) * rho;
+    bfx[i] = ab1 * bfx[i] + ta1_val;
+    bfy[i] = ab1 * bfy[i] + ta2_val;
+    bfz[i] = ab1 * bfz[i] + ta3_val;
   }
   
 }

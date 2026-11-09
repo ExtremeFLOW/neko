@@ -85,11 +85,10 @@ kernel void makeext_kernel(device float *abx1[[ buffer(0) ]],
                            device float *bfx[[ buffer(6) ]],
                            device float *bfy[[ buffer(7) ]],
                            device float *bfz[[ buffer(8) ]],
-                           constant float &rho[[ buffer(9) ]],
-                           constant float &ab1[[ buffer(10) ]],
-                           constant float &ab2[[ buffer(11) ]],
-                           constant float &ab3[[ buffer(12) ]],
-                           constant int &n[[ buffer(13) ]],
+                           constant float &ab1[[ buffer(9) ]],
+                           constant float &ab2[[ buffer(10) ]],
+                           constant float &ab3[[ buffer(11) ]],
+                           constant int &n[[ buffer(12) ]],
                            uint idx [[ thread_position_in_grid ]]) {
   if (idx >= (uint)n) return;
   const float ta1_val = ab2 * abx1[idx] + ab3 * abx2[idx];
@@ -103,9 +102,9 @@ kernel void makeext_kernel(device float *abx1[[ buffer(0) ]],
   aby1[idx] = bfy[idx];
   abz1[idx] = bfz[idx];
 
-  bfx[idx] = (ab1 * bfx[idx] + ta1_val) * rho;
-  bfy[idx] = (ab1 * bfy[idx] + ta2_val) * rho;
-  bfz[idx] = (ab1 * bfz[idx] + ta3_val) * rho;
+  bfx[idx] = ab1 * bfx[idx] + ta1_val;
+  bfy[idx] = ab1 * bfy[idx] + ta2_val;
+  bfz[idx] = ab1 * bfz[idx] + ta3_val;
 }
 
 /**

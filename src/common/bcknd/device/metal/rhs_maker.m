@@ -150,7 +150,7 @@ void rhs_maker_sumab_metal(void *u, void *v, void *w,
 void rhs_maker_ext_metal(void *abx1, void *aby1, void *abz1,
                          void *abx2, void *aby2, void *abz2,
                          void *bfx, void *bfy, void *bfz,
-                         real *rho, real *ab1, real *ab2, real *ab3, int *n) {
+                         real *ab1, real *ab2, real *ab3, int *n) {
 
   if (*n <= 0)
     return;
@@ -171,11 +171,10 @@ void rhs_maker_ext_metal(void *abx1, void *aby1, void *abz1,
   [enc setBuffer:(__bridge id<MTLBuffer>)bfx  offset:0 atIndex:6];
   [enc setBuffer:(__bridge id<MTLBuffer>)bfy  offset:0 atIndex:7];
   [enc setBuffer:(__bridge id<MTLBuffer>)bfz  offset:0 atIndex:8];
-  [enc setBytes:rho length:sizeof(real) atIndex:9];
-  [enc setBytes:ab1 length:sizeof(real) atIndex:10];
-  [enc setBytes:ab2 length:sizeof(real) atIndex:11];
-  [enc setBytes:ab3 length:sizeof(real) atIndex:12];
-  [enc setBytes:n length:sizeof(int) atIndex:13];
+  [enc setBytes:ab1 length:sizeof(real) atIndex:9];
+  [enc setBytes:ab2 length:sizeof(real) atIndex:10];
+  [enc setBytes:ab3 length:sizeof(real) atIndex:11];
+  [enc setBytes:n length:sizeof(int) atIndex:12];
 
   rhs_maker_dispatch(cmdBuf, enc, *n);
 }

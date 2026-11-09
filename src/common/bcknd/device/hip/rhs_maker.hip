@@ -65,7 +65,7 @@ extern "C" {
   void rhs_maker_ext_hip(void *abx1, void *aby1, void *abz1,
                          void *abx2, void *aby2, void *abz2,
                          void *bfx, void *bfy, void *bfz,
-                         real *rho, real *ab1, real *ab2, real *ab3, int *n) {
+                         real *ab1, real *ab2, real *ab3, int *n) {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
@@ -75,7 +75,7 @@ extern "C" {
                        (real *) abx1, (real *) aby1, (real *) abz1,
                        (real *) abx2, (real *) aby2, (real *) abz2,
                        (real *) bfx, (real *) bfy, (real *) bfz,
-                       *rho, *ab1, *ab2, *ab3, *n);
+                       *ab1, *ab2, *ab3, *n);
     HIP_CHECK(hipGetLastError());
   }
 
