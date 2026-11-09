@@ -4,7 +4,7 @@
 makeneko \- build a custom Neko executable with user-defined modules
 .SH SYNOPSIS
 .B makeneko
-.IR file1.f90 " [" file2.f90 " ...] [" file.cu " | " file.hip "] [" file.o " | " lib.a " ...] [" flags "]"
+.IR file1.f90 " [" file2.f90 " ...] [" file.cu " | " file.hip "] [" file.o " | " lib.a " ...] [" \-Wl, "options ...] [" flags "]"
 .SH DESCRIPTION
 .B makeneko
 is a build helper installed alongside
@@ -77,7 +77,15 @@ compiled with
 using the flags chosen at configure time.
 .TP
 .IR file.o ", " lib.a ", " lib.so
-Object files and libraries, passed to the final link.
+Object files and libraries, passed to the final link after the sources.
+.TP
+.BR \-Wl, \fIoptions\fR
+Linker options, in the syntax of the compiler driver. They are passed to the
+final link after the sources and before
+.BR \-lneko ,
+in the order given, together with object files and libraries. Use this to
+link additional libraries, e.g.
+.BR "\-Wl,\-L/path,\-lcublas" .
 .TP
 .BR \-I "\fIdir\fR, " \-D "\fIname\fR, " \-U \fIname\fR
 Preprocessor flags, passed to the Fortran compiler and to
@@ -85,17 +93,15 @@ Preprocessor flags, passed to the Fortran compiler and to
 or
 .BR hipcc .
 .TP
-.BR \-L "\fIdir\fR, " \-l "\fIlib\fR, ..."
+.I flags
 Any other argument starting with
 .B \-
-is passed to the final link, before
-.BR \-lneko .
-Use this to link additional libraries, e.g.
-.BR "\-lcublas" .
+is passed to the Fortran compiler.
+.PP
 Options must be written as a single argument, e.g.
-.B \-L/path
+.B \-I/path
 rather than
-.BR "\-L /path" .
+.BR "\-I /path" .
 .PP
 Files with any other extension are ignored with a warning.
 .SH USER MODULE
