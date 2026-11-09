@@ -105,17 +105,15 @@ contains
     character(len=255) :: log_tab_size
     character(len=255) :: log_file
     character(len=32) :: prefix
-    integer :: envvar_len
-    if (pe_rank .ne. 0) return
+    integer :: envvar_len, ierr
+
+    call this%free()
 
     if (present(env_prefix)) then
        prefix = env_prefix
     else
        prefix = "NEKO"
     end if
-
-    this%indent_ = 0
-    this%section_id_ = 0
 
     call get_environment_variable(trim(prefix) // "_LOG_TAB_SIZE", &
          log_tab_size, envvar_len)
@@ -135,9 +133,12 @@ contains
 
     call get_environment_variable(trim(prefix) // "_LOG_FILE", &
          log_file, envvar_len)
-    if (envvar_len .gt. 0) then
+    if (envvar_len .gt. 0 .and. pe_rank .eq. 0) then
        open(newunit = this%unit_, file = trim(log_file), status = 'replace', &
-            action = 'write')
+            action = 'write', iostat = ierr)
+       if (ierr .ne. 0) then
+          call neko_error("Failed to open log file: " // trim(log_file))
+       end if
     else
        this%unit_ = stdout
     end if
@@ -199,7 +200,6 @@ contains
   pure function log_level(this) result(lvl)
     class(log_t), intent(in) :: this
     integer :: lvl
-    if (pe_rank .ne. 0) return
 
     lvl = this%level_
 
@@ -564,6 +564,7 @@ contains
   !> End a log section (from C)
   !! @note This assumes the global log stream @a neko_log
   subroutine log_end_section_c() bind(c, name = "log_end_section")
+    if (pe_rank .ne. 0) return
 
     call neko_log%end_section()
 
