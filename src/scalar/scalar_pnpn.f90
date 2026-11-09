@@ -60,6 +60,7 @@ module scalar_pnpn
   use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
+  use adv_oifs, only : adv_oifs_t
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file, json_core, json_value
@@ -389,6 +390,14 @@ contains
     end do
 
     nullify(bc_i)
+
+    ! The OIFS convecting field series is not in the checkpoint, rebuild it
+    ! from the restored velocity lags of the fluid. The fluid is restarted
+    ! before the scalars, so these lags are already restored.
+    select type (adv => this%adv)
+    type is (adv_oifs_t)
+       call adv%restart()
+    end select
 
   end subroutine scalar_pnpn_restart
 

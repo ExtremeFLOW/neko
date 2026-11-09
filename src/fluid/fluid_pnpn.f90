@@ -53,6 +53,7 @@ module fluid_pnpn
   use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
        glb_cmd_event
   use advection, only : advection_t, advection_factory
+  use adv_oifs, only : adv_oifs_t
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item, &
@@ -711,6 +712,13 @@ contains
     end do
 
     nullify(bc_i)
+
+    ! The OIFS convecting field series is not in the checkpoint, rebuild it
+    ! from the restored velocity lags.
+    select type (adv => this%adv)
+    type is (adv_oifs_t)
+       call adv%restart()
+    end select
 
   end subroutine fluid_pnpn_restart
 
