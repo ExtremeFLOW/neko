@@ -494,8 +494,10 @@ contains
          call this%svv%update(rho_cp, tstep)
       end if
 
-      ! Compute the source terms that are extrapolated in time below
-      call this%source_term%compute(time, extrapolate = .true.)
+      ! Compute the source terms that are extrapolated in time below. The
+      ! extrapolation takes values at the previous time levels, so they are
+      ! evaluated at the start of the step.
+      call this%source_term%compute(time, time%tlag(1), extrapolate = .true.)
 
       if (oifs) then
          ! The fluid step has already advanced u, v, and w to the new time.
@@ -534,7 +536,7 @@ contains
       ! Source terms that must not be extrapolated in time are added as
       ! computed, weighted by the mass matrix and rho * cp like the
       ! extrapolated terms above.
-      call this%source_term%compute(time, extrapolate = .false., &
+      call this%source_term%compute(time, time%t, extrapolate = .false., &
            scale = rho_cp)
 
       call slag%update()

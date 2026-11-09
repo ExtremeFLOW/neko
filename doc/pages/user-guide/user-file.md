@@ -435,14 +435,17 @@ See the relevant sections on the [fluid](@ref case-file_fluid-source-term) and
 case-file) for more details.
 
 The associated user functions for the fluid and/or scalar source terms can then
-be added to the user file. An example for the fluid, taken from the `scalar_mms`
-example, is shown below.
+be added to the user file. Besides the time state `time`, the routine is passed
+`eval_time`, the time at which the source term should be evaluated. A
+time-dependent source term must use `eval_time` rather than `time%t`. An example
+of a user source term, taken from the `scalar_mms` example, is shown below.
 
 ```fortran
-  subroutine source_term(scheme_name, rhs, time)
+  subroutine source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     real(kind=rp) :: x
     type(field_t), pointer :: f
@@ -971,10 +974,11 @@ An example where manual transfer to the GPU was necessary has already been
 given for the source term. It is reiterated below.
 
 ```fortran
-  subroutine source_term(scheme_name, rhs, time)
+  subroutine source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     real(kind=rp) :: x
     type(field_t), pointer :: f

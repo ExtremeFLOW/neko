@@ -106,12 +106,14 @@ module source_term
 
   abstract interface
      !> Computes the source term and adds the result to `fields`.
-     !! @param t The time value.
-     !! @param tstep The current time-step.
-     subroutine source_term_compute(this, time)
-       import source_term_t, time_state_t
+     !! @param time The time state.
+     !! @param eval_time The time at which to evaluate the source term. It is
+     !! chosen by the time scheme and need not equal `time%t`.
+     subroutine source_term_compute(this, time, eval_time)
+       import source_term_t, time_state_t, dp
        class(source_term_t), intent(inout) :: this
        type(time_state_t), intent(in) :: time
+       real(kind=dp), intent(in) :: eval_time
      end subroutine source_term_compute
   end interface
 
@@ -231,17 +233,19 @@ contains
     end if
   end subroutine source_term_wrapper_free
 
-  !> Executes `compute_` based on time conditions.
-  !! @param time Time state.
-  subroutine source_term_compute_wrapper(this, time)
+  !> Executes `compute_` if `eval_time` is within the active time window.
+  !! @param time The time state.
+  !! @param eval_time The time at which to evaluate the source term.
+  subroutine source_term_compute_wrapper(this, time, eval_time)
     class(source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     real(kind=dp) :: tol
 
     tol = time%tolerance()
-    if (time%t + tol .ge. this%start_time .and. &
-         time%t - tol .le. this%end_time) then
-       call this%compute_(time)
+    if (eval_time + tol .ge. this%start_time .and. &
+         eval_time - tol .le. this%end_time) then
+       call this%compute_(time, eval_time)
     end if
 
   end subroutine source_term_compute_wrapper

@@ -32,7 +32,7 @@
 !
 !> Implements the `boussinesq_source_term_t` type.
 module boussinesq_source_term
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field_list, only : field_list_t
   use field, only : field_t
   use json_module, only : json_file
@@ -164,11 +164,12 @@ contains
   end subroutine boussinesq_source_term_free
 
   !> Computes the source term and adds the result to `fields`.
-  !! @param t The time value.
-  !! @param tstep The current time-step.
-  subroutine boussinesq_source_term_compute(this, time)
+  !! @param time The time state.
+  !! @param eval_time The time at which to evaluate the source term.
+  subroutine boussinesq_source_term_compute(this, time, eval_time)
     class(boussinesq_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     integer :: n_fields, i, n
 
     n_fields = this%fields%size()

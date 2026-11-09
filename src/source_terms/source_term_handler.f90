@@ -34,7 +34,7 @@
 !> Implements the `source_term_handler_t` type.
 module source_term_handler
   use neko_config, only: NEKO_BCKND_DEVICE
-  use num_types, only: rp
+  use num_types, only: rp, dp
   use source_term, only: source_term_wrapper_t, source_term_t, &
        source_term_factory
   use field, only: field_t
@@ -163,11 +163,15 @@ contains
   !! form after the extrapolation, so that the latter terms enter the step as
   !! computed.
   !! @param time The time state.
+  !! @param eval_time The time at which to evaluate the source terms, chosen
+  !! by the calling scheme.
   !! @param extrapolate Select the terms by their `extrapolate` attribute.
   !! @param scale Field multiplying the contributions, e.g. the density.
-  subroutine source_term_handler_compute(this, time, extrapolate, scale)
+  subroutine source_term_handler_compute(this, time, eval_time, extrapolate, &
+       scale)
     class(source_term_handler_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     logical, intent(in) :: extrapolate
     type(field_t), intent(in), optional :: scale
     type(field_list_t) :: stash
@@ -202,7 +206,7 @@ contains
        do i = 1, size(this%source_terms)
           if (this%source_terms(i)%source_term%extrapolate .neqv. &
                extrapolate) cycle
-          call this%source_terms(i)%source_term%compute(time)
+          call this%source_terms(i)%source_term%compute(time, eval_time)
        end do
 
        ! Multiply by mass matrix and scale
