@@ -34,7 +34,7 @@
 module opr_device
   use gather_scatter, only : GS_OP_ADD
   use num_types, only : rp, c_rp, i8, dp, c_dp, xp, c_xp
-  use device, only : device_get_ptr, device_event_sync, device_map, device_unmap
+  use device, only : device_get_ptr, device_map, device_unmap
   use space, only : space_t
   use coefs, only : coef_t
   use field, only : field_t
@@ -996,7 +996,6 @@ contains
     if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
     if (present(event)) then
        call c_Xh%gs_h%op(w1%x, w2%x, w3%x, n, GS_OP_ADD, event)
-       call device_event_sync(event)
     else
        call c_Xh%gs_h%op(w1%x, w2%x, w3%x, n, GS_OP_ADD)
     end if

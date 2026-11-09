@@ -50,8 +50,7 @@ module fluid_pnpn
   use fluid_aux, only : fluid_step_info
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
-       glb_cmd_event
+  use device, only : device_memcpy, HOST_TO_DEVICE, glb_cmd_event
   use advection, only : advection_t, advection_factory
   use adv_oifs, only : adv_oifs_t
   use profiler, only : profiler_start_region, profiler_end_region
@@ -989,7 +988,6 @@ contains
          end if
 
          call gs_Xh%op(p_res, GS_OP_ADD, event)
-         call device_event_sync(event)
 
          ! Set the residual to zero at strong pressure boundaries.
          call this%bcs_prs_projector%apply(p_res%x, p%dof%size())
@@ -1044,7 +1042,6 @@ contains
          call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
          call gs_Xh%op(u_res%x, v_res%x, w_res%x, dm_Xh%size(), &
               GS_OP_ADD, event)
-         call device_event_sync(event)
          call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
          ! Set residual to zero at strong velocity boundaries.

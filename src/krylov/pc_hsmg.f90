@@ -76,7 +76,8 @@ module hsmg
   use sx_jacobi, only : sx_jacobi_t
   use device_jacobi, only : device_jacobi_t
   use device, only : device_map, device_event_create, device_unmap, &
-       device_event_destroy, device_get_ptr, device_event_sync
+       device_event_destroy, device_get_ptr, &
+       device_event_record, glb_cmd_queue
   use device_math, only : device_copy, device_col2, device_add2
   use profiler, only : profiler_start_region, profiler_end_region
   use space, only : space_t, GLL
@@ -511,7 +512,6 @@ contains
             this%msh%nelv, this%grids(2)%Xh)
        call this%grids(2)%gs_h%op(this%e%x, &
             this%grids(2)%dof%size(), GS_OP_ADD, this%gs_event)
-       call device_event_sync(this%gs_event)
        !This should probably be double checked again
        call device_copy(this%r_d, r_d, n)
        call this%bc_projector_reg%apply(this%r, n)
@@ -527,7 +527,18 @@ contains
        call device_copy(this%w_d, this%e%x_d, this%grids(2)%dof%size())
        call this%bc_projector_mg%apply(this%w, this%grids(2)%dof%size())
 
-       !$omp parallel private(thrdid, nthrds)
+       ! Both Schwarz levels run on the aux queue and depend only on what
+       ! has been queued on the global queue up to this point. Record that
+       ! point here, before the coarse grid thread starts queueing its solve
+       ! on the global queue.
+       call device_event_record(this%hsmg_event, glb_cmd_queue)
+
+       ! Only threads 0 and 1 have work here (Schwarz and coarse grid), so
+       ! ask for a team of two rather than the full team spinning at the
+       ! join. Capped by the default team size so a single-threaded run,
+       ! which initialised MPI without thread support, stays single-threaded.
+       !$omp parallel num_threads(min(2, omp_get_max_threads())) &
+       !$omp private(thrdid, nthrds)
 
        thrdid = 0
        nthrds = 1
@@ -536,15 +547,15 @@ contains
 
        if (thrdid .eq. 0) then
           call profiler_start_region('HSMG_schwarz', 9)
-          call this%grids(3)%schwarz%compute(z, this%r)
-          call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
+          call this%grids(3)%schwarz%compute(z, this%r, this%hsmg_event)
+          call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w, &
+               this%hsmg_event)
           call profiler_end_region('HSMG_schwarz', 9)
        end if
        if (nthrds .eq. 1 .or. thrdid .eq. 1) then
           call profiler_start_region('HSMG_coarse_grid', 10)
           call this%grids(1)%gs_h%op(this%wf%x, &
                this%grids(1)%dof%size(), GS_OP_ADD, this%gs_event)
-          call device_event_sync(this%gs_event)
           call this%grids(1)%bc_projector%apply(this%wf%x, &
                this%grids(1)%dof%size())
           call profiler_start_region('HSMG_coarse_solve', 11)
@@ -575,7 +586,6 @@ contains
        call device_add2(z_d, this%w_d, this%grids(3)%dof%size())
        call this%grids(3)%gs_h%op(z, this%grids(3)%dof%size(), &
             GS_OP_ADD, this%gs_event)
-       call device_event_sync(this%gs_event)
        call device_col2(z_d, this%grids(3)%coef%mult_d, &
             this%grids(3)%dof%size())
     else
