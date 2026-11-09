@@ -704,6 +704,12 @@ The arguments and their purpose are as follows:
 * `time`, is a simple structure that contains various info on time stepping,
   notably, the current time iteration and time value.
 
+@note The flux is extrapolated in time together with the other explicit terms,
+so it should be evaluated at the start of the time step, `time%tlag(1)`, and not
+at `time%t`, which is the end of the step. Evaluating a time-dependent flux at
+`time%t` reduces the accuracy in time to first order, regardless of the order of
+the time scheme.
+
 Links to the documentation to learn more about what the types mentioned above
 contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`.
 
@@ -725,7 +731,8 @@ A very simple example illustrating the above is shown below.
     real(kind=rp) :: t
 
     s_flux => fields%get_by_name("s")
-    t = time%t
+    ! The flux is evaluated at the start of the time step
+    t = time%tlag(1)
     if (bc%zone_indices(1) == 1) then
        do i = 1, bc%facet_node_msk(0)
           s_flux%x(bc%facet_node_msk(i), 1, 1, 1) = sin(t)
