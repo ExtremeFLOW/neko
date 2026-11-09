@@ -154,7 +154,7 @@ kernel void mij_compute_part1_kernel(device float *m11 [[ buffer(0) ]],
                                      device const float *s12 [[ buffer(10) ]],
                                      device const float *s13 [[ buffer(11) ]],
                                      device const float *s23 [[ buffer(12) ]],
-                                     device const float *fs_abs [[ buffer(13) ]],
+                                     device const float *delta [[ buffer(13) ]],
                                      device const float *fs11 [[ buffer(14) ]],
                                      device const float *fs22 [[ buffer(15) ]],
                                      device const float *fs33 [[ buffer(16) ]],
@@ -175,21 +175,26 @@ kernel void mij_compute_part1_kernel(device float *m11 [[ buffer(0) ]],
   const int i = (int) idx;
 
   const float s_abs_r = s_abs[i];
-  const float fs_abs_r = fs_abs[i];
+  const float delta_r = delta[i];
+  const float delta2 = delta_r * delta_r;
+  const float fs_abs_r = sqrt(2.0f *
+    (fs11[i] * fs11[i] + fs22[i] * fs22[i] + fs33[i] * fs33[i]) +
+    4.0f * (fs12[i] * fs12[i] + fs13[i] * fs13[i] +
+            fs23[i] * fs23[i]));
 
-  m11[i] = delta_ratio2 * (fs_abs_r * fs11[i]);
-  m22[i] = delta_ratio2 * (fs_abs_r * fs22[i]);
-  m33[i] = delta_ratio2 * (fs_abs_r * fs33[i]);
-  m12[i] = delta_ratio2 * (fs_abs_r * fs12[i]);
-  m13[i] = delta_ratio2 * (fs_abs_r * fs13[i]);
-  m23[i] = delta_ratio2 * (fs_abs_r * fs23[i]);
+  m11[i] = delta_ratio2 * delta2 * fs_abs_r * fs11[i];
+  m22[i] = delta_ratio2 * delta2 * fs_abs_r * fs22[i];
+  m33[i] = delta_ratio2 * delta2 * fs_abs_r * fs33[i];
+  m12[i] = delta_ratio2 * delta2 * fs_abs_r * fs12[i];
+  m13[i] = delta_ratio2 * delta2 * fs_abs_r * fs13[i];
+  m23[i] = delta_ratio2 * delta2 * fs_abs_r * fs23[i];
 
-  fsabss11[i] = s_abs_r * s11[i];
-  fsabss22[i] = s_abs_r * s22[i];
-  fsabss33[i] = s_abs_r * s33[i];
-  fsabss12[i] = s_abs_r * s12[i];
-  fsabss13[i] = s_abs_r * s13[i];
-  fsabss23[i] = s_abs_r * s23[i];
+  fsabss11[i] = delta2 * s_abs_r * s11[i];
+  fsabss22[i] = delta2 * s_abs_r * s22[i];
+  fsabss33[i] = delta2 * s_abs_r * s33[i];
+  fsabss12[i] = delta2 * s_abs_r * s12[i];
+  fsabss13[i] = delta2 * s_abs_r * s13[i];
+  fsabss23[i] = delta2 * s_abs_r * s23[i];
 }
 
 kernel void mij_nut_compute_part2_kernel(device const float *m11 [[ buffer(0) ]],
@@ -227,12 +232,12 @@ kernel void mij_nut_compute_part2_kernel(device const float *m11 [[ buffer(0) ]]
   const float delta2 = delta_r * delta_r;
   float c_dyn_r;
 
-  const float m11_r = delta2 * (m11[i] - fsabss11[i]);
-  const float m22_r = delta2 * (m22[i] - fsabss22[i]);
-  const float m33_r = delta2 * (m33[i] - fsabss33[i]);
-  const float m12_r = delta2 * (m12[i] - fsabss12[i]);
-  const float m13_r = delta2 * (m13[i] - fsabss13[i]);
-  const float m23_r = delta2 * (m23[i] - fsabss23[i]);
+  const float m11_r = m11[i] - fsabss11[i];
+  const float m22_r = m22[i] - fsabss22[i];
+  const float m33_r = m33[i] - fsabss33[i];
+  const float m12_r = m12[i] - fsabss12[i];
+  const float m13_r = m13[i] - fsabss13[i];
+  const float m23_r = m23[i] - fsabss23[i];
 
   const float num_curr = m11_r * l11[i]
     + m22_r * l22[i]

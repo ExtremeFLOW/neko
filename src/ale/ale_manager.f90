@@ -180,12 +180,12 @@ contains
     type(user_t), intent(in) :: user
     type(chkp_t), intent(inout) :: chkp
     type(json_file) :: body_sub, bc_subdict
-    type(json_file) :: precon_params
+    type(json_file) :: precon_params, solver_params
     type(time_state_t) :: t_init
     integer, allocatable :: zone_indices(:)
     integer :: time_order
     integer :: n_moving_zones
-    integer :: z, tmp_int, ksp_max_iter
+    integer :: z, tmp_int
     integer, allocatable :: moving_zone_ids(:)
     integer :: i, j, k, n_bcs, n, n_bodies
     real(kind=rp), allocatable :: tmp_vec(:)
@@ -201,7 +201,7 @@ contains
     logical :: found_zone
     logical :: has_user_rigid_kin, has_user_mesh_vel
     logical :: has_builtin_osc, has_builtin_rot, is_rot_active
-    logical :: res_monitor, import_base_shapes
+    logical :: import_base_shapes
 
     if (json%valid_path('case.fluid.ale')) then
        call json_get(json, 'case.fluid.ale.enabled', this%active)
@@ -289,7 +289,7 @@ contains
     this%wm_z => neko_registry%get_field('wm_z')
 
     call get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-         precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes)
+         precon_params, abstol, import_base_shapes, solver_params)
 
     ! Mark BCs
     call this%bc_moving%init_from_components(coef)
@@ -798,8 +798,7 @@ contains
 
     ! Find the smooth blending function for mesh displacement.
     call this%solve_base_mesh_displacement(coef, json, import_base_shapes, &
-         abstol, ksp_solver, ksp_max_iter, &
-         precon_type, precon_params, res_monitor)
+         solver_params, precon_type, precon_params)
 
     ! If we are restarting, we skip this. It will be handled
     ! properly by chkp file.
@@ -836,8 +835,7 @@ contains
   !> It finds a smooth blending function for mesh deformation.
   !> For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.
   subroutine solve_base_mesh_displacement(this, coef, json, &
-       import_base_shapes, abstol, ksp_solver, ksp_max_iter, precon_type, &
-       precon_params, res_monitor)
+       import_base_shapes, solver_params, precon_type, precon_params)
     class(ale_manager_t), intent(inout), target :: this
     class(ax_t), allocatable :: Ax
     class(ksp_t), allocatable :: ksp
@@ -845,10 +843,8 @@ contains
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: json
     logical, intent(in) :: import_base_shapes
-    real(kind=rp), intent(in) :: abstol
-    logical, intent(in) :: res_monitor
-    character(len=*), intent(in) :: ksp_solver, precon_type
-    integer, intent(in) :: ksp_max_iter
+    type(json_file), intent(inout) :: solver_params
+    character(len=*), intent(in) :: precon_type
     type(json_file), intent(inout) :: precon_params
     type(file_t) :: phi_file
     type(field_t), pointer :: phi_ptr => null()
@@ -907,8 +903,7 @@ contains
     n = coef%dof%size()
 
     call ax_helm_allocator(Ax, type_name = "standard")
-    call krylov_solver_factory(ksp, n, ksp_solver, &
-         ksp_max_iter, abstol, monitor = res_monitor)
+    call krylov_solver_factory(ksp, n, solver_params)
     call ale_precon_factory(pc, ksp, coef, this%bc_list, precon_type, &
          precon_params)
 
@@ -2179,16 +2174,15 @@ contains
   end subroutine ghost_tracker_coord_step
 
   subroutine get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-       precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes)
+       precon_params, abstol, import_base_shapes, solver_params)
     class(ale_manager_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     character(len=:), allocatable, intent(inout) :: ksp_solver
     character(len=:), allocatable, intent(inout) :: precon_type
     type(json_file), intent(inout) :: precon_params
     real(kind=rp), intent(out) :: abstol
-    integer, intent(out) :: ksp_max_iter
-    logical, intent(out) :: res_monitor
     logical, intent(out) :: import_base_shapes
+    type(json_file), intent(inout) :: solver_params
     logical :: tmp_logical
     character(len=:), allocatable :: tmp_str
 
@@ -2212,10 +2206,8 @@ contains
 
     call json_get_or_default(json, &
          'case.fluid.ale.solver.absolute_tolerance', abstol, 1.0e-10_rp)
-    call json_get_or_default(json, 'case.fluid.ale.solver.monitor', &
-         res_monitor, .false.)
-    call json_get_or_default(json, 'case.fluid.ale.solver.max_iterations', &
-         ksp_max_iter, 10000)
+
+    call json_get(json, 'case.fluid.ale.solver', solver_params)
 
     if (json%valid_path('case.fluid.ale.solver.output_base_shape')) then
        call json%get('case.fluid.ale.solver.output_base_shape', tmp_logical)

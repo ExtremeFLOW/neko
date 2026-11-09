@@ -87,7 +87,7 @@ module device_dynamic_smagorinsky_nut
           m12_d, m13_d, m23_d, &
           s_abs_d, s11_d, s22_d, s33_d, &
           s12_d, s13_d, s23_d, &
-          fs_abs_d, fs11_d, fs22_d, fs33_d, &
+          delta_d, fs11_d, fs22_d, fs33_d, &
           fs12_d, fs13_d, fs23_d, &
           fsabss11_d, fsabss22_d, fsabss33_d, &
           fsabss12_d, fsabss13_d, fsabss23_d, &
@@ -99,7 +99,7 @@ module device_dynamic_smagorinsky_nut
             m12_d, m13_d, m23_d, &
             s_abs_d, s11_d, s22_d, s33_d, &
             s12_d, s13_d, s23_d, &
-            fs_abs_d, fs11_d, fs22_d, fs33_d, &
+            delta_d, fs11_d, fs22_d, fs33_d, &
             fs12_d, fs13_d, fs23_d, &
             fsabss11_d, fsabss22_d, fsabss33_d, &
             fsabss12_d, fsabss13_d, fsabss23_d
@@ -177,7 +177,7 @@ module device_dynamic_smagorinsky_nut
           m12_d, m13_d, m23_d, &
           s_abs_d, s11_d, s22_d, s33_d, &
           s12_d, s13_d, s23_d, &
-          fs_abs_d, fs11_d, fs22_d, fs33_d, &
+          delta_d, fs11_d, fs22_d, fs33_d, &
           fs12_d, fs13_d, fs23_d, &
           fsabss11_d, fsabss22_d, fsabss33_d, &
           fsabss12_d, fsabss13_d, fsabss23_d, &
@@ -189,7 +189,7 @@ module device_dynamic_smagorinsky_nut
             m12_d, m13_d, m23_d, &
             s_abs_d, s11_d, s22_d, s33_d, &
             s12_d, s13_d, s23_d, &
-            fs_abs_d, fs11_d, fs22_d, fs33_d, &
+            delta_d, fs11_d, fs22_d, fs33_d, &
             fs12_d, fs13_d, fs23_d, &
             fsabss11_d, fsabss22_d, fsabss33_d, &
             fsabss12_d, fsabss13_d, fsabss23_d
@@ -267,7 +267,7 @@ module device_dynamic_smagorinsky_nut
           m12_d, m13_d, m23_d, &
           s_abs_d, s11_d, s22_d, s33_d, &
           s12_d, s13_d, s23_d, &
-          fs_abs_d, fs11_d, fs22_d, fs33_d, &
+          delta_d, fs11_d, fs22_d, fs33_d, &
           fs12_d, fs13_d, fs23_d, &
           fsabss11_d, fsabss22_d, fsabss33_d, &
           fsabss12_d, fsabss13_d, fsabss23_d, &
@@ -279,7 +279,7 @@ module device_dynamic_smagorinsky_nut
             m12_d, m13_d, m23_d, &
             s_abs_d, s11_d, s22_d, s33_d, &
             s12_d, s13_d, s23_d, &
-            fs_abs_d, fs11_d, fs22_d, fs33_d, &
+            delta_d, fs11_d, fs22_d, fs33_d, &
             fs12_d, fs13_d, fs23_d, &
             fsabss11_d, fsabss22_d, fsabss33_d, &
             fsabss12_d, fsabss13_d, fsabss23_d
@@ -357,7 +357,7 @@ module device_dynamic_smagorinsky_nut
           m12_d, m13_d, m23_d, &
           s_abs_d, s11_d, s22_d, s33_d, &
           s12_d, s13_d, s23_d, &
-          fs_abs_d, fs11_d, fs22_d, fs33_d, &
+          delta_d, fs11_d, fs22_d, fs33_d, &
           fs12_d, fs13_d, fs23_d, &
           fsabss11_d, fsabss22_d, fsabss33_d, &
           fsabss12_d, fsabss13_d, fsabss23_d, &
@@ -369,7 +369,7 @@ module device_dynamic_smagorinsky_nut
             m12_d, m13_d, m23_d, &
             s_abs_d, s11_d, s22_d, s33_d, &
             s12_d, s13_d, s23_d, &
-            fs_abs_d, fs11_d, fs22_d, fs33_d, &
+            delta_d, fs11_d, fs22_d, fs33_d, &
             fs12_d, fs13_d, fs23_d, &
             fsabss11_d, fsabss22_d, fsabss33_d, &
             fsabss12_d, fsabss13_d, fsabss23_d
@@ -517,7 +517,7 @@ contains
        m12_d, m13_d, m23_d, &
        s_abs_d, s11_d, s22_d, s33_d, &
        s12_d, s13_d, s23_d, &
-       fs_abs_d, fs11_d, fs22_d, fs33_d, &
+       delta_d, fs11_d, fs22_d, fs33_d, &
        fs12_d, fs13_d, fs23_d, &
        fsabss11_d, fsabss22_d, fsabss33_d, &
        fsabss12_d, fsabss13_d, fsabss23_d, &
@@ -526,7 +526,7 @@ contains
          m12_d, m13_d, m23_d, &
          s_abs_d, s11_d, s22_d, s33_d, &
          s12_d, s13_d, s23_d, &
-         fs_abs_d, fs11_d, fs22_d, fs33_d, &
+         delta_d, fs11_d, fs22_d, fs33_d, &
          fs12_d, fs13_d, fs23_d, &
          fsabss11_d, fsabss22_d, fsabss33_d, &
          fsabss12_d, fsabss13_d, fsabss23_d
@@ -538,7 +538,7 @@ contains
          m12_d, m13_d, m23_d, &
          s_abs_d, s11_d, s22_d, s33_d, &
          s12_d, s13_d, s23_d, &
-         fs_abs_d, fs11_d, fs22_d, fs33_d, &
+         delta_d, fs11_d, fs22_d, fs33_d, &
          fs12_d, fs13_d, fs23_d, &
          fsabss11_d, fsabss22_d, fsabss33_d, &
          fsabss12_d, fsabss13_d, fsabss23_d, &
@@ -548,7 +548,7 @@ contains
          m12_d, m13_d, m23_d, &
          s_abs_d, s11_d, s22_d, s33_d, &
          s12_d, s13_d, s23_d, &
-         fs_abs_d, fs11_d, fs22_d, fs33_d, &
+         delta_d, fs11_d, fs22_d, fs33_d, &
          fs12_d, fs13_d, fs23_d, &
          fsabss11_d, fsabss22_d, fsabss33_d, &
          fsabss12_d, fsabss13_d, fsabss23_d, &
@@ -558,7 +558,7 @@ contains
          m12_d, m13_d, m23_d, &
          s_abs_d, s11_d, s22_d, s33_d, &
          s12_d, s13_d, s23_d, &
-         fs_abs_d, fs11_d, fs22_d, fs33_d, &
+         delta_d, fs11_d, fs22_d, fs33_d, &
          fs12_d, fs13_d, fs23_d, &
          fsabss11_d, fsabss22_d, fsabss33_d, &
          fsabss12_d, fsabss13_d, fsabss23_d, &
@@ -568,7 +568,7 @@ contains
          m12_d, m13_d, m23_d, &
          s_abs_d, s11_d, s22_d, s33_d, &
          s12_d, s13_d, s23_d, &
-         fs_abs_d, fs11_d, fs22_d, fs33_d, &
+         delta_d, fs11_d, fs22_d, fs33_d, &
          fs12_d, fs13_d, fs23_d, &
          fsabss11_d, fsabss22_d, fsabss33_d, &
          fsabss12_d, fsabss13_d, fsabss23_d, &

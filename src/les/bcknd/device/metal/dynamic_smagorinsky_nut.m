@@ -131,7 +131,7 @@ void metal_mij_compute_part1(void *m11, void *m22, void *m33,
                              void *m12, void *m13, void *m23,
                              void *s_abs, void *s11, void *s22, void *s33,
                              void *s12, void *s13, void *s23,
-                             void *fs_abs, void *fs11, void *fs22, void *fs33,
+                             void *delta, void *fs11, void *fs22, void *fs33,
                              void *fs12, void *fs13, void *fs23,
                              void *fsabss11, void *fsabss22, void *fsabss33,
                              void *fsabss12, void *fsabss13, void *fsabss23,
@@ -156,7 +156,7 @@ void metal_mij_compute_part1(void *m11, void *m22, void *m33,
       [enc setBuffer:(__bridge id<MTLBuffer>) s12 offset:0 atIndex:10];
       [enc setBuffer:(__bridge id<MTLBuffer>) s13 offset:0 atIndex:11];
       [enc setBuffer:(__bridge id<MTLBuffer>) s23 offset:0 atIndex:12];
-      [enc setBuffer:(__bridge id<MTLBuffer>) fs_abs offset:0 atIndex:13];
+      [enc setBuffer:(__bridge id<MTLBuffer>) delta offset:0 atIndex:13];
       [enc setBuffer:(__bridge id<MTLBuffer>) fs11 offset:0 atIndex:14];
       [enc setBuffer:(__bridge id<MTLBuffer>) fs22 offset:0 atIndex:15];
       [enc setBuffer:(__bridge id<MTLBuffer>) fs33 offset:0 atIndex:16];

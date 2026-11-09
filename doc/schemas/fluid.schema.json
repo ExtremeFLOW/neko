@@ -46,7 +46,7 @@
               "const": "user"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         },
         {
           "type": "object",
@@ -239,6 +239,10 @@
               "exclusiveMinimum": 0
             },
             "max_iterations": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "space_size": {
               "type": "integer",
               "minimum": 1
             },

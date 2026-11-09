@@ -41,7 +41,7 @@ module fluid_scheme_incompressible
   use field, only : field_t
   use space, only : GLL, operator(.ne.)
   use dofmap, only : dofmap_t
-  use krylov, only : ksp_t, krylov_solver_factory, KSP_MAX_ITER
+  use krylov, only : ksp_t, krylov_solver_factory
   use coefs, only : coef_t
   use dirichlet, only : dirichlet_t
   use precon, only : pc_t, precon_factory
@@ -161,7 +161,7 @@ contains
     integer :: integer_val, ierr
     type(json_file) :: wm_json
     character(len=:), allocatable :: string_val1, string_val2
-    type(json_file) :: json_subdict
+    type(json_file) :: json_subdict, solver_params
 
     !
     ! SEM simulation fundamentals
@@ -297,9 +297,7 @@ contains
     ! Initialize velocity solver
     if (kspv_init) then
        call neko_log%section("Velocity solver")
-       call json_get_or_lookup_or_default(params, &
-            'case.fluid.velocity_solver.max_iterations', &
-            integer_val, KSP_MAX_ITER)
+       call json_get(params, 'case.fluid.velocity_solver', solver_params)
        call json_get(params, 'case.fluid.velocity_solver.type', string_val1)
        call json_get(params, 'case.fluid.velocity_solver.preconditioner.type', &
             string_val2)
@@ -308,9 +306,6 @@ contains
        call json_get_or_lookup(params, &
             'case.fluid.velocity_solver.absolute_tolerance', &
             real_val)
-       call json_get_or_default(params, &
-            'case.fluid.velocity_solver.monitor', &
-            logical_val, .false.)
 
        call neko_log%message('Type       : ('// trim(string_val1) // &
             ', ' // trim(string_val2) // ')')
@@ -318,7 +313,7 @@ contains
        write(log_buf, '(A,ES13.6)') 'Abs tol    :', real_val
        call neko_log%message(log_buf)
        call this%solver_factory(this%ksp_vel, this%dm_Xh%size(), &
-            string_val1, integer_val, real_val, logical_val)
+            solver_params)
        call this%precon_factory_(this%pc_vel, this%ksp_vel, &
             this%c_Xh, this%bcs_vel, &
             string_val2, json_subdict)
@@ -591,19 +586,14 @@ contains
 
   end subroutine fluid_scheme_bc_apply_prs
 
-  !> Initialize a linear solver
+  !> Initialize a linear solver from its JSON solver block
   !! @note Currently only supporting Krylov solvers
-  subroutine fluid_scheme_solver_factory(ksp, n, solver, &
-       max_iter, abstol, monitor)
+  subroutine fluid_scheme_solver_factory(ksp, n, params)
     class(ksp_t), allocatable, target, intent(inout) :: ksp
     integer, intent(in), value :: n
-    character(len=*), intent(in) :: solver
-    integer, intent(in) :: max_iter
-    real(kind=rp), intent(in) :: abstol
-    logical, intent(in) :: monitor
+    type(json_file), intent(inout) :: params
 
-    call krylov_solver_factory(ksp, n, solver, max_iter, abstol, &
-         monitor = monitor)
+    call krylov_solver_factory(ksp, n, params)
 
   end subroutine fluid_scheme_solver_factory
 

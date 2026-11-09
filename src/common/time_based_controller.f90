@@ -148,6 +148,10 @@ module time_based_controller
           time_based_controller_set_counter
      !> The time of the next scheduled execution.
      procedure, pass(this) :: next_time => time_based_controller_next_time
+     !> The time until the next scheduled execution the time step should
+     !! land on.
+     procedure, pass(this) :: time_to_next => &
+          time_based_controller_time_to_next
      !> The tolerance used when comparing times.
      procedure, pass(this) :: tolerance => time_based_controller_tolerance
   end type time_based_controller_t
@@ -311,7 +315,8 @@ contains
   !! repeating a scheduled one at the same step. Forcing does override a
   !! `never` control, which is how `output_at_end` writes an output that is
   !! otherwise never written.
-  function time_based_controller_check(this, time, force) result(check)
+  pure function time_based_controller_check(this, time, force) &
+       result(check)
     class(time_based_controller_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
     logical, intent(in), optional :: force
@@ -504,5 +509,65 @@ contains
     end if
 
   end function time_based_controller_next_time
+
+  !> The time until the next scheduled execution that the time step should
+  !! land on, or `huge(0.0_dp)` if there is none. Measured in the direction
+  !! of the simulation, so it is positive also for a run backwards in time.
+  !! @param time The current time state.
+  !! @details An execution due at the current time, which happens at the
+  !! start for the components that do not execute before the time loop, is
+  !! performed at the coming step wherever it lands, so the scheduled time
+  !! after it is landed on instead.
+  pure function time_based_controller_time_to_next(this, time) &
+       result(t_to_next)
+    class(time_based_controller_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: t_to_next
+    real(kind=dp) :: progress, tol, t_next, t_end
+    integer(kind=i8) :: k
+
+    t_to_next = huge(0.0_dp)
+
+    ! A step based or disabled control has no scheduled times: it executes
+    ! after a number of steps, or only when forced, wherever the steps end.
+    if (this%never .or. this%nsteps .gt. 0) return
+
+    ! All times are measured as progress from the anchor in the direction of
+    ! the run, so that they increase also for a run backwards in time. The
+    ! tolerance only absorbs round-off in the accumulated time.
+    progress = this%direction * (time%t - this%anchor_time)
+    tol = SPAN_TOL * max(abs(progress), this%time_interval)
+
+    if (this%start_pending) then
+       ! The execution at start_time is still to come. It is not one of the
+       ! scheduled times, e.g. for a component with a start_time of its own
+       ! between two of them, so it is landed on separately.
+       t_next = this%direction * (this%start_time - this%anchor_time)
+    else
+       ! The next scheduled time that has not been executed yet.
+       t_next = real(this%first_index + this%next_index, dp) * &
+            this%time_interval
+    end if
+
+    if (t_next .le. progress + tol) then
+       ! The execution is due already but has not been performed, which
+       ! happens at the start of the run for the simulation components: they
+       ! are not executed before the time loop. It is performed at the end of
+       ! the coming step, wherever that step ends, so the step is fitted to
+       ! the first scheduled time after the current time instead.
+       k = max(this%first_index, &
+            floor((progress + tol) / this%time_interval, kind = i8) + 1_i8)
+       t_next = real(k, dp) * this%time_interval
+    end if
+
+    ! A scheduled time after end_time is never executed. The end itself is
+    ! landed on by the time step controller.
+    t_end = this%direction * (this%end_time - this%anchor_time)
+    if (t_next .gt. t_end + SPAN_TOL * max(abs(t_end), this%time_interval)) &
+         return
+
+    t_to_next = t_next - progress
+
+  end function time_based_controller_time_to_next
 
 end module time_based_controller

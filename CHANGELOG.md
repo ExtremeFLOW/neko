@@ -8,6 +8,9 @@
 - PR#2831 User initial conditions are can no longer assume that the arrays
   are zeroed on entry. The user routine must set all values, e.g. with
   `field_cfill`.
+- PR#2891 `csv_file_t%header` is now a deferred-length allocatable, which
+  stays unallocated until the header is set. Code reading it directly must
+  check `allocated()` first.
 
 ## Develop
 
@@ -15,6 +18,43 @@
   passes extra libraries, object files and compiler flags, e.g. `-lcublas`, to
   the build.
 
+- Reduced statistics memory usage by storing work/gradients in the scratch
+  registry and folding product computations into the update routines.
+- Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
+  equal dof ids tested its bound and the next element in one `.and.`, which
+  Fortran need not short-circuit, so it read one element past the end of the
+  sorted id list whenever the last run reached it, e.g. on a single-element
+  mesh. Results are unchanged.
+- Added a single precision batched matrix core tile, `v_mfma_f32_4x4x1f32`,
+  to the HIP `MFMA` strategies as the default single precision tile
+  (`NEKO_MFMA_TILE=0`), with the `16x16x4` tile measured against it by the
+  Helmholtz autotuner as in double precision. Its sixteen blocks take columns
+  from several elements at low order, so the single precision strategies now
+  cover `2 <= lx <= 12`. The lane layout is AMD's documented one and has not
+  yet been read out on hardware; `-DMFMA_F32_USE_16X16` builds without it.
+- Added a verification pass to the HIP operator autotuner: every candidate is
+  run once on a synthetic input and compared with the reference formulation
+  before it is timed, and one that does not reproduce it is logged as
+  `REJECTED` and cannot win. `NEKO_TUNE_VERIFY=0` turns it off,
+  `NEKO_TUNE_VERIFY_TOL` sets the tolerance.
+- The HIP `opgrad`, `dudxyz`, `conv1` and `cdtp` matrix core strategies now
+  sweep both tiles like the Helmholtz operator, ten candidates per order,
+  and honour `NEKO_MFMA_TILE`.
+- Fix bugs in running average of the dynamic Smgorinsky SGS model.
+- Remove the averaging of the LES filter width on element interfaces.
+- Fixed Mij computation in dynamic Smagorinsky SGS model 
+  for variable filter width.
+- Added `case.time.exact_output_time`, which fits the variable time step so
+  that the sampling and output times of every time based schedule, and
+  `end_time`, are reached exactly.
+- Added `space_size` to the linear solver blocks, the Krylov space size of
+  `gmres` (default 30).
+- The default `max_iterations` of all linear solver blocks is now 1000
+  (`KSP_MAX_ITER`).
+- Fixed source terms skipping the time step that lands on their `start_time`
+  or `end_time` when round-off in the accumulated time puts the step just
+  outside the window, e.g. the last step of a run whose `end_time` equals the
+  source term's.
 - Fixed `map_1d` leaving elements without a level when the propagated
   minimum coordinate differs from the global minimum by roundoff, as with
   the default floating point model of ifx in single precision.
@@ -32,6 +72,16 @@
 - *BREAKING* User initial conditions are can no longer assume that the arrays
   are zeroed on entry. The user routine must set all values, e.g. with
   `field_cfill`.
+- Added `checkneko` under `contrib`, which checks a case file without running
+  Neko. It validates the case file against the schemas in `doc/schemas`,
+  which are installed with it in `share/neko/schemas`, checks the constants
+  that values name and that the files the case reads exist, and checks the
+  `zone_indices` of the boundary conditions against the labeled zones of an
+  `.nmsh` mesh, which it lists with their facets and the boundary conditions
+  on them. It builds with json-fortran only, without the Neko library or MPI.
+- The case file schemas accept other sections next to `case`, for instance
+  for the settings of other tools, and any keys in user-defined initial
+  conditions, boundary conditions and source terms.
 - Added `gmsh2nmsh` under `contrib`, which converts Gmsh `.msh` meshes
   directly to `.nmsh` without going through `.re2`. Physical groups become
   labeled zones, group pairs can be made periodic, and curved second order
@@ -65,6 +115,13 @@
 - Fixed the CPU dynamic Smagorinsky model not relinquishing its scratch
   fields, which grew the memory every time step and caused an error at
   shutdown.
+- A variable time step run sets its first time step before the initial
+  output. The scheduled times used to be checked there against the
+  placeholder step of one time unit, so an output scheduled within a tenth of
+  its interval after the start was written at the start instead. The first
+  step itself is unchanged up to round-off.
+- An MPMD run whose coupled cases do not agree on `variable_timestep` stops
+  with an error at setup instead of hanging at the first time step.
 - Error and warning routines are now hooked to pFUnit's exceptions, making it
   possible to test for error emission.
 - Added format-independent checkpoint payloads for registering named fields,

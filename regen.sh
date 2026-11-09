@@ -3,9 +3,9 @@
 echo "Updating configuration..."
 echo "Running libtoolize"
 if which libtoolize > /dev/null 2>&1; then
-    libtoolize -i
+    libtoolize -i || exit 1
 elif which glibtoolize > /dev/null 2>&1; then
-    glibtoolize -i
+    glibtoolize -i || exit 1
 else
     echo "No libtoolize found on your system"
     exit 1
@@ -16,23 +16,23 @@ rm aclocal.m4
 
 echo "Running aclocal"
 if which aclocal > /dev/null 2>&1; then
-  aclocal -I m4 --install
+  aclocal -I m4 --install || exit 1
 else
   echo "No aclocal found on your system"
   exit 1
 fi
 
 echo "Running autoconf"
-autoconf
+autoconf || exit 1
 echo "Running automake"
-automake -a
+automake -a || exit 1
 
 echo "Deleting autom4te.cache directory"
 rm -r autom4te.cache
 
 # Sub-projects with their own configure script (AC_CONFIG_SUBDIRS)
-for subdir in contrib/gmsh2nmsh; do
-    (cd $subdir && rm -fr autom4te.cache && aclocal && autoconf && \
-         automake -a && rm -fr autom4te.cache) || exit 1
+for subdir in contrib/gmsh2nmsh contrib/checkneko; do
+    (cd $subdir && rm -fr autom4te.cache && aclocal -I ../../m4 && \
+         autoconf && automake -a && rm -fr autom4te.cache) || exit 1
 done
 

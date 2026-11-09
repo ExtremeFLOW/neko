@@ -195,6 +195,22 @@ module metal_intf
        implicit none
      end function metal_device_count_c
 
+     !> Number of GPU cores of the current device (0 if unknown),
+     !! see device/metal/metal.m
+     integer(c_int) function metal_device_mp_count() &
+          bind(c, name = 'metal_device_mp_count')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function metal_device_mp_count
+
+     !> Recommended maximum working set of the current device in bytes
+     !! (0 if unknown), see device/metal/metal.m
+     integer(c_size_t) function metal_device_total_mem() &
+          bind(c, name = 'metal_device_total_mem')
+       use, intrinsic :: iso_c_binding
+       implicit none
+     end function metal_device_total_mem
+
   end interface
 
 contains

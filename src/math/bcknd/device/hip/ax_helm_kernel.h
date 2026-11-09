@@ -487,6 +487,10 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
          WPE = NWF / EB,
          GNTHR = WPE * 64,                 /* threads serving one element */
          SPT = NEKO_MFMA_SPT_N(WPE, LX, sizeof(T)),
+         /* Elements the batched single precision tile contracts per
+            call, from the wavefronts of the first element of each
+            batch; one for every other tile, see NEKO_MFMA_NEL_N */
+         NEL = NEKO_MFMA_NEL_N(EB, LX, sizeof(T), TILE),
          /* Geometry prefetched into registers, or read where it is used?
             Same budget and the same macro the tuner logs with, see the note
             on the prefetch below */
@@ -596,12 +600,15 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
   }
 
   /* Gradient: ur, us, ut in canonical i + SJ*j + SK*k layout. */
-  mfma_contract_sel<T, LX, 0, false, false, WPE, TILE, PAD>::run(shr + sh,
-                                                shdx, shu + sh, lane, sub);
-  mfma_contract_sel<T, LX, 1, false, false, WPE, TILE, PAD>::run(shs + sh,
-                                                shdy, shu + sh, lane, sub);
-  mfma_contract_sel<T, LX, 2, false, false, WPE, TILE, PAD>::run(sht + sh,
-                                                shdz, shu + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 0, false, false, WPE, TILE, PAD, NEL>::run(
+        shr + sh, shdx, shu + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 1, false, false, WPE, TILE, PAD, NEL>::run(
+        shs + sh, shdy, shu + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 2, false, false, WPE, TILE, PAD, NEL>::run(
+        sht + sh, shdz, shu + sh, lane, sub);
 
   __syncthreads();
 
@@ -641,14 +648,17 @@ __device__ void ax_helm_mfma_elem(T * __restrict__ w,
      this is not a reassociation. All four (TRANSPOSE, ACCUM) pairs are covered
      by the gfx90a read-out, so the non-accumulating one is no less verified
      than the accumulating one. */
-  mfma_contract_sel<T, LX, 0, true, false, WPE, TILE, PAD>::run(shu + sh,
-                                                shdx, shr + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 0, true, false, WPE, TILE, PAD, NEL>::run(
+        shu + sh, shdx, shr + sh, lane, sub);
   __syncthreads();
-  mfma_contract_sel<T, LX, 1, true, true, WPE, TILE, PAD>::run(shu + sh,
-                                                shdy, shs + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 1, true, true, WPE, TILE, PAD, NEL>::run(
+        shu + sh, shdy, shs + sh, lane, sub);
   __syncthreads();
-  mfma_contract_sel<T, LX, 2, true, true, WPE, TILE, PAD>::run(shu + sh,
-                                                shdz, sht + sh, lane, sub);
+  if (eb % NEL == 0)
+    mfma_contract_sel<T, LX, 2, true, true, WPE, TILE, PAD, NEL>::run(
+        shu + sh, shdz, sht + sh, lane, sub);
   __syncthreads();
 
   if (active) {
@@ -705,6 +715,8 @@ NEKO_AX_HELM_MFMA_DISPATCH(double, 9);
 NEKO_AX_HELM_MFMA_DISPATCH(double, 10);
 NEKO_AX_HELM_MFMA_DISPATCH(double, 11);
 NEKO_AX_HELM_MFMA_DISPATCH(double, 12);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 2);
+NEKO_AX_HELM_MFMA_DISPATCH(float, 3);
 NEKO_AX_HELM_MFMA_DISPATCH(float, 4);
 NEKO_AX_HELM_MFMA_DISPATCH(float, 5);
 NEKO_AX_HELM_MFMA_DISPATCH(float, 6);
@@ -1242,6 +1254,10 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
          WPE = NWF / EB,
          GNTHR = WPE * 64,                 /* threads serving one element */
          SPT = NEKO_MFMA_SPT_N(WPE, LX, sizeof(T)),
+         /* Elements the batched single precision tile contracts per
+            call, from the wavefronts of the first element of each
+            batch; one for every other tile, see NEKO_MFMA_NEL_N */
+         NEL = NEKO_MFMA_NEL_N(EB, LX, sizeof(T), TILE),
          /* Geometry in registers across the components, or re-read per
             component? The same macro the tuner logs with, so the reported
             mode cannot drift from the compiled one */
@@ -1345,12 +1361,15 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
     __syncthreads();
 
     /* Gradient: ur, us, ut in canonical i + SJ*j + SK*k layout */
-    mfma_contract_sel<T, LX, 0, false, false, WPE, TILE, PAD>::run(shr + sh,
-                                                  shdx, shc + sh, lane, sub);
-    mfma_contract_sel<T, LX, 1, false, false, WPE, TILE, PAD>::run(shs + sh,
-                                                  shdy, shc + sh, lane, sub);
-    mfma_contract_sel<T, LX, 2, false, false, WPE, TILE, PAD>::run(sht + sh,
-                                                  shdz, shc + sh, lane, sub);
+    if (eb % NEL == 0)
+      mfma_contract_sel<T, LX, 0, false, false, WPE, TILE, PAD, NEL>::run(
+          shr + sh, shdx, shc + sh, lane, sub);
+    if (eb % NEL == 0)
+      mfma_contract_sel<T, LX, 1, false, false, WPE, TILE, PAD, NEL>::run(
+          shs + sh, shdy, shc + sh, lane, sub);
+    if (eb % NEL == 0)
+      mfma_contract_sel<T, LX, 2, false, false, WPE, TILE, PAD, NEL>::run(
+          sht + sh, shdz, shc + sh, lane, sub);
 
     __syncthreads();
 
@@ -1387,14 +1406,17 @@ __device__ void ax_helm_mfma_vector_elem(T * __restrict__ au,
 
     /* Divergence: Dr^T Sr + Ds^T Ss + Dt^T St, the first one overwriting shc
        so that nothing has to clear it, see ax_helm_mfma_elem */
-    mfma_contract_sel<T, LX, 0, true, false, WPE, TILE, PAD>::run(shc + sh,
-                                                  shdx, shr + sh, lane, sub);
+    if (eb % NEL == 0)
+      mfma_contract_sel<T, LX, 0, true, false, WPE, TILE, PAD, NEL>::run(
+          shc + sh, shdx, shr + sh, lane, sub);
     __syncthreads();
-    mfma_contract_sel<T, LX, 1, true, true, WPE, TILE, PAD>::run(shc + sh,
-                                                  shdy, shs + sh, lane, sub);
+    if (eb % NEL == 0)
+      mfma_contract_sel<T, LX, 1, true, true, WPE, TILE, PAD, NEL>::run(
+          shc + sh, shdy, shs + sh, lane, sub);
     __syncthreads();
-    mfma_contract_sel<T, LX, 2, true, true, WPE, TILE, PAD>::run(shc + sh,
-                                                  shdz, sht + sh, lane, sub);
+    if (eb % NEL == 0)
+      mfma_contract_sel<T, LX, 2, true, true, WPE, TILE, PAD, NEL>::run(
+          shc + sh, shdz, sht + sh, lane, sub);
     __syncthreads();
 
     if (active) {
@@ -1467,6 +1489,8 @@ NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(double, 9);
 NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(double, 10);
 NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(double, 11);
 NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(double, 12);
+NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(float, 2);
+NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(float, 3);
 NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(float, 4);
 NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(float, 5);
 NEKO_AX_HELM_MFMA_VECTOR_DISPATCH(float, 6);
