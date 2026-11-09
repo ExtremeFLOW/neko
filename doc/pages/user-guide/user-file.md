@@ -1149,11 +1149,14 @@ compiler flags can be passed on the command line, for example to call cuBLAS
 from the user file:
 
 ```bash
-makeneko user.F90 mykernel.cu -lcublas
+makeneko user.F90 mykernel.cu -Wl,-lcublas
 ```
 
-Arguments starting with `-I`, `-D` or `-U` are passed to all compilers, other
-arguments starting with `-` are passed to the final link.
+Linker options are given with the compiler driver syntax `-Wl,<options>`, e.g.
+`-Wl,-L/path/to/lib,-lmylib`. They are added to the link line after the user
+sources, in the order given, together with any object files and libraries.
+Arguments starting with `-I`, `-D` or `-U` are passed to all compilers, and all
+other arguments starting with `-` are passed to the Fortran compiler.
 
 ### Registries {#user-file_tips_registries}
 

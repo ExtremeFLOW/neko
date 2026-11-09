@@ -54,19 +54,22 @@ fi
 
 
 # Collect user-provided .f90, .cu and .hip files, objects and libraries, and
-# compiler flags. -I, -D and -U are passed to every compiler, all other
-# flags (e.g. -L/path -lcublas) only to the final link.
+# compiler flags. -I, -D and -U are passed to every compiler. Linker options
+# are given with the compiler driver syntax -Wl,<options> (e.g. -Wl,-lcublas)
+# and, together with objects and libraries, are kept in the given order after
+# the sources on the link line. All other flags go to the Fortran compiler.
 USER_FILES=""
 USER_BCKND_FILES=""
-USER_OBJS=""
 USER_CPPFLAGS=""
+USER_FCFLAGS=""
 USER_LDFLAGS=""
 for file in "$@"; do
     case "$file" in
         *.f90|*.F90) USER_FILES="$USER_FILES $file" ;;
         *.o|*.a|*.so) USER_LDFLAGS="$USER_LDFLAGS $file" ;;
         -I*|-D*|-U*) USER_CPPFLAGS="$USER_CPPFLAGS $file" ;;
-        -*) USER_LDFLAGS="$USER_LDFLAGS $file" ;;
+        -Wl,*) USER_LDFLAGS="$USER_LDFLAGS $file" ;;
+        -*) USER_FCFLAGS="$USER_FCFLAGS $file" ;;
         *)
             if [ $HAVE_CUDA_BCKND -eq 1 ]; then
                 case "$file" in
@@ -213,8 +216,8 @@ if [ ! -z "$USER_BCKND_FILES" ]; then
 fi
 
 # Compile everything
-$FC $FCFLAGS $NEKO_DEFS $USER_CPPFLAGS -I$includedir_pkg -L$libdir $USER_FILES \
-    $USER_BCKND_OBJ $USER_OBJS usr_driver.f90 $USER_LDFLAGS -lneko @LDFLAGS@ @LIBS@ -o neko
+$FC $FCFLAGS $NEKO_DEFS $USER_CPPFLAGS $USER_FCFLAGS -I$includedir_pkg \
+    -L$libdir $USER_FILES $USER_BCKND_OBJ usr_driver.f90 $USER_LDFLAGS -lneko @LDFLAGS@ @LIBS@ -o neko
 
 rm -f usr_driver.f90
 printf "%s\n" ' Done!'
