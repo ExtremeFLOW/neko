@@ -51,6 +51,7 @@
 #import <Metal/Metal.h>
 #import <Foundation/Foundation.h>
 #include <IOKit/IOKitLib.h>
+#include <device/metal/check.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -104,6 +105,28 @@ id<MTLLibrary> neko_metal_library(void)
         }
     }
     return _neko_mtl_library;
+}
+
+/**
+ * Create a compute pipeline state, see check.h.
+ */
+id<MTLComputePipelineState> neko_metal_new_pipeline(id<MTLFunction> fn,
+                                                    NSUInteger max_threads,
+                                                    NSError **error)
+{
+    if (max_threads == 0) {
+        return [_mtl_device newComputePipelineStateWithFunction:fn
+                                                          error:error];
+    }
+
+    MTLComputePipelineDescriptor *desc = [MTLComputePipelineDescriptor new];
+    desc.computeFunction = fn;
+    desc.maxTotalThreadsPerThreadgroup = max_threads;
+    return [_mtl_device
+               newComputePipelineStateWithDescriptor:desc
+                                             options:MTLPipelineOptionNone
+                                          reflection:nil
+                                               error:error];
 }
 
 /*
@@ -390,6 +413,7 @@ int metal_device_sync(void)
         id<MTLCommandBuffer> cb = [_mtl_glb_queue commandBuffer];
         [cb commit];
         [cb waitUntilCompleted];
+        METAL_CHECK_CB(cb);
     }
     return 0;
 }
@@ -404,6 +428,7 @@ int metal_stream_sync(void *queue)
         id<MTLCommandBuffer> cb = [q commandBuffer];
         [cb commit];
         [cb waitUntilCompleted];
+        METAL_CHECK_CB(cb);
     }
     return 0;
 }
