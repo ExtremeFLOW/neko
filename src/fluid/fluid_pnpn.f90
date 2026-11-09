@@ -199,6 +199,10 @@ module fluid_pnpn
      procedure, pass(this) :: step => fluid_pnpn_step
      !> Restart from a previous solution.
      procedure, pass(this) :: restart => fluid_pnpn_restart
+     !> Set the initial condition, the lagged velocity fields and the ALE
+     !! mesh velocity.
+     procedure, pass(this) :: set_initial_condition => &
+          fluid_pnpn_set_initial_condition
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs => fluid_pnpn_setup_bcs
      !> Write a field with boundary condition specifications.
@@ -344,13 +348,25 @@ module fluid_pnpn
 
 contains
 
-  subroutine fluid_pnpn_init(this, msh, lx, params, user, chkp)
+  !> Initialize the Pn/Pn fluid scheme
+  !! @param msh The mesh.
+  !! @param lx The number of GLL points in each direction.
+  !! @param params The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  !! @param user Type with user-defined procedures.
+  !! @param chkp Checkpoint for restarts.
+  !! @param output_boundary Whether to write the boundary condition markers
+  !! to file.
+  subroutine fluid_pnpn_init(this, msh, lx, params, numerics_params, user, &
+       chkp, output_boundary)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
     type(user_t), target, intent(in) :: user
     type(chkp_t), target, intent(inout) :: chkp
+    logical, intent(in) :: output_boundary
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     integer :: i
     class(bc_t), pointer :: bc_i, vel_bc
@@ -358,16 +374,16 @@ contains
     character(len=LOG_SIZE) :: log_buf
     integer :: ierr, integer_val
     character(len=:), allocatable :: solver_type, precon_type
-    logical :: found
     logical :: advection
-    type(json_file) :: numerics_params, precon_params, solver_params
+    type(json_file) :: precon_params, solver_params
     type(checkpoint_payload_t), pointer :: payload
     real(kind=dp), pointer :: tlag(:), dtlag(:)
 
     call this%free()
 
     ! Initialize base class
-    call this%init_base(msh, lx, params, scheme, user, .true.)
+    call this%init_base(msh, lx, params, numerics_params, scheme, user, &
+         .true., output_boundary)
 
     ! Add pressure field to the registry. For this scheme it is in the same
     ! Xh as the velocity
@@ -378,14 +394,14 @@ contains
     ! Select governing equations via associated residual and Ax types
     !
 
-    call json_get_or_lookup(params, 'case.numerics.time_order', integer_val)
+    call json_get_or_lookup(numerics_params, 'time_order', integer_val)
     allocate(this%ext_bdf)
     call this%ext_bdf%init(integer_val)
 
-    call json_get_or_default(params, "case.fluid.full_stress_formulation", &
+    call json_get_or_default(params, "full_stress_formulation", &
          this%full_stress_formulation, .false.)
 
-    call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
+    call json_get_or_default(params, "cyclic", this%c_Xh%cyclic, &
          .false.)
     call this%c_Xh%generate_cyclic_bc()
 
@@ -415,13 +431,13 @@ contains
     ! Initialize the velocity bc projector
     call this%bcs_vel_projector%init(this%c_Xh)
 
-    if (params%valid_path('case.fluid.nut_field')) then
+    if (params%valid_path('nut_field')) then
        if (.not. this%full_stress_formulation) then
           call neko_error("You need to set full_stress_formulation to " // &
                "true for the fluid to have a spatially varying " // &
                "viscocity field.")
        end if
-       call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
+       call json_get(params, 'nut_field', this%nut_field_name)
     else
        this%nut_field_name = ""
     end if
@@ -470,15 +486,14 @@ contains
     call this%dw%init(this%dm_Xh, 'dw')
     call this%dp%init(this%dm_Xh, 'dp')
     ! Initialize ALE
-    call this%ale%init(this%c_Xh, params, user, chkp)
+    call this%ale%init(this%c_Xh, params, numerics_params, user, chkp)
 
     call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
 
     ! Check if we need to output boundaries
-    call json_get_or_default(params, 'case.output_boundary', found, .false.)
-    if (found) call this%write_boundary_conditions()
+    if (output_boundary) call this%write_boundary_conditions()
     call neko_log%end_section()
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
@@ -491,22 +506,22 @@ contains
 
 
     ! Determine the time-interpolation scheme
-    call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-    if (params%valid_path('case.fluid.flow_rate_force')) then
+    call json_get_or_default(numerics_params, 'oifs', this%oifs, .false.)
+    if (params%valid_path('flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if
 
     ! Setup pressure solver
     call neko_log%section("Pressure solver")
 
-    call json_get(params, 'case.fluid.pressure_solver', solver_params)
-    call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
-    call json_get(params, 'case.fluid.pressure_solver.preconditioner.type', &
+    call json_get(params, 'pressure_solver', solver_params)
+    call json_get(params, 'pressure_solver.type', solver_type)
+    call json_get(params, 'pressure_solver.preconditioner.type', &
          precon_type)
     call json_get(params, &
-         'case.fluid.pressure_solver.preconditioner', precon_params)
+         'pressure_solver.preconditioner', precon_params)
     call json_get_or_lookup(params, &
-         'case.fluid.pressure_solver.absolute_tolerance', &
+         'pressure_solver.absolute_tolerance', &
          abs_tol)
     call neko_log%message('Type       : ('// trim(solver_type) // &
          ', ' // trim(precon_type) // ')')
@@ -520,11 +535,10 @@ contains
     call neko_log%end_section()
 
     ! Initialize the advection factory
-    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
+    call json_get_or_default(params, 'advection', advection, .true.)
     ! OIFS integrates the advection term. With advection disabled, fall back to
     ! the standard BDF history assembly.
     this%oifs = this%oifs .and. advection
-    call json_get(params, 'case.numerics', numerics_params)
     call chkp%get_time_history(tlag, dtlag)
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          this%ulag, this%vlag, this%wlag, &
@@ -549,7 +563,7 @@ contains
     call payload%add_series(this%wlag)
 
     !> Set the number of schwarz iterations to perform each time step.
-    call json_get_or_default(params, 'case.fluid.schwarz_iterations', &
+    call json_get_or_default(params, 'schwarz_iterations', &
          this%schwarz_iterations, 0)
 
     call neko_log%end_section()
@@ -721,6 +735,28 @@ contains
     end select
 
   end subroutine fluid_pnpn_restart
+
+  !> Set the initial condition of the velocity and pressure, copy the initial
+  !! velocity to the lagged velocity fields, and set the initial ALE mesh
+  !! velocity.
+  !! @param user Type with user-defined procedures.
+  !! @param is_restart Whether the case is restarting from a checkpoint.
+  subroutine fluid_pnpn_set_initial_condition(this, user, is_restart)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+    logical, intent(in) :: is_restart
+
+    call this%set_initial_condition_base(user, is_restart)
+
+    if (.not. is_restart) then
+       call this%ulag%set(this%u)
+       call this%vlag%set(this%v)
+       call this%wlag%set(this%w)
+
+       call this%ale%set_initial_mesh_velocity(this%c_Xh)
+    end if
+
+  end subroutine fluid_pnpn_set_initial_condition
 
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this
@@ -1151,10 +1187,10 @@ contains
     call this%bc_sym_surface%init_from_components(this%c_Xh)
 
     ! Populate bcs_vel and bcs_prs based on the case file
-    if (params%valid_path('case.fluid.boundary_conditions')) then
-       call params%info('case.fluid.boundary_conditions', n_children = n_bcs)
+    if (params%valid_path('boundary_conditions')) then
+       call params%info('boundary_conditions', n_children = n_bcs)
        call params%get_core(core)
-       call params%get('case.fluid.boundary_conditions', bc_object, found)
+       call params%get('boundary_conditions', bc_object, found)
 
        call this%bcs_vel%init(n_bcs)
        call this%bcs_prs%init(n_bcs)
