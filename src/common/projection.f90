@@ -864,10 +864,12 @@ contains
           call device_rzero(this%xx_d(i), n)
           call device_rzero(this%bb_d(i), n)
        else
+          !$omp parallel do
           do j = 1, n
              this%xx(j,i) = 0.0_rp
              this%bb(j,i) = 0.0_rp
           end do
+          !$omp end parallel do
        end if
     end do
 

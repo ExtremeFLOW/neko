@@ -48,6 +48,7 @@ contains
          dtdx => coef%dtdx, dtdy => coef%dtdy, dtdz => coef%dtdz, &
          nelv => coef%msh%nelv, lx => Xh%lx, w3 => Xh%w3)
 
+      !$omp parallel
       select case (lx)
       case (18)
          call cpu_set_convect_rst_lx18(cr, cs, ct, cx, cy, cz, &
@@ -104,6 +105,7 @@ contains
          call cpu_set_convect_rst_lx(cr, cs, ct, cx, cy, cz, drdx, &
               dsdx, dtdx, drdy, dsdy, dtdy, drdz, dsdz, dtdz, w3, nelv, lx)
       end select
+      !$omp end parallel
     end associate
 
   end subroutine opr_cpu_set_convect_rst
@@ -119,6 +121,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -135,6 +138,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx
 
@@ -150,6 +154,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -166,6 +171,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx18
 
@@ -181,6 +187,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -197,6 +204,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx17
 
@@ -212,6 +220,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -228,6 +237,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx16
 
@@ -243,6 +253,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -259,6 +270,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx15
 
@@ -274,6 +286,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -290,6 +303,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx14
 
@@ -305,6 +319,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -321,6 +336,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx13
 
@@ -336,6 +352,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -352,6 +369,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx12
 
@@ -367,6 +385,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -383,6 +402,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx11
 
@@ -398,6 +418,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -414,6 +435,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx10
 
@@ -429,6 +451,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -445,6 +468,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx9
 
@@ -460,6 +484,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -476,6 +501,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx8
 
@@ -491,6 +517,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -507,6 +534,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx7
 
@@ -522,6 +550,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -538,6 +567,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx6
 
@@ -553,6 +583,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -569,6 +600,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx5
 
@@ -584,6 +616,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -600,6 +633,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx4
 
@@ -615,6 +649,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -631,6 +666,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx3
 
@@ -646,6 +682,7 @@ contains
     real(kind=rp), dimension(lx, lx, lx), intent(in) :: w3
     integer :: e, i
 
+    !$omp do
     do e = 1, n
        do i = 1, lx * lx * lx
           cr(i,1,1,e) = w3(i,1,1) &
@@ -662,6 +699,7 @@ contains
                + cz(i,1,1,e) * dtdz(i,1,1,e))
        end do
     end do
+    !$omp end do
 
   end subroutine cpu_set_convect_rst_lx2
 
