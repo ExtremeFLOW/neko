@@ -37,8 +37,7 @@ module hdf5_file
   use checkpoint, only : chkp_t
   use checkpoint_payload, only : checkpoint_payload_t, checkpoint_array_t, &
        checkpoint_mesh_array_t
-  use utils, only : neko_error, neko_warning, filename_suffix_pos, &
-       filename_split
+  use utils, only : neko_error, neko_warning, filename_suffix_pos
   use mesh, only : mesh_t
   use field, only : field_t, field_ptr_t
   use field_list, only : field_list_t
@@ -56,7 +55,7 @@ module hdf5_file
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
        MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier, MPI_INTEGER8, MPI_Scan, MPI_Bcast, &
+       MPI_Barrier, MPI_INTEGER8, MPI_Scan, MPI_Bcast, MPI_LOGICAL, &
        MPI_DOUBLE_PRECISION
   use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
 #ifdef HAVE_HDF5
@@ -132,6 +131,8 @@ module hdf5_file
      procedure :: set_overwrite => hdf5_file_set_overwrite
      ! Granular methods for dealing with HDF5 files
      procedure :: open => hdf5_file_open
+     !> Open a fresh numbered file, skipping names already present on disk.
+     procedure :: open_new => hdf5_file_open_new
      procedure :: close => hdf5_file_close
      !> Release an open file and its retained dataset resources.
      procedure :: free => hdf5_file_free
@@ -192,6 +193,28 @@ contains
 #endif
   end subroutine hdf5_file_free
 
+  !> Open a new numbered file without modifying any existing file.
+  !! Uses the inherited filename and counter routines. Rank zero checks
+  !! each candidate and shares the result before any collective file open.
+  subroutine hdf5_file_open_new(this)
+    class(hdf5_file_t), intent(inout) :: this
+    character(len=1024) :: fname
+    logical :: file_exists
+    integer :: ierr
+
+    call this%free()
+    call this%increment_counter()
+    do
+       fname = this%get_fname()
+       file_exists = .false.
+       if (pe_rank == 0) inquire(file = trim(fname), exist = file_exists)
+       call MPI_Bcast(file_exists, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
+       if (.not. file_exists) exit
+       call this%increment_counter()
+    end do
+    call this%open("w")
+  end subroutine hdf5_file_open_new
+
   !> Calculate a reusable layout for distributed array writes.
   !! @param local_count Scalar integer: local number of vector elements or
   !! matrix columns. For a matrix use mat%get_ncols(), not mat%size().
@@ -245,25 +268,6 @@ contains
     logical, intent(in) :: overwrite
     this%overwrite = overwrite
   end subroutine hdf5_file_set_overwrite
-
-  !> Return the file name with the start counter.
-  function file_get_fname(this) result(base_fname)
-    class(hdf5_file_t), intent(in) :: this
-    character(len=1024) :: base_fname
-    character(len=1024) :: fname
-    character(len=1024) :: path, name, suffix
-
-    fname = trim(this%get_base_fname())
-    call filename_split(fname, path, name, suffix)
-
-    ! Append a counter
-    !write(base_fname, '(A,A,"_",I0,A)') &
-    !     trim(path), trim(name), this%get_start_counter(), trim(suffix)
-
-    ! Do not append anything
-    base_fname = trim(fname)
-
-  end function file_get_fname
 
   !> Set the precision for the output (single or double)
   subroutine hdf5_file_set_precision(this, precision)
@@ -1384,7 +1388,7 @@ contains
        this%precision = rp
     end if
 
-    fname = trim(file_get_fname(this))
+    fname = trim(this%get_fname())
     counter = this%get_counter() - this%get_start_counter()
 
     ! Set the configuration for MPI IO
@@ -1511,7 +1515,7 @@ contains
        else
           if (this%mode == "r") then
              call neko_error("Group " // trim(group_name(i)) // &
-                  " does not exist in file " // trim(file_get_fname(this)))
+                  " does not exist in file " // trim(this%get_fname()))
           end if
           call h5gcreate_f(current_id, trim(group_name(i)), group_id, ierr)
        end if
@@ -2121,7 +2125,7 @@ contains
        call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
        if (temprank .ne. 1) then
           call neko_error("Dataset " // trim(data_name) // &
-               " is not a rank 1 vector in file " // trim(file_get_fname(this)))
+               " is not a rank 1 vector in file " // trim(this%get_fname()))
        end if
        ! Get the current shape and close the filespace
        call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
@@ -2129,7 +2133,7 @@ contains
        call h5sclose_f(filespace, ierr)
     else
        call neko_error("Dataset " // trim(data_name) // &
-            " does not exist in current group " // trim(file_get_fname(this)))
+            " does not exist in current group " // trim(this%get_fname()))
     end if
 
     ! =============================
@@ -2233,7 +2237,7 @@ contains
        call h5sget_simple_extent_ndims_f(filespace, temprank, ierr)
        if (temprank .ne. 2) then
           call neko_error("Dataset " // trim(data_name) // &
-               " is not a rank 2 matrix in file " // trim(file_get_fname(this)))
+               " is not a rank 2 matrix in file " // trim(this%get_fname()))
        end if
        ! Get the current shape and close the filespace
        call h5sget_simple_extent_dims_f(filespace, tempddims, tempmaxddims, &
@@ -2242,7 +2246,7 @@ contains
     else
        call neko_error("Dataset " // trim(data_name) &
             // " does not exist in current group " // &
-            trim(file_get_fname(this)))
+            trim(this%get_fname()))
     end if
 
     ! =============================

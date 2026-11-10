@@ -103,8 +103,10 @@ module probes
      !> Persistent CPU-only timestamp buffer.
      type(host_array_t) :: time_out
      logical :: append_out = .true.
-     !> Whether this component owns an open HDF5 file for appended samples.
-     logical :: append_file_open = .false.
+     !> Whether this component owns an open HDF5 output file.
+     logical :: output_file_open = .false.
+     !> Number of samples in the current HDF5 file, for either layout.
+     integer :: n_samples = 0
    contains
      !> Initialize from json.
      procedure, pass(this) :: init => probes_init_from_json
@@ -136,6 +138,8 @@ module probes
 
      !> Append a new list of points to the exsiting list.
      procedure, private, pass(this) :: add_points
+     !> Open a new numbered HDF5 file and write its probe coordinates.
+     procedure, private, pass(this) :: open_output => probes_open_output
   end type probes_t
 
 contains
@@ -527,9 +531,8 @@ contains
 
     character(len=1024) :: header_line
     real(kind=rp), allocatable :: global_output_coords(:,:)
-    integer :: i, ierr, out_int
+    integer :: i, ierr
     type(matrix_t) :: mat_coords
-    logical :: attr_exist = .false.
 
     this%name = name
 
@@ -593,41 +596,9 @@ contains
           call mat_coords%free()
        end if
     class is (hdf5_file_t)
-
-       !> This is always on cpus.
-       if (this%append_out) then
-          call ft%set_overwrite(.false.)
-       else
-          call ft%set_overwrite(.true.)
-       end if
-       call mat_coords%init(3, this%n_local_probes, "coordinates")
-       call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
-
-       !> Set up output
        ! Probe ownership is fixed after redistribution. Reuse its layout
        ! for coordinates and every field instead of repeating collectives.
        call this%probe_layout%init(this%n_local_probes)
-       call ft%open("w")
-       call ft%set_active_group("probes")
-
-       ! Check if the NSteps attribute already exists
-       call ft%read_attribute("NSteps", out_int, attr_exist)
-       if (attr_exist) then
-          ! If the attribute exists,
-          ! do not write the coordinates but register the executions
-          this%output_controller%nexecutions = out_int
-       else
-          ! Write out the mesh
-          call ft%write_dataset(mat_coords, layout = this%probe_layout)
-          out_int = this%n_global_probes
-          call ft%write_attribute("NProbes", out_int)
-       end if
-       ! Appended samples reuse this file and group until probes_free.
-       if (this%append_out) then
-          this%append_file_open = .true.
-       else
-          call ft%close()
-       end if
 
        !> Set up the timestamp buffer for appended output
        this%seq_io = .false.
@@ -640,15 +611,35 @@ contains
           end if
           call this%time_layout%init(this%time_out%size())
        end if
-
-       ! Free temporaries
-       call mat_coords%free()
+       call this%open_output()
 
     class default
        call neko_error("Invalid data. Expected csv_file_t or hdf5_file_t.")
     end select
 
   end subroutine probes_init_common
+
+  !> Open a new numbered file and initialize its probe metadata.
+  subroutine probes_open_output(this)
+    class(probes_t), intent(inout) :: this
+    type(matrix_t) :: mat_coords
+
+    select type (ft => this%fout%file_type)
+    type is (hdf5_file_t)
+       call ft%set_overwrite(.not. this%append_out)
+       call ft%open_new()
+       call ft%set_active_group("probes")
+       this%output_file_open = .true.
+
+       this%n_samples = 0
+       call mat_coords%init(3, this%n_local_probes, "coordinates")
+       call copy(mat_coords%x, this%xyz, 3*this%n_local_probes)
+       call ft%write_dataset(mat_coords, layout = this%probe_layout)
+       call ft%write_attribute("NProbes", this%n_global_probes)
+       call ft%write_attribute("NSteps", this%n_samples)
+       call mat_coords%free()
+    end select
+  end subroutine probes_open_output
 
   !> Destructor
   subroutine probes_free(this)
@@ -657,13 +648,14 @@ contains
 
     ! Constructors also call free before opening a file. Only close a file
     ! retained by this component, and reset ownership for repeated free calls.
-    if (this%append_file_open) then
+    if (this%output_file_open) then
        select type (ft => this%fout%file_type)
        class is (hdf5_file_t)
           call ft%close()
        end select
-       this%append_file_open = .false.
+       this%output_file_open = .false.
     end if
+    this%n_samples = 0
     call this%fout%free()
 
     if (allocated(this%xyz)) then
@@ -792,7 +784,7 @@ contains
     !> Do not execute if we are below the start_time
     if (time%t .lt. this%start_time) return
 
-    !> Check controller to determine if we must write
+    ! The inherited compute controller schedules evaluation and HDF5 writes.
     do i = 1, this%n_fields
        call this%global_interp%evaluate(this%out_values(:,i), &
             this%sampled_fields%items(i)%ptr%x, &
@@ -806,87 +798,91 @@ contains
        end do
     end if
 
-    if (this%output_controller%check(time)) then
-       select type (ft => this%fout%file_type)
-       type is (csv_file_t)
-          ! Gather all values to rank 0
-          ! If io is only done at root
-          if (this%seq_io) then
-             call trsp(this%out_vals_trsp, this%n_fields, &
-                  this%out_values, this%n_local_probes)
-             call MPI_Gatherv(this%out_vals_trsp, &
-                  this%n_fields*this%n_local_probes, &
-                  MPI_REAL_PRECISION, this%global_output_values, &
-                  this%n_fields*this%n_local_probes_tot, &
-                  this%n_fields*this%n_local_probes_tot_offset, &
-                  MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
-             if (pe_rank .eq. 0) then
-                call trsp(this%mat_out%x, this%n_global_probes, &
-                     this%global_output_values, this%n_fields)
-                call this%fout%write(this%mat_out, time%t)
-             end if
-          else
-             call neko_error("CSV outputs only works sequentially")
+    select type (ft => this%fout%file_type)
+    type is (csv_file_t)
+       ! Gather all values to rank 0
+       ! If io is only done at root
+       if (this%seq_io) then
+          call trsp(this%out_vals_trsp, this%n_fields, &
+               this%out_values, this%n_local_probes)
+          call MPI_Gatherv(this%out_vals_trsp, &
+               this%n_fields*this%n_local_probes, &
+               MPI_REAL_PRECISION, this%global_output_values, &
+               this%n_fields*this%n_local_probes_tot, &
+               this%n_fields*this%n_local_probes_tot_offset, &
+               MPI_REAL_PRECISION, 0, NEKO_COMM, ierr)
+          if (pe_rank .eq. 0) then
+             call trsp(this%mat_out%x, this%n_global_probes, &
+                  this%global_output_values, this%n_fields)
+             call this%fout%write(this%mat_out, time%t)
           end if
-
-       type is (hdf5_file_t)
-
-          if (this%seq_io) then
-             call neko_error("HDF5 outputs only works in parallel currently.")
-
-          else
-
-             ! Append output format
-             if (this%append_out) then
-
-                ! The file and probes group remain open from initialisation.
-                ! Write Nsteps in root
-                out_int = this%output_controller%nexecutions + 1
-                call ft%write_attribute("NSteps", out_int)
-                ! Write out the data
-                do i = 1, this%n_fields
-                   ! Write out_values directly, after the device-to-host
-                   ! copy above on GPU builds.
-                   call ft%write_array(this%out_values(:,i), &
-                        trim(this%which_fields(i)), this%probe_layout)
-                end do
-
-                if (pe_rank == 0) this%time_out%x(1) = time%t
-                call ft%write_dataset(this%time_out, name = "time", &
-                     layout = this%time_layout)
-
-                ! Write data in different steps
-             else
-
-                out_int = this%output_controller%nexecutions + 1
-                ! Set up the name
-                write(group_name, '(A,I0)') "probes/Step_", out_int
-                call ft%open("w")
-                call ft%set_active_group("probes")
-                ! Write Nsteps in root
-                call ft%write_attribute("NSteps", out_int)
-                ! Write out the data
-                call ft%set_active_group(trim(group_name))
-                do i = 1, this%n_fields
-                   ! Write out_values directly, after the device-to-host
-                   ! copy above on GPU builds.
-                   call ft%write_array(this%out_values(:,i), &
-                        trim(this%which_fields(i)), this%probe_layout)
-                end do
-                ! Write the time as an attribute
-                time_ = time%t
-                call ft%write_attribute("time", time_)
-                call ft%close()
-             end if
-
-          end if
-       class default
-          call neko_error("Invalid data. Expected csv_file_t or hdf5_file_t.")
-       end select
-
-       !! Register the execution of the activity
+       else
+          call neko_error("CSV outputs only works sequentially")
+       end if
        call this%output_controller%register_execution(time)
-    end if
+
+    type is (hdf5_file_t)
+
+       if (this%seq_io) then
+          call neko_error("HDF5 outputs only works in parallel currently.")
+
+       else
+
+          this%n_samples = this%n_samples + 1
+
+          ! Append output format
+          if (this%append_out) then
+
+             ! The file and probes group remain open from initialisation.
+             ! Write Nsteps in root
+             out_int = this%n_samples
+             call ft%write_attribute("NSteps", out_int)
+             ! Write out the data
+             do i = 1, this%n_fields
+                ! Write out_values directly, after the device-to-host
+                ! copy above on GPU builds.
+                call ft%write_array(this%out_values(:,i), &
+                     trim(this%which_fields(i)), this%probe_layout)
+             end do
+
+             if (pe_rank == 0) this%time_out%x(1) = time%t
+             call ft%write_dataset(this%time_out, name = "time", &
+                  layout = this%time_layout)
+
+             ! Write data in different steps
+          else
+
+             out_int = this%n_samples
+             ! Set up the name
+             write(group_name, '(A,I0)') "probes/Step_", out_int
+             call ft%set_active_group("probes")
+             ! Write Nsteps in root
+             call ft%write_attribute("NSteps", out_int)
+             ! Write out the data
+             call ft%set_active_group(trim(group_name))
+             do i = 1, this%n_fields
+                ! Write out_values directly, after the device-to-host
+                ! copy above on GPU builds.
+                call ft%write_array(this%out_values(:,i), &
+                     trim(this%which_fields(i)), this%probe_layout)
+             end do
+             ! Write the time as an attribute
+             time_ = time%t
+             call ft%write_attribute("time", time_)
+          end if
+
+       end if
+       ! Every computed sample has already been written. The inherited
+       ! output controller only schedules closing and opening files.
+       if (this%output_controller%check(time)) then
+          call ft%close()
+          this%output_file_open = .false.
+          call this%open_output()
+          call this%output_controller%register_execution(time)
+       end if
+    class default
+       call neko_error("Invalid data. Expected csv_file_t or hdf5_file_t.")
+    end select
 
   end subroutine probes_evaluate_and_write
 
