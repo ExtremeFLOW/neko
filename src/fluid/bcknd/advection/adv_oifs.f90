@@ -109,6 +109,8 @@ module adv_oifs
      procedure, pass(this) :: init => adv_oifs_init
      !> setting characteristic convecting field
      procedure, pass(this) :: set_conv_velocity_fst
+     !> Rebuild the convecting field series after a restart
+     procedure, pass(this) :: restart => adv_oifs_restart
      !> Destructor
      procedure, pass(this) :: free => adv_oifs_free
      !> add the advection term for ALE, i.e. \f$(u - w_m) \cdot \nabla s \f$, to
@@ -411,6 +413,21 @@ contains
     this%convt_GL%f = this%ct_GL
 
   end subroutine set_conv_velocity_fst
+
+  !> Rebuild the convecting field series after a restart.
+  !! @details `convr_GL`, `convs_GL` and `convt_GL` are not stored in the
+  !! checkpoint. They are recomputed from the restored lagged velocities,
+  !! first `lf(2)` and then `lf(1)`. The next call to `compute` or
+  !! `compute_scalar` adds the current velocity, as in a run without restart.
+  subroutine adv_oifs_restart(this)
+    class(adv_oifs_t), intent(inout) :: this
+
+    call this%set_conv_velocity_fst(this%ulag%lf(2), this%vlag%lf(2), &
+         this%wlag%lf(2))
+    call this%set_conv_velocity_fst(this%ulag%lf(1), this%vlag%lf(1), &
+         this%wlag%lf(1))
+
+  end subroutine adv_oifs_restart
 
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to

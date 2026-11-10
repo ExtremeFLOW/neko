@@ -43,8 +43,7 @@ module scalar_pnpn
   use scalar_bc_projector, only : scalar_bc_projector_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
-  use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event, &
-       device_event_sync
+  use device, only : HOST_TO_DEVICE, device_memcpy, glb_cmd_event
   use gather_scatter, only : gs_t, GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
   use scalar_residual, only : scalar_residual_t, scalar_residual_factory
   use ax_product, only : ax_t, ax_helm_allocator
@@ -60,6 +59,7 @@ module scalar_pnpn
   use scratch_registry, only : neko_scratch_registry
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_DEBUG
   use advection, only : advection_t, advection_factory
+  use adv_oifs, only : adv_oifs_t
   use profiler, only : profiler_start_region, profiler_end_region
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use json_module, only : json_file, json_core, json_value
@@ -390,6 +390,14 @@ contains
 
     nullify(bc_i)
 
+    ! The OIFS convecting field series is not in the checkpoint, rebuild it
+    ! from the restored velocity lags of the fluid. The fluid is restarted
+    ! before the scalars, so these lags are already restored.
+    select type (adv => this%adv)
+    type is (adv_oifs_t)
+       call adv%restart()
+    end select
+
   end subroutine scalar_pnpn_restart
 
   subroutine scalar_pnpn_free(this)
@@ -539,7 +547,7 @@ contains
            rho_cp, ext_bdf%diffusion_coeffs%x(1), &
            real(dt, kind=rp), dm_Xh%size())
 
-      call gs_Xh%op(s_res, GS_OP_ADD)
+      call gs_Xh%op(s_res, GS_OP_ADD, glb_cmd_event)
 
       ! Zero-out residual at Dirichlet nodes before solving.
       call this%bc_projector%apply(s_res%x, dm_Xh%size())
@@ -630,13 +638,12 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_msg, '(A, I0, A, A, I0, A)') &
+                write(error_msg, '(A, I0, A, A, A, I0, A)') &
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
                      "does not exist in the mesh. Check scalar boundary ", &
                      "condition ", i, "."
                 call neko_error(error_msg)
-                error stop
              end if
 
              if (marked_zones(zone_indices(j))) then
@@ -647,7 +654,6 @@ contains
                      "scalar and make sure that each zone index appears only ",&
                      "in a single boundary condition."
                 call neko_error(error_msg)
-                error stop
              else
                 marked_zones(zone_indices(j)) = .true.
              end if
@@ -666,7 +672,6 @@ contains
              write(error_msg, '(A, I0)') &
                   "No scalar boundary condition assigned to zone ", i
              call neko_error(error_msg)
-             error stop
           end if
        end do
     else
@@ -677,7 +682,6 @@ contains
                   "No boundary_conditions entry in the case file for scalar ", &
                   this%s%name
              call neko_error(error_msg)
-             error stop
           end if
        end do
 
@@ -706,7 +710,6 @@ contains
     ! Take a nodewise minimum between the local nodes.
     ! Now, all local nodes store m = min(d, u)
     call this%gs_Xh%op(this%s, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
 
     ! Second apply call, so Dirichlet nodes again store d, the rest still store
     ! m, where m < d by construction.
@@ -714,7 +717,6 @@ contains
     ! Now apply a max, which guarantees that d wins and gets stored in all the
     ! local nodes.
     call this%gs_Xh%op(this%s, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
 
     ! Reset updated flags
     do i = 1, this%bcs%size()

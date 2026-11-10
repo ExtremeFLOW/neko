@@ -8,6 +8,15 @@
 - PR#2831 User initial conditions are can no longer assume that the arrays
   are zeroed on entry. The user routine must set all values, e.g. with
   `field_cfill`.
+- PR#2891 `csv_file_t%header` is now a deferred-length allocatable, which
+  stays unallocated until the header is set. Code reading it directly must
+  check `allocated()` first.
+- PR#2897 The fluid `init` takes only the fluid section of the case file,
+  `case.fluid`, instead of the whole case file, plus `case.numerics` as a
+  separate `numerics_params` argument and `case.output_boundary` as the
+  logical `output_boundary`. Accordingly, `fluid%params` is now a copy of
+  `case.fluid`, so keys must be looked up relative to it, e.g.
+  `initial_condition` rather than `case.fluid.initial_condition`.
 
 ## Develop
 
@@ -65,6 +74,16 @@
 - *BREAKING* User initial conditions are can no longer assume that the arrays
   are zeroed on entry. The user routine must set all values, e.g. with
   `field_cfill`.
+- Added `checkneko` under `contrib`, which checks a case file without running
+  Neko. It validates the case file against the schemas in `doc/schemas`,
+  which are installed with it in `share/neko/schemas`, checks the constants
+  that values name and that the files the case reads exist, and checks the
+  `zone_indices` of the boundary conditions against the labeled zones of an
+  `.nmsh` mesh, which it lists with their facets and the boundary conditions
+  on them. It builds with json-fortran only, without the Neko library or MPI.
+- The case file schemas accept other sections next to `case`, for instance
+  for the settings of other tools, and any keys in user-defined initial
+  conditions, boundary conditions and source terms.
 - Added `gmsh2nmsh` under `contrib`, which converts Gmsh `.msh` meshes
   directly to `.nmsh` without going through `.re2`. Physical groups become
   labeled zones, group pairs can be made periodic, and curved second order

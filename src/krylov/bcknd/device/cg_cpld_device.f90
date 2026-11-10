@@ -43,7 +43,7 @@ module cg_cpld_device
   use vector_bc_projector, only : vector_bc_projector_t
   use math, only : abscmp
   use device, only : device_map, device_event_create, device_unmap, &
-       device_event_destroy, device_get_ptr, device_event_sync
+       device_event_destroy, device_get_ptr
   use device_math, only : device_rzero, device_copy, &
        device_add2s1, device_vdot3, device_glsc2
   use device_mathops, only : device_opadd2cm
@@ -380,7 +380,6 @@ contains
          call rotate_cyc(w1_d, w2_d, w3_d, 1, coef)
          call gs_h%op(this%w1, this%w2, this%w3, n, GS_OP_ADD, &
               this%gs_event)
-         call device_event_sync(this%gs_event)
          call rotate_cyc(w1_d, w2_d, w3_d, 0, coef)
 
          call bc_projector%apply(this%w1, this%w2, this%w3, n)

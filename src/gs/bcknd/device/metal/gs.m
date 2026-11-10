@@ -79,7 +79,6 @@ static id<MTLLibrary> get_gs_metal_library(void) {
  */
 static id<MTLComputePipelineState>
 get_gs_pipeline(const char *name) {
-  id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = get_gs_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
   id<MTLFunction> func = [lib newFunctionWithName:nsName];
@@ -89,7 +88,7 @@ get_gs_pipeline(const char *name) {
   }
   NSError *error = nil;
   id<MTLComputePipelineState> pso =
-    [device newComputePipelineStateWithFunction:func error:&error];
+    neko_metal_new_pipeline(func, NEKO_METAL_MAX_THREADS, &error);
   METAL_CHECK(error);
   return pso;
 }
@@ -177,6 +176,7 @@ void metal_gather_kernel(void *v, int *m, int *o, void *dg,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**
@@ -218,6 +218,7 @@ void metal_scatter_kernel(void *v, int *m, void *dg,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**
@@ -253,6 +254,7 @@ void metal_gs_pack(void *u_d, void *buf_d, void *dof_d,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**
@@ -298,4 +300,5 @@ void metal_gs_unpack(void *u_d, int op, void *buf_d, void *dof_d,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }

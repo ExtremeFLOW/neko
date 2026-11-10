@@ -503,9 +503,20 @@ contains
     end if
   end subroutine schwarz_extrude_single
 
-  subroutine schwarz_compute(this, e, r)
+  !> Apply the overlapping Schwarz preconditioner, @a e = M^{-1} @a r
+  !! @param e Preconditioned output.
+  !! @param r Input residual.
+  !! @param deps Optional device event the Schwarz work on the aux queue
+  !! waits on before reading @a r. When absent, an event is recorded on the
+  !! global queue at entry, which orders the Schwarz behind everything
+  !! queued on the global queue so far. A caller that runs the Schwarz
+  !! concurrently with other work on the global queue should record the
+  !! event itself, before that work is queued, and pass it here; otherwise
+  !! the Schwarz is ordered behind the concurrent work as well.
+  subroutine schwarz_compute(this, e, r, deps)
     class(schwarz_t), intent(inout) :: this
     real(kind=rp), dimension(this%dof%size()), intent(inout) :: e, r
+    type(c_ptr), optional, intent(in) :: deps
     integer :: n, enx, eny, enz, ns
     real(kind=rp), parameter :: zero = 0.0_rp
     real(kind=rp), parameter :: one = 1.0_rp
@@ -522,8 +533,12 @@ contains
       if (NEKO_BCKND_DEVICE .eq. 1) then
          r_d = device_get_ptr(r)
          e_d = device_get_ptr(e)
-         call device_event_record(this%event, glb_cmd_queue)
-         call device_stream_wait_event(aux_cmd_queue, this%event, 0)
+         if (present(deps)) then
+            call device_stream_wait_event(aux_cmd_queue, deps, 0)
+         else
+            call device_event_record(this%event, glb_cmd_queue)
+            call device_stream_wait_event(aux_cmd_queue, this%event, 0)
+         end if
          call device_schwarz_toext3d(work1_d, r_d, this%Xh%lx, &
               this%msh%nelv, aux_cmd_queue)
          call device_schwarz_extrude(work1_d, 0, zero, work1_d, 2, one, &
@@ -531,7 +546,6 @@ contains
 
          this%gs_schwarz%bcknd%gs_stream = aux_cmd_queue
          call this%gs_schwarz%op(work1, ns, GS_OP_ADD, this%event)
-         call device_event_sync(this%event)
          call device_schwarz_extrude(work1_d, 0, one, work1_d, 2, -one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
 
@@ -540,7 +554,6 @@ contains
          call device_schwarz_extrude(work1_d, 0, zero, work2_d, 0, one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)
          call this%gs_schwarz%op(work2, ns, GS_OP_ADD, this%event)
-         call device_event_sync(this%event)
 
          call device_schwarz_extrude(work2_d, 0, one, work1_d, 0, -one, &
               enx, eny, enz, this%msh%nelv, aux_cmd_queue)

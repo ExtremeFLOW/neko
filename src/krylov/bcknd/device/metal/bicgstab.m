@@ -72,7 +72,6 @@ static int bicgstab_buf_cap = 0;
  */
 static id<MTLComputePipelineState>
 get_bicgstab_pipeline(const char *name) {
-  id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = neko_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
   id<MTLFunction> func = [lib newFunctionWithName:nsName];
@@ -82,7 +81,7 @@ get_bicgstab_pipeline(const char *name) {
   }
   NSError *error = nil;
   id<MTLComputePipelineState> pso =
-    [device newComputePipelineStateWithFunction:func error:&error];
+    neko_metal_new_pipeline(func, NEKO_METAL_MAX_THREADS, &error);
   METAL_CHECK(error);
   return pso;
 }
@@ -157,6 +156,7 @@ void metal_bicgstab_update_p(void *p, void *r, void *v, real *beta,
     [enc endEncoding];
     [cmdBuf commit];
     [cmdBuf waitUntilCompleted];
+    METAL_CHECK_CB(cmdBuf);
   }
 }
 
@@ -202,6 +202,7 @@ void metal_bicgstab_product_and_norm(void *a, void *b, void *mult,
     [enc endEncoding];
     [cmdBuf commit];
     [cmdBuf waitUntilCompleted];
+    METAL_CHECK_CB(cmdBuf);
 
     const float *partials = (const float *) [buf contents];
     res[0] = (real) sum_partials(partials, nb);
@@ -251,6 +252,7 @@ real metal_bicgstab_part1(void *s, void *r, void *v, void *mult,
     [enc endEncoding];
     [cmdBuf commit];
     [cmdBuf waitUntilCompleted];
+    METAL_CHECK_CB(cmdBuf);
 
     res = (real) sum_partials((const float *) [buf contents], nb);
   }
@@ -310,6 +312,7 @@ void metal_bicgstab_part2(void *x, void *r, void *p_hat, void *s_hat,
     [enc endEncoding];
     [cmdBuf commit];
     [cmdBuf waitUntilCompleted];
+    METAL_CHECK_CB(cmdBuf);
 
     const float *partials = (const float *) [buf contents];
     res[0] = (real) sum_partials(partials, nb);

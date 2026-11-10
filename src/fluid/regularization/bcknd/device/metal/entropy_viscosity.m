@@ -61,7 +61,6 @@ static id<MTLComputePipelineState> pso_ev_smooth = nil;
  */
 static id<MTLComputePipelineState>
 get_entropy_visc_pipeline(const char *name) {
-  id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = neko_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
   id<MTLFunction> func = [lib newFunctionWithName:nsName];
@@ -71,7 +70,7 @@ get_entropy_visc_pipeline(const char *name) {
   }
   NSError *error = nil;
   id<MTLComputePipelineState> pso =
-    [device newComputePipelineStateWithFunction:func error:&error];
+    neko_metal_new_pipeline(func, NEKO_METAL_MAX_THREADS, &error);
   METAL_CHECK(error);
   return pso;
 }
@@ -100,6 +99,7 @@ static void entropy_visc_dispatch(id<MTLCommandBuffer> cmdBuf,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**
@@ -198,6 +198,7 @@ void metal_entropy_visc_apply_element_max(void *reg_coeff, int lx, int nelv) {
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**

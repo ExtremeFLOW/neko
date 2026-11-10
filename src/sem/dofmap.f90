@@ -207,8 +207,9 @@ contains
   !> Return the global number of dofs in the dofmap, lx*ly*lz*glb_nelv
   pure function dofmap_global_size(this) result(res)
     class(dofmap_t), intent(in) :: this
-    integer :: res
-    res = this%Xh%lx * this%Xh%ly * this%Xh%lz * this%msh%glb_nelv
+    integer(kind=i8) :: res
+    res = int(this%Xh%lx * this%Xh%ly * this%Xh%lz, i8) * &
+         int(this%msh%glb_nelv, i8)
   end function dofmap_global_size
 
   !> Assign numbers to each dofs on points

@@ -59,7 +59,6 @@ static id<MTLComputePipelineState> pso_toreg3d = nil;
  */
 static id<MTLComputePipelineState>
 get_schwarz_pipeline(const char *name) {
-  id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = neko_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
   id<MTLFunction> func = [lib newFunctionWithName:nsName];
@@ -69,7 +68,7 @@ get_schwarz_pipeline(const char *name) {
   }
   NSError *error = nil;
   id<MTLComputePipelineState> pso =
-    [device newComputePipelineStateWithFunction:func error:&error];
+    neko_metal_new_pipeline(func, NEKO_METAL_MAX_THREADS, &error);
   METAL_CHECK(error);
   return pso;
 }
@@ -127,6 +126,7 @@ void metal_schwarz_extrude(void *arr1, int *l1, real *f1,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**
@@ -159,6 +159,7 @@ void metal_schwarz_toext3d(void *a, void *b, int *nx, int *nelv, void *stream) {
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**
@@ -191,4 +192,5 @@ void metal_schwarz_toreg3d(void *b, void *a, int *nx, int *nelv, void *stream) {
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }

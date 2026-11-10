@@ -52,6 +52,7 @@ SUBDIRS = tuple\
 	  checkpoint_payload\
 	  wall_sampling\
 	  map_1d\
+	  runtime_stats\
 	  geo_compression\
 	  restart_consistency\
 	  crystal_router\
@@ -111,6 +112,7 @@ TESTS = device/device_test\
 	checkpoint_payload/checkpoint_payload_test\
 	wall_sampling/wall_sampling_test\
 	map_1d/map_1d_test\
+	runtime_stats/runtime_stats_test\
 	geo_compression/geo_compression_test\
 	restart_consistency/restart_consistency_test\
 	crystal_router/crystal_router_test\
@@ -218,6 +220,8 @@ EXTRA_DIST = \
 	wall_sampling/wall_sampling_test\
 	map_1d/test_map_1d.pf\
 	map_1d/map_1d_test\
+	runtime_stats/test_runtime_stats.pf\
+	runtime_stats/runtime_stats_test\
 	geo_compression/test_geo_compression_parallel.pf\
 	geo_compression/geo_compression_test\
 	restart_consistency/test_restart_consistency.pf\

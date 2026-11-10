@@ -1742,7 +1742,7 @@ contains
     real(kind=rp), dimension(n), intent(inout) :: u
     type(c_ptr), optional, intent(inout) :: event
     integer :: m, l, op, lo, so, tid
-    type(c_ptr) :: scatter_event
+    type(c_ptr) :: scatter_event, local_event
 
     lo = gs%local_facet_offset
     so = -gs%shared_facet_offset
@@ -1761,6 +1761,17 @@ contains
     ! dereferences a null descriptor (segfaults on CCE).
     scatter_event = C_NULL_PTR
     if (present(event)) scatter_event = event
+
+    ! A null event makes the device backend sync its stream after a scatter.
+    ! For the local scatter that stalls the host in the middle of the halo
+    ! exchange, so record the backend's own scatter event instead. Without
+    ! an exchange the local scatter is the last one of the op and carries
+    ! the caller's event, or the implied sync when none is given.
+    if (pe_size .gt. 1 .and. n .gt. 0) then
+       local_event = gs%bcknd%scatter_event
+    else
+       local_event = scatter_event
+    end if
 
     !$omp parallel if (NEKO_BCKND_DEVICE .eq. 0)
     call profiler_start_region("gather_scatter", 5)
@@ -1788,7 +1799,7 @@ contains
          op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
-         .false., C_NULL_PTR)
+         .false., local_event)
     call profiler_end_region("gs_local", 12)
     ! Scatter shared dofs
     if (pe_size .gt. 1 .and. n .gt. 0) then
@@ -1960,7 +1971,7 @@ contains
     integer, intent(in) :: n, op, nc, lo, so, m, l, tid
     real(kind=rp), dimension(n), intent(inout) :: u1, u2, u3
     type(c_ptr), intent(inout) :: scatter_event
-    type(c_ptr) :: sgs_d, col_d, col_event
+    type(c_ptr) :: sgs_d, col_d, col_event, local_event
     integer(c_intptr_t) :: sv_addr, off_bytes
     integer(c_size_t) :: colbytes
     real(c_rp) :: rp_dummy
@@ -1987,6 +1998,17 @@ contains
        col_event = C_NULL_PTR
     else
        col_event = scatter_event
+    end if
+
+    ! A null event makes the device backend sync its stream after a scatter.
+    ! For the local scatter that stalls the host in the middle of the halo
+    ! exchange, so record the backend's own scatter event instead. Without
+    ! an exchange the local scatter is the last one of the op and carries
+    ! the caller's event, or the implied sync when none is given.
+    if (pe_size .gt. 1 .and. n .gt. 0) then
+       local_event = gs%bcknd%scatter_event
+    else
+       local_event = scatter_event
     end if
 
     if (pe_size .gt. 1 .and. n .gt. 0) then
@@ -2050,19 +2072,19 @@ contains
          op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u1, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
-         .false., C_NULL_PTR)
+         .false., local_event)
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u2, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
          op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u2, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
-         .false., C_NULL_PTR)
+         .false., local_event)
     call gs%bcknd%gather(gs%local_gs, m, lo, gs%local_dof_gs, u3, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
          op, .false.)
     call gs%bcknd%scatter(gs%local_gs, m, gs%local_dof_gs, u3, n, &
          gs%local_gs_dof, gs%nlocal_blks, gs%local_blk_len, gs%local_blk_off, &
-         .false., C_NULL_PTR)
+         .false., local_event)
 
     ! Wait for the fused exchange (reduces into shared_gs_v), then stage each
     ! column back into the shared buffer and scatter.
