@@ -7,6 +7,7 @@ module vtkhdf_parallel
   use file, only : file_t
   use vtkhdf_file, only : vtkhdf_file_t
   use num_types, only : i8
+  use math, only : NEKO_EPS
   use mesh, only : mesh_t
   use point, only : point_t
   use space, only : space_t, GLL
@@ -378,6 +379,99 @@ contains
     call h5close_f(hdferr)
 
   end subroutine test_vtkhdf_write
+
+  !> Velocity must hold u, v and w on every rank when written at the default
+  !! precision, the working precision, where the components are written directly
+  !! rather than through an interleaved buffer.
+  @test(npes=[2])
+  subroutine test_vtkhdf_write_velocity(this)
+    class (test_vtkhdf), intent(inout) :: this
+    type(space_t) :: Xh
+    type(mesh_t) :: msh
+    type(field_t), target :: u, v, w
+    type(field_list_t) :: fields
+    type(file_t) :: file
+    character(len=80) :: fname
+    character(len=:), allocatable :: message
+    integer :: i, offset, ierr, hdferr
+    integer(hid_t) :: file_id, dset_id, filespace
+    integer(hsize_t), dimension(2) :: h5dims, h5maxdims
+    real(kind=dp) :: tol
+
+    ! Each rank has 2 elements of 4**3 points
+    integer, parameter :: LX = 4
+    integer, parameter :: LOCAL_POINTS = 128
+    integer, parameter :: TOTAL_POINTS = 256
+    real(kind=dp) :: velocity(3, TOTAL_POINTS), expected(3, TOTAL_POINTS)
+
+    call test_vtkhdf_gen_msh(msh)
+    call Xh%init(GLL, lx, lx, lx)
+    call u%init(msh, Xh, 'u')
+    call v%init(msh, Xh, 'v')
+    call w%init(msh, Xh, 'w')
+
+    ! Component c at global point g holds 1000*c + g, which any rp represents
+    offset = pe_rank * LOCAL_POINTS
+    u%x = reshape([(real(1000 + offset + i, rp), i = 1, LOCAL_POINTS)], &
+         shape(u%x))
+    v%x = reshape([(real(2000 + offset + i, rp), i = 1, LOCAL_POINTS)], &
+         shape(v%x))
+    w%x = reshape([(real(3000 + offset + i, rp), i = 1, LOCAL_POINTS)], &
+         shape(w%x))
+
+    call fields%init(3)
+    call fields%assign_to_field(1, u)
+    call fields%assign_to_field(2, v)
+    call fields%assign_to_field(3, w)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call fields%copy_from(HOST_TO_DEVICE, .true.)
+    end if
+
+    fname = "test_write_velocity.vtkhdf"
+    call file%init(fname)
+    call file%write(fields)
+    call file%free()
+    call fields%free()
+
+    call MPI_Barrier(NEKO_COMM%mpi_val, ierr)
+
+    call h5open_f(hdferr)
+    call h5fopen_f("test_write_velocity_0.vtkhdf", H5F_ACC_RDONLY_F, file_id, &
+         hdferr)
+    message = "Must open HDF5 file"
+    @assertEqual(0, hdferr, message = message)
+    call h5dopen_f(file_id, "VTKHDF/PointData/Velocity", dset_id, hdferr)
+    message = "PointData/Velocity must exist"
+    @assertEqual(0, hdferr, message = message)
+
+    call h5dget_space_f(dset_id, filespace, hdferr)
+    call h5sget_simple_extent_dims_f(filespace, h5dims, h5maxdims, hdferr)
+    call h5sclose_f(filespace, hdferr)
+    message = "Velocity dim 1 must be 3"
+    @assertEqual(3, int(h5dims(1)), message = message)
+    message = "Velocity dim 2 must be total points"
+    @assertEqual(TOTAL_POINTS, int(h5dims(2)), message = message)
+
+    call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, velocity, h5dims, hdferr)
+    message = "Must read Velocity"
+    @assertEqual(0, hdferr, message = message)
+    call h5dclose_f(dset_id, hdferr)
+    call h5fclose_f(file_id, hdferr)
+    call h5close_f(hdferr)
+
+    do i = 1, TOTAL_POINTS
+       expected(:, i) = [1000.0_dp + i, 2000.0_dp + i, 3000.0_dp + i]
+    end do
+    tol = real(NEKO_EPS, dp)
+
+    message = "Velocity component 1 must be u"
+    @assertEqual(expected(1,:), velocity(1,:), tolerance=tol, message=message)
+    message = "Velocity component 2 must be v"
+    @assertEqual(expected(2,:), velocity(2,:), tolerance=tol, message=message)
+    message = "Velocity component 3 must be w"
+    @assertEqual(expected(3,:), velocity(3,:), tolerance=tol, message=message)
+
+  end subroutine test_vtkhdf_write_velocity
 
   @test(npes=[2])
   subroutine test_vtkhdf_write_time(this)
