@@ -213,31 +213,42 @@ contains
          call rzero(x_c, (4*s+1) * (s+1))
          call rzero(temp, (4*s+1)**2)
 
+         ! Gram matrix of the basis, packed as its lower triangle. Each
+         ! thread sums its blocks into a private copy of temp, with the
+         ! running sum of an entry held in a scalar across a block.
+         !$omp parallel do private(j, k, l, it, tmp) reduction(+:temp)
          do i = 0, n, NEKO_BLK_SIZE
             it = 0
             if (i + NEKO_BLK_SIZE .le. n) then
                do j = 1, 4*s+1
                   do l = 1, j
                      it = it + 1
+                     tmp = temp(it,1)
                      do k = 1, NEKO_BLK_SIZE
-                        temp(it,1) = temp(it,1) &
+                        tmp = tmp &
                              + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
+                     temp(it,1) = tmp
                   end do
                end do
             else
                do j = 1, 4*s+1
                   do l = 1, j
                      it = it + 1
+                     tmp = temp(it,1)
                      do k = 1, n-i
-                        temp(it,1) = temp(it,1) &
+                        tmp = tmp &
                              + PR(i+k,j) * PR(i+k,l) * coef%mult(i+k,1,1,1)
                      end do
+                     temp(it,1) = tmp
                   end do
                end do
             end if
          end do
+         !$omp end parallel do
 
+         ! Number of packed entries, it is private to the loop above
+         it = ((4*s+1) * (4*s+2)) / 2
          call MPI_Allreduce(temp, temp2, it, &
               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)
          it = 0
@@ -292,6 +303,7 @@ contains
          call rzero(p, n)
          call rzero(r, n)
          rtr = 0.0_rp
+         !$omp parallel do private(j, k, tmp) reduction(+:rtr)
          do i = 0, n, NEKO_BLK_SIZE
             if (i + NEKO_BLK_SIZE .le. n) then
                do j = 1, 4*s + 1
@@ -319,6 +331,7 @@ contains
                end do
             end if
          end do
+         !$omp end parallel do
 
          call MPI_Allreduce(rtr, tmp, 1, &
               MPI_REAL_PRECISION, MPI_SUM, NEKO_COMM, ierr)

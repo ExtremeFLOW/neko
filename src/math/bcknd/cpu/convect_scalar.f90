@@ -133,6 +133,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -173,6 +174,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -198,6 +200,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -238,6 +241,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -263,6 +267,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -303,6 +308,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -328,6 +334,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -368,6 +375,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -393,6 +401,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -433,6 +442,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -458,6 +468,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -498,6 +509,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -523,6 +535,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -563,6 +576,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -588,6 +602,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -628,6 +643,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -653,6 +669,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -693,6 +710,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -718,6 +736,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -758,6 +777,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -783,6 +803,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -823,6 +844,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -848,6 +870,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -888,6 +911,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -913,6 +937,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -953,6 +978,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -978,6 +1004,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1018,6 +1045,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -1043,6 +1071,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1083,6 +1112,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -1108,6 +1138,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1148,6 +1179,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -1173,6 +1205,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1213,6 +1246,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
@@ -1238,6 +1272,7 @@ contains
 
     n_GLL = nelv * Xh_GLL%lxyz
 
+    !$omp parallel do private(e, i, j, k, l, tmp, idx, ur, us, ut, ud)
     do e = 1, nelv
        do j = 1, lx * lx
           do i = 1, lx
@@ -1278,6 +1313,7 @@ contains
        idx = (e-1) * Xh_GLL%lxyz+1
        call GLL_to_GL%map(du(idx,1,1,1), ud, 1, Xh_GLL)
     end do
+    !$omp end parallel do
     call coef_GLL%gs_h%op(du, n_GLL, GS_OP_ADD)
     call col2(du, coef_GLL%Binv, n_GLL)
 
