@@ -136,15 +136,18 @@ contains
   !> @param this The compressible fluid scheme object
   !> @param msh Mesh data structure
   !> @param lx Polynomial order in x-direction
-  !> @param params JSON configuration parameters
+  !> @param params The fluid parameters, i.e. `case.fluid`
+  !> @param numerics_params The numerical parameters, i.e. `case.numerics`
   !> @param scheme Name of the numerical scheme
   !> @param user User-defined parameters and functions
-  subroutine fluid_scheme_compressible_init(this, msh, lx, params, scheme, user)
+  subroutine fluid_scheme_compressible_init(this, msh, lx, params, &
+       numerics_params, scheme, user)
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
-    character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
+    character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
     logical :: compress_geo
     real(kind=rp) :: compress_tol
@@ -170,11 +173,16 @@ contains
     ! Assign Dofmap to scratch registry
     call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
-    ! Case parameters
-    this%params => params
+    ! Keep a copy of the fluid parameters
+    if (allocated(this%params)) then
+       call this%params%destroy()
+       deallocate(this%params)
+    end if
+    allocate(this%params)
+    this%params = params
 
     ! Assign a name
-    call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
+    call json_get_or_default(params, 'name', this%name, "fluid")
 
     ! Material properties will be set up via set_material_properties
     call neko_registry%add_field(this%dm_Xh, this%name // "_rho")
@@ -239,7 +247,7 @@ contains
     call this%set_material_properties(params, user)
 
     ! Compressible parameters
-    call json_get_or_default(params, 'case.fluid.gamma', this%gamma, 1.4_rp)
+    call json_get_or_default(params, 'gamma', this%gamma, 1.4_rp)
 
     ! Calculate global points for logging
     this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
@@ -248,17 +256,16 @@ contains
     !
     ! Log solver information
     !
-    call this%log_solver_info(params, scheme, lx)
+    call this%log_solver_info(numerics_params, scheme, lx)
 
     ! Compressed geometric factors, read by the standard Helmholtz operator
-    call json_get_or_default(params, &
-         'case.numerics.compress_geometric_factors', compress_geo, .false.)
+    call json_get_or_default(numerics_params, &
+         'compress_geometric_factors', compress_geo, .false.)
     if (compress_geo) then
-       if (params%valid_path( &
-            'case.numerics.compress_geometric_factors_tolerance')) then
-          call json_get_or_lookup(params, &
-               'case.numerics.compress_geometric_factors_tolerance', &
-               compress_tol)
+       if (numerics_params%valid_path( &
+            'compress_geometric_factors_tolerance')) then
+          call json_get_or_lookup(numerics_params, &
+               'compress_geometric_factors_tolerance', compress_tol)
           call this%c_Xh%enable_geo_compression(compress_tol)
        else
           call this%c_Xh%enable_geo_compression()
@@ -355,6 +362,11 @@ contains
     nullify(this%kappa)
 
     call this%material_properties%free()
+
+    if (allocated(this%params)) then
+       call this%params%destroy()
+       deallocate(this%params)
+    end if
 
   end subroutine fluid_scheme_compressible_free
 
@@ -466,9 +478,9 @@ contains
     else
        this%variable_material_properties = .false.
        this%user_material_properties => dummy_user_material_properties
-       call json_get_or_lookup_or_default(params, 'case.fluid.mu', const_mu, &
+       call json_get_or_lookup_or_default(params, 'mu', const_mu, &
             0.0_rp)
-       call json_get_or_lookup_or_default(params, 'case.fluid.kappa', &
+       call json_get_or_lookup_or_default(params, 'kappa', &
             const_kappa, 0.0_rp)
 
        call field_cfill(this%mu, const_mu)
@@ -561,12 +573,13 @@ contains
 
   !> Log comprehensive solver information
   !> @param this The compressible fluid scheme object
-  !> @param params JSON configuration parameters
+  !> @param numerics_params The numerical parameters, i.e. `case.numerics`
   !> @param scheme Name of the numerical scheme
   !> @param lx Polynomial order in x-direction
-  subroutine fluid_scheme_compressible_log_solver_info(this, params, scheme, lx)
+  subroutine fluid_scheme_compressible_log_solver_info(this, numerics_params, &
+       scheme, lx)
     class(fluid_scheme_compressible_t), intent(inout) :: this
-    type(json_file), intent(inout) :: params
+    type(json_file), intent(inout) :: numerics_params
     character(len=*), intent(in) :: scheme
     integer, intent(in) :: lx
     character(len=LOG_SIZE) :: log_buf
@@ -599,12 +612,12 @@ contains
     write(log_buf, '(A,ES13.6)') 'gamma      :', this%gamma
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, 'case.numerics.time_order', integer_val, 4)
+    call json_get_or_default(numerics_params, 'time_order', integer_val, 4)
     write(log_buf, '(A, I0)') 'RK order   : ', integer_val
     call neko_log%message(log_buf)
 
-    call json_get_or_default(params, &
-         'case.numerics.compress_geometric_factors', logical_val, .false.)
+    call json_get_or_default(numerics_params, &
+         'compress_geometric_factors', logical_val, .false.)
     write(log_buf, '(A, L1)') 'Compress G : ', logical_val
     call neko_log%message(log_buf)
 
