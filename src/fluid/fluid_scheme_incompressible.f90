@@ -64,6 +64,7 @@ module fluid_scheme_incompressible
   use device, only : glb_cmd_event, DEVICE_TO_HOST, device_memcpy
   use time_state, only : time_state_t
   use spectral_vanishing_viscosity, only : svv_t
+  use flow_ic, only : set_flow_ic_user_incompressible
   implicit none
   private
 
@@ -110,6 +111,9 @@ module fluid_scheme_incompressible
      procedure, pass(this) :: scheme_free => fluid_scheme_free
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_validate
+     !> Set the initial condition with the user routine
+     procedure, pass(this) :: set_user_initial_condition => &
+          fluid_scheme_set_user_initial_condition
      !> Apply pressure boundary conditions
      procedure, pass(this) :: bc_apply_vel => fluid_scheme_bc_apply_vel
      !> Apply velocity boundary conditions
@@ -182,6 +186,9 @@ contains
 
     ! Assign Dofmap to scratch registry
     call neko_scratch_registry%set_dofmap(this%dm_Xh)
+
+    ! Case parameters
+    this%params => params
 
     ! Assign a name
     call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
@@ -509,6 +516,18 @@ contains
     end if
 
   end subroutine fluid_scheme_validate
+
+  !> Set the initial condition of the velocity and pressure with the user
+  !! routine.
+  !! @param user Type with user-defined procedures.
+  subroutine fluid_scheme_set_user_initial_condition(this, user)
+    class(fluid_scheme_incompressible_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+
+    call set_flow_ic_user_incompressible(this%u, this%v, this%w, this%p, &
+         this%c_Xh, this%gs_Xh, user%initial_conditions, this%name)
+
+  end subroutine fluid_scheme_set_user_initial_condition
 
   !> Apply all boundary conditions defined for velocity
   !! Here we perform additional gs operations to take care of

@@ -198,6 +198,10 @@ module fluid_pnpn
      procedure, pass(this) :: step => fluid_pnpn_step
      !> Restart from a previous solution.
      procedure, pass(this) :: restart => fluid_pnpn_restart
+     !> Set the initial condition, the lagged velocity fields and the ALE
+     !! mesh velocity.
+     procedure, pass(this) :: set_initial_condition => &
+          fluid_pnpn_set_initial_condition
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs => fluid_pnpn_setup_bcs
      !> Write a field with boundary condition specifications.
@@ -720,6 +724,31 @@ contains
     end select
 
   end subroutine fluid_pnpn_restart
+
+  !> Set the initial condition of the velocity and pressure, copy the initial
+  !! velocity to the lagged velocity fields, and set the initial ALE mesh
+  !! velocity.
+  !! @param user Type with user-defined procedures.
+  !! @param is_restart Whether the case is restarting from a checkpoint.
+  subroutine fluid_pnpn_set_initial_condition(this, user, is_restart)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+    logical, intent(in) :: is_restart
+
+    ! Set before the IC
+    if (.not. is_restart) then
+       call this%ale%set_initial_mesh_velocity(this%c_Xh)
+    end if
+
+    call this%set_initial_condition_base(user, is_restart)
+
+    if (.not. is_restart) then
+       call this%ulag%set(this%u)
+       call this%vlag%set(this%v)
+       call this%wlag%set(this%w)
+    end if
+
+  end subroutine fluid_pnpn_set_initial_condition
 
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this
