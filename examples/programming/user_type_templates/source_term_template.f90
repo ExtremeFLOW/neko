@@ -3,7 +3,7 @@ module source_term_template
   use coefs, only : coef_t
   use field_list, only : field_list_t
   use json_module, only : json_file
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use source_term, only : source_term_t, source_term_allocate, &
        register_source_term
   use time_state, only : time_state_t
@@ -39,9 +39,10 @@ contains
     call this%free_base()
   end subroutine source_term_template_free
 
-  subroutine source_term_template_compute(this, time)
+  subroutine source_term_template_compute(this, time, eval_time)
     class(source_term_template_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     ! TODO: Add this source term to this%fields.
   end subroutine source_term_template_compute
 

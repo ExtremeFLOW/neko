@@ -33,7 +33,7 @@
 !
 !> Implements `gradient_jump_penalty_t`.
 module gradient_jump_penalty
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use utils, only : neko_error
   use json_utils, only : json_get_or_default
   use json_module, only : json_file
@@ -829,9 +829,11 @@ contains
 
   !> Assign the gradient jump penalty term.
   !! @param time The time state.
-  subroutine gradient_jump_penalty_compute(this, time)
+  !! @param eval_time The time at which to evaluate the source term.
+  subroutine gradient_jump_penalty_compute(this, time, eval_time)
     class(gradient_jump_penalty_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     integer :: i, n_fields, n
 
     n_fields = this%fields%size()

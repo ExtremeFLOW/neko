@@ -283,16 +283,19 @@ contains
   end subroutine neko_api_user_material_properties
 
   !> API user source term callback caller
-  subroutine neko_api_user_source_term(scheme_name, rhs, time)
+  !! @details The callback is passed `eval_time`, the time at which to
+  !! evaluate the source term.
+  subroutine neko_api_user_source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     call neko_api_set_cb_field_list(rhs)
 
     if (associated(neko_api_user_cb%source)) then
        call neko_api_user_cb%source(trim(scheme_name), &
-            len_trim(scheme_name),time%t, time%tstep)
+            len_trim(scheme_name), eval_time, time%tstep)
     else
        call neko_error("Source term callback not defined")
     end if

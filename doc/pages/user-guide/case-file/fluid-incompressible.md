@@ -822,9 +822,7 @@ density.
 
 For each source, the `type` keyword defines the kind of forcing that will be
 introduced. Furthermore, the `start_time` and `end_time` keywords can be used to
-set a time frame for when the source term is active. Note, however, that these
-keywords have no effect on the user-defined source terms, but their execution
-can, of course, be directly controlled in the user code. By default, all source
+set a time frame for when the source term is active. By default, all source
 terms are active during the entire simulation.
 
 The following types are currently implemented.

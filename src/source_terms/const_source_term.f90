@@ -32,7 +32,7 @@
 !
 !> Implements the `const_source_term_t` type.
 module const_source_term
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field_list, only : field_list_t
   use json_module, only : json_file
   use json_utils, only: json_get_or_default, json_get_or_lookup
@@ -128,9 +128,11 @@ contains
 
   !> Computes the source term and adds the result to `fields`.
   !! @param time The time state.
-  subroutine const_source_term_compute(this, time)
+  !! @param eval_time The time at which to evaluate the source term.
+  subroutine const_source_term_compute(this, time, eval_time)
     class(const_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     integer :: n_fields, i, n
 
     n_fields = this%fields%size()

@@ -891,8 +891,10 @@ contains
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)
 
-      ! Compute the source terms that are extrapolated in time below
-      call this%source_term%compute(time, extrapolate = .true.)
+      ! Compute the source terms that are extrapolated in time below. The
+      ! extrapolation takes values at the previous time levels, so they are
+      ! evaluated at the start of the step, like the other explicit terms.
+      call this%source_term%compute(time, time%tlag(1), extrapolate = .true.)
 
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
@@ -962,7 +964,8 @@ contains
       ! Source terms that must not be extrapolated in time are added as
       ! computed, weighted by the mass matrix and the density like the
       ! extrapolated terms above.
-      call this%source_term%compute(time, extrapolate = .false., scale = rho)
+      call this%source_term%compute(time, time%t, extrapolate = .false., &
+           scale = rho)
 
       if (this%ale%active) then
          ! Advance Mesh (Moves points, updates B history, updates wm_lags)

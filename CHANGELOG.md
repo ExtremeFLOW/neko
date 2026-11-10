@@ -11,6 +11,10 @@
 - PR#2891 `csv_file_t%header` is now a deferred-length allocatable, which
   stays unallocated until the header is set. Code reading it directly must
   check `allocated()` first.
+- The user source term routine, `user%source_term`, and
+  `source_term_t%compute_` take an additional argument `eval_time`, the time at
+  which to evaluate the source term, which time-dependent source terms must use
+  instead of `time%t`.
 
 ## Develop
 
