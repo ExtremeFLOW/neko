@@ -1,5 +1,5 @@
 <map id="schwarz::schwarz_compute" name="schwarz::schwarz_compute">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,125,205,153"/>
+<area shape="rect" id="Node000001" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="5,125,205,153"/>
 <area shape="rect" id="Node000002" href="$d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="253,5,445,33"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="123,123,178,83,252,42,271,37,266,40,254,47,181,88,126,127"/>
 <area shape="rect" id="Node000003" href="$d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0" title="Same as schwarz_extrude but for the case when arr1 and arr2 are the same array. Avoids aliasing by us..." alt="" coords="253,57,445,102"/>

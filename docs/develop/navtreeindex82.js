@@ -1,5 +1,7 @@
 var NAVTREEINDEX82 =
 {
+"da/d77/namespacetree__amg__aggregate.html#aef5c98b12984e9821f9dcc7edc13af2e":[1,0,448,1],
+"da/d77/namespacetree__amg__aggregate.html#af6d21d1d1265727bc608a84be68788f8":[1,0,448,10],
 "da/d78/namespacescalar__residual__cpu.html":[1,0,376],
 "da/d78/namespacescalar__residual__cpu.html#a54bb20451bbcbc064b1ad19f386c96b8":[1,0,376,1],
 "da/d79/namespacescalar__pnpn__bc__template.html":[1,0,374],
@@ -247,7 +249,5 @@ var NAVTREEINDEX82 =
 "da/d8a/structfluid__stats_1_1fluid__stats__t.html#adbbcdabd74e902f1238b6c5d45dab482":[1,0,200,0,37],
 "da/d8a/structfluid__stats_1_1fluid__stats__t.html#adbbcdabd74e902f1238b6c5d45dab482":[2,0,174,0,37],
 "da/d8a/structfluid__stats_1_1fluid__stats__t.html#adcd51dfeaf4798d4b650d1b9c0b5f155":[1,0,200,0,27],
-"da/d8a/structfluid__stats_1_1fluid__stats__t.html#adcd51dfeaf4798d4b650d1b9c0b5f155":[2,0,174,0,27],
-"da/d8a/structfluid__stats_1_1fluid__stats__t.html#ae6edac6fced1943db032a3c3f4d70219":[1,0,200,0,31],
-"da/d8a/structfluid__stats_1_1fluid__stats__t.html#ae6edac6fced1943db032a3c3f4d70219":[2,0,174,0,31]
+"da/d8a/structfluid__stats_1_1fluid__stats__t.html#adcd51dfeaf4798d4b650d1b9c0b5f155":[2,0,174,0,27]
 };

@@ -1,6 +1,6 @@
 <map id="schwarz::schwarz_wt3d" name="schwarz::schwarz_wt3d">
 <area shape="rect" id="Node000001" title=" " alt="" coords="253,32,427,60"/>
-<area shape="rect" id="Node000002" href="$d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416" title=" " alt="" coords="5,5,205,33"/>
+<area shape="rect" id="Node000002" href="$d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="5,5,205,33"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="234,34,205,33,205,28,240,34"/>
 <area shape="rect" id="Node000003" href="$d2/d37/namespaceschwarz.html#a811a6ece396faecfd5528196ece1d231" title=" " alt="" coords="23,57,187,85"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="234,57,187,65,187,60,240,57"/>

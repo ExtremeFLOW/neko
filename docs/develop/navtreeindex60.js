@@ -1,5 +1,7 @@
 var NAVTREEINDEX60 =
 {
+"d7/dd3/structprobes_1_1probes__t.html#affb33c2a444588cfc62508d2729243d5":[2,0,298,0,45],
+"d7/dd4/namespaceneko__mpi__types.html":[1,0,299],
 "d7/dd4/namespaceneko__mpi__types.html#a042d825794eb11c05bf9c528ac00df72":[1,0,299,4],
 "d7/dd4/namespaceneko__mpi__types.html#a067a111d5ace3bc5eb37b75e46dc8544":[1,0,299,8],
 "d7/dd4/namespaceneko__mpi__types.html#a08d4bce14d80ce9956cf3b8555324bd6":[1,0,299,5],
@@ -247,7 +249,5 @@ var NAVTREEINDEX60 =
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a22cfea06b3705d495763c2e12d5507ac":[2,0,44,0,31],
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a241adc4d95c7cfb4e70c0f98d694f025":[1,0,45,0,10],
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a241adc4d95c7cfb4e70c0f98d694f025":[2,0,44,0,10],
-"d7/df8/structboundary__flux_1_1boundary__flux__t.html#a2c77c2b1ec047d2395544730b908954b":[1,0,45,0,43],
-"d7/df8/structboundary__flux_1_1boundary__flux__t.html#a2c77c2b1ec047d2395544730b908954b":[2,0,44,0,43],
-"d7/df8/structboundary__flux_1_1boundary__flux__t.html#a376c4859aa8c703a53df43c964afa0a7":[1,0,45,0,1]
+"d7/df8/structboundary__flux_1_1boundary__flux__t.html#a2c77c2b1ec047d2395544730b908954b":[1,0,45,0,43]
 };

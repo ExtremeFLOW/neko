@@ -1,5 +1,7 @@
 var NAVTREEINDEX7 =
 {
+"d0/dca/structblasius_1_1blasius__t.html#ac9c45a8ed2e761cf3d3460567cbc4336":[1,0,42,0,44],
+"d0/dca/structblasius_1_1blasius__t.html#ac9c45a8ed2e761cf3d3460567cbc4336":[2,0,41,0,44],
 "d0/dca/structblasius_1_1blasius__t.html#aca01313e3fa26077db1411a40fd3ff36":[1,0,42,0,5],
 "d0/dca/structblasius_1_1blasius__t.html#aca01313e3fa26077db1411a40fd3ff36":[2,0,41,0,5],
 "d0/dca/structblasius_1_1blasius__t.html#acec6ac3a12e639a12be6344c9b4e3208":[1,0,42,0,49],
@@ -247,7 +249,5 @@ var NAVTREEINDEX7 =
 "d0/dea/structcoefs_1_1coef__t.html#a33e3f7e777e6b3232be39c5e75c7653a":[1,0,78,0,23],
 "d0/dea/structcoefs_1_1coef__t.html#a33e3f7e777e6b3232be39c5e75c7653a":[2,0,72,0,23],
 "d0/dea/structcoefs_1_1coef__t.html#a36f8cddfcbb13410a10252693629dbfa":[1,0,78,0,104],
-"d0/dea/structcoefs_1_1coef__t.html#a36f8cddfcbb13410a10252693629dbfa":[2,0,72,0,104],
-"d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab":[1,0,78,0,16],
-"d0/dea/structcoefs_1_1coef__t.html#a379446619e085f1317f6526b990a8dab":[2,0,72,0,16]
+"d0/dea/structcoefs_1_1coef__t.html#a36f8cddfcbb13410a10252693629dbfa":[2,0,72,0,104]
 };

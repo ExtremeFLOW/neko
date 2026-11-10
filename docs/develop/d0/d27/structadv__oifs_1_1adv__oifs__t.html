@@ -34,7 +34,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -239,6 +239,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a4499f5f6778cb519514d56cd42365f57"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="memitem:a82d8aa68871115da38ebbb08d22b41c3" id="r_a82d8aa68871115da38ebbb08d22b41c3"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a82d8aa68871115da38ebbb08d22b41c3">set_conv_velocity_fst</a> (this, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>)</td></tr>
 <tr class="memdesc:a82d8aa68871115da38ebbb08d22b41c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">setting characteristic convecting field  <br /></td></tr>
+<tr class="memitem:a745e5201a1087ae7a28b12112a0ef1e3" id="r_a745e5201a1087ae7a28b12112a0ef1e3"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a745e5201a1087ae7a28b12112a0ef1e3">restart</a> (this)</td></tr>
+<tr class="memdesc:a745e5201a1087ae7a28b12112a0ef1e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rebuild the convecting field series after a restart.  <br /></td></tr>
 <tr class="memitem:a0bf4d39e6fd3feb80b642ae21ddea8dc" id="r_a0bf4d39e6fd3feb80b642ae21ddea8dc"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0bf4d39e6fd3feb80b642ae21ddea8dc">free</a> (this)</td></tr>
 <tr class="memdesc:a0bf4d39e6fd3feb80b642ae21ddea8dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="memitem:ad75e86618ff4902e0b4bc9ec2bc71c0c" id="r_ad75e86618ff4902e0b4bc9ec2bc71c0c"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad75e86618ff4902e0b4bc9ec2bc71c0c">compute_ale</a> (this, <a class="el" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#ac706a70ba3dbb38bd00084d630cc051d">vx</a>, <a class="el" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#ad76910aa489894a13e60e6c10225fae3">vy</a>, <a class="el" href="../../d1/dd9/cuda_2conv1__kernel_8h.html#aab0613c32f935cc1cc86770d44be2857">vz</a>, wm_x, wm_y, wm_z, fx, fy, fz, xh, coef, n, <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ad519bd443b2b8cced1f8ec5408b28fdf">dt</a>)</td></tr>
@@ -551,7 +553,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00116">116</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
 
 </div>
 </div>
@@ -810,7 +812,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00115">115</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
 
 </div>
 </div>
@@ -948,7 +950,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00118">118</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00120">120</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
 
 </div>
 </div>
@@ -985,6 +987,26 @@ Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d8/d71/advection_8f90_source.html#l00051">51</a> of file <a class="el" href="../../d8/d71/advection_8f90_source.html">advection.f90</a>.</p>
+
+</div>
+</div>
+<a id="a745e5201a1087ae7a28b12112a0ef1e3" name="a745e5201a1087ae7a28b12112a0ef1e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a745e5201a1087ae7a28b12112a0ef1e3">&#9670;&#160;</a></span>restart()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) adv_oifs::adv_oifs_t::restart </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p><span class="tt">convr_GL</span>, <span class="tt">convs_GL</span> and <span class="tt">convt_GL</span> are not stored in the checkpoint. They are recomputed from the restored lagged velocities, first <span class="tt">lf(2)</span> and then <span class="tt">lf(1)</span>. The next call to <span class="tt"><a class="el" href="#a1828c1c42bcb648531e74193f42549a1" title="Add the advection term for the fluid, i.e. , to the RHS.">compute</a></span> or <span class="tt"><a class="el" href="#acb9ba8461bf59395e51b196691582c6b" title="Add the advection term for a scalar, i.e. , to the RHS.">compute_scalar</a></span> adds the current velocity, as in a run without restart. </p>
+
+<p class="definition">Definition at line <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html#l00113">113</a> of file <a class="el" href="../../d4/dda/adv__oifs_8f90_source.html">adv_oifs.f90</a>.</p>
 
 </div>
 </div>

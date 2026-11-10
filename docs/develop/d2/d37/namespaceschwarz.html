@@ -34,7 +34,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -126,12 +126,13 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a7a6b8a1e76d325b84a8abe931d3e7384"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated communcation to get neighbor values. Simply copy interesting values to the boundary and then do gs_op on extended array.  <br /></td></tr>
 <tr class="memitem:ab2b9de8082309c01044e5ec5c99d14c0" id="r_ab2b9de8082309c01044e5ec5c99d14c0"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab2b9de8082309c01044e5ec5c99d14c0">schwarz_extrude_single</a> (arr, l1, f1, l2, f2, nx, ny, nz, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a4c9c3c00b1d32304b506cfb0b293818a">nelv</a>)</td></tr>
 <tr class="memdesc:ab2b9de8082309c01044e5ec5c99d14c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same as schwarz_extrude but for the case when arr1 and arr2 are the same array. Avoids aliasing by using a single dummy argument. l1 and l2 must index non-overlapping rows (e.g. 0 vs 2).  <br /></td></tr>
-<tr class="memitem:aaaec764e6ff1c0db41b6575074b8d416" id="r_aaaec764e6ff1c0db41b6575074b8d416"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaaec764e6ff1c0db41b6575074b8d416">schwarz_compute</a> (this, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, r)</td></tr>
+<tr class="memitem:aa7011ea11712a55bf121909a92fe1584" id="r_aa7011ea11712a55bf121909a92fe1584"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa7011ea11712a55bf121909a92fe1584">schwarz_compute</a> (this, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, r, deps)</td></tr>
+<tr class="memdesc:aa7011ea11712a55bf121909a92fe1584"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the overlapping Schwarz preconditioner, <em class="arg">e</em> = M^{-1} <em class="arg">r</em>.  <br /></td></tr>
 <tr class="memitem:aac3358ce98e9c604fb514399d8e95cbe" id="r_aac3358ce98e9c604fb514399d8e95cbe"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aac3358ce98e9c604fb514399d8e95cbe">schwarz_wt3d</a> (<a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, wt, n, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a4c9c3c00b1d32304b506cfb0b293818a">nelv</a>)</td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function/Subroutine Documentation</h2>
-<a id="aaaec764e6ff1c0db41b6575074b8d416" name="aaaec764e6ff1c0db41b6575074b8d416"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaaec764e6ff1c0db41b6575074b8d416">&#9670;&#160;</a></span>schwarz_compute()</h2>
+<a id="aa7011ea11712a55bf121909a92fe1584" name="aa7011ea11712a55bf121909a92fe1584"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa7011ea11712a55bf121909a92fe1584">&#9670;&#160;</a></span>schwarz_compute()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -152,7 +153,12 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(this%dof%size()), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>r</em></span>&#160;)</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(this%dof%size()), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), intent(in), optional</td>          <td class="paramname"><span class="paramname"><em>deps</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -161,14 +167,22 @@ Functions/Subroutines</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">e</td><td>Preconditioned output. </td></tr>
+    <tr><td class="paramname">r</td><td>Input residual. </td></tr>
+    <tr><td class="paramname">deps</td><td>Optional device event the Schwarz work on the aux queue waits on before reading <em class="arg">r</em>. When absent, an event is recorded on the global queue at entry, which orders the Schwarz behind everything queued on the global queue so far. A caller that runs the Schwarz concurrently with other work on the global queue should record the event itself, before that work is queued, and pass it here; otherwise the Schwarz is ordered behind the concurrent work as well. </td></tr>
+  </table>
+  </dd>
+</dl>
 
-<p class="definition">Definition at line <a class="el" href="../../df/dc4/schwarz_8f90_source.html#l00506">506</a> of file <a class="el" href="../../df/dc4/schwarz_8f90_source.html">schwarz.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/dc4/schwarz_8f90_source.html#l00516">516</a> of file <a class="el" href="../../df/dc4/schwarz_8f90_source.html">schwarz.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d2/d37/namespaceschwarz_aaaec764e6ff1c0db41b6575074b8d416_cgraph.png" border="0" usemap="#ad2/d37/namespaceschwarz_aaaec764e6ff1c0db41b6575074b8d416_cgraph" loading="lazy" alt=""/></div>
-<map name="ad2/d37/namespaceschwarz_aaaec764e6ff1c0db41b6575074b8d416_cgraph" id="ad2/d37/namespaceschwarz_aaaec764e6ff1c0db41b6575074b8d416_cgraph">
-<area shape="rect" title=" " alt="" coords="5,125,205,153"/>
+<div class="center"><img src="../../d2/d37/namespaceschwarz_aa7011ea11712a55bf121909a92fe1584_cgraph.png" border="0" usemap="#ad2/d37/namespaceschwarz_aa7011ea11712a55bf121909a92fe1584_cgraph" loading="lazy" alt=""/></div>
+<map name="ad2/d37/namespaceschwarz_aa7011ea11712a55bf121909a92fe1584_cgraph" id="ad2/d37/namespaceschwarz_aa7011ea11712a55bf121909a92fe1584_cgraph">
+<area shape="rect" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="5,125,205,153"/>
 <area shape="rect" href="../../d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="253,5,445,33"/>
 <area shape="poly" title=" " alt="" coords="123,123,178,83,252,42,271,37,266,40,254,47,181,88,126,127"/>
 <area shape="rect" href="../../d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0" title="Same as schwarz_extrude but for the case when arr1 and arr2 are the same array. Avoids aliasing by us..." alt="" coords="253,57,445,102"/>
@@ -259,7 +273,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d2/d37/namespaceschwarz_a7a6b8a1e76d325b84a8abe931d3e7384_icgraph.png" border="0" usemap="#ad2/d37/namespaceschwarz_a7a6b8a1e76d325b84a8abe931d3e7384_icgraph" loading="lazy" alt=""/></div>
 <map name="ad2/d37/namespaceschwarz_a7a6b8a1e76d325b84a8abe931d3e7384_icgraph" id="ad2/d37/namespaceschwarz_a7a6b8a1e76d325b84a8abe931d3e7384_icgraph">
 <area shape="rect" title="Sum values along rows l1, l2 with weights f1, f2 and store along row l1. Helps us avoid complicated c..." alt="" coords="466,32,658,60"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416" title=" " alt="" coords="218,5,417,33"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="218,5,417,33"/>
 <area shape="poly" title=" " alt="" coords="448,34,418,33,418,27,453,34"/>
 <area shape="rect" href="../../d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="217,57,418,85"/>
 <area shape="poly" title=" " alt="" coords="453,57,419,63,418,58,448,58"/>
@@ -339,7 +353,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d2/d37/namespaceschwarz_ab2b9de8082309c01044e5ec5c99d14c0_icgraph.png" border="0" usemap="#ad2/d37/namespaceschwarz_ab2b9de8082309c01044e5ec5c99d14c0_icgraph" loading="lazy" alt=""/></div>
 <map name="ad2/d37/namespaceschwarz_ab2b9de8082309c01044e5ec5c99d14c0_icgraph" id="ad2/d37/namespaceschwarz_ab2b9de8082309c01044e5ec5c99d14c0_icgraph">
 <area shape="rect" title="Same as schwarz_extrude but for the case when arr1 and arr2 are the same array. Avoids aliasing by us..." alt="" coords="466,24,658,68"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416" title=" " alt="" coords="218,5,417,33"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="218,5,417,33"/>
 <area shape="poly" title=" " alt="" coords="448,34,418,33,418,27,453,34"/>
 <area shape="rect" href="../../d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="217,57,418,85"/>
 <area shape="poly" title=" " alt="" coords="453,57,419,63,418,58,448,58"/>
@@ -682,7 +696,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d2/d37/namespaceschwarz_abb186b40351fea36a94645705dfefc48_icgraph.png" border="0" usemap="#ad2/d37/namespaceschwarz_abb186b40351fea36a94645705dfefc48_icgraph" loading="lazy" alt=""/></div>
 <map name="ad2/d37/namespaceschwarz_abb186b40351fea36a94645705dfefc48_icgraph" id="ad2/d37/namespaceschwarz_abb186b40351fea36a94645705dfefc48_icgraph">
 <area shape="rect" title="convert array a from original size to size extended array with border" alt="" coords="253,5,445,33"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416" title=" " alt="" coords="5,5,205,33"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="5,5,205,33"/>
 <area shape="poly" title=" " alt="" coords="234,19,205,22,205,17,240,19"/>
 </map>
 </div>
@@ -733,7 +747,7 @@ Here is the caller graph for this function:</div>
 <div class="center"><img src="../../d2/d37/namespaceschwarz_a27c7d0c843a7c38b51e7550059b65970_icgraph.png" border="0" usemap="#ad2/d37/namespaceschwarz_a27c7d0c843a7c38b51e7550059b65970_icgraph" loading="lazy" alt=""/></div>
 <map name="ad2/d37/namespaceschwarz_a27c7d0c843a7c38b51e7550059b65970_icgraph" id="ad2/d37/namespaceschwarz_a27c7d0c843a7c38b51e7550059b65970_icgraph">
 <area shape="rect" title="convert array a from extended size to regular" alt="" coords="466,32,658,60"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416" title=" " alt="" coords="218,5,417,33"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="218,5,417,33"/>
 <area shape="poly" title=" " alt="" coords="448,34,418,33,418,27,453,34"/>
 <area shape="rect" href="../../d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="217,57,418,85"/>
 <area shape="poly" title=" " alt="" coords="453,57,419,63,418,58,448,58"/>
@@ -781,14 +795,14 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../df/dc4/schwarz_8f90_source.html#l00599">599</a> of file <a class="el" href="../../df/dc4/schwarz_8f90_source.html">schwarz.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../df/dc4/schwarz_8f90_source.html#l00612">612</a> of file <a class="el" href="../../df/dc4/schwarz_8f90_source.html">schwarz.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d2/d37/namespaceschwarz_aac3358ce98e9c604fb514399d8e95cbe_icgraph.png" border="0" usemap="#ad2/d37/namespaceschwarz_aac3358ce98e9c604fb514399d8e95cbe_icgraph" loading="lazy" alt=""/></div>
 <map name="ad2/d37/namespaceschwarz_aac3358ce98e9c604fb514399d8e95cbe_icgraph" id="ad2/d37/namespaceschwarz_aac3358ce98e9c604fb514399d8e95cbe_icgraph">
 <area shape="rect" title=" " alt="" coords="253,32,427,60"/>
-<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416" title=" " alt="" coords="5,5,205,33"/>
+<area shape="rect" href="../../d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="5,5,205,33"/>
 <area shape="poly" title=" " alt="" coords="234,34,205,33,205,28,240,34"/>
 <area shape="rect" href="../../d2/d37/namespaceschwarz.html#a811a6ece396faecfd5528196ece1d231" title=" " alt="" coords="23,57,187,85"/>
 <area shape="poly" title=" " alt="" coords="234,57,187,65,187,60,240,57"/>

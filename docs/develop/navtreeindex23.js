@@ -1,5 +1,7 @@
 var NAVTREEINDEX23 =
 {
+"d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a237c22b2bb86d493611f5a94c431ab7d":[1,0,214,0,44],
+"d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a237c22b2bb86d493611f5a94c431ab7d":[2,0,188,0,44],
 "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a23ece3856bf59222a2b70cd64b464bad":[1,0,214,0,65],
 "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a23ece3856bf59222a2b70cd64b464bad":[2,0,188,0,65],
 "d2/db5/structgradient__jump__penalty_1_1gradient__jump__penalty__t.html#a27443e3344440dfb4d645750f885ccce":[1,0,214,0,55],
@@ -247,7 +249,5 @@ var NAVTREEINDEX23 =
 "d2/dd1/structspatial__average_1_1spatial__average__t.html#a01102d943f28ca6e10ab81541c3f06b0":[1,0,412,0,2],
 "d2/dd1/structspatial__average_1_1spatial__average__t.html#a01102d943f28ca6e10ab81541c3f06b0":[2,0,355,0,2],
 "d2/dd1/structspatial__average_1_1spatial__average__t.html#a108b30439e1f99eb6996c949ab197fe3":[1,0,412,0,16],
-"d2/dd1/structspatial__average_1_1spatial__average__t.html#a108b30439e1f99eb6996c949ab197fe3":[2,0,355,0,16],
-"d2/dd1/structspatial__average_1_1spatial__average__t.html#a12f3dabdb732b2b49a37ad2fea7cbd40":[1,0,412,0,6],
-"d2/dd1/structspatial__average_1_1spatial__average__t.html#a12f3dabdb732b2b49a37ad2fea7cbd40":[2,0,355,0,6]
+"d2/dd1/structspatial__average_1_1spatial__average__t.html#a108b30439e1f99eb6996c949ab197fe3":[2,0,355,0,16]
 };

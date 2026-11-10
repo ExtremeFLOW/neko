@@ -1,5 +1,7 @@
 var NAVTREEINDEX66 =
 {
+"d8/d80/namespaceax__helm__compr__sx.html#a44eae06761b59447f30a8bda5e398f91":[1,0,20,15],
+"d8/d80/namespaceax__helm__compr__sx.html#a4978c57f7db25854180b80581e02bb36":[1,0,20,10],
 "d8/d80/namespaceax__helm__compr__sx.html#a63da5ebcf709737adb323d54f5ad5e34":[1,0,20,14],
 "d8/d80/namespaceax__helm__compr__sx.html#a63ed285174f9d11574a4b6fa9a22c37b":[1,0,20,13],
 "d8/d80/namespaceax__helm__compr__sx.html#a6612bc27e20e7ab1715b03dde90deb2c":[1,0,20,4],
@@ -247,7 +249,5 @@ var NAVTREEINDEX66 =
 "d8/dae/device__dirichlet_8F90.html":[3,0,3,3,0,0,6],
 "d8/dae/device__dirichlet_8F90_source.html":[3,0,3,3,0,0,6],
 "d8/dae/namespacefield__subsampler.html":[1,0,178],
-"d8/dae/namespacefield__subsampler.html#a0ffbb0abd2ea84aa2ea06364cb62cdd8":[1,0,178,3],
-"d8/dae/namespacefield__subsampler.html#a136c66ae0b92db07a78c36985fdf9989":[1,0,178,5],
-"d8/dae/namespacefield__subsampler.html#a371e39ef618b543f9090fafbc7ecc34a":[1,0,178,6]
+"d8/dae/namespacefield__subsampler.html#a0ffbb0abd2ea84aa2ea06364cb62cdd8":[1,0,178,3]
 };

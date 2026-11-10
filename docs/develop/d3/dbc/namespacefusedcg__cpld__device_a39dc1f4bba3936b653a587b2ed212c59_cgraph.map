@@ -1,47 +1,45 @@
 <map id="fusedcg_cpld_device::fusedcg_cpld_device_solve_coupled" name="fusedcg_cpld_device::fusedcg_cpld_device_solve_coupled">
-<area shape="rect" id="Node000001" title="Pipelined PCG solve coupled solve." alt="" coords="5,221,170,282"/>
-<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="223,18,418,46"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="99,219,117,181,142,137,175,93,216,56,229,50,225,55,219,60,179,97,147,140,121,184,104,221"/>
-<area shape="rect" id="Node000003" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="222,70,418,98"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="106,219,152,161,182,132,216,107,229,102,225,106,219,111,186,136,156,165,111,222"/>
-<area shape="rect" id="Node000004" href="$d3/dbc/namespacefusedcg__cpld__device.html#afe309b31da74ce440ba28172cd0b6514" title=" " alt="" coords="218,121,423,166"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="137,218,217,176,234,170,230,174,219,181,140,223"/>
-<area shape="rect" id="Node000007" href="$d3/dbc/namespacefusedcg__cpld__device.html#acaca8f2d5150c2c04e3564fd17176f61" title=" " alt="" coords="218,191,423,235"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="169,236,204,231,200,234,171,240"/>
-<area shape="rect" id="Node000015" href="$d3/dbc/namespacefusedcg__cpld__device.html#a6069fc8fe076b9aa06ae431f17cb74d4" title=" " alt="" coords="238,260,402,321"/>
-<area shape="poly" id="edge16_Node000001_Node000015" title=" " alt="" coords="169,263,225,273,221,276,171,268"/>
-<area shape="rect" id="Node000018" href="$d3/dbc/namespacefusedcg__cpld__device.html#a0664f41fb034c6658f5511bd8f3241f9" title=" " alt="" coords="238,345,402,406"/>
-<area shape="poly" id="edge19_Node000001_Node000018" title=" " alt="" coords="134,280,219,331,230,337,225,338,216,335,134,286"/>
-<area shape="rect" id="Node000021" href="$d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa" title="Weighted inner product ." alt="" coords="242,431,398,475"/>
-<area shape="poly" id="edge22_Node000001_Node000021" title=" " alt="" coords="106,280,152,349,184,385,219,416,231,425,226,425,216,420,180,389,148,352,105,285"/>
-<area shape="rect" id="Node000022" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="242,500,398,545"/>
-<area shape="poly" id="edge23_Node000001_Node000022" title=" " alt="" coords="98,280,116,327,141,382,175,438,196,463,219,486,231,496,226,495,216,490,192,467,171,441,136,384,111,329,97,285"/>
-<area shape="rect" id="Node000005" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#acb57884924c1da9d7a49bf9eecffe483" title=" " alt="" coords="484,118,658,146"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="422,136,471,135,466,138,424,141"/>
-<area shape="rect" id="Node000006" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#ad6e23d88c10148f3fa0b7d2d3fec87f5" title=" " alt="" coords="727,5,875,50"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="601,115,718,60,734,55,730,58,720,65,603,120"/>
-<area shape="rect" id="Node000008" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#ac03344c5f27406a8cd2f65656f1c4fa9" title=" " alt="" coords="484,178,658,206"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="422,202,471,199,466,201,424,207"/>
-<area shape="rect" id="Node000009" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="719,126,883,154"/>
-<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="635,175,724,157,719,159,637,180"/>
-<area shape="rect" id="Node000010" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#a36ba73ced4ee9bd0d2a62260251357bc" title=" " alt="" coords="727,229,875,274"/>
-<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="627,203,715,228,709,229,627,209"/>
-<area shape="rect" id="Node000013" href="$d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="730,74,872,102"/>
-<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="624,175,670,155,684,144,693,134,703,123,718,112,734,107,730,109,721,117,707,127,697,137,688,148,673,159,627,180"/>
-<area shape="rect" id="Node000014" href="$d9/d50/cuda_2math__kernel_8h.html#a0a57b51cc0e718f80bbcb4f908cc842b" title=" " alt="" coords="745,178,857,206"/>
-<area shape="poly" id="edge13_Node000008_Node000014" title=" " alt="" coords="658,189,732,191,727,192,659,194"/>
-<area shape="rect" id="Node000011" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="931,180,1045,208"/>
-<area shape="poly" id="edge10_Node000010_Node000011" title=" " alt="" coords="874,226,928,212,923,214,876,232"/>
-<area shape="rect" id="Node000012" href="$d9/d50/cuda_2math__kernel_8h.html#a15613cd77811a43c5ac891767e0de507" title=" " alt="" coords="936,234,1040,262"/>
-<area shape="poly" id="edge11_Node000010_Node000012" title=" " alt="" coords="875,247,923,249,917,250,876,253"/>
-<area shape="poly" id="edge14_Node000014_Node000011" title=" " alt="" coords="857,190,918,193,912,194,858,195"/>
-<area shape="poly" id="edge15_Node000014_Node000012" title=" " alt="" coords="850,203,928,229,922,229,850,209"/>
-<area shape="rect" id="Node000016" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#aa8dc1aa6e62cf9d100bc6edc34d17ea4" title=" " alt="" coords="471,300,671,328"/>
-<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="402,296,458,303,453,304,403,301"/>
-<area shape="rect" id="Node000017" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#a02b5640ce7bb494ee59bdf28eb9f2156" title=" " alt="" coords="722,299,880,343"/>
-<area shape="poly" id="edge18_Node000016_Node000017" title=" " alt="" coords="671,315,709,318,704,319,672,320"/>
-<area shape="rect" id="Node000019" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#a1fcd3381b68ac5feb34fd91b88a3a9d4" title=" " alt="" coords="471,368,671,396"/>
-<area shape="poly" id="edge20_Node000018_Node000019" title=" " alt="" coords="403,375,458,379,453,380,403,380"/>
-<area shape="rect" id="Node000020" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#a4c055b40b48d1ba936a109ab2f9042dd" title=" " alt="" coords="722,368,880,413"/>
-<area shape="poly" id="edge21_Node000019_Node000020" title=" " alt="" coords="671,383,709,387,704,387,672,388"/>
+<area shape="rect" id="Node000001" title="Pipelined PCG solve coupled solve." alt="" coords="5,260,170,321"/>
+<area shape="rect" id="Node000002" href="$d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="223,70,418,98"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="100,258,118,222,144,182,177,141,216,107,227,102,223,106,219,111,181,145,149,185,123,225,105,260"/>
+<area shape="rect" id="Node000003" href="$d3/dbc/namespacefusedcg__cpld__device.html#afe309b31da74ce440ba28172cd0b6514" title=" " alt="" coords="218,121,423,166"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="116,257,161,216,216,176,230,171,226,175,219,181,164,220,120,261"/>
+<area shape="rect" id="Node000006" href="$d3/dbc/namespacefusedcg__cpld__device.html#acaca8f2d5150c2c04e3564fd17176f61" title=" " alt="" coords="218,191,423,235"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="169,261,239,239,235,242,171,265"/>
+<area shape="rect" id="Node000014" href="$d3/dbc/namespacefusedcg__cpld__device.html#a6069fc8fe076b9aa06ae431f17cb74d4" title=" " alt="" coords="238,260,402,321"/>
+<area shape="poly" id="edge15_Node000001_Node000014" title=" " alt="" coords="169,288,225,289,220,292,171,293"/>
+<area shape="rect" id="Node000017" href="$d3/dbc/namespacefusedcg__cpld__device.html#a0664f41fb034c6658f5511bd8f3241f9" title=" " alt="" coords="238,345,402,406"/>
+<area shape="poly" id="edge18_Node000001_Node000017" title=" " alt="" coords="170,318,226,339,221,341,170,323"/>
+<area shape="rect" id="Node000020" href="$d2/d73/namespacedevice__math.html#acf1634c9bad3b3a0d6215c9a076629aa" title="Weighted inner product ." alt="" coords="242,431,398,475"/>
+<area shape="poly" id="edge21_Node000001_Node000020" title=" " alt="" coords="114,319,161,369,189,394,219,416,230,424,225,424,216,421,185,398,157,373,113,324"/>
+<area shape="rect" id="Node000021" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="242,500,398,545"/>
+<area shape="poly" id="edge22_Node000001_Node000021" title=" " alt="" coords="102,319,122,358,147,403,180,447,219,486,231,495,226,495,216,490,176,451,143,406,117,361,101,324"/>
+<area shape="rect" id="Node000004" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#acb57884924c1da9d7a49bf9eecffe483" title=" " alt="" coords="484,118,658,146"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="422,136,471,135,466,138,424,141"/>
+<area shape="rect" id="Node000005" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#ad6e23d88c10148f3fa0b7d2d3fec87f5" title=" " alt="" coords="727,5,875,50"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="601,115,718,60,734,55,730,58,720,65,603,120"/>
+<area shape="rect" id="Node000007" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#ac03344c5f27406a8cd2f65656f1c4fa9" title=" " alt="" coords="484,178,658,206"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="422,202,471,199,466,201,424,207"/>
+<area shape="rect" id="Node000008" href="$d1/da7/device__mpi__reduce_8c.html#a8eab1704aefc0e7de07313818842be5e" title=" " alt="" coords="719,126,883,154"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="635,175,724,157,719,159,637,180"/>
+<area shape="rect" id="Node000009" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#a36ba73ced4ee9bd0d2a62260251357bc" title=" " alt="" coords="727,229,875,274"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="627,203,715,228,709,229,627,209"/>
+<area shape="rect" id="Node000012" href="$d3/d21/buffer_8hip.html#a1d372241b0abce0528d90f2b0a14c672" title=" " alt="" coords="730,74,872,102"/>
+<area shape="poly" id="edge11_Node000007_Node000012" title=" " alt="" coords="624,175,670,155,684,144,693,134,703,123,718,112,734,107,730,109,721,117,707,127,697,137,688,148,673,159,627,180"/>
+<area shape="rect" id="Node000013" href="$d9/d50/cuda_2math__kernel_8h.html#a0a57b51cc0e718f80bbcb4f908cc842b" title=" " alt="" coords="745,178,857,206"/>
+<area shape="poly" id="edge12_Node000007_Node000013" title=" " alt="" coords="658,189,732,191,727,192,659,194"/>
+<area shape="rect" id="Node000010" href="$db/da1/cuda_2ax__helm__compr__kernel_8h.html#ae687dbe50139c5805369b59554bddc67" title=" " alt="" coords="931,180,1045,208"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="874,226,928,212,923,214,876,232"/>
+<area shape="rect" id="Node000011" href="$d9/d50/cuda_2math__kernel_8h.html#a15613cd77811a43c5ac891767e0de507" title=" " alt="" coords="936,234,1040,262"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="875,247,923,249,917,250,876,253"/>
+<area shape="poly" id="edge13_Node000013_Node000010" title=" " alt="" coords="857,190,918,193,912,194,858,195"/>
+<area shape="poly" id="edge14_Node000013_Node000011" title=" " alt="" coords="850,203,928,229,922,229,850,209"/>
+<area shape="rect" id="Node000015" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#aa8dc1aa6e62cf9d100bc6edc34d17ea4" title=" " alt="" coords="471,300,671,328"/>
+<area shape="poly" id="edge16_Node000014_Node000015" title=" " alt="" coords="402,296,458,303,453,304,403,301"/>
+<area shape="rect" id="Node000016" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#a02b5640ce7bb494ee59bdf28eb9f2156" title=" " alt="" coords="722,299,880,343"/>
+<area shape="poly" id="edge17_Node000015_Node000016" title=" " alt="" coords="671,315,709,318,704,319,672,320"/>
+<area shape="rect" id="Node000018" href="$d4/dc3/fusedcg__cpld__aux_8hip.html#a1fcd3381b68ac5feb34fd91b88a3a9d4" title=" " alt="" coords="471,368,671,396"/>
+<area shape="poly" id="edge19_Node000017_Node000018" title=" " alt="" coords="403,375,458,379,453,380,403,380"/>
+<area shape="rect" id="Node000019" href="$d3/d59/cuda_2fusedcg__cpld__kernel_8h.html#a4c055b40b48d1ba936a109ab2f9042dd" title=" " alt="" coords="722,368,880,413"/>
+<area shape="poly" id="edge20_Node000018_Node000019" title=" " alt="" coords="671,383,709,387,704,387,672,388"/>
 </map>

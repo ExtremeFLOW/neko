@@ -1,7 +1,7 @@
 var schwarz_8f90 =
 [
     [ "schwarz::schwarz_t", "d0/d9f/structschwarz_1_1schwarz__t.html", "d0/d9f/structschwarz_1_1schwarz__t" ],
-    [ "schwarz::schwarz_compute", "d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416", null ],
+    [ "schwarz::schwarz_compute", "d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584", null ],
     [ "schwarz::schwarz_extrude", "d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384", null ],
     [ "schwarz::schwarz_extrude_single", "d2/d37/namespaceschwarz.html#ab2b9de8082309c01044e5ec5c99d14c0", null ],
     [ "schwarz::schwarz_free", "d2/d37/namespaceschwarz.html#aed04e84332557d214a95921525db8443", null ],

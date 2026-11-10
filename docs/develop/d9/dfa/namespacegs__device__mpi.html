@@ -34,7 +34,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -421,8 +421,19 @@ Here is the call graph for this function:</div>
   </tr>
 </table>
 </div><div class="memdoc">
+<dl class="section note"><dt>Note</dt><dd>With per-peer unpacking (strategy bit 2) the previous op unpacks each slot of the receive buffer on its own stream, and nothing on the host waits for that afterwards: the caller need not sync after the op. Each slot's unpack event is therefore waited on before the slot is posted again, so that MPI cannot overwrite data that is still to be read. The wait is normally on an event that has already completed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00496">496</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00502">502</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d9/dfa/namespacegs__device__mpi_aff2aa34c6b655038a9f29d0da998f7b3_cgraph.png" border="0" usemap="#ad9/dfa/namespacegs__device__mpi_aff2aa34c6b655038a9f29d0da998f7b3_cgraph" loading="lazy" alt=""/></div>
+<map name="ad9/dfa/namespacegs__device__mpi_aff2aa34c6b655038a9f29d0da998f7b3_cgraph" id="ad9/dfa/namespacegs__device__mpi_aff2aa34c6b655038a9f29d0da998f7b3_cgraph">
+<area shape="rect" title="Post non&#45;blocking receive operations." alt="" coords="5,5,197,50"/>
+<area shape="rect" href="../../d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="245,14,441,42"/>
+<area shape="poly" title=" " alt="" coords="197,25,231,27,226,28,197,30"/>
+</map>
+</div>
 
 </div>
 </div>
@@ -458,7 +469,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00618">618</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00629">629</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 
 </div>
 </div>
@@ -579,7 +590,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00584">584</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00595">595</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -637,7 +648,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00510">510</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00521">521</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -712,7 +723,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00633">633</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html#l00644">644</a> of file <a class="el" href="../../d3/d6c/gs__device__mpi_8F90_source.html">gs_device_mpi.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">

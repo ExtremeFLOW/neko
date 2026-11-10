@@ -1,5 +1,7 @@
 var NAVTREEINDEX69 =
 {
+"d8/ddf/namespacescalar__ic.html#a284c2151baaf62794c62dfa896b63a6b":[1,0,372,1],
+"d8/ddf/namespacescalar__ic.html#a43eee1b9db6451707645f0bfb1b6bac7":[1,0,372,4],
 "d8/ddf/namespacescalar__ic.html#add56c7a3506632e3796d624c06533b6d":[1,0,372,2],
 "d8/ddf/namespacescalar__ic.html#af5069b6e09a3b463d14555eaf2b377e8":[1,0,372,7],
 "d8/de2/interfacedevice__tree__amg__smoother_1_1hip__amg__cheby__solve__part1.html":[1,0,135,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX69 =
 "d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html":[1,0,343,0],
 "d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html":[2,0,297,0],
 "d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html#a265fdd4ee86cb585d2531ecf861fd32f":[1,0,343,0,4],
-"d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html#a265fdd4ee86cb585d2531ecf861fd32f":[2,0,297,0,4],
-"d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html#a2b0aa2f350d5b46d6bdeecfa75d0f17d":[1,0,343,0,2],
-"d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html#a2b0aa2f350d5b46d6bdeecfa75d0f17d":[2,0,297,0,2]
+"d9/d31/structpreconditioner__template_1_1preconditioner__template__t.html#a265fdd4ee86cb585d2531ecf861fd32f":[2,0,297,0,4]
 };

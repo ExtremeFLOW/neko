@@ -1,59 +1,57 @@
 <map id="pnpn_res_device::pnpn_prs_res_device_compute" name="pnpn_res_device::pnpn_prs_res_device_compute">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,374,195,419"/>
-<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6" title="Apply D^T to a scalar field, where D is the derivative matrix." alt="" coords="281,51,400,78"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,373,116,316,141,239,160,198,182,158,209,121,241,89,268,75,265,79,244,93,213,125,186,161,164,201,146,241,121,317,108,374"/>
-<area shape="rect" id="Node000011" href="$dd/d30/namespaceoperators.html#aa6e3c203c0b2b6ff45fa2d79ce7c3045" title=" " alt="" coords="283,103,398,130"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="105,373,121,324,148,261,188,196,213,166,241,140,270,126,266,130,244,144,216,169,192,199,153,263,126,326,110,375"/>
-<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="263,154,419,199"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="111,373,131,337,160,293,198,248,241,209,251,205,247,209,244,213,201,252,165,296,136,340,115,375"/>
-<area shape="rect" id="Node000013" href="$d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9" title="Synchronize an event." alt="" coords="243,223,439,250"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="117,372,169,315,203,285,241,260,255,255,252,258,244,264,206,289,172,319,121,375"/>
-<area shape="rect" id="Node000014" href="$d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912" title=" " alt="" coords="251,274,430,319"/>
-<area shape="poly" id="edge13_Node000001_Node000014" title=" " alt="" coords="146,372,242,329,261,323,257,326,244,334,150,376"/>
-<area shape="rect" id="Node000018" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="263,344,419,388"/>
-<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="194,382,250,376,245,379,196,387"/>
-<area shape="rect" id="Node000019" href="$d4/d66/pnpn__res_8cu.html#af64a7f09510056e94871bf99c327701d" title=" " alt="" coords="248,412,434,440"/>
-<area shape="poly" id="edge19_Node000001_Node000019" title=" " alt="" coords="194,406,235,411,230,414,196,411"/>
-<area shape="rect" id="Node000021" href="$df/d4b/pnpn__res_8c.html#a374afb77ede232d6f96c3df58c704b66" title=" " alt="" coords="741,454,890,499"/>
-<area shape="poly" id="edge21_Node000001_Node000021" title=" " alt="" coords="149,417,195,435,243,449,374,469,505,478,626,481,729,481,723,482,626,486,505,484,373,474,242,454,193,440,150,422"/>
-<area shape="rect" id="Node000022" href="$d4/d66/pnpn__res_8cu.html#a2fd7c133bdd5bb66430c9153240f70cb" title=" " alt="" coords="248,513,434,541"/>
-<area shape="poly" id="edge23_Node000001_Node000022" title=" " alt="" coords="129,417,182,455,244,493,275,507,270,508,241,498,179,460,129,422"/>
-<area shape="rect" id="Node000024" href="$df/d4b/pnpn__res_8c.html#a6ef5029e9556cc27d3076a0350dcf6c6" title=" " alt="" coords="516,565,664,610"/>
-<area shape="poly" id="edge25_Node000001_Node000024" title=" " alt="" coords="114,417,137,449,166,486,202,522,244,550,307,574,375,588,441,593,503,595,498,596,440,598,374,593,306,579,241,555,199,526,162,490,133,452,114,422"/>
-<area shape="rect" id="Node000025" href="$d4/d66/pnpn__res_8cu.html#a866701e52b8188e86c1d70eb9d022484" title=" " alt="" coords="248,629,434,657"/>
-<area shape="poly" id="edge27_Node000001_Node000025" title=" " alt="" coords="112,417,134,457,163,505,200,555,244,600,280,623,275,623,241,604,196,559,158,508,129,459,112,422"/>
-<area shape="rect" id="Node000027" href="$df/d4b/pnpn__res_8c.html#a1592c5e447d4d3562124b4bb453c23f2" title=" " alt="" coords="741,650,890,695"/>
-<area shape="poly" id="edge29_Node000001_Node000027" title=" " alt="" coords="106,417,121,473,146,542,164,578,186,612,213,642,244,666,302,695,365,714,430,723,495,726,560,723,621,716,723,698,729,698,622,722,560,729,495,732,429,729,364,719,300,700,241,671,209,646,182,615,159,580,141,544,116,474,105,422"/>
-<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#a1dd0915931c64c27ccfc8e805411216c" title=" " alt="" coords="487,51,693,78"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="399,62,473,63,469,66,402,67"/>
-<area shape="rect" id="Node000007" href="$d9/d5a/namespaceopr__xsmm.html#a57bf41f6f4190d4e8f728bd37db80ec9" title=" " alt="" coords="489,115,691,142"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="397,76,521,109,516,111,398,81"/>
-<area shape="rect" id="Node000004" href="$df/d14/opr__cdtp_8cu.html#a78cd94c87103aee0b72822173bc9aeb0" title=" " alt="" coords="772,5,859,33"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="661,48,759,29,754,32,664,52"/>
-<area shape="rect" id="Node000005" href="$d6/d10/opr__cdtp_8c.html#a22e607c77c807be3825904a78e958962" title=" " alt="" coords="766,57,865,85"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="693,65,753,68,748,70,695,70"/>
-<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="938,463,1069,490"/>
-<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="866,79,891,96,924,138,949,184,969,234,983,284,999,377,1004,449,1000,446,994,378,978,285,964,235,945,187,920,141,888,100,866,85"/>
-<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="768,109,863,137"/>
-<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="691,124,755,124,750,126,693,129"/>
-<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="770,161,861,189"/>
-<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="660,140,758,162,753,164,661,146"/>
-<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#a1164b01f82dfbc02272aecd16afec842" title="Vector division ." alt="" coords="760,213,871,241"/>
-<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="619,140,742,198,761,207,756,208,740,203,619,146"/>
-<area shape="rect" id="Node000015" href="$dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af" title=" " alt="" coords="539,283,641,310"/>
-<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="430,294,526,295,521,298,432,299"/>
-<area shape="rect" id="Node000017" href="$d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033" title=" " alt="" coords="533,347,647,374"/>
-<area shape="poly" id="edge16_Node000014_Node000017" title=" " alt="" coords="430,317,521,341,516,343,431,322"/>
-<area shape="rect" id="Node000016" href="$d5/d50/cuda_2mathops__kernel_8h.html#a17e47067a9fcdf942c2960dde15b2331" title=" " alt="" coords="760,283,871,310"/>
-<area shape="poly" id="edge15_Node000015_Node000016" title=" " alt="" coords="641,294,746,296,741,297,642,299"/>
-<area shape="poly" id="edge17_Node000017_Node000006" title=" " alt="" coords="647,372,890,439,945,458,940,458,889,444,647,378"/>
-<area shape="rect" id="Node000020" href="$db/d30/cuda_2prs__res__kernel_8h.html#afc1f8c6ba5b215ffff877fe789d698d0" title=" " alt="" coords="512,412,668,440"/>
-<area shape="poly" id="edge20_Node000019_Node000020" title=" " alt="" coords="434,423,499,425,494,427,435,428"/>
-<area shape="poly" id="edge22_Node000021_Node000006" title=" " alt="" coords="890,474,925,476,919,477,890,479"/>
-<area shape="rect" id="Node000023" href="$db/d30/cuda_2prs__res__kernel_8h.html#acd45c6e001bfca92042ac73e51fcc331" title=" " alt="" coords="512,513,668,541"/>
-<area shape="poly" id="edge24_Node000022_Node000023" title=" " alt="" coords="434,525,499,527,494,528,435,530"/>
-<area shape="poly" id="edge26_Node000024_Node000006" title=" " alt="" coords="664,567,889,509,940,496,945,495,890,514,665,572"/>
-<area shape="rect" id="Node000026" href="$db/d30/cuda_2prs__res__kernel_8h.html#ac406c19f0af153e7df13be2b48f00e6a" title=" " alt="" coords="512,633,668,661"/>
-<area shape="poly" id="edge28_Node000025_Node000026" title=" " alt="" coords="434,642,499,645,494,646,435,647"/>
-<area shape="poly" id="edge30_Node000027_Node000006" title=" " alt="" coords="837,647,976,503,981,501,840,652"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,366,195,411"/>
+<area shape="rect" id="Node000002" href="$dd/d30/namespaceoperators.html#ae0083f86c7db2d6aaee644b4cdcc02f6" title="Apply D^T to a scalar field, where D is the derivative matrix." alt="" coords="276,64,396,92"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="103,365,118,312,144,241,185,166,211,132,241,102,263,91,260,95,244,107,215,136,189,169,149,243,123,313,109,367"/>
+<area shape="rect" id="Node000011" href="$dd/d30/namespaceoperators.html#aa6e3c203c0b2b6ff45fa2d79ce7c3045" title=" " alt="" coords="278,116,394,144"/>
+<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="106,365,124,320,152,263,191,204,214,177,241,153,266,141,262,145,244,157,218,180,195,207,156,265,128,322,111,367"/>
+<area shape="rect" id="Node000012" href="$d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="258,168,414,212"/>
+<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="113,364,164,295,200,256,241,222,252,218,248,222,244,227,204,260,169,298,118,367"/>
+<area shape="rect" id="Node000013" href="$d7/de8/namespacedevice__mathops.html#ad6cc81913f3bc439a1da4649557b8912" title=" " alt="" coords="246,237,426,282"/>
+<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="129,364,181,328,241,291,256,286,253,290,244,296,183,332,133,368"/>
+<area shape="rect" id="Node000017" href="$d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="258,306,414,351"/>
+<area shape="poly" id="edge17_Node000001_Node000017" title=" " alt="" coords="189,363,245,350,241,354,192,368"/>
+<area shape="rect" id="Node000018" href="$d4/d66/pnpn__res_8cu.html#af64a7f09510056e94871bf99c327701d" title=" " alt="" coords="243,375,429,402"/>
+<area shape="poly" id="edge18_Node000001_Node000018" title=" " alt="" coords="194,386,230,387,225,390,196,391"/>
+<area shape="rect" id="Node000020" href="$df/d4b/pnpn__res_8c.html#a374afb77ede232d6f96c3df58c704b66" title=" " alt="" coords="731,417,880,462"/>
+<area shape="poly" id="edge20_Node000001_Node000020" title=" " alt="" coords="194,405,243,411,371,423,500,430,718,438,713,440,500,435,371,428,242,416,196,410"/>
+<area shape="rect" id="Node000021" href="$d4/d66/pnpn__res_8cu.html#a2fd7c133bdd5bb66430c9153240f70cb" title=" " alt="" coords="243,476,429,504"/>
+<area shape="poly" id="edge22_Node000001_Node000021" title=" " alt="" coords="145,409,244,455,278,470,273,471,242,460,145,414"/>
+<area shape="rect" id="Node000023" href="$df/d4b/pnpn__res_8c.html#a6ef5029e9556cc27d3076a0350dcf6c6" title=" " alt="" coords="506,528,654,572"/>
+<area shape="poly" id="edge24_Node000001_Node000023" title=" " alt="" coords="119,408,172,463,206,491,244,513,305,534,370,546,433,552,493,555,488,556,433,557,369,551,304,539,242,518,203,495,168,467,118,414"/>
+<area shape="rect" id="Node000024" href="$d4/d66/pnpn__res_8cu.html#a866701e52b8188e86c1d70eb9d022484" title=" " alt="" coords="243,592,429,620"/>
+<area shape="poly" id="edge26_Node000001_Node000024" title=" " alt="" coords="115,409,168,483,204,525,244,562,280,585,275,585,241,567,200,529,163,487,114,414"/>
+<area shape="rect" id="Node000026" href="$df/d4b/pnpn__res_8c.html#a1592c5e447d4d3562124b4bb453c23f2" title=" " alt="" coords="731,613,880,658"/>
+<area shape="poly" id="edge28_Node000001_Node000026" title=" " alt="" coords="107,409,124,459,150,520,168,552,190,581,215,608,244,629,301,656,363,673,427,683,491,686,553,683,613,677,713,660,719,660,614,682,554,688,491,691,426,688,362,679,300,661,241,633,211,612,186,585,164,555,146,523,119,461,106,414"/>
+<area shape="rect" id="Node000003" href="$d3/d4d/namespaceopr__device.html#a1dd0915931c64c27ccfc8e805411216c" title=" " alt="" coords="477,57,683,85"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="395,74,464,73,459,76,397,79"/>
+<area shape="rect" id="Node000007" href="$d9/d5a/namespaceopr__xsmm.html#a57bf41f6f4190d4e8f728bd37db80ec9" title=" " alt="" coords="479,135,681,162"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="386,90,430,102,518,129,513,131,428,107,388,95"/>
+<area shape="rect" id="Node000004" href="$df/d14/opr__cdtp_8cu.html#a78cd94c87103aee0b72822173bc9aeb0" title=" " alt="" coords="762,5,849,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="642,54,749,31,744,34,645,59"/>
+<area shape="rect" id="Node000005" href="$d6/d10/opr__cdtp_8c.html#a22e607c77c807be3825904a78e958962" title=" " alt="" coords="756,57,855,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="683,69,743,70,738,72,685,74"/>
+<area shape="rect" id="Node000006" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="928,425,1059,453"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="856,79,881,96,911,133,935,174,954,218,969,262,986,346,993,411,988,408,981,347,963,264,949,220,931,176,907,136,878,100,856,85"/>
+<area shape="rect" id="Node000008" href="$dd/d47/namespacemath.html#a7bd6ecfc03be3f80d20e06e85af6b791" title="Vector addition ." alt="" coords="758,109,853,137"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="681,135,745,129,740,131,683,140"/>
+<area shape="rect" id="Node000009" href="$dd/d47/namespacemath.html#abc0115641cb7f4581bfcbb773169004c" title="Vector multiplication with 3 vectors ." alt="" coords="760,161,851,189"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="681,158,748,167,743,169,682,163"/>
+<area shape="rect" id="Node000010" href="$dd/d47/namespacemath.html#a1164b01f82dfbc02272aecd16afec842" title="Vector division ." alt="" coords="750,213,861,241"/>
+<area shape="poly" id="edge9_Node000007_Node000010" title=" " alt="" coords="622,160,751,207,746,208,623,166"/>
+<area shape="rect" id="Node000014" href="$dd/db5/mathops_8cu.html#a62c8b601530d663d2e9037689bd033af" title=" " alt="" coords="529,257,631,285"/>
+<area shape="poly" id="edge13_Node000013_Node000014" title=" " alt="" coords="425,261,516,267,511,269,427,266"/>
+<area shape="rect" id="Node000016" href="$d5/d69/mathops_8c.html#ace47fde9bffcb8869b959bce8aadf033" title=" " alt="" coords="523,316,637,344"/>
+<area shape="poly" id="edge15_Node000013_Node000016" title=" " alt="" coords="415,279,518,310,513,312,416,285"/>
+<area shape="rect" id="Node000015" href="$d5/d50/cuda_2mathops__kernel_8h.html#a17e47067a9fcdf942c2960dde15b2331" title=" " alt="" coords="750,265,861,293"/>
+<area shape="poly" id="edge14_Node000014_Node000015" title=" " alt="" coords="631,270,736,276,731,277,632,276"/>
+<area shape="poly" id="edge16_Node000016_Node000006" title=" " alt="" coords="638,340,880,402,935,420,930,420,879,407,638,346"/>
+<area shape="rect" id="Node000019" href="$db/d30/cuda_2prs__res__kernel_8h.html#afc1f8c6ba5b215ffff877fe789d698d0" title=" " alt="" coords="502,375,658,402"/>
+<area shape="poly" id="edge19_Node000018_Node000019" title=" " alt="" coords="429,386,489,388,484,389,430,391"/>
+<area shape="poly" id="edge21_Node000020_Node000006" title=" " alt="" coords="880,437,915,439,909,440,880,442"/>
+<area shape="rect" id="Node000022" href="$db/d30/cuda_2prs__res__kernel_8h.html#acd45c6e001bfca92042ac73e51fcc331" title=" " alt="" coords="502,476,658,504"/>
+<area shape="poly" id="edge23_Node000021_Node000022" title=" " alt="" coords="429,487,489,489,484,490,430,492"/>
+<area shape="poly" id="edge25_Node000023_Node000006" title=" " alt="" coords="654,530,879,471,930,459,935,457,880,476,655,535"/>
+<area shape="rect" id="Node000025" href="$db/d30/cuda_2prs__res__kernel_8h.html#ac406c19f0af153e7df13be2b48f00e6a" title=" " alt="" coords="502,596,658,624"/>
+<area shape="poly" id="edge27_Node000024_Node000025" title=" " alt="" coords="429,605,489,608,483,609,430,610"/>
+<area shape="poly" id="edge29_Node000026_Node000006" title=" " alt="" coords="827,610,966,465,971,463,830,615"/>
 </map>

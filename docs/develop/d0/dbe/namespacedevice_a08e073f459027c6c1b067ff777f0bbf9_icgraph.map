@@ -1,27 +1,5 @@
 <map id="device::device_event_sync" name="device::device_event_sync">
-<area shape="rect" id="Node000001" title="Synchronize an event." alt="" coords="535,326,731,354"/>
-<area shape="rect" id="Node000002" href="$db/d3d/namespacecg__cpld__device.html#aee48cbe7ca732d6096b89bae72a0d968" title="Standard PCG solve." alt="" coords="307,5,454,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="622,310,605,259,578,193,538,124,513,92,485,64,455,46,454,41,489,60,517,89,543,121,583,190,610,257,627,312"/>
-<area shape="rect" id="Node000003" href="$d6/d60/namespacecg__device.html#ae0dce602ffa645c2ba6380f6ed7d6d09" title="Standard PCG solve." alt="" coords="301,75,460,119"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="617,311,597,273,568,225,530,176,485,134,461,119,460,114,489,130,534,172,572,222,602,271,622,312"/>
-<area shape="rect" id="Node000004" href="$d2/da7/namespacedevice__jacobi.html#abcae239f5ab6ef4a8a597e7cca1d804b" title=" " alt="" coords="300,144,461,189"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="609,314,557,259,523,229,486,203,462,191,461,186,488,199,526,225,560,255,614,314"/>
-<area shape="rect" id="Node000006" href="$df/dcd/namespacecompressible__res__device.html#a903fd97843ea532a9268469191340aa8" title=" " alt="" coords="288,213,473,258"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="588,319,486,273,456,261,455,256,488,268,594,318"/>
-<area shape="rect" id="Node000008" href="$d7/dff/namespacefluid__scheme__incompressible.html#aa72fc8bdc7d2e0828eb5346cf1cfab23" title="Apply all boundary conditions defined for pressure." alt="" coords="274,283,487,327"/>
-<area shape="poly" id="edge7_Node000001_Node000008" title=" " alt="" coords="517,325,488,322,487,317,522,323"/>
-<area shape="rect" id="Node000009" href="$d7/dff/namespacefluid__scheme__incompressible.html#a766ce3e2535420af9beaca4ea70b603c" title="Apply all boundary conditions defined for velocity Here we perform additional gs operations to take c..." alt="" coords="274,352,487,397"/>
-<area shape="poly" id="edge8_Node000001_Node000009" title=" " alt="" coords="517,356,488,362,487,357,522,354"/>
-<area shape="rect" id="Node000010" href="$d3/dbc/namespacefusedcg__cpld__device.html#a39dc1f4bba3936b653a587b2ed212c59" title="Pipelined PCG solve coupled solve." alt="" coords="298,421,462,482"/>
-<area shape="poly" id="edge9_Node000001_Node000010" title=" " alt="" coords="587,362,488,411,462,423,460,418,486,407,592,359"/>
-<area shape="rect" id="Node000011" href="$dd/dd1/namespacehsmg.html#a1c5ebdeb1e0caae9ec828b3f7e5bd7a0" title="The h1mg preconditioner from Nek5000." alt="" coords="309,507,452,535"/>
-<area shape="poly" id="edge10_Node000001_Node000011" title=" " alt="" coords="617,365,564,433,529,467,488,497,453,512,451,507,486,492,525,463,561,429,612,368"/>
-<area shape="rect" id="Node000012" href="$da/d46/namespacepipecg__device.html#a7668ed15eabc2865fb0bc57ad3c1f8f5" title="Pipelined PCG solve." alt="" coords="298,559,463,603"/>
-<area shape="poly" id="edge11_Node000001_Node000012" title=" " alt="" coords="621,366,601,409,572,457,534,506,489,548,465,562,463,557,485,544,530,503,567,454,597,406,617,370"/>
-<area shape="rect" id="Node000013" href="$d8/dea/namespacepnpn__res__device.html#a3e57cd69551328b4f51766b33d4b4d3d" title=" " alt="" coords="286,628,475,673"/>
-<area shape="poly" id="edge12_Node000001_Node000013" title=" " alt="" coords="626,367,610,423,582,489,542,558,517,590,489,618,471,630,469,625,485,614,513,586,538,555,577,487,605,421,623,371"/>
-<area shape="rect" id="Node000005" href="$d2/da7/namespacedevice__jacobi.html#aa94e2d1677d854254663e966f01ad9f4" title=" " alt="" coords="5,140,226,185"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="282,166,227,166,225,162,287,163"/>
-<area shape="rect" id="Node000007" href="$df/dcd/namespacecompressible__res__device.html#a4cd55df45e21856441b4b2520e65055a" title=" " alt="" coords="7,209,224,270"/>
-<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="270,239,226,240,223,236,275,236"/>
+<area shape="rect" id="Node000001" title="Synchronize an event." alt="" coords="245,14,441,42"/>
+<area shape="rect" id="Node000002" href="$d9/dfa/namespacegs__device__mpi.html#aff2aa34c6b655038a9f29d0da998f7b3" title="Post non&#45;blocking receive operations." alt="" coords="5,5,197,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="227,28,197,30,197,25,232,27"/>
 </map>

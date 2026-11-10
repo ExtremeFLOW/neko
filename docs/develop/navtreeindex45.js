@@ -1,5 +1,7 @@
 var NAVTREEINDEX45 =
 {
+"d5/dfc/installation.html#autotoc_md141":[0,1,0,0,0,2],
+"d5/dfc/installation.html#autotoc_md142":[0,1,0,0,0,3],
 "d5/dfc/installation.html#autotoc_md143":[0,1,0,0,1,2],
 "d5/dfc/installation.html#autotoc_md144":[0,1,0,0,1,3],
 "d5/dfc/installation.html#autotoc_md145":[0,1,0,0,1,4],
@@ -247,7 +249,5 @@ var NAVTREEINDEX45 =
 "d6/d3d/interfacemetal__math_1_1metal__masked__gather__copy__aligned.html#a1eac39549d9e24ac2c0955a399b27e5e":[1,0,289,3,0],
 "d6/d3d/interfacemetal__math_1_1metal__masked__gather__copy__aligned.html#a1eac39549d9e24ac2c0955a399b27e5e":[2,0,253,3,0],
 "d6/d40/interfacecuda__math_1_1cuda__copy.html":[1,0,98,0],
-"d6/d40/interfacecuda__math_1_1cuda__copy.html":[2,0,85,0],
-"d6/d40/interfacecuda__math_1_1cuda__copy.html#a18db1a2d0c47dd9cc9b666cb32c37318":[1,0,98,0,0],
-"d6/d40/interfacecuda__math_1_1cuda__copy.html#a18db1a2d0c47dd9cc9b666cb32c37318":[2,0,85,0,0]
+"d6/d40/interfacecuda__math_1_1cuda__copy.html":[2,0,85,0]
 };

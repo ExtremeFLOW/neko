@@ -1,5 +1,7 @@
 var NAVTREEINDEX31 =
 {
+"d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html#ae826ec67f2b57b6c9a83df4bdc4cc767":[1,0,413,0,13],
+"d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html#ae826ec67f2b57b6c9a83df4bdc4cc767":[2,0,356,0,13],
 "d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html#af5d4cdfe7ed6d35653ed43bd9367359f":[1,0,413,0,6],
 "d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html#af5d4cdfe7ed6d35653ed43bd9367359f":[2,0,356,0,6],
 "d3/dd9/cuda_2cdtp__kernel_8h.html":[3,0,3,18,0,1,0,10],
@@ -247,7 +249,5 @@ var NAVTREEINDEX31 =
 "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ade062a581f4beb39380e0ac31bd42f3f":[2,0,47,0,19],
 "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#adff51a13c077eaff2c9854a8715c9129":[1,0,50,0,3],
 "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#adff51a13c077eaff2c9854a8715c9129":[2,0,47,0,3],
-"d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ae6e4a9e495d8962822097f5bb51e84d9":[1,0,50,0,9],
-"d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ae6e4a9e495d8962822097f5bb51e84d9":[2,0,47,0,9],
-"d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ae9985132afdc0b4ddffb31b09a779fde":[1,0,50,0,1]
+"d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ae6e4a9e495d8962822097f5bb51e84d9":[1,0,50,0,9]
 };

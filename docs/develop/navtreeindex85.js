@@ -1,5 +1,7 @@
 var NAVTREEINDEX85 =
 {
+"da/da7/cuda_2opgrad__kernel_8h.html#adf142115b93071739e1781f314da00cb":[3,0,3,18,0,1,0,27,6],
+"da/da7/cuda_2opgrad__kernel_8h.html#ae687dbe50139c5805369b59554bddc67":[3,0,3,18,0,1,0,27,4],
 "da/da7/cuda_2opgrad__kernel_8h.html#af5d4ce0069c8a7a298ae44e3fcfec6fb":[3,0,3,18,0,1,0,27,37],
 "da/da7/cuda_2opgrad__kernel_8h.html#af71e8f51d35de826e85e40da364f6fed":[3,0,3,18,0,1,0,27,3],
 "da/da7/cuda_2opgrad__kernel_8h_source.html":[3,0,3,18,0,1,0,27],
@@ -247,7 +249,5 @@ var NAVTREEINDEX85 =
 "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a204acf38e0de5c89ba15fb0c0543a975":[2,0,331,0,12],
 "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a2be296a65cc54e2761203f4b01537343":[1,0,382,0,8],
 "da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a2be296a65cc54e2761203f4b01537343":[2,0,331,0,8],
-"da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a37000f9484f9a502f7ee1c81a1d67b15":[1,0,382,0,0],
-"da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a37000f9484f9a502f7ee1c81a1d67b15":[2,0,331,0,0],
-"da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a5c74694d3f2f9843e3b31ae3edf5e67c":[1,0,382,0,15]
+"da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html#a37000f9484f9a502f7ee1c81a1d67b15":[1,0,382,0,0]
 };

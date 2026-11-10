@@ -1,5 +1,7 @@
 var NAVTREEINDEX61 =
 {
+"d7/df8/structboundary__flux_1_1boundary__flux__t.html#a2c77c2b1ec047d2395544730b908954b":[2,0,44,0,43],
+"d7/df8/structboundary__flux_1_1boundary__flux__t.html#a376c4859aa8c703a53df43c964afa0a7":[1,0,45,0,1],
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a376c4859aa8c703a53df43c964afa0a7":[2,0,44,0,1],
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a3cd3a39bf037e35d9a67378ee83d7829":[1,0,45,0,21],
 "d7/df8/structboundary__flux_1_1boundary__flux__t.html#a3cd3a39bf037e35d9a67378ee83d7829":[2,0,44,0,21],
@@ -247,7 +249,5 @@ var NAVTREEINDEX61 =
 "d8/d15/hip_2convect__scalar__kernel_8h.html#a5bd8dc2d8498c77e4b299f4388b435f7":[3,0,3,18,0,1,1,13,17],
 "d8/d15/hip_2convect__scalar__kernel_8h.html#a705bedcd4be856669ef2b973a02fa044":[3,0,3,18,0,1,1,13,3],
 "d8/d15/hip_2convect__scalar__kernel_8h.html#a7085d6475886e9b90d39015466eecd28":[3,0,3,18,0,1,1,13,25],
-"d8/d15/hip_2convect__scalar__kernel_8h.html#a7d124a2928c4ac8727087f9b02c8d621":[3,0,3,18,0,1,1,13,6],
-"d8/d15/hip_2convect__scalar__kernel_8h.html#a83e52139e060d0c1ba0475539f657304":[3,0,3,18,0,1,1,13,12],
-"d8/d15/hip_2convect__scalar__kernel_8h.html#a9937ec7e02453daf171834c0b87bb9dc":[3,0,3,18,0,1,1,13,7]
+"d8/d15/hip_2convect__scalar__kernel_8h.html#a7d124a2928c4ac8727087f9b02c8d621":[3,0,3,18,0,1,1,13,6]
 };

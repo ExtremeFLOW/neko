@@ -1,6 +1,6 @@
 <map id="schwarz::schwarz_toreg3d" name="schwarz::schwarz_toreg3d">
 <area shape="rect" id="Node000001" title="convert array a from extended size to regular" alt="" coords="466,32,658,60"/>
-<area shape="rect" id="Node000002" href="$d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416" title=" " alt="" coords="218,5,417,33"/>
+<area shape="rect" id="Node000002" href="$d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584" title="Apply the overlapping Schwarz preconditioner, e = M^{&#45;1} r." alt="" coords="218,5,417,33"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="448,34,418,33,418,27,453,34"/>
 <area shape="rect" id="Node000003" href="$d2/d37/namespaceschwarz.html#a5226a484ae3c95e55535e3b33e4fc15c" title="setup weights" alt="" coords="217,57,418,85"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="453,57,419,63,418,58,448,58"/>

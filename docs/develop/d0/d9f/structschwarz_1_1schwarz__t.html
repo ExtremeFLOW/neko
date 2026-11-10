@@ -34,7 +34,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -196,7 +196,8 @@ Collaboration diagram for schwarz::schwarz_t:</div>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa65aeb207038721e7e23812bd1974e72" id="r_aa65aeb207038721e7e23812bd1974e72"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa65aeb207038721e7e23812bd1974e72">init</a> (this, <a class="el" href="#a3672ebefd2db9d16804050c38efd1205">xh</a>, <a class="el" href="#af9388eafde4f72bad243e35df21367ce">dof</a>, <a class="el" href="#aea954c0e5c92cd2c257f0904ec055a8c">gs_h</a>, <a class="el" href="#a75e49af7dd5919a73caa36b2346911f9">bc_projector</a>, <a class="el" href="#a28d0ec3b0ac78c64c309891d658c047c">msh</a>)</td></tr>
 <tr class="memitem:a4a6e0c44cee55cf1b65466b84e305351" id="r_a4a6e0c44cee55cf1b65466b84e305351"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4a6e0c44cee55cf1b65466b84e305351">free</a> (this)</td></tr>
-<tr class="memitem:a9fa624f26cb14c530f8336206d91acb9" id="r_a9fa624f26cb14c530f8336206d91acb9"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9fa624f26cb14c530f8336206d91acb9">compute</a> (this, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, r)</td></tr>
+<tr class="memitem:a29988c03bb1b5330da6a8e7cb89e83d2" id="r_a29988c03bb1b5330da6a8e7cb89e83d2"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a29988c03bb1b5330da6a8e7cb89e83d2">compute</a> (this, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a83e52139e060d0c1ba0475539f657304">e</a>, r, deps)</td></tr>
+<tr class="memdesc:a29988c03bb1b5330da6a8e7cb89e83d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply the overlapping Schwarz preconditioner, <em class="arg">e</em> = M^{-1} <em class="arg">r</em>.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -226,8 +227,8 @@ Public Attributes</h2></td></tr>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="../../df/dc4/schwarz_8f90_source.html#l00085">85</a> of file <a class="el" href="../../df/dc4/schwarz_8f90_source.html">schwarz.f90</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function/Subroutine Documentation</h2>
-<a id="a9fa624f26cb14c530f8336206d91acb9" name="a9fa624f26cb14c530f8336206d91acb9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9fa624f26cb14c530f8336206d91acb9">&#9670;&#160;</a></span>compute()</h2>
+<a id="a29988c03bb1b5330da6a8e7cb89e83d2" name="a29988c03bb1b5330da6a8e7cb89e83d2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a29988c03bb1b5330da6a8e7cb89e83d2">&#9670;&#160;</a></span>compute()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -245,10 +246,23 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(this%<a class="el" href="#af9388eafde4f72bad243e35df21367ce">dof</a>%size()), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>r</em></span>&#160;)</td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(this%<a class="el" href="#af9388eafde4f72bad243e35df21367ce">dof</a>%size()), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(c_ptr), intent(in), optional</td>          <td class="paramname"><span class="paramname"><em>deps</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">e</td><td>Preconditioned output. </td></tr>
+    <tr><td class="paramname">r</td><td>Input residual. </td></tr>
+    <tr><td class="paramname">deps</td><td>Optional device event the Schwarz work on the aux queue waits on before reading <em class="arg">r</em>. When absent, an event is recorded on the global queue at entry, which orders the Schwarz behind everything queued on the global queue so far. A caller that runs the Schwarz concurrently with other work on the global queue should record the event itself, before that work is queued, and pass it here; otherwise the Schwarz is ordered behind the concurrent work as well. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 <p class="definition">Definition at line <a class="el" href="../../df/dc4/schwarz_8f90_source.html#l00107">107</a> of file <a class="el" href="../../df/dc4/schwarz_8f90_source.html">schwarz.f90</a>.</p>
 

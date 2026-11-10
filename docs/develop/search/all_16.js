@@ -249,7 +249,7 @@ var searchData=
   ['schwarz_2ecu_246',['schwarz.cu',['../d9/db6/schwarz_8cu.html',1,'']]],
   ['schwarz_2ef90_247',['schwarz.f90',['../df/dc4/schwarz_8f90.html',1,'']]],
   ['schwarz_2ehip_248',['schwarz.hip',['../d3/d58/schwarz_8hip.html',1,'']]],
-  ['schwarz_5fcompute_249',['schwarz_compute',['../d2/d37/namespaceschwarz.html#aaaec764e6ff1c0db41b6575074b8d416',1,'schwarz']]],
+  ['schwarz_5fcompute_249',['schwarz_compute',['../d2/d37/namespaceschwarz.html#aa7011ea11712a55bf121909a92fe1584',1,'schwarz']]],
   ['schwarz_5fcrs_250',['schwarz_crs',['../dd/d81/structhsmg_1_1hsmg__t.html#a558f54dff04d1da63d7b9dbfc6d2bd83',1,'hsmg::hsmg_t']]],
   ['schwarz_5fextrude_251',['schwarz_extrude',['../d2/d37/namespaceschwarz.html#a7a6b8a1e76d325b84a8abe931d3e7384',1,'schwarz']]],
   ['schwarz_5fextrude_5fkernel_252',['schwarz_extrude_kernel',['../d3/d4e/cuda_2schwarz__kernel_8h.html#a554ded09e3272051916f2d2d7e03b8a7',1,'schwarz_extrude_kernel(T *a1, const int l1, const T f1, T *a2, const int l2, const T f2):&#160;schwarz_kernel.h'],['../d6/d6a/hip_2schwarz__kernel_8h.html#a554ded09e3272051916f2d2d7e03b8a7',1,'schwarz_extrude_kernel(T *a1, const int l1, const T f1, T *a2, const int l2, const T f2):&#160;schwarz_kernel.h']]],

@@ -1,5 +1,7 @@
 var NAVTREEINDEX96 =
 {
+"db/de7/structtime__based__controller_1_1time__based__controller__t.html#a391fd2a61da7c4b11bbf475104469dbb":[2,0,377,0,20],
+"db/de7/structtime__based__controller_1_1time__based__controller__t.html#a49ba49a9130165f10450b13c2d3de297":[1,0,440,0,24],
 "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a49ba49a9130165f10450b13c2d3de297":[2,0,377,0,24],
 "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a4ce6c6f8a044b58926dde4337099c407":[1,0,440,0,18],
 "db/de7/structtime__based__controller_1_1time__based__controller__t.html#a4ce6c6f8a044b58926dde4337099c407":[2,0,377,0,18],
@@ -247,7 +249,5 @@ var NAVTREEINDEX96 =
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a4f01bfbf0a5979a60a0612e504c64489":[1,0,329,0,9],
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a4f01bfbf0a5979a60a0612e504c64489":[2,0,283,0,9],
 "dc/d01/structpipecg__device_1_1pipecg__device__t.html#a54a960fa3b80c1b299dab27eb84ccfd0":[1,0,329,0,33],
-"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a54a960fa3b80c1b299dab27eb84ccfd0":[2,0,283,0,33],
-"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a5ae28f6ad849ef34a5b5478de34dbccb":[1,0,329,0,38],
-"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a5ae28f6ad849ef34a5b5478de34dbccb":[2,0,283,0,38]
+"dc/d01/structpipecg__device_1_1pipecg__device__t.html#a54a960fa3b80c1b299dab27eb84ccfd0":[2,0,283,0,33]
 };

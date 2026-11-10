@@ -1,5 +1,7 @@
 var NAVTREEINDEX6 =
 {
+"d0/dbe/namespacedevice.html#a3f51b2c9ef4bd878a310bd1e1d0d3c80":[1,0,111,66],
+"d0/dbe/namespacedevice.html#a439614a19b5025c8fbcd69ae64579e8e":[1,0,111,36],
 "d0/dbe/namespacedevice.html#a49fe57ce19e758a94d734e65c5d7ed78":[1,0,111,67],
 "d0/dbe/namespacedevice.html#a5945e076a0c21d3be9eff44910a59438":[1,0,111,61],
 "d0/dbe/namespacedevice.html#a5d4a33a1f40cb7460feaee6c3a25877b":[1,0,111,15],
@@ -247,7 +249,5 @@ var NAVTREEINDEX6 =
 "d0/dca/structblasius_1_1blasius__t.html#ac264405cb3dbaad4f78f7ba5b34ea61d":[1,0,42,0,1],
 "d0/dca/structblasius_1_1blasius__t.html#ac264405cb3dbaad4f78f7ba5b34ea61d":[2,0,41,0,1],
 "d0/dca/structblasius_1_1blasius__t.html#ac688ded193b5e9265d838a671e1f9802":[1,0,42,0,4],
-"d0/dca/structblasius_1_1blasius__t.html#ac688ded193b5e9265d838a671e1f9802":[2,0,41,0,4],
-"d0/dca/structblasius_1_1blasius__t.html#ac9c45a8ed2e761cf3d3460567cbc4336":[1,0,42,0,44],
-"d0/dca/structblasius_1_1blasius__t.html#ac9c45a8ed2e761cf3d3460567cbc4336":[2,0,41,0,44]
+"d0/dca/structblasius_1_1blasius__t.html#ac688ded193b5e9265d838a671e1f9802":[2,0,41,0,4]
 };

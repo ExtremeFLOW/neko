@@ -1,5 +1,8 @@
 var NAVTREEINDEX110 =
 {
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#ae4f9d759e16f0f387a8a1b89da9d1dfc":[1,0,385,0,14],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#ae4f9d759e16f0f387a8a1b89da9d1dfc":[2,0,334,0,14],
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#af16b88ff37bd491eb45399a6064efce4":[1,0,385,0,49],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#af16b88ff37bd491eb45399a6064efce4":[2,0,334,0,49],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#af8fe332d12ea8fbf1a1451fa2bda47d2":[1,0,385,0,13],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#af8fe332d12ea8fbf1a1451fa2bda47d2":[2,0,334,0,13],
@@ -246,8 +249,5 @@ var NAVTREEINDEX110 =
 "dd/dcd/structdeardorff_1_1deardorff__t.html#af5709162a5ce19461d76fdffac7144f4":[2,0,93,0,21],
 "dd/dcd/structdeardorff_1_1deardorff__t.html#af771580da6de3bb14cbec328a1b7a46f":[1,0,107,0,0],
 "dd/dcd/structdeardorff_1_1deardorff__t.html#af771580da6de3bb14cbec328a1b7a46f":[2,0,93,0,0],
-"dd/dcd/structdeardorff_1_1deardorff__t.html#afc619b38bd156d5d298b1af954922b16":[1,0,107,0,23],
-"dd/dcd/structdeardorff_1_1deardorff__t.html#afc619b38bd156d5d298b1af954922b16":[2,0,93,0,23],
-"dd/dcf/namespaceviscous__regularization.html":[1,0,467],
-"dd/dcf/namespaceviscous__regularization.html#a6748f34f39fe8f52a9ee9aad79a11aca":[1,0,467,5]
+"dd/dcd/structdeardorff_1_1deardorff__t.html#afc619b38bd156d5d298b1af954922b16":[1,0,107,0,23]
 };

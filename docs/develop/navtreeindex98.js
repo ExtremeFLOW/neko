@@ -1,5 +1,7 @@
 var NAVTREEINDEX98 =
 {
+"dc/d12/namespacematrix__math.html#a91cd44255623c158398ffbe4637ff26a":[1,0,282,29],
+"dc/d12/namespacematrix__math.html#a9faf6770685f35b6a2858f94bb2c5b7d":[1,0,282,8],
 "dc/d12/namespacematrix__math.html#ab1468fdad7c27872a14742a06390e40a":[1,0,282,17],
 "dc/d12/namespacematrix__math.html#ab17225cad2c34e104085e873f1f62403":[1,0,282,3],
 "dc/d12/namespacematrix__math.html#ab3066e0abca1896f3366afebe892206e":[1,0,282,26],
@@ -247,7 +249,5 @@ var NAVTREEINDEX98 =
 "dc/d44/namespaceuser.html#a4862001a72d32d8417579a567293447f":[1,0,455,3],
 "dc/d44/namespaceuser.html#a6c45828f5df5d6202da7110688440d8f":[1,0,455,14],
 "dc/d44/namespaceuser.html#a725b1b99599d26ff95cf2ac1cb400b08":[1,0,455,0],
-"dc/d44/namespaceuser.html#a7a0eecae5ecbb72a981ea5c699fb5ec5":[1,0,455,5],
-"dc/d44/namespaceuser.html#a7f78897c51d70f14e4bec6682839460a":[1,0,455,1],
-"dc/d44/namespaceuser.html#a88f90778030667f67ff1283b043c4662":[1,0,455,10]
+"dc/d44/namespaceuser.html#a7a0eecae5ecbb72a981ea5c699fb5ec5":[1,0,455,5]
 };

@@ -1,5 +1,7 @@
 var NAVTREEINDEX12 =
 {
+"d1/d49/cuda_2pipecg__kernel_8h.html#a1e8657fc3107c19e20e1b4e1c31b2cf7":[3,0,3,15,0,1,0,11,1],
+"d1/d49/cuda_2pipecg__kernel_8h.html#a9d207e79b1c7f3c467c6f57babd04d20":[3,0,3,15,0,1,0,11,0],
 "d1/d49/cuda_2pipecg__kernel_8h_source.html":[3,0,3,15,0,1,0,11],
 "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html":[1,0,480,0],
 "d1/d49/structwall__model__bc_1_1wall__model__bc__t.html":[2,0,409,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX12 =
 "d1/d50/structzero__dirichlet_1_1zero__dirichlet__t.html#af8e0f91e54e4e6de1db0eeda0f63791b":[2,0,415,0,27],
 "d1/d54/cuda_2inhom__dirichlet__kernel_8h.html":[3,0,3,3,0,0,0,14],
 "d1/d54/cuda_2inhom__dirichlet__kernel_8h.html#a4928bcd399d3dfe09f0299e9c739eda1":[3,0,3,3,0,0,0,14,0],
-"d1/d54/cuda_2inhom__dirichlet__kernel_8h.html#abcb6722f027d988f6fb01bd5d083d354":[3,0,3,3,0,0,0,14,1],
-"d1/d54/cuda_2inhom__dirichlet__kernel_8h_source.html":[3,0,3,3,0,0,0,14],
-"d1/d56/tensor__device_8F90.html":[3,0,3,18,0,1,20]
+"d1/d54/cuda_2inhom__dirichlet__kernel_8h.html#abcb6722f027d988f6fb01bd5d083d354":[3,0,3,3,0,0,0,14,1]
 };

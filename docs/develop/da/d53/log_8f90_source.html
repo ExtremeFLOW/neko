@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -203,107 +203,107 @@ $(function(){initNavTree('da/d53/log_8f90_source.html','../../',''); });
 <div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="keywordtype">character(len=255)</span> :: log_tab_size</div>
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="keywordtype">character(len=255)</span> :: log_file</div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    <span class="keywordtype">character(len=32)</span> :: prefix</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">integer</span> :: envvar_len</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .ne. 0) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(env_prefix)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>       prefix = env_prefix</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>       prefix = <span class="stringliteral">&quot;NEKO&quot;</span></div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span> </div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    this%indent_ = 0</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    this%section_id_ = 0</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keyword">call </span>get_environment_variable(trim(prefix) // <span class="stringliteral">&quot;_LOG_TAB_SIZE&quot;</span>, &amp;</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>         log_tab_size, envvar_len)</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>       <span class="keyword">read</span>(log_tab_size(1:envvar_len), *) this%tab_size_</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>       this%tab_size_ = 1</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keyword">call </span>get_environment_variable(trim(prefix) // <span class="stringliteral">&quot;_LOG_LEVEL&quot;</span>, &amp;</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>         log_level, envvar_len)</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>       <span class="keyword">read</span>(log_level(1:envvar_len), *) this%level_</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>       this%level_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keyword">call </span>get_environment_variable(trim(prefix) // <span class="stringliteral">&quot;_LOG_FILE&quot;</span>, &amp;</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>         log_file, envvar_len)</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>       <span class="keyword">open</span>(newunit = this%unit_, <a class="code hl_namespace" href="../../da/d16/namespacefile.html">file</a> = trim(log_file), status = <span class="stringliteral">&#39;replace&#39;</span>, &amp;</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>            action = <span class="stringliteral">&#39;write&#39;</span>)</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>       this%unit_ = stdout</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span> </div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    <span class="keywordtype">integer</span> :: envvar_len, ierr</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="keyword">call </span>this%free()</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(env_prefix)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>       prefix = env_prefix</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>       prefix = <span class="stringliteral">&quot;NEKO&quot;</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    <span class="keyword">call </span>get_environment_variable(trim(prefix) // <span class="stringliteral">&quot;_LOG_TAB_SIZE&quot;</span>, &amp;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>         log_tab_size, envvar_len)</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>       <span class="keyword">read</span>(log_tab_size(1:envvar_len), *) this%tab_size_</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>       this%tab_size_ = 1</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    <span class="keyword">call </span>get_environment_variable(trim(prefix) // <span class="stringliteral">&quot;_LOG_LEVEL&quot;</span>, &amp;</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>         log_level, envvar_len)</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>       <span class="keyword">read</span>(log_level(1:envvar_len), *) this%level_</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>       this%level_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="keyword">call </span>get_environment_variable(trim(prefix) // <span class="stringliteral">&quot;_LOG_FILE&quot;</span>, &amp;</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>         log_file, envvar_len)</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    <span class="keywordflow">if</span> (envvar_len .gt. 0 .and. <a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .eq. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>       <span class="keyword">open</span>(newunit = this%unit_, <a class="code hl_namespace" href="../../da/d16/namespacefile.html">file</a> = trim(log_file), status = <span class="stringliteral">&#39;replace&#39;</span>, &amp;</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>            action = <span class="stringliteral">&#39;write&#39;</span>, iostat = ierr)</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>       <span class="keywordflow">if</span> (ierr .ne. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>          <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Failed to open log file: &quot;</span> // trim(log_file))</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>       this%unit_ = stdout</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span> </div>
 </div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a86d04534534fdb6d509b73ec5985aeaf">log_init</a></div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span><span class="comment"></span> </div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><span class="comment">  !&gt; Free a log</span></div>
-<div class="foldopen" id="foldopen00148" data-start="" data-end="">
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">  148</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">log_free</a>(this)</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    <span class="keywordtype">integer</span> :: i</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    <span class="comment">! Flush the log before closing off.</span></div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="keyword">call </span>this%flush()</div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span> </div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    <span class="keywordflow">if</span> (this%section_id_ .ne. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Log is unbalanced&quot;</span>)</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%deprecated_list)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>       <span class="keyword">call </span>this%section(<span class="stringliteral">&quot;Deprecated features summary&quot;</span>, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a511120f49f6bbb3c0deb38df7448ddfe">neko_log_deprecation</a>)</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%deprecated_list)</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>          <span class="keyword">call </span>this%message(trim(this%deprecated_list(i)), <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a511120f49f6bbb3c0deb38df7448ddfe">neko_log_deprecation</a>)</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>       <span class="keyword">call </span>this%end_section()</div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    <span class="keywordflow">if</span> (this%unit_ .ne. stdout) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>       <span class="keyword">close</span>(this%unit_)</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    this%indent_ = 0</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    this%section_id_ = 0</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    this%tab_size_ = 1</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    this%level_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    this%unit_ = stdout</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%deprecated_list)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>       <span class="keyword">deallocate</span>(this%deprecated_list)</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a86d04534534fdb6d509b73ec5985aeaf">log_init</a></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span><span class="comment"></span> </div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span><span class="comment">  !&gt; Free a log</span></div>
+<div class="foldopen" id="foldopen00149" data-start="" data-end="">
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">  149</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">log_free</a>(this)</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    <span class="keywordtype">integer</span> :: i</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span> </div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="comment">! Flush the log before closing off.</span></div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    <span class="keyword">call </span>this%flush()</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    <span class="keywordflow">if</span> (this%section_id_ .ne. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&quot;Log is unbalanced&quot;</span>)</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span> </div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%deprecated_list)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>       <span class="keyword">call </span>this%section(<span class="stringliteral">&quot;Deprecated features summary&quot;</span>, <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a511120f49f6bbb3c0deb38df7448ddfe">neko_log_deprecation</a>)</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>       <span class="keywordflow">do</span> i = 1, <span class="keyword">size</span>(this%deprecated_list)</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>          <span class="keyword">call </span>this%message(trim(this%deprecated_list(i)), <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#a511120f49f6bbb3c0deb38df7448ddfe">neko_log_deprecation</a>)</div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>       <span class="keyword">call </span>this%end_section()</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keywordflow">if</span> (this%unit_ .ne. stdout) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>       <span class="keyword">close</span>(this%unit_)</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    this%indent_ = 0</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    this%section_id_ = 0</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    this%tab_size_ = 1</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    this%level_ = <a class="code hl_variable" href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">neko_log_info</a></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    this%unit_ = stdout</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    <span class="keywordflow">if</span> (<span class="keyword">allocated</span>(this%deprecated_list)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>       <span class="keyword">deallocate</span>(this%deprecated_list)</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
 </div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">log_free</a></div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span><span class="comment"></span> </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span><span class="comment">  !&gt; Flush the log stream, ensuring buffered output leaves the process</span></div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="comment">  !! @note Flushing is local to rank 0 (the only writer) and never collective,</span></div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="comment">  !! so it is safe to call from any rank.</span></div>
-<div class="foldopen" id="foldopen00187" data-start="" data-end="">
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#ab969bc3613bb326ae7733b08d8f9547d">  187</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#ab969bc3613bb326ae7733b08d8f9547d">log_flush</a>(this)</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .ne. 0) <span class="keywordflow">return</span></div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="comment">! The unit is compared against the sentinel value set by `log_free`, and</span></div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="comment">! not simply tested for being positive, since NEWUNIT-assigned units</span></div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="comment">! (used for NEKO_LOG_FILE) are always negative</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="keyword">flush</span>(this%unit_)</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">log_free</a></div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span><span class="comment"></span> </div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span><span class="comment">  !&gt; Flush the log stream, ensuring buffered output leaves the process</span></div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span><span class="comment">  !! @note Flushing is local to rank 0 (the only writer) and never collective,</span></div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span><span class="comment">  !! so it is safe to call from any rank.</span></div>
+<div class="foldopen" id="foldopen00188" data-start="" data-end="">
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#ab969bc3613bb326ae7733b08d8f9547d">  188</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#ab969bc3613bb326ae7733b08d8f9547d">log_flush</a>(this)</div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .ne. 0) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    <span class="comment">! The unit is compared against the sentinel value set by `log_free`, and</span></div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    <span class="comment">! not simply tested for being positive, since NEWUNIT-assigned units</span></div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    <span class="comment">! (used for NEKO_LOG_FILE) are always negative</span></div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    <span class="keyword">flush</span>(this%unit_)</div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span> </div>
 </div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#ab969bc3613bb326ae7733b08d8f9547d">log_flush</a></div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span><span class="comment"></span> </div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="comment">  !&gt; Return the log level. Messages with a level above it are not written.</span></div>
-<div class="foldopen" id="foldopen00199" data-start="" data-end="">
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a255ebaac62585c2bd8480e84e173bcd5">  199</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a255ebaac62585c2bd8480e84e173bcd5">log_level</a>(this) <span class="keyword">result</span>(lvl)</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">integer</span> :: lvl</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .ne. 0) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#ab969bc3613bb326ae7733b08d8f9547d">log_flush</a></div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span><span class="comment"></span> </div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span><span class="comment">  !&gt; Return the log level. Messages with a level above it are not written.</span></div>
+<div class="foldopen" id="foldopen00200" data-start="" data-end="">
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a255ebaac62585c2bd8480e84e173bcd5">  200</a></span>  <span class="keywordtype">pure</span> <span class="keyword">function </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a255ebaac62585c2bd8480e84e173bcd5">log_level</a>(this) <span class="keyword">result</span>(lvl)</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d7b/structlogger_1_1log__t.html">log_t</a>), <span class="keywordtype">intent(in)</span> :: this</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    <span class="keywordtype">integer</span> :: lvl</div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    lvl = this%level_</div>
 <div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
@@ -702,70 +702,71 @@ $(function(){initNavTree('da/d53/log_8f90_source.html','../../',''); });
 <div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span><span class="comment">  !! @note This assumes the global log stream @a neko_log</span></div>
 <div class="foldopen" id="foldopen00566" data-start="" data-end="">
 <div class="line"><a id="l00566" name="l00566"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">  566</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">log_end_section_c</a>() <span class="keyword">bind(c, name = &quot;log_end_section&quot;)</span></div>
-<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span> </div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span> </div>
+<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">pe_rank</a> .ne. 0) <span class="keywordflow">return</span></div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span> </div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">neko_log</a>%end_section()</div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span> </div>
 </div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">log_end_section_c</a></div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span><span class="comment"></span> </div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span><span class="comment">  !&gt; Compare version strings</span></div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span><span class="comment">  !! @param version_removal Version string when the feature will be removed</span></div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span><span class="comment">  !! @return .true. if the current version is newer than or equal to the removal</span></div>
-<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span><span class="comment">  !! version, .false. otherwise</span></div>
-<div class="foldopen" id="foldopen00576" data-start="" data-end="">
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">  576</a></span>  <span class="keyword">logical </span><span class="keyword">function </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a>(version_removal)</div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: version_removal</div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    <span class="keywordtype">character(len=50)</span> :: current_str, removal_str</div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>    <span class="keywordtype">integer</span> :: current_number(3), removal_number(3)</div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>    <span class="keywordtype">integer</span> :: i, current_size, removal_size</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>    <span class="keywordtype">integer</span> :: iostat_current, iostat_removal</div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>    <span class="keywordtype">logical</span> :: versions_are_valid, is_newer_than_removal</div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span> </div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>    current_str = trim(<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#aa33eeb21a921c8d449bd3eaef354962b">neko_version</a>)</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    removal_str = trim(version_removal)</div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span> </div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>    current_size = 1</div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>    <span class="keywordflow">do</span> i = 1, len_trim(current_str)</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>       <span class="keywordflow">if</span> (current_str(i:i) .eq. <span class="stringliteral">&#39;.&#39;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>          current_str(i:i) = <span class="stringliteral">&#39; &#39;</span></div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>          current_size = current_size + 1</div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span> </div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>    removal_size = 1</div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>    <span class="keywordflow">do</span> i = 1, len_trim(removal_str)</div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>       <span class="keywordflow">if</span> (removal_str(i:i) .eq. <span class="stringliteral">&#39;.&#39;</span>) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>          removal_str(i:i) = <span class="stringliteral">&#39; &#39;</span></div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>          removal_size = removal_size + 1</div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span> </div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>    <span class="keyword">read</span>(current_str, *, iostat = iostat_current) &amp;</div>
-<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>         current_number(1:current_size)</div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>    <span class="keyword">read</span>(removal_str, *, iostat = iostat_removal) &amp;</div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>         removal_number(1:removal_size)</div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>    versions_are_valid = (iostat_current .eq. 0 .and. iostat_removal .eq. 0)</div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span> </div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>    <span class="keywordflow">if</span> (.not. versions_are_valid) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid version string in deprecation check: &#39;</span> // &amp;</div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>            <span class="stringliteral">&#39;NEKO_VERSION=&#39;</span> // trim(<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#aa33eeb21a921c8d449bd3eaef354962b">neko_version</a>) // <span class="stringliteral">&#39;, &#39;</span> // &amp;</div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>            <span class="stringliteral">&#39;removal_version=&#39;</span> // trim(version_removal))</div>
-<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span> </div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>    <a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a> = .true.</div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>    <span class="keywordflow">do</span> i = 1, current_size</div>
-<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>       <span class="keywordflow">if</span> (current_number(i) .gt. removal_number(i)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>          <a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a> = .true.</div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>          <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current_number(i) .lt. removal_number(i)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>          <a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a> = .false.</div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>          <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span> </div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">log_end_section_c</a></div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span><span class="comment"></span> </div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span><span class="comment">  !&gt; Compare version strings</span></div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span><span class="comment">  !! @param version_removal Version string when the feature will be removed</span></div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span><span class="comment">  !! @return .true. if the current version is newer than or equal to the removal</span></div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span><span class="comment">  !! version, .false. otherwise</span></div>
+<div class="foldopen" id="foldopen00577" data-start="" data-end="">
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno"><a class="line" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">  577</a></span>  <span class="keyword">logical </span><span class="keyword">function </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a>(version_removal)</div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: version_removal</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>    <span class="keywordtype">character(len=50)</span> :: current_str, removal_str</div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>    <span class="keywordtype">integer</span> :: current_number(3), removal_number(3)</div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>    <span class="keywordtype">integer</span> :: i, current_size, removal_size</div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>    <span class="keywordtype">integer</span> :: iostat_current, iostat_removal</div>
+<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>    <span class="keywordtype">logical</span> :: versions_are_valid, is_newer_than_removal</div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span> </div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>    current_str = trim(<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#aa33eeb21a921c8d449bd3eaef354962b">neko_version</a>)</div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>    removal_str = trim(version_removal)</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span> </div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>    current_size = 1</div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>    <span class="keywordflow">do</span> i = 1, len_trim(current_str)</div>
+<div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span>       <span class="keywordflow">if</span> (current_str(i:i) .eq. <span class="stringliteral">&#39;.&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>          current_str(i:i) = <span class="stringliteral">&#39; &#39;</span></div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>          current_size = current_size + 1</div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span> </div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>    removal_size = 1</div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>    <span class="keywordflow">do</span> i = 1, len_trim(removal_str)</div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>       <span class="keywordflow">if</span> (removal_str(i:i) .eq. <span class="stringliteral">&#39;.&#39;</span>) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>          removal_str(i:i) = <span class="stringliteral">&#39; &#39;</span></div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>          removal_size = removal_size + 1</div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span> </div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>    <span class="keyword">read</span>(current_str, *, iostat = iostat_current) &amp;</div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>         current_number(1:current_size)</div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>    <span class="keyword">read</span>(removal_str, *, iostat = iostat_removal) &amp;</div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>         removal_number(1:removal_size)</div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>    versions_are_valid = (iostat_current .eq. 0 .and. iostat_removal .eq. 0)</div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span> </div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>    <span class="keywordflow">if</span> (.not. versions_are_valid) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d7/d83/interfaceutils_1_1neko__error.html">neko_error</a>(<span class="stringliteral">&#39;Invalid version string in deprecation check: &#39;</span> // &amp;</div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>            <span class="stringliteral">&#39;NEKO_VERSION=&#39;</span> // trim(<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#aa33eeb21a921c8d449bd3eaef354962b">neko_version</a>) // <span class="stringliteral">&#39;, &#39;</span> // &amp;</div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>            <span class="stringliteral">&#39;removal_version=&#39;</span> // trim(version_removal))</div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span> </div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>    <a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a> = .true.</div>
+<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>    <span class="keywordflow">do</span> i = 1, current_size</div>
+<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>       <span class="keywordflow">if</span> (current_number(i) .gt. removal_number(i)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>          <a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a> = .true.</div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>          <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>       <span class="keywordflow">else</span> <span class="keywordflow">if</span> (current_number(i) .lt. removal_number(i)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>          <a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a> = .false.</div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>          <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span> </div>
 </div>
-<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a></div>
-<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a></div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">is_deprecated</a></div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d8/da0/namespacelogger.html">logger</a></div>
 <div class="ttc" id="ainterfaceutils_1_1neko__error_html"><div class="ttname"><a href="../../d7/d83/interfaceutils_1_1neko__error.html">utils::neko_error</a></div><div class="ttdef"><b>Definition</b> <a href="../../df/d80/utils_8f90_source.html#l00046">utils.f90:46</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
 <div class="ttc" id="anamespacecomm_html_a5d73a7756860779f8bbc7e2eecf5fdde"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html#a5d73a7756860779f8bbc7e2eecf5fdde">comm::pe_rank</a></div><div class="ttdeci">integer, public pe_rank</div><div class="ttdoc">MPI rank.</div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00059">comm.F90:59</a></div></div>
@@ -774,7 +775,7 @@ $(function(){initNavTree('da/d53/log_8f90_source.html','../../',''); });
 <div class="ttc" id="anamespacelogger_html_a003e2e484726039ea74743cde1165e4f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a003e2e484726039ea74743cde1165e4f">logger::log_end_section_c</a></div><div class="ttdeci">subroutine log_end_section_c()</div><div class="ttdoc">End a log section (from C).</div><div class="ttdef"><b>Definition</b> <a href="#l00566">log.f90:567</a></div></div>
 <div class="ttc" id="anamespacelogger_html_a1c857f10ca5adb4d2fc1ca01258301d4"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a1c857f10ca5adb4d2fc1ca01258301d4">logger::log_end</a></div><div class="ttdeci">subroutine log_end(this)</div><div class="ttdoc">Decrease indention level.</div><div class="ttdef"><b>Definition</b> <a href="#l00219">log.f90:220</a></div></div>
 <div class="ttc" id="anamespacelogger_html_a1f14a67eec025e0fa25123ee5fa1a084"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a1f14a67eec025e0fa25123ee5fa1a084">logger::log_print_section_header</a></div><div class="ttdeci">subroutine log_print_section_header(this, lvl)</div><div class="ttdoc">Print a section header.</div><div class="ttdef"><b>Definition</b> <a href="#l00436">log.f90:437</a></div></div>
-<div class="ttc" id="anamespacelogger_html_a255ebaac62585c2bd8480e84e173bcd5"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a255ebaac62585c2bd8480e84e173bcd5">logger::log_level</a></div><div class="ttdeci">pure integer function log_level(this)</div><div class="ttdoc">Return the log level. Messages with a level above it are not written.</div><div class="ttdef"><b>Definition</b> <a href="#l00199">log.f90:200</a></div></div>
+<div class="ttc" id="anamespacelogger_html_a255ebaac62585c2bd8480e84e173bcd5"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a255ebaac62585c2bd8480e84e173bcd5">logger::log_level</a></div><div class="ttdeci">pure integer function log_level(this)</div><div class="ttdoc">Return the log level. Messages with a level above it are not written.</div><div class="ttdef"><b>Definition</b> <a href="#l00200">log.f90:201</a></div></div>
 <div class="ttc" id="anamespacelogger_html_a27280588c2592499db261e7aae3ac3d2"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a27280588c2592499db261e7aae3ac3d2">logger::log_deprecated</a></div><div class="ttdeci">subroutine log_deprecated(this, feature, removal_version, extra_info)</div><div class="ttdoc">Write a deprecation warning to a log.</div><div class="ttdef"><b>Definition</b> <a href="#l00339">log.f90:340</a></div></div>
 <div class="ttc" id="anamespacelogger_html_a32c862e8094a51ee2a94f0cf68d3f6fe"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a32c862e8094a51ee2a94f0cf68d3f6fe">logger::log_header</a></div><div class="ttdeci">subroutine log_header(this, version, build_info)</div><div class="ttdoc">Write the Neko header to a log.</div><div class="ttdef"><b>Definition</b> <a href="#l00292">log.f90:293</a></div></div>
 <div class="ttc" id="anamespacelogger_html_a511120f49f6bbb3c0deb38df7448ddfe"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a511120f49f6bbb3c0deb38df7448ddfe">logger::neko_log_deprecation</a></div><div class="ttdeci">integer, parameter, public neko_log_deprecation</div><div class="ttdoc">Deprecation.</div><div class="ttdef"><b>Definition</b> <a href="#l00055">log.f90:55</a></div></div>
@@ -788,17 +789,17 @@ $(function(){initNavTree('da/d53/log_8f90_source.html','../../',''); });
 <div class="ttc" id="anamespacelogger_html_a86d04534534fdb6d509b73ec5985aeaf"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a86d04534534fdb6d509b73ec5985aeaf">logger::log_init</a></div><div class="ttdeci">subroutine log_init(this, env_prefix)</div><div class="ttdoc">Initialize a log.</div><div class="ttdef"><b>Definition</b> <a href="#l00101">log.f90:102</a></div></div>
 <div class="ttc" id="anamespacelogger_html_a9f88ca73de5fb3e49da3dc3ee488b666"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#a9f88ca73de5fb3e49da3dc3ee488b666">logger::log_error_c</a></div><div class="ttdeci">subroutine log_error_c(c_msg)</div><div class="ttdoc">Write an error message to a log (from C).</div><div class="ttdef"><b>Definition</b> <a href="#l00500">log.f90:501</a></div></div>
 <div class="ttc" id="anamespacelogger_html_aa5cb5e4f91d477e6a8bd70d19d36f38f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aa5cb5e4f91d477e6a8bd70d19d36f38f">logger::log_indent</a></div><div class="ttdeci">subroutine log_indent(this)</div><div class="ttdoc">Indent a log.</div><div class="ttdef"><b>Definition</b> <a href="#l00234">log.f90:235</a></div></div>
-<div class="ttc" id="anamespacelogger_html_ab969bc3613bb326ae7733b08d8f9547d"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ab969bc3613bb326ae7733b08d8f9547d">logger::log_flush</a></div><div class="ttdeci">subroutine log_flush(this)</div><div class="ttdoc">Flush the log stream, ensuring buffered output leaves the process.</div><div class="ttdef"><b>Definition</b> <a href="#l00187">log.f90:188</a></div></div>
+<div class="ttc" id="anamespacelogger_html_ab969bc3613bb326ae7733b08d8f9547d"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ab969bc3613bb326ae7733b08d8f9547d">logger::log_flush</a></div><div class="ttdeci">subroutine log_flush(this)</div><div class="ttdoc">Flush the log stream, ensuring buffered output leaves the process.</div><div class="ttdef"><b>Definition</b> <a href="#l00188">log.f90:189</a></div></div>
 <div class="ttc" id="anamespacelogger_html_aba52cf419d2fa76de5933019a325565a"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aba52cf419d2fa76de5933019a325565a">logger::log_warning_c</a></div><div class="ttdeci">subroutine log_warning_c(c_msg)</div><div class="ttdoc">Write a warning message to a log (from C).</div><div class="ttdef"><b>Definition</b> <a href="#l00523">log.f90:524</a></div></div>
 <div class="ttc" id="anamespacelogger_html_abe16d24271114fb1b15eab73223fd452"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#abe16d24271114fb1b15eab73223fd452">logger::log_newline</a></div><div class="ttdeci">subroutine log_newline(this, lvl)</div><div class="ttdoc">Write a new line to a log.</div><div class="ttdef"><b>Definition</b> <a href="#l00243">log.f90:244</a></div></div>
-<div class="ttc" id="anamespacelogger_html_abe9d04d73437bc25c5fcec381c21458d"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">logger::is_deprecated</a></div><div class="ttdeci">logical function is_deprecated(version_removal)</div><div class="ttdoc">Compare version strings.</div><div class="ttdef"><b>Definition</b> <a href="#l00576">log.f90:577</a></div></div>
+<div class="ttc" id="anamespacelogger_html_abe9d04d73437bc25c5fcec381c21458d"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#abe9d04d73437bc25c5fcec381c21458d">logger::is_deprecated</a></div><div class="ttdeci">logical function is_deprecated(version_removal)</div><div class="ttdoc">Compare version strings.</div><div class="ttdef"><b>Definition</b> <a href="#l00577">log.f90:578</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ac6839ad1d80fc27c9feadef63b457c98"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ac6839ad1d80fc27c9feadef63b457c98">logger::sec_head_size</a></div><div class="ttdeci">integer, parameter, public sec_head_size</div><div class="ttdoc">Length of the section header.</div><div class="ttdef"><b>Definition</b> <a href="#l00049">log.f90:49</a></div></div>
 <div class="ttc" id="anamespacelogger_html_accdcb0b637b2330ce2717845b8fe1c55"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55">logger::log_section_c</a></div><div class="ttdeci">subroutine log_section_c(c_msg)</div><div class="ttdoc">Begin a new log section (from C).</div><div class="ttdef"><b>Definition</b> <a href="#l00546">log.f90:547</a></div></div>
 <div class="ttc" id="anamespacelogger_html_acda43c0334eca9fb3a0b3d5e23615f7c"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#acda43c0334eca9fb3a0b3d5e23615f7c">logger::neko_log_debug</a></div><div class="ttdeci">integer, parameter, public neko_log_debug</div><div class="ttdoc">Debug.</div><div class="ttdef"><b>Definition</b> <a href="#l00056">log.f90:56</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ad728b3400b2e5dfa9ee65757c599c9ce"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ad728b3400b2e5dfa9ee65757c599c9ce">logger::neko_log</a></div><div class="ttdeci">type(log_t), public neko_log</div><div class="ttdoc">Global log stream.</div><div class="ttdef"><b>Definition</b> <a href="#l00092">log.f90:92</a></div></div>
 <div class="ttc" id="anamespacelogger_html_ade757cfc4235350ea17397117ea3c4a6"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6">logger::log_size</a></div><div class="ttdeci">integer, parameter, public log_size</div><div class="ttdef"><b>Definition</b> <a href="#l00046">log.f90:46</a></div></div>
 <div class="ttc" id="anamespacelogger_html_aea23bca657681dfcdf10ce6024e73f02"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aea23bca657681dfcdf10ce6024e73f02">logger::neko_log_info</a></div><div class="ttdeci">integer, parameter, public neko_log_info</div><div class="ttdoc">Default.</div><div class="ttdef"><b>Definition</b> <a href="#l00053">log.f90:53</a></div></div>
-<div class="ttc" id="anamespacelogger_html_aede702c1206d7daf96f4f06dcc03b178"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">logger::log_free</a></div><div class="ttdeci">subroutine log_free(this)</div><div class="ttdoc">Free a log.</div><div class="ttdef"><b>Definition</b> <a href="#l00148">log.f90:149</a></div></div>
+<div class="ttc" id="anamespacelogger_html_aede702c1206d7daf96f4f06dcc03b178"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#aede702c1206d7daf96f4f06dcc03b178">logger::log_free</a></div><div class="ttdeci">subroutine log_free(this)</div><div class="ttdoc">Free a log.</div><div class="ttdef"><b>Definition</b> <a href="#l00149">log.f90:150</a></div></div>
 <div class="ttc" id="anamespacelogger_html_af26458fdb2a8632e8c01296fc65f962b"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b">logger::log_section</a></div><div class="ttdeci">subroutine log_section(this, msg, lvl)</div><div class="ttdoc">Begin a new log section.</div><div class="ttdef"><b>Definition</b> <a href="#l00405">log.f90:406</a></div></div>
 <div class="ttc" id="anamespacelogger_html_afb89964ae557bfbbe4ece672e5d18e3f"><div class="ttname"><a href="../../d8/da0/namespacelogger.html#afb89964ae557bfbbe4ece672e5d18e3f">logger::log_error</a></div><div class="ttdeci">subroutine log_error(this, msg)</div><div class="ttdoc">Write an error message to a log.</div><div class="ttdef"><b>Definition</b> <a href="#l00312">log.f90:313</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>

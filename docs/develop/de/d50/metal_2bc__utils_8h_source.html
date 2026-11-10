@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -133,24 +133,24 @@ $(function(){initNavTree('de/d50/metal_2bc__utils_8h_source.html','../../',''); 
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span><span class="preprocessor">#ifdef __APPLE__</span></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
 <div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="preprocessor">#import &lt;Metal/Metal.h&gt;</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">extern</span> id&lt;MTLDevice&gt;  neko_metal_device(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">extern</span> id&lt;MTLLibrary&gt; neko_metal_library(<span class="keywordtype">void</span>);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">extern</span> <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>;</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span><span class="comment">/* ------------------------------------------------------------------ */</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">/*  Pipeline state cache (shared across all BC files)                  */</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment">/* ------------------------------------------------------------------ */</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span><span class="keyword">static</span> NSMutableDictionary&lt;NSString *, id&lt;MTLComputePipelineState&gt;&gt; *bc_pipelines = nil;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span> </div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span><span class="keyword">static</span> <span class="keyword">inline</span> id&lt;MTLComputePipelineState&gt; bc_get_pipeline(NSString *name) {</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="keywordflow">if</span> (!bc_pipelines) {</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        bc_pipelines = [NSMutableDictionary <span class="keyword">new</span>];</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    }</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    id&lt;MTLComputePipelineState&gt; pso = bc_pipelines[name];</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordflow">if</span> (!pso) {</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        id&lt;MTLDevice&gt; dev = neko_metal_device();</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span><span class="preprocessor">#include &lt;<a class="code" href="../../df/d88/metal_2check_8h.html">device/metal/check.h</a>&gt;</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">extern</span> id&lt;MTLDevice&gt;  neko_metal_device(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span><span class="keyword">extern</span> id&lt;MTLLibrary&gt; neko_metal_library(<span class="keywordtype">void</span>);</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span><span class="keyword">extern</span> <span class="keywordtype">void</span> *<a class="code hl_variable" href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a>;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span><span class="comment">/* ------------------------------------------------------------------ */</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="comment">/*  Pipeline state cache (shared across all BC files)                  */</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="comment">/* ------------------------------------------------------------------ */</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span><span class="keyword">static</span> NSMutableDictionary&lt;NSString *, id&lt;MTLComputePipelineState&gt;&gt; *bc_pipelines = nil;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span><span class="keyword">static</span> <span class="keyword">inline</span> id&lt;MTLComputePipelineState&gt; bc_get_pipeline(NSString *name) {</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordflow">if</span> (!bc_pipelines) {</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        bc_pipelines = [NSMutableDictionary <span class="keyword">new</span>];</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    }</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    id&lt;MTLComputePipelineState&gt; pso = bc_pipelines[name];</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keywordflow">if</span> (!pso) {</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        NSError *err = nil;</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        id&lt;MTLLibrary&gt; lib = neko_metal_library();</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        id&lt;MTLFunction&gt; fn = [lib newFunctionWithName:name];</div>
@@ -158,7 +158,7 @@ $(function(){initNavTree('de/d50/metal_2bc__utils_8h_source.html','../../',''); 
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>            NSLog(<span class="stringliteral">@&quot;Metal BC: kernel &#39;%@&#39; not found in library&quot;</span>, name);</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>            abort();</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        }</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        pso = [dev newComputePipelineStateWithFunction:fn error:&amp;err];</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        pso = neko_metal_new_pipeline(fn, NEKO_METAL_MAX_THREADS, &amp;err);</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        <span class="keywordflow">if</span> (err) {</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>            NSLog(<span class="stringliteral">@&quot;Metal BC: pipeline error for &#39;%@&#39;: %@&quot;</span>, name, err);</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>            abort();</div>
@@ -186,17 +186,21 @@ $(function(){initNavTree('de/d50/metal_2bc__utils_8h_source.html','../../',''); 
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        encode(enc);</div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        MTLSize threads = MTLSizeMake(n, 1, 1);</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        NSUInteger tpg = n &lt; METAL_BC_NTHREADS ? n : METAL_BC_NTHREADS;</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        MTLSize tg = MTLSizeMake(tpg, 1, 1);</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        [enc dispatchThreads:threads threadsPerThreadgroup:tg];</div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        [enc endEncoding];</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        [cb commit];</div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        [cb waitUntilCompleted];</div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    }</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>}</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span><span class="preprocessor">#endif </span><span class="comment">/* __APPLE__ */</span><span class="preprocessor"></span></div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="preprocessor">#endif </span><span class="comment">/* __BC_METAL_UTILS_H__ */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        <span class="keywordflow">if</span> (tpg &gt; pso.maxTotalThreadsPerThreadgroup)</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>            tpg = pso.maxTotalThreadsPerThreadgroup;</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        MTLSize tg = MTLSizeMake(tpg, 1, 1);</div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        [enc dispatchThreads:threads threadsPerThreadgroup:tg];</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        [enc endEncoding];</div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>        [cb commit];</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        [cb waitUntilCompleted];</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        METAL_CHECK_CB(cb);</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    }</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>}</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span><span class="preprocessor">#endif </span><span class="comment">/* __APPLE__ */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span><span class="preprocessor">#endif </span><span class="comment">/* __BC_METAL_UTILS_H__ */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="adevice__config_8h_html_a470d6592467cf6e88606a04749c50d83"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a470d6592467cf6e88606a04749c50d83">glb_cmd_queue</a></div><div class="ttdeci">void * glb_cmd_queue</div></div>
+<div class="ttc" id="ametal_2check_8h_html"><div class="ttname"><a href="../../df/d88/metal_2check_8h.html">check.h</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

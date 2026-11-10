@@ -1,5 +1,7 @@
 var NAVTREEINDEX14 =
 {
+"d1/d83/structsymmetry_1_1symmetry__t.html#a1bc263e701d6fc865ca5d4a1dfdac914":[1,0,428,0,36],
+"d1/d83/structsymmetry_1_1symmetry__t.html#a1bc263e701d6fc865ca5d4a1dfdac914":[2,0,368,0,36],
 "d1/d83/structsymmetry_1_1symmetry__t.html#a1d1cb8e0aca1ce0abd8661f7973d9cdf":[1,0,428,0,27],
 "d1/d83/structsymmetry_1_1symmetry__t.html#a1d1cb8e0aca1ce0abd8661f7973d9cdf":[2,0,368,0,27],
 "d1/d83/structsymmetry_1_1symmetry__t.html#a264199743aeb1c5962f149d7dd04f25d":[1,0,428,0,46],
@@ -247,7 +249,5 @@ var NAVTREEINDEX14 =
 "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf.html#a2324efa17a5948dc878c888dea893885":[1,0,457,4,0],
 "d1/da1/interfaceuser__intf_1_1user__wall__sampling__gll__intf.html#a2324efa17a5948dc878c888dea893885":[2,0,392,4,0],
 "d1/da2/interfacecuda__math_1_1cuda__radd.html":[1,0,98,14],
-"d1/da2/interfacecuda__math_1_1cuda__radd.html":[2,0,85,14],
-"d1/da2/interfacecuda__math_1_1cuda__radd.html#a83acfbe56282e6a56511d35a62e9e09a":[1,0,98,14,0],
-"d1/da2/interfacecuda__math_1_1cuda__radd.html#a83acfbe56282e6a56511d35a62e9e09a":[2,0,85,14,0]
+"d1/da2/interfacecuda__math_1_1cuda__radd.html":[2,0,85,14]
 };

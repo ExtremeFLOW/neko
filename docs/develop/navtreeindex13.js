@@ -1,5 +1,7 @@
 var NAVTREEINDEX13 =
 {
+"d1/d54/cuda_2inhom__dirichlet__kernel_8h_source.html":[3,0,3,3,0,0,0,14],
+"d1/d56/tensor__device_8F90.html":[3,0,3,18,0,1,20],
 "d1/d56/tensor__device_8F90_source.html":[3,0,3,18,0,1,20],
 "d1/d58/structax__helm_1_1ax__helm__t.html":[1,0,17,0],
 "d1/d58/structax__helm_1_1ax__helm__t.html":[2,0,16,0],
@@ -247,7 +249,5 @@ var NAVTREEINDEX13 =
 "d1/d83/structsymmetry_1_1symmetry__t.html#a19ee9a2eddeedeb2954f089cf38796e9":[1,0,428,0,19],
 "d1/d83/structsymmetry_1_1symmetry__t.html#a19ee9a2eddeedeb2954f089cf38796e9":[2,0,368,0,19],
 "d1/d83/structsymmetry_1_1symmetry__t.html#a1ac479f86685364bc367d05fae6b125c":[1,0,428,0,34],
-"d1/d83/structsymmetry_1_1symmetry__t.html#a1ac479f86685364bc367d05fae6b125c":[2,0,368,0,34],
-"d1/d83/structsymmetry_1_1symmetry__t.html#a1bc263e701d6fc865ca5d4a1dfdac914":[1,0,428,0,36],
-"d1/d83/structsymmetry_1_1symmetry__t.html#a1bc263e701d6fc865ca5d4a1dfdac914":[2,0,368,0,36]
+"d1/d83/structsymmetry_1_1symmetry__t.html#a1ac479f86685364bc367d05fae6b125c":[2,0,368,0,34]
 };

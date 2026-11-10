@@ -6,6 +6,7 @@ var adv__oifs_8f90 =
     [ "adv_oifs::adv_oifs_compute_scalar", "dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a", null ],
     [ "adv_oifs::adv_oifs_free", "dd/d97/namespaceadv__oifs.html#af6833f87fe3310b13d5e5152d4cf1466", null ],
     [ "adv_oifs::adv_oifs_init", "dd/d97/namespaceadv__oifs.html#ae09ccdb55142e86ed6fb78ca5d6a90b4", null ],
+    [ "adv_oifs::adv_oifs_restart", "dd/d97/namespaceadv__oifs.html#a37bfdd2df96d4089b7576bab525e758b", null ],
     [ "adv_oifs::recompute_metrics_oifs", "dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2", null ],
     [ "adv_oifs::set_conv_velocity_fst", "dd/d97/namespaceadv__oifs.html#abf88b9e745adde6b8cb80b4a00930cba", null ]
 ];

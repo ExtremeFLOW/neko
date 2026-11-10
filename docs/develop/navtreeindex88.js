@@ -1,5 +1,7 @@
 var NAVTREEINDEX88 =
 {
+"db/d19/namespacespectral__vanishing__viscosity.html#a3d71df5785d40081cf59c00c6c20ef74":[1,0,416,4],
+"db/d19/namespacespectral__vanishing__viscosity.html#a69fe9dc1b7e909550114a5dffa56cd9e":[1,0,416,7],
 "db/d19/namespacespectral__vanishing__viscosity.html#a75e0477e83c8e78e458e07e7dd5a8f28":[1,0,416,1],
 "db/d19/namespacespectral__vanishing__viscosity.html#a8c0bdf5b707bccf135352b810d4ad61c":[1,0,416,3],
 "db/d19/namespacespectral__vanishing__viscosity.html#aa2cf1e3abe963fc4f80f27db3e1368c3":[1,0,416,8],
@@ -247,7 +249,5 @@ var NAVTREEINDEX88 =
 "db/d2b/interfacemetal__math_1_1metal__pwmin__sca3.html":[2,0,253,58],
 "db/d2b/interfacemetal__math_1_1metal__pwmin__sca3.html#a54066356111cea7b5eac370304154a25":[1,0,289,58,0],
 "db/d2b/interfacemetal__math_1_1metal__pwmin__sca3.html#a54066356111cea7b5eac370304154a25":[2,0,253,58,0],
-"db/d2d/cuda_2fdm__kernel_8h.html":[3,0,3,18,0,1,0,21],
-"db/d2d/cuda_2fdm__kernel_8h.html#abbe49464dfa3873ee0c1d7285e33858a":[3,0,3,18,0,1,0,21,0],
-"db/d2d/cuda_2fdm__kernel_8h_source.html":[3,0,3,18,0,1,0,21]
+"db/d2d/cuda_2fdm__kernel_8h.html":[3,0,3,18,0,1,0,21]
 };

@@ -27,7 +27,7 @@
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.9</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -139,7 +139,7 @@ $(function(){initNavTree('da/d2e/bicgstab__device_8F90_source.html','../../','')
 <div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>       <a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a1a142c0ba1ee042b60c2f9d1ba0c67f0">vector_bc_projector_components</a></div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../dd/d47/namespacemath.html#ac60947d0fd4038e5497414e95da9f3a0">neko_eps</a></div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d0/dbe/namespacedevice.html">device</a>, <span class="keywordtype">only</span> : <a class="code hl_interface" href="../../da/db0/interfacedevice_1_1device__map.html">device_map</a>, <a class="code hl_interface" href="../../db/d56/interfacedevice_1_1device__unmap.html">device_unmap</a>, <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>, &amp;</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479">device_event_create</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141">device_event_destroy</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9">device_event_sync</a>, &amp;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479">device_event_create</a>, <a class="code hl_function" href="../../d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141">device_event_destroy</a>, &amp;</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#aa9a4bafe299e99210e33e7e3c46b4233">glb_cmd_queue</a></div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/d73/namespacedevice__math.html">device_math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268">device_rzero</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a">device_copy</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#abb89ff66f95f255dc98c0fe714d8ddbf">device_glsc3</a>, &amp;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a1bd061bc66a9917394de645ffd09e1f0">device_add2s2</a></div>
@@ -830,175 +830,173 @@ $(function(){initNavTree('da/d2e/bicgstab__device_8F90_source.html','../../','')
 <div class="line"><a id="l00712" name="l00712"></a><span class="lineno">  712</span>         <span class="keyword">call </span>this%M%solve(this%p_hat, this%p, n)</div>
 <div class="line"><a id="l00713" name="l00713"></a><span class="lineno">  713</span>         <span class="keyword">call </span>ax%compute(this%v, this%p_hat, coef, x%msh, x%Xh)</div>
 <div class="line"><a id="l00714" name="l00714"></a><span class="lineno">  714</span>         <span class="keyword">call </span>gs_h%op(this%v, n, gs_op_add, this%gs_event)</div>
-<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>         <span class="keyword">call </span>device_event_sync(this%gs_event)</div>
-<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span>         <span class="keyword">call </span>bc_projector%apply(this%v, n)</div>
-<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span> </div>
-<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>         <span class="comment">! The alpha denominator is another BiCG breakdown point. Reducing it</span></div>
-<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>         <span class="comment">! together with ||v|| permits a scale-aware orthogonality check</span></div>
-<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>         <span class="comment">! without an additional global synchronisation.</span></div>
-<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a8bfe8ea73df4da522a959da4da165df7">device_bicgstab_product_and_norm</a>(ftv, vtv, f_d, v_d, &amp;</div>
-<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>              mult_d, n)</div>
-<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span>         v_norm = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(vtv, <span class="stringliteral">&#39;operator result v&#39;</span>)</div>
-<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device_check_inner_product</a>(ftv, shadow_norm, &amp;</div>
-<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>              v_norm, <span class="stringliteral">&#39;alpha denominator&#39;</span>)</div>
-<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>         alpha = rho_1 / ftv</div>
-<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>         <span class="keywordflow">if</span> (.not. ieee_is_finite(alpha)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span>            <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: non-finite alpha&#39;</span>)</div>
-<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span> </div>
-<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span>         sts = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#aa1cbdd9c60c254cc84da0412e9d89fc2">device_bicgstab_part1</a>(s_d, r_d, v_d, mult_d, alpha, n)</div>
-<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span> </div>
-<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>         s_norm = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(sts, <span class="stringliteral">&#39;intermediate residual&#39;</span>)</div>
-<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>         rnorm = s_norm * norm_fac</div>
-<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>         <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>            <span class="keyword">call </span>device_add2s2(x%x_d, p_hat_d, alpha, n)</div>
-<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>            <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
-<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span>            <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span> </div>
-<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span>         <span class="keyword">call </span>this%M%solve(this%s_hat, this%s, n)</div>
-<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span>         <span class="keyword">call </span>ax%compute(this%t, this%s_hat, coef, x%msh, x%Xh)</div>
-<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>         <span class="keyword">call </span>gs_h%op(this%t, n, gs_op_add, this%gs_event)</div>
-<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span>         <span class="keyword">call </span>device_event_sync(this%gs_event)</div>
-<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>         <span class="keyword">call </span>bc_projector%apply(this%t, n)</div>
-<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span> </div>
-<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a8bfe8ea73df4da522a959da4da165df7">device_bicgstab_product_and_norm</a>(stt, ttt, s_d, t_d, &amp;</div>
-<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>              mult_d, n)</div>
-<div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>         t_norm = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(ttt, <span class="stringliteral">&#39;operator result t&#39;</span>)</div>
-<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span>         <span class="keywordflow">if</span> (t_norm .le. 0.0_rp) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>            <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab breakdown: zero omega denominator&#39;</span>)</div>
-<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span>         <span class="keywordflow">if</span> (.not. ieee_is_finite(stt)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>            <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: non-finite omega numerator&#39;</span>)</div>
-<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>         omega = stt / ttt</div>
-<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span>         <span class="keywordflow">if</span> (.not. ieee_is_finite(omega)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span>            <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: non-finite omega&#39;</span>)</div>
-<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span> </div>
-<div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#af3de60528edac39791dd35faa10146fb">device_bicgstab_part2</a>(rtr, rho_next, x%x_d, r_d, p_hat_d, &amp;</div>
-<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span>              s_hat_d, s_d, t_d, f_d, mult_d, alpha, omega, n)</div>
-<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span> </div>
-<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>         r_norm = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(rtr, <span class="stringliteral">&#39;recursive residual&#39;</span>)</div>
-<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>         rnorm = r_norm * norm_fac</div>
-<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>         <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
-<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span>         <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span>            <span class="keywordflow">exit</span></div>
-<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span> </div>
-<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span>         <span class="comment">! A negative omega is valid. Breakdown occurs only when the local</span></div>
-<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span>         <span class="comment">! minimal-residual step stagnates, i.e. when t and s are numerically</span></div>
-<div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span>         <span class="comment">! orthogonal.</span></div>
-<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device_check_inner_product</a>(stt, t_norm, s_norm, &amp;</div>
-<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span>              <span class="stringliteral">&#39;omega numerator&#39;</span>)</div>
-<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span>         rho_2 = rho_1</div>
-<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span>         rho_1 = rho_next</div>
-<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span> </div>
-<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00781" name="l00781"></a><span class="lineno">  781</span>    <span class="keyword">call </span>this%monitor_stop()</div>
-<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>    ksp_results%res_final = rnorm</div>
-<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span>    ksp_results%iter = iter</div>
-<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span>    ksp_results%converged = this%is_converged(iter, rnorm)</div>
-<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span> </div>
+<div class="line"><a id="l00715" name="l00715"></a><span class="lineno">  715</span>         <span class="keyword">call </span>bc_projector%apply(this%v, n)</div>
+<div class="line"><a id="l00716" name="l00716"></a><span class="lineno">  716</span> </div>
+<div class="line"><a id="l00717" name="l00717"></a><span class="lineno">  717</span>         <span class="comment">! The alpha denominator is another BiCG breakdown point. Reducing it</span></div>
+<div class="line"><a id="l00718" name="l00718"></a><span class="lineno">  718</span>         <span class="comment">! together with ||v|| permits a scale-aware orthogonality check</span></div>
+<div class="line"><a id="l00719" name="l00719"></a><span class="lineno">  719</span>         <span class="comment">! without an additional global synchronisation.</span></div>
+<div class="line"><a id="l00720" name="l00720"></a><span class="lineno">  720</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a8bfe8ea73df4da522a959da4da165df7">device_bicgstab_product_and_norm</a>(ftv, vtv, f_d, v_d, &amp;</div>
+<div class="line"><a id="l00721" name="l00721"></a><span class="lineno">  721</span>              mult_d, n)</div>
+<div class="line"><a id="l00722" name="l00722"></a><span class="lineno">  722</span>         v_norm = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(vtv, <span class="stringliteral">&#39;operator result v&#39;</span>)</div>
+<div class="line"><a id="l00723" name="l00723"></a><span class="lineno">  723</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device_check_inner_product</a>(ftv, shadow_norm, &amp;</div>
+<div class="line"><a id="l00724" name="l00724"></a><span class="lineno">  724</span>              v_norm, <span class="stringliteral">&#39;alpha denominator&#39;</span>)</div>
+<div class="line"><a id="l00725" name="l00725"></a><span class="lineno">  725</span>         alpha = rho_1 / ftv</div>
+<div class="line"><a id="l00726" name="l00726"></a><span class="lineno">  726</span>         <span class="keywordflow">if</span> (.not. ieee_is_finite(alpha)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00727" name="l00727"></a><span class="lineno">  727</span>            <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: non-finite alpha&#39;</span>)</div>
+<div class="line"><a id="l00728" name="l00728"></a><span class="lineno">  728</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00729" name="l00729"></a><span class="lineno">  729</span> </div>
+<div class="line"><a id="l00730" name="l00730"></a><span class="lineno">  730</span>         sts = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#aa1cbdd9c60c254cc84da0412e9d89fc2">device_bicgstab_part1</a>(s_d, r_d, v_d, mult_d, alpha, n)</div>
+<div class="line"><a id="l00731" name="l00731"></a><span class="lineno">  731</span> </div>
+<div class="line"><a id="l00732" name="l00732"></a><span class="lineno">  732</span>         s_norm = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(sts, <span class="stringliteral">&#39;intermediate residual&#39;</span>)</div>
+<div class="line"><a id="l00733" name="l00733"></a><span class="lineno">  733</span>         rnorm = s_norm * norm_fac</div>
+<div class="line"><a id="l00734" name="l00734"></a><span class="lineno">  734</span>         <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00735" name="l00735"></a><span class="lineno">  735</span>            <span class="keyword">call </span>device_add2s2(x%x_d, p_hat_d, alpha, n)</div>
+<div class="line"><a id="l00736" name="l00736"></a><span class="lineno">  736</span>            <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
+<div class="line"><a id="l00737" name="l00737"></a><span class="lineno">  737</span>            <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00738" name="l00738"></a><span class="lineno">  738</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00739" name="l00739"></a><span class="lineno">  739</span> </div>
+<div class="line"><a id="l00740" name="l00740"></a><span class="lineno">  740</span>         <span class="keyword">call </span>this%M%solve(this%s_hat, this%s, n)</div>
+<div class="line"><a id="l00741" name="l00741"></a><span class="lineno">  741</span>         <span class="keyword">call </span>ax%compute(this%t, this%s_hat, coef, x%msh, x%Xh)</div>
+<div class="line"><a id="l00742" name="l00742"></a><span class="lineno">  742</span>         <span class="keyword">call </span>gs_h%op(this%t, n, gs_op_add, this%gs_event)</div>
+<div class="line"><a id="l00743" name="l00743"></a><span class="lineno">  743</span>         <span class="keyword">call </span>bc_projector%apply(this%t, n)</div>
+<div class="line"><a id="l00744" name="l00744"></a><span class="lineno">  744</span> </div>
+<div class="line"><a id="l00745" name="l00745"></a><span class="lineno">  745</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a8bfe8ea73df4da522a959da4da165df7">device_bicgstab_product_and_norm</a>(stt, ttt, s_d, t_d, &amp;</div>
+<div class="line"><a id="l00746" name="l00746"></a><span class="lineno">  746</span>              mult_d, n)</div>
+<div class="line"><a id="l00747" name="l00747"></a><span class="lineno">  747</span>         t_norm = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(ttt, <span class="stringliteral">&#39;operator result t&#39;</span>)</div>
+<div class="line"><a id="l00748" name="l00748"></a><span class="lineno">  748</span>         <span class="keywordflow">if</span> (t_norm .le. 0.0_rp) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00749" name="l00749"></a><span class="lineno">  749</span>            <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab breakdown: zero omega denominator&#39;</span>)</div>
+<div class="line"><a id="l00750" name="l00750"></a><span class="lineno">  750</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00751" name="l00751"></a><span class="lineno">  751</span>         <span class="keywordflow">if</span> (.not. ieee_is_finite(stt)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00752" name="l00752"></a><span class="lineno">  752</span>            <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: non-finite omega numerator&#39;</span>)</div>
+<div class="line"><a id="l00753" name="l00753"></a><span class="lineno">  753</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00754" name="l00754"></a><span class="lineno">  754</span>         omega = stt / ttt</div>
+<div class="line"><a id="l00755" name="l00755"></a><span class="lineno">  755</span>         <span class="keywordflow">if</span> (.not. ieee_is_finite(omega)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00756" name="l00756"></a><span class="lineno">  756</span>            <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: non-finite omega&#39;</span>)</div>
+<div class="line"><a id="l00757" name="l00757"></a><span class="lineno">  757</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00758" name="l00758"></a><span class="lineno">  758</span> </div>
+<div class="line"><a id="l00759" name="l00759"></a><span class="lineno">  759</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#af3de60528edac39791dd35faa10146fb">device_bicgstab_part2</a>(rtr, rho_next, x%x_d, r_d, p_hat_d, &amp;</div>
+<div class="line"><a id="l00760" name="l00760"></a><span class="lineno">  760</span>              s_hat_d, s_d, t_d, f_d, mult_d, alpha, omega, n)</div>
+<div class="line"><a id="l00761" name="l00761"></a><span class="lineno">  761</span> </div>
+<div class="line"><a id="l00762" name="l00762"></a><span class="lineno">  762</span>         r_norm = <a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(rtr, <span class="stringliteral">&#39;recursive residual&#39;</span>)</div>
+<div class="line"><a id="l00763" name="l00763"></a><span class="lineno">  763</span>         rnorm = r_norm * norm_fac</div>
+<div class="line"><a id="l00764" name="l00764"></a><span class="lineno">  764</span>         <span class="keyword">call </span>this%monitor_iter(iter, rnorm)</div>
+<div class="line"><a id="l00765" name="l00765"></a><span class="lineno">  765</span>         <span class="keywordflow">if</span> (rnorm .lt. this%abs_tol .or. rnorm .lt. gamma) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00766" name="l00766"></a><span class="lineno">  766</span>            <span class="keywordflow">exit</span></div>
+<div class="line"><a id="l00767" name="l00767"></a><span class="lineno">  767</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00768" name="l00768"></a><span class="lineno">  768</span> </div>
+<div class="line"><a id="l00769" name="l00769"></a><span class="lineno">  769</span>         <span class="comment">! A negative omega is valid. Breakdown occurs only when the local</span></div>
+<div class="line"><a id="l00770" name="l00770"></a><span class="lineno">  770</span>         <span class="comment">! minimal-residual step stagnates, i.e. when t and s are numerically</span></div>
+<div class="line"><a id="l00771" name="l00771"></a><span class="lineno">  771</span>         <span class="comment">! orthogonal.</span></div>
+<div class="line"><a id="l00772" name="l00772"></a><span class="lineno">  772</span>         <span class="keyword">call </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device_check_inner_product</a>(stt, t_norm, s_norm, &amp;</div>
+<div class="line"><a id="l00773" name="l00773"></a><span class="lineno">  773</span>              <span class="stringliteral">&#39;omega numerator&#39;</span>)</div>
+<div class="line"><a id="l00774" name="l00774"></a><span class="lineno">  774</span>         rho_2 = rho_1</div>
+<div class="line"><a id="l00775" name="l00775"></a><span class="lineno">  775</span>         rho_1 = rho_next</div>
+<div class="line"><a id="l00776" name="l00776"></a><span class="lineno">  776</span> </div>
+<div class="line"><a id="l00777" name="l00777"></a><span class="lineno">  777</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00778" name="l00778"></a><span class="lineno">  778</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00779" name="l00779"></a><span class="lineno">  779</span>    <span class="keyword">call </span>this%monitor_stop()</div>
+<div class="line"><a id="l00780" name="l00780"></a><span class="lineno">  780</span>    ksp_results%res_final = rnorm</div>
+<div class="line"><a id="l00781" name="l00781"></a><span class="lineno">  781</span>    ksp_results%iter = iter</div>
+<div class="line"><a id="l00782" name="l00782"></a><span class="lineno">  782</span>    ksp_results%converged = this%is_converged(iter, rnorm)</div>
+<div class="line"><a id="l00783" name="l00783"></a><span class="lineno">  783</span> </div>
 </div>
-<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7">bicgstab_device_solve</a></div>
-<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span><span class="comment"></span> </div>
-<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span><span class="comment">  !&gt; Check an inner product for a BiCGStab breakdown.</span></div>
-<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span><span class="comment">  !!</span></div>
-<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span><span class="comment">  !! The comparison is normalised by both vector norms. Dividing by the larger</span></div>
-<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span><span class="comment">  !! norm first avoids overflow in their product and preserves scale invariance.</span></div>
-<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span><span class="comment">  !! @param inner_product Weighted inner product of the two vectors.</span></div>
-<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span><span class="comment">  !! @param norm_a Norm of the first vector.</span></div>
-<div class="line"><a id="l00794" name="l00794"></a><span class="lineno">  794</span><span class="comment">  !! @param norm_b Norm of the second vector.</span></div>
-<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span><span class="comment">  !! @param quantity Name of the algorithmic quantity for error reporting.</span></div>
-<div class="foldopen" id="foldopen00796" data-start="" data-end="">
-<div class="line"><a id="l00796" name="l00796"></a><span class="lineno"><a class="line" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">  796</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device_check_inner_product</a>(inner_product, norm_a, &amp;</div>
-<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span>       norm_b, quantity)</div>
-<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: inner_product</div>
-<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: norm_a</div>
-<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: norm_b</div>
-<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: quantity</div>
-<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span><span class="keywordtype">    real</span>(kind=rp) :: large_norm, small_norm</div>
-<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span> </div>
-<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span>    <span class="keywordflow">if</span> (.not. ieee_is_finite(inner_product)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: non-finite &#39;</span> // trim(quantity))</div>
-<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span> </div>
-<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>    large_norm = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(norm_a, norm_b)</div>
-<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>    small_norm = min(norm_a, norm_b)</div>
-<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>    <span class="keywordflow">if</span> (large_norm .le. 0.0_rp .or. &amp;</div>
-<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span>         abs(inner_product) / large_norm .le. neko_eps * small_norm) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab breakdown: near-zero &#39;</span> // trim(quantity))</div>
-<div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span> </div>
+<div class="line"><a id="l00784" name="l00784"></a><span class="lineno">  784</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7">bicgstab_device_solve</a></div>
+<div class="line"><a id="l00785" name="l00785"></a><span class="lineno">  785</span><span class="comment"></span> </div>
+<div class="line"><a id="l00786" name="l00786"></a><span class="lineno">  786</span><span class="comment">  !&gt; Check an inner product for a BiCGStab breakdown.</span></div>
+<div class="line"><a id="l00787" name="l00787"></a><span class="lineno">  787</span><span class="comment">  !!</span></div>
+<div class="line"><a id="l00788" name="l00788"></a><span class="lineno">  788</span><span class="comment">  !! The comparison is normalised by both vector norms. Dividing by the larger</span></div>
+<div class="line"><a id="l00789" name="l00789"></a><span class="lineno">  789</span><span class="comment">  !! norm first avoids overflow in their product and preserves scale invariance.</span></div>
+<div class="line"><a id="l00790" name="l00790"></a><span class="lineno">  790</span><span class="comment">  !! @param inner_product Weighted inner product of the two vectors.</span></div>
+<div class="line"><a id="l00791" name="l00791"></a><span class="lineno">  791</span><span class="comment">  !! @param norm_a Norm of the first vector.</span></div>
+<div class="line"><a id="l00792" name="l00792"></a><span class="lineno">  792</span><span class="comment">  !! @param norm_b Norm of the second vector.</span></div>
+<div class="line"><a id="l00793" name="l00793"></a><span class="lineno">  793</span><span class="comment">  !! @param quantity Name of the algorithmic quantity for error reporting.</span></div>
+<div class="foldopen" id="foldopen00794" data-start="" data-end="">
+<div class="line"><a id="l00794" name="l00794"></a><span class="lineno"><a class="line" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">  794</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device_check_inner_product</a>(inner_product, norm_a, &amp;</div>
+<div class="line"><a id="l00795" name="l00795"></a><span class="lineno">  795</span>       norm_b, quantity)</div>
+<div class="line"><a id="l00796" name="l00796"></a><span class="lineno">  796</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: inner_product</div>
+<div class="line"><a id="l00797" name="l00797"></a><span class="lineno">  797</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: norm_a</div>
+<div class="line"><a id="l00798" name="l00798"></a><span class="lineno">  798</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: norm_b</div>
+<div class="line"><a id="l00799" name="l00799"></a><span class="lineno">  799</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: quantity</div>
+<div class="line"><a id="l00800" name="l00800"></a><span class="lineno">  800</span><span class="keywordtype">    real</span>(kind=rp) :: large_norm, small_norm</div>
+<div class="line"><a id="l00801" name="l00801"></a><span class="lineno">  801</span> </div>
+<div class="line"><a id="l00802" name="l00802"></a><span class="lineno">  802</span>    <span class="keywordflow">if</span> (.not. ieee_is_finite(inner_product)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00803" name="l00803"></a><span class="lineno">  803</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: non-finite &#39;</span> // trim(quantity))</div>
+<div class="line"><a id="l00804" name="l00804"></a><span class="lineno">  804</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00805" name="l00805"></a><span class="lineno">  805</span> </div>
+<div class="line"><a id="l00806" name="l00806"></a><span class="lineno">  806</span>    large_norm = <a class="code hl_define" href="../../d9/d0b/tensor_8cu.html#affe776513b24d84b39af8ab0930fef7f">max</a>(norm_a, norm_b)</div>
+<div class="line"><a id="l00807" name="l00807"></a><span class="lineno">  807</span>    small_norm = min(norm_a, norm_b)</div>
+<div class="line"><a id="l00808" name="l00808"></a><span class="lineno">  808</span>    <span class="keywordflow">if</span> (large_norm .le. 0.0_rp .or. &amp;</div>
+<div class="line"><a id="l00809" name="l00809"></a><span class="lineno">  809</span>         abs(inner_product) / large_norm .le. neko_eps * small_norm) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00810" name="l00810"></a><span class="lineno">  810</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab breakdown: near-zero &#39;</span> // trim(quantity))</div>
+<div class="line"><a id="l00811" name="l00811"></a><span class="lineno">  811</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00812" name="l00812"></a><span class="lineno">  812</span> </div>
 </div>
-<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device_check_inner_product</a></div>
-<div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span><span class="comment"></span> </div>
-<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span><span class="comment">  !&gt; Return the square root of a valid squared norm.</span></div>
-<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span><span class="comment">  !! @param value Weighted squared norm.</span></div>
-<div class="line"><a id="l00819" name="l00819"></a><span class="lineno">  819</span><span class="comment">  !! @param quantity Name of the vector for error reporting.</span></div>
-<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span><span class="comment">  !! @return The non-negative square root.</span></div>
-<div class="foldopen" id="foldopen00821" data-start="" data-end="">
-<div class="line"><a id="l00821" name="l00821"></a><span class="lineno"><a class="line" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">  821</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(value, quantity) <span class="keyword">result</span>(root)</div>
-<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: <span class="keywordtype">value</span></div>
-<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: quantity</div>
-<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span><span class="keywordtype">    real</span>(kind=rp) :: root</div>
-<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span> </div>
-<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span>    <span class="keywordflow">if</span> (.not. ieee_is_finite(<span class="keywordtype">value</span>) .or. <span class="keywordtype">value</span> .lt. 0.0_rp) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: invalid &#39;</span> // trim(quantity) // &amp;</div>
-<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>            <span class="stringliteral">&#39; norm&#39;</span>)</div>
-<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span>    root = sqrt(<span class="keywordtype">value</span>)</div>
-<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span> </div>
+<div class="line"><a id="l00813" name="l00813"></a><span class="lineno">  813</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device_check_inner_product</a></div>
+<div class="line"><a id="l00814" name="l00814"></a><span class="lineno">  814</span><span class="comment"></span> </div>
+<div class="line"><a id="l00815" name="l00815"></a><span class="lineno">  815</span><span class="comment">  !&gt; Return the square root of a valid squared norm.</span></div>
+<div class="line"><a id="l00816" name="l00816"></a><span class="lineno">  816</span><span class="comment">  !! @param value Weighted squared norm.</span></div>
+<div class="line"><a id="l00817" name="l00817"></a><span class="lineno">  817</span><span class="comment">  !! @param quantity Name of the vector for error reporting.</span></div>
+<div class="line"><a id="l00818" name="l00818"></a><span class="lineno">  818</span><span class="comment">  !! @return The non-negative square root.</span></div>
+<div class="foldopen" id="foldopen00819" data-start="" data-end="">
+<div class="line"><a id="l00819" name="l00819"></a><span class="lineno"><a class="line" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">  819</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a>(value, quantity) <span class="keyword">result</span>(root)</div>
+<div class="line"><a id="l00820" name="l00820"></a><span class="lineno">  820</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span> :: <span class="keywordtype">value</span></div>
+<div class="line"><a id="l00821" name="l00821"></a><span class="lineno">  821</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span> :: quantity</div>
+<div class="line"><a id="l00822" name="l00822"></a><span class="lineno">  822</span><span class="keywordtype">    real</span>(kind=rp) :: root</div>
+<div class="line"><a id="l00823" name="l00823"></a><span class="lineno">  823</span> </div>
+<div class="line"><a id="l00824" name="l00824"></a><span class="lineno">  824</span>    <span class="keywordflow">if</span> (.not. ieee_is_finite(<span class="keywordtype">value</span>) .or. <span class="keywordtype">value</span> .lt. 0.0_rp) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00825" name="l00825"></a><span class="lineno">  825</span>       <span class="keyword">call </span>neko_error(<span class="stringliteral">&#39;BiCGStab failure: invalid &#39;</span> // trim(quantity) // &amp;</div>
+<div class="line"><a id="l00826" name="l00826"></a><span class="lineno">  826</span>            <span class="stringliteral">&#39; norm&#39;</span>)</div>
+<div class="line"><a id="l00827" name="l00827"></a><span class="lineno">  827</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l00828" name="l00828"></a><span class="lineno">  828</span>    root = sqrt(<span class="keywordtype">value</span>)</div>
+<div class="line"><a id="l00829" name="l00829"></a><span class="lineno">  829</span> </div>
 </div>
-<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a></div>
-<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span><span class="comment"></span> </div>
-<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span><span class="comment">  !&gt; Solve three independent systems with the device BiCGStab method.</span></div>
-<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span><span class="comment">  !!</span></div>
-<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span><span class="comment">  !! This routine sequentially invokes the scalar solver for each component.</span></div>
-<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span><span class="comment">  !! @param Ax Linear operator.</span></div>
-<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span><span class="comment">  !! @param x Solution field for the first component.</span></div>
-<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span><span class="comment">  !! @param y Solution field for the second component.</span></div>
-<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span><span class="comment">  !! @param z Solution field for the third component.</span></div>
-<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span><span class="comment">  !! @param fx Right-hand side for the first component.</span></div>
-<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span><span class="comment">  !! @param fy Right-hand side for the second component.</span></div>
-<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span><span class="comment">  !! @param fz Right-hand side for the third component.</span></div>
-<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span><span class="comment">  !! @param n Number of degrees of freedom per component.</span></div>
-<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span><span class="comment">  !! @param coef Spectral element coefficients and multiplicity weights.</span></div>
-<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span><span class="comment">  !! @param bc_projector Boundary conditions for the three components.</span></div>
-<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span><span class="comment">  !! @param gs_h Gather-scatter handle used to assemble operator results.</span></div>
-<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span><span class="comment">  !! @param niter Optional maximum number of iterations, overriding the</span></div>
-<div class="line"><a id="l00849" name="l00849"></a><span class="lineno">  849</span><span class="comment">  !! configured value.</span></div>
-<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span><span class="comment">  !! @return Convergence information for each component.</span></div>
-<div class="foldopen" id="foldopen00851" data-start="" data-end="">
-<div class="line"><a id="l00851" name="l00851"></a><span class="lineno"><a class="line" href="../../df/dba/namespacebicgstab__device.html#a9f7c1fe139094a27e5406d705150a7af">  851</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a9f7c1fe139094a27e5406d705150a7af">bicgstab_device_solve_coupled</a>(this, Ax, x, y, z, fx, fy, fz, &amp;</div>
-<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>       n, coef, bc_projector, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
-<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/d20/structbicgstab__device_1_1bicgstab__device__t.html">bicgstab_device_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: ax</div>
-<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
-<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: y</div>
-<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: z</div>
-<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fx</div>
-<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fy</div>
-<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fz</div>
-<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
-<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span>    <span class="keywordtype">class</span>(vector_bc_projector_t), <span class="keywordtype">intent(inout)</span> :: bc_projector</div>
-<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
-<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>    <span class="keywordtype">type</span>(ksp_monitor_t), <span class="keywordtype">dimension(3)</span> :: ksp_results</div>
-<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
-<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>    <span class="keywordtype">type</span>(scalar_bc_projector_t), <span class="keywordtype">pointer</span> :: bc_x, bc_y, bc_z</div>
-<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span> </div>
-<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>    <span class="keyword">call </span>vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)</div>
-<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>    ksp_results(1) = this%solve(ax, x, fx, n, coef, bc_x, gs_h, niter)</div>
-<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span>    ksp_results(2) = this%solve(ax, y, fy, n, coef, bc_y, gs_h, niter)</div>
-<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>    ksp_results(3) = this%solve(ax, z, fz, n, coef, bc_z, gs_h, niter)</div>
+<div class="line"><a id="l00830" name="l00830"></a><span class="lineno">  830</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device_sqrt</a></div>
+<div class="line"><a id="l00831" name="l00831"></a><span class="lineno">  831</span><span class="comment"></span> </div>
+<div class="line"><a id="l00832" name="l00832"></a><span class="lineno">  832</span><span class="comment">  !&gt; Solve three independent systems with the device BiCGStab method.</span></div>
+<div class="line"><a id="l00833" name="l00833"></a><span class="lineno">  833</span><span class="comment">  !!</span></div>
+<div class="line"><a id="l00834" name="l00834"></a><span class="lineno">  834</span><span class="comment">  !! This routine sequentially invokes the scalar solver for each component.</span></div>
+<div class="line"><a id="l00835" name="l00835"></a><span class="lineno">  835</span><span class="comment">  !! @param Ax Linear operator.</span></div>
+<div class="line"><a id="l00836" name="l00836"></a><span class="lineno">  836</span><span class="comment">  !! @param x Solution field for the first component.</span></div>
+<div class="line"><a id="l00837" name="l00837"></a><span class="lineno">  837</span><span class="comment">  !! @param y Solution field for the second component.</span></div>
+<div class="line"><a id="l00838" name="l00838"></a><span class="lineno">  838</span><span class="comment">  !! @param z Solution field for the third component.</span></div>
+<div class="line"><a id="l00839" name="l00839"></a><span class="lineno">  839</span><span class="comment">  !! @param fx Right-hand side for the first component.</span></div>
+<div class="line"><a id="l00840" name="l00840"></a><span class="lineno">  840</span><span class="comment">  !! @param fy Right-hand side for the second component.</span></div>
+<div class="line"><a id="l00841" name="l00841"></a><span class="lineno">  841</span><span class="comment">  !! @param fz Right-hand side for the third component.</span></div>
+<div class="line"><a id="l00842" name="l00842"></a><span class="lineno">  842</span><span class="comment">  !! @param n Number of degrees of freedom per component.</span></div>
+<div class="line"><a id="l00843" name="l00843"></a><span class="lineno">  843</span><span class="comment">  !! @param coef Spectral element coefficients and multiplicity weights.</span></div>
+<div class="line"><a id="l00844" name="l00844"></a><span class="lineno">  844</span><span class="comment">  !! @param bc_projector Boundary conditions for the three components.</span></div>
+<div class="line"><a id="l00845" name="l00845"></a><span class="lineno">  845</span><span class="comment">  !! @param gs_h Gather-scatter handle used to assemble operator results.</span></div>
+<div class="line"><a id="l00846" name="l00846"></a><span class="lineno">  846</span><span class="comment">  !! @param niter Optional maximum number of iterations, overriding the</span></div>
+<div class="line"><a id="l00847" name="l00847"></a><span class="lineno">  847</span><span class="comment">  !! configured value.</span></div>
+<div class="line"><a id="l00848" name="l00848"></a><span class="lineno">  848</span><span class="comment">  !! @return Convergence information for each component.</span></div>
+<div class="foldopen" id="foldopen00849" data-start="" data-end="">
+<div class="line"><a id="l00849" name="l00849"></a><span class="lineno"><a class="line" href="../../df/dba/namespacebicgstab__device.html#a9f7c1fe139094a27e5406d705150a7af">  849</a></span>  <span class="keyword">function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a9f7c1fe139094a27e5406d705150a7af">bicgstab_device_solve_coupled</a>(this, Ax, x, y, z, fx, fy, fz, &amp;</div>
+<div class="line"><a id="l00850" name="l00850"></a><span class="lineno">  850</span>       n, coef, bc_projector, gs_h, niter) <span class="keyword">result</span>(ksp_results)</div>
+<div class="line"><a id="l00851" name="l00851"></a><span class="lineno">  851</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d2/d20/structbicgstab__device_1_1bicgstab__device__t.html">bicgstab_device_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00852" name="l00852"></a><span class="lineno">  852</span>    <span class="keywordtype">class</span>(ax_t), <span class="keywordtype">intent(in)</span> :: ax</div>
+<div class="line"><a id="l00853" name="l00853"></a><span class="lineno">  853</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: x</div>
+<div class="line"><a id="l00854" name="l00854"></a><span class="lineno">  854</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: y</div>
+<div class="line"><a id="l00855" name="l00855"></a><span class="lineno">  855</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: z</div>
+<div class="line"><a id="l00856" name="l00856"></a><span class="lineno">  856</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00857" name="l00857"></a><span class="lineno">  857</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fx</div>
+<div class="line"><a id="l00858" name="l00858"></a><span class="lineno">  858</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fy</div>
+<div class="line"><a id="l00859" name="l00859"></a><span class="lineno">  859</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">dimension(n)</span>, <span class="keywordtype">intent(in)</span> :: fz</div>
+<div class="line"><a id="l00860" name="l00860"></a><span class="lineno">  860</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(inout)</span> :: coef</div>
+<div class="line"><a id="l00861" name="l00861"></a><span class="lineno">  861</span>    <span class="keywordtype">class</span>(vector_bc_projector_t), <span class="keywordtype">intent(inout)</span> :: bc_projector</div>
+<div class="line"><a id="l00862" name="l00862"></a><span class="lineno">  862</span>    <span class="keywordtype">type</span>(gs_t), <span class="keywordtype">intent(inout)</span> :: gs_h</div>
+<div class="line"><a id="l00863" name="l00863"></a><span class="lineno">  863</span>    <span class="keywordtype">type</span>(ksp_monitor_t), <span class="keywordtype">dimension(3)</span> :: ksp_results</div>
+<div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">optional</span>, <span class="keywordtype">intent(in)</span> :: niter</div>
+<div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>    <span class="keywordtype">type</span>(scalar_bc_projector_t), <span class="keywordtype">pointer</span> :: bc_x, bc_y, bc_z</div>
+<div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span> </div>
+<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>    <span class="keyword">call </span>vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)</div>
+<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>    ksp_results(1) = this%solve(ax, x, fx, n, coef, bc_x, gs_h, niter)</div>
+<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>    ksp_results(2) = this%solve(ax, y, fy, n, coef, bc_y, gs_h, niter)</div>
+<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>    ksp_results(3) = this%solve(ax, z, fz, n, coef, bc_z, gs_h, niter)</div>
+<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span> </div>
+</div>
+<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a9f7c1fe139094a27e5406d705150a7af">bicgstab_device_solve_coupled</a></div>
 <div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span> </div>
-</div>
-<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../df/dba/namespacebicgstab__device.html#a9f7c1fe139094a27e5406d705150a7af">bicgstab_device_solve_coupled</a></div>
-<div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span> </div>
-<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../df/dba/namespacebicgstab__device.html">bicgstab_device</a></div>
+<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../df/dba/namespacebicgstab__device.html">bicgstab_device</a></div>
 <div class="ttc" id="abicgstab_8c_html_a43121a05c807f56eb8a41af439e9b6a1"><div class="ttname"><a href="../../d7/d6b/bicgstab_8c.html#a43121a05c807f56eb8a41af439e9b6a1">opencl_bicgstab_part1</a></div><div class="ttdeci">real_xp opencl_bicgstab_part1(void *s, void *r, void *v, void *mult, real *alpha, int *n, cl_command_queue cmd_queue)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d6b/bicgstab_8c_source.html#l00160">bicgstab.c:160</a></div></div>
 <div class="ttc" id="abicgstab_8c_html_a4d02f8f4f084654b4d90526fb1619861"><div class="ttname"><a href="../../d7/d6b/bicgstab_8c.html#a4d02f8f4f084654b4d90526fb1619861">opencl_bicgstab_part2</a></div><div class="ttdeci">void opencl_bicgstab_part2(void *x, void *r, void *p_hat, void *s_hat, void *s, void *t, void *f, void *mult, real *alpha, real *omega, real_xp *res, int *n, cl_command_queue cmd_queue)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d6b/bicgstab_8c_source.html#l00218">bicgstab.c:218</a></div></div>
 <div class="ttc" id="abicgstab_8c_html_a68f45d163c516cc299c310b303277942"><div class="ttname"><a href="../../d7/d6b/bicgstab_8c.html#a68f45d163c516cc299c310b303277942">opencl_bicgstab_product_and_norm</a></div><div class="ttdeci">void opencl_bicgstab_product_and_norm(void *a, void *b, void *mult, real_xp *res, int *n, cl_command_queue cmd_queue)</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d6b/bicgstab_8c_source.html#l00104">bicgstab.c:104</a></div></div>
@@ -1020,14 +1018,14 @@ $(function(){initNavTree('da/d2e/bicgstab__device_8F90_source.html','../../','')
 <div class="ttc" id="anamespaceax__product_html"><div class="ttname"><a href="../../d2/dd1/namespaceax__product.html">ax_product</a></div><div class="ttdoc">Defines a Matrix-vector product.</div><div class="ttdef"><b>Definition</b> <a href="../../dc/dd6/ax_8f90_source.html#l00034">ax.f90:34</a></div></div>
 <div class="ttc" id="anamespacebicgstab__device_html"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html">bicgstab_device</a></div><div class="ttdoc">Provides a device implementation of the BiCGStab method.</div><div class="ttdef"><b>Definition</b> <a href="#l00034">bicgstab_device.F90:34</a></div></div>
 <div class="ttc" id="anamespacebicgstab__device_html_a0106327d04cb35e03d2515f202779349"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#a0106327d04cb35e03d2515f202779349">bicgstab_device::device_bicgstab_update_p</a></div><div class="ttdeci">subroutine device_bicgstab_update_p(p_d, r_d, v_d, beta, omega, n)</div><div class="ttdoc">Search direction update .</div><div class="ttdef"><b>Definition</b> <a href="#l00319">bicgstab_device.F90:320</a></div></div>
-<div class="ttc" id="anamespacebicgstab__device_html_a1dcba14d3b4d275f076a82ebfb1e9fae"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device::bicgstab_device_check_inner_product</a></div><div class="ttdeci">subroutine bicgstab_device_check_inner_product(inner_product, norm_a, norm_b, quantity)</div><div class="ttdoc">Check an inner product for a BiCGStab breakdown.</div><div class="ttdef"><b>Definition</b> <a href="#l00796">bicgstab_device.F90:798</a></div></div>
+<div class="ttc" id="anamespacebicgstab__device_html_a1dcba14d3b4d275f076a82ebfb1e9fae"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#a1dcba14d3b4d275f076a82ebfb1e9fae">bicgstab_device::bicgstab_device_check_inner_product</a></div><div class="ttdeci">subroutine bicgstab_device_check_inner_product(inner_product, norm_a, norm_b, quantity)</div><div class="ttdoc">Check an inner product for a BiCGStab breakdown.</div><div class="ttdef"><b>Definition</b> <a href="#l00794">bicgstab_device.F90:796</a></div></div>
 <div class="ttc" id="anamespacebicgstab__device_html_a66bd7792eb80d9a99f3f135c45672ba7"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#a66bd7792eb80d9a99f3f135c45672ba7">bicgstab_device::bicgstab_device_solve</a></div><div class="ttdeci">type(ksp_monitor_t) function bicgstab_device_solve(this, ax, x, f, n, coef, bc_projector, gs_h, niter)</div><div class="ttdoc">Solve a linear system with the device BiCGStab method.</div><div class="ttdef"><b>Definition</b> <a href="#l00632">bicgstab_device.F90:634</a></div></div>
 <div class="ttc" id="anamespacebicgstab__device_html_a8bfe8ea73df4da522a959da4da165df7"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#a8bfe8ea73df4da522a959da4da165df7">bicgstab_device::device_bicgstab_product_and_norm</a></div><div class="ttdeci">subroutine device_bicgstab_product_and_norm(product, norm_squared, a_d, b_d, mult_d, n)</div><div class="ttdoc">Weighted inner product and squared norm in one reduction.</div><div class="ttdef"><b>Definition</b> <a href="#l00351">bicgstab_device.F90:353</a></div></div>
-<div class="ttc" id="anamespacebicgstab__device_html_a9f7c1fe139094a27e5406d705150a7af"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#a9f7c1fe139094a27e5406d705150a7af">bicgstab_device::bicgstab_device_solve_coupled</a></div><div class="ttdeci">type(ksp_monitor_t) function, dimension(3) bicgstab_device_solve_coupled(this, ax, x, y, z, fx, fy, fz, n, coef, bc_projector, gs_h, niter)</div><div class="ttdoc">Solve three independent systems with the device BiCGStab method.</div><div class="ttdef"><b>Definition</b> <a href="#l00851">bicgstab_device.F90:853</a></div></div>
+<div class="ttc" id="anamespacebicgstab__device_html_a9f7c1fe139094a27e5406d705150a7af"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#a9f7c1fe139094a27e5406d705150a7af">bicgstab_device::bicgstab_device_solve_coupled</a></div><div class="ttdeci">type(ksp_monitor_t) function, dimension(3) bicgstab_device_solve_coupled(this, ax, x, y, z, fx, fy, fz, n, coef, bc_projector, gs_h, niter)</div><div class="ttdoc">Solve three independent systems with the device BiCGStab method.</div><div class="ttdef"><b>Definition</b> <a href="#l00849">bicgstab_device.F90:851</a></div></div>
 <div class="ttc" id="anamespacebicgstab__device_html_aa1cbdd9c60c254cc84da0412e9d89fc2"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#aa1cbdd9c60c254cc84da0412e9d89fc2">bicgstab_device::device_bicgstab_part1</a></div><div class="ttdeci">real(kind=rp) function device_bicgstab_part1(s_d, r_d, v_d, mult_d, alpha, n)</div><div class="ttdoc">BiCGStab part 1, .</div><div class="ttdef"><b>Definition</b> <a href="#l00398">bicgstab_device.F90:400</a></div></div>
 <div class="ttc" id="anamespacebicgstab__device_html_ae32cc16091d42b68632d298bf57c9120"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#ae32cc16091d42b68632d298bf57c9120">bicgstab_device::bicgstab_device_free</a></div><div class="ttdeci">subroutine bicgstab_device_free(this)</div><div class="ttdoc">Free a device BiCGStab solver.</div><div class="ttdef"><b>Definition</b> <a href="#l00557">bicgstab_device.F90:558</a></div></div>
 <div class="ttc" id="anamespacebicgstab__device_html_ae49f63419ceb4915d9fd053058761db5"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#ae49f63419ceb4915d9fd053058761db5">bicgstab_device::bicgstab_device_init</a></div><div class="ttdeci">subroutine bicgstab_device_init(this, n, max_iter, m, rel_tol, abs_tol, monitor)</div><div class="ttdoc">Initialise a device BiCGStab solver.</div><div class="ttdef"><b>Definition</b> <a href="#l00502">bicgstab_device.F90:504</a></div></div>
-<div class="ttc" id="anamespacebicgstab__device_html_ae562797b751d704be1e7fdb055cb3e76"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device::bicgstab_device_sqrt</a></div><div class="ttdeci">real(kind=rp) function bicgstab_device_sqrt(value, quantity)</div><div class="ttdoc">Return the square root of a valid squared norm.</div><div class="ttdef"><b>Definition</b> <a href="#l00821">bicgstab_device.F90:822</a></div></div>
+<div class="ttc" id="anamespacebicgstab__device_html_ae562797b751d704be1e7fdb055cb3e76"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#ae562797b751d704be1e7fdb055cb3e76">bicgstab_device::bicgstab_device_sqrt</a></div><div class="ttdeci">real(kind=rp) function bicgstab_device_sqrt(value, quantity)</div><div class="ttdoc">Return the square root of a valid squared norm.</div><div class="ttdef"><b>Definition</b> <a href="#l00819">bicgstab_device.F90:820</a></div></div>
 <div class="ttc" id="anamespacebicgstab__device_html_af3de60528edac39791dd35faa10146fb"><div class="ttname"><a href="../../df/dba/namespacebicgstab__device.html#af3de60528edac39791dd35faa10146fb">bicgstab_device::device_bicgstab_part2</a></div><div class="ttdeci">subroutine device_bicgstab_part2(rtr, rho, x_d, r_d, p_hat_d, s_hat_d, s_d, t_d, f_d, mult_d, alpha, omega, n)</div><div class="ttdoc">BiCGStab part 2,  and .</div><div class="ttdef"><b>Definition</b> <a href="#l00452">bicgstab_device.F90:454</a></div></div>
 <div class="ttc" id="anamespacecoefs_html"><div class="ttname"><a href="../../d6/dbe/namespacecoefs.html">coefs</a></div><div class="ttdoc">Coefficients.</div><div class="ttdef"><b>Definition</b> <a href="../../db/d85/coef_8f90_source.html#l00034">coef.f90:34</a></div></div>
 <div class="ttc" id="anamespacecomm_html"><div class="ttname"><a href="../../d3/d8f/namespacecomm.html">comm</a></div><div class="ttdef"><b>Definition</b> <a href="../../d1/db1/comm_8F90_source.html#l00001">comm.F90:1</a></div></div>
@@ -1040,7 +1038,6 @@ $(function(){initNavTree('da/d2e/bicgstab__device_8F90_source.html','../../','')
 <div class="ttc" id="anamespacedevice__math_html_a855e85405a5eb63227e1970691aa2a5a"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a">device_math::device_copy</a></div><div class="ttdeci">subroutine, public device_copy(a_d, b_d, n, strm)</div><div class="ttdoc">Copy a vector .</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l00077">device_math.F90:78</a></div></div>
 <div class="ttc" id="anamespacedevice__math_html_abb89ff66f95f255dc98c0fe714d8ddbf"><div class="ttname"><a href="../../d2/d73/namespacedevice__math.html#abb89ff66f95f255dc98c0fe714d8ddbf">device_math::device_glsc3</a></div><div class="ttdeci">real(kind=rp) function, public device_glsc3(a_d, b_d, c_d, n, strm)</div><div class="ttdoc">Weighted inner product .</div><div class="ttdef"><b>Definition</b> <a href="../../d8/d8f/device__math_8F90_source.html#l01364">device_math.F90:1365</a></div></div>
 <div class="ttc" id="anamespacedevice_html"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html">device</a></div><div class="ttdoc">Device abstraction, common interface for various accelerators.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00034">device.F90:34</a></div></div>
-<div class="ttc" id="anamespacedevice_html_a08e073f459027c6c1b067ff777f0bbf9"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a08e073f459027c6c1b067ff777f0bbf9">device::device_event_sync</a></div><div class="ttdeci">subroutine, public device_event_sync(event)</div><div class="ttdoc">Synchronize an event.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l01704">device.F90:1705</a></div></div>
 <div class="ttc" id="anamespacedevice_html_a85c44be65491e03c6d7de2856fd5d141"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#a85c44be65491e03c6d7de2856fd5d141">device::device_event_destroy</a></div><div class="ttdeci">subroutine, public device_event_destroy(event)</div><div class="ttdoc">Destroy a device event.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l01660">device.F90:1661</a></div></div>
 <div class="ttc" id="anamespacedevice_html_aa9a4bafe299e99210e33e7e3c46b4233"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#aa9a4bafe299e99210e33e7e3c46b4233">device::glb_cmd_queue</a></div><div class="ttdeci">type(c_ptr), bind(C), public glb_cmd_queue</div><div class="ttdoc">Global command queue.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00052">device.F90:52</a></div></div>
 <div class="ttc" id="anamespacedevice_html_aaaa5631ad87c768e466be4f943c5c479"><div class="ttname"><a href="../../d0/dbe/namespacedevice.html#aaaa5631ad87c768e466be4f943c5c479">device::device_event_create</a></div><div class="ttdeci">subroutine, public device_event_create(event, flags)</div><div class="ttdoc">Create a device event queue.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l01626">device.F90:1627</a></div></div>

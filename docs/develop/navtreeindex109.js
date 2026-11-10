@@ -1,5 +1,7 @@
 var NAVTREEINDEX109 =
 {
+"dd/d8e/structcg__device_1_1cg__device__t.html#ab332bd6ee706aaacb6cd8bcbb3adb351":[2,0,64,0,11],
+"dd/d8e/structcg__device_1_1cg__device__t.html#ab5eef5340b8b15f0edcc182d229312dc":[1,0,70,0,28],
 "dd/d8e/structcg__device_1_1cg__device__t.html#ab5eef5340b8b15f0edcc182d229312dc":[2,0,64,0,28],
 "dd/d8e/structcg__device_1_1cg__device__t.html#ac1d6f73c1f911ed43a09738d9deb9ca1":[1,0,70,0,24],
 "dd/d8e/structcg__device_1_1cg__device__t.html#ac1d6f73c1f911ed43a09738d9deb9ca1":[2,0,64,0,24],
@@ -41,10 +43,11 @@ var NAVTREEINDEX109 =
 "dd/d93/namespaceoutput.html#afe59b4c9b19664aa610ca1795d961fcb":[1,0,318,5],
 "dd/d97/namespaceadv__oifs.html":[1,0,8],
 "dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a":[1,0,8,3],
+"dd/d97/namespaceadv__oifs.html#a37bfdd2df96d4089b7576bab525e758b":[1,0,8,6],
 "dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d":[1,0,8,2],
 "dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732":[1,0,8,1],
-"dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2":[1,0,8,6],
-"dd/d97/namespaceadv__oifs.html#abf88b9e745adde6b8cb80b4a00930cba":[1,0,8,7],
+"dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2":[1,0,8,7],
+"dd/d97/namespaceadv__oifs.html#abf88b9e745adde6b8cb80b4a00930cba":[1,0,8,8],
 "dd/d97/namespaceadv__oifs.html#ae09ccdb55142e86ed6fb78ca5d6a90b4":[1,0,8,5],
 "dd/d97/namespaceadv__oifs.html#af6833f87fe3310b13d5e5152d4cf1466":[1,0,8,4],
 "dd/d9e/hip_2opgrad__kernel_8h.html":[3,0,3,18,0,1,1,26],
@@ -246,8 +249,5 @@ var NAVTREEINDEX109 =
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#adf6a45fa3e02ca4518ef3ac9af31f173":[1,0,385,0,30],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#adf6a45fa3e02ca4518ef3ac9af31f173":[2,0,334,0,30],
 "dd/dad/structscalar__stats_1_1scalar__stats__t.html#ae28db431f5c6479d21db1217dcac11a1":[1,0,385,0,41],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#ae28db431f5c6479d21db1217dcac11a1":[2,0,334,0,41],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#ae4f9d759e16f0f387a8a1b89da9d1dfc":[1,0,385,0,14],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#ae4f9d759e16f0f387a8a1b89da9d1dfc":[2,0,334,0,14],
-"dd/dad/structscalar__stats_1_1scalar__stats__t.html#af16b88ff37bd491eb45399a6064efce4":[1,0,385,0,49]
+"dd/dad/structscalar__stats_1_1scalar__stats__t.html#ae28db431f5c6479d21db1217dcac11a1":[2,0,334,0,41]
 };

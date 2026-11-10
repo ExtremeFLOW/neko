@@ -1,5 +1,7 @@
 var NAVTREEINDEX15 =
 {
+"d1/da2/interfacecuda__math_1_1cuda__radd.html#a83acfbe56282e6a56511d35a62e9e09a":[1,0,98,14,0],
+"d1/da2/interfacecuda__math_1_1cuda__radd.html#a83acfbe56282e6a56511d35a62e9e09a":[2,0,85,14,0],
 "d1/da4/namespacefilter.html":[1,0,181],
 "d1/da4/namespacefilter.html#a4e1b12d1924e6671d94a0795ff1c85d1":[1,0,181,5],
 "d1/da4/namespacefilter.html#a4e4fe45d8037a0e94bc2ef1fb2de5467":[1,0,181,4],
@@ -247,7 +249,5 @@ var NAVTREEINDEX15 =
 "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ae15b6df5ce8b5afab9d46552c42a8961":[2,0,168,0,79],
 "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ae356a894d3e1c1fdc49ea007dcf823ab":[1,0,194,0,39],
 "d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ae356a894d3e1c1fdc49ea007dcf823ab":[2,0,168,0,39],
-"d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ae7176706c8e0d55b82e4f91352120c2b":[1,0,194,0,31],
-"d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ae7176706c8e0d55b82e4f91352120c2b":[2,0,168,0,31],
-"d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ae999044ecd7e17a9cc1d1ccae0c6698c":[1,0,194,0,17]
+"d1/db3/structfluid__scheme__compressible__ns_1_1fluid__scheme__compressible__ns__t.html#ae7176706c8e0d55b82e4f91352120c2b":[1,0,194,0,31]
 };

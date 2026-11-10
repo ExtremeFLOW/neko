@@ -11,6 +11,7 @@ var structadv__oifs_1_1adv__oifs__t =
     [ "init", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a4499f5f6778cb519514d56cd42365f57", null ],
     [ "recompute_metrics", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a138d551a6d85b5dadfe670a59b8f3d75", null ],
     [ "recompute_metrics", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#aebd969fe38e1e52bb6bb713d793d23a1", null ],
+    [ "restart", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a745e5201a1087ae7a28b12112a0ef1e3", null ],
     [ "set_conv_velocity_fst", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a82d8aa68871115da38ebbb08d22b41c3", null ],
     [ "coef_gl", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a1c5e1f1b3c24dc4ae8814bebba6c93db", null ],
     [ "coef_gll", "d0/d27/structadv__oifs_1_1adv__oifs__t.html#a1ba8f457e466f8e80600800c7c6537f1", null ],
