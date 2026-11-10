@@ -168,6 +168,17 @@ contains
     call json_get_or_default(json, "name", name, "probes")
     call this%init_base(json, case)
 
+    ! The base defaults the output schedule to the compute schedule.
+    ! Matching schedules keep all samples in one file for this run.
+    if (this%output_controller%control_mode == &
+         this%compute_controller%control_mode .and. &
+         this%output_controller%control_value == &
+         this%compute_controller%control_value) then
+       this%output_controller%never = .true.
+       this%output_controller%control_mode = 'never'
+       call json%add('output_control', 'never')
+    end if
+
     !> Read from case file
     call json%info('fields', n_children = this%n_fields)
     call json_get(json, 'fields', this%which_fields)
