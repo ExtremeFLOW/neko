@@ -1,11 +1,12 @@
 name: Issue
-description: Report a bug or request a feature in Neko.
+description: Report a bug or problem in Neko.
+labels: ["bug"]
 body:
   - type: textarea
     id: summary
     attributes:
       label: Summary
-      description: Please provide a concise summary of the issue faced or feature requested.
+      description: Please provide a concise summary of the issue faced.
     validations:
       required: true
 
@@ -14,7 +15,6 @@ body:
       value: |
         ## Neko configuration
         Please provide the Neko configuration used to reproduce the issue.
-        Leave these fields empty if not applicable, such as for a feature request.
 
   - type: input
     id: version
@@ -24,7 +24,7 @@ body:
         If working on develop, specify the commit hash: `git rev-parse HEAD`.
         If using a release, specify the version: `git describe --tags`.
     validations:
-      required: false
+      required: true
 
   - type: input
     id: machine
@@ -32,7 +32,7 @@ body:
       label: OS/Machine
       description: The operating system or HPC machine.
     validations:
-      required: false
+      required: true
 
   - type: input
     id: compiler
@@ -40,7 +40,7 @@ body:
       label: Compiler stack
       description: Compilers and relevant libraries, including their versions.
     validations:
-      required: false
+      required: true
 
   - type: textarea
     id: configure
