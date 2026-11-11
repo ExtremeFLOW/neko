@@ -40,7 +40,6 @@ module vreman_cpu
   use operators, only : dudxyz, grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use utils, only : neko_error
   implicit none
   private
 
@@ -88,9 +87,7 @@ contains
     integer :: temp_indices(9)
     integer :: temp_indices_buoy(3)
     integer :: e, i, j, k
-    real(kind=rp) :: gmag, ri, N2, shear_sq, nu
-    real(kind=rp) :: n(3), du_n(3), sh(3)
-    real(kind=rp) :: du_parallel
+    real(kind=rp) :: ri, N2, s_sq, nu
 
     if (if_ext) then
        u => neko_registry%get_field_by_name("u_e")
@@ -213,25 +210,16 @@ contains
        call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), &
             .false.)
 
-       ! Unit vertical vector (its sign does not matter for the shear)
-       gmag = sqrt(sum(g**2))
-       if (gmag > NEKO_EPS) then
-          n = g / gmag
-       else
-          call neko_error("The gravity vector must have at least one nonzero component")
-       endif
-
        ! Temperature gradient (element-local)
        call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
 
-       ! g*grad(T), averaged over the elements sharing a node, 
-       ! so N^2 is single-valued like  shear. Stored in dTdx
+       ! g*grad(T), averaged over the elements sharing a node,
+       ! so N^2 is single-valued like the strain rate. Stored in dTdx
        dTdx%x = g(1) * dTdx%x + g(2) * dTdy%x + g(3) * dTdz%x
        call coef%gs_h%op(dTdx, GS_OP_ADD)
        call col2(dTdx%x, coef%mult, dTdx%dof%size())
 
-       !$omp parallel do private(e, i, j, m, N2, du_n, du_parallel, &
-       !$omp& sh, shear_sq, ri, nu)
+       !$omp parallel do private(e, i, m, N2, s_sq, ri, nu)
        do e = 1, coef%msh%nelv
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
@@ -241,34 +229,24 @@ contains
              m = coef%mult(i,1,1,e)
 
              ! Squared Brunt-Vaisala frequency, positive for stable
-             ! stratification since g >0 here.
+             ! stratification since g points upwards here.
              N2 = dTdx%x(i,1,1,e) / ref_temp
 
              ! Element-local eddy viscosity: the summed gradients times
              ! mult give the element value, see above
              nu = nut%x(i,1,1,e)
 
-             ! Directional derivative of the averaged velocity along n
-             du_n(1) = (a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) + &
-                  a13%x(i,1,1,e)*n(3)) * m
-             du_n(2) = (a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) + &
-                  a23%x(i,1,1,e)*n(3)) * m
-             du_n(3) = (a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) + &
-                  a33%x(i,1,1,e)*n(3)) * m
+             ! Squared strain-rate magnitude |S|^2 = 2 S_ij S_ij of the
+             ! averaged gradient, with S_ij = (a_ij + a_ji)/2. The a_ij are
+             ! gather-scatter sums, so each is scaled by m (hence m*m).
+             s_sq = (2.0_rp * (a11%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 &
+                  + a33%x(i,1,1,e)**2) &
+                  + (a12%x(i,1,1,e) + a21%x(i,1,1,e))**2 &
+                  + (a13%x(i,1,1,e) + a31%x(i,1,1,e))**2 &
+                  + (a23%x(i,1,1,e) + a32%x(i,1,1,e))**2) * m * m
 
-             ! Component parallel to n
-             du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
-
-             ! Perpendicular (shear) components
-             do j = 1, 3
-                sh(j) = du_n(j) - du_parallel*n(j)
-             end do
-
-             ! Shear magnitude squared
-             shear_sq = sh(1)*sh(1) + sh(2)*sh(2) + sh(3)*sh(3)
-
-             ! Richardson number
-             ri = N2 / (shear_sq + NEKO_EPS)
+             ! Richardson number of Lilly (1962), Ri = N^2 / |S|^2
+             ri = N2 / (s_sq + NEKO_EPS)
 
              if (ri .le. ri_c) then
                 nu = sqrt(max(0.0_rp, 1.0_rp - ri/ri_c)) * nu

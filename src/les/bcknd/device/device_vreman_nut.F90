@@ -76,7 +76,7 @@ module device_vreman_nut
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &
-          g, ri_c, ref_temp, eps, n) &
+          ri_c, ref_temp, eps, n) &
           bind(c, name = 'hip_vreman_stability')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
@@ -84,7 +84,6 @@ module device_vreman_nut
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
             gdT_d, nut_d, mult_d
-       real(c_rp) :: g(3)
        real(c_rp) :: ri_c, ref_temp, eps
        integer(c_int) :: n
      end subroutine hip_vreman_stability
@@ -127,7 +126,7 @@ module device_vreman_nut
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &
-          g, ri_c, ref_temp, eps, n) &
+          ri_c, ref_temp, eps, n) &
           bind(c, name = 'cuda_vreman_stability')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
@@ -135,7 +134,6 @@ module device_vreman_nut
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
             gdT_d, nut_d, mult_d
-       real(c_rp) :: g(3)
        real(c_rp) :: ri_c, ref_temp, eps
        integer(c_int) :: n
      end subroutine cuda_vreman_stability
@@ -178,7 +176,7 @@ module device_vreman_nut
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &
-          g, ri_c, ref_temp, eps, n) &
+          ri_c, ref_temp, eps, n) &
           bind(c, name = 'opencl_vreman_stability')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
@@ -186,7 +184,6 @@ module device_vreman_nut
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
             gdT_d, nut_d, mult_d
-       real(c_rp) :: g(3)
        real(c_rp) :: ri_c, ref_temp, eps
        integer(c_int) :: n
      end subroutine opencl_vreman_stability
@@ -229,7 +226,7 @@ module device_vreman_nut
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &
-          g, ri_c, ref_temp, eps, n) &
+          ri_c, ref_temp, eps, n) &
           bind(c, name = 'metal_vreman_stability')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
@@ -237,7 +234,6 @@ module device_vreman_nut
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
             gdT_d, nut_d, mult_d
-       real(c_rp) :: g(3)
        real(c_rp) :: ri_c, ref_temp, eps
        integer(c_int) :: n
      end subroutine metal_vreman_stability
@@ -329,45 +325,44 @@ contains
 #endif
   end subroutine device_vreman_nut_compute_aniso
 
-  !> Apply the Richardson-number correction of the Vreman model on the
-  !! device (Lilly 1962; Moeng & Sullivan 2015).
+  !> Apply the Richardson-number correction of Lilly (1962),
+  !! Ri = N^2 / |S|^2, to the Vreman eddy viscosity on the device.
   !! @param gdT_d The interface-averaged g . grad(T).
-  !! @note g points upwards (reversed from the case-file input at init).
   subroutine device_vreman_stability(a11_d, a12_d, a13_d, &
        a21_d, a22_d, a23_d, &
        a31_d, a32_d, a33_d, &
        gdT_d, nut_d, mult_d, &
-       g, ri_c, ref_temp, eps, n)
+       ri_c, ref_temp, eps, n)
     type(c_ptr) :: a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d
-    real(kind=rp) :: g(3), ri_c, ref_temp, eps
+    real(kind=rp) :: ri_c, ref_temp, eps
     integer :: n
 #if HAVE_HIP
     call hip_vreman_stability(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d, &
-         g, ri_c, ref_temp, eps, n)
+         ri_c, ref_temp, eps, n)
 #elif HAVE_CUDA
     call cuda_vreman_stability(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d, &
-         g, ri_c, ref_temp, eps, n)
+         ri_c, ref_temp, eps, n)
 #elif HAVE_OPENCL
     call opencl_vreman_stability(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d, &
-         g, ri_c, ref_temp, eps, n)
+         ri_c, ref_temp, eps, n)
 #elif HAVE_METAL
     call metal_vreman_stability(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d, &
-         g, ri_c, ref_temp, eps, n)
+         ri_c, ref_temp, eps, n)
 #else
     call neko_error('no device backend configured (vreman_stability)')
 #endif

@@ -88,7 +88,7 @@ contains
     type(field_t), pointer :: u, v, w
     type(field_t), pointer :: temperature, dTdx, dTdy, dTdz
     integer :: temp_indices(9), temp_indices_buoy(3)
-    real(kind=rp) :: g_(3), ri_c_, ref_temp_, eps_
+    real(kind=rp) :: ri_c_, ref_temp_, eps_
 
     if (if_ext .eqv. .true.) then
        u => neko_registry%get_field_by_name("u_e")
@@ -160,14 +160,13 @@ contains
 
        call grad(dTdx%x_d, dTdy%x_d, dTdz%x_d, temperature%x_d, coef)
 
-       g_ = g
        ri_c_ = ri_c
        ref_temp_ = ref_temp
        eps_ = NEKO_EPS
 
        ! g . grad(T), averaged over the elements sharing a node, so that
-       ! N^2 is single-valued like the shear (gather-scatter is linear, so
-       ! one field suffices). Stored in dTdx.
+       ! N^2 is single-valued like the strain rate (gather-scatter is
+       ! linear, so one field suffices). Stored in dTdx.
        call device_cmult2(dTdx%x_d, dTdx%x_d, g(1), dTdx%size())
        call device_add2s2(dTdx%x_d, dTdy%x_d, g(2), dTdx%size())
        call device_add2s2(dTdx%x_d, dTdz%x_d, g(3), dTdx%size())
@@ -178,7 +177,7 @@ contains
             a21%x_d, a22%x_d, a23%x_d, &
             a31%x_d, a32%x_d, a33%x_d, &
             dTdx%x_d, nut%x_d, coef%mult_d, &
-            g_, ri_c_, ref_temp_, eps_, a11%dof%size())
+            ri_c_, ref_temp_, eps_, a11%dof%size())
        call neko_scratch_registry%relinquish_field(temp_indices_buoy)
     end if
 
