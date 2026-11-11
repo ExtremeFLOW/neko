@@ -2,6 +2,13 @@ name: Issue
 description: Report a bug or problem in Neko.
 labels: ["bug"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue. Before opening it, please search the
+        existing issues to avoid duplicates. For usage questions, please use
+        [Discussions](https://github.com/ExtremeFLOW/neko/discussions) instead.
+
   - type: textarea
     id: summary
     attributes:
@@ -23,22 +30,20 @@ body:
       description: |
         If working on develop, specify the commit hash: `git rev-parse HEAD`.
         If using a release, specify the version: `git describe --tags`.
+      placeholder: v1.0.0 or 62cd4b207a9
     validations:
       required: true
 
-  - type: input
-    id: machine
+  - type: textarea
+    id: environment
     attributes:
-      label: OS/Machine
-      description: The operating system or HPC machine.
-    validations:
-      required: true
-
-  - type: input
-    id: compiler
-    attributes:
-      label: Compiler stack
-      description: Compilers and relevant libraries, including their versions.
+      label: Machine and compiler stack
+      description: |
+        The operating system or HPC machine, and the compilers and relevant
+        libraries used, including their versions.
+      placeholder: |
+        Machine: Ubuntu 24.04, LUMI-G, Dardel, ...
+        Compilers: gfortran 13.2, OpenMPI 4.1.6, CUDA 12.4, ...
     validations:
       required: true
 
@@ -47,9 +52,8 @@ body:
     attributes:
       label: Configure
       description: The flags passed to `configure`.
+      placeholder: ./configure --enable-cuda --with-json-fortran=...
       render: shell
-    validations:
-      required: false
 
   - type: textarea
     id: job-information
@@ -60,8 +64,6 @@ body:
         -------Job Information--------
         Paste job information block here.
       render: text
-    validations:
-      required: false
 
   - type: textarea
     id: reproduce
@@ -70,8 +72,14 @@ body:
       description: |
         Please provide the steps to reproduce the issue. If possible, please
         provide a minimal code snippet or case file that reproduces the issue.
-    validations:
-      required: false
+        Files can be attached by dragging them into this field.
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Additional Details
+        Please provide any extra details, screenshots, or context relevant for
+        investigation.
 
   - type: textarea
     id: details
@@ -80,5 +88,3 @@ body:
       description: |
         Please provide any extra details, screenshots, or context relevant for
         investigation.
-    validations:
-      required: false
