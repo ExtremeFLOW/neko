@@ -405,6 +405,15 @@ A more detailed description of each boundary condition is provided below.
      calibration values `1.138` and `217.8`. The main advantage of this model
      is that it is explicit.
 
+   * The `reichardt` model uses the law of the wall of Reichardt (DOI:
+     `10.1002/zamm.19510310704`), which continuously covers the viscous
+     sublayer, the buffer layer and the logarithmic region,
+     \f$ u^+ = \frac{1}{\kappa} \ln(1 + \kappa y^+) + C \left[1 -
+     e^{-y^+/B_1} - \frac{y^+}{B_1} e^{-y^+/B_2} \right] \f$.
+     It requires specifying the von Kármán constant `kappa`, and accepts the
+     optional constants `C`, `B1` and `B2`, which default to the original
+     values `7.8`, `11` and `3`. This model is suitable for smooth walls.
+
    * The `rough_log_law` model requires specifying `kappa` and `B`, which are
      the log-law constants, and `z0`, which is the characteristic roughness
      height.
@@ -1860,7 +1869,7 @@ concisely directly in the table.
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |
 | `shear_stress.value`                               | The shear stress vector value for `sh` boundaries                                                 | Vector of 3 reals                                           | `[0, 0, 0]`   |
-| `wall_modelling.type`                              | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`                                 | -             |
+| `wall_modelling.type`                              | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`, `reichardt`                    | -             |
 | `source_terms`                                     | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                              | -             |
 | `boundary_types`                                   | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
 | `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `coupled_bicgstab`, `coupled_cg`, `cacg`, `gmres` | -             |
