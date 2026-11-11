@@ -40,6 +40,7 @@ module vreman_device
   use operators, only : dudxyz, grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use device, only : glb_cmd_event
   use device_math, only : device_col2, device_cmult2, device_add2s2
   use device_vreman_nut, only : device_vreman_nut_compute, &
        device_vreman_nut_compute_aniso, device_vreman_stability
