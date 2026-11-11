@@ -1,0 +1,84 @@
+name: Issue
+description: Report a bug or request a feature in Neko.
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Please provide a concise summary of the issue faced or feature requested.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ## Neko configuration
+        Please provide the Neko configuration used to reproduce the issue.
+        Leave these fields empty if not applicable, such as for a feature request.
+
+  - type: input
+    id: version
+    attributes:
+      label: Neko version
+      description: |
+        If working on develop, specify the commit hash: `git rev-parse HEAD`.
+        If using a release, specify the version: `git describe --tags`.
+    validations:
+      required: false
+
+  - type: input
+    id: machine
+    attributes:
+      label: OS/Machine
+      description: The operating system or HPC machine.
+    validations:
+      required: false
+
+  - type: input
+    id: compiler
+    attributes:
+      label: Compiler stack
+      description: Compilers and relevant libraries, including their versions.
+    validations:
+      required: false
+
+  - type: textarea
+    id: configure
+    attributes:
+      label: Configure
+      description: The flags passed to `configure`.
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: job-information
+    attributes:
+      label: Job Information
+      description: Paste the "Job Information" block from the Neko log output.
+      placeholder: |
+        -------Job Information--------
+        Paste job information block here.
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: |
+        Please provide the steps to reproduce the issue. If possible, please
+        provide a minimal code snippet or case file that reproduces the issue.
+    validations:
+      required: false
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: |
+        Please provide any extra details, screenshots, or context relevant for
+        investigation.
+    validations:
+      required: false
