@@ -2,6 +2,14 @@ name: Feature request
 description: Suggest a new feature or improvement for Neko.
 labels: ["enhancement"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an improvement. Before opening the request,
+        please search the existing issues to see if it has already been
+        proposed. For general questions, please use
+        [Discussions](https://github.com/ExtremeFLOW/neko/discussions) instead.
+
   - type: textarea
     id: summary
     attributes:
@@ -16,8 +24,6 @@ body:
       label: Motivation
       description: |
         What problem does this feature solve, or what use case does it enable?
-    validations:
-      required: false
 
   - type: textarea
     id: proposal
@@ -26,8 +32,6 @@ body:
       description: |
         If you have an idea of how the feature could be implemented or how it
         should behave, please describe it here.
-    validations:
-      required: false
 
   - type: textarea
     id: details
@@ -36,5 +40,3 @@ body:
       description: |
         Please provide any extra details, references, or context relevant for
         the request.
-    validations:
-      required: false
