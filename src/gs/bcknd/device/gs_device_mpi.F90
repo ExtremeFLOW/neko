@@ -40,7 +40,7 @@ module gs_device_mpi
   use device, only : device_memcpy, device_alloc, device_event_create, &
        device_event_destroy, device_stream_create_with_priority, device_sync, &
        device_stream_wait_event, device_get_ptr, device_event_record, &
-       device_stream_destroy, device_free, device_memset, &
+       device_stream_destroy, device_free, device_memset, device_event_sync, &
        STRM_HIGH_PRIO, HOST_TO_DEVICE
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
@@ -493,12 +493,23 @@ contains
   end subroutine gs_device_mpi_nbsend
 
   !> Post non-blocking receive operations
+  !! @note With per-peer unpacking (strategy bit 2) the previous op unpacks
+  !! each slot of the receive buffer on its own stream, and nothing on the
+  !! host waits for that afterwards: the caller need not sync after the op.
+  !! Each slot's unpack event is therefore waited on before the slot is
+  !! posted again, so that MPI cannot overwrite data that is still to be
+  !! read. The wait is normally on an event that has already completed.
   subroutine gs_device_mpi_nbrecv(this, tag)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: tag
     integer :: i
 
     do i = 1, size(this%recv_pe)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+       if (iand(this%nb_strtgy, 2) .ne. 0) then
+          call device_event_sync(this%event(i))
+       end if
+#endif
        call device_mpi_irecv(this%recv_buf%buf_d, rp*this%recv_buf%offset(i), &
             rp*this%recv_buf%ndofs(i), this%recv_pe(i), tag, &
             this%recv_buf%reqs, i)

@@ -33,8 +33,6 @@
 !> Defines a simulation case
 module case
   use num_types, only : rp, sp, dp
-  use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
@@ -42,7 +40,6 @@ module case
   use parmetis, only : parmetis_partmeshkway
   use redist, only : redist_mesh
   use output_controller, only : output_controller_t
-  use flow_ic, only : set_flow_ic
   use file, only : file_t
   use utils, only : neko_error, mkdir, filename_split, NEKO_FNAME_LEN
   use mesh, only : mesh_t
@@ -348,48 +345,13 @@ contains
     !
     ! Setup initial conditions
     !
-    call json_get(this%params, 'case.fluid.initial_condition.type', &
-         string_val)
-    call json_get(this%params, 'case.fluid.initial_condition', &
-         json_subdict)
-
-    call neko_log%section("Fluid initial condition ")
-
-    if (this%params%valid_path('case.restart_file')) then
-       call neko_log%message("Restart file specified, " // &
-            "initial conditions ignored")
-    else if (trim(string_val) .ne. 'user') then
-       call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
-            this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
-            json_subdict)
-    else
-       call json_get(this%params, 'case.fluid.scheme', string_val)
-       if (trim(string_val) .eq. 'compressible') then
-          call set_flow_ic(this%fluid%rho, &
-               this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
-               this%fluid%c_Xh, this%fluid%gs_Xh, &
-               this%user%initial_conditions, this%fluid%name)
-       else
-          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
-               this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               this%user%initial_conditions, this%fluid%name)
-       end if
-    end if
-
-    call neko_log%end_section()
+    call this%fluid%set_initial_condition(this%user, &
+         this%params%valid_path('case.restart_file'))
 
     if (scalar) then
        call this%scalars%set_initial_conditions(this%user, &
             this%params%valid_path('case.restart_file'))
     end if
-
-    ! Add initial conditions to BDF scheme (if present)
-    select type (f => this%fluid)
-    type is (fluid_pnpn_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
-    end select
 
     !
     ! Validate that the case is properly setup for time-stepping

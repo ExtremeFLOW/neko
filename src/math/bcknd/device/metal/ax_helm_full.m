@@ -61,7 +61,6 @@ static id<MTLComputePipelineState> pso_stress_part2 = nil;
  */
 static id<MTLComputePipelineState>
 get_pipeline(const char *name) {
-  id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = neko_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
   id<MTLFunction> func = [lib newFunctionWithName:nsName];
@@ -71,7 +70,7 @@ get_pipeline(const char *name) {
   }
   NSError *error = nil;
   id<MTLComputePipelineState> pso =
-    [device newComputePipelineStateWithFunction:func error:&error];
+    neko_metal_new_pipeline(func, 0, &error);
   METAL_CHECK(error);
   return pso;
 }

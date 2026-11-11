@@ -181,7 +181,7 @@ contains
        call neko_scratch_registry%relinquish_field(temp_indices_buoy)
     end if
 
-    call coef%gs_h%op(nut, GS_OP_ADD)
+    call coef%gs_h%op(nut, GS_OP_ADD, glb_cmd_event)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
