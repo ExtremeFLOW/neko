@@ -729,10 +729,22 @@ keywords:
       grid steps along the three GLL directions of each element, as defined
       by `delta_type`, so the model works for stretched and rotated elements.
       With `false`, the isotropic `les_delta` is used in all directions.
-    - `buoyancy_correction`: Whether or not to apply a correction to the eddy
-      viscosity field based on the local Richardson number as described by Moeng
-      and Sullivan 2015 (http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2).
-      Defaults to `false`.
+      With `pointwise` the steps are taken around each GLL point, with
+      `elementwise_max` from the middle interval of the element, and with
+      `elementwise_average` from the element edges through the first corner,
+      divided by the number of intervals. The last one coincides with the
+      isotropic `les_delta` only for elements with straight, parallel edges.
+    - `buoyancy_correction`: Whether or not to apply the stability correction
+      of Lilly (1962) to the eddy viscosity, `nut * sqrt(1 - Ri / Ri_c)` for
+      `Ri <= Ri_c` and (almost) zero above, with the local Richardson number
+      `Ri = N^2 / |S|^2`. Here `N^2` is the squared Brunt-Vaisala frequency and
+      `|S|^2 = 2 S_ij S_ij` the squared magnitude of the resolved strain rate,
+      both averaged over the elements sharing a node. Defaults to `false`.
+      Note that `|S|^2` contains all strain components, not only the vertical
+      shear `(du/dz)^2 + (dv/dz)^2` used by Huusko et al. (2025), so the
+      correction is weaker in stable and milder in unstable stratification.
+      With the vertical shear, the enhancement for `Ri < 0` is unbounded where
+      the shear vanishes, which can make the simulation unstable.
       - `true`: Add a buoyancy correction according to the following parameters:
         - `scalar_field`: Name of the scalar field based on which the buoyancy
           effect is computed.
@@ -743,9 +755,7 @@ keywords:
           `[0, 0, -9.81]` (the model reverses it internally, as the Deardorff
           model does).
       - `false`: Compute the standard Vreman eddy viscosity.
-    - With `buoyancy_correction`, the correction factor
-      `sqrt(1 - Ri / Ri_c)` is the stability function of Lilly (1962). The
-      scalar eddy diffusivity then follows from the (corrected) eddy viscosity
+    - With `buoyancy_correction`, the scalar eddy diffusivity then follows from the (corrected) eddy viscosity
       through a constant turbulent Prandtl number, i.e. `"alphat":
       {"nut_dependency": true, "nut_field": <nut_field>, "Pr_t": Pr_t}` in the
       scalar. In Lilly's derivation the critical Richardson number equals the
