@@ -604,7 +604,21 @@ contains
        !Restrict to middle level
        call this%interp_fine_mid%map(this%w, this%r, &
             this%msh%nelv, this%grids(2)%Xh)
-       call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), GS_OP_ADD)
+       if (allocated(this%grids(2)%gs_h%interp)) then
+          ! dual-vector pattern: Dirichlet conditions (topological mask)
+          ! on the assembled values before J
+          call this%grids(2)%gs_h%interp%apply_jt(this%w, &
+               this%grids(2)%dof%size())
+          call this%grids(2)%gs_h%gs_op_vector(this%w, &
+               this%grids(2)%dof%size(), GS_OP_ADD)
+          call this%grids(2)%bclst%apply(this%w, this%grids(2)%dof%size(), &
+               ifgs = .true.)
+          call this%grids(2)%gs_h%interp%apply_j(this%w, &
+               this%grids(2)%dof%size())
+       else
+          call this%grids(2)%gs_h%op(this%w, this%grids(2)%dof%size(), &
+               GS_OP_ADD)
+       end if
        !OVERLAPPING Schwarz exchange and solve
        call this%grids(2)%schwarz%compute(this%grids(2)%e%x, this%w)
 
