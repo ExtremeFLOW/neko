@@ -243,8 +243,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -254,8 +254,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -264,8 +264,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -342,8 +342,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -353,8 +353,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -363,8 +363,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -441,8 +441,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -452,8 +452,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -462,8 +462,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -540,8 +540,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -551,8 +551,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -561,8 +561,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -639,8 +639,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -650,8 +650,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -660,8 +660,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -738,8 +738,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -749,8 +749,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -759,8 +759,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -837,8 +837,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -848,8 +848,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -858,8 +858,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -936,8 +936,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -947,8 +947,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -957,8 +957,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -1035,8 +1035,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -1046,8 +1046,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -1056,8 +1056,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -1134,8 +1134,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -1145,8 +1145,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -1155,8 +1155,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -1233,8 +1233,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -1244,8 +1244,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -1254,8 +1254,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -1332,8 +1332,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -1343,8 +1343,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -1353,8 +1353,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -1431,8 +1431,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -1442,8 +1442,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -1452,8 +1452,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
@@ -1530,8 +1530,8 @@ contains
        end do
 
        if (dfrmd_el(e)) then
-          do j = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do j = 1, lx
+             do k = 1, lx
                 d(1,j,k,e) = d(1,j,k,e) &
                      + G12(1,j,k,e) * dxt(1,1)*dyt(j,j) &
                      + G13(1,j,k,e) * dxt(1,1)*dzt(k,k)
@@ -1541,8 +1541,8 @@ contains
              end do
           end do
 
-          do i = 1, lx, lx-1
-             do k = 1, lx, lx-1
+          do i = 1, lx
+             do k = 1, lx
                 d(i,1,k,e) = d(i,1,k,e) &
                      + G12(i,1,k,e) * dyt(1,1)*dxt(i,i) &
                      + G23(i,1,k,e) * dyt(1,1)*dzt(k,k)
@@ -1551,8 +1551,8 @@ contains
                      + G23(i,lx,k,e) * dyt(lx,lx)*dzt(k,k)
              end do
           end do
-          do i = 1, lx, lx-1
-             do j = 1, lx, lx-1
+          do i = 1, lx
+             do j = 1, lx
                 d(i,j,1,e) = d(i,j,1,e) &
                      + G13(i,j,1,e) * dzt(1,1)*dxt(i,i) &
                      + G23(i,j,1,e) * dzt(1,1)*dyt(j,j)
