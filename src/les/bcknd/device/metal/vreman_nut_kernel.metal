@@ -165,8 +165,8 @@ kernel void vreman_nut_compute_aniso_kernel(
 }
 
 /*
- * Richardson-number correction for the Vreman model (Lilly 1962; Moeng &
- * Sullivan 2015). Gradients are gather-scatter sums, scaled by mult.
+ * Richardson-number correction of Lilly (1962), Ri = N^2 / |S|^2, for the
+ * Vreman model. Gradients are gather-scatter sums, scaled by mult.
  * gdT is the interface-averaged g . grad(T), g pointing upwards
  * (reversed from the case-file input at init).
  */
@@ -183,13 +183,10 @@ kernel void vreman_stability_kernel(
                                       device const float *gdT [[ buffer(9) ]],
                                       device float *nut [[ buffer(10) ]],
                                       device const float *mult [[ buffer(11) ]],
-                                      constant float &n1 [[ buffer(12) ]],
-                                      constant float &n2 [[ buffer(13) ]],
-                                      constant float &n3 [[ buffer(14) ]],
-                                      constant float &ri_c [[ buffer(15) ]],
-                                      constant float &ref_temp [[ buffer(16) ]],
-                                      constant float &eps [[ buffer(17) ]],
-                                      constant int &n [[ buffer(18) ]],
+                                      constant float &ri_c [[ buffer(12) ]],
+                                      constant float &ref_temp [[ buffer(13) ]],
+                                      constant float &eps [[ buffer(14) ]],
+                                      constant int &n [[ buffer(15) ]],
                                       uint idx [[ thread_position_in_grid ]]) {
   if (idx >= (uint) n) return;
 
@@ -197,16 +194,15 @@ kernel void vreman_stability_kernel(
   const float m = mult[i];
   const float N2 = gdT[i] / ref_temp;
 
-  const float du_n1 = (a11[i] * n1 + a12[i] * n2 + a13[i] * n3) * m;
-  const float du_n2 = (a21[i] * n1 + a22[i] * n2 + a23[i] * n3) * m;
-  const float du_n3 = (a31[i] * n1 + a32[i] * n2 + a33[i] * n3) * m;
-  const float du_par = du_n1 * n1 + du_n2 * n2 + du_n3 * n3;
-  const float sh1 = du_n1 - du_par * n1;
-  const float sh2 = du_n2 - du_par * n2;
-  const float sh3 = du_n3 - du_par * n3;
-  const float shear_sq = sh1 * sh1 + sh2 * sh2 + sh3 * sh3;
+  // |S|^2 = 2 S_ij S_ij of the averaged gradient (sums, hence m*m)
+  const float s12 = a12[i] + a21[i];
+  const float s13 = a13[i] + a31[i];
+  const float s23 = a23[i] + a32[i];
+  const float s_sq = (2.0f * (a11[i] * a11[i] + a22[i] * a22[i]
+                              + a33[i] * a33[i])
+                      + s12 * s12 + s13 * s13 + s23 * s23) * m * m;
 
-  const float ri = N2 / (shear_sq + eps);
+  const float ri = N2 / (s_sq + eps);
   if (ri <= ri_c) {
     float v = 1.0f - ri / ri_c;
     if (v < 0.0f) v = 0.0f;

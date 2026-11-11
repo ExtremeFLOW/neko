@@ -146,14 +146,13 @@ void opencl_vreman_nut_compute_aniso(void *a11, void *a12, void *a13,
 
 /**
  * Fortran wrapper for the OpenCL Vreman stability kernel
- * @note @a g is the (unnormalised) gravity vector, pointing upwards.
+ * @note @a gdT is the interface-averaged g . grad(T), g pointing upwards.
  */
 void opencl_vreman_stability(void *a11, void *a12, void *a13,
                              void *a21, void *a22, void *a23,
                              void *a31, void *a32, void *a33,
                              void *gdT, void *nut, void *mult,
-                             real *g, real *ri_c, real *ref_temp,
-                             real *eps, int *n) {
+                             real *ri_c, real *ref_temp, real *eps, int *n) {
   cl_int err;
 
   if (vreman_nut_program == NULL) {
@@ -163,14 +162,6 @@ void opencl_vreman_stability(void *a11, void *a12, void *a13,
   cl_kernel kernel = clCreateKernel(vreman_nut_program,
                                     "vreman_stability_kernel", &err);
   CL_CHECK(err);
-
-  const real g1 = g[0];
-  const real g2 = g[1];
-  const real g3 = g[2];
-  const real gmag = sqrt(g1 * g1 + g2 * g2 + g3 * g3);
-  const real n1 = g1 / gmag;
-  const real n2 = g2 / gmag;
-  const real n3 = g3 / gmag;
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a11));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &a12));
@@ -184,13 +175,10 @@ void opencl_vreman_stability(void *a11, void *a12, void *a13,
   CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &gdT));
   CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &nut));
   CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &mult));
-  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(real), (void *) &n1));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(real), (void *) &n2));
-  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(real), (void *) &n3));
-  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(real), ri_c));
-  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(real), ref_temp));
-  CL_CHECK(clSetKernelArg(kernel, 17, sizeof(real), eps));
-  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(real), ri_c));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(real), ref_temp));
+  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(real), eps));
+  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(int), n));
 
   if (*n > 0) {
     const int nb = ((*n) + 256 - 1) / 256;

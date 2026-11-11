@@ -178,11 +178,11 @@ __global__ void vreman_nut_compute_aniso(const T * __restrict__ a11,
 }
 
 /**
- * Richardson-number correction for the Vreman model (Lilly 1962; Moeng &
- * Sullivan 2015), applied to an already computed element-local nut field
+ * Richardson-number correction of Lilly (1962), Ri = N^2 / |S|^2, for the
+ * Vreman model, applied to an already computed element-local nut field
  * (before the final gather-scatter average).
  * The velocity gradients a_ij are gather-scatter sums, so they are scaled
- * by mult to obtain the averaged gradient before forming the shear.
+ * by mult to obtain the averaged gradient before forming |S|^2.
  * gdT is the interface-averaged g . grad(T), with g pointing upwards
  * (reversed from the case-file input at init), so Ri is single-valued.
  */
@@ -199,7 +199,6 @@ __global__ void vreman_stability(const T * __restrict__ a11,
                                  const T * __restrict__ gdT,
                                  T * nut,
                                  const T * __restrict__ mult,
-                                 const T n1, const T n2, const T n3,
                                  const T ri_c, const T ref_temp,
                                  const T eps, const int n) {
 
@@ -212,17 +211,16 @@ __global__ void vreman_stability(const T * __restrict__ a11,
     // N^2 = (g . grad T) / T0 with g pointing upwards, > 0 when stable
     const T N2 = gdT[i] / ref_temp;
 
-    // Derivative of the averaged velocity along the gravity direction
-    const T du_n1 = (a11[i]*n1 + a12[i]*n2 + a13[i]*n3) * m;
-    const T du_n2 = (a21[i]*n1 + a22[i]*n2 + a23[i]*n3) * m;
-    const T du_n3 = (a31[i]*n1 + a32[i]*n2 + a33[i]*n3) * m;
-    const T du_par = du_n1*n1 + du_n2*n2 + du_n3*n3;
-    const T sh1 = du_n1 - du_par*n1;
-    const T sh2 = du_n2 - du_par*n2;
-    const T sh3 = du_n3 - du_par*n3;
-    const T shear_sq = sh1*sh1 + sh2*sh2 + sh3*sh3;
+    // |S|^2 = 2 S_ij S_ij of the averaged gradient (the a_ij are
+    // gather-scatter sums, hence m*m)
+    const T s12 = a12[i] + a21[i];
+    const T s13 = a13[i] + a31[i];
+    const T s23 = a23[i] + a32[i];
+    const T s_sq = ((T) 2.0 * (a11[i]*a11[i] + a22[i]*a22[i] + a33[i]*a33[i])
+                    + s12*s12 + s13*s13 + s23*s23) * m * m;
 
-    const T ri = N2 / (shear_sq + eps);
+    // Richardson number of Lilly (1962), Ri = N^2 / |S|^2
+    const T ri = N2 / (s_sq + eps);
     if (ri <= ri_c) {
       T v = (T) 1.0 - ri / ri_c;
       if (v < (T) 0.0) v = (T) 0.0;

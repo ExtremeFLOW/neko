@@ -95,22 +95,12 @@ extern "C"
                              void *a21, void *a22, void *a23,
                              void *a31, void *a32, void *a33,
                              void *gdT, void *nut, void *mult,
-                             real *g, real *ri_c, real *ref_temp,
-                             real *eps, int *n)
+                             real *ri_c, real *ref_temp, real *eps, int *n)
   {
 
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t)glb_cmd_queue;
-
-    const real g1 = g[0];
-    const real g2 = g[1];
-    const real g3 = g[2];
-    const real gmag = sqrt(g1 * g1 + g2 * g2 + g3 * g3);
-
-    const real n1 = g1 / gmag;
-    const real n2 = g2 / gmag;
-    const real n3 = g3 / gmag;
 
     vreman_stability<real>
         <<<nblcks, nthrds, 0, stream>>>(
@@ -119,7 +109,6 @@ extern "C"
             (real *)a31, (real *)a32, (real *)a33,
             (real *)gdT,
             (real *)nut, (real *)mult,
-            n1, n2, n3,
             *ri_c, *ref_temp, *eps, *n);
     CUDA_CHECK(cudaGetLastError());
   }

@@ -79,9 +79,7 @@ void metal_vreman_nut_compute(void *a11, void *a12, void *a13,
 }
 
 /**
- * Fortran wrapper for the Metal buoyancy-corrected Vreman kernel
- * @note @a g is the (unnormalised) gravity vector; the shear direction
- * uses the normalised vector, the buoyancy term the original one.
+ * Fortran wrapper for the Metal anisotropic Vreman kernel
  */
 void metal_vreman_nut_compute_aniso(void *a11, void *a12, void *a13,
                                     void *a21, void *a22, void *a23,
@@ -125,17 +123,9 @@ void metal_vreman_stability(void *a11, void *a12, void *a13,
                             void *a21, void *a22, void *a23,
                             void *a31, void *a32, void *a33,
                             void *gdT, void *nut, void *mult,
-                            real *g, real *ri_c, real *ref_temp,
-                            real *eps, int *n) {
+                            real *ri_c, real *ref_temp, real *eps, int *n) {
   if (*n < 1) return;
 
-  const real g1 = g[0];
-  const real g2 = g[1];
-  const real g3 = g[2];
-  const real gmag = sqrt(g1 * g1 + g2 * g2 + g3 * g3);
-  const real n1 = g1 / gmag;
-  const real n2 = g2 / gmag;
-  const real n3 = g3 / gmag;
   const real ri_c_r = *ri_c;
   const real ref_temp_r = *ref_temp;
   const real eps_r = *eps;
@@ -155,12 +145,9 @@ void metal_vreman_stability(void *a11, void *a12, void *a13,
       [enc setBuffer:(__bridge id<MTLBuffer>) gdT offset:0 atIndex:9];
       [enc setBuffer:(__bridge id<MTLBuffer>) nut offset:0 atIndex:10];
       [enc setBuffer:(__bridge id<MTLBuffer>) mult offset:0 atIndex:11];
-      [enc setBytes:&n1 length:sizeof(real) atIndex:12];
-      [enc setBytes:&n2 length:sizeof(real) atIndex:13];
-      [enc setBytes:&n3 length:sizeof(real) atIndex:14];
-      [enc setBytes:&ri_c_r length:sizeof(real) atIndex:15];
-      [enc setBytes:&ref_temp_r length:sizeof(real) atIndex:16];
-      [enc setBytes:&eps_r length:sizeof(real) atIndex:17];
-      [enc setBytes:&n_r length:sizeof(int) atIndex:18];
+      [enc setBytes:&ri_c_r length:sizeof(real) atIndex:12];
+      [enc setBytes:&ref_temp_r length:sizeof(real) atIndex:13];
+      [enc setBytes:&eps_r length:sizeof(real) atIndex:14];
+      [enc setBytes:&n_r length:sizeof(int) atIndex:15];
     }, (NSUInteger) n_r);
 }
