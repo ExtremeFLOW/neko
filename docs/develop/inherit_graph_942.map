@@ -1,29 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d2/dbd/structstack_1_1stack__t.html" title="Base type for a stack." alt="" coords="5,317,117,345"/>
-<area shape="rect" id="Node000001" href="$dc/d04/structstack_1_1stack__2i4r8t3__t.html" title="Mixed integer&#45;double precision 3&#45;tuple based stack." alt="" coords="165,5,329,33"/>
-<area shape="poly" id="edge236_Node000000_Node000001" title=" " alt="" coords="62,302,70,247,87,178,117,107,137,73,163,44,184,31,181,36,166,48,142,77,121,109,92,180,75,248,67,302"/>
-<area shape="rect" id="Node000002" href="$d1/ddd/structstack_1_1stack__curve__t.html" title="Curved element stack." alt="" coords="170,57,324,85"/>
-<area shape="poly" id="edge237_Node000000_Node000002" title=" " alt="" coords="65,302,75,257,94,202,123,145,141,119,163,96,185,83,182,88,166,100,145,122,127,148,99,204,80,258,70,303"/>
-<area shape="rect" id="Node000003" href="$d2/d45/structstack_1_1stack__i4__t.html" title="Integer based stack." alt="" coords="182,109,312,137"/>
-<area shape="poly" id="edge238_Node000000_Node000003" title=" " alt="" coords="69,302,82,267,102,225,129,184,163,148,187,135,183,140,166,152,133,187,107,228,87,269,74,303"/>
-<area shape="rect" id="Node000004" href="$d9/d9d/structstack_1_1stack__i4r8t2__t.html" title="Mixed integer&#45;double precision 2&#45;tuple based stack." alt="" coords="169,161,325,189"/>
-<area shape="poly" id="edge239_Node000000_Node000004" title=" " alt="" coords="75,302,111,250,135,223,163,200,190,187,186,192,166,204,139,227,115,254,80,305"/>
-<area shape="rect" id="Node000005" href="$d1/d93/structstack_1_1stack__i4t2__t.html" title="Integer 2&#45;tuple based stack." alt="" coords="175,213,318,241"/>
-<area shape="poly" id="edge240_Node000000_Node000005" title=" " alt="" coords="87,306,122,277,163,251,195,240,191,244,166,256,125,282,91,309"/>
-<area shape="rect" id="Node000006" href="$df/d1c/structstack_1_1stack__i4t4__t.html" title="Integer 4&#45;tuple based stack." alt="" coords="175,265,318,293"/>
-<area shape="poly" id="edge241_Node000000_Node000006" title=" " alt="" coords="126,311,197,292,193,296,129,315"/>
-<area shape="rect" id="Node000007" href="$d8/d8f/structstack_1_1stack__i8__t.html" title="Integer*8 based stack." alt="" coords="182,317,312,345"/>
-<area shape="poly" id="edge242_Node000000_Node000007" title=" " alt="" coords="131,329,184,330,179,333,134,334"/>
-<area shape="rect" id="Node000008" href="$dd/da0/structstack_1_1stack__nc__t.html" title="Neko curve info based stack." alt="" coords="180,369,314,397"/>
-<area shape="poly" id="edge243_Node000000_Node000008" title=" " alt="" coords="127,347,197,367,192,370,128,352"/>
-<area shape="rect" id="Node000009" href="$de/d19/structstack_1_1stack__nh__t.html" title="Neko hex element based stack." alt="" coords="180,421,314,449"/>
-<area shape="poly" id="edge244_Node000000_Node000009" title=" " alt="" coords="89,353,125,381,166,406,196,420,191,422,163,411,122,385,89,358"/>
-<area shape="rect" id="Node000010" href="$de/d3d/structstack_1_1stack__nq__t.html" title="Neko quad element based stack." alt="" coords="180,473,314,501"/>
-<area shape="poly" id="edge245_Node000000_Node000010" title=" " alt="" coords="78,356,115,409,139,435,166,458,190,472,185,473,163,463,135,439,111,412,77,361"/>
-<area shape="rect" id="Node000011" href="$d6/d71/structstack_1_1stack__nz__t.html" title="Neko zone based stack." alt="" coords="180,525,314,553"/>
-<area shape="poly" id="edge246_Node000000_Node000011" title=" " alt="" coords="71,357,87,394,107,434,133,475,166,510,188,524,182,525,163,515,129,479,102,437,82,396,71,362"/>
-<area shape="rect" id="Node000012" href="$dc/d33/structstack_1_1stack__pt__t.html" title="Point based stack." alt="" coords="181,577,312,605"/>
-<area shape="poly" id="edge247_Node000000_Node000012" title=" " alt="" coords="67,357,80,404,99,459,127,515,145,540,166,562,186,577,181,577,163,567,141,543,123,517,94,461,75,406,67,363"/>
-<area shape="rect" id="Node000013" href="$d9/d3d/structstack_1_1stack__r8__t.html" title="Double precision based stack." alt="" coords="181,629,312,657"/>
-<area shape="poly" id="edge248_Node000000_Node000013" title=" " alt="" coords="65,358,75,414,92,482,121,553,142,586,166,615,185,629,180,628,163,618,137,589,117,556,87,484,70,415,64,363"/>
+<area shape="rect" id="Node000000" href="$df/d33/structspectral__vanishing__viscosity_1_1svv__t.html" title="Spectral vanishing viscosity configuration and coefficients." alt="" coords="5,5,149,50"/>
 </map>

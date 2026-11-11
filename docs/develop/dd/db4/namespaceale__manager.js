@@ -17,6 +17,7 @@ var namespaceale__manager =
     [ "mesh_preview", "dd/db4/namespaceale__manager.html#ab4547b4cf5a585a529379afe9ec32484", null ],
     [ "register_checkpoint_fields", "dd/db4/namespaceale__manager.html#ae74986b60404e0155473e0706bcdb051", null ],
     [ "request_tracker", "dd/db4/namespaceale__manager.html#ad5057e6966e8ca8ebfe50c7c586fde44", null ],
+    [ "set_initial_mesh_velocity", "dd/db4/namespaceale__manager.html#a5eb4727e4abb02bae64c1ead16bfee6f", null ],
     [ "set_pivot_basis_for_checkpoint", "dd/db4/namespaceale__manager.html#a48b6ad7e91a93e4eea0be72389055501", null ],
     [ "set_pivot_restart", "dd/db4/namespaceale__manager.html#aac167b897bea579bf09e978a4c525069", null ],
     [ "solve_base_mesh_displacement", "dd/db4/namespaceale__manager.html#a657d2ef58db3d7baab4bb7e6e84e92c4", null ],

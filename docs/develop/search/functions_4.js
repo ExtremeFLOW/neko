@@ -316,7 +316,7 @@ var searchData=
   ['dofmap_5ffacetidx_313',['dofmap_facetidx',['../dd/dd2/namespacedofmap.html#aef4f92bde297686a0415243142af0999',1,'dofmap']]],
   ['dofmap_5ffree_314',['dofmap_free',['../dd/dd2/namespacedofmap.html#a9f777e0d88d98b54f9b982f68089ed8e',1,'dofmap']]],
   ['dofmap_5fgenerate_5fxyz_315',['dofmap_generate_xyz',['../dd/dd2/namespacedofmap.html#a5d369623e2bb954910d6741afd4e93a8',1,'dofmap']]],
-  ['dofmap_5fglobal_5fsize_316',['dofmap_global_size',['../dd/dd2/namespacedofmap.html#a025bdd9fec163069b021396a9835a15d',1,'dofmap']]],
+  ['dofmap_5fglobal_5fsize_316',['dofmap_global_size',['../dd/dd2/namespacedofmap.html#a1b2e25028a5920b89ae754002283092c',1,'dofmap']]],
   ['dofmap_5finit_317',['dofmap_init',['../dd/dd2/namespacedofmap.html#ab00433635f8523e38ff52650bdbe62c0',1,'dofmap']]],
   ['dofmap_5finit_5fand_5fmap_318',['dofmap_init_and_map',['../dd/dd2/namespacedofmap.html#a4aa7a87093a0e09c4bb9a111858f084a',1,'dofmap']]],
   ['dofmap_5fnumber_5fedges_319',['dofmap_number_edges',['../dd/dd2/namespacedofmap.html#aad22655a920bedfab6d52e45f1efe325',1,'dofmap']]],

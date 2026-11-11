@@ -110,10 +110,10 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:a43eee1b9db6451707645f0bfb1b6bac7" id="r_a43eee1b9db6451707645f0bfb1b6bac7"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a43eee1b9db6451707645f0bfb1b6bac7">set_scalar_ic_int</a> (s, coef, gs, type, params, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>)</td></tr>
-<tr class="memdesc:a43eee1b9db6451707645f0bfb1b6bac7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set scalar initial condition (builtin).  <br /></td></tr>
-<tr class="memitem:af5069b6e09a3b463d14555eaf2b377e8" id="r_af5069b6e09a3b463d14555eaf2b377e8"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af5069b6e09a3b463d14555eaf2b377e8">set_scalar_ic_usr</a> (scheme_name, s, coef, gs, user_proc)</td></tr>
-<tr class="memdesc:af5069b6e09a3b463d14555eaf2b377e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set scalar intial condition (user defined).  <br /></td></tr>
+<tr class="memitem:a2c1e7568675c39bc679cebdebda7a49d" id="r_a2c1e7568675c39bc679cebdebda7a49d"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c1e7568675c39bc679cebdebda7a49d">set_scalar_ic_builtin</a> (s, coef, gs, type, params, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a516e79afaff41160487af846f7360b3d">i</a>)</td></tr>
+<tr class="memdesc:a2c1e7568675c39bc679cebdebda7a49d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set scalar initial condition (builtin).  <br /></td></tr>
+<tr class="memitem:ac335785e61d772a5c15173832b0cf4da" id="r_ac335785e61d772a5c15173832b0cf4da"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac335785e61d772a5c15173832b0cf4da">set_scalar_ic_user</a> (scheme_name, s, coef, gs, user_proc)</td></tr>
+<tr class="memdesc:ac335785e61d772a5c15173832b0cf4da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set scalar intial condition (user defined).  <br /></td></tr>
 <tr class="memitem:a284c2151baaf62794c62dfa896b63a6b" id="r_a284c2151baaf62794c62dfa896b63a6b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a284c2151baaf62794c62dfa896b63a6b">set_scalar_ic_common</a> (s, coef, gs)</td></tr>
 <tr class="memdesc:a284c2151baaf62794c62dfa896b63a6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set scalar initial condition (common).  <br /></td></tr>
 <tr class="memitem:a09ded6a29d28776765c85df12aca2a67" id="r_a09ded6a29d28776765c85df12aca2a67"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a09ded6a29d28776765c85df12aca2a67">set_scalar_ic_uniform</a> (s, ic_value)</td></tr>
@@ -126,6 +126,74 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a185d2bd8ca348cdc784e9c325d893f08"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition of the scalar based on a field. @detail The field is read from an <span class="tt">fld</span> file. If enabled, interpolation is also possible. In that case, the mesh coordinates can be read from another file in the <span class="tt">fld</span> field series.  <br /></td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a2c1e7568675c39bc679cebdebda7a49d" name="a2c1e7568675c39bc679cebdebda7a49d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2c1e7568675c39bc679cebdebda7a49d">&#9670;&#160;</a></span>set_scalar_ic_builtin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine scalar_ic::set_scalar_ic_builtin </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>coef</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>gs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*)</td>          <td class="paramname"><span class="paramname"><em>type</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">integer, intent(in)</td>          <td class="paramname"><span class="paramname"><em>i</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Set scalar initial condition using one of the builtin types currently supported:</p><ul>
+<li>uniform</li>
+<li>expression</li>
+<li>point zone</li>
+<li>field <dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>Scalar field. </td></tr>
+    <tr><td class="paramname">coef</td><td>Coefficient. </td></tr>
+    <tr><td class="paramname">gs</td><td>Gather-Scatter object. </td></tr>
+    <tr><td class="paramname">type</td><td>Type of initial condition. </td></tr>
+    <tr><td class="paramname">params</td><td>JSON parameters. </td></tr>
+    <tr><td class="paramname">i</td><td>Index of the scalar field. </td></tr>
+  </table>
+  </dd>
+</dl>
+</li>
+</ul>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
+
+</div>
+</div>
 <a id="a284c2151baaf62794c62dfa896b63a6b" name="a284c2151baaf62794c62dfa896b63a6b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a284c2151baaf62794c62dfa896b63a6b">&#9670;&#160;</a></span>set_scalar_ic_common()</h2>
 
@@ -172,11 +240,11 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/ddf/namespacescalar__ic_a284c2151baaf62794c62dfa896b63a6b_icgraph.png" border="0" usemap="#ad8/ddf/namespacescalar__ic_a284c2151baaf62794c62dfa896b63a6b_icgraph" loading="lazy" alt=""/></div>
 <map name="ad8/ddf/namespacescalar__ic_a284c2151baaf62794c62dfa896b63a6b_icgraph" id="ad8/ddf/namespacescalar__ic_a284c2151baaf62794c62dfa896b63a6b_icgraph">
-<area shape="rect" title="Set scalar initial condition (common)." alt="" coords="212,40,364,85"/>
-<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)." alt="" coords="7,5,162,50"/>
-<area shape="poly" title=" " alt="" coords="193,47,163,44,162,38,199,46"/>
-<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#afcc5211088969f84fc4dfcd509d76cbb" title="Set scalar intial condition (user defined)." alt="" coords="5,75,164,119"/>
-<area shape="poly" title=" " alt="" coords="194,78,165,86,164,81,199,77"/>
+<area shape="rect" title="Set scalar initial condition (common)." alt="" coords="233,40,385,85"/>
+<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#a562b8e3913c69625c77247824579b0bd" title="Set scalar initial condition (builtin)." alt="" coords="5,5,185,50"/>
+<area shape="poly" title=" " alt="" coords="215,48,185,45,185,40,220,47"/>
+<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#a3f3265f45c2fb18ce794919855019fdb" title="Set scalar intial condition (user defined)." alt="" coords="12,75,178,119"/>
+<area shape="poly" title=" " alt="" coords="215,78,179,86,178,81,220,77"/>
 </map>
 </div>
 
@@ -222,9 +290,9 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/ddf/namespacescalar__ic_add56c7a3506632e3796d624c06533b6d_icgraph.png" border="0" usemap="#ad8/ddf/namespacescalar__ic_add56c7a3506632e3796d624c06533b6d_icgraph" loading="lazy" alt=""/></div>
 <map name="ad8/ddf/namespacescalar__ic_add56c7a3506632e3796d624c06533b6d_icgraph" id="ad8/ddf/namespacescalar__ic_add56c7a3506632e3796d624c06533b6d_icgraph">
-<area shape="rect" title="Expression initial condition." alt="" coords="209,5,361,50"/>
-<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)." alt="" coords="5,5,161,50"/>
-<area shape="poly" title=" " alt="" coords="191,28,161,30,161,25,196,27"/>
+<area shape="rect" title="Expression initial condition." alt="" coords="233,5,385,50"/>
+<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#a562b8e3913c69625c77247824579b0bd" title="Set scalar initial condition (builtin)." alt="" coords="5,5,185,50"/>
+<area shape="poly" title=" " alt="" coords="214,28,185,30,185,25,220,27"/>
 </map>
 </div>
 
@@ -300,79 +368,11 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/ddf/namespacescalar__ic_a185d2bd8ca348cdc784e9c325d893f08_icgraph.png" border="0" usemap="#ad8/ddf/namespacescalar__ic_a185d2bd8ca348cdc784e9c325d893f08_icgraph" loading="lazy" alt=""/></div>
 <map name="ad8/ddf/namespacescalar__ic_a185d2bd8ca348cdc784e9c325d893f08_icgraph" id="ad8/ddf/namespacescalar__ic_a185d2bd8ca348cdc784e9c325d893f08_icgraph">
-<area shape="rect" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="209,5,361,50"/>
-<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)." alt="" coords="5,5,161,50"/>
-<area shape="poly" title=" " alt="" coords="191,28,161,30,161,25,196,27"/>
+<area shape="rect" title="Set the initial condition of the scalar based on a field. @detail The field is read from an fld file...." alt="" coords="233,5,385,50"/>
+<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#a562b8e3913c69625c77247824579b0bd" title="Set scalar initial condition (builtin)." alt="" coords="5,5,185,50"/>
+<area shape="poly" title=" " alt="" coords="214,28,185,30,185,25,220,27"/>
 </map>
 </div>
-
-</div>
-</div>
-<a id="a43eee1b9db6451707645f0bfb1b6bac7" name="a43eee1b9db6451707645f0bfb1b6bac7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43eee1b9db6451707645f0bfb1b6bac7">&#9670;&#160;</a></span>set_scalar_ic_int()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">subroutine scalar_ic::set_scalar_ic_int </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>s</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>coef</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>gs</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">character(len=*)</td>          <td class="paramname"><span class="paramname"><em>type</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">integer, intent(in)</td>          <td class="paramname"><span class="paramname"><em>i</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>Set scalar initial condition using one of the builtin types currently supported:</p><ul>
-<li>uniform</li>
-<li>expression</li>
-<li>point zone</li>
-<li>field <dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">s</td><td>Scalar field. </td></tr>
-    <tr><td class="paramname">coef</td><td>Coefficient. </td></tr>
-    <tr><td class="paramname">gs</td><td>Gather-Scatter object. </td></tr>
-    <tr><td class="paramname">type</td><td>Type of initial condition. </td></tr>
-    <tr><td class="paramname">params</td><td>JSON parameters. </td></tr>
-    <tr><td class="paramname">i</td><td>Index of the scalar field. </td></tr>
-  </table>
-  </dd>
-</dl>
-</li>
-</ul>
-
-<p class="definition">Definition at line <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d7/d74/scalar__ic_8f90_source.html">scalar_ic.f90</a>.</p>
 
 </div>
 </div>
@@ -428,9 +428,9 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/ddf/namespacescalar__ic_a1c59efdb48873bad7bf1521a344c1a67_icgraph.png" border="0" usemap="#ad8/ddf/namespacescalar__ic_a1c59efdb48873bad7bf1521a344c1a67_icgraph" loading="lazy" alt=""/></div>
 <map name="ad8/ddf/namespacescalar__ic_a1c59efdb48873bad7bf1521a344c1a67_icgraph" id="ad8/ddf/namespacescalar__ic_a1c59efdb48873bad7bf1521a344c1a67_icgraph">
-<area shape="rect" title="Point zone initial condition." alt="" coords="209,5,361,50"/>
-<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)." alt="" coords="5,5,161,50"/>
-<area shape="poly" title=" " alt="" coords="191,28,161,30,161,25,196,27"/>
+<area shape="rect" title="Point zone initial condition." alt="" coords="233,5,385,50"/>
+<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#a562b8e3913c69625c77247824579b0bd" title="Set scalar initial condition (builtin)." alt="" coords="5,5,185,50"/>
+<area shape="poly" title=" " alt="" coords="214,28,185,30,185,25,220,27"/>
 </map>
 </div>
 
@@ -476,16 +476,16 @@ Here is the caller graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/ddf/namespacescalar__ic_a09ded6a29d28776765c85df12aca2a67_icgraph.png" border="0" usemap="#ad8/ddf/namespacescalar__ic_a09ded6a29d28776765c85df12aca2a67_icgraph" loading="lazy" alt=""/></div>
 <map name="ad8/ddf/namespacescalar__ic_a09ded6a29d28776765c85df12aca2a67_icgraph" id="ad8/ddf/namespacescalar__ic_a09ded6a29d28776765c85df12aca2a67_icgraph">
-<area shape="rect" title="Uniform initial condition." alt="" coords="209,5,361,50"/>
-<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#aff3db0c152fe4232bd1493c8d5614c97" title="Set scalar initial condition (builtin)." alt="" coords="5,5,161,50"/>
-<area shape="poly" title=" " alt="" coords="191,28,161,30,161,25,196,27"/>
+<area shape="rect" title="Uniform initial condition." alt="" coords="233,5,385,50"/>
+<area shape="rect" href="../../df/d8e/interfacescalar__ic_1_1set__scalar__ic.html#a562b8e3913c69625c77247824579b0bd" title="Set scalar initial condition (builtin)." alt="" coords="5,5,185,50"/>
+<area shape="poly" title=" " alt="" coords="214,28,185,30,185,25,220,27"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="af5069b6e09a3b463d14555eaf2b377e8" name="af5069b6e09a3b463d14555eaf2b377e8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af5069b6e09a3b463d14555eaf2b377e8">&#9670;&#160;</a></span>set_scalar_ic_usr()</h2>
+<a id="ac335785e61d772a5c15173832b0cf4da" name="ac335785e61d772a5c15173832b0cf4da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac335785e61d772a5c15173832b0cf4da">&#9670;&#160;</a></span>set_scalar_ic_user()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -494,7 +494,7 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">subroutine scalar_ic::set_scalar_ic_usr </td>
+          <td class="memname">subroutine scalar_ic::set_scalar_ic_user </td>
           <td>(</td>
           <td class="paramtype">character(len=*), intent(in)</td>          <td class="paramname"><span class="paramname"><em>scheme_name</em></span>, </td>
         </tr>

@@ -12,6 +12,7 @@ var structale__manager_1_1ale__manager__t =
     [ "prep_checkpoint", "dd/d75/structale__manager_1_1ale__manager__t.html#a8e77eb8002a8279143d0bf12aab9014e", null ],
     [ "register_checkpoint_fields", "dd/d75/structale__manager_1_1ale__manager__t.html#a80d149297cee9b78494803ed915a5256", null ],
     [ "request_tracker", "dd/d75/structale__manager_1_1ale__manager__t.html#aac2f487631ab20f21f8b5dae93bc837a", null ],
+    [ "set_initial_mesh_velocity", "dd/d75/structale__manager_1_1ale__manager__t.html#a2a3368b4226f9b39748130c619e20937", null ],
     [ "set_pivot_restart", "dd/d75/structale__manager_1_1ale__manager__t.html#a8f0556fdae7549b9f7f9994bf176faaf", null ],
     [ "solve_base_mesh_displacement", "dd/d75/structale__manager_1_1ale__manager__t.html#ac714d21dbe89282d2489d136a00dab50", null ],
     [ "sync_chkp", "dd/d75/structale__manager_1_1ale__manager__t.html#abdf6dd3564749d2c36d8b564f86c95ff", null ],

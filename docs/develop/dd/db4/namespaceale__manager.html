@@ -116,6 +116,8 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a657d2ef58db3d7baab4bb7e6e84e92c4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solves the Laplace equation to determine the base shape (phi) for each body. It finds a smooth blending function for mesh deformation. For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.  <br /></td></tr>
 <tr class="memitem:aac0b6c752943e3cd820d8361a1bf5e46" id="r_aac0b6c752943e3cd820d8361a1bf5e46"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aac0b6c752943e3cd820d8361a1bf5e46">update_mesh_velocity</a> (this, coef, time_s)</td></tr>
 <tr class="memdesc:aac0b6c752943e3cd820d8361a1bf5e46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodies: mesh_vel = Sum( V_i * Phi_i ).  <br /></td></tr>
+<tr class="memitem:a5eb4727e4abb02bae64c1ead16bfee6f" id="r_a5eb4727e4abb02bae64c1ead16bfee6f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5eb4727e4abb02bae64c1ead16bfee6f">set_initial_mesh_velocity</a> (this, coef)</td></tr>
+<tr class="memdesc:a5eb4727e4abb02bae64c1ead16bfee6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the mesh velocity at t = 0. Not called on a restart, where the mesh velocity is read from the checkpoint.  <br /></td></tr>
 <tr class="memitem:af984430ba7e4a8bae68b2ca61d0e9f72" id="r_af984430ba7e4a8bae68b2ca61d0e9f72"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af984430ba7e4a8bae68b2ca61d0e9f72">advance_mesh</a> (this, coef, time, nadv)</td></tr>
 <tr class="memdesc:af984430ba7e4a8bae68b2ca61d0e9f72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main routine to advance the mesh in time.  <br /></td></tr>
 <tr class="memitem:aadb4d8b03fb126dbfd684fe551c739e5" id="r_aadb4d8b03fb126dbfd684fe551c739e5"><td class="memItemLeft" align="right" valign="top">subroutine, public&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aadb4d8b03fb126dbfd684fe551c739e5">compute_stiffness_ale</a> (coef, params)</td></tr>
@@ -212,7 +214,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01425">1425</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01431">1431</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -283,7 +285,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01225">1225</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01231">1231</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -334,7 +336,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01464">1464</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01470">1470</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -380,7 +382,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00176">176</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00177">177</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -459,7 +461,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01505">1505</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01511">1511</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -505,7 +507,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01737">1737</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01743">1743</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -551,7 +553,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01979">1979</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01985">1985</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -574,7 +576,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01266">1266</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01272">1272</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -670,7 +672,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02176">2176</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02182">2182</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -711,7 +713,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01965">1965</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01971">1971</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -757,7 +759,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02130">2130</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02136">2136</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -785,7 +787,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02079">2079</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02085">2085</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -813,7 +815,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02024">2024</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02030">2030</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -849,7 +851,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01759">1759</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01765">1765</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -895,7 +897,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02234">2234</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l02240">2240</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -931,7 +933,44 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01937">1937</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01943">1943</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+
+</div>
+</div>
+<a id="a5eb4727e4abb02bae64c1ead16bfee6f" name="a5eb4727e4abb02bae64c1ead16bfee6f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5eb4727e4abb02bae64c1ead16bfee6f">&#9670;&#160;</a></span>set_initial_mesh_velocity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine ale_manager::set_initial_mesh_velocity </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../dd/d75/structale__manager_1_1ale__manager__t.html">ale_manager_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>coef</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">coef</td><td>The coefficients. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01218">1218</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -962,7 +1001,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01703">1703</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01709">1709</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -993,7 +1032,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01518">1518</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01524">1524</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1063,7 +1102,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00837">837</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00828">828</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1163,7 +1202,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01582">1582</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01588">1588</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -1194,7 +1233,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01909">1909</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01915">1915</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -1267,7 +1306,7 @@ Here is the caller graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01446">1446</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01452">1452</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1325,7 +1364,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01157">1157</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l01148">1148</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -1382,7 +1421,7 @@ Here is the call graph for this function:</div>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00170">170</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00171">171</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>

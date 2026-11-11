@@ -1,0 +1,5 @@
+<map id="fluid_scheme_compressible::fluid_scheme_compressible_set_user_initial_condition" name="fluid_scheme_compressible::fluid_scheme_compressible_set_user_initial_condition">
+<area shape="rect" id="Node000001" title="Set the initial condition of the density, velocity and pressure with the user routine." alt="" coords="5,5,215,67"/>
+<area shape="rect" id="Node000002" href="$d2/d13/namespaceflow__ic.html#ae9c975e1982d2430f2b7a2f703f0b051" title="Set initial flow condition (user defined) for compressible flows." alt="" coords="263,14,413,58"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="215,34,249,36,244,36,215,39"/>
+</map>

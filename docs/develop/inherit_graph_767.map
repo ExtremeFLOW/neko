@@ -1,3 +1,23 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d4/d3d/structoutput__controller_1_1output__controller__t.html" title="Centralized controller for a list of outputs." alt="" coords="5,5,150,50"/>
+<area shape="rect" id="Node000000" href="$dd/d5f/structoutput_1_1output__t.html" title="Abstract type defining an output type." alt="" coords="5,308,131,336"/>
+<area shape="rect" id="Node000001" href="$da/d51/structchkp__output_1_1chkp__output__t.html" title=" " alt="" coords="179,5,380,33"/>
+<area shape="poly" id="edge139_Node000000_Node000001" title=" " alt="" coords="70,292,79,239,97,172,111,136,129,102,151,70,177,42,197,31,194,36,180,47,155,74,133,105,116,139,102,173,84,240,75,293"/>
+<area shape="rect" id="Node000002" href="$d5/d41/structfield__output_1_1field__output__t.html" title="A simple output saving a list of fields to a file." alt="" coords="212,57,346,102"/>
+<area shape="poly" id="edge140_Node000000_Node000002" title=" " alt="" coords="74,292,88,252,109,204,139,155,177,112,213,92,210,97,180,116,143,158,114,206,93,254,80,294"/>
+<area shape="rect" id="Node000003" href="$d4/d72/structfld__file__output_1_1fld__file__output__t.html" title="A simple output saving a list of fields to a .fld file." alt="" coords="211,126,348,171"/>
+<area shape="poly" id="edge141_Node000000_Node000003" title=" " alt="" coords="82,293,121,237,147,207,177,181,212,164,209,168,180,185,151,211,125,240,87,295"/>
+<area shape="rect" id="Node000004" href="$de/d0d/structfluid__output_1_1fluid__output__t.html" title="Fluid output." alt="" coords="212,196,346,240"/>
+<area shape="poly" id="edge142_Node000000_Node000004" title=" " alt="" coords="99,297,136,273,178,250,214,237,210,240,180,255,139,277,103,301"/>
+<area shape="rect" id="Node000005" href="$de/d55/structfluid__sgs__stats__output_1_1fluid__sgs__stats__output__t.html" title="Defines an output for the sgs statistics for fluid computed using the fluid_sgs_stats_t object." alt="" coords="186,265,372,310"/>
+<area shape="poly" id="edge143_Node000000_Node000005" title=" " alt="" coords="144,307,188,301,184,304,147,311"/>
+<area shape="rect" id="Node000006" href="$d4/da7/structfluid__stats__output_1_1fluid__stats__output__t.html" title="Defines an output for the fluid statistics computed using the fluid_stats_t object." alt="" coords="201,334,358,379"/>
+<area shape="poly" id="edge144_Node000000_Node000006" title=" " alt="" coords="145,332,203,342,198,345,146,337"/>
+<area shape="rect" id="Node000007" href="$d3/d08/structmean__field__output_1_1mean__field__output__t.html" title="Output for a list of mean fields." alt="" coords="202,404,356,448"/>
+<area shape="poly" id="edge145_Node000000_Node000007" title=" " alt="" coords="101,342,139,366,180,389,209,402,204,404,177,394,136,371,102,347"/>
+<area shape="rect" id="Node000008" href="$da/dd9/structscalar__sgs__stats__output_1_1scalar__sgs__stats__output__t.html" title="Defines an output for the sgs statistics for scalar computed using the scalar_sgs_stats_t object." alt="" coords="181,473,378,518"/>
+<area shape="poly" id="edge146_Node000000_Node000008" title=" " alt="" coords="85,347,125,404,151,433,180,458,202,472,196,473,177,463,147,437,121,407,84,352"/>
+<area shape="rect" id="Node000009" href="$dc/d4c/structscalar__stats__output_1_1scalar__stats__output__t.html" title="Defines an output for the scalar statistics computed using the scalar_stats_t object." alt="" coords="195,542,364,587"/>
+<area shape="poly" id="edge147_Node000000_Node000009" title=" " alt="" coords="77,348,93,390,114,437,143,486,180,528,199,542,193,542,177,532,139,489,109,440,88,392,77,353"/>
+<area shape="rect" id="Node000010" href="$d3/dd8/structspatial__average__output_1_1spatial__average__output__t.html" title="Output for spatially averaged fields." alt="" coords="182,612,376,656"/>
+<area shape="poly" id="edge148_Node000000_Node000010" title=" " alt="" coords="73,349,85,403,104,469,135,538,156,569,180,597,197,611,191,611,177,601,152,573,131,540,99,471,80,405,73,354"/>
 </map>

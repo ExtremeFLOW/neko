@@ -1,13 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d6/d13/structpoint__zone_1_1point__zone__t.html" title="Base abstract type for point zones." alt="" coords="5,152,189,180"/>
-<area shape="rect" id="Node000001" href="$d4/d0c/structbox__point__zone_1_1box__point__zone__t.html" title="A box&#45;shaped point zone." alt="" coords="248,5,404,50"/>
-<area shape="poly" id="edge161_Node000000_Node000001" title=" " alt="" coords="124,140,174,100,235,60,263,49,259,52,238,65,177,104,128,144"/>
-<area shape="rect" id="Node000002" href="$d9/d38/structcombine__point__zone_1_1combine__point__zone__t.html" title="A point zone that combines different point zones." alt="" coords="238,75,414,119"/>
-<area shape="poly" id="edge162_Node000000_Node000002" title=" " alt="" coords="158,145,252,118,248,122,161,150"/>
-<area shape="rect" id="Node000003" href="$d2/d18/structcylinder__point__zone_1_1cylinder__point__zone__t.html" title="A cylindrical point zone." alt="" coords="240,144,412,189"/>
-<area shape="poly" id="edge163_Node000000_Node000003" title=" " alt="" coords="203,164,242,165,237,167,205,169"/>
-<area shape="rect" id="Node000004" href="$da/da2/structpoint__zone__template_1_1point__zone__template__t.html" title=" " alt="" coords="237,213,415,258"/>
-<area shape="poly" id="edge164_Node000000_Node000004" title=" " alt="" coords="160,182,252,212,247,214,160,188"/>
-<area shape="rect" id="Node000005" href="$d1/d00/structsphere__point__zone_1_1sphere__point__zone__t.html" title="A sphere&#45;shaped point zone." alt="" coords="248,283,404,327"/>
-<area shape="poly" id="edge165_Node000000_Node000005" title=" " alt="" coords="126,188,177,228,238,268,263,282,258,282,235,273,174,233,125,193"/>
+<area shape="rect" id="Node000000" href="$dd/dae/structpoint__zone_1_1point__zone__pointer__t.html" title="A helper type to build a list of pointers to point_zones." alt="" coords="5,5,177,50"/>
 </map>

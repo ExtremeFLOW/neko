@@ -7,6 +7,7 @@ var namespacefluid__scheme__compressible =
     [ "fluid_scheme_compressible_init", "d3/d66/namespacefluid__scheme__compressible.html#acb6812095efba4a414478c6ba9e87db7", null ],
     [ "fluid_scheme_compressible_log_solver_info", "d3/d66/namespacefluid__scheme__compressible.html#a3a872e975017374135cc5ce283181e36", null ],
     [ "fluid_scheme_compressible_set_material_properties", "d3/d66/namespacefluid__scheme__compressible.html#a8cae19a530036249d8567f444468afe8", null ],
+    [ "fluid_scheme_compressible_set_user_initial_condition", "d3/d66/namespacefluid__scheme__compressible.html#afa1966056a2b04cf633437d088eaac01", null ],
     [ "fluid_scheme_compressible_update_material_properties", "d3/d66/namespacefluid__scheme__compressible.html#a7da544aef7e93a07fe8365dd40b744d6", null ],
     [ "fluid_scheme_compressible_update_physical_flux", "d3/d66/namespacefluid__scheme__compressible.html#acfeddc7ecb4d6d1a0bd6316cf3301014", null ],
     [ "fluid_scheme_compressible_validate", "d3/d66/namespacefluid__scheme__compressible.html#aead24bdf8d441e371475ee0191f2d0f4", null ]

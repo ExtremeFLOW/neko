@@ -1,3 +1,13 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$de/d54/interfacestats__quant_1_1stats__quant__update.html" title="Abstract interface for updating/adding data to a quantitiy." alt="" coords="5,5,143,50"/>
+<area shape="rect" id="Node000000" href="$d5/d8f/structstats__quant_1_1stats__quant__t.html" title="Abstract type defining a statistical quantity." alt="" coords="5,135,143,179"/>
+<area shape="rect" id="Node000001" href="$d9/d4c/structfluid__sgs__stats_1_1fluid__sgs__stats__t.html" title=" " alt="" coords="207,5,360,50"/>
+<area shape="poly" id="edge249_Node000000_Node000001" title=" " alt="" coords="107,123,145,90,189,60,216,49,212,52,192,65,149,94,111,126"/>
+<area shape="rect" id="Node000002" href="$da/d8a/structfluid__stats_1_1fluid__stats__t.html" title=" " alt="" coords="221,75,346,119"/>
+<area shape="poly" id="edge250_Node000000_Node000002" title=" " alt="" coords="156,131,223,113,219,116,159,136"/>
+<area shape="rect" id="Node000003" href="$dc/d4a/structmean__field_1_1mean__field__t.html" title="Computes the temporal mean of a field." alt="" coords="191,143,376,171"/>
+<area shape="poly" id="edge251_Node000000_Node000003" title=" " alt="" coords="157,154,193,156,188,158,159,160"/>
+<area shape="rect" id="Node000004" href="$df/de3/structscalar__sgs__stats_1_1scalar__sgs__stats__t.html" title=" " alt="" coords="196,195,371,239"/>
+<area shape="poly" id="edge252_Node000000_Node000004" title=" " alt="" coords="158,178,206,193,201,195,158,184"/>
+<area shape="rect" id="Node000005" href="$dd/dad/structscalar__stats_1_1scalar__stats__t.html" title=" " alt="" coords="210,264,356,309"/>
+<area shape="poly" id="edge253_Node000000_Node000005" title=" " alt="" coords="110,187,149,220,192,249,217,263,211,263,189,254,145,224,109,192"/>
 </map>

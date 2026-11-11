@@ -402,6 +402,7 @@ var hierarchy =
     [ "fluid_scheme_base::fluid_scheme_base_free_intrf", "df/d23/interfacefluid__scheme__base_1_1fluid__scheme__base__free__intrf.html", null ],
     [ "fluid_scheme_base::fluid_scheme_base_init_intrf", "de/df3/interfacefluid__scheme__base_1_1fluid__scheme__base__init__intrf.html", null ],
     [ "fluid_scheme_base::fluid_scheme_base_restart_intrf", "d5/db8/interfacefluid__scheme__base_1_1fluid__scheme__base__restart__intrf.html", null ],
+    [ "fluid_scheme_base::fluid_scheme_base_set_user_initial_condition_intrf", "db/d30/interfacefluid__scheme__base_1_1fluid__scheme__base__set__user__initial__condition__intrf.html", null ],
     [ "fluid_scheme_base::fluid_scheme_base_step_intrf", "d1/d2d/interfacefluid__scheme__base_1_1fluid__scheme__base__step__intrf.html", null ],
     [ "fluid_scheme_base::fluid_scheme_base_t", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html", [
       [ "fluid_scheme_compressible::fluid_scheme_compressible_t", "d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html", [

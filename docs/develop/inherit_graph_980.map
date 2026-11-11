@@ -1,15 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d1/d3b/structtuple_1_1tuple__t.html" title="Base type for an n&#45;tuple." alt="" coords="5,136,113,164"/>
-<area shape="rect" id="Node000001" href="$d9/d51/structtuple_1_1tuple3__i4__t.html" title="Integer based 3&#45;tuple." alt="" coords="167,5,302,33"/>
-<area shape="poly" id="edge258_Node000000_Node000001" title=" " alt="" coords="78,122,113,82,159,44,186,32,183,35,162,48,117,86,82,125"/>
-<area shape="rect" id="Node000002" href="$dd/de4/structtuple_1_1tuple4__i4__t.html" title="Integer based 4&#45;tuple." alt="" coords="167,57,302,85"/>
-<area shape="poly" id="edge259_Node000000_Node000002" title=" " alt="" coords="97,126,160,95,193,84,189,87,162,100,101,130"/>
-<area shape="rect" id="Node000003" href="$da/d95/structtuple_1_1tuple__2i4r8__t.html" title="Mixed integer ( ) double precision ( ) 3&#45;tuple." alt="" coords="161,109,308,137"/>
-<area shape="poly" id="edge260_Node000000_Node000003" title=" " alt="" coords="127,137,162,133,158,136,129,142"/>
-<area shape="rect" id="Node000004" href="$d5/d16/structtuple_1_1tuple__i4__t.html" title="Integer based 2&#45;tuple." alt="" coords="171,161,298,189"/>
-<area shape="poly" id="edge261_Node000000_Node000004" title=" " alt="" coords="128,157,173,165,168,167,129,162"/>
-<area shape="rect" id="Node000005" href="$d4/deb/structtuple_1_1tuple__i4r8__t.html" title="Mixed integer ( ) double precision ( ) 2&#45;tuple ." alt="" coords="165,213,304,241"/>
-<area shape="poly" id="edge262_Node000000_Node000005" title=" " alt="" coords="100,168,162,198,194,212,189,213,160,203,100,174"/>
-<area shape="rect" id="Node000006" href="$d7/d14/structtuple_1_1tuple__r8__t.html" title="Double precision based 2&#45;tuple." alt="" coords="171,265,298,293"/>
-<area shape="poly" id="edge263_Node000000_Node000006" title=" " alt="" coords="81,173,117,213,162,250,187,265,182,265,159,255,113,217,79,178"/>
+<area shape="rect" id="Node000000" href="$db/df0/interfacetuple_1_1tuple__equal.html" title="Abstract intf. for tuple comparison." alt="" coords="5,5,144,33"/>
 </map>

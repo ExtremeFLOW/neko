@@ -1,9 +1,9 @@
 <map id="flow_ic::set_flow_ic_common" name="flow_ic::set_flow_ic_common">
-<area shape="rect" id="Node000001" title="Make the initial velocity continuous across elements." alt="" coords="231,91,377,136"/>
-<area shape="rect" id="Node000002" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#ae6bfdcf866e2e550dd48ae1e4b29d7fd" title="Set initial flow condition (user defined) for compressible flows." alt="" coords="5,5,183,67"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="224,86,180,70,180,65,229,84"/>
-<area shape="rect" id="Node000003" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#aa5c900e30a45a6ed61c876b4ce368b50" title="Set initial flow condition (builtin)." alt="" coords="21,91,167,136"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="213,114,168,116,167,111,218,113"/>
-<area shape="rect" id="Node000004" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#a3ae0362448781bf4610527ffa9d6e081" title="Set initial flow condition (user defined)." alt="" coords="21,160,167,205"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="222,141,165,162,163,157,217,142"/>
+<area shape="rect" id="Node000001" title="Make the initial velocity continuous across elements." alt="" coords="296,75,442,119"/>
+<area shape="rect" id="Node000002" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#adacc6870b816d36e1bc8bc8fc8537d1c" title="Set initial flow condition (builtin)." alt="" coords="52,5,201,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="279,73,202,52,202,46,284,71"/>
+<area shape="rect" id="Node000003" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#ae3f6654ca93595ea049442c6a6ea2432" title="Set initial flow condition (user defined) for compressible flows." alt="" coords="11,75,242,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="278,98,243,100,242,94,283,96"/>
+<area shape="rect" id="Node000004" href="$d5/d04/interfaceflow__ic_1_1set__flow__ic.html#a9bc3bfbbed9ef1eb5ee7de8914d6e74a" title="Set initial flow condition (user defined) for incompressible flows." alt="" coords="5,144,248,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="283,121,208,146,207,141,278,123"/>
 </map>

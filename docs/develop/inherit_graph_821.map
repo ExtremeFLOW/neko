@@ -1,3 +1,9 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="Node000000" href="$d9/dc9/structre2_1_1re2v2__bc__t.html" title="NEKTON re2 bc data (version 2)." alt="" coords="5,5,127,33"/>
+<area shape="rect" id="Node000000" href="$d4/db0/structre2_1_1re2v1__t.html" title="NEKTON re2 element data (version 1)." alt="" coords="5,57,105,85"/>
+<area shape="rect" id="Node000001" href="$d8/dfb/structre2_1_1re2v1__xy__t.html" title="NEKTON re2 element data (2d) (version 1)." alt="" coords="156,5,278,33"/>
+<area shape="poly" id="edge174_Node000000_Node000001" title=" " alt="" coords="114,49,174,32,170,35,116,54"/>
+<area shape="rect" id="Node000002" href="$de/d5b/structre2_1_1re2v1__xyz__t.html" title="NEKTON re2 element data (3d) (version 1)." alt="" coords="153,57,282,85"/>
+<area shape="poly" id="edge175_Node000000_Node000002" title=" " alt="" coords="120,69,155,70,150,72,121,74"/>
+<area shape="rect" id="Node000003" href="$de/daa/structre2_1_1re2v2__xy__t.html" title="NEKTON re2 element data (2d) (version 2)." alt="" coords="156,109,278,137"/>
+<area shape="poly" id="edge176_Node000000_Node000003" title=" " alt="" coords="116,88,174,108,169,110,115,93"/>
 </map>

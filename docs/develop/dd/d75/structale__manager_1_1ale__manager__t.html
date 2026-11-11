@@ -227,6 +227,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a5f0e592dcc5204c08b56530ec8f3cb25"><td class="mdescLeft">&#160;</td><td class="mdescRight">Main routine to advance the mesh in time.  <br /></td></tr>
 <tr class="memitem:a9118ad23990f75caa217a60336a8669a" id="r_a9118ad23990f75caa217a60336a8669a"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9118ad23990f75caa217a60336a8669a">update_mesh_velocity</a> (this, coef, time_s)</td></tr>
 <tr class="memdesc:a9118ad23990f75caa217a60336a8669a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates the mesh velocity field based on current time and kinematics Sums contributions from all bodies: mesh_vel = Sum( V_i * Phi_i ).  <br /></td></tr>
+<tr class="memitem:a2a3368b4226f9b39748130c619e20937" id="r_a2a3368b4226f9b39748130c619e20937"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a3368b4226f9b39748130c619e20937">set_initial_mesh_velocity</a> (this, coef)</td></tr>
+<tr class="memdesc:a2a3368b4226f9b39748130c619e20937"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the mesh velocity at t = 0. Not called on a restart, where the mesh velocity is read from the checkpoint.  <br /></td></tr>
 <tr class="memitem:a8f0556fdae7549b9f7f9994bf176faaf" id="r_a8f0556fdae7549b9f7f9994bf176faaf"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8f0556fdae7549b9f7f9994bf176faaf">set_pivot_restart</a> (this, time_restart)</td></tr>
 <tr class="memitem:abdf6dd3564749d2c36d8b564f86c95ff" id="r_abdf6dd3564749d2c36d8b564f86c95ff"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abdf6dd3564749d2c36d8b564f86c95ff">sync_chkp</a> (this, coef, xh, adv, chkp, gs_xh)</td></tr>
 <tr class="memitem:aac2f487631ab20f21f8b5dae93bc837a" id="r_aac2f487631ab20f21f8b5dae93bc837a"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aac2f487631ab20f21f8b5dae93bc837a">request_tracker</a> (this, initial_pos, body_id)</td></tr>
@@ -344,7 +346,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00162">162</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00163">163</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -386,7 +388,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00161">161</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00162">162</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -424,7 +426,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -490,7 +492,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00166">166</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -518,7 +520,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00165">165</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00166">166</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -569,7 +571,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00163">163</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00164">164</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -597,7 +599,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00167">167</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -625,7 +627,36 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00160">160</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00161">161</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+
+</div>
+</div>
+<a id="a2a3368b4226f9b39748130c619e20937" name="a2a3368b4226f9b39748130c619e20937"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a3368b4226f9b39748130c619e20937">&#9670;&#160;</a></span>set_initial_mesh_velocity()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) ale_manager::ale_manager_t::set_initial_mesh_velocity </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../dd/d75/structale__manager_1_1ale__manager__t.html">ale_manager_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>coef</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">coef</td><td>The coefficients. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00158">158</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -648,7 +679,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00158">158</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00159">159</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>
@@ -739,7 +770,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00159">159</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html#l00160">160</a> of file <a class="el" href="../../d6/dc8/ale__manager_8f90_source.html">ale_manager.f90</a>.</p>
 
 </div>
 </div>

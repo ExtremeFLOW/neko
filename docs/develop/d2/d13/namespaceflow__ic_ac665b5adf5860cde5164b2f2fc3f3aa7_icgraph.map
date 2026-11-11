@@ -1,0 +1,5 @@
+<map id="flow_ic::set_flow_ic_builtin" name="flow_ic::set_flow_ic_builtin">
+<area shape="rect" id="Node000001" title="Set initial flow condition (builtin)." alt="" coords="226,14,372,58"/>
+<area shape="rect" id="Node000002" href="$df/d6a/namespacefluid__scheme__base.html#ac310d647cc2f07dcd3eba99fa7b6b719" title="Initialise a fluid scheme." alt="" coords="5,5,178,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,36,178,39,178,34,213,36"/>
+</map>

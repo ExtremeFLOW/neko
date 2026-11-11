@@ -119,6 +119,8 @@ Data Types</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface to compute a time-step.  <a href="../../d1/d2d/interfacefluid__scheme__base_1_1fluid__scheme__base__step__intrf.html#details">More...</a><br /></td></tr>
 <tr class="memitem:fluid_5Fscheme_5Fbase_5Frestart_5Fintrf" id="r_fluid_5Fscheme_5Fbase_5Frestart_5Fintrf"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/db8/interfacefluid__scheme__base_1_1fluid__scheme__base__restart__intrf.html">fluid_scheme_base_restart_intrf</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface to restart a fluid scheme.  <a href="../../d5/db8/interfacefluid__scheme__base_1_1fluid__scheme__base__restart__intrf.html#details">More...</a><br /></td></tr>
+<tr class="memitem:fluid_5Fscheme_5Fbase_5Fset_5Fuser_5Finitial_5Fcondition_5Fintrf" id="r_fluid_5Fscheme_5Fbase_5Fset_5Fuser_5Finitial_5Fcondition_5Fintrf"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/d30/interfacefluid__scheme__base_1_1fluid__scheme__base__set__user__initial__condition__intrf.html">fluid_scheme_base_set_user_initial_condition_intrf</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface to set the initial condition of a fluid scheme with the user routine.  <a href="../../db/d30/interfacefluid__scheme__base_1_1fluid__scheme__base__set__user__initial__condition__intrf.html#details">More...</a><br /></td></tr>
 <tr class="memitem:fluid_5Fscheme_5Fsetup_5Fbcs_5Fintrf" id="r_fluid_5Fscheme_5Fsetup_5Fbcs_5Fintrf"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d7/d18/interfacefluid__scheme__base_1_1fluid__scheme__setup__bcs__intrf.html">fluid_scheme_setup_bcs_intrf</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface to setup boundary conditions.  <a href="../../d7/d18/interfacefluid__scheme__base_1_1fluid__scheme__setup__bcs__intrf.html#details">More...</a><br /></td></tr>
 <tr class="memitem:validate_5Fintrf" id="r_validate_5Fintrf"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d8/d38/interfacefluid__scheme__base_1_1validate__intrf.html">validate_intrf</a></td></tr>
@@ -127,7 +129,66 @@ Data Types</h2></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Abstract interface to sets rho and mu.  <a href="../../db/dfd/interfacefluid__scheme__base_1_1update__material__properties.html#details">More...</a><br /></td></tr>
 <tr class="memitem:fluid_5Fscheme_5Fbase_5Fcompute_5Fcfl_5Fintrf" id="r_fluid_5Fscheme_5Fbase_5Fcompute_5Fcfl_5Fintrf"><td class="memItemLeft" align="right" valign="top">interface &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../de/dc0/interfacefluid__scheme__base_1_1fluid__scheme__base__compute__cfl__intrf.html">fluid_scheme_base_compute_cfl_intrf</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the CFL number.  <a href="../../de/dc0/interfacefluid__scheme__base_1_1fluid__scheme__base__compute__cfl__intrf.html#details">More...</a><br /></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Functions/Subroutines</h2></td></tr>
+<tr class="memitem:ac310d647cc2f07dcd3eba99fa7b6b719" id="r_ac310d647cc2f07dcd3eba99fa7b6b719"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac310d647cc2f07dcd3eba99fa7b6b719">fluid_scheme_base_set_initial_condition</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
+<tr class="memdesc:ac310d647cc2f07dcd3eba99fa7b6b719"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialise a fluid scheme.  <br /></td></tr>
 </table>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function/Subroutine Documentation</h2>
+<a id="ac310d647cc2f07dcd3eba99fa7b6b719" name="ac310d647cc2f07dcd3eba99fa7b6b719"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac310d647cc2f07dcd3eba99fa7b6b719">&#9670;&#160;</a></span>fluid_scheme_base_set_initial_condition()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine fluid_scheme_base::fluid_scheme_base_set_initial_condition </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html">fluid_scheme_base_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>user</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in)</td>          <td class="paramname"><span class="paramname"><em>is_restart</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Set the initial condition of the velocity and pressure. A built-in initial condition is set here, a user one by <span class="tt">set_user_initial_condition</span>. </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
+    <tr><td class="paramname">is_restart</td><td>Whether the case is restarting from a checkpoint. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00321">321</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../df/d6a/namespacefluid__scheme__base_ac310d647cc2f07dcd3eba99fa7b6b719_cgraph.png" border="0" usemap="#adf/d6a/namespacefluid__scheme__base_ac310d647cc2f07dcd3eba99fa7b6b719_cgraph" loading="lazy" alt=""/></div>
+<map name="adf/d6a/namespacefluid__scheme__base_ac310d647cc2f07dcd3eba99fa7b6b719_cgraph" id="adf/d6a/namespacefluid__scheme__base_ac310d647cc2f07dcd3eba99fa7b6b719_cgraph">
+<area shape="rect" title="Initialise a fluid scheme." alt="" coords="5,5,178,67"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#ac665b5adf5860cde5164b2f2fc3f3aa7" title="Set initial flow condition (builtin)." alt="" coords="226,14,372,58"/>
+<area shape="poly" title=" " alt="" coords="178,34,213,36,208,36,178,39"/>
+</map>
+</div>
+
+</div>
+</div>
 </div><!-- contents -->
 </div><!-- doc-content -->
 <div id="page-nav" class="page-nav-panel">

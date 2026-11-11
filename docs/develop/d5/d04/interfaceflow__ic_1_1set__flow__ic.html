@@ -103,25 +103,100 @@ $(function(){initNavTree('d5/d04/interfaceflow__ic_1_1set__flow__ic.html','../..
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:aa5c900e30a45a6ed61c876b4ce368b50" id="r_aa5c900e30a45a6ed61c876b4ce368b50"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa5c900e30a45a6ed61c876b4ce368b50">set_flow_ic_int</a> (<a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, p, coef, gs, type, params)</td></tr>
-<tr class="memdesc:aa5c900e30a45a6ed61c876b4ce368b50"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (builtin).  <br /></td></tr>
-<tr class="memitem:a3ae0362448781bf4610527ffa9d6e081" id="r_a3ae0362448781bf4610527ffa9d6e081"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3ae0362448781bf4610527ffa9d6e081">set_flow_ic_usr</a> (<a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, p, coef, gs, user_proc, scheme_name)</td></tr>
-<tr class="memdesc:a3ae0362448781bf4610527ffa9d6e081"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (user defined).  <br /></td></tr>
-<tr class="memitem:ae6bfdcf866e2e550dd48ae1e4b29d7fd" id="r_ae6bfdcf866e2e550dd48ae1e4b29d7fd"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae6bfdcf866e2e550dd48ae1e4b29d7fd">set_compressible_flow_ic_usr</a> (rho, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, p, coef, gs, user_proc, scheme_name)</td></tr>
-<tr class="memdesc:ae6bfdcf866e2e550dd48ae1e4b29d7fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (user defined) for compressible flows.  <br /></td></tr>
+<tr class="memitem:adacc6870b816d36e1bc8bc8fc8537d1c" id="r_adacc6870b816d36e1bc8bc8fc8537d1c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adacc6870b816d36e1bc8bc8fc8537d1c">set_flow_ic_builtin</a> (<a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, p, coef, gs, type, params)</td></tr>
+<tr class="memdesc:adacc6870b816d36e1bc8bc8fc8537d1c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (builtin).  <br /></td></tr>
+<tr class="memitem:a9bc3bfbbed9ef1eb5ee7de8914d6e74a" id="r_a9bc3bfbbed9ef1eb5ee7de8914d6e74a"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9bc3bfbbed9ef1eb5ee7de8914d6e74a">set_flow_ic_user_incompressible</a> (<a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, p, coef, gs, user_proc, scheme_name)</td></tr>
+<tr class="memdesc:a9bc3bfbbed9ef1eb5ee7de8914d6e74a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (user defined) for incompressible flows.  <br /></td></tr>
+<tr class="memitem:ae3f6654ca93595ea049442c6a6ea2432" id="r_ae3f6654ca93595ea049442c6a6ea2432"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae3f6654ca93595ea049442c6a6ea2432">set_flow_ic_user_compressible</a> (rho, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a7c8003e3422abb0b6eec11f6ebf6e6fb">u</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#ad44828fa187c7f6962d8ef80a111c535">v</a>, <a class="el" href="../../db/da1/cuda_2ax__helm__compr__kernel_8h.html#a43799c7789aa82c19649dc9f75f8a87f">w</a>, p, coef, gs, user_proc, scheme_name)</td></tr>
+<tr class="memdesc:ae3f6654ca93595ea049442c6a6ea2432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial flow condition (user defined) for compressible flows.  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function/Subroutine Documentation</h2>
-<a id="ae6bfdcf866e2e550dd48ae1e4b29d7fd" name="ae6bfdcf866e2e550dd48ae1e4b29d7fd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae6bfdcf866e2e550dd48ae1e4b29d7fd">&#9670;&#160;</a></span>set_compressible_flow_ic_usr()</h2>
+<a id="adacc6870b816d36e1bc8bc8fc8537d1c" name="adacc6870b816d36e1bc8bc8fc8537d1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adacc6870b816d36e1bc8bc8fc8537d1c">&#9670;&#160;</a></span>set_flow_ic_builtin()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">subroutine flow_ic::set_flow_ic::set_compressible_flow_ic_usr </td>
+          <td class="memname">subroutine flow_ic::set_flow_ic::set_flow_ic_builtin </td>
+          <td>(</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>u</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>v</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>w</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>p</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>coef</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>gs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*)</td>          <td class="paramname"><span class="paramname"><em>type</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<div class="dynheader">
+Here is the call graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../d5/d04/interfaceflow__ic_1_1set__flow__ic_adacc6870b816d36e1bc8bc8fc8537d1c_cgraph.png" border="0" usemap="#ad5/d04/interfaceflow__ic_1_1set__flow__ic_adacc6870b816d36e1bc8bc8fc8537d1c_cgraph" loading="lazy" alt=""/></div>
+<map name="ad5/d04/interfaceflow__ic_1_1set__flow__ic_adacc6870b816d36e1bc8bc8fc8537d1c_cgraph" id="ad5/d04/interfaceflow__ic_1_1set__flow__ic_adacc6870b816d36e1bc8bc8fc8537d1c_cgraph">
+<area shape="rect" title="Set initial flow condition (builtin)." alt="" coords="5,213,155,258"/>
+<area shape="rect" href="../../d8/da8/namespacejson__utils.html#ab32ecc2e205eaaad7cc379b5271e51b6" title="Extract a sub&#45;object from a json object and returns an empty object if the key is missing." alt="" coords="214,5,360,50"/>
+<area shape="poly" title=" " alt="" coords="90,212,132,138,164,97,201,60,210,56,206,60,204,64,168,100,136,141,94,214"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="214,75,360,119"/>
+<area shape="poly" title=" " alt="" coords="101,211,146,170,201,129,213,125,209,128,204,134,149,175,105,215"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="214,144,360,189"/>
+<area shape="poly" title=" " alt="" coords="147,211,206,192,202,196,150,215"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aa12cfd84289d6030cd1376644fd98ca2" title="Set the initial condition from one mathematical expression per velocity component." alt="" coords="214,213,360,258"/>
+<area shape="poly" title=" " alt="" coords="154,233,201,234,196,237,156,238"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a12df0ee743fe67d367fac371b3ccbccc" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="203,282,372,310"/>
+<area shape="poly" title=" " alt="" coords="155,255,225,276,220,278,155,260"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a336762f1b72735e67d1066d53d13697f" title="Set the initial condition of the flow based on a point zone." alt="" coords="214,333,360,378"/>
+<area shape="poly" title=" " alt="" coords="110,256,154,288,204,319,216,326,210,327,201,323,151,292,110,261"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a6b4c73702cac8cb46dd2a803491ea0ac" title="Uniform initial condition." alt="" coords="214,403,360,447"/>
+<area shape="poly" title=" " alt="" coords="95,256,140,321,170,357,204,388,211,395,206,394,201,392,166,361,135,325,93,261"/>
+</map>
+</div>
+
+</div>
+</div>
+<a id="ae3f6654ca93595ea049442c6a6ea2432" name="ae3f6654ca93595ea049442c6a6ea2432"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae3f6654ca93595ea049442c6a6ea2432">&#9670;&#160;</a></span>set_flow_ic_user_compressible()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine flow_ic::set_flow_ic::set_flow_ic_user_compressible </td>
           <td>(</td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>rho</em></span>, </td>
         </tr>
@@ -169,103 +244,28 @@ Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>No data is copied between the host and the device. The user routine must leave the values where the backend operates on them, i.e. on the device when running on GPUs. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00200">200</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00201">201</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d04/interfaceflow__ic_1_1set__flow__ic_ae6bfdcf866e2e550dd48ae1e4b29d7fd_cgraph.png" border="0" usemap="#ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae6bfdcf866e2e550dd48ae1e4b29d7fd_cgraph" loading="lazy" alt=""/></div>
-<map name="ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae6bfdcf866e2e550dd48ae1e4b29d7fd_cgraph" id="ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae6bfdcf866e2e550dd48ae1e4b29d7fd_cgraph">
-<area shape="rect" title="Set initial flow condition (user defined) for compressible flows." alt="" coords="5,5,183,67"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="231,14,377,58"/>
-<area shape="poly" title=" " alt="" coords="183,34,218,36,212,36,183,39"/>
+<div class="center"><img src="../../d5/d04/interfaceflow__ic_1_1set__flow__ic_ae3f6654ca93595ea049442c6a6ea2432_cgraph.png" border="0" usemap="#ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae3f6654ca93595ea049442c6a6ea2432_cgraph" loading="lazy" alt=""/></div>
+<map name="ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae3f6654ca93595ea049442c6a6ea2432_cgraph" id="ad5/d04/interfaceflow__ic_1_1set__flow__ic_ae3f6654ca93595ea049442c6a6ea2432_cgraph">
+<area shape="rect" title="Set initial flow condition (user defined) for compressible flows." alt="" coords="5,5,236,50"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="284,5,430,50"/>
+<area shape="poly" title=" " alt="" coords="236,25,270,28,265,28,236,30"/>
 </map>
 </div>
 
 </div>
 </div>
-<a id="aa5c900e30a45a6ed61c876b4ce368b50" name="aa5c900e30a45a6ed61c876b4ce368b50"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5c900e30a45a6ed61c876b4ce368b50">&#9670;&#160;</a></span>set_flow_ic_int()</h2>
+<a id="a9bc3bfbbed9ef1eb5ee7de8914d6e74a" name="a9bc3bfbbed9ef1eb5ee7de8914d6e74a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9bc3bfbbed9ef1eb5ee7de8914d6e74a">&#9670;&#160;</a></span>set_flow_ic_user_incompressible()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">subroutine flow_ic::set_flow_ic::set_flow_ic_int </td>
-          <td>(</td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>u</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>v</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>w</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>p</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>coef</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(<a class="el" href="../../dd/db8/structgather__scatter_1_1gs__t.html">gs_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>gs</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">character(len=*)</td>          <td class="paramname"><span class="paramname"><em>type</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00079">79</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
-<div class="dynheader">
-Here is the call graph for this function:</div>
-<div class="dyncontent">
-<div class="center"><img src="../../d5/d04/interfaceflow__ic_1_1set__flow__ic_aa5c900e30a45a6ed61c876b4ce368b50_cgraph.png" border="0" usemap="#ad5/d04/interfaceflow__ic_1_1set__flow__ic_aa5c900e30a45a6ed61c876b4ce368b50_cgraph" loading="lazy" alt=""/></div>
-<map name="ad5/d04/interfaceflow__ic_1_1set__flow__ic_aa5c900e30a45a6ed61c876b4ce368b50_cgraph" id="ad5/d04/interfaceflow__ic_1_1set__flow__ic_aa5c900e30a45a6ed61c876b4ce368b50_cgraph">
-<area shape="rect" title="Set initial flow condition (builtin)." alt="" coords="5,213,152,258"/>
-<area shape="rect" href="../../d8/da8/namespacejson__utils.html#ab32ecc2e205eaaad7cc379b5271e51b6" title="Extract a sub&#45;object from a json object and returns an empty object if the key is missing." alt="" coords="211,5,358,50"/>
-<area shape="poly" title=" " alt="" coords="88,212,130,138,161,97,198,60,207,56,203,60,201,64,165,100,134,141,93,214"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aff7567086e0593009521c74afc760ff4" title="Set a Blasius profile as initial condition." alt="" coords="211,75,358,119"/>
-<area shape="poly" title=" " alt="" coords="99,211,143,170,198,129,210,125,206,129,201,134,147,175,104,215"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="211,144,358,189"/>
-<area shape="poly" title=" " alt="" coords="145,211,203,192,199,196,148,215"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#aa12cfd84289d6030cd1376644fd98ca2" title="Set the initial condition from one mathematical expression per velocity component." alt="" coords="211,213,358,258"/>
-<area shape="poly" title=" " alt="" coords="151,233,198,234,193,237,153,238"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a12df0ee743fe67d367fac371b3ccbccc" title="Set the initial condition of the flow based on a field. @detail The fields are read from an fld file...." alt="" coords="200,282,369,310"/>
-<area shape="poly" title=" " alt="" coords="152,254,222,276,217,278,152,260"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a336762f1b72735e67d1066d53d13697f" title="Set the initial condition of the flow based on a point zone." alt="" coords="211,333,358,378"/>
-<area shape="poly" title=" " alt="" coords="108,256,152,288,201,319,213,326,207,327,198,323,149,292,108,261"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a6b4c73702cac8cb46dd2a803491ea0ac" title="Uniform initial condition." alt="" coords="211,403,358,447"/>
-<area shape="poly" title=" " alt="" coords="93,256,137,321,167,357,201,388,208,395,203,394,198,392,163,361,133,325,92,261"/>
-</map>
-</div>
-
-</div>
-</div>
-<a id="a3ae0362448781bf4610527ffa9d6e081" name="a3ae0362448781bf4610527ffa9d6e081"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3ae0362448781bf4610527ffa9d6e081">&#9670;&#160;</a></span>set_flow_ic_usr()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">subroutine flow_ic::set_flow_ic::set_flow_ic_usr </td>
+          <td class="memname">subroutine flow_ic::set_flow_ic::set_flow_ic_user_incompressible </td>
           <td>(</td>
           <td class="paramtype">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>u</em></span>, </td>
         </tr>
@@ -308,15 +308,15 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="section note"><dt>Note</dt><dd>No data is copied between the host and the device. The user routine must leave the values where the backend operates on them, i.e. on the device when running on GPUs. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00153">153</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d9/d91/flow__ic_8f90_source.html#l00154">154</a> of file <a class="el" href="../../d9/d91/flow__ic_8f90_source.html">flow_ic.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
-<div class="center"><img src="../../d5/d04/interfaceflow__ic_1_1set__flow__ic_a3ae0362448781bf4610527ffa9d6e081_cgraph.png" border="0" usemap="#ad5/d04/interfaceflow__ic_1_1set__flow__ic_a3ae0362448781bf4610527ffa9d6e081_cgraph" loading="lazy" alt=""/></div>
-<map name="ad5/d04/interfaceflow__ic_1_1set__flow__ic_a3ae0362448781bf4610527ffa9d6e081_cgraph" id="ad5/d04/interfaceflow__ic_1_1set__flow__ic_a3ae0362448781bf4610527ffa9d6e081_cgraph">
-<area shape="rect" title="Set initial flow condition (user defined)." alt="" coords="5,5,152,50"/>
-<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="200,5,346,50"/>
-<area shape="poly" title=" " alt="" coords="152,25,187,27,182,28,152,30"/>
+<div class="center"><img src="../../d5/d04/interfaceflow__ic_1_1set__flow__ic_a9bc3bfbbed9ef1eb5ee7de8914d6e74a_cgraph.png" border="0" usemap="#ad5/d04/interfaceflow__ic_1_1set__flow__ic_a9bc3bfbbed9ef1eb5ee7de8914d6e74a_cgraph" loading="lazy" alt=""/></div>
+<map name="ad5/d04/interfaceflow__ic_1_1set__flow__ic_a9bc3bfbbed9ef1eb5ee7de8914d6e74a_cgraph" id="ad5/d04/interfaceflow__ic_1_1set__flow__ic_a9bc3bfbbed9ef1eb5ee7de8914d6e74a_cgraph">
+<area shape="rect" title="Set initial flow condition (user defined) for incompressible flows." alt="" coords="5,5,248,50"/>
+<area shape="rect" href="../../d2/d13/namespaceflow__ic.html#a9d1d885167a393ccb448d1a90f1530d5" title="Make the initial velocity continuous across elements." alt="" coords="296,5,442,50"/>
+<area shape="poly" title=" " alt="" coords="248,25,283,28,277,28,248,30"/>
 </map>
 </div>
 
