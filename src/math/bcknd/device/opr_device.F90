@@ -158,12 +158,12 @@ module opr_device
   interface
      subroutine hip_rotate_cyc(vx_d, vy_d, vz_d, &
           x_d, y_d, z_d, &
-          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          cyc_msk_d, R_d, ncyc, idir) &
           bind(c, name = 'hip_rotate_cyc')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: vx_d, vy_d, vz_d
        type(c_ptr), value :: x_d, y_d, z_d
-       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       type(c_ptr), value :: cyc_msk_d, R_d
        integer(c_int) :: ncyc, idir
      end subroutine hip_rotate_cyc
   end interface
@@ -287,12 +287,12 @@ module opr_device
   interface
      subroutine cuda_rotate_cyc(vx_d, vy_d, vz_d, &
           x_d, y_d, z_d, &
-          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          cyc_msk_d, R_d, ncyc, idir) &
           bind(c, name = 'cuda_rotate_cyc')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: vx_d, vy_d, vz_d
        type(c_ptr), value :: x_d, y_d, z_d
-       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       type(c_ptr), value :: cyc_msk_d, R_d
        integer(c_int) :: ncyc, idir
      end subroutine cuda_rotate_cyc
   end interface
@@ -416,12 +416,12 @@ module opr_device
   interface
      subroutine opencl_rotate_cyc(vx_d, vy_d, vz_d, &
           x_d, y_d, z_d, &
-          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          cyc_msk_d, R_d, ncyc, idir) &
           bind(c, name = 'opencl_rotate_cyc')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: vx_d, vy_d, vz_d
        type(c_ptr), value :: x_d, y_d, z_d
-       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       type(c_ptr), value :: cyc_msk_d, R_d
        integer(c_int) :: ncyc, idir
      end subroutine opencl_rotate_cyc
   end interface
@@ -545,12 +545,12 @@ module opr_device
   interface
      subroutine metal_rotate_cyc(vx_d, vy_d, vz_d, &
           x_d, y_d, z_d, &
-          cyc_msk_d, R11_d, R12_d, ncyc, idir) &
+          cyc_msk_d, R_d, ncyc, idir) &
           bind(c, name = 'metal_rotate_cyc')
        use, intrinsic :: iso_c_binding
        type(c_ptr), value :: vx_d, vy_d, vz_d
        type(c_ptr), value :: x_d, y_d, z_d
-       type(c_ptr), value :: cyc_msk_d, R11_d, R12_d
+       type(c_ptr), value :: cyc_msk_d, R_d
        integer(c_int) :: ncyc, idir
      end subroutine metal_rotate_cyc
   end interface
@@ -1069,22 +1069,22 @@ contains
 #ifdef HAVE_HIP
     call hip_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
-         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         coef%cyc_msk_d, coef%cyc_R_d, &
          ncyc, idir)
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
-         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         coef%cyc_msk_d, coef%cyc_R_d, &
          ncyc, idir)
 #elif HAVE_OPENCL
     call opencl_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
-         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         coef%cyc_msk_d, coef%cyc_R_d, &
          ncyc, idir)
 #elif HAVE_METAL
     call metal_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
-         coef%cyc_msk_d, coef%R11_d, coef%R12_d, &
+         coef%cyc_msk_d, coef%cyc_R_d, &
          ncyc, idir)
 #else
     call neko_error('No device backend configured for rotate_cyc')

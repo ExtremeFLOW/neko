@@ -42,8 +42,7 @@ __global__ void rotate_cyc_kernel(
 			   const T * __restrict__ y,
 			   const T * __restrict__ z,
 			   const int * __restrict__ cyc_msk,
-			   const T * __restrict__ R11,
-			   const T * __restrict__ R12,
+			   const T * __restrict__ R,
 			   const int  ncyc,
 			   const int  idir) {
 
@@ -54,21 +53,18 @@ __global__ void rotate_cyc_kernel(
     const int j  = cyc_msk[i+1]-1;
     const T vxj  = vx[j];
     const T vyj  = vy[j];
-    const T R11i = R11[i];
-    const T R12i = R12[i];
-    T vnor;
-    T vtan;
+    const T vzj  = vz[j];
+    const T * Ri = R + 9 * i;
     if (idir==1){
-        vnor =  vxj * R11i + vyj * R12i;
-        vtan = -vxj * R12i + vyj * R11i;
+      vx[j] = Ri[0] * vxj + Ri[1] * vyj + Ri[2] * vzj;
+      vy[j] = Ri[3] * vxj + Ri[4] * vyj + Ri[5] * vzj;
+      vz[j] = Ri[6] * vxj + Ri[7] * vyj + Ri[8] * vzj;
     }
     else if (idir==0) {
-        vnor =  vxj * R11i - vyj * R12i;
-        vtan =  vxj * R12i + vyj * R11i;
+      vx[j] = Ri[0] * vxj + Ri[3] * vyj + Ri[6] * vzj;
+      vy[j] = Ri[1] * vxj + Ri[4] * vyj + Ri[7] * vzj;
+      vz[j] = Ri[2] * vxj + Ri[5] * vyj + Ri[8] * vzj;
     }
-
-    vx[j] = vnor;
-    vy[j] = vtan;
   }
 
 

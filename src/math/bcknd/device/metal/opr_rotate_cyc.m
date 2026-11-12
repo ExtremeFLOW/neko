@@ -78,7 +78,7 @@ get_rotate_cyc_pipeline(const char *name) {
  */
 void metal_rotate_cyc(void *vx, void *vy, void *vz,
                       void *x, void *y, void *z,
-                      void *cyc_msk, void *R11, void *R12,
+                      void *cyc_msk, void *R,
                       int *ncyc, int *idir) {
 
   if (*ncyc <= 0)
@@ -103,10 +103,9 @@ void metal_rotate_cyc(void *vx, void *vy, void *vz,
     [enc setBuffer:(__bridge id<MTLBuffer>)y       offset:0 atIndex:4];
     [enc setBuffer:(__bridge id<MTLBuffer>)z       offset:0 atIndex:5];
     [enc setBuffer:(__bridge id<MTLBuffer>)cyc_msk offset:0 atIndex:6];
-    [enc setBuffer:(__bridge id<MTLBuffer>)R11     offset:0 atIndex:7];
-    [enc setBuffer:(__bridge id<MTLBuffer>)R12     offset:0 atIndex:8];
-    [enc setBytes:&fncyc length:sizeof(int) atIndex:9];
-    [enc setBytes:&fidir length:sizeof(int) atIndex:10];
+    [enc setBuffer:(__bridge id<MTLBuffer>)R       offset:0 atIndex:7];
+    [enc setBytes:&fncyc length:sizeof(int) atIndex:8];
+    [enc setBytes:&fidir length:sizeof(int) atIndex:9];
 
     const NSUInteger nthrds = 1024;
     MTLSize threads = MTLSizeMake((NSUInteger)(*ncyc), 1, 1);

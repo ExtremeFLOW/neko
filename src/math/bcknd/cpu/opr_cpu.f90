@@ -330,58 +330,65 @@ contains
 
   end subroutine opr_cpu_lambda2
 
+  !> Rotate the vector (vx, vy, vz) at the cyclic points between the
+  !! Cartesian frame and the cyclic frame stored in coef%cyc_R.
+  !! @param idir 1 rotates into the cyclic frame, 0 rotates back.
   subroutine opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
     real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
     integer :: i, j, ncyc
-    real(kind=rp) :: vnor, vtan
+    real(kind=rp) :: v(3)
 
     ncyc = coef%cyc_msk(0) - 1
 
     do i = 1, ncyc
        j = coef%cyc_msk(i)
-
-       if (idir .eq. 1) then
-          vnor = vx(j) * coef%R11(i) + vy(j) * coef%R12(i)
-          vtan = -vx(j) * coef%R12(i) + vy(j) * coef%R11(i)
-       else if (idir .eq. 0) then
-          vnor = vx(j) * coef%R11(i) - vy(j) * coef%R12(i)
-          vtan = vx(j) * coef%R12(i) + vy(j) * coef%R11(i)
-       end if
-
-       vx(j) = vnor
-       vy(j) = vtan
-
+       v = rotate_cyc_point(vx(j), vy(j), vz(j), coef%cyc_R(:, i), idir)
+       vx(j) = v(1)
+       vy(j) = v(2)
+       vz(j) = v(3)
     end do
   end subroutine opr_cpu_rotate_cyc_r1
 
 
+  !> See opr_cpu_rotate_cyc_r1()
   subroutine opr_cpu_rotate_cyc_r4(vx, vy, vz, idir, coef)
     real(kind=rp), dimension(:,:,:,:), intent(inout) :: vx, vy, vz
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
     integer :: i, j, ncyc
-    real(kind=rp) :: vnor, vtan
+    real(kind=rp) :: v(3)
 
     ncyc = coef%cyc_msk(0) - 1
 
     do i = 1, ncyc
        j = coef%cyc_msk(i)
-
-       if (idir .eq. 1) then
-          vnor = vx(j, 1, 1, 1) * coef%R11(i) + vy(j, 1, 1, 1) * coef%R12(i)
-          vtan = -vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)
-       else if (idir .eq. 0) then
-          vnor = vx(j, 1, 1, 1) * coef%R11(i) - vy(j, 1, 1, 1) * coef%R12(i)
-          vtan = vx(j, 1, 1, 1) * coef%R12(i) + vy(j, 1, 1, 1) * coef%R11(i)
-       end if
-
-       vx(j, 1, 1, 1) = vnor
-       vy(j, 1, 1, 1) = vtan
-
+       v = rotate_cyc_point(vx(j, 1, 1, 1), vy(j, 1, 1, 1), vz(j, 1, 1, 1), &
+            coef%cyc_R(:, i), idir)
+       vx(j, 1, 1, 1) = v(1)
+       vy(j, 1, 1, 1) = v(2)
+       vz(j, 1, 1, 1) = v(3)
     end do
 
   end subroutine opr_cpu_rotate_cyc_r4
+
+  !> Apply the row-wise stored rotation @a R (idir = 1) or its transpose
+  !! (idir = 0) to the vector (vx, vy, vz)
+  pure function rotate_cyc_point(vx, vy, vz, R, idir) result(v)
+    real(kind=rp), intent(in) :: vx, vy, vz, R(9)
+    integer, intent(in) :: idir
+    real(kind=rp) :: v(3)
+
+    if (idir .eq. 1) then
+       v(1) = R(1) * vx + R(2) * vy + R(3) * vz
+       v(2) = R(4) * vx + R(5) * vy + R(6) * vz
+       v(3) = R(7) * vx + R(8) * vy + R(9) * vz
+    else
+       v(1) = R(1) * vx + R(4) * vy + R(7) * vz
+       v(2) = R(2) * vx + R(5) * vy + R(8) * vz
+       v(3) = R(3) * vx + R(6) * vy + R(9) * vz
+    end if
+  end function rotate_cyc_point
 
 end module opr_cpu

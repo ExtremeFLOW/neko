@@ -233,8 +233,13 @@ module coefs
      !> Unit outward normals of the two planar cyclic boundaries, one per
      !! column, identical on all ranks
      real(kind=rp) :: cyc_normal(3,2) = 0.0_rp
-     real(kind=rp), allocatable :: R11(:) !< entry of 2D rotation matrix at index (1,1)
-     real(kind=rp), allocatable :: R12(:) !< entry of 2D rotation matrix at index (1,2)
+     !> Unit rotation axis of the cyclic boundaries, cyc_normal(:,1) x
+     !! cyc_normal(:,2) normalised
+     real(kind=rp) :: cyc_axis(3) = 0.0_rp
+     !> Rotation matrix from Cartesian into the cyclic frame at each cyclic
+     !! point, stored row-wise: cyc_R(1:3,i) is the boundary normal,
+     !! cyc_R(4:6,i) the tangent axis x normal and cyc_R(7:9,i) the axis
+     real(kind=rp), allocatable :: cyc_R(:,:)
 
      !! True if geometric metrics have been initialized
      logical, private :: coef_metrics_initialized = .false.
@@ -301,8 +306,7 @@ module coefs
      type(c_ptr) :: ny_d = C_NULL_PTR
      type(c_ptr) :: nz_d = C_NULL_PTR
      type(c_ptr) :: cyc_msk_d = C_NULL_PTR
-     type(c_ptr) :: R11_d = C_NULL_PTR
-     type(c_ptr) :: R12_d = C_NULL_PTR
+     type(c_ptr) :: cyc_R_d = C_NULL_PTR
 
      !> Version of the current geometry. Incremented by recompute_metrics.
      integer :: metrics_version = 0
@@ -574,23 +578,21 @@ contains
     allocate(this%cyc_msk(0:ncyc))
     this%cyc_msk(0) = ncyc + 1
     if (ncyc .gt. 0) then
-       allocate(this%R11(ncyc))
-       allocate(this%R12(ncyc))
+       allocate(this%cyc_R(9, ncyc))
 
        !>Default values correspond to no rotation
-       call rone(this%R11, ncyc)
-       call rzero(this%R12, ncyc)
+       this%cyc_R = 0.0_rp
+       this%cyc_R(1,:) = 1.0_rp
+       this%cyc_R(5,:) = 1.0_rp
+       this%cyc_R(9,:) = 1.0_rp
 
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call device_map(this%cyc_msk, this%cyc_msk_d, ncyc+1)
-          call device_map(this%R11, this%R11_d, ncyc)
-          call device_map(this%R12, this%R12_d, ncyc)
+          call device_map(this%cyc_R, this%cyc_R_d, 9 * ncyc)
 
           call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
                HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%R11, this%R11_d, ncyc, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%R12, this%R12_d, ncyc, &
+          call device_memcpy(this%cyc_R, this%cyc_R_d, 9 * ncyc, &
                HOST_TO_DEVICE, sync = .false.)
        end if
 
@@ -826,14 +828,9 @@ contains
        deallocate(this%cyc_msk)
     end if
 
-    if (allocated(this%R11)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%R11, this%R11_d)
-       deallocate(this%R11)
-    end if
-
-    if (allocated(this%R12)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%R12, this%R12_d)
-       deallocate(this%R12)
+    if (allocated(this%cyc_R)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%cyc_R, this%cyc_R_d)
+       deallocate(this%cyc_R)
     end if
 
 
@@ -2115,11 +2112,20 @@ contains
 
   end subroutine coef_generate_area_and_normal
 
+  !> Build the cyclic frames used by rotate_cyc.
+  !! The rotation axis is the intersection line of the two cyclic planes,
+  !! \f$ a = n_1 \times n_2 / |n_1 \times n_2| \f$. At each cyclic point the
+  !! frame is \f$ (e_1, a \times e_1, a) \f$, with \f$ e_1 = n_1 \f$ on the
+  !! first boundary and \f$ e_1 = -n_2 \f$ on the second. Since the outward
+  !! normals of a sector point in opposite angular directions, the rotation
+  !! mapping one boundary onto the other maps \f$ e_1 \f$ onto itself, so
+  !! matching periodic points share the same components in this frame.
   subroutine coef_generate_cyclic_bc(this)
     class(coef_t), intent(inout) :: this
-    real(kind=rp) :: un(3), len, d
+    real(kind=rp) :: un(3), len, e1(3), e2(3), a(3)
     integer :: lx, ly, lz, np, np_glb, ierr
     integer :: i, j, k, pf, pe, n, nc, ncyc
+    character(len=LOG_SIZE) :: log_buf
 
     if (.not. this%cyclic) return
 
@@ -2141,6 +2147,19 @@ contains
     ! Collective, every rank must call it before an early return
     call coef_find_cyclic_normals(this)
 
+    a = cross(this%cyc_normal(:,1), this%cyc_normal(:,2))
+    len = norm2(a)
+    if (len .lt. 1.0e-3_rp) then
+       call neko_error("The two cyclic boundaries are parallel, the " // &
+            "rotation axis is undefined. Use plain periodic boundaries " // &
+            "for translations. Sectors of 180 degrees are not supported.")
+    end if
+    this%cyc_axis = a / len
+    a = this%cyc_axis
+
+    write(log_buf, '(A,3ES13.5)') 'Cyclic axis     : ', this%cyc_axis
+    call neko_log%message(log_buf)
+
     if (np .eq. 0) return
 
     lx = this%Xh%lx
@@ -2156,20 +2175,21 @@ contains
              do i = 1, lx
                 if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
                    un = this%get_normal(i, j, k, pe, pf)
-                   len = sqrt(un(1) * un(1) + un(2) * un(2))
-                   if (len .gt. NEKO_EPS) then
-                      d = this%dof%y%x(i, j, k, pe) * un(1) &
-                           - this%dof%x%x(i, j, k, pe) * un(2)
 
-                      this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
-                      this%R11(nc) = un(1) / len * sign(1.0_rp, d)
-                      this%R12(nc) = un(2) / len * sign(1.0_rp, d)
-                      nc = nc + 1
+                   ! Which of the two cyclic boundaries the point is on
+                   if (dot_product(un, this%cyc_normal(:,1)) .ge. &
+                        dot_product(un, this%cyc_normal(:,2))) then
+                      e1 = this%cyc_normal(:,1)
                    else
-                      call neko_error("x and y components of surface " // &
-                           "normals are zero. Cyclic rotations must be " // &
-                           "around z-axis.")
+                      e1 = -this%cyc_normal(:,2)
                    end if
+                   e2 = cross(a, e1)
+
+                   this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
+                   this%cyc_R(1:3, nc) = e1
+                   this%cyc_R(4:6, nc) = e2
+                   this%cyc_R(7:9, nc) = a
+                   nc = nc + 1
                 end if
              end do
           end do
@@ -2184,11 +2204,19 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
             HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%R11, this%R11_d, ncyc, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%R12, this%R12_d, ncyc, &
+       call device_memcpy(this%cyc_R, this%cyc_R_d, 9 * ncyc, &
             HOST_TO_DEVICE, sync = .false.)
     end if
+
+  contains
+
+    pure function cross(u, v) result(w)
+      real(kind=rp), intent(in) :: u(3), v(3)
+      real(kind=rp) :: w(3)
+      w(1) = u(2) * v(3) - u(3) * v(2)
+      w(2) = u(3) * v(1) - u(1) * v(3)
+      w(3) = u(1) * v(2) - u(2) * v(1)
+    end function cross
 
   end subroutine coef_generate_cyclic_bc
 
@@ -2263,9 +2291,6 @@ contains
             this%cyc_normal(:,m)
        call neko_log%message(log_buf)
     end do
-
-write(*,*) "Cyclic normal: ", this%cyc_normal
-
 
   contains
 

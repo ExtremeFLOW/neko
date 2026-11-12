@@ -53,7 +53,7 @@
  */
 void opencl_rotate_cyc(void *vx, void *vy, void *vz,
                        void *x, void *y, void *z,
-                       void *cyc_msk, void *R11, void *R12,
+                       void *cyc_msk, void *R,
                        int *ncyc, int *idir) {
   cl_int err;
 
@@ -71,10 +71,9 @@ void opencl_rotate_cyc(void *vx, void *vy, void *vz,
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &y));
   CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &z));
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &cyc_msk));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &R11));
-  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &R12));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), ncyc));
-  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(int), idir));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &R));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(int), ncyc));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(int), idir));
 
   const int nb = ((*ncyc) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;

@@ -44,8 +44,7 @@ __kernel void rotate_cyc_kernel(__global real *vx,
                                 __global const real *y,
                                 __global const real *z,
                                 __global const int *cyc_msk,
-                                __global const real *R11,
-                                __global const real *R12,
+                                __global const real *R,
                                 const int ncyc,
                                 const int idir) {
 
@@ -56,21 +55,18 @@ __kernel void rotate_cyc_kernel(__global real *vx,
     const int j = cyc_msk[i + 1] - 1;
     const real vxj = vx[j];
     const real vyj = vy[j];
-    const real R11i = R11[i];
-    const real R12i = R12[i];
-    real vnor;
-    real vtan;
+    const real vzj = vz[j];
+    __global const real *Ri = R + 9 * i;
     if (idir == 1) {
-      vnor =  vxj * R11i + vyj * R12i;
-      vtan = -vxj * R12i + vyj * R11i;
+      vx[j] = Ri[0] * vxj + Ri[1] * vyj + Ri[2] * vzj;
+      vy[j] = Ri[3] * vxj + Ri[4] * vyj + Ri[5] * vzj;
+      vz[j] = Ri[6] * vxj + Ri[7] * vyj + Ri[8] * vzj;
     }
     else if (idir == 0) {
-      vnor =  vxj * R11i - vyj * R12i;
-      vtan =  vxj * R12i + vyj * R11i;
+      vx[j] = Ri[0] * vxj + Ri[3] * vyj + Ri[6] * vzj;
+      vy[j] = Ri[1] * vxj + Ri[4] * vyj + Ri[7] * vzj;
+      vz[j] = Ri[2] * vxj + Ri[5] * vyj + Ri[8] * vzj;
     }
-
-    vx[j] = vnor;
-    vy[j] = vtan;
   }
 }
 

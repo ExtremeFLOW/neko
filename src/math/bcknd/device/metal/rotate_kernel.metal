@@ -51,10 +51,9 @@ kernel void rotate_cyc_kernel(device float *vx[[ buffer(0) ]],
                               device const float *y[[ buffer(4) ]],
                               device const float *z[[ buffer(5) ]],
                               device const int *cyc_msk[[ buffer(6) ]],
-                              device const float *R11[[ buffer(7) ]],
-                              device const float *R12[[ buffer(8) ]],
-                              constant int &ncyc[[ buffer(9) ]],
-                              constant int &idir[[ buffer(10) ]],
+                              device const float *R[[ buffer(7) ]],
+                              constant int &ncyc[[ buffer(8) ]],
+                              constant int &idir[[ buffer(9) ]],
                               uint tid [[ thread_position_in_grid ]]) {
   const int i = (int)tid;
   if (i >= ncyc) return;
@@ -62,19 +61,16 @@ kernel void rotate_cyc_kernel(device float *vx[[ buffer(0) ]],
   const int j = cyc_msk[i + 1] - 1;
   const float vxj = vx[j];
   const float vyj = vy[j];
-  const float R11i = R11[i];
-  const float R12i = R12[i];
+  const float vzj = vz[j];
+  device const float *Ri = R + 9 * i;
 
-  float vnor = 0.0f;
-  float vtan = 0.0f;
   if (idir == 1) {
-    vnor =  vxj * R11i + vyj * R12i;
-    vtan = -vxj * R12i + vyj * R11i;
+    vx[j] = Ri[0] * vxj + Ri[1] * vyj + Ri[2] * vzj;
+    vy[j] = Ri[3] * vxj + Ri[4] * vyj + Ri[5] * vzj;
+    vz[j] = Ri[6] * vxj + Ri[7] * vyj + Ri[8] * vzj;
   } else if (idir == 0) {
-    vnor =  vxj * R11i - vyj * R12i;
-    vtan =  vxj * R12i + vyj * R11i;
+    vx[j] = Ri[0] * vxj + Ri[3] * vyj + Ri[6] * vzj;
+    vy[j] = Ri[1] * vxj + Ri[4] * vyj + Ri[7] * vzj;
+    vz[j] = Ri[2] * vxj + Ri[5] * vyj + Ri[8] * vzj;
   }
-
-  vx[j] = vnor;
-  vy[j] = vtan;
 }

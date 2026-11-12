@@ -44,7 +44,7 @@ extern "C" {
 
   void cuda_rotate_cyc(void *vx, void *vy, void *vz,
                        void *x, void *y, void *z,
-                       void *cyc_msk, void *R11, void *R12,
+                       void *cyc_msk, void *R,
                        int *ncyc, int *idir) {
 
 
@@ -55,7 +55,7 @@ extern "C" {
     rotate_cyc_kernel<real><<<nblcks, nthrds, 0, stream>>>(
              (real *) vx, (real *) vy, (real *) vz,
              (real *) x,  (real *) y,  (real *) z,
-             (int *) cyc_msk, (real *) R11, (real *) R12,
+             (int *) cyc_msk, (real *) R,
              *ncyc, *idir);
     CUDA_CHECK(cudaGetLastError());
   }

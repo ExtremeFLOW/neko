@@ -44,7 +44,7 @@ extern "C" {
 
   void hip_rotate_cyc(void *vx, void *vy, void *vz,
                       void *x, void *y, void *z,
-                      void *cyc_msk, void *R11, void *R12,
+                      void *cyc_msk, void *R,
                       int *ncyc, int *idir) {
 
 
@@ -56,7 +56,7 @@ extern "C" {
                        nblcks, nthrds, 0, stream,
                        (real *) vx, (real *) vy, (real *) vz,
                        (real *) x,  (real *) y,  (real *) z,
-                       (int *) cyc_msk, (real *) R11, (real *) R12,
+                       (int *) cyc_msk, (real *) R,
                        *ncyc, *idir);
     HIP_CHECK(hipGetLastError());
   }
