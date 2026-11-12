@@ -60,8 +60,12 @@ module vreman
      real(kind=rp) :: g(3)
      !> Whether to apply the Richardson-number correction.
      logical :: if_corr = .false.
+     !> Whether to use anisotropic filter widths.
+     logical :: if_aniso = .false.
      !> Name of the scalar field used for the stability treatment.
      character(len=:), allocatable :: scalar_name
+     !> Filter-width tensor (only used if if_aniso).
+     type(field_t) :: g11, g12, g13, g22, g23, g33
    contains
      !> Constructor from JSON.
      procedure, pass(this) :: init => vreman_init
@@ -88,7 +92,7 @@ contains
     real(kind=rp), allocatable :: g(:)
     character(len=:), allocatable :: scalar_name
     character(len=:), allocatable :: delta_type
-    logical :: if_ext, if_corr
+    logical :: if_ext, if_corr, if_aniso
     character(len=LOG_SIZE) :: log_buf
 
     call json_get_or_default(json, "nut_field", nut_name, "nut")
@@ -96,6 +100,7 @@ contains
     ! Based on the Smagorinsky Cs = 0.17.
     call json_get_or_lookup_or_default(json, "c", c, 0.07_rp)
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
+    call json_get_or_default(json, "anisotropic", if_aniso, .false.)
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
 
     ri_c = 0.25_rp
@@ -132,12 +137,15 @@ contains
     call neko_log%message(log_buf)
     write(log_buf, '(A, L1)') 'extrapolation : ', if_ext
     call neko_log%message(log_buf)
+    write(log_buf, '(A, L1)') 'anisotropic : ', if_aniso
+    call neko_log%message(log_buf)
     write(log_buf, '(A, L1)') 'buoyancy correction : ', if_corr
     call neko_log%message(log_buf)
     call neko_log%end_section()
 
     call vreman_init_from_components(this, fluid, c, nut_name, &
-         delta_type, if_ext, if_corr, scalar_name, ri_c, ref_temp, g)
+         delta_type, if_ext, if_corr, scalar_name, ri_c, ref_temp, g, &
+         if_aniso)
 
   end subroutine vreman_init
 
@@ -153,8 +161,10 @@ contains
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
   !! @param g The gravity vector, pointing in the direction of gravity.
+  !! @param if_aniso Whether to use anisotropic filter widths.
   subroutine vreman_init_from_components(this, fluid, c, nut_name, &
-       delta_type, if_ext, if_corr, scalar_name, ri_c, ref_temp, g)
+       delta_type, if_ext, if_corr, scalar_name, ri_c, ref_temp, g, &
+       if_aniso)
     class(vreman_t), intent(inout) :: this
     class(fluid_scheme_base_t), intent(inout), target :: fluid
     real(kind=rp) :: c, ri_c, ref_temp
@@ -163,6 +173,7 @@ contains
     character(len=*), intent(in) :: nut_name
     character(len=*), intent(in) :: delta_type
     logical, intent(in) :: if_ext, if_corr
+    logical, intent(in), optional :: if_aniso
 
     call this%free()
 
@@ -176,6 +187,20 @@ contains
     this%g = -g
     this%scalar_name = scalar_name
 
+    this%if_aniso = .false.
+    if (present(if_aniso)) this%if_aniso = if_aniso
+
+    if (this%if_aniso) then
+       call this%g11%init(this%coef%dof, "vreman_g11")
+       call this%g12%init(this%coef%dof, "vreman_g12")
+       call this%g13%init(this%coef%dof, "vreman_g13")
+       call this%g22%init(this%coef%dof, "vreman_g22")
+       call this%g23%init(this%coef%dof, "vreman_g23")
+       call this%g33%init(this%coef%dof, "vreman_g33")
+       call this%compute_delta_tensor(this%g11, this%g12, this%g13, &
+            this%g22, this%g23, this%g33)
+    end if
+
     if (this%if_corr .and. &
          sqrt(sum(this%g**2)) .le. 0.0_rp) then
        call neko_error("VREMAN: The gravity vector must have at least " // &
@@ -188,6 +213,12 @@ contains
   subroutine vreman_free(this)
     class(vreman_t), intent(inout) :: this
 
+    call this%g11%free()
+    call this%g12%free()
+    call this%g13%free()
+    call this%g22%free()
+    call this%g23%free()
+    call this%g33%free()
     call this%free_base()
   end subroutine vreman_free
 
@@ -223,11 +254,15 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call vreman_compute_device(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c, this%if_corr, &
-            this%scalar_name, this%ri_c, this%ref_temp, this%g)
+            this%scalar_name, this%ri_c, this%ref_temp, this%g, &
+            this%if_aniso, this%g11, this%g12, this%g13, &
+            this%g22, this%g23, this%g33)
     else
        call vreman_compute_cpu(this%if_ext, t, tstep, this%coef, &
             this%nut, this%delta, this%c, this%if_corr, &
-            this%scalar_name, this%ri_c, this%ref_temp, this%g)
+            this%scalar_name, this%ri_c, this%ref_temp, this%g, &
+            this%if_aniso, this%g11, this%g12, this%g13, &
+            this%g22, this%g23, this%g33)
     end if
 
   end subroutine vreman_compute
