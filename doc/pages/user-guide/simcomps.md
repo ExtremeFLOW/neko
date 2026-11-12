@@ -724,6 +724,16 @@ keywords:
   - `vreman`: The Vreman model. Configured by the following additional keywords:
     - `c`: The model constant, defaults to 0.07, which corresponds to the
       Smagorinsky constant 0.17 through `c = 2.5 c_s^2` (Vreman 2004).
+    - `anisotropic`: Whether to use direction-dependent filter widths as in
+      Vreman (2004), eq. (32), defaults to `false`. The filter widths are the
+      grid steps along the three GLL directions of each element, as defined
+      by `delta_type`, so the model works for stretched and rotated elements.
+      With `false`, the isotropic `les_delta` is used in all directions.
+      With `pointwise` the steps are taken around each GLL point, with
+      `elementwise_max` from the middle interval of the element, and with
+      `elementwise_average` from the element edges through the first corner,
+      divided by the number of intervals. The last one coincides with the
+      isotropic `les_delta` only for elements with straight, parallel edges.
     - `buoyancy_correction`: Whether or not to apply the stability correction
       of Lilly (1962) to the eddy viscosity, `nut * sqrt(1 - Ri / Ri_c)` for
       `Ri <= Ri_c` and (almost) zero above, with the local Richardson number
