@@ -78,47 +78,6 @@ void metal_vreman_nut_compute(void *a11, void *a12, void *a13,
     }, (NSUInteger) n_r);
 }
 
-/**
- * Fortran wrapper for the Metal anisotropic Vreman kernel
- */
-void metal_vreman_nut_compute_aniso(void *a11, void *a12, void *a13,
-                                    void *a21, void *a22, void *a23,
-                                    void *a31, void *a32, void *a33,
-                                    void *g11, void *g12, void *g13,
-                                    void *g22, void *g23, void *g33,
-                                    void *nut, void *mult,
-                                    real *c, real *eps, int *n) {
-  if (*n < 1) return;
-
-  const real c_r = *c;
-  const real eps_r = *eps;
-  const int n_r = *n;
-
-  neko_metal_dispatch_1d(neko_metal_pipeline(@"vreman_nut_compute_aniso_kernel"),
-    ^(id<MTLComputeCommandEncoder> enc) {
-      [enc setBuffer:(__bridge id<MTLBuffer>) a11 offset:0 atIndex:0];
-      [enc setBuffer:(__bridge id<MTLBuffer>) a12 offset:0 atIndex:1];
-      [enc setBuffer:(__bridge id<MTLBuffer>) a13 offset:0 atIndex:2];
-      [enc setBuffer:(__bridge id<MTLBuffer>) a21 offset:0 atIndex:3];
-      [enc setBuffer:(__bridge id<MTLBuffer>) a22 offset:0 atIndex:4];
-      [enc setBuffer:(__bridge id<MTLBuffer>) a23 offset:0 atIndex:5];
-      [enc setBuffer:(__bridge id<MTLBuffer>) a31 offset:0 atIndex:6];
-      [enc setBuffer:(__bridge id<MTLBuffer>) a32 offset:0 atIndex:7];
-      [enc setBuffer:(__bridge id<MTLBuffer>) a33 offset:0 atIndex:8];
-      [enc setBuffer:(__bridge id<MTLBuffer>) g11 offset:0 atIndex:9];
-      [enc setBuffer:(__bridge id<MTLBuffer>) g12 offset:0 atIndex:10];
-      [enc setBuffer:(__bridge id<MTLBuffer>) g13 offset:0 atIndex:11];
-      [enc setBuffer:(__bridge id<MTLBuffer>) g22 offset:0 atIndex:12];
-      [enc setBuffer:(__bridge id<MTLBuffer>) g23 offset:0 atIndex:13];
-      [enc setBuffer:(__bridge id<MTLBuffer>) g33 offset:0 atIndex:14];
-      [enc setBuffer:(__bridge id<MTLBuffer>) nut offset:0 atIndex:15];
-      [enc setBuffer:(__bridge id<MTLBuffer>) mult offset:0 atIndex:16];
-      [enc setBytes:&c_r length:sizeof(real) atIndex:17];
-      [enc setBytes:&eps_r length:sizeof(real) atIndex:18];
-      [enc setBytes:&n_r length:sizeof(int) atIndex:19];
-    }, (NSUInteger) n_r);
-}
-
 void metal_vreman_stability(void *a11, void *a12, void *a13,
                             void *a21, void *a22, void *a23,
                             void *a31, void *a32, void *a33,

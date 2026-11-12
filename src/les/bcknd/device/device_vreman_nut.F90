@@ -55,23 +55,6 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine hip_vreman_nut_compute
 
-     subroutine hip_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-          a21_d, a22_d, a23_d, &
-          a31_d, a32_d, a33_d, &
-          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-          nut_d, mult_d, c, eps, n) &
-          bind(c, name = 'hip_vreman_nut_compute_aniso')
-       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
-       type(c_ptr), value :: a11_d, a12_d, a13_d, &
-            a21_d, a22_d, a23_d, &
-            a31_d, a32_d, a33_d, &
-            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-            nut_d, mult_d
-       integer(c_int) :: n
-       real(c_rp) :: c, eps
-     end subroutine hip_vreman_nut_compute_aniso
-
      subroutine hip_vreman_stability(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
@@ -104,23 +87,6 @@ module device_vreman_nut
        integer(c_int) :: n
        real(c_rp) :: c, eps
      end subroutine cuda_vreman_nut_compute
-
-     subroutine cuda_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-          a21_d, a22_d, a23_d, &
-          a31_d, a32_d, a33_d, &
-          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-          nut_d, mult_d, c, eps, n) &
-          bind(c, name = 'cuda_vreman_nut_compute_aniso')
-       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
-       type(c_ptr), value :: a11_d, a12_d, a13_d, &
-            a21_d, a22_d, a23_d, &
-            a31_d, a32_d, a33_d, &
-            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-            nut_d, mult_d
-       integer(c_int) :: n
-       real(c_rp) :: c, eps
-     end subroutine cuda_vreman_nut_compute_aniso
 
      subroutine cuda_vreman_stability(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
@@ -155,23 +121,6 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine opencl_vreman_nut_compute
 
-     subroutine opencl_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-          a21_d, a22_d, a23_d, &
-          a31_d, a32_d, a33_d, &
-          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-          nut_d, mult_d, c, eps, n) &
-          bind(c, name = 'opencl_vreman_nut_compute_aniso')
-       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
-       type(c_ptr), value :: a11_d, a12_d, a13_d, &
-            a21_d, a22_d, a23_d, &
-            a31_d, a32_d, a33_d, &
-            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-            nut_d, mult_d
-       integer(c_int) :: n
-       real(c_rp) :: c, eps
-     end subroutine opencl_vreman_nut_compute_aniso
-
      subroutine opencl_vreman_stability(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
@@ -205,23 +154,6 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine metal_vreman_nut_compute
 
-     subroutine metal_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-          a21_d, a22_d, a23_d, &
-          a31_d, a32_d, a33_d, &
-          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-          nut_d, mult_d, c, eps, n) &
-          bind(c, name = 'metal_vreman_nut_compute_aniso')
-       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
-       import c_rp
-       type(c_ptr), value :: a11_d, a12_d, a13_d, &
-            a21_d, a22_d, a23_d, &
-            a31_d, a32_d, a33_d, &
-            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-            nut_d, mult_d
-       integer(c_int) :: n
-       real(c_rp) :: c, eps
-     end subroutine metal_vreman_nut_compute_aniso
-
      subroutine metal_vreman_stability(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
@@ -241,7 +173,6 @@ module device_vreman_nut
 #endif
 
   public :: device_vreman_nut_compute
-  public :: device_vreman_nut_compute_aniso
   public :: device_vreman_stability
 
 contains
@@ -281,49 +212,6 @@ contains
     call neko_error('no device backend configured (vreman_nut_compute)')
 #endif
   end subroutine device_vreman_nut_compute
-
-  !> Compute the anisotropic Vreman eddy viscosity on the device.
-  !! @param g11_d ... g33_d The filter-width tensor G (symmetric).
-  subroutine device_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-       a21_d, a22_d, a23_d, &
-       a31_d, a32_d, a33_d, &
-       g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-       nut_d, mult_d, c, eps, n)
-    type(c_ptr) :: a11_d, a12_d, a13_d, &
-         a21_d, a22_d, a23_d, &
-         a31_d, a32_d, a33_d, &
-         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-         nut_d, mult_d
-    integer :: n
-    real(kind=rp) :: c, eps
-#if HAVE_HIP
-    call hip_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-         a21_d, a22_d, a23_d, &
-         a31_d, a32_d, a33_d, &
-         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-         nut_d, mult_d, c, eps, n)
-#elif HAVE_CUDA
-    call cuda_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-         a21_d, a22_d, a23_d, &
-         a31_d, a32_d, a33_d, &
-         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-         nut_d, mult_d, c, eps, n)
-#elif HAVE_OPENCL
-    call opencl_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-         a21_d, a22_d, a23_d, &
-         a31_d, a32_d, a33_d, &
-         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-         nut_d, mult_d, c, eps, n)
-#elif HAVE_METAL
-    call metal_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
-         a21_d, a22_d, a23_d, &
-         a31_d, a32_d, a33_d, &
-         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
-         nut_d, mult_d, c, eps, n)
-#else
-    call neko_error('no device backend configured (vreman_nut_compute_aniso)')
-#endif
-  end subroutine device_vreman_nut_compute_aniso
 
   !> Apply the Richardson-number correction of Lilly (1962),
   !! Ri = N^2 / |S|^2, to the Vreman eddy viscosity on the device.
