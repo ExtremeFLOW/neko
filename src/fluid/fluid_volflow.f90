@@ -70,12 +70,14 @@ module fluid_volflow
   use time_state, only : time_state_t
   use time_scheme_controller, only : time_scheme_controller_t
   use math, only : copy, glsc2, glsc3, glmin, glmax, add2, addcol3, cmult, &
+       add3s2, &
        abscmp, NEKO_EPS
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
        device_add2, device_add2s2, device_glsc2, device_glsc3, &
-       device_addcol3, device_cmult
-  use device, only : HOST_TO_DEVICE
+       device_addcol3, device_cmult, device_sqrt_inplace, device_add3s2
+  use field_math, only : field_cadd, field_col3, &
+       field_addcol3, field_invcol1, field_invcol2, field_copy, field_glmin
   use utils, only : neko_error
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
@@ -193,44 +195,69 @@ contains
   end subroutine fluid_vol_flow_free
 
   !> Build the cyclic forcing direction \f$ g = e_\theta / r =
-  !! a \times (x - x_0) / |r_\perp|^2 \f$ and set the sector angle as the
-  !! domain length and \f$ \int r^{-1} dV / \Theta \f$ as the cross-section.
+  !! t / |t|^2 \f$ with \f$ t = a \times (x - x_0) \f$, and set the sector
+  !! angle as the domain length and \f$ \int r^{-1} dV / \Theta \f$ as the
+  !! cross-section. Since a is a unit vector, \f$ |t| = r \f$. Computed with
+  !! field operations, so it runs on the active backend.
   subroutine fluid_vol_flow_cyclic_geometry(this, c_Xh)
     class(fluid_volflow_t), intent(inout) :: this
     type(coef_t), intent(in) :: c_Xh
-    real(kind=rp) :: a(3), d(3), t(3), r2, sum_inv_r
-    integer :: i, n, ierr
+    type(field_t), pointer :: r2, inv_r
+    real(kind=rp) :: a(3), x0(3), sum_inv_r
+    integer :: i, n, temp_indices(2)
 
     n = c_Xh%dof%size()
     a = c_Xh%cyc_axis
+    x0 = c_Xh%cyc_origin
 
-    sum_inv_r = 0.0_rp
-    do i = 1, n
-       d = [c_Xh%dof%x%x(i,1,1,1), c_Xh%dof%y%x(i,1,1,1), &
-            c_Xh%dof%z%x(i,1,1,1)] - c_Xh%cyc_origin
-       t = [a(2) * d(3) - a(3) * d(2), &
-            a(3) * d(1) - a(1) * d(3), &
-            a(1) * d(2) - a(2) * d(1)]
-       ! |a x d| = |r_perp|, since a is a unit vector
-       r2 = dot_product(t, t)
-       if (r2 .le. NEKO_EPS) then
-          call neko_error("Cyclic flow rate forcing is singular on the " // &
-               "rotation axis, which must lie outside the domain.")
-       end if
-       this%g_x%x(i,1,1,1) = t(1) / r2
-       this%g_y%x(i,1,1,1) = t(2) / r2
-       this%g_z%x(i,1,1,1) = t(3) / r2
-       sum_inv_r = sum_inv_r + c_Xh%B(i,1,1,1) / sqrt(r2)
-    end do
+    call neko_scratch_registry%request_field(r2, temp_indices(1), .false.)
+    call neko_scratch_registry%request_field(inv_r, temp_indices(2), .false.)
 
-    call MPI_Allreduce(MPI_IN_PLACE, sum_inv_r, 1, MPI_REAL_PRECISION, &
-         MPI_SUM, NEKO_COMM, ierr)
+    ! t = a x (x - x0)
+    associate(x => c_Xh%dof%x, y => c_Xh%dof%y, z => c_Xh%dof%z)
+      if (NEKO_BCKND_DEVICE .eq. 1) then
+         call device_add3s2(this%g_x%x_d, z%x_d, y%x_d, a(2), -a(3), n)
+         call device_add3s2(this%g_y%x_d, x%x_d, z%x_d, a(3), -a(1), n)
+         call device_add3s2(this%g_z%x_d, y%x_d, x%x_d, a(1), -a(2), n)
+      else
+         call add3s2(this%g_x%x, z%x, y%x, a(2), -a(3), n)
+         call add3s2(this%g_y%x, x%x, z%x, a(3), -a(1), n)
+         call add3s2(this%g_z%x, y%x, x%x, a(1), -a(2), n)
+      end if
+    end associate
+    call field_cadd(this%g_x, a(3) * x0(2) - a(2) * x0(3), n)
+    call field_cadd(this%g_y, a(1) * x0(3) - a(3) * x0(1), n)
+    call field_cadd(this%g_z, a(2) * x0(1) - a(1) * x0(2), n)
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call this%g_x%copy_from(HOST_TO_DEVICE, .false.)
-       call this%g_y%copy_from(HOST_TO_DEVICE, .false.)
-       call this%g_z%copy_from(HOST_TO_DEVICE, .true.)
+    ! r^2 = |t|^2
+    call field_col3(r2, this%g_x, this%g_x, n)
+    call field_addcol3(r2, this%g_y, this%g_y, n)
+    call field_addcol3(r2, this%g_z, this%g_z, n)
+
+    if (field_glmin(r2, n) .le. NEKO_EPS) then
+       call neko_error("Cyclic flow rate forcing is singular on the " // &
+            "rotation axis, which must lie outside the domain.")
     end if
+
+    ! g = t / r^2
+    call field_invcol2(this%g_x, r2, n)
+    call field_invcol2(this%g_y, r2, n)
+    call field_invcol2(this%g_z, r2, n)
+
+    ! 1 / r
+    call field_copy(inv_r, r2, n)
+    call field_invcol1(inv_r, n)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_sqrt_inplace(inv_r%x_d, n)
+       sum_inv_r = device_glsc2(inv_r%x_d, c_Xh%B_d, n)
+    else
+       do i = 1, n
+          inv_r%x(i,1,1,1) = sqrt(inv_r%x(i,1,1,1))
+       end do
+       sum_inv_r = glsc2(inv_r%x, c_Xh%B, n)
+    end if
+
+    call neko_scratch_registry%relinquish_field(temp_indices)
 
     this%domain_length = c_Xh%cyc_angle
     this%xsec = sum_inv_r / c_Xh%cyc_angle
@@ -246,6 +273,7 @@ contains
     integer :: n
 
     n = c_Xh%dof%size()
+    rate = 0.0_rp
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        select case (this%flow_dir)
