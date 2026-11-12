@@ -91,33 +91,29 @@ kernel void vreman_nut_compute_kernel(device const float *a11 [[ buffer(0) ]],
     * sqrt(b_beta / (aijaij + eps)) * mult[i];
 }
 
-kernel void vreman_nut_compute_buoy_kernel(device const float *a11 [[ buffer(0) ]],
-                                           device const float *a12 [[ buffer(1) ]],
-                                           device const float *a13 [[ buffer(2) ]],
-                                           device const float *a21 [[ buffer(3) ]],
-                                           device const float *a22 [[ buffer(4) ]],
-                                           device const float *a23 [[ buffer(5) ]],
-                                           device const float *a31 [[ buffer(6) ]],
-                                           device const float *a32 [[ buffer(7) ]],
-                                           device const float *a33 [[ buffer(8) ]],
-                                           device const float *delta [[ buffer(9) ]],
-                                           device float *nut [[ buffer(10) ]],
-                                           device const float *mult [[ buffer(11) ]],
-                                           constant float &c [[ buffer(12) ]],
-                                           constant float &eps [[ buffer(13) ]],
-                                           constant int &n [[ buffer(14) ]],
-                                           device const float *dTdx [[ buffer(15) ]],
-                                           device const float *dTdy [[ buffer(16) ]],
-                                           device const float *dTdz [[ buffer(17) ]],
-                                           constant float &n1 [[ buffer(18) ]],
-                                           constant float &n2 [[ buffer(19) ]],
-                                           constant float &n3 [[ buffer(20) ]],
-                                           constant float &g1 [[ buffer(21) ]],
-                                           constant float &g2 [[ buffer(22) ]],
-                                           constant float &g3 [[ buffer(23) ]],
-                                           constant float &ri_c [[ buffer(24) ]],
-                                           constant float &ref_temp [[ buffer(25) ]],
-                                           uint idx [[ thread_position_in_grid ]]) {
+/* Anisotropic Vreman kernel, beta = A G A^T (Vreman 2004, eq. 32) */
+kernel void vreman_nut_compute_aniso_kernel(
+                                      device const float *a11 [[ buffer(0) ]],
+                                      device const float *a12 [[ buffer(1) ]],
+                                      device const float *a13 [[ buffer(2) ]],
+                                      device const float *a21 [[ buffer(3) ]],
+                                      device const float *a22 [[ buffer(4) ]],
+                                      device const float *a23 [[ buffer(5) ]],
+                                      device const float *a31 [[ buffer(6) ]],
+                                      device const float *a32 [[ buffer(7) ]],
+                                      device const float *a33 [[ buffer(8) ]],
+                                      device const float *g11 [[ buffer(9) ]],
+                                      device const float *g12 [[ buffer(10) ]],
+                                      device const float *g13 [[ buffer(11) ]],
+                                      device const float *g22 [[ buffer(12) ]],
+                                      device const float *g23 [[ buffer(13) ]],
+                                      device const float *g33 [[ buffer(14) ]],
+                                      device float *nut [[ buffer(15) ]],
+                                      device const float *mult [[ buffer(16) ]],
+                                      constant float &c [[ buffer(17) ]],
+                                      constant float &eps [[ buffer(18) ]],
+                                      constant int &n [[ buffer(19) ]],
+                                      uint idx [[ thread_position_in_grid ]]) {
   if (idx >= (uint) n) return;
 
   const int i = (int) idx;
@@ -131,14 +127,29 @@ kernel void vreman_nut_compute_buoy_kernel(device const float *a11 [[ buffer(0) 
   const float a31_r = a31[i];
   const float a32_r = a32[i];
   const float a33_r = a33[i];
-  const float delta_r = delta[i];
+  const float g11_r = g11[i];
+  const float g12_r = g12[i];
+  const float g13_r = g13[i];
+  const float g22_r = g22[i];
+  const float g23_r = g23[i];
+  const float g33_r = g33[i];
 
-  const float beta11 = a11_r * a11_r + a21_r * a21_r + a31_r * a31_r;
-  const float beta22 = a12_r * a12_r + a22_r * a22_r + a32_r * a32_r;
-  const float beta33 = a13_r * a13_r + a23_r * a23_r + a33_r * a33_r;
-  const float beta12 = a11_r * a12_r + a21_r * a22_r + a31_r * a32_r;
-  const float beta13 = a11_r * a13_r + a21_r * a23_r + a31_r * a33_r;
-  const float beta23 = a12_r * a13_r + a22_r * a23_r + a32_r * a33_r;
+  const float h11 = g11_r * a11_r + g12_r * a12_r + g13_r * a13_r;
+  const float h12 = g12_r * a11_r + g22_r * a12_r + g23_r * a13_r;
+  const float h13 = g13_r * a11_r + g23_r * a12_r + g33_r * a13_r;
+  const float h21 = g11_r * a21_r + g12_r * a22_r + g13_r * a23_r;
+  const float h22 = g12_r * a21_r + g22_r * a22_r + g23_r * a23_r;
+  const float h23 = g13_r * a21_r + g23_r * a22_r + g33_r * a23_r;
+  const float h31 = g11_r * a31_r + g12_r * a32_r + g13_r * a33_r;
+  const float h32 = g12_r * a31_r + g22_r * a32_r + g23_r * a33_r;
+  const float h33 = g13_r * a31_r + g23_r * a32_r + g33_r * a33_r;
+
+  const float beta11 = a11_r * h11 + a12_r * h12 + a13_r * h13;
+  const float beta22 = a21_r * h21 + a22_r * h22 + a23_r * h23;
+  const float beta33 = a31_r * h31 + a32_r * h32 + a33_r * h33;
+  const float beta12 = a11_r * h21 + a12_r * h22 + a13_r * h23;
+  const float beta13 = a11_r * h31 + a12_r * h32 + a13_r * h33;
+  const float beta23 = a21_r * h31 + a22_r * h32 + a23_r * h33;
 
   float b_beta = beta11 * beta22 - beta12 * beta12
     + beta11 * beta33 - beta13 * beta13
@@ -146,38 +157,57 @@ kernel void vreman_nut_compute_buoy_kernel(device const float *a11 [[ buffer(0) 
 
   b_beta = max(0.0f, b_beta);
 
-  const float aijaij = beta11 + beta22 + beta33;
+  const float aijaij = a11_r * a11_r + a12_r * a12_r + a13_r * a13_r
+    + a21_r * a21_r + a22_r * a22_r + a23_r * a23_r
+    + a31_r * a31_r + a32_r * a32_r + a33_r * a33_r;
 
-  const float nut0 = c * delta_r * delta_r
-    * sqrt(b_beta / (aijaij + eps)) * mult[i];
+  nut[i] = c * sqrt(b_beta / (aijaij + eps)) * mult[i];
+}
 
-  /* Scalar gradient for buoyancy */
-  const float buoyancy = (g1 * dTdx[i] + g2 * dTdy[i] + g3 * dTdz[i])
-    / ref_temp;
+/*
+ * Richardson-number correction of Lilly (1962), Ri = N^2 / |S|^2, for the
+ * Vreman model. Gradients are gather-scatter sums, scaled by mult.
+ * gdT is the interface-averaged g . grad(T), g pointing upwards
+ * (reversed from the case-file input at init).
+ */
+kernel void vreman_stability_kernel(
+                                      device const float *a11 [[ buffer(0) ]],
+                                      device const float *a12 [[ buffer(1) ]],
+                                      device const float *a13 [[ buffer(2) ]],
+                                      device const float *a21 [[ buffer(3) ]],
+                                      device const float *a22 [[ buffer(4) ]],
+                                      device const float *a23 [[ buffer(5) ]],
+                                      device const float *a31 [[ buffer(6) ]],
+                                      device const float *a32 [[ buffer(7) ]],
+                                      device const float *a33 [[ buffer(8) ]],
+                                      device const float *gdT [[ buffer(9) ]],
+                                      device float *nut [[ buffer(10) ]],
+                                      device const float *mult [[ buffer(11) ]],
+                                      constant float &ri_c [[ buffer(12) ]],
+                                      constant float &ref_temp [[ buffer(13) ]],
+                                      constant float &eps [[ buffer(14) ]],
+                                      constant int &n [[ buffer(15) ]],
+                                      uint idx [[ thread_position_in_grid ]]) {
+  if (idx >= (uint) n) return;
 
-  /* Directional derivative along n */
-  const float du_n1 = a11_r * n1 + a12_r * n2 + a13_r * n3;
-  const float du_n2 = a21_r * n1 + a22_r * n2 + a23_r * n3;
-  const float du_n3 = a31_r * n1 + a32_r * n2 + a33_r * n3;
+  const int i = (int) idx;
+  const float m = mult[i];
+  const float N2 = gdT[i] / ref_temp;
 
-  const float du_parallel = du_n1 * n1 + du_n2 * n2 + du_n3 * n3;
+  // |S|^2 = 2 S_ij S_ij of the averaged gradient (sums, hence m*m)
+  const float s12 = a12[i] + a21[i];
+  const float s13 = a13[i] + a31[i];
+  const float s23 = a23[i] + a32[i];
+  const float s_sq = (2.0f * (a11[i] * a11[i] + a22[i] * a22[i]
+                              + a33[i] * a33[i])
+                      + s12 * s12 + s13 * s13 + s23 * s23) * m * m;
 
-  const float sh1 = du_n1 - du_parallel * n1;
-  const float sh2 = du_n2 - du_parallel * n2;
-  const float sh3 = du_n3 - du_parallel * n3;
-
-  const float shear_sq = sh1 * sh1 + sh2 * sh2 + sh3 * sh3;
-
-  const float ri = buoyancy / (shear_sq + eps);
-
-  float out;
+  const float ri = N2 / (s_sq + eps);
   if (ri <= ri_c) {
     float v = 1.0f - ri / ri_c;
     if (v < 0.0f) v = 0.0f;
-    out = nut0 * sqrt(v);
+    nut[i] = nut[i] * sqrt(v);
   } else {
-    out = eps;
+    nut[i] = eps;
   }
-
-  nut[i] = out;
 }

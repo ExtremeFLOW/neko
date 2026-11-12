@@ -59,37 +59,50 @@ extern "C" {
 
 
 extern "C" {
-  void hip_vreman_nut_compute_buoy(void *a11, void *a12, void *a13,
-                                   void *a21, void *a22, void *a23,
-                                   void *a31, void *a32, void *a33,
-                                   void *delta, void *nut, void *mult,
-                                   real *c, real *eps, int *n,
-                                   void *dTdx, void *dTdy, void *dTdz,
-                                   real *g, real *ri_c, real *ref_temp)
+  void hip_vreman_nut_compute_aniso(void *a11, void *a12, void *a13,
+                                    void *a21, void *a22, void *a23,
+                                    void *a31, void *a32, void *a33,
+                                    void *g11, void *g12, void *g13,
+                                    void *g22, void *g23, void *g33,
+                                    void *nut, void *mult,
+                                    real *c, real *eps, int *n)
   {
     const dim3 nthrds(1024, 1, 1);
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
 
-    // Normalize g on host (as CPU and CUDA do)
-    real g1 = g[0], g2 = g[1], g3 = g[2];
-    real gmag = sqrt(g1*g1 + g2*g2 + g3*g3);
-
-    real n1 = g1 / gmag;
-    real n2 = g2 / gmag;
-    real n3 = g3 / gmag;
-
     hipLaunchKernelGGL(
-        HIP_KERNEL_NAME(vreman_nut_compute_buoy<real>),
+        HIP_KERNEL_NAME(vreman_nut_compute_aniso<real>),
         nblcks, nthrds, 0, (hipStream_t)glb_cmd_queue,
         (real*)a11, (real*)a12, (real*)a13,
         (real*)a21, (real*)a22, (real*)a23,
         (real*)a31, (real*)a32, (real*)a33,
-        (real*)delta, (real*)nut, (real*)mult,
-        *c, *eps, *n,
-        (real*)dTdx, (real*)dTdy, (real*)dTdz,
-        n1, n2, n3,      // normalized gravity direction
-        g1, g2, g3,      // original gravity vector
-        *ri_c, *ref_temp
+        (real*)g11, (real*)g12, (real*)g13,
+        (real*)g22, (real*)g23, (real*)g33,
+        (real*)nut, (real*)mult,
+        *c, *eps, *n
+    );
+
+    HIP_CHECK(hipGetLastError());
+  }
+
+  void hip_vreman_stability(void *a11, void *a12, void *a13,
+                            void *a21, void *a22, void *a23,
+                            void *a31, void *a32, void *a33,
+                            void *gdT, void *nut, void *mult,
+                            real *ri_c, real *ref_temp, real *eps, int *n)
+  {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+
+    hipLaunchKernelGGL(
+        HIP_KERNEL_NAME(vreman_stability<real>),
+        nblcks, nthrds, 0, (hipStream_t)glb_cmd_queue,
+        (real*)a11, (real*)a12, (real*)a13,
+        (real*)a21, (real*)a22, (real*)a23,
+        (real*)a31, (real*)a32, (real*)a33,
+        (real*)gdT,
+        (real*)nut, (real*)mult,
+        *ri_c, *ref_temp, *eps, *n
     );
 
     HIP_CHECK(hipGetLastError());

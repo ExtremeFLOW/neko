@@ -55,7 +55,7 @@ module scalar_scheme
   use json_module, only : json_file
   use user_intf, only : user_t, dummy_user_material_properties, &
        user_material_properties_intf
-  use utils, only : neko_error, NEKO_TYPENAME_LEN
+  use utils, only : neko_error, neko_warning, NEKO_TYPENAME_LEN
   use scalar_source_term, only : scalar_source_term_t
   use field_series, only : field_series_t
   use field_math, only : field_cmult2, field_col3, field_cfill, field_add3, &
@@ -446,6 +446,11 @@ contains
           call json_get(json_subdict, 'nut_field', this%nut_field_name)
        else
           call json_get(json_subdict, 'alphat_field', this%alphat_field_name)
+          if (len_trim(this%alphat_field_name) .eq. 0) then
+             call neko_warning("alphat.nut_dependency is false but " // &
+                  "alphat.alphat_field is empty: no SGS eddy diffusivity " // &
+                  "will be added to the scalar equation")
+          end if
        end if
     end if
 
@@ -680,6 +685,12 @@ contains
 
     else if (len_trim(this%alphat_field_name) .gt. 0 &
          .and. len_trim(this%nut_field_name) .eq. 0 ) then
+       if (.not. neko_registry%field_exists(this%alphat_field_name)) then
+          call neko_error("alphat.nut_dependency is false, but the field '" &
+               // trim(this%alphat_field_name) // "' is not in the " // &
+               "registry. It must be registered and updated by an LES " // &
+               "model (e.g. deardorff) or by user code.")
+       end if
        alphat => neko_registry%get_field(this%alphat_field_name)
 
        ! lambda_tot = lambda + rho * cp * alphat

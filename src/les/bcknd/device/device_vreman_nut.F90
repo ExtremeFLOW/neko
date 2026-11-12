@@ -34,8 +34,6 @@ module device_vreman_nut
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use num_types, only : rp, c_rp
   use utils, only : neko_error
-  use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_SUM, MPI_IN_PLACE, MPI_Allreduce
 
   implicit none
   private
@@ -57,26 +55,38 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine hip_vreman_nut_compute
 
-
-     subroutine hip_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+     subroutine hip_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
-          delta_d, nut_d, mult_d, c, eps, n, &
-          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
-          bind(c, name = 'hip_vreman_nut_compute_buoy')
+          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+          nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'hip_vreman_nut_compute_aniso')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
-            delta_d, nut_d, mult_d
+            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+            nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
-       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
-       real(c_rp) :: g(3)
-       real(c_rp) :: ri_c, ref_temp
-     end subroutine hip_vreman_nut_compute_buoy
+     end subroutine hip_vreman_nut_compute_aniso
 
+     subroutine hip_vreman_stability(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          gdT_d, nut_d, mult_d, &
+          ri_c, ref_temp, eps, n) &
+          bind(c, name = 'hip_vreman_stability')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            gdT_d, nut_d, mult_d
+       real(c_rp) :: ri_c, ref_temp, eps
+       integer(c_int) :: n
+     end subroutine hip_vreman_stability
   end interface
 #elif HAVE_CUDA
   interface
@@ -95,26 +105,38 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine cuda_vreman_nut_compute
 
-
-     subroutine cuda_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+     subroutine cuda_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
-          delta_d, nut_d, mult_d, c, eps, n, &
-          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
-          bind(c, name = 'cuda_vreman_nut_compute_buoy')
+          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+          nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'cuda_vreman_nut_compute_aniso')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
-            delta_d, nut_d, mult_d
+            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+            nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
-       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
-       real(c_rp) :: g(3)
-       real(c_rp) :: ri_c, ref_temp
-     end subroutine cuda_vreman_nut_compute_buoy
+     end subroutine cuda_vreman_nut_compute_aniso
 
+     subroutine cuda_vreman_stability(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          gdT_d, nut_d, mult_d, &
+          ri_c, ref_temp, eps, n) &
+          bind(c, name = 'cuda_vreman_stability')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            gdT_d, nut_d, mult_d
+       real(c_rp) :: ri_c, ref_temp, eps
+       integer(c_int) :: n
+     end subroutine cuda_vreman_stability
   end interface
 #elif HAVE_OPENCL
   interface
@@ -133,26 +155,38 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine opencl_vreman_nut_compute
 
-
-     subroutine opencl_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+     subroutine opencl_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
-          delta_d, nut_d, mult_d, c, eps, n, &
-          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
-          bind(c, name = 'opencl_vreman_nut_compute_buoy')
+          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+          nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'opencl_vreman_nut_compute_aniso')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
-            delta_d, nut_d, mult_d
+            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+            nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
-       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
-       real(c_rp) :: g(3)
-       real(c_rp) :: ri_c, ref_temp
-     end subroutine opencl_vreman_nut_compute_buoy
+     end subroutine opencl_vreman_nut_compute_aniso
 
+     subroutine opencl_vreman_stability(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          gdT_d, nut_d, mult_d, &
+          ri_c, ref_temp, eps, n) &
+          bind(c, name = 'opencl_vreman_stability')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            gdT_d, nut_d, mult_d
+       real(c_rp) :: ri_c, ref_temp, eps
+       integer(c_int) :: n
+     end subroutine opencl_vreman_stability
   end interface
 #elif HAVE_METAL
   interface
@@ -171,35 +205,48 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine metal_vreman_nut_compute
 
-
-     subroutine metal_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+     subroutine metal_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
-          delta_d, nut_d, mult_d, c, eps, n, &
-          dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp) &
-          bind(c, name = 'metal_vreman_nut_compute_buoy')
+          g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+          nut_d, mult_d, c, eps, n) &
+          bind(c, name = 'metal_vreman_nut_compute_aniso')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
             a21_d, a22_d, a23_d, &
             a31_d, a32_d, a33_d, &
-            delta_d, nut_d, mult_d
+            g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+            nut_d, mult_d
        integer(c_int) :: n
        real(c_rp) :: c, eps
-       type(c_ptr), value :: dTdx_d, dTdy_d, dTdz_d
-       real(c_rp) :: g(3)
-       real(c_rp) :: ri_c, ref_temp
-     end subroutine metal_vreman_nut_compute_buoy
+     end subroutine metal_vreman_nut_compute_aniso
 
+     subroutine metal_vreman_stability(a11_d, a12_d, a13_d, &
+          a21_d, a22_d, a23_d, &
+          a31_d, a32_d, a33_d, &
+          gdT_d, nut_d, mult_d, &
+          ri_c, ref_temp, eps, n) &
+          bind(c, name = 'metal_vreman_stability')
+       use, intrinsic :: iso_c_binding, only : c_ptr, c_int
+       import c_rp
+       type(c_ptr), value :: a11_d, a12_d, a13_d, &
+            a21_d, a22_d, a23_d, &
+            a31_d, a32_d, a33_d, &
+            gdT_d, nut_d, mult_d
+       real(c_rp) :: ri_c, ref_temp, eps
+       integer(c_int) :: n
+     end subroutine metal_vreman_stability
   end interface
 #endif
 
   public :: device_vreman_nut_compute
-  public :: device_vreman_nut_compute_buoy
+  public :: device_vreman_nut_compute_aniso
+  public :: device_vreman_stability
 
 contains
 
-  !> Compute the eddy viscosity field for the Sigma model indevice
+  !> Compute the isotropic Vreman eddy viscosity on the device.
   subroutine device_vreman_nut_compute(a11_d, a12_d, a13_d, &
        a21_d, a22_d, a23_d, &
        a31_d, a32_d, a33_d, &
@@ -231,52 +278,94 @@ contains
          a31_d, a32_d, a33_d, &
          delta_d, nut_d, mult_d, c, eps, n)
 #else
-    call neko_error('no device backend configured')
+    call neko_error('no device backend configured (vreman_nut_compute)')
 #endif
   end subroutine device_vreman_nut_compute
 
-
-  subroutine device_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+  !> Compute the anisotropic Vreman eddy viscosity on the device.
+  !! @param g11_d ... g33_d The filter-width tensor G (symmetric).
+  subroutine device_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
        a21_d, a22_d, a23_d, &
        a31_d, a32_d, a33_d, &
-       delta_d, nut_d, mult_d, c, eps, n, &
-       dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+       g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+       nut_d, mult_d, c, eps, n)
     type(c_ptr) :: a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
-         delta_d, nut_d, mult_d
-    type(c_ptr) :: dTdx_d, dTdy_d, dTdz_d
+         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+         nut_d, mult_d
     integer :: n
     real(kind=rp) :: c, eps
-    real(kind=rp) :: g(3), ri_c, ref_temp
 #if HAVE_HIP
-    call hip_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+    call hip_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
-         delta_d, nut_d, mult_d, c, eps, n, &
-         dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+         nut_d, mult_d, c, eps, n)
 #elif HAVE_CUDA
-    call cuda_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+    call cuda_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
-         delta_d, nut_d, mult_d, c, eps, n, &
-         dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+         nut_d, mult_d, c, eps, n)
 #elif HAVE_OPENCL
-    call opencl_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+    call opencl_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
-         delta_d, nut_d, mult_d, c, eps, n, &
-         dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+         nut_d, mult_d, c, eps, n)
 #elif HAVE_METAL
-    call metal_vreman_nut_compute_buoy(a11_d, a12_d, a13_d, &
+    call metal_vreman_nut_compute_aniso(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
-         delta_d, nut_d, mult_d, c, eps, n, &
-         dTdx_d, dTdy_d, dTdz_d, g, ri_c, ref_temp)
+         g11_d, g12_d, g13_d, g22_d, g23_d, g33_d, &
+         nut_d, mult_d, c, eps, n)
 #else
-    call neko_error('no device backend configured (vreman buoyancy)')
+    call neko_error('no device backend configured (vreman_nut_compute_aniso)')
 #endif
-  end subroutine device_vreman_nut_compute_buoy
+  end subroutine device_vreman_nut_compute_aniso
 
+  !> Apply the Richardson-number correction of Lilly (1962),
+  !! Ri = N^2 / |S|^2, to the Vreman eddy viscosity on the device.
+  !! @param gdT_d The interface-averaged g . grad(T).
+  subroutine device_vreman_stability(a11_d, a12_d, a13_d, &
+       a21_d, a22_d, a23_d, &
+       a31_d, a32_d, a33_d, &
+       gdT_d, nut_d, mult_d, &
+       ri_c, ref_temp, eps, n)
+    type(c_ptr) :: a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         gdT_d, nut_d, mult_d
+    real(kind=rp) :: ri_c, ref_temp, eps
+    integer :: n
+#if HAVE_HIP
+    call hip_vreman_stability(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         gdT_d, nut_d, mult_d, &
+         ri_c, ref_temp, eps, n)
+#elif HAVE_CUDA
+    call cuda_vreman_stability(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         gdT_d, nut_d, mult_d, &
+         ri_c, ref_temp, eps, n)
+#elif HAVE_OPENCL
+    call opencl_vreman_stability(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         gdT_d, nut_d, mult_d, &
+         ri_c, ref_temp, eps, n)
+#elif HAVE_METAL
+    call metal_vreman_stability(a11_d, a12_d, a13_d, &
+         a21_d, a22_d, a23_d, &
+         a31_d, a32_d, a33_d, &
+         gdT_d, nut_d, mult_d, &
+         ri_c, ref_temp, eps, n)
+#else
+    call neko_error('no device backend configured (vreman_stability)')
+#endif
+  end subroutine device_vreman_stability
 
 end module device_vreman_nut
