@@ -174,8 +174,8 @@ __kernel void vreman_nut_compute_aniso_kernel(__global const real * __restrict__
 }
 
 /*
- * Richardson-number correction for the Vreman model (Lilly 1962; Moeng &
- * Sullivan 2015) applied to an already computed nut field. The gradients
+ * Richardson-number correction of Lilly (1962), Ri = N^2 / |S|^2, for the
+ * Vreman model, applied to an already computed nut field. The gradients
  * are gather-scatter sums and are scaled by mult before use.
  * gdT is the interface-averaged g . grad(T), g pointing upwards
  * (reversed from the case-file input at init).
@@ -192,9 +192,6 @@ __kernel void vreman_stability_kernel(__global const real * __restrict__ a11,
                                       __global const real * __restrict__ gdT,
                                       __global real * nut,
                                       __global const real * __restrict__ mult,
-                                      const real n1,
-                                      const real n2,
-                                      const real n3,
                                       const real ri_c,
                                       const real ref_temp,
                                       const real eps,
@@ -210,16 +207,15 @@ __kernel void vreman_stability_kernel(__global const real * __restrict__ a11,
     const real m = mult[i];
     const real N2 = gdT[i] / ref_temp;
 
-    const real du_n1 = (a11[i] * n1 + a12[i] * n2 + a13[i] * n3) * m;
-    const real du_n2 = (a21[i] * n1 + a22[i] * n2 + a23[i] * n3) * m;
-    const real du_n3 = (a31[i] * n1 + a32[i] * n2 + a33[i] * n3) * m;
-    const real du_par = du_n1 * n1 + du_n2 * n2 + du_n3 * n3;
-    const real sh1 = du_n1 - du_par * n1;
-    const real sh2 = du_n2 - du_par * n2;
-    const real sh3 = du_n3 - du_par * n3;
-    const real shear_sq = sh1 * sh1 + sh2 * sh2 + sh3 * sh3;
+    /* |S|^2 = 2 S_ij S_ij of the averaged gradient (sums, hence m*m) */
+    const real s12 = a12[i] + a21[i];
+    const real s13 = a13[i] + a31[i];
+    const real s23 = a23[i] + a32[i];
+    const real s_sq = ((real) 2.0 * (a11[i] * a11[i] + a22[i] * a22[i]
+                                     + a33[i] * a33[i])
+                       + s12 * s12 + s13 * s13 + s23 * s23) * m * m;
 
-    const real ri = N2 / (shear_sq + eps);
+    const real ri = N2 / (s_sq + eps);
     if (ri <= ri_c) {
       real v = one - ri / ri_c;
       if (v < zero) v = zero;
