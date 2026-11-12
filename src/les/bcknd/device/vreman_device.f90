@@ -43,7 +43,7 @@ module vreman_device
   use device, only : glb_cmd_event
   use device_math, only : device_col2, device_cmult2, device_add2s2
   use device_vreman_nut, only : device_vreman_nut_compute, &
-       device_vreman_stability
+       device_vreman_nut_compute_aniso, device_vreman_stability
 
   implicit none
   private
@@ -66,10 +66,13 @@ contains
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
   !! @param g The gravity vector, pointing upwards (reversed at init).
+  !! @param if_aniso Whether to use the anisotropic filter-width tensor.
+  !! @param g11, g12, g13, g22, g23, g33 The filter-width tensor.
   subroutine vreman_compute_device(if_ext, t, tstep, coef, nut, delta, c, &
-       if_corr, scalar_name, ri_c, ref_temp, g)
+       if_corr, scalar_name, ri_c, ref_temp, g, &
+       if_aniso, g11, g12, g13, g22, g23, g33)
 
-    logical, intent(in) :: if_ext, if_corr
+    logical, intent(in) :: if_ext, if_corr, if_aniso
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -79,6 +82,7 @@ contains
     character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(in) :: ri_c, ref_temp
     real(kind=rp), intent(in) :: g(3)
+    type(field_t), intent(in) :: g11, g12, g13, g22, g23, g33
 
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
@@ -130,11 +134,19 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
-    call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
-         a21%x_d, a22%x_d, a23%x_d, &
-         a31%x_d, a32%x_d, a33%x_d, &
-         delta%x_d, nut%x_d, coef%mult_d, &
-         c, NEKO_EPS, a11%dof%size())
+    if (if_aniso) then
+       call device_vreman_nut_compute_aniso(a11%x_d, a12%x_d, a13%x_d, &
+            a21%x_d, a22%x_d, a23%x_d, &
+            a31%x_d, a32%x_d, a33%x_d, &
+            g11%x_d, g12%x_d, g13%x_d, g22%x_d, g23%x_d, g33%x_d, &
+            nut%x_d, coef%mult_d, c, NEKO_EPS, a11%dof%size())
+    else
+       call device_vreman_nut_compute(a11%x_d, a12%x_d, a13%x_d, &
+            a21%x_d, a22%x_d, a23%x_d, &
+            a31%x_d, a32%x_d, a33%x_d, &
+            delta%x_d, nut%x_d, coef%mult_d, &
+            c, NEKO_EPS, a11%dof%size())
+    end if
 
     if (if_corr) then
        temperature => neko_registry%get_field_by_name(scalar_name)

@@ -92,6 +92,58 @@ void opencl_vreman_nut_compute(void *a11, void *a12, void *a13,
   CL_CHECK(clReleaseKernel(kernel));
 }
 
+/** Fortran wrapper for the OpenCL anisotropic Vreman kernel */
+void opencl_vreman_nut_compute_aniso(void *a11, void *a12, void *a13,
+                                     void *a21, void *a22, void *a23,
+                                     void *a31, void *a32, void *a33,
+                                     void *g11, void *g12, void *g13,
+                                     void *g22, void *g23, void *g33,
+                                     void *nut, void *mult,
+                                     real *c, real *eps, int *n) {
+  cl_int err;
+
+  if (vreman_nut_program == NULL) {
+    opencl_kernel_jit(vreman_nut_kernel, (cl_program *) &vreman_nut_program);
+  }
+
+  cl_kernel kernel = clCreateKernel(vreman_nut_program,
+                                    "vreman_nut_compute_aniso_kernel", &err);
+  CL_CHECK(err);
+
+  CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a11));
+  CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &a12));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &a13));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &a21));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &a22));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &a23));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &a31));
+  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &a32));
+  CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &a33));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *) &g11));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *) &g12));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *) &g13));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(cl_mem), (void *) &g22));
+  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *) &g23));
+  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(cl_mem), (void *) &g33));
+  CL_CHECK(clSetKernelArg(kernel, 15, sizeof(cl_mem), (void *) &nut));
+  CL_CHECK(clSetKernelArg(kernel, 16, sizeof(cl_mem), (void *) &mult));
+  CL_CHECK(clSetKernelArg(kernel, 17, sizeof(real), c));
+  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(real), eps));
+  CL_CHECK(clSetKernelArg(kernel, 19, sizeof(int), n));
+
+  if (*n > 0) {
+    const int nb = ((*n) + 256 - 1) / 256;
+    const size_t global_item_size = 256 * nb;
+    const size_t local_item_size = 256;
+
+    CL_CHECK(clEnqueueNDRangeKernel((cl_command_queue) glb_cmd_queue, kernel,
+                                    1, NULL, &global_item_size,
+                                    &local_item_size, 0, NULL, NULL));
+  }
+
+  CL_CHECK(clReleaseKernel(kernel));
+}
+
 /**
  * Fortran wrapper for the OpenCL Vreman stability kernel
  * @note @a gdT is the interface-averaged g . grad(T), g pointing upwards.

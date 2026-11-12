@@ -67,6 +67,30 @@ extern "C"
     CUDA_CHECK(cudaGetLastError());
   }
 
+  void cuda_vreman_nut_compute_aniso(void *a11, void *a12, void *a13,
+                                     void *a21, void *a22, void *a23,
+                                     void *a31, void *a32, void *a33,
+                                     void *g11, void *g12, void *g13,
+                                     void *g22, void *g23, void *g33,
+                                     void *nut, void *mult,
+                                     real *c, real *eps, int *n)
+  {
+
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+    const cudaStream_t stream = (cudaStream_t)glb_cmd_queue;
+
+    vreman_nut_compute_aniso<real>
+        <<<nblcks, nthrds, 0, stream>>>((real *)a11, (real *)a12, (real *)a13,
+                                        (real *)a21, (real *)a22, (real *)a23,
+                                        (real *)a31, (real *)a32, (real *)a33,
+                                        (real *)g11, (real *)g12, (real *)g13,
+                                        (real *)g22, (real *)g23, (real *)g33,
+                                        (real *)nut, (real *)mult,
+                                        *c, *eps, *n);
+    CUDA_CHECK(cudaGetLastError());
+  }
+
   void cuda_vreman_stability(void *a11, void *a12, void *a13,
                              void *a21, void *a22, void *a23,
                              void *a31, void *a32, void *a33,
