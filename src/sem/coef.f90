@@ -54,9 +54,9 @@ module coefs
        HOST_TO_DEVICE, device_unmap
   use utils, only : index_is_on_facet, linear_index, &
        neko_error
-  use comm, only : NEKO_COMM
+  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
-  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -230,6 +230,9 @@ module coefs
      real(kind=rp), allocatable :: nz(:,:,:,:) !< z-direction of facet normal
      logical :: cyclic = .false.
      integer, allocatable :: cyc_msk(:)
+     !> Unit outward normals of the two planar cyclic boundaries, one per
+     !! column, identical on all ranks
+     real(kind=rp) :: cyc_normal(3,2) = 0.0_rp
      real(kind=rp), allocatable :: R11(:) !< entry of 2D rotation matrix at index (1,1)
      real(kind=rp), allocatable :: R12(:) !< entry of 2D rotation matrix at index (1,2)
 
@@ -2135,6 +2138,9 @@ contains
             "Switch cyclic off in the case file.")
     end if
 
+    ! Collective, every rank must call it before an early return
+    call coef_find_cyclic_normals(this)
+
     if (np .eq. 0) return
 
     lx = this%Xh%lx
@@ -2185,6 +2191,104 @@ contains
     end if
 
   end subroutine coef_generate_cyclic_bc
+
+  !> Find the normals of the two planar cyclic boundaries.
+  !! Every GLL point on a periodic facet is checked against the normals found
+  !! so far, which also verifies that each cyclic boundary is a plane. The
+  !! local normals are then gathered and merged in rank order, so that
+  !! @a cyc_normal is identical on all ranks.
+  !! @note Collective over NEKO_COMM.
+  subroutine coef_find_cyclic_normals(this)
+    class(coef_t), intent(inout) :: this
+    !> Max distance between two unit normals regarded as the same direction
+    real(kind=rp), parameter :: tol = 1.0e-4_rp
+    real(kind=rp) :: un(3), len, nrm(3,2)
+    real(kind=rp) :: buf(7)
+    real(kind=rp), allocatable :: buf_glb(:,:)
+    integer :: i, j, k, n, r, m, pf, pe, lx, ly, lz, cnt, ierr
+    character(len=LOG_SIZE) :: log_buf
+
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
+
+    ! Distinct normals on this rank
+    cnt = 0
+    nrm = 0.0_rp
+    do n = 1, this%msh%periodic%size
+       pf = this%msh%periodic%facet_el(n)%x(1)
+       pe = this%msh%periodic%facet_el(n)%x(2)
+       do k = 1, lz
+          do j = 1, ly
+             do i = 1, lx
+                if (.not. index_is_on_facet(i, j, k, lx, ly, lz, pf)) cycle
+                un = this%get_normal(i, j, k, pe, pf)
+                len = norm2(un)
+                if (len .le. NEKO_EPS) then
+                   call neko_error("Zero surface normal on a cyclic " // &
+                        "boundary.")
+                end if
+                call add_normal(nrm, cnt, un / len)
+             end do
+          end do
+       end do
+    end do
+
+    ! Merge the normals of all ranks, in rank order
+    buf(1:3) = nrm(:,1)
+    buf(4:6) = nrm(:,2)
+    buf(7) = real(cnt, rp)
+    allocate(buf_glb(7, pe_size))
+    call MPI_Allgather(buf, 7, MPI_REAL_PRECISION, buf_glb, 7, &
+         MPI_REAL_PRECISION, NEKO_COMM, ierr)
+
+    cnt = 0
+    nrm = 0.0_rp
+    do r = 1, pe_size
+       do m = 1, nint(buf_glb(7, r))
+          call add_normal(nrm, cnt, buf_glb(3*m-2:3*m, r))
+       end do
+    end do
+    deallocate(buf_glb)
+
+    if (cnt .ne. 2) then
+       call neko_error("Cyclic boundaries must consist of exactly two " // &
+            "planes.")
+    end if
+
+    this%cyc_normal = nrm
+
+    do m = 1, 2
+       write(log_buf, '(A,I1,A,3ES13.5)') 'Cyclic normal ', m, ' : ', &
+            this%cyc_normal(:,m)
+       call neko_log%message(log_buf)
+    end do
+
+write(*,*) "Cyclic normal: ", this%cyc_normal
+
+
+  contains
+
+    !> Add @a v to the list of distinct normals @a nrm, unless already there
+    subroutine add_normal(nrm, cnt, v)
+      real(kind=rp), intent(inout) :: nrm(3,2)
+      integer, intent(inout) :: cnt
+      real(kind=rp), intent(in) :: v(3)
+      integer :: l
+
+      do l = 1, cnt
+         if (norm2(v - nrm(:,l)) .lt. tol) return
+      end do
+
+      if (cnt .eq. 2) then
+         call neko_error("More than two distinct surface normals on the " // &
+              "cyclic boundaries. Each cyclic boundary must be planar.")
+      end if
+
+      cnt = cnt + 1
+      nrm(:,cnt) = v
+    end subroutine add_normal
+  end subroutine coef_find_cyclic_normals
 
 
   !> Recompute and update geometric factors (ALE)
