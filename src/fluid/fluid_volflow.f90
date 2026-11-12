@@ -69,10 +69,14 @@ module fluid_volflow
   use coefs, only : coef_t
   use time_state, only : time_state_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : copy, glsc2, glmin, glmax, add2, abscmp
+  use math, only : copy, glsc2, glsc3, glmin, glmax, add2, addcol3, cmult, &
+       abscmp, NEKO_EPS
   use neko_config, only : NEKO_BCKND_DEVICE
   use device_math, only : device_cfill, device_rzero, device_copy, &
-       device_add2, device_add2s2, device_glsc2
+       device_add2, device_add2s2, device_glsc2, device_glsc3, &
+       device_addcol3, device_cmult
+  use device, only : HOST_TO_DEVICE
+  use utils, only : neko_error
   use device_mathops, only : device_opchsign
   use gather_scatter, only : gs_t, GS_OP_ADD
   use json_module, only : json_file
@@ -87,7 +91,18 @@ module fluid_volflow
   implicit none
   private
 
+  !> Flow direction value selecting the azimuthal flow about the cyclic axis
+  integer, public, parameter :: VOLFLOW_DIR_CYCLIC = 4
+
   !> Defines volume flow
+  !! @details For flow_dir = 1, 2, 3 the flow is driven along x, y or z by a
+  !! uniform force, and the flow rate is \f$ \int u_i dV / L_i \f$ with
+  !! \f$ L_i \f$ the extent of the domain. For flow_dir = VOLFLOW_DIR_CYCLIC
+  !! the domain is a sector of angle \f$ \Theta \f$ about the cyclic axis,
+  !! e.g. a bent pipe. The force is \f$ g = e_\theta / r \f$, which is
+  !! the gradient of the angle and therefore equivalent to a uniform
+  !! pressure drop per radian, and the flow rate through a cross-section is
+  !! \f$ \int u \cdot g dV / \Theta \f$.
   type, public :: fluid_volflow_t
      integer :: flow_dir !< these two should be moved to params
      logical :: avflow
@@ -96,7 +111,14 @@ module fluid_volflow
      real(kind=rp) :: dtlag = 0d0
      real(kind=rp) :: bdlag = 0d0 !< Pointless since we do not vary the timestep
      type(field_t) :: u_vol, v_vol, w_vol, p_vol
-     real(kind=rp) :: domain_length, base_flow
+     !> Forcing direction \f$ e_\theta / r \f$ for the cyclic case
+     type(field_t) :: g_x, g_y, g_z
+     !> Extent of the domain in the flow direction, the sector angle for the
+     !! cyclic case
+     real(kind=rp) :: domain_length
+     !> Cross-section area, used with avflow
+     real(kind=rp) :: xsec
+     real(kind=rp) :: base_flow
    contains
      procedure, pass(this) :: init => fluid_vol_flow_init
      procedure, pass(this) :: free => fluid_vol_flow_free
@@ -110,7 +132,7 @@ contains
     class(fluid_volflow_t), intent(inout) :: this
     type(dofmap_t), target, intent(in) :: dm_Xh
     type(json_file), intent(inout) :: params
-    logical average, log_output
+    logical average, log_output, cyclic
     integer :: direction
     real(kind=rp) :: rate
 
@@ -130,6 +152,21 @@ contains
     this%log = log_output
     this%flow_rate = rate
 
+    if (this%flow_dir .lt. 0 .or. this%flow_dir .gt. VOLFLOW_DIR_CYCLIC) then
+       call neko_error("flow_rate_force.direction must be 0, 1, 2, 3 or 4")
+    end if
+
+    if (this%flow_dir .eq. VOLFLOW_DIR_CYCLIC) then
+       call json_get_or_default(params, 'case.fluid.cyclic', cyclic, .false.)
+       if (.not. cyclic) then
+          call neko_error("flow_rate_force.direction = 4 (cyclic) " // &
+               "requires case.fluid.cyclic = true")
+       end if
+       call this%g_x%init(dm_Xh, 'volflow_g_x')
+       call this%g_y%init(dm_Xh, 'volflow_g_y')
+       call this%g_z%init(dm_Xh, 'volflow_g_z')
+    end if
+
     if (this%flow_dir .ne. 0) then
        call this%u_vol%init(dm_Xh, 'u_vol')
        call this%v_vol%init(dm_Xh, 'v_vol')
@@ -146,8 +183,98 @@ contains
     call this%v_vol%free()
     call this%w_vol%free()
     call this%p_vol%free()
+    call this%g_x%free()
+    call this%g_y%free()
+    call this%g_z%free()
 
   end subroutine fluid_vol_flow_free
+
+  !> Build the cyclic forcing direction \f$ g = e_\theta / r =
+  !! a \times (x - x_0) / |r_\perp|^2 \f$ and set the sector angle as the
+  !! domain length and \f$ \int r^{-1} dV / \Theta \f$ as the cross-section.
+  subroutine fluid_vol_flow_cyclic_geometry(this, c_Xh)
+    class(fluid_volflow_t), intent(inout) :: this
+    type(coef_t), intent(in) :: c_Xh
+    real(kind=rp) :: a(3), d(3), t(3), r2, sum_inv_r
+    integer :: i, n, ierr
+
+    n = c_Xh%dof%size()
+    a = c_Xh%cyc_axis
+
+    sum_inv_r = 0.0_rp
+    do i = 1, n
+       d = [c_Xh%dof%x%x(i,1,1,1), c_Xh%dof%y%x(i,1,1,1), &
+            c_Xh%dof%z%x(i,1,1,1)] - c_Xh%cyc_origin
+       t = [a(2) * d(3) - a(3) * d(2), &
+            a(3) * d(1) - a(1) * d(3), &
+            a(1) * d(2) - a(2) * d(1)]
+       ! |a x d| = |r_perp|, since a is a unit vector
+       r2 = dot_product(t, t)
+       if (r2 .le. NEKO_EPS) then
+          call neko_error("Cyclic flow rate forcing is singular on the " // &
+               "rotation axis, which must lie outside the domain.")
+       end if
+       this%g_x%x(i,1,1,1) = t(1) / r2
+       this%g_y%x(i,1,1,1) = t(2) / r2
+       this%g_z%x(i,1,1,1) = t(3) / r2
+       sum_inv_r = sum_inv_r + c_Xh%B(i,1,1,1) / sqrt(r2)
+    end do
+
+    call MPI_Allreduce(MPI_IN_PLACE, sum_inv_r, 1, MPI_REAL_PRECISION, &
+         MPI_SUM, NEKO_COMM, ierr)
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call this%g_x%copy_from(HOST_TO_DEVICE, .false.)
+       call this%g_y%copy_from(HOST_TO_DEVICE, .false.)
+       call this%g_z%copy_from(HOST_TO_DEVICE, .true.)
+    end if
+
+    this%domain_length = c_Xh%cyc_angle
+    this%xsec = sum_inv_r / c_Xh%cyc_angle
+
+  end subroutine fluid_vol_flow_cyclic_geometry
+
+  !> Flow rate of (u, v, w) in the forced direction
+  function fluid_vol_flow_rate(this, u, v, w, c_Xh) result(rate)
+    class(fluid_volflow_t), intent(in) :: this
+    type(field_t), intent(in) :: u, v, w
+    type(coef_t), intent(in) :: c_Xh
+    real(kind=rp) :: rate
+    integer :: n
+
+    n = c_Xh%dof%size()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       select case (this%flow_dir)
+       case (1)
+          rate = device_glsc2(u%x_d, c_Xh%B_d, n)
+       case (2)
+          rate = device_glsc2(v%x_d, c_Xh%B_d, n)
+       case (3)
+          rate = device_glsc2(w%x_d, c_Xh%B_d, n)
+       case (VOLFLOW_DIR_CYCLIC)
+          rate = device_glsc3(u%x_d, c_Xh%B_d, this%g_x%x_d, n) &
+               + device_glsc3(v%x_d, c_Xh%B_d, this%g_y%x_d, n) &
+               + device_glsc3(w%x_d, c_Xh%B_d, this%g_z%x_d, n)
+       end select
+    else
+       select case (this%flow_dir)
+       case (1)
+          rate = glsc2(u%x, c_Xh%B, n)
+       case (2)
+          rate = glsc2(v%x, c_Xh%B, n)
+       case (3)
+          rate = glsc2(w%x, c_Xh%B, n)
+       case (VOLFLOW_DIR_CYCLIC)
+          rate = glsc3(u%x, c_Xh%B, this%g_x%x, n) &
+               + glsc3(v%x, c_Xh%B, this%g_y%x, n) &
+               + glsc3(w%x, c_Xh%B, this%g_z%x, n)
+       end select
+    end if
+
+    rate = rate / this%domain_length
+
+  end function fluid_vol_flow_rate
 
   !> Compute flow adjustment
   !! @brief Compute pressure and velocity using fractional step method.
@@ -177,12 +304,13 @@ contains
     real(kind=rp) :: ylmin, ylmax
     real(kind=rp) :: zlmin, zlmax
     type(ksp_monitor_t) :: ksp_results(4)
-    type(field_t), pointer :: ta1, ta2, ta3
-    integer :: temp_indices(3)
+    type(field_t), pointer :: ta1, ta2, ta3, ta4
+    integer :: temp_indices(4)
 
     call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(ta2, temp_indices(2), .false.)
     call neko_scratch_registry%request_field(ta3, temp_indices(3), .false.)
+    call neko_scratch_registry%request_field(ta4, temp_indices(4), .false.)
 
 
     associate(msh => c_Xh%msh, p_vol => this%p_vol, &
@@ -203,6 +331,9 @@ contains
       end if
       if (this%flow_dir .eq. 3) then
          this%domain_length = zlmax - zlmin
+      end if
+      if (this%flow_dir .eq. VOLFLOW_DIR_CYCLIC) then
+         call fluid_vol_flow_cyclic_geometry(this, c_Xh)
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -234,6 +365,38 @@ contains
 
       if (this%flow_dir .eq. 3) then
          call cdtp(p_res%x, c_Xh%h1, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+      end if
+
+      if (this%flow_dir .eq. VOLFLOW_DIR_CYCLIC) then
+         ! Weak divergence of g / rho, component by component
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call device_copy(ta1%x_d, this%g_x%x_d, n)
+            call device_copy(ta2%x_d, this%g_y%x_d, n)
+            call device_copy(ta3%x_d, this%g_z%x_d, n)
+            call device_cmult(ta1%x_d, 1.0_rp / rho, n)
+            call device_cmult(ta2%x_d, 1.0_rp / rho, n)
+            call device_cmult(ta3%x_d, 1.0_rp / rho, n)
+         else
+            call copy(ta1%x, this%g_x%x, n)
+            call copy(ta2%x, this%g_y%x, n)
+            call copy(ta3%x, this%g_z%x, n)
+            call cmult(ta1%x, 1.0_rp / rho, n)
+            call cmult(ta2%x, 1.0_rp / rho, n)
+            call cmult(ta3%x, 1.0_rp / rho, n)
+         end if
+         call cdtp(p_res%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
+         call cdtp(ta4%x, ta2%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call device_add2(p_res%x_d, ta4%x_d, n)
+         else
+            call add2(p_res%x, ta4%x, n)
+         end if
+         call cdtp(ta4%x, ta3%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
+         if (NEKO_BCKND_DEVICE .eq. 1) then
+            call device_add2(p_res%x_d, ta4%x_d, n)
+         else
+            call add2(p_res%x, ta4%x, n)
+         end if
       end if
 
       call gs_Xh%op(p_res, GS_OP_ADD)
@@ -268,6 +431,10 @@ contains
             call device_add2(v_res%x_d, ta2%x_d, n)
          else if (this%flow_dir .eq. 3) then
             call device_add2(w_res%x_d, ta3%x_d, n)
+         else if (this%flow_dir .eq. VOLFLOW_DIR_CYCLIC) then
+            call device_addcol3(u_res%x_d, ta1%x_d, this%g_x%x_d, n)
+            call device_addcol3(v_res%x_d, ta2%x_d, this%g_y%x_d, n)
+            call device_addcol3(w_res%x_d, ta3%x_d, this%g_z%x_d, n)
          end if
       else
          if (this%flow_dir .eq. 1) then
@@ -276,6 +443,10 @@ contains
             call add2(v_res%x, ta2%x, n)
          else if (this%flow_dir .eq. 3) then
             call add2(w_res%x, ta3%x, n)
+         else if (this%flow_dir .eq. VOLFLOW_DIR_CYCLIC) then
+            call addcol3(u_res%x, ta1%x, this%g_x%x, n)
+            call addcol3(v_res%x, ta2%x, this%g_y%x, n)
+            call addcol3(w_res%x, ta3%x, this%g_z%x, n)
          end if
       end if
 
@@ -302,34 +473,7 @@ contains
            vel_projector, &
            gs_Xh, vel_max_iter)
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         if (this%flow_dir .eq. 1) then
-            this%base_flow = &
-                 device_glsc2(u_vol%x_d, c_Xh%B_d, n) / this%domain_length
-         end if
-
-         if (this%flow_dir .eq. 2) then
-            this%base_flow = &
-                 device_glsc2(v_vol%x_d, c_Xh%B_d, n) / this%domain_length
-         end if
-
-         if (this%flow_dir .eq. 3) then
-            this%base_flow = &
-                 device_glsc2(w_vol%x_d, c_Xh%B_d, n) / this%domain_length
-         end if
-      else
-         if (this%flow_dir .eq. 1) then
-            this%base_flow = glsc2(u_vol%x, c_Xh%B, n) / this%domain_length
-         end if
-
-         if (this%flow_dir .eq. 2) then
-            this%base_flow = glsc2(v_vol%x, c_Xh%B, n) / this%domain_length
-         end if
-
-         if (this%flow_dir .eq. 3) then
-            this%base_flow = glsc2(w_vol%x, c_Xh%B, n) / this%domain_length
-         end if
-      end if
+      this%base_flow = fluid_vol_flow_rate(this, u_vol, v_vol, w_vol, c_Xh)
     end associate
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -366,7 +510,7 @@ contains
     class(ksp_t), intent(inout) :: ksp_prs, ksp_vel
     class(pc_t), intent(inout) :: pc_prs, pc_vel
     integer, intent(in) :: prs_max_iter, vel_max_iter
-    real(kind=rp) :: ifcomp, flow_rate, xsec
+    real(kind=rp) :: ifcomp, flow_rate
     real(kind=rp) :: current_flow, delta_flow, scale
     integer :: n, ierr, i
     character(len=5) :: flow_dir_label
@@ -403,30 +547,13 @@ contains
               vel_max_iter)
       end if
 
-      if (NEKO_BCKND_DEVICE .eq. 1) then
-         if (this%flow_dir .eq. 1) then
-            current_flow = &
-                 device_glsc2(u%x_d, c_Xh%B_d, n) / this%domain_length ! for X
-         else if (this%flow_dir .eq. 2) then
-            current_flow = &
-                 device_glsc2(v%x_d, c_Xh%B_d, n) / this%domain_length ! for Y
-         else if (this%flow_dir .eq. 3) then
-            current_flow = &
-                 device_glsc2(w%x_d, c_Xh%B_d, n) / this%domain_length ! for Z
-         end if
-      else
-         if (this%flow_dir .eq. 1) then
-            current_flow = glsc2(u%x, c_Xh%B, n) / this%domain_length ! for X
-         else if (this%flow_dir .eq. 2) then
-            current_flow = glsc2(v%x, c_Xh%B, n) / this%domain_length ! for Y
-         else if (this%flow_dir .eq. 3) then
-            current_flow = glsc2(w%x, c_Xh%B, n) / this%domain_length ! for Z
-         end if
-      end if
+      current_flow = fluid_vol_flow_rate(this, u, v, w, c_Xh)
 
       if (this%avflow) then
-         xsec = c_Xh%volume / this%domain_length
-         flow_rate = this%flow_rate*xsec
+         if (this%flow_dir .ne. VOLFLOW_DIR_CYCLIC) then
+            this%xsec = c_Xh%volume / this%domain_length
+         end if
+         flow_rate = this%flow_rate * this%xsec
       else
          flow_rate = this%flow_rate
       end if
@@ -441,6 +568,8 @@ contains
             flow_dir_label = '    y'
          else if (this%flow_dir .eq. 3) then
             flow_dir_label = '    z'
+         else if (this%flow_dir .eq. VOLFLOW_DIR_CYCLIC) then
+            flow_dir_label = '  cyc'
          end if
          write(step_str, '(I12)') time%tstep
          step_str = adjustl(step_str)

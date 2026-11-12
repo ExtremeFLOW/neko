@@ -1819,13 +1819,31 @@ rate through the domain.
 Useful for channel and pipe flows.
 The configuration uses the following parameters:
 
-* `direction`, the direction of the flow, defined as 0, 1, or 2, corresponding
-  to x, y or z, respectively.
+* `direction`, the direction of the flow, defined as 1, 2 or 3, corresponding
+  to x, y or z, respectively, or 4 for the azimuthal direction of a cyclic
+  domain, see below. 0 disables the forcing.
 * `value`, the desired flow rate.
 * `use_averaged_flow`, whether `value` specifies the domain-averaged (bulk)
    velocity or the volume flow rate.
 * `log`, whether to print the flow-rate forcing log message each time the
   forcing is adjusted. Defaults to `true`.
+
+For `direction` 1, 2 or 3 the flow is driven by a uniform force, and the flow
+rate is the volume integral of the velocity component divided by the extent of
+the domain in that direction.
+
+`direction` 4 is meant for cyclic domains (`"cyclic": true`), e.g. a sector of
+a bent pipe. The domain is a sector of angle \f$ \Theta \f$ about the
+rotation axis of the two cyclic boundaries, which is found from the mesh and
+reported in the log together with \f$ \Theta \f$. The flow is driven by the
+force \f$ e_\theta / r \f$, where \f$ r \f$ is the distance to the axis.
+This is the gradient of the angle, so it is equivalent to a uniform pressure
+drop per radian. The flow rate is the flow through a cross-section of the
+sector, \f$ \Theta^{-1} \int u \cdot e_\theta / r \, dV \f$, and with
+`use_averaged_flow` the cross-section area is
+\f$ \Theta^{-1} \int r^{-1} dV \f$. A positive flow rate is right-handed
+about the logged axis, whose largest component is positive. The rotation axis
+must lie outside the domain.
 
 
 ## Full parameter table
@@ -1880,7 +1898,7 @@ concisely directly in the table.
 | `pressure_solver.projection_hold_steps`            | Holding steps of the projection for the pressure equation.                                        | Positive integer                                            | 5             |
 | `pressure_solver.projection_reorthogonalize_basis` | Whether to enable pressure projection basis reorthogonalization.                                  | `true` or `false`                                           | `false`       |
 | `pressure_solver.monitor`                          | Monitor residuals in the linear solver for the pressure equation.                                 | `true` or `false`                                           | `false`       |
-| `flow_rate_force.direction`                        | Direction of the forced flow.                                                                     | 0, 1, 2                                                     | -             |
+| `flow_rate_force.direction`                        | Direction of the forced flow.                                                                     | 0, 1, 2, 3, 4                                               | -             |
 | `flow_rate_force.value`                            | Bulk velocity or volumetric flow rate.                                                            | Positive real                                               | -             |
 | `flow_rate_force.use_averaged_flow`                | Whether bulk velocity or volumetric flow rate is given by the `value` parameter.                  | `true` or `false`                                           | -             |
 | `flow_rate_force.log`                              | Whether to print the flow-rate forcing log message during the volume-flow adjustment.             | `true` or `false`                                           | `true`        |

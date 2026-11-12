@@ -56,7 +56,8 @@ module coefs
        neko_error
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
   use neko_config, only : NEKO_BCKND_DEVICE
-  use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_INTEGER, MPI_SUM
+  use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_INTEGER, MPI_SUM, &
+       MPI_IN_PLACE
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -233,9 +234,14 @@ module coefs
      !> Unit outward normals of the two planar cyclic boundaries, one per
      !! column, identical on all ranks
      real(kind=rp) :: cyc_normal(3,2) = 0.0_rp
-     !> Unit rotation axis of the cyclic boundaries, cyc_normal(:,1) x
-     !! cyc_normal(:,2) normalised
+     !> Unit rotation axis of the cyclic boundaries, parallel to
+     !! cyc_normal(:,1) x cyc_normal(:,2) and oriented so that its largest
+     !! component is positive
      real(kind=rp) :: cyc_axis(3) = 0.0_rp
+     !> Point on the rotation axis, the one closest to the origin
+     real(kind=rp) :: cyc_origin(3) = 0.0_rp
+     !> Sector angle swept by the domain about cyc_axis, in radians
+     real(kind=rp) :: cyc_angle = 0.0_rp
      !> Rotation matrix from Cartesian into the cyclic frame at each cyclic
      !! point, stored row-wise: cyc_R(1:3,i) is the boundary normal,
      !! cyc_R(4:6,i) the tangent axis x normal and cyc_R(7:9,i) the axis
@@ -2154,10 +2160,19 @@ contains
             "rotation axis is undefined. Use plain periodic boundaries " // &
             "for translations. Sectors of 180 degrees are not supported.")
     end if
-    this%cyc_axis = a / len
-    a = this%cyc_axis
+    a = a / len
+    ! Fix the orientation independently of the order the normals were found
+    ! in, which depends on the partitioning
+    if (a(maxloc(abs(a), 1)) .lt. 0.0_rp) a = -a
+    this%cyc_axis = a
+
+    call coef_find_cyclic_origin_and_angle(this)
 
     write(log_buf, '(A,3ES13.5)') 'Cyclic axis     : ', this%cyc_axis
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,3ES13.5)') 'Cyclic origin   : ', this%cyc_origin
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES13.5)') 'Cyclic angle    : ', this%cyc_angle
     call neko_log%message(log_buf)
 
     if (np .eq. 0) return
@@ -2208,17 +2223,122 @@ contains
             HOST_TO_DEVICE, sync = .false.)
     end if
 
+  end subroutine coef_generate_cyclic_bc
+
+  !> Cross product of two 3-vectors
+  pure function cross(u, v) result(w)
+    real(kind=rp), intent(in) :: u(3), v(3)
+    real(kind=rp) :: w(3)
+    w(1) = u(2) * v(3) - u(3) * v(2)
+    w(2) = u(3) * v(1) - u(1) * v(3)
+    w(3) = u(1) * v(2) - u(2) * v(1)
+  end function cross
+
+  !> Find a point on the cyclic rotation axis and the sector angle.
+  !! The axis is the intersection of the planes \f$ n_k \cdot x = c_k \f$,
+  !! where \f$ c_k \f$ is averaged over the points of boundary k. The point
+  !! closest to the origin is picked by also requiring \f$ a \cdot x = 0 \f$.
+  !! The angle is measured from the radial direction of boundary 1 to that of
+  !! boundary 2, turning into the domain, i.e. along \f$ -n_1 \f$.
+  !! @note Collective over NEKO_COMM. Needs cyc_normal and cyc_axis.
+  subroutine coef_find_cyclic_origin_and_angle(this)
+    class(coef_t), intent(inout) :: this
+    real(kind=rp) :: n1(3), n2(3), a(3), x(3), d(3), er(3,2), b(3)
+    real(kind=rp) :: buf(8), c(2), det, ang, pi
+    integer :: i, j, k, n, pf, pe, lx, ly, lz, m, ierr
+
+    lx = this%Xh%lx
+    ly = this%Xh%ly
+    lz = this%Xh%lz
+    n1 = this%cyc_normal(:,1)
+    n2 = this%cyc_normal(:,2)
+    a = this%cyc_axis
+    pi = acos(-1.0_rp)
+
+    ! Plane offsets c_k, as sums and counts in buf(1:4)
+    buf = 0.0_rp
+    do n = 1, this%msh%periodic%size
+       pf = this%msh%periodic%facet_el(n)%x(1)
+       pe = this%msh%periodic%facet_el(n)%x(2)
+       do k = 1, lz
+          do j = 1, ly
+             do i = 1, lx
+                if (.not. index_is_on_facet(i, j, k, lx, ly, lz, pf)) cycle
+                m = cyclic_side(this%get_normal(i, j, k, pe, pf))
+                x = [this%dof%x%x(i, j, k, pe), this%dof%y%x(i, j, k, pe), &
+                     this%dof%z%x(i, j, k, pe)]
+                buf(m) = buf(m) + dot_product(this%cyc_normal(:,m), x)
+                buf(m + 2) = buf(m + 2) + 1.0_rp
+             end do
+          end do
+       end do
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, buf, 4, MPI_REAL_PRECISION, MPI_SUM, &
+         NEKO_COMM, ierr)
+    if (buf(3) .eq. 0.0_rp .or. buf(4) .eq. 0.0_rp) then
+       call neko_error("A cyclic boundary has no points.")
+    end if
+    c = buf(1:2) / buf(3:4)
+
+    ! Intersection of n1.x = c1, n2.x = c2 and a.x = 0
+    det = dot_product(n1, cross(n2, a))
+    this%cyc_origin = (c(1) * cross(n2, a) + c(2) * cross(a, n1)) / det
+
+    ! Mean radial directions of the two boundaries, in buf(1:6)
+    buf = 0.0_rp
+    do n = 1, this%msh%periodic%size
+       pf = this%msh%periodic%facet_el(n)%x(1)
+       pe = this%msh%periodic%facet_el(n)%x(2)
+       do k = 1, lz
+          do j = 1, ly
+             do i = 1, lx
+                if (.not. index_is_on_facet(i, j, k, lx, ly, lz, pf)) cycle
+                m = cyclic_side(this%get_normal(i, j, k, pe, pf))
+                d = [this%dof%x%x(i, j, k, pe), this%dof%y%x(i, j, k, pe), &
+                     this%dof%z%x(i, j, k, pe)] - this%cyc_origin
+                d = d - dot_product(d, a) * a
+                buf(3*m-2:3*m) = buf(3*m-2:3*m) + d
+             end do
+          end do
+       end do
+    end do
+    call MPI_Allreduce(MPI_IN_PLACE, buf, 6, MPI_REAL_PRECISION, MPI_SUM, &
+         NEKO_COMM, ierr)
+    do m = 1, 2
+       er(:,m) = buf(3*m-2:3*m)
+       if (norm2(er(:,m)) .le. NEKO_EPS) then
+          call neko_error("A cyclic boundary is centred on the rotation " // &
+               "axis, cannot determine the sector angle.")
+       end if
+       er(:,m) = er(:,m) / norm2(er(:,m))
+    end do
+
+    ! Angle from er1 to er2 counter-clockwise about a, in [0, 2 pi)
+    ang = atan2(dot_product(cross(er(:,1), er(:,2)), a), &
+         dot_product(er(:,1), er(:,2)))
+    if (ang .lt. 0.0_rp) ang = ang + 2.0_rp * pi
+
+    ! The domain lies along -n1 from boundary 1. If that is clockwise about a,
+    ! the sector is the complement.
+    b = cross(a, er(:,1))
+    if (dot_product(b, -n1) .lt. 0.0_rp) ang = 2.0_rp * pi - ang
+    this%cyc_angle = ang
+
   contains
 
-    pure function cross(u, v) result(w)
-      real(kind=rp), intent(in) :: u(3), v(3)
-      real(kind=rp) :: w(3)
-      w(1) = u(2) * v(3) - u(3) * v(2)
-      w(2) = u(3) * v(1) - u(1) * v(3)
-      w(3) = u(1) * v(2) - u(2) * v(1)
-    end function cross
+    !> Which cyclic boundary, 1 or 2, a facet normal belongs to
+    pure function cyclic_side(un) result(side)
+      real(kind=rp), intent(in) :: un(3)
+      integer :: side
+      if (dot_product(un, this%cyc_normal(:,1)) .ge. &
+           dot_product(un, this%cyc_normal(:,2))) then
+         side = 1
+      else
+         side = 2
+      end if
+    end function cyclic_side
 
-  end subroutine coef_generate_cyclic_bc
+  end subroutine coef_find_cyclic_origin_and_angle
 
   !> Find the normals of the two planar cyclic boundaries.
   !! Every GLL point on a periodic facet is checked against the normals found
