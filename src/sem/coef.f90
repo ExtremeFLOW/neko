@@ -44,6 +44,7 @@ module coefs
        eig_sym2, eig_sym3
   use logger, only : neko_log, LOG_SIZE
   use mesh, only : mesh_t
+  use cyclic, only : cyclic_t
   use device_math, only : device_rone, device_invcol1, &
        device_glsum, device_copy
   use device_coef, only : device_coef_generate_geo, &
@@ -52,12 +53,10 @@ module coefs
   use mxm_wrapper, only : mxm
   use device, only : device_map, device_memcpy, DEVICE_TO_HOST, &
        HOST_TO_DEVICE, device_unmap
-  use utils, only : index_is_on_facet, linear_index, &
-       neko_error
-  use comm, only : NEKO_COMM, MPI_REAL_PRECISION, pe_size
+  use utils, only : neko_error
+  use comm, only : NEKO_COMM
   use neko_config, only : NEKO_BCKND_DEVICE
-  use mpi_f08, only : MPI_Allreduce, MPI_Allgather, MPI_INTEGER, MPI_SUM, &
-       MPI_IN_PLACE
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use, intrinsic :: iso_c_binding
   implicit none
   private
@@ -229,23 +228,8 @@ module coefs
      real(kind=rp), allocatable :: nx(:,:,:,:) !< x-direction of facet normal
      real(kind=rp), allocatable :: ny(:,:,:,:) !< y-direction of facet normal
      real(kind=rp), allocatable :: nz(:,:,:,:) !< z-direction of facet normal
-     logical :: cyclic = .false.
-     integer, allocatable :: cyc_msk(:)
-     !> Unit outward normals of the two planar cyclic boundaries, one per
-     !! column, identical on all ranks
-     real(kind=rp) :: cyc_normal(3,2) = 0.0_rp
-     !> Unit rotation axis of the cyclic boundaries, parallel to
-     !! cyc_normal(:,1) x cyc_normal(:,2) and oriented so that its largest
-     !! component is positive
-     real(kind=rp) :: cyc_axis(3) = 0.0_rp
-     !> Point on the rotation axis, the one closest to the origin
-     real(kind=rp) :: cyc_origin(3) = 0.0_rp
-     !> Sector angle swept by the domain about cyc_axis, in radians
-     real(kind=rp) :: cyc_angle = 0.0_rp
-     !> Rotation matrix from Cartesian into the cyclic frame at each cyclic
-     !! point, stored row-wise: cyc_R(1:3,i) is the boundary normal,
-     !! cyc_R(4:6,i) the tangent axis x normal and cyc_R(7:9,i) the axis
-     real(kind=rp), allocatable :: cyc_R(:,:)
+     !> Cyclic boundary conditions
+     type(cyclic_t) :: cyclic
 
      !! True if geometric metrics have been initialized
      logical, private :: coef_metrics_initialized = .false.
@@ -311,8 +295,6 @@ module coefs
      type(c_ptr) :: nx_d = C_NULL_PTR
      type(c_ptr) :: ny_d = C_NULL_PTR
      type(c_ptr) :: nz_d = C_NULL_PTR
-     type(c_ptr) :: cyc_msk_d = C_NULL_PTR
-     type(c_ptr) :: cyc_R_d = C_NULL_PTR
 
      !> Version of the current geometry. Incremented by recompute_metrics.
      integer :: metrics_version = 0
@@ -390,7 +372,7 @@ contains
     class(coef_t), intent(inout), target :: this
     type(gs_t), intent(inout), target :: gs_h
     integer, intent(in), optional :: scope
-    integer :: n, m, ncyc
+    integer :: n, m
 
     call this%free()
 
@@ -580,29 +562,7 @@ contains
        call invcol1(this%mult, n)
     end if
 
-    ncyc = this%msh%periodic%size * this%Xh%lx * this%Xh%lx
-    allocate(this%cyc_msk(0:ncyc))
-    this%cyc_msk(0) = ncyc + 1
-    if (ncyc .gt. 0) then
-       allocate(this%cyc_R(9, ncyc))
-
-       !>Default values correspond to no rotation
-       this%cyc_R = 0.0_rp
-       this%cyc_R(1,:) = 1.0_rp
-       this%cyc_R(5,:) = 1.0_rp
-       this%cyc_R(9,:) = 1.0_rp
-
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_map(this%cyc_msk, this%cyc_msk_d, ncyc+1)
-          call device_map(this%cyc_R, this%cyc_R_d, 9 * ncyc)
-
-          call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
-               HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(this%cyc_R, this%cyc_R_d, 9 * ncyc, &
-               HOST_TO_DEVICE, sync = .false.)
-       end if
-
-    end if
+    call this%cyclic%init(this%msh, this%Xh)
 
     call coef_release_scratch(this)
 
@@ -827,17 +787,7 @@ contains
        deallocate(this%nz)
     end if
 
-    if (allocated(this%cyc_msk)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%cyc_msk, this%cyc_msk_d)
-       end if
-       deallocate(this%cyc_msk)
-    end if
-
-    if (allocated(this%cyc_R)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%cyc_R, this%cyc_R_d)
-       deallocate(this%cyc_R)
-    end if
+    call this%cyclic%free()
 
 
     nullify(this%msh)
@@ -2118,322 +2068,23 @@ contains
 
   end subroutine coef_generate_area_and_normal
 
-  !> Build the cyclic frames used by rotate_cyc.
-  !! The rotation axis is the intersection line of the two cyclic planes,
-  !! \f$ a = n_1 \times n_2 / |n_1 \times n_2| \f$. At each cyclic point the
-  !! frame is \f$ (e_1, a \times e_1, a) \f$, with \f$ e_1 = n_1 \f$ on the
-  !! first boundary and \f$ e_1 = -n_2 \f$ on the second. Since the outward
-  !! normals of a sector point in opposite angular directions, the rotation
-  !! mapping one boundary onto the other maps \f$ e_1 \f$ onto itself, so
-  !! matching periodic points share the same components in this frame.
+  !> Build the cyclic boundary frames, see cyclic_t.
+  !! Does nothing unless cyclic%enabled.
   subroutine coef_generate_cyclic_bc(this)
     class(coef_t), intent(inout) :: this
-    real(kind=rp) :: un(3), len, e1(3), e2(3), a(3)
-    integer :: lx, ly, lz, np, np_glb, ierr
-    integer :: i, j, k, pf, pe, n, nc, ncyc
-    character(len=LOG_SIZE) :: log_buf
 
-    if (.not. this%cyclic) return
+    if (.not. this%cyclic%enabled) return
 
-    ! Builds the rotation matrices from get_normal()
+    ! The frames are built from the facet normals
     if (this%scope .ne. COEF_FULL) then
        call neko_error('Cyclic boundaries need the facet normals, ' // &
             'which COEF_OPERATOR does not build')
     end if
 
-    np = this%msh%periodic%size
-    call MPI_Allreduce(np, np_glb, 1, &
-         MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
-
-    if (np_glb .eq. 0) then
-       call neko_error("There are no periodic boundaries. " // &
-            "Switch cyclic off in the case file.")
-    end if
-
-    ! Collective, every rank must call it before an early return
-    call coef_find_cyclic_normals(this)
-
-    a = cross(this%cyc_normal(:,1), this%cyc_normal(:,2))
-    len = norm2(a)
-    if (len .lt. 1.0e-3_rp) then
-       call neko_error("The two cyclic boundaries are parallel, the " // &
-            "rotation axis is undefined. Use plain periodic boundaries " // &
-            "for translations. Sectors of 180 degrees are not supported.")
-    end if
-    a = a / len
-    ! Fix the orientation independently of the order the normals were found
-    ! in, which depends on the partitioning
-    if (a(maxloc(abs(a), 1)) .lt. 0.0_rp) a = -a
-    this%cyc_axis = a
-
-    call coef_find_cyclic_origin_and_angle(this)
-
-    write(log_buf, '(A,3ES13.5)') 'Cyclic axis     : ', this%cyc_axis
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,3ES13.5)') 'Cyclic origin   : ', this%cyc_origin
-    call neko_log%message(log_buf)
-    write(log_buf, '(A,ES13.5)') 'Cyclic angle    : ', this%cyc_angle
-    call neko_log%message(log_buf)
-
-    if (np .eq. 0) return
-
-    lx = this%Xh%lx
-    ly = this%Xh%ly
-    lz = this%Xh%lz
-    ncyc = this%cyc_msk(0) - 1
-    nc = 1
-    do n = 1, np
-       pf = this%msh%periodic%facet_el(n)%x(1)
-       pe = this%msh%periodic%facet_el(n)%x(2)
-       do k = 1, lz
-          do j = 1, ly
-             do i = 1, lx
-                if (index_is_on_facet(i, j, k, lx, ly, lz, pf)) then
-                   un = this%get_normal(i, j, k, pe, pf)
-
-                   ! Which of the two cyclic boundaries the point is on
-                   if (dot_product(un, this%cyc_normal(:,1)) .ge. &
-                        dot_product(un, this%cyc_normal(:,2))) then
-                      e1 = this%cyc_normal(:,1)
-                   else
-                      e1 = -this%cyc_normal(:,2)
-                   end if
-                   e2 = cross(a, e1)
-
-                   this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
-                   this%cyc_R(1:3, nc) = e1
-                   this%cyc_R(4:6, nc) = e2
-                   this%cyc_R(7:9, nc) = a
-                   nc = nc + 1
-                end if
-             end do
-          end do
-       end do
-    end do
-
-    if (nc - 1 /= ncyc) then
-       call neko_error("The number of cyclic GLL points were " // &
-            "not estimated correctly.")
-    end if
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%cyc_msk, this%cyc_msk_d, ncyc+1, &
-            HOST_TO_DEVICE, sync = .false.)
-       call device_memcpy(this%cyc_R, this%cyc_R_d, 9 * ncyc, &
-            HOST_TO_DEVICE, sync = .false.)
-    end if
+    call this%cyclic%generate(this%msh, this%Xh, this%dof, &
+         this%nx, this%ny, this%nz)
 
   end subroutine coef_generate_cyclic_bc
-
-  !> Cross product of two 3-vectors
-  pure function cross(u, v) result(w)
-    real(kind=rp), intent(in) :: u(3), v(3)
-    real(kind=rp) :: w(3)
-    w(1) = u(2) * v(3) - u(3) * v(2)
-    w(2) = u(3) * v(1) - u(1) * v(3)
-    w(3) = u(1) * v(2) - u(2) * v(1)
-  end function cross
-
-  !> Find a point on the cyclic rotation axis and the sector angle.
-  !! The axis is the intersection of the planes \f$ n_k \cdot x = c_k \f$,
-  !! where \f$ c_k \f$ is averaged over the points of boundary k. The point
-  !! closest to the origin is picked by also requiring \f$ a \cdot x = 0 \f$.
-  !! The angle is measured from the radial direction of boundary 1 to that of
-  !! boundary 2, turning into the domain, i.e. along \f$ -n_1 \f$.
-  !! @note Collective over NEKO_COMM. Needs cyc_normal and cyc_axis.
-  subroutine coef_find_cyclic_origin_and_angle(this)
-    class(coef_t), intent(inout) :: this
-    real(kind=rp) :: n1(3), n2(3), a(3), x(3), d(3), er(3,2), b(3)
-    real(kind=rp) :: buf(8), c(2), det, ang, pi
-    integer :: i, j, k, n, pf, pe, lx, ly, lz, m, ierr
-
-    lx = this%Xh%lx
-    ly = this%Xh%ly
-    lz = this%Xh%lz
-    n1 = this%cyc_normal(:,1)
-    n2 = this%cyc_normal(:,2)
-    a = this%cyc_axis
-    pi = acos(-1.0_rp)
-
-    ! Plane offsets c_k, as sums and counts in buf(1:4)
-    buf = 0.0_rp
-    do n = 1, this%msh%periodic%size
-       pf = this%msh%periodic%facet_el(n)%x(1)
-       pe = this%msh%periodic%facet_el(n)%x(2)
-       do k = 1, lz
-          do j = 1, ly
-             do i = 1, lx
-                if (.not. index_is_on_facet(i, j, k, lx, ly, lz, pf)) cycle
-                m = cyclic_side(this%get_normal(i, j, k, pe, pf))
-                x = [this%dof%x%x(i, j, k, pe), this%dof%y%x(i, j, k, pe), &
-                     this%dof%z%x(i, j, k, pe)]
-                buf(m) = buf(m) + dot_product(this%cyc_normal(:,m), x)
-                buf(m + 2) = buf(m + 2) + 1.0_rp
-             end do
-          end do
-       end do
-    end do
-    call MPI_Allreduce(MPI_IN_PLACE, buf, 4, MPI_REAL_PRECISION, MPI_SUM, &
-         NEKO_COMM, ierr)
-    if (buf(3) .eq. 0.0_rp .or. buf(4) .eq. 0.0_rp) then
-       call neko_error("A cyclic boundary has no points.")
-    end if
-    c = buf(1:2) / buf(3:4)
-
-    ! Intersection of n1.x = c1, n2.x = c2 and a.x = 0
-    det = dot_product(n1, cross(n2, a))
-    this%cyc_origin = (c(1) * cross(n2, a) + c(2) * cross(a, n1)) / det
-
-    ! Mean radial directions of the two boundaries, in buf(1:6)
-    buf = 0.0_rp
-    do n = 1, this%msh%periodic%size
-       pf = this%msh%periodic%facet_el(n)%x(1)
-       pe = this%msh%periodic%facet_el(n)%x(2)
-       do k = 1, lz
-          do j = 1, ly
-             do i = 1, lx
-                if (.not. index_is_on_facet(i, j, k, lx, ly, lz, pf)) cycle
-                m = cyclic_side(this%get_normal(i, j, k, pe, pf))
-                d = [this%dof%x%x(i, j, k, pe), this%dof%y%x(i, j, k, pe), &
-                     this%dof%z%x(i, j, k, pe)] - this%cyc_origin
-                d = d - dot_product(d, a) * a
-                buf(3*m-2:3*m) = buf(3*m-2:3*m) + d
-             end do
-          end do
-       end do
-    end do
-    call MPI_Allreduce(MPI_IN_PLACE, buf, 6, MPI_REAL_PRECISION, MPI_SUM, &
-         NEKO_COMM, ierr)
-    do m = 1, 2
-       er(:,m) = buf(3*m-2:3*m)
-       if (norm2(er(:,m)) .le. NEKO_EPS) then
-          call neko_error("A cyclic boundary is centred on the rotation " // &
-               "axis, cannot determine the sector angle.")
-       end if
-       er(:,m) = er(:,m) / norm2(er(:,m))
-    end do
-
-    ! Angle from er1 to er2 counter-clockwise about a, in [0, 2 pi)
-    ang = atan2(dot_product(cross(er(:,1), er(:,2)), a), &
-         dot_product(er(:,1), er(:,2)))
-    if (ang .lt. 0.0_rp) ang = ang + 2.0_rp * pi
-
-    ! The domain lies along -n1 from boundary 1. If that is clockwise about a,
-    ! the sector is the complement.
-    b = cross(a, er(:,1))
-    if (dot_product(b, -n1) .lt. 0.0_rp) ang = 2.0_rp * pi - ang
-    this%cyc_angle = ang
-
-  contains
-
-    !> Which cyclic boundary, 1 or 2, a facet normal belongs to
-    pure function cyclic_side(un) result(side)
-      real(kind=rp), intent(in) :: un(3)
-      integer :: side
-      if (dot_product(un, this%cyc_normal(:,1)) .ge. &
-           dot_product(un, this%cyc_normal(:,2))) then
-         side = 1
-      else
-         side = 2
-      end if
-    end function cyclic_side
-
-  end subroutine coef_find_cyclic_origin_and_angle
-
-  !> Find the normals of the two planar cyclic boundaries.
-  !! Every GLL point on a periodic facet is checked against the normals found
-  !! so far, which also verifies that each cyclic boundary is a plane. The
-  !! local normals are then gathered and merged in rank order, so that
-  !! @a cyc_normal is identical on all ranks.
-  !! @note Collective over NEKO_COMM.
-  subroutine coef_find_cyclic_normals(this)
-    class(coef_t), intent(inout) :: this
-    !> Max distance between two unit normals regarded as the same direction
-    real(kind=rp), parameter :: tol = 1.0e-4_rp
-    real(kind=rp) :: un(3), len, nrm(3,2)
-    real(kind=rp) :: buf(7)
-    real(kind=rp), allocatable :: buf_glb(:,:)
-    integer :: i, j, k, n, r, m, pf, pe, lx, ly, lz, cnt, ierr
-    character(len=LOG_SIZE) :: log_buf
-
-    lx = this%Xh%lx
-    ly = this%Xh%ly
-    lz = this%Xh%lz
-
-    ! Distinct normals on this rank
-    cnt = 0
-    nrm = 0.0_rp
-    do n = 1, this%msh%periodic%size
-       pf = this%msh%periodic%facet_el(n)%x(1)
-       pe = this%msh%periodic%facet_el(n)%x(2)
-       do k = 1, lz
-          do j = 1, ly
-             do i = 1, lx
-                if (.not. index_is_on_facet(i, j, k, lx, ly, lz, pf)) cycle
-                un = this%get_normal(i, j, k, pe, pf)
-                len = norm2(un)
-                if (len .le. NEKO_EPS) then
-                   call neko_error("Zero surface normal on a cyclic " // &
-                        "boundary.")
-                end if
-                call add_normal(nrm, cnt, un / len)
-             end do
-          end do
-       end do
-    end do
-
-    ! Merge the normals of all ranks, in rank order
-    buf(1:3) = nrm(:,1)
-    buf(4:6) = nrm(:,2)
-    buf(7) = real(cnt, rp)
-    allocate(buf_glb(7, pe_size))
-    call MPI_Allgather(buf, 7, MPI_REAL_PRECISION, buf_glb, 7, &
-         MPI_REAL_PRECISION, NEKO_COMM, ierr)
-
-    cnt = 0
-    nrm = 0.0_rp
-    do r = 1, pe_size
-       do m = 1, nint(buf_glb(7, r))
-          call add_normal(nrm, cnt, buf_glb(3*m-2:3*m, r))
-       end do
-    end do
-    deallocate(buf_glb)
-
-    if (cnt .ne. 2) then
-       call neko_error("Cyclic boundaries must consist of exactly two " // &
-            "planes.")
-    end if
-
-    this%cyc_normal = nrm
-
-    do m = 1, 2
-       write(log_buf, '(A,I1,A,3ES13.5)') 'Cyclic normal ', m, ' : ', &
-            this%cyc_normal(:,m)
-       call neko_log%message(log_buf)
-    end do
-
-  contains
-
-    !> Add @a v to the list of distinct normals @a nrm, unless already there
-    subroutine add_normal(nrm, cnt, v)
-      real(kind=rp), intent(inout) :: nrm(3,2)
-      integer, intent(inout) :: cnt
-      real(kind=rp), intent(in) :: v(3)
-      integer :: l
-
-      do l = 1, cnt
-         if (norm2(v - nrm(:,l)) .lt. tol) return
-      end do
-
-      if (cnt .eq. 2) then
-         call neko_error("More than two distinct surface normals on the " // &
-              "cyclic boundaries. Each cyclic boundary must be planar.")
-      end if
-
-      cnt = cnt + 1
-      nrm(:,cnt) = v
-    end subroutine add_normal
-  end subroutine coef_find_cyclic_normals
 
 
   !> Recompute and update geometric factors (ALE)
@@ -2452,9 +2103,7 @@ contains
     end if
     call coef_generate_area_and_normal(this)
     call coef_generate_mass(this)
-    if (this%cyclic) then
-       call coef_generate_cyclic_bc(this)
-    end if
+    call coef_generate_cyclic_bc(this)
     this%metrics_version = this%metrics_version + 1
   end subroutine coef_recompute_metrics
 

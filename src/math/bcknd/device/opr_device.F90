@@ -993,14 +993,18 @@ contains
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%B_d, gdim, n)
 
-    if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
+    if (c_Xh%cyclic%enabled) then
+       call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 1, c_Xh)
+    end if
     if (present(event)) then
        call c_Xh%gs_h%op(w1%x, w2%x, w3%x, n, GS_OP_ADD, event)
        call device_event_sync(event)
     else
        call c_Xh%gs_h%op(w1%x, w2%x, w3%x, n, GS_OP_ADD)
     end if
-    if(c_Xh%cyclic) call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
+    if (c_Xh%cyclic%enabled) then
+       call opr_device_rotate_cyc(w1%x_d, w2%x_d, w3%x_d, 0, c_Xh)
+    end if
 
     call device_opcolv(w1%x_d, w2%x_d, w3%x_d, c_Xh%Binv_d, gdim, n)
 
@@ -1062,29 +1066,29 @@ contains
     type(coef_t), intent(in) :: coef
     integer :: ncyc
 
-    ncyc = coef%cyc_msk(0) - 1
+    ncyc = coef%cyclic%msk(0) - 1
 
     if (ncyc .le. 0) return
 
 #ifdef HAVE_HIP
     call hip_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
-         coef%cyc_msk_d, coef%cyc_R_d, &
+         coef%cyclic%msk_d, coef%cyclic%R_d, &
          ncyc, idir)
 #elif HAVE_CUDA
     call cuda_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
-         coef%cyc_msk_d, coef%cyc_R_d, &
+         coef%cyclic%msk_d, coef%cyclic%R_d, &
          ncyc, idir)
 #elif HAVE_OPENCL
     call opencl_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
-         coef%cyc_msk_d, coef%cyc_R_d, &
+         coef%cyclic%msk_d, coef%cyclic%R_d, &
          ncyc, idir)
 #elif HAVE_METAL
     call metal_rotate_cyc(vx_d, vy_d, vz_d, &
          coef%dof%x%x_d, coef%dof%y%x_d, coef%dof%z%x_d, &
-         coef%cyc_msk_d, coef%cyc_R_d, &
+         coef%cyclic%msk_d, coef%cyclic%R_d, &
          ncyc, idir)
 #else
     call neko_error('No device backend configured for rotate_cyc')

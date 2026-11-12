@@ -207,8 +207,8 @@ contains
     integer :: i, n, temp_indices(2)
 
     n = c_Xh%dof%size()
-    a = c_Xh%cyc_axis
-    x0 = c_Xh%cyc_origin
+    a = c_Xh%cyclic%axis
+    x0 = c_Xh%cyclic%origin
 
     call neko_scratch_registry%request_field(r2, temp_indices(1), .false.)
     call neko_scratch_registry%request_field(inv_r, temp_indices(2), .false.)
@@ -259,8 +259,8 @@ contains
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
-    this%domain_length = c_Xh%cyc_angle
-    this%xsec = sum_inv_r / c_Xh%cyc_angle
+    this%domain_length = c_Xh%cyclic%angle
+    this%xsec = sum_inv_r / c_Xh%cyclic%angle
 
   end subroutine fluid_vol_flow_cyclic_geometry
 

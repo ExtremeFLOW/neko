@@ -1199,7 +1199,7 @@ contains
        call normal_z_field%copy_from(HOST_TO_DEVICE, .true.)
     end if
 
-    if (this%coef%cyclic) then
+    if (this%coef%cyclic%enabled) then
        call rotate_cyc(normal_x_field%x, normal_y_field%x, normal_z_field%x, &
             1, this%coef)
     end if
@@ -1208,7 +1208,7 @@ contains
     call this%coef%gs_h%op(normal_y_field, GS_OP_ADD)
     call this%coef%gs_h%op(normal_z_field, GS_OP_ADD)
 
-    if (this%coef%cyclic) then
+    if (this%coef%cyclic%enabled) then
        call rotate_cyc(normal_x_field%x, normal_y_field%x, normal_z_field%x, &
             0, this%coef)
     end if

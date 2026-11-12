@@ -49,6 +49,7 @@ neko_fortran_SOURCES = \
 	sem/map_1d.f90\
 	sem/map_2d.f90\
 	sem/dofmap.f90\
+	sem/cyclic.f90\
 	sem/coef.f90\
 	sem/cpr.f90\
 	common/time_interpolator.f90\

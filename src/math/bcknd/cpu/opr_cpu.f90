@@ -172,9 +172,9 @@ contains
     !!    BC dependent, Needs to change if cyclic
 
     call opcolv(w1, w2, w3, c_Xh%B, gdim, n)
-    if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_Xh)
+    if (c_Xh%cyclic%enabled) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 1, c_Xh)
     call c_Xh%gs_h%op(w1, w2, w3, n, GS_OP_ADD)
-    if (c_Xh%cyclic) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_Xh)
+    if (c_Xh%cyclic%enabled) call opr_cpu_rotate_cyc_r4(w1, w2, w3, 0, c_Xh)
     call opcolv(w1, w2, w3, c_Xh%Binv, gdim, n)
 
   end subroutine opr_cpu_curl
@@ -331,7 +331,7 @@ contains
   end subroutine opr_cpu_lambda2
 
   !> Rotate the vector (vx, vy, vz) at the cyclic points between the
-  !! Cartesian frame and the cyclic frame stored in coef%cyc_R.
+  !! Cartesian frame and the cyclic frame stored in coef%cyclic%R.
   !! @param idir 1 rotates into the cyclic frame, 0 rotates back.
   subroutine opr_cpu_rotate_cyc_r1(vx, vy, vz, idir, coef)
     real(kind=rp), dimension(:), intent(inout) :: vx, vy, vz
@@ -340,11 +340,11 @@ contains
     integer :: i, j, ncyc
     real(kind=rp) :: v(3)
 
-    ncyc = coef%cyc_msk(0) - 1
+    ncyc = coef%cyclic%msk(0) - 1
 
     do i = 1, ncyc
-       j = coef%cyc_msk(i)
-       v = rotate_cyc_point(vx(j), vy(j), vz(j), coef%cyc_R(:, i), idir)
+       j = coef%cyclic%msk(i)
+       v = rotate_cyc_point(vx(j), vy(j), vz(j), coef%cyclic%R(:, i), idir)
        vx(j) = v(1)
        vy(j) = v(2)
        vz(j) = v(3)
@@ -360,12 +360,12 @@ contains
     integer :: i, j, ncyc
     real(kind=rp) :: v(3)
 
-    ncyc = coef%cyc_msk(0) - 1
+    ncyc = coef%cyclic%msk(0) - 1
 
     do i = 1, ncyc
-       j = coef%cyc_msk(i)
+       j = coef%cyclic%msk(i)
        v = rotate_cyc_point(vx(j, 1, 1, 1), vy(j, 1, 1, 1), vz(j, 1, 1, 1), &
-            coef%cyc_R(:, i), idir)
+            coef%cyclic%R(:, i), idir)
        vx(j, 1, 1, 1) = v(1)
        vy(j, 1, 1, 1) = v(2)
        vz(j, 1, 1, 1) = v(3)

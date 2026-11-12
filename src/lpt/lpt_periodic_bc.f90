@@ -267,7 +267,7 @@ contains
     real(kind=rp) :: pi
     integer :: ierr
 
-    if (.not. coef%cyclic .or. msh%gdim .lt. 2) return
+    if (.not. coef%cyclic%enabled .or. msh%gdim .lt. 2) return
 
     pi = acos(-1.0_rp)
     if (msh%nelv .gt. 0) then

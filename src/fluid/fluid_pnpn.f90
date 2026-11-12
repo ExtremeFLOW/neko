@@ -384,8 +384,8 @@ contains
     call json_get_or_default(params, "case.fluid.full_stress_formulation", &
          this%full_stress_formulation, .false.)
 
-    call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
-         .false.)
+    call json_get_or_default(params, "case.fluid.cyclic", &
+         this%c_Xh%cyclic%enabled, .false.)
     call this%c_Xh%generate_cyclic_bc()
 
     ! Setup backend dependent Ax routines for the velocity

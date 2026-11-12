@@ -1082,7 +1082,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(c_ptr) :: vx_d, vy_d, vz_d
 
-    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
+    if (coef%cyclic%enabled .and. coef%cyclic%msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_log%deprecated('Operator: rotate_cyc_r1, implicit device', &
                '2.0.0', 'Please call rotate_cyc_d instead.')
@@ -1103,7 +1103,7 @@ contains
     type(coef_t), intent(in) :: coef
     type(c_ptr) :: vx_d, vy_d, vz_d
 
-    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
+    if (coef%cyclic%enabled .and. coef%cyclic%msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call neko_log%deprecated('Operator: rotate_cyc_r4, implicit device', &
                '2.0.0', 'Please call rotate_cyc_d instead.')
@@ -1123,7 +1123,7 @@ contains
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
 
-    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
+    if (coef%cyclic%enabled .and. coef%cyclic%msk(0) .gt. 1) then
        call opr_device_rotate_cyc(vx_d, vy_d, vz_d, idir, coef)
     end if
   end subroutine rotate_cyc_d
@@ -1133,7 +1133,7 @@ contains
     integer, intent(in) :: idir
     type(coef_t), intent(in) :: coef
 
-    if (coef%cyclic .and. coef%cyc_msk(0) .gt. 1) then
+    if (coef%cyclic%enabled .and. coef%cyclic%msk(0) .gt. 1) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
           call opr_device_rotate_cyc(vx%x_d, vy%x_d, vz%x_d, idir, coef)
        else
