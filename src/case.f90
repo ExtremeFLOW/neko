@@ -349,12 +349,17 @@ contains
     !
     ! Setup initial conditions
     !
-    call this%fluid%set_initial_condition(this%user, &
+    call this%fluid%set_initial_condition(fluid_params, this%user, &
          this%params%valid_path('case.restart_file'))
 
     if (scalar) then
-       call this%scalars%set_initial_conditions(this%user, &
-            this%params%valid_path('case.restart_file'))
+       if (this%params%valid_path('case.scalar')) then
+          call this%scalars%set_initial_conditions(scalar_params, this%user, &
+               this%params%valid_path('case.restart_file'))
+       else
+          call this%scalars%set_initial_conditions(json_subdict, this%user, &
+               this%params%valid_path('case.restart_file'))
+       end if
     end if
 
     !

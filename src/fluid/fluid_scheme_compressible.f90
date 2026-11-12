@@ -173,14 +173,6 @@ contains
     ! Assign Dofmap to scratch registry
     call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
-    ! Keep a copy of the fluid parameters
-    if (allocated(this%params)) then
-       call this%params%destroy()
-       deallocate(this%params)
-    end if
-    allocate(this%params)
-    this%params = params
-
     ! Assign a name
     call json_get_or_default(params, 'name', this%name, "fluid")
 
@@ -362,11 +354,6 @@ contains
     nullify(this%kappa)
 
     call this%material_properties%free()
-
-    if (allocated(this%params)) then
-       call this%params%destroy()
-       deallocate(this%params)
-    end if
 
   end subroutine fluid_scheme_compressible_free
 

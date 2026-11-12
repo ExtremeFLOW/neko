@@ -738,10 +738,12 @@ contains
   !> Set the initial condition of the velocity and pressure, copy the initial
   !! velocity to the lagged velocity fields, and set the initial ALE mesh
   !! velocity.
+  !! @param params The fluid parameters, i.e. `case.fluid`.
   !! @param user Type with user-defined procedures.
   !! @param is_restart Whether the case is restarting from a checkpoint.
-  subroutine fluid_pnpn_set_initial_condition(this, user, is_restart)
+  subroutine fluid_pnpn_set_initial_condition(this, params, user, is_restart)
     class(fluid_pnpn_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
     type(user_t), intent(in) :: user
     logical, intent(in) :: is_restart
 
@@ -750,7 +752,7 @@ contains
        call this%ale%set_initial_mesh_velocity(this%c_Xh)
     end if
 
-    call this%set_initial_condition_base(user, is_restart)
+    call this%set_initial_condition_base(params, user, is_restart)
 
     if (.not. is_restart) then
        call this%ulag%set(this%u)
