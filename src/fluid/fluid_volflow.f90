@@ -118,6 +118,8 @@ module fluid_volflow
      real(kind=rp) :: domain_length
      !> Cross-section area, used with avflow
      real(kind=rp) :: xsec
+     !> coef%metrics_version the cyclic geometry was built for, -1 if never
+     integer :: geom_version = -1
      real(kind=rp) :: base_flow
    contains
      procedure, pass(this) :: init => fluid_vol_flow_init
@@ -186,6 +188,7 @@ contains
     call this%g_x%free()
     call this%g_y%free()
     call this%g_z%free()
+    this%geom_version = -1
 
   end subroutine fluid_vol_flow_free
 
@@ -332,8 +335,11 @@ contains
       if (this%flow_dir .eq. 3) then
          this%domain_length = zlmax - zlmin
       end if
-      if (this%flow_dir .eq. VOLFLOW_DIR_CYCLIC) then
+      ! The geometry only changes when the mesh moves
+      if (this%flow_dir .eq. VOLFLOW_DIR_CYCLIC .and. &
+           this%geom_version .ne. c_Xh%metrics_version) then
          call fluid_vol_flow_cyclic_geometry(this, c_Xh)
+         this%geom_version = c_Xh%metrics_version
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
