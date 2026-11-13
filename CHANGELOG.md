@@ -14,6 +14,10 @@
 
 ## Develop
 
+- `makeneko` now defines Neko's `HAVE_*` feature macros for user sources and
+  passes extra libraries, object files and compiler flags, e.g. `-lcublas`, to
+  the build.
+
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
