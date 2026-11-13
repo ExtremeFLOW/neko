@@ -286,7 +286,7 @@ contains
     end associate
 
     ! Set up boundary conditions
-    call this%setup_bcs_(user)
+    call this%setup_bcs_(user, params)
 
     do i = 1, this%bcs%size()
        if (this%bcs%bc_type(i) .eq. BC_DIRICHLET) then
@@ -598,9 +598,11 @@ contains
 
   !> Initialize boundary conditions
   !! @param user The user object binding the user-defined routines.
-  subroutine scalar_pnpn_setup_bcs_(this, user)
+  !! @param params The parameters of this scalar.
+  subroutine scalar_pnpn_setup_bcs_(this, user, params)
     class(scalar_pnpn_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
+    type(json_file), intent(inout) :: params
     integer :: i, j, n_bcs, zone_size, global_zone_size, ierr
     type(json_core) :: core
     type(json_value), pointer :: bc_object
@@ -612,11 +614,11 @@ contains
     integer, allocatable :: zone_indices(:)
     character(len=256) :: error_msg
 
-    if (this%params%valid_path('boundary_conditions')) then
-       call this%params%info('boundary_conditions', &
+    if (params%valid_path('boundary_conditions')) then
+       call params%info('boundary_conditions', &
             n_children = n_bcs)
-       call this%params%get_core(core)
-       call this%params%get('boundary_conditions', bc_object, found)
+       call params%get_core(core)
+       call params%get('boundary_conditions', bc_object, found)
 
        call this%bcs%init(n_bcs)
 

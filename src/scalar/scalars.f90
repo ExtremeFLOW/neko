@@ -41,7 +41,7 @@ module scalars
   use gather_scatter, only : gs_t
   use time_scheme_controller, only : time_scheme_controller_t
   use time_step_controller, only : time_step_controller_t
-  use json_module, only : json_file
+  use json_module, only : json_file, json_array
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use field, only : field_t
   use field_list, only : field_list_t
@@ -223,13 +223,17 @@ contains
   end subroutine scalars_restart
 
   !> Set initial conditions for all scalar fields.
+  !! @param params The scalar parameters passed to `init`, i.e. either the
+  !! `case.scalars` array or the single `case.scalar` object.
   !! @param user Type with user-defined procedures.
   !! @param is_restart Whether the case is restarting from a checkpoint.
-  subroutine scalars_set_initial_conditions(this, user, is_restart)
+  subroutine scalars_set_initial_conditions(this, params, user, is_restart)
     class(scalars_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
     type(user_t), intent(in) :: user
     logical, intent(in) :: is_restart
-    integer :: i, running_scalar_index, scalar_index
+    integer :: i, running_scalar_index, scalar_index, var_type
+    type(json_file) :: json_subdict
 
     call neko_log%section("Scalar initial condition ")
 
@@ -237,6 +241,10 @@ contains
        call neko_log%message("Restart file specified, " // &
             "initial conditions ignored")
     else
+       ! The parameters are an array for `case.scalars` and a single
+       ! object for `case.scalar`.
+       call params%info('', var_type = var_type)
+
        running_scalar_index = 0
        do i = 1, size(this%scalar_fields)
           if (trim(this%scalar_fields(i)%scalar%name) .eq. 'temperature') then
@@ -246,9 +254,16 @@ contains
              scalar_index = running_scalar_index
           end if
 
-          call this%scalar_fields(i)%scalar%set_initial_condition(user, &
-               scalar_index)
+          if (var_type .eq. json_array) then
+             call json_extract_item(params, "", i, json_subdict)
+             call this%scalar_fields(i)%scalar%set_initial_condition( &
+                  json_subdict, user, scalar_index)
+          else
+             call this%scalar_fields(i)%scalar%set_initial_condition( &
+                  params, user, scalar_index)
+          end if
        end do
+       call json_subdict%destroy()
     end if
 
     call neko_log%end_section()
