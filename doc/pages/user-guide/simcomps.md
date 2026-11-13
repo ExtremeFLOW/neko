@@ -75,12 +75,17 @@ associated computations and output. However, this can be modified by using the
 `output_control` and `output_value` for the output to disk. The parameters
 for the `_control` values are the same as for the fluid and checkpointing.
 Additionally, one can set `output_control` to `global` and `never`. The former
-will sync the `output_` parameter to that of the fluid. Choosing `never` will
-suppress output all together. If no parameters for the `output_` parameters are
+will sync the `output_` parameter to that of the fluid. For most components,
+choosing `never` suppresses output altogether. If no `output_` parameters are
 provided, they are set to be the same as for `compute_`. In order to simplify
 the configuration, the `compute_control` can be set to `fluid_output` to sync
 the computation to the fluid output. All `_value` keywords can also be strings
 pointing to an entry under `constants.scalars`.
+
+The [probes component](@ref simcomp_probes_sampling_output) writes every
+computed sample immediately. Its `output_` parameters control HDF5 file
+rotation and do not suppress samples or control CSV output. Use
+`compute_control: "never"` to disable probe sampling.
 
 For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
@@ -334,6 +339,56 @@ Optional arguments:
 
 It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
+
+#### Sampling and output {#simcomp_probes_sampling_output}
+
+Use `compute_control` and `compute_value` to set the probe sampling schedule.
+Every computed sample is written to disk immediately, after `start_time` has
+been reached. Probes do not buffer samples for a later output event. If
+`compute_control` is omitted, probes compute and write following `compute_control`,
+even if `output_control` is specified.
+
+The output format determines the meaning of `output_control` and
+`output_value`:
+
+- **CSV:** Every computed sample is appended to the same file. The
+  `output_` parameters do not filter samples or rotate files. In particular,
+  `output_control: "never"` still writes every computed sample.
+- **HDF5:** Every computed sample is written to the current file. The
+  `output_` parameters set the schedule for closing that file and opening
+  the next numbered file. At a sampling step when an output event is due,
+  the current sample is written before the file is rotated.
+  `output_control: "never"` is the default behavious and disables rotation, keeping all samples in one
+  file for the run. Omitting the output schedule, or setting it to the same
+  control mode and value as the compute schedule, also keeps one file for
+  the run.
+
+To disable probe sampling and sample output in either format, set
+`compute_control: "never"`. The output file and probe coordinates are still
+initialised.
+
+For example, the following configuration requests a compute interval of 10
+time steps and an HDF5 file rotation interval of 100 time steps:
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "probes",
+  "fields": ["u", "v", "w", "p"],
+  "output_file": "probes.hdf5",
+  "compute_control": "tsteps",
+  "compute_value": 10,
+  "output_control": "tsteps",
+  "output_value": 100,
+  "points": [
+    {"type": "points", "coordinates": [0.25, 0.25, 0.25]}
+  ]
+}
+~~~~~~~~~~~~~~~
+
+Changing `output_file` to `probes.csv` writes the same samples every 10 time
+steps to one CSV file; the output schedule has no effect on those samples.
+
+The `output_control` is meant to be used for fault-tolerance, to avoid losing all probes on node failure, since HDF5 files might be unrecoverable if not closed properly. THe default is, however, to simply use one file per run.
 
 #### Supported types
 
