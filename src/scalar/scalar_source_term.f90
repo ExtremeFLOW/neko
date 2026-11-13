@@ -73,6 +73,7 @@ contains
     call rhs_fields%assign(1, f)
 
     call this%init_base(rhs_fields, coef, user, scheme_name)
+    this%supports_implicit = .true.
   end subroutine scalar_source_term_init
 
   !> Initialize the user source term.

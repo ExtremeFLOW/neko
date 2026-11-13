@@ -24,7 +24,7 @@ module scalar_residual_sx
 contains
 
   subroutine scalar_residual_sx_compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-       lambda, rho_cp, bd, dt, n)
+       lambda, rho_cp, implicit_coef, bd, dt, n)
     class(ax_t), intent(in) :: Ax
     type(mesh_t), intent(inout) :: msh
     type(space_t), intent(inout) :: Xh
@@ -32,7 +32,7 @@ contains
     type(field_t), intent(inout) :: s_res
     type(field_t), intent(in) :: f_Xh
     type(coef_t), intent(inout) :: c_Xh
-    type(field_t), intent(in) :: lambda, rho_cp
+    type(field_t), intent(in) :: lambda, rho_cp, implicit_coef
     real(kind=rp), intent(in) :: bd
     real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
@@ -40,7 +40,8 @@ contains
 
     call copy(c_Xh%h1, lambda%x, n)
     do i = 1, n
-       c_Xh%h2(i,1,1,1) = rho_cp%x(i,1,1,1) * bd / dt
+       c_Xh%h2(i,1,1,1) = rho_cp%x(i,1,1,1) * bd / dt - &
+            rho_cp%x(i,1,1,1) * implicit_coef%x(i,1,1,1)
     end do
     c_Xh%ifh2 = .true.
 
