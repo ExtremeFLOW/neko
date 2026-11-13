@@ -60,11 +60,14 @@ module scalar_residual
      !! @param Xh The SEM function space.
      !! @param lambda The thermal conductivity.
      !! @param rho_cp The density multiplied by the specific heat capacity.
+     !! @param implicit_coef Coefficient \f$ a \f$ of the source part
+     !! \f$ a s \f$ treated implicitly, per unit \f$ \rho c_p \f$. Zero if
+     !! there is none.
      !! @param bd The coefficeints from the BDF differencing scheme.
      !! @param dt The timestep.
      !! @param n The total number of degrees of freedom.
      subroutine scalar_residual_interface(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, &
-          lambda, rho_cp, bd, dt, n)
+          lambda, rho_cp, implicit_coef, bd, dt, n)
        import field_t
        import Ax_t
        import gs_t
@@ -80,7 +83,7 @@ module scalar_residual
        type(field_t), intent(inout) :: s_res
        type(field_t), intent(in) :: f_Xh
        type(coef_t), intent(inout) :: c_Xh
-       type(field_t), intent(in) :: lambda, rho_cp
+       type(field_t), intent(in) :: lambda, rho_cp, implicit_coef
        real(kind=rp), intent(in) :: bd
        real(kind=rp), intent(in) :: dt
        integer, intent(in) :: n

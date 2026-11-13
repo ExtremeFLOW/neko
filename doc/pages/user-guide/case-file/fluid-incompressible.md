@@ -885,7 +885,9 @@ define both `coriolis` and `centrifugal` source terms in a consistent way.
 8. `sponge`, adds a sponge term based on a reference velocity field, which is
    applied in a user-specified region of the domain.
 9. `field`, uses fields in the `neko_registry` as values of the source term. The
-   fields are selected with the `field_names` keyword.
+   fields are selected with the `field_names` keyword. For the scalar, a part of
+   the source that is linear in the scalar can be treated implicitly, see the
+   [scalar section](@ref case-file_scalar-implicit-source).
 10. `hpfrt`, adds a high-pass filter relaxation term to the momentum equation.
     This source term damps the highest elementwise Legendre modes of the
     velocity field. It is configured with `filter_weight`, the damping strength,

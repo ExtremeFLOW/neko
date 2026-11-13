@@ -40,6 +40,7 @@ module scalar_pnpn
   use checkpoint_payload, only : checkpoint_payload_t
   use checkpoint, only : chkp_t
   use field, only : field_t
+  use field_list, only : field_list_t
   use scalar_bc_projector, only : scalar_bc_projector_t
   use mesh, only : mesh_t
   use coefs, only : coef_t
@@ -458,8 +459,8 @@ contains
     type(time_scheme_controller_t), intent(in) :: ext_bdf
     type(time_step_controller_t), intent(in) :: dt_controller
     type(ksp_monitor_t), intent(inout) :: ksp_results
-    type(field_t), pointer :: rho_cp
-    integer :: rho_cp_index
+    type(field_t), pointer :: rho_cp, implicit_coef
+    integer :: rho_cp_index, implicit_coef_index
     ! Number of degrees of freedom
     integer :: n
 
@@ -467,6 +468,8 @@ contains
 
     n = this%dm_Xh%size()
     call neko_scratch_registry%request_field(rho_cp, rho_cp_index, .false.)
+    call neko_scratch_registry%request_field(implicit_coef, &
+         implicit_coef_index, .false.)
 
     call profiler_start_region(trim(this%name), 2)
     associate(u => this%u, v => this%v, w => this%w, s => this%s, &
@@ -543,8 +546,10 @@ contains
 
       ! Compute scalar residual.
       call profiler_start_region(trim(this%name) // '_residual', 20)
+      ! Source parts linear in s are moved into the Helmholtz operator.
+      call compute_implicit_coef(this, time, implicit_coef)
       call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
-           rho_cp, ext_bdf%diffusion_coeffs%x(1), &
+           rho_cp, implicit_coef, ext_bdf%diffusion_coeffs%x(1), &
            real(dt, kind=rp), dm_Xh%size())
 
       call gs_Xh%op(s_res, GS_OP_ADD, glb_cmd_event)
@@ -574,9 +579,31 @@ contains
       end if
 
     end associate
+    call neko_scratch_registry%relinquish_field(implicit_coef_index)
     call neko_scratch_registry%relinquish_field(rho_cp_index)
     call profiler_end_region(trim(this%name), 2)
   end subroutine scalar_pnpn_step
+
+  !> Compute the coefficient of the source parts that are linear in the
+  !! scalar and treated implicitly.
+  !! @param time The time state.
+  !! @param implicit_coef The coefficient, per unit \f$ \rho c_p \f$. Zero
+  !! if no source term has such a part.
+  subroutine compute_implicit_coef(this, time, implicit_coef)
+    class(scalar_pnpn_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    type(field_t), target, intent(inout) :: implicit_coef
+    type(field_list_t) :: implicit_coef_list
+
+    ! The source terms work on one coefficient per component, the scalar has
+    ! a single component.
+    call implicit_coef_list%init(1)
+    call implicit_coef_list%assign_to_field(1, implicit_coef)
+    call this%source_term%compute_implicit_coefficient(time, &
+         implicit_coef_list)
+    call implicit_coef_list%free()
+
+  end subroutine compute_implicit_coef
 
   subroutine print_debug(this)
     class(scalar_pnpn_t), intent(inout) :: this

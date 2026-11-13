@@ -222,6 +222,9 @@
         "field_names": {
           "$ref": "#/$defs/scalarFieldNames"
         },
+        "implicit_coefficient_field_names": {
+          "$ref": "#/$defs/scalarFieldNames"
+        },
         "start_time": {
           "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
         },

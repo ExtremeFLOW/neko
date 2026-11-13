@@ -33,7 +33,7 @@
 !> Implements the `source_term_t` type and a wrapper `source_term_wrapper_t`.
 module source_term
   use num_types, only : rp, dp
-  use utils, only : NEKO_TYPENAME_LEN
+  use utils, only : NEKO_TYPENAME_LEN, neko_error
   use coefs, only : coef_t
   use field_list, only : field_list_t
   use json_module, only : json_file
@@ -54,6 +54,11 @@ module source_term
      !> Whether the owning scheme may extrapolate this term in time together
      !! with its other explicit terms.
      logical :: extrapolate = .true.
+     !> Whether the term has a part \f$ a_i u_i \f$, linear in each
+     !! component \f$ u_i \f$ of the unknown, whose coefficients \f$ a_i \f$
+     !! are supplied by `compute_implicit_coefficient_` and treated
+     !! implicitly by the scheme.
+     logical :: has_implicit_coefficient = .false.
    contains
      !> Constructor for the source_term_t (base) type.
      procedure, pass(this) :: init_base => source_term_init_base
@@ -61,6 +66,13 @@ module source_term
      procedure, pass(this) :: free_base => source_term_free_base
      !> Executes `compute_` based on time conditions.
      procedure, pass(this) :: compute => source_term_compute_wrapper
+     !> Executes `compute_implicit_coefficient_` based on time conditions.
+     procedure, pass(this) :: compute_implicit_coefficient => &
+          source_term_compute_implicit_coefficient_wrapper
+     !> Adds the coefficients of the implicitly treated part to a list of
+     !! fields. Unsupported by default.
+     procedure, pass(this) :: compute_implicit_coefficient_ => &
+          source_term_compute_implicit_coefficient
      !> The common constructor using a JSON object.
      procedure(source_term_init), pass(this), deferred :: init
      !> Destructor.
@@ -218,6 +230,7 @@ contains
     call this%fields%free()
     nullify(this%coef)
     this%extrapolate = .true.
+    this%has_implicit_coefficient = .false.
   end subroutine source_term_free_base
 
   !> Destructor for the `source_term_wrapper_t` type.
@@ -245,4 +258,35 @@ contains
     end if
 
   end subroutine source_term_compute_wrapper
+
+  !> Executes `compute_implicit_coefficient_` based on time conditions.
+  !! @param a The fields to which the coefficients are added, one for each
+  !! component of the unknown.
+  !! @param time Time state.
+  subroutine source_term_compute_implicit_coefficient_wrapper(this, a, time)
+    class(source_term_t), intent(inout) :: this
+    type(field_list_t), intent(inout) :: a
+    type(time_state_t), intent(in) :: time
+    real(kind=dp) :: tol
+
+    tol = time%tolerance()
+    if (time%t + tol .ge. this%start_time .and. &
+         time%t - tol .le. this%end_time) then
+       call this%compute_implicit_coefficient_(a, time)
+    end if
+
+  end subroutine source_term_compute_implicit_coefficient_wrapper
+
+  !> Default for source terms without an implicitly treated part.
+  !! @param a The fields to which the coefficients are added, one for each
+  !! component of the unknown.
+  !! @param time Time state.
+  subroutine source_term_compute_implicit_coefficient(this, a, time)
+    class(source_term_t), intent(inout) :: this
+    type(field_list_t), intent(inout) :: a
+    type(time_state_t), intent(in) :: time
+
+    call neko_error("Source term has no implicitly treated part")
+
+  end subroutine source_term_compute_implicit_coefficient
 end module source_term
