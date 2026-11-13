@@ -33,15 +33,13 @@
 !> Implements the CPU kernel for the `vreman_t` type.
 module vreman_cpu
   use num_types, only : rp
-  use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS, col2, vlsc2
+  use math, only : NEKO_EPS, col2
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
   use operators, only : dudxyz, grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use utils, only : neko_error
   implicit none
   private
 
@@ -58,10 +56,11 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
   !! @param if_corr Whether to apply buoyancy correction.
-  !! @param scalar_name The name of the scalar field for buoyancy correction.
+  !! @param scalar_name The name of the scalar field for the stability
+  !! treatment.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
-  !! @param g The gravity vector.
+  !! @param g The gravity vector, pointing upwards (reversed at init).
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
        if_corr, scalar_name, ri_c, ref_temp, g)
     logical, intent(in) :: if_ext, if_corr
@@ -88,10 +87,8 @@ contains
     real(kind=rp) :: aijaij
     integer :: temp_indices(9)
     integer :: temp_indices_buoy(3)
-    integer :: e, i, j
-    real(kind=rp) :: gmag, ri, correction, buoyancy, shear_sq
-    real(kind=rp) :: n(3), du_n(3), sh(3)
-    real(kind=rp) :: du_parallel
+    integer :: e, i
+    real(kind=rp) :: ri, N2, s_sq, nu, m
 
     if (if_ext) then
        u => neko_registry%get_field_by_name("u_e")
@@ -127,6 +124,9 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
+    ! Note: the gradients are summed (not averaged) over shared nodes. The
+    ! eddy viscosity is multiplied by mult below, and final GS + mult then
+    ! averages the element wise values
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
     call coef%gs_h%op(a13, GS_OP_ADD)
@@ -175,61 +175,57 @@ contains
     !$omp end parallel do
     if (if_corr) then
        temperature => neko_registry%get_field_by_name(scalar_name)
-       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
-       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
-       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
+       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), &
+            .false.)
+       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), &
+            .false.)
+       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), &
+            .false.)
 
-       ! Calculate Richardson number
-       gmag = sqrt(vlsc2(g, g, 3))
-       if (gmag > NEKO_EPS) then
-          n = g / gmag
-       else
-          call neko_error("The gravity vector must have at least one nonzero component")
-       endif
+       ! Temperature gradient (element-local)
        call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
-       !$omp parallel do private(e, i, j, buoyancy, du_n, du_parallel, &
-       !$omp& sh, shear_sq, ri, correction)
+
+       ! g*grad(T), averaged over the elements sharing a node,
+       ! so N^2 is single-valued like the strain rate. Stored in dTdx
+       dTdx%x = g(1) * dTdx%x + g(2) * dTdy%x + g(3) * dTdz%x
+       call coef%gs_h%op(dTdx, GS_OP_ADD)
+       call col2(dTdx%x, coef%mult, dTdx%dof%size())
+
+       !$omp parallel do private(e, i, m, N2, s_sq, ri, nu)
        do e = 1, coef%msh%nelv
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
           !DIR$ IVDEP
           !GCC$ ivdep
           do i = 1, coef%Xh%lxyz
+             m = coef%mult(i,1,1,e)
 
-             ! Buoyancy component (numerator in Ri definition)
-             buoyancy = (-g(1) * dTdx%x(i,1,1,e) - &
-                  g(2) * dTdy%x(i,1,1,e) - &
-                  g(3) * dTdz%x(i,1,1,e)) / ref_temp
+             ! Squared Brunt-Vaisala frequency, positive for stable
+             ! stratification since g points upwards here.
+             N2 = dTdx%x(i,1,1,e) / ref_temp
 
-             ! Shear component (denominator in Ri definition)
-             ! Directional derivative of velocity
-             du_n(1) = a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) +&
-                  a13%x(i,1,1,e)*n(3)
-             du_n(2) = a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
-                  a23%x(i,1,1,e)*n(3)
-             du_n(3) = a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) +&
-                  a33%x(i,1,1,e)*n(3)
+             ! Element-local eddy viscosity: the summed gradients times
+             ! mult give the element value, see above
+             nu = nut%x(i,1,1,e)
 
-             ! Component parallel to n
-             du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
+             ! Squared strain-rate magnitude |S|^2 = 2 S_ij S_ij of the
+             ! averaged gradient, with S_ij = (a_ij + a_ji)/2. The a_ij are
+             ! gather-scatter sums, so each is scaled by m (hence m*m).
+             s_sq = (2.0_rp * (a11%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 &
+                  + a33%x(i,1,1,e)**2) &
+                  + (a12%x(i,1,1,e) + a21%x(i,1,1,e))**2 &
+                  + (a13%x(i,1,1,e) + a31%x(i,1,1,e))**2 &
+                  + (a23%x(i,1,1,e) + a32%x(i,1,1,e))**2) * m * m
 
-             ! Perpendicular (shear) components
-             do j = 1, 3
-                sh(j) = du_n(j) - du_parallel*n(j)
-             end do
-
-             ! Shear magnitude squared
-             shear_sq = sh(1)*sh(1) + sh(2)*sh(2) + sh(3)*sh(3)
-
-             ! Richardson number
-             ri = buoyancy / (shear_sq + NEKO_EPS)
+             ! Richardson number of Lilly (1962), Ri = N^2 / |S|^2
+             ri = N2 / (s_sq + NEKO_EPS)
 
              if (ri .le. ri_c) then
-                correction = sqrt(1 - ri/ri_c)
-                nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
+                nu = sqrt(max(0.0_rp, 1.0_rp - ri/ri_c)) * nu
              else
-                nut%x(i,1,1,e) = NEKO_EPS
+                nu = NEKO_EPS
              end if
+             nut%x(i,1,1,e) = nu
           end do
        end do
        !$omp end parallel do
