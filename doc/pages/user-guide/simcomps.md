@@ -358,7 +358,7 @@ The output format determines the meaning of `output_control` and
   `output_` parameters set the schedule for closing that file and opening
   the next numbered file. At a sampling step when an output event is due,
   the current sample is written before the file is rotated.
-  `output_control: "never"` is the default behavious and disables rotation, keeping all samples in one
+  `output_control: "never"` is the default behaviour and disables rotation, keeping all samples in one
   file for the run. Omitting the output schedule, or setting it to the same
   control mode and value as the compute schedule, also keeps one file for
   the run.
