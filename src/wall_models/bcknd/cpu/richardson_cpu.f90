@@ -329,7 +329,7 @@ contains
     real(kind=rp), intent(in) :: z0h, Pr, l, utau, kappa
     real(kind=rp) :: heat_flux
 
-    heat_flux = kappa*utau * (ti - ts)/log(h/z0h)
+    heat_flux = kappa*utau * (ts - ti)/(Pr*log(h/z0h))
   end function heat_flux_neutral
 
 end module richardson_cpu

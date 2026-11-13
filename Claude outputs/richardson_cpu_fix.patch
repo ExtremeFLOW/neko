@@ -1,0 +1,34 @@
+diff --git a/src/wall_models/bcknd/cpu/richardson_cpu.f90 b/src/wall_models/bcknd/cpu/richardson_cpu.f90
+index e7a6ed6e..57437645 100644
+--- a/src/wall_models/bcknd/cpu/richardson_cpu.f90
++++ b/src/wall_models/bcknd/cpu/richardson_cpu.f90
+@@ -95,7 +95,6 @@ contains
+     select case (bc_type)
+     case ("neumann")
+        ! ts not used
+-       ts = ti
+        q = bc_value
+     case ("dirichlet")
+        ts = bc_value
+@@ -201,10 +200,8 @@ contains
+        utau = sqrt(tau_ptr(magu, Ri_b, hi, z0, l, kappa))
+        select case (bc_type)
+        case ("neumann")
+-          ! Compute ts based on stability (C = flux per kelvin)
+-          C = heat_flux_ptr(ti, ts, Ri_b, hi, magu, z0h, Pr, l, utau, kappa)
+-          if (C < 1e-6) then C = 1e-6
+-          ts = ti + q / C
++          !!! TEMPORARY: neutral log-law approximation
++          ts = ti - (q * Pr * log(hi/z0h)) / (max(utau, 1e-6_rp) * kappa)
+           q = q
+        case ("dirichlet")
+           ! Compute q
+@@ -299,7 +296,7 @@ contains
+     b = 2.0
+     c = 5.3 * a**2 * b * (h/z0h)**0.5
+ 
+-    heat_flux = - a**2 / Pr * magu * &
++    heat_flux = - a**2 / 0.74 * magu * &
+          (ti - ts) * f_theta_convective(Ri_b, c)
+ 
+   end function heat_flux_convective
