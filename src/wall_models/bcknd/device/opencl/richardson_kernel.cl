@@ -110,7 +110,7 @@ inline real tau_neutral(const real magu, const real h, const real z0,
 inline real heat_flux_neutral(const real ti, const real ts, const real h,
                               const real z0h, const real utau,
                               const real kappa, const real Pr) {
-+  return kappa * utau * (ts - ti) / (Pr * log(h / z0h));
+  return kappa * utau * (ts - ti) / (Pr * log(h / z0h));
 }
 
 /**

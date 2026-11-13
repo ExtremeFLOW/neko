@@ -117,7 +117,7 @@ static float tau_neutral(const float magu, const float h, const float z0,
 static float heat_flux_neutral(const float ti, const float ts, const float h,
                               const float z0h, const float utau,
                               const float kappa, const float Pr) {
-+  return kappa * utau * (ts - ti) / (Pr * log(h / z0h));
+  return kappa * utau * (ts - ti) / (Pr * log(h / z0h));
 }
 
 /**

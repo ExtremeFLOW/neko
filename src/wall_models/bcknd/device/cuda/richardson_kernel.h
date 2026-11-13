@@ -239,10 +239,10 @@ __global__ void richardson_compute(
             }
         }
         else { // Neutral
-            tau_mag = tau_neutral<T>(magu, hi, z0, kappa, Pr);
+            tau_mag = tau_neutral<T>(magu, hi, z0, kappa);
             utau = sqrt(tau_mag);
             if constexpr (BC_TYPE == 1) {
-                q = heat_flux_neutral<T>(ti, ts, hi, z0h, utau, kappa);
+                q = heat_flux_neutral<T>(ti, ts, hi, z0h, utau, kappa, Pr);
             }
         }
 
