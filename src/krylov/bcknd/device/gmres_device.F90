@@ -52,7 +52,7 @@ module gmres_device
        device_sub2
   use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
        device_event_create, device_unmap, device_free, device_event_destroy, &
-       device_get_ptr, device_event_sync
+       device_get_ptr
   use utils, only : neko_error
   use json_module, only : json_file
   use json_utils, only : json_get_or_lookup_or_default
@@ -405,7 +405,6 @@ contains
             call device_copy(r_d, f_d, n)
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-            call device_event_sync(this%gs_event)
             call bc_projector%apply(w, n)
             call device_sub2(r_d, w_d, n)
          end if
@@ -427,7 +426,6 @@ contains
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-            call device_event_sync(this%gs_event)
             call bc_projector%apply(w, n)
 
             if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then

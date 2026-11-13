@@ -530,6 +530,9 @@ contains
   !! @param work1 A temporary array for computations.
   !! @param work2 A temporary array for computations.
   !! @param coef The SEM coefficients.
+  !! @param event Optional device event. When present, the gather-scatter
+  !! records it instead of syncing the host, so the routine may return
+  !! before the device has finished.
   subroutine curl(w1, w2, w3, u1, u2, u3, work1, work2, coef, event)
     type(field_t), intent(inout) :: w1
     type(field_t), intent(inout) :: w2

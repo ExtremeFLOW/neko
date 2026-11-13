@@ -38,6 +38,7 @@
 #ifdef __APPLE__
 
 #import <Metal/Metal.h>
+#include <device/metal/check.h>
 
 extern id<MTLDevice>  neko_metal_device(void);
 extern id<MTLLibrary> neko_metal_library(void);
@@ -55,7 +56,6 @@ static inline id<MTLComputePipelineState> bc_get_pipeline(NSString *name) {
     }
     id<MTLComputePipelineState> pso = bc_pipelines[name];
     if (!pso) {
-        id<MTLDevice> dev = neko_metal_device();
         NSError *err = nil;
         id<MTLLibrary> lib = neko_metal_library();
         id<MTLFunction> fn = [lib newFunctionWithName:name];
@@ -63,7 +63,7 @@ static inline id<MTLComputePipelineState> bc_get_pipeline(NSString *name) {
             NSLog(@"Metal BC: kernel '%@' not found in library", name);
             abort();
         }
-        pso = [dev newComputePipelineStateWithFunction:fn error:&err];
+        pso = neko_metal_new_pipeline(fn, NEKO_METAL_MAX_THREADS, &err);
         if (err) {
             NSLog(@"Metal BC: pipeline error for '%@': %@", name, err);
             abort();
@@ -91,11 +91,14 @@ static inline void bc_dispatch_1d(id<MTLCommandQueue> queue,
         encode(enc);
         MTLSize threads = MTLSizeMake(n, 1, 1);
         NSUInteger tpg = n < METAL_BC_NTHREADS ? n : METAL_BC_NTHREADS;
+        if (tpg > pso.maxTotalThreadsPerThreadgroup)
+            tpg = pso.maxTotalThreadsPerThreadgroup;
         MTLSize tg = MTLSizeMake(tpg, 1, 1);
         [enc dispatchThreads:threads threadsPerThreadgroup:tg];
         [enc endEncoding];
         [cb commit];
         [cb waitUntilCompleted];
+        METAL_CHECK_CB(cb);
     }
 }
 

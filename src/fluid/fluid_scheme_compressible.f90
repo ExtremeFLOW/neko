@@ -62,6 +62,7 @@ module fluid_scheme_compressible
   use device_math, only : device_glamax
   use compressible_residual, only : compressible_rhs_set_physical_flux
   use num_types, only : i8
+  use flow_ic, only : set_flow_ic_user_compressible
   implicit none
   private
 
@@ -106,6 +107,9 @@ module fluid_scheme_compressible
 
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_compressible_validate
+     !> Set the initial condition with the user routine
+     procedure, pass(this) :: set_user_initial_condition => &
+          fluid_scheme_compressible_set_user_initial_condition
      !> Compute the CFL number
      procedure, pass(this) :: compute_cfl &
           => fluid_scheme_compressible_compute_cfl
@@ -392,6 +396,18 @@ contains
     call this%compute_max_wave_speed()
 
   end subroutine fluid_scheme_compressible_validate
+
+  !> Set the initial condition of the density, velocity and pressure with the
+  !! user routine.
+  !! @param user Type with user-defined procedures.
+  subroutine fluid_scheme_compressible_set_user_initial_condition(this, user)
+    class(fluid_scheme_compressible_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+
+    call set_flow_ic_user_compressible(this%rho, this%u, this%v, this%w, &
+         this%p, this%c_Xh, this%gs_Xh, user%initial_conditions, this%name)
+
+  end subroutine fluid_scheme_compressible_set_user_initial_condition
 
   !> Compute CFL number
   !> @param this The compressible fluid scheme object

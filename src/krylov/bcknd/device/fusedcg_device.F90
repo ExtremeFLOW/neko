@@ -46,7 +46,7 @@ module fusedcg_device
   use device_math, only : device_rzero, device_copy, device_glsc3
   use device, only : device_memcpy, HOST_TO_DEVICE, device_get_ptr, &
        device_free, device_map, device_alloc, device_event_create, &
-       device_event_sync, device_event_destroy, device_unmap
+       device_event_destroy, device_unmap
   use utils, only : neko_error
   use comm, only : pe_size, NEKO_COMM, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allreduce, MPI_IN_PLACE, MPI_SUM
@@ -385,7 +385,6 @@ contains
 
          call Ax%compute(w, p(1, p_cur), coef, x%msh, x%Xh)
          call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-         call device_event_sync(this%gs_event)
          call bc_projector%apply(w, n)
 
          pap = device_glsc3(w_d, coef%mult_d, this%p_d(p_cur), n)

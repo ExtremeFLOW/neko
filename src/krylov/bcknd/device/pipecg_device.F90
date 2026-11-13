@@ -47,7 +47,7 @@ module pipecg_device
        device_glsc3, device_vlsc3
   use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
        device_event_create, device_unmap, device_free, device_event_destroy, &
-       device_get_ptr, device_event_sync
+       device_get_ptr
   use utils, only : neko_error
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Iallreduce, MPI_Status, &
@@ -399,7 +399,6 @@ contains
       call this%M%solve(u(1, u_prev), r, n)
       call Ax%compute(w, u(1, u_prev), coef, x%msh, x%Xh)
       call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-      call device_event_sync(this%gs_event)
       call bc_projector%apply(w, n)
 
       rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
@@ -431,7 +430,6 @@ contains
          call this%M%solve(mi, w, n)
          call Ax%compute(ni, mi, coef, x%msh, x%Xh)
          call gs_h%op(ni, n, GS_OP_ADD, this%gs_event)
-         call device_event_sync(this%gs_event)
          call bc_projector%apply(ni, n)
 
          call MPI_Wait(request, status, ierr)

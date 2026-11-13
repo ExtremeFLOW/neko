@@ -40,6 +40,7 @@ module smagorinsky_device
   use operators, only : strain_rate
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use device, only : glb_cmd_event
   use device_math, only : device_col2
   use device_smagorinsky_nut, only : device_smagorinsky_nut_compute
   implicit none
@@ -92,19 +93,17 @@ contains
     call strain_rate(s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
          u%x_d, v%x_d, w%x_d, coef)
 
-    call coef%gs_h%op(s11, GS_OP_ADD)
-    call coef%gs_h%op(s22, GS_OP_ADD)
-    call coef%gs_h%op(s33, GS_OP_ADD)
-    call coef%gs_h%op(s12, GS_OP_ADD)
-    call coef%gs_h%op(s13, GS_OP_ADD)
-    call coef%gs_h%op(s23, GS_OP_ADD)
+    call coef%gs_h%op(s11%x, s22%x, s33%x, s11%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
+    call coef%gs_h%op(s12%x, s13%x, s23%x, s12%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
 
     call device_smagorinsky_nut_compute(s11%x_d, s22%x_d, s33%x_d, &
          s12%x_d, s13%x_d, s23%x_d, &
          delta%x_d, nut%x_d, coef%mult_d, &
          c_s, s11%dof%size())
 
-    call coef%gs_h%op(nut, GS_OP_ADD)
+    call coef%gs_h%op(nut, GS_OP_ADD, glb_cmd_event)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)
