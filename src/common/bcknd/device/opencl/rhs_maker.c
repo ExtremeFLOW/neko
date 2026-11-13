@@ -90,7 +90,7 @@ void rhs_maker_sumab_opencl(void *u, void *v, void *w,
 void rhs_maker_ext_opencl(void *abx1, void *aby1, void *abz1,
                           void *abx2, void *aby2, void *abz2,
                           void *bfx, void *bfy, void *bfz,
-                          real *rho, real *ext1, real *ext2, real *ext3, int *n) {
+                          real *ext1, real *ext2, real *ext3, int *n) {
   cl_int err;
 
   if (rhs_maker_program == NULL)
@@ -108,11 +108,10 @@ void rhs_maker_ext_opencl(void *abx1, void *aby1, void *abz1,
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *) &bfx));
   CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *) &bfy));
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *) &bfz));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(real), rho));
-  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(real), ext1));
-  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(real), ext2));
-  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(real), ext3));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(real), ext1));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(real), ext2));
+  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(real), ext3));
+  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), n));
 
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
