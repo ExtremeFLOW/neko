@@ -49,8 +49,9 @@ module spectral_vanishing_viscosity
 
   character(len=3), parameter :: KNOWN_DIRECTIONS(7) = [character(len=3) :: &
        "rst", "rs", "rt", "st", "r", "s", "t"]
-  character(len=9), parameter :: KNOWN_FORMULATIONS(1) = [character(len=9) :: &
-       "one-sided"]
+  character(len=10), parameter :: KNOWN_FORMULATIONS(2) = &
+       [character(len=10) :: &
+       "one-sided", "factorized"]
   character(len=5), parameter :: KNOWN_NU_TYPES(2) = [character(len=5) :: &
        "value", "field"]
   character(len=5), parameter :: KNOWN_KERNEL_TYPES(1) = [character(len=5) :: &
@@ -63,6 +64,8 @@ module spectral_vanishing_viscosity
      type(elementwise_filter_t) :: filter
      !> Reference directions in which the filter is applied.
      character(len=:), allocatable :: direction
+     !> SVV operator formulation.
+     character(len=:), allocatable :: formulation
      !> Kernel type defining the modal transfer function.
      character(len=:), allocatable :: kernel_type
      !> SEM coefficients associated with this SVV object.
@@ -73,6 +76,11 @@ module spectral_vanishing_viscosity
      !> Identity matrix used to disable filtering in selected directions.
      real(kind=rp), allocatable :: ident(:,:)
      type(c_ptr) :: ident_d = C_NULL_PTR
+     !> Complementary derivatives, (I - F) D, for factorized SVV.
+     real(kind=rp), allocatable :: Br(:,:), Bs(:,:), Bt(:,:)
+     type(c_ptr) :: Br_d = C_NULL_PTR
+     type(c_ptr) :: Bs_d = C_NULL_PTR
+     type(c_ptr) :: Bt_d = C_NULL_PTR
      !> Name and pointer for a field-valued SVV viscosity.
      character(len=:), allocatable :: nue_field_name
      type(field_t), pointer :: nue => null()
@@ -97,7 +105,7 @@ contains
     type(coef_t), intent(in), target :: coef
     type(field_t), intent(in) :: rho
     real(kind=rp), allocatable :: transfer(:)
-    real(kind=rp) :: nu_val, power_coef
+    real(kind=rp) :: nu_val, power_coef, exponent_factor
     character(len=:), allocatable :: nu_type, direction, formulation
     integer :: i, lx
 
@@ -107,10 +115,11 @@ contains
     lx = coef%Xh%lx
 
     call json_get_or_default(json, "svv.formulation", formulation, &
-         "one-sided")
-    if (trim(formulation) .ne. "one-sided") then
-       call neko_error("This SVV operator only supports the one-sided " // &
-            "formulation")
+         "factorized")
+    this%formulation = trim(formulation)
+    if (all(trim(this%formulation) .ne. KNOWN_FORMULATIONS)) then
+       call neko_type_error("The SVV formulation", this%formulation, &
+            KNOWN_FORMULATIONS)
     end if
 
     call json_get_or_default(json, "svv.direction", direction, "rst")
@@ -129,9 +138,14 @@ contains
        if (power_coef .eq. 0.0_rp) then
           transfer = 0.0_rp
        else
+          if (this%formulation .eq. "factorized") then
+             exponent_factor = 0.5_rp
+          else
+             exponent_factor = 1.0_rp
+          end if
           do i = 1, lx
              transfer(i) = 1.0_rp - ((i - 1.0_rp) / (lx - 1.0_rp)) ** &
-                  ((lx - 1.0_rp) * power_coef)
+                  (exponent_factor * (lx - 1.0_rp) * power_coef)
           end do
        end if
     case default
@@ -147,6 +161,10 @@ contains
     do i = 1, lx
        this%ident(i, i) = 1.0_rp
     end do
+
+    if (this%formulation .eq. "factorized") then
+       call svv_build_complementary_derivatives(this)
+    end if
 
     allocate(this%h1(lx, lx, lx, coef%msh%nelv))
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -189,6 +207,46 @@ contains
     if (allocated(direction)) deallocate(direction)
     if (allocated(formulation)) deallocate(formulation)
   end subroutine svv_init_from_json
+
+  !> Build the complementary derivative matrices used by factorized SVV.
+  !! @param this SVV object.
+  subroutine svv_build_complementary_derivatives(this)
+    class(svv_t), intent(inout) :: this
+    real(kind=rp), allocatable :: complementary_filter(:,:)
+    integer :: lx
+
+    lx = this%coef%Xh%lx
+    allocate(complementary_filter(lx, lx))
+    allocate(this%Br(lx, lx), this%Bs(lx, lx), this%Bt(lx, lx))
+
+    complementary_filter = this%ident - this%filter%fh
+    this%Br = 0.0_rp
+    this%Bs = 0.0_rp
+    this%Bt = 0.0_rp
+    if (index(this%direction, "r") > 0) then
+       this%Br = matmul(complementary_filter, this%coef%Xh%dx)
+    end if
+    if (index(this%direction, "s") > 0) then
+       this%Bs = matmul(complementary_filter, this%coef%Xh%dy)
+    end if
+    if (index(this%direction, "t") > 0) then
+       this%Bt = matmul(complementary_filter, this%coef%Xh%dz)
+    end if
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_map(this%Br, this%Br_d, lx * lx)
+       call device_map(this%Bs, this%Bs_d, lx * lx)
+       call device_map(this%Bt, this%Bt_d, lx * lx)
+       call device_memcpy(this%Br, this%Br_d, lx * lx, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%Bs, this%Bs_d, lx * lx, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(this%Bt, this%Bt_d, lx * lx, HOST_TO_DEVICE, &
+            sync = .true.)
+    end if
+
+    deallocate(complementary_filter)
+  end subroutine svv_build_complementary_derivatives
 
   !> Update a time-varying, field-valued SVV viscosity.
   !! @param this SVV object.
@@ -245,13 +303,29 @@ contains
        end if
        deallocate(this%ident)
     end if
+    if (allocated(this%Br)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%Br, this%Br_d)
+       deallocate(this%Br)
+    end if
+    if (allocated(this%Bs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%Bs, this%Bs_d)
+       deallocate(this%Bs)
+    end if
+    if (allocated(this%Bt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%Bt, this%Bt_d)
+       deallocate(this%Bt)
+    end if
     if (allocated(this%direction)) deallocate(this%direction)
+    if (allocated(this%formulation)) deallocate(this%formulation)
     if (allocated(this%kernel_type)) deallocate(this%kernel_type)
     if (allocated(this%nue_field_name)) deallocate(this%nue_field_name)
     nullify(this%coef)
     nullify(this%nue)
     this%h1_d = C_NULL_PTR
     this%ident_d = C_NULL_PTR
+    this%Br_d = C_NULL_PTR
+    this%Bs_d = C_NULL_PTR
+    this%Bt_d = C_NULL_PTR
     this%tvar_h1 = .false.
   end subroutine svv_free
 
