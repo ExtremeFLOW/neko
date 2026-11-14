@@ -147,8 +147,8 @@ Functions</h2></td></tr>
 <tr class="memitem:a62ddc2320f6eb2286b3160f33a9e8a42 template"><td class="memItemLeft" align="right" valign="top">__device__ T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a62ddc2320f6eb2286b3160f33a9e8a42">heat_flux_convective</a> (T ti, T ts, T Ri_b, T h, T magu, T z0h, T kappa)</td></tr>
 <tr class="memitem:a59df68e443b14ca8e02935af81ee61ed" id="r_a59df68e443b14ca8e02935af81ee61ed"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
 <tr class="memitem:a59df68e443b14ca8e02935af81ee61ed template"><td class="memItemLeft" align="right" valign="top">__device__ T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a59df68e443b14ca8e02935af81ee61ed">tau_neutral</a> (T magu, T h, T z0, T kappa)</td></tr>
-<tr class="memitem:a4d0dafaaad422c48ae93acc3d577553e" id="r_a4d0dafaaad422c48ae93acc3d577553e"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
-<tr class="memitem:a4d0dafaaad422c48ae93acc3d577553e template"><td class="memItemLeft" align="right" valign="top">__device__ T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4d0dafaaad422c48ae93acc3d577553e">heat_flux_neutral</a> (T ti, T ts, T h, T z0h, T utau, T kappa)</td></tr>
+<tr class="memitem:ac54a5f42c455117a3eaa8ca29a1f70a5" id="r_ac54a5f42c455117a3eaa8ca29a1f70a5"><td class="memTemplParams" colspan="2">template&lt;typename T&gt; </td></tr>
+<tr class="memitem:ac54a5f42c455117a3eaa8ca29a1f70a5 template"><td class="memItemLeft" align="right" valign="top">__device__ T&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac54a5f42c455117a3eaa8ca29a1f70a5">heat_flux_neutral</a> (T ti, T ts, T h, T z0h, T utau, T kappa, T Pr)</td></tr>
 <tr class="memitem:ae3ca444aa846fdc12c5a4a1bd8d1ff2f" id="r_ae3ca444aa846fdc12c5a4a1bd8d1ff2f"><td class="memTemplParams" colspan="2">template&lt;typename T, int BC_TYPE&gt; </td></tr>
 <tr class="memitem:ae3ca444aa846fdc12c5a4a1bd8d1ff2f template"><td class="memItemLeft" align="right" valign="top">__global__ void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae3ca444aa846fdc12c5a4a1bd8d1ff2f">richardson_compute</a> (const T *__restrict__ u_d, const T *__restrict__ v_d, const T *__restrict__ w_d, const T *__restrict__ temp_d, const T *__restrict__ temp_w_d, const T *__restrict__ h_d, const T *__restrict__ n_x_d, const T *__restrict__ n_y_d, const T *__restrict__ n_z_d, T *__restrict__ tau_x_d, T *__restrict__ tau_y_d, T *__restrict__ tau_z_d, int n_nodes, T kappa, const T *__restrict__ mu_w_d, const T *__restrict__ rho_w_d, T g1, T g2, T g3, T Pr, T z0, T z0h_in, T bc_value, T *__restrict__ Ri_b_diagn, T *__restrict__ L_ob_diagn, T *__restrict__ utau_diagn, T *__restrict__ magu_diagn, T *__restrict__ ti_diagn, T *__restrict__ ts_diagn, T *__restrict__ q_diagn)</td></tr>
 </table>
@@ -305,8 +305,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="a4d0dafaaad422c48ae93acc3d577553e" name="a4d0dafaaad422c48ae93acc3d577553e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4d0dafaaad422c48ae93acc3d577553e">&#9670;&#160;</a></span>heat_flux_neutral()</h2>
+<a id="ac54a5f42c455117a3eaa8ca29a1f70a5" name="ac54a5f42c455117a3eaa8ca29a1f70a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac54a5f42c455117a3eaa8ca29a1f70a5">&#9670;&#160;</a></span>heat_flux_neutral()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -341,7 +341,12 @@ template&lt;typename T&gt; </div>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>kappa</em></span>&#160;)</td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>kappa</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">T</td>          <td class="paramname"><span class="paramname"><em>Pr</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -585,7 +590,7 @@ Here is the call graph for this function:</div>
 <area shape="rect" title=" " alt="" coords="5,136,159,164"/>
 <area shape="rect" href="../../da/d4a/cuda_2richardson__kernel_8h.html#a62ddc2320f6eb2286b3160f33a9e8a42" title=" " alt="" coords="207,5,366,33"/>
 <area shape="poly" title=" " alt="" coords="95,134,141,90,172,65,205,44,222,38,218,41,208,48,175,70,145,94,99,137"/>
-<area shape="rect" href="../../da/d4a/cuda_2richardson__kernel_8h.html#a4d0dafaaad422c48ae93acc3d577553e" title=" " alt="" coords="219,57,354,85"/>
+<area shape="rect" href="../../da/d4a/cuda_2richardson__kernel_8h.html#ac54a5f42c455117a3eaa8ca29a1f70a5" title=" " alt="" coords="219,57,354,85"/>
 <area shape="poly" title=" " alt="" coords="114,133,206,95,229,89,224,92,208,100,117,138"/>
 <area shape="rect" href="../../da/d4a/cuda_2richardson__kernel_8h.html#ac2814a22732eca4c30a0c8cbcd7ab42f" title=" " alt="" coords="222,109,350,137"/>
 <area shape="poly" title=" " alt="" coords="158,137,209,132,205,135,160,142"/>

@@ -455,7 +455,7 @@ $(function(){initNavTree('d7/d87/richardson__cpu_8f90_source.html','../../','');
 <div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: z0h, pr, l, utau, kappa</div>
 <div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: heat_flux</div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    heat_flux = kappa*utau * (ti - ts)/log(h/z0h)</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    heat_flux = kappa*utau * (ts - ti)/(pr*log(h/z0h))</div>
 </div>
 <div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>  <span class="keyword">end function </span><a class="code hl_function" href="../../d4/d09/namespacerichardson__cpu.html#aa1d14c0356a07368401dc45fd80ad8f9">heat_flux_neutral</a></div>
 <div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>

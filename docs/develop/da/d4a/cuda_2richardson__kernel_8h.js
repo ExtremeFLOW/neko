@@ -5,7 +5,7 @@ var cuda_2richardson__kernel_8h =
     [ "f_theta_convective", "da/d4a/cuda_2richardson__kernel_8h.html#a9df9d0bd360b6ae889de1fe53e8759e1", null ],
     [ "f_theta_stable", "da/d4a/cuda_2richardson__kernel_8h.html#aff7e09cb332be0a4a35b56cacd8cb419", null ],
     [ "heat_flux_convective", "da/d4a/cuda_2richardson__kernel_8h.html#a62ddc2320f6eb2286b3160f33a9e8a42", null ],
-    [ "heat_flux_neutral", "da/d4a/cuda_2richardson__kernel_8h.html#a4d0dafaaad422c48ae93acc3d577553e", null ],
+    [ "heat_flux_neutral", "da/d4a/cuda_2richardson__kernel_8h.html#ac54a5f42c455117a3eaa8ca29a1f70a5", null ],
     [ "heat_flux_stable", "da/d4a/cuda_2richardson__kernel_8h.html#ac2814a22732eca4c30a0c8cbcd7ab42f", null ],
     [ "richardson_compute", "da/d4a/cuda_2richardson__kernel_8h.html#ae3ca444aa846fdc12c5a4a1bd8d1ff2f", null ],
     [ "tau_convective", "da/d4a/cuda_2richardson__kernel_8h.html#a4bc5296cee245d3f8633310bd127a3b7", null ],
