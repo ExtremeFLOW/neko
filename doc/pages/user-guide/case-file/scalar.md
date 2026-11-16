@@ -46,6 +46,14 @@ user could set it up by the following manner to include an eddy diffusivity fiel
 }
 ```
 
+In this case the field must already be in the registry when the scalar material
+properties are updated, and it must be updated every time step by whoever
+provides it, e.g. the Deardorff model or user code. `Pr_t` is not used. A
+field name that is not in the registry stops the simulation with an error. An
+empty `alphat_field` prints a warning, since no eddy diffusivity is then added to
+the scalar equation. A registered field that is never updated stays zero, which
+is not detected.
+
 ## Boundary conditions {#case-file_scalar-boundary-conditions}
 
 The boundary conditions for the scalar are specified through the

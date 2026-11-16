@@ -33,15 +33,13 @@
 !> Implements the CPU kernel for the `vreman_t` type.
 module vreman_cpu
   use num_types, only : rp
-  use field_list, only : field_list_t
-  use math, only : cadd, NEKO_EPS, col2, vlsc2
+  use math, only : NEKO_EPS, col2
   use scratch_registry, only : neko_scratch_registry
   use registry, only : neko_registry
   use field, only : field_t
   use operators, only : dudxyz, grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
-  use utils, only : neko_error
   implicit none
   private
 
@@ -58,13 +56,17 @@ contains
   !! @param delta The LES lengthscale.
   !! @param c The Vreman model constant
   !! @param if_corr Whether to apply buoyancy correction.
-  !! @param scalar_name The name of the scalar field for buoyancy correction.
+  !! @param scalar_name The name of the scalar field for the stability
+  !! treatment.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
-  !! @param g The gravity vector.
+  !! @param g The gravity vector, pointing upwards (reversed at init).
+  !! @param if_aniso Whether to use the anisotropic filter-width tensor.
+  !! @param g11, g12, g13, g22, g23, g33 The filter-width tensor.
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
-       if_corr, scalar_name, ri_c, ref_temp, g)
-    logical, intent(in) :: if_ext, if_corr
+       if_corr, scalar_name, ri_c, ref_temp, g, &
+       if_aniso, g11, g12, g13, g22, g23, g33)
+    logical, intent(in) :: if_ext, if_corr, if_aniso
     real(kind=rp), intent(in) :: t
     integer, intent(in) :: tstep
     type(coef_t), intent(in) :: coef
@@ -73,25 +75,19 @@ contains
     character(len=*), intent(in) :: scalar_name
     real(kind=rp), intent(in) :: c, ri_c, ref_temp
     real(kind=rp), intent(in) :: g(3)
-    ! This is the alpha tensor in the paper
+    type(field_t), intent(in) :: g11, g12, g13, g22, g23, g33
+    ! This is the transpose of the alpha tensor in the paper,
+    ! aij = du_i/dx_j
     type(field_t), pointer :: a11, a12, a13, a21, a22, a23, a31, a32, a33
     type(field_t), pointer :: u, v, w
     type(field_t), pointer :: temperature, dTdx, dTdy, dTdz
 
-    real(kind=rp) :: beta11
-    real(kind=rp) :: beta12
-    real(kind=rp) :: beta13
-    real(kind=rp) :: beta22
-    real(kind=rp) :: beta23
-    real(kind=rp) :: beta33
-    real(kind=rp) :: b_beta
-    real(kind=rp) :: aijaij
+    real(kind=rp) :: a(3,3), gt(3,3), h(3,3), beta(3,3)
+    real(kind=rp) :: b_beta, aijaij, m
     integer :: temp_indices(9)
     integer :: temp_indices_buoy(3)
-    integer :: e, i, j
-    real(kind=rp) :: gmag, ri, correction, buoyancy, shear_sq
-    real(kind=rp) :: n(3), du_n(3), sh(3)
-    real(kind=rp) :: du_parallel
+    integer :: e, i, j, k
+    real(kind=rp) :: ri, N2, s_sq, nu
 
     if (if_ext) then
        u => neko_registry%get_field_by_name("u_e")
@@ -114,7 +110,7 @@ contains
     call neko_scratch_registry%request_field(a33, temp_indices(9), .false.)
 
 
-    ! Compute the derivatives of the velocity (the alpha tensor)
+    ! Compute the derivatives of the velocity
     call dudxyz (a11%x, u%x, coef%drdx, coef%dsdx, coef%dtdx, coef)
     call dudxyz (a12%x, u%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a13%x, u%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
@@ -127,6 +123,9 @@ contains
     call dudxyz (a32%x, w%x, coef%drdy, coef%dsdy, coef%dtdy, coef)
     call dudxyz (a33%x, w%x, coef%drdz, coef%dsdz, coef%dtdz, coef)
 
+    ! Note: the gradients are summed (not averaged) over shared nodes. The
+    ! eddy viscosity is multiplied by mult below, and final GS + mult then
+    ! averages the element wise values
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
     call coef%gs_h%op(a13, GS_OP_ADD)
@@ -137,99 +136,124 @@ contains
     call coef%gs_h%op(a32, GS_OP_ADD)
     call coef%gs_h%op(a33, GS_OP_ADD)
 
-    !$omp parallel do private(e, i, beta11, beta12, beta13, beta22, beta23, &
-    !$omp& beta33, b_beta, aijaij)
+    !$omp parallel do private(e, i, j, k, a, gt, h, beta, b_beta, aijaij)
     do e = 1, coef%msh%nelv
-       !OCL NORECURRENCE, NOVREC, NOALIAS
-       !DIR$ CONCURRENT
-       !DIR$ IVDEP
-       !GCC$ ivdep
        do i = 1, coef%Xh%lxyz
-          ! beta_ij = alpha_mi alpha_mj
-          beta11 = a11%x(i,1,1,e)**2 + a21%x(i,1,1,e)**2 + a31%x(i,1,1,e)**2
-          beta22 = a12%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 + a32%x(i,1,1,e)**2
-          beta33 = a13%x(i,1,1,e)**2 + a23%x(i,1,1,e)**2 + a33%x(i,1,1,e)**2
-          beta12 = a11%x(i,1,1,e)*a12%x(i,1,1,e) + &
-               a21%x(i,1,1,e)*a22%x(i,1,1,e) + &
-               a31%x(i,1,1,e)*a32%x(i,1,1,e)
-          beta13 = a11%x(i,1,1,e)*a13%x(i,1,1,e) + &
-               a21%x(i,1,1,e)*a23%x(i,1,1,e) + &
-               a31%x(i,1,1,e)*a33%x(i,1,1,e)
-          beta23 = a12%x(i,1,1,e)*a13%x(i,1,1,e) + &
-               a22%x(i,1,1,e)*a23%x(i,1,1,e) + &
-               a32%x(i,1,1,e)*a33%x(i,1,1,e)
+          a(1,1) = a11%x(i,1,1,e)
+          a(1,2) = a12%x(i,1,1,e)
+          a(1,3) = a13%x(i,1,1,e)
+          a(2,1) = a21%x(i,1,1,e)
+          a(2,2) = a22%x(i,1,1,e)
+          a(2,3) = a23%x(i,1,1,e)
+          a(3,1) = a31%x(i,1,1,e)
+          a(3,2) = a32%x(i,1,1,e)
+          a(3,3) = a33%x(i,1,1,e)
 
-          b_beta = beta11*beta22 - beta12*beta12 + beta11*beta33 &
-               - beta13*beta13 + beta22*beta33 - beta23*beta23
+          if (if_aniso) then
+             ! Vreman (2004), eq. (32): beta = A G A^T
+             gt(1,1) = g11%x(i,1,1,e)
+             gt(1,2) = g12%x(i,1,1,e)
+             gt(1,3) = g13%x(i,1,1,e)
+             gt(2,2) = g22%x(i,1,1,e)
+             gt(2,3) = g23%x(i,1,1,e)
+             gt(3,3) = g33%x(i,1,1,e)
+             gt(2,1) = gt(1,2)
+             gt(3,1) = gt(1,3)
+             gt(3,2) = gt(2,3)
+             ! h(:,j) = G a_j, with a_j the j-th row of A
+             do j = 1, 3
+                do k = 1, 3
+                   h(k,j) = gt(k,1)*a(j,1) + gt(k,2)*a(j,2) + gt(k,3)*a(j,3)
+                end do
+             end do
+             do j = 1, 3
+                do k = j, 3
+                   beta(j,k) = a(j,1)*h(1,k) + a(j,2)*h(2,k) + a(j,3)*h(3,k)
+                end do
+             end do
+          else
+             ! Isotropic filter width, beta = A^T A .
+             do j = 1, 3
+                do k = j, 3
+                   beta(j,k) = a(1,j)*a(1,k) + a(2,j)*a(2,k) + a(3,j)*a(3,k)
+                end do
+             end do
+          end if
+
+          b_beta = beta(1,1)*beta(2,2) - beta(1,2)*beta(1,2) &
+               + beta(1,1)*beta(3,3) - beta(1,3)*beta(1,3) &
+               + beta(2,2)*beta(3,3) - beta(2,3)*beta(2,3)
 
           b_beta = max(0.0_rp, b_beta)
 
           ! alpha_ij alpha_ij
-          aijaij = beta11 + beta22 + beta33
+          aijaij = sum(a**2)
 
-          nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
-               * sqrt(b_beta/(aijaij + NEKO_EPS)) &
-               * coef%mult(i,1,1,e)
+          if (if_aniso) then
+             nut%x(i,1,1,e) = c * sqrt(b_beta/(aijaij + NEKO_EPS)) &
+                  * coef%mult(i,1,1,e)
+          else
+             nut%x(i,1,1,e) = c*delta%x(i,1,1,e)*delta%x(i,1,1,e) &
+                  * sqrt(b_beta/(aijaij + NEKO_EPS)) &
+                  * coef%mult(i,1,1,e)
+          end if
        end do
     end do
     !$omp end parallel do
+
     if (if_corr) then
        temperature => neko_registry%get_field_by_name(scalar_name)
-       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), .false.)
-       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), .false.)
-       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), .false.)
+       call neko_scratch_registry%request_field(dTdx, temp_indices_buoy(1), &
+            .false.)
+       call neko_scratch_registry%request_field(dTdy, temp_indices_buoy(2), &
+            .false.)
+       call neko_scratch_registry%request_field(dTdz, temp_indices_buoy(3), &
+            .false.)
 
-       ! Calculate Richardson number
-       gmag = sqrt(vlsc2(g, g, 3))
-       if (gmag > NEKO_EPS) then
-          n = g / gmag
-       else
-          call neko_error("The gravity vector must have at least one nonzero component")
-       endif
+       ! Temperature gradient (element-local)
        call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
-       !$omp parallel do private(e, i, j, buoyancy, du_n, du_parallel, &
-       !$omp& sh, shear_sq, ri, correction)
+
+       ! g*grad(T), averaged over the elements sharing a node,
+       ! so N^2 is single-valued like the strain rate. Stored in dTdx
+       dTdx%x = g(1) * dTdx%x + g(2) * dTdy%x + g(3) * dTdz%x
+       call coef%gs_h%op(dTdx, GS_OP_ADD)
+       call col2(dTdx%x, coef%mult, dTdx%dof%size())
+
+       !$omp parallel do private(e, i, m, N2, s_sq, ri, nu)
        do e = 1, coef%msh%nelv
           !OCL NORECURRENCE, NOVREC, NOALIAS
           !DIR$ CONCURRENT
           !DIR$ IVDEP
           !GCC$ ivdep
           do i = 1, coef%Xh%lxyz
+             m = coef%mult(i,1,1,e)
 
-             ! Buoyancy component (numerator in Ri definition)
-             buoyancy = (-g(1) * dTdx%x(i,1,1,e) - &
-                  g(2) * dTdy%x(i,1,1,e) - &
-                  g(3) * dTdz%x(i,1,1,e)) / ref_temp
+             ! Squared Brunt-Vaisala frequency, positive for stable
+             ! stratification since g points upwards here.
+             N2 = dTdx%x(i,1,1,e) / ref_temp
 
-             ! Shear component (denominator in Ri definition)
-             ! Directional derivative of velocity
-             du_n(1) = a11%x(i,1,1,e)*n(1) + a12%x(i,1,1,e)*n(2) +&
-                  a13%x(i,1,1,e)*n(3)
-             du_n(2) = a21%x(i,1,1,e)*n(1) + a22%x(i,1,1,e)*n(2) +&
-                  a23%x(i,1,1,e)*n(3)
-             du_n(3) = a31%x(i,1,1,e)*n(1) + a32%x(i,1,1,e)*n(2) +&
-                  a33%x(i,1,1,e)*n(3)
+             ! Element-local eddy viscosity: the summed gradients times
+             ! mult give the element value, see above
+             nu = nut%x(i,1,1,e)
 
-             ! Component parallel to n
-             du_parallel = du_n(1)*n(1) + du_n(2)*n(2) + du_n(3)*n(3)
+             ! Squared strain-rate magnitude |S|^2 = 2 S_ij S_ij of the
+             ! averaged gradient, with S_ij = (a_ij + a_ji)/2. The a_ij are
+             ! gather-scatter sums, so each is scaled by m (hence m*m).
+             s_sq = (2.0_rp * (a11%x(i,1,1,e)**2 + a22%x(i,1,1,e)**2 &
+                  + a33%x(i,1,1,e)**2) &
+                  + (a12%x(i,1,1,e) + a21%x(i,1,1,e))**2 &
+                  + (a13%x(i,1,1,e) + a31%x(i,1,1,e))**2 &
+                  + (a23%x(i,1,1,e) + a32%x(i,1,1,e))**2) * m * m
 
-             ! Perpendicular (shear) components
-             do j = 1, 3
-                sh(j) = du_n(j) - du_parallel*n(j)
-             end do
-
-             ! Shear magnitude squared
-             shear_sq = sh(1)*sh(1) + sh(2)*sh(2) + sh(3)*sh(3)
-
-             ! Richardson number
-             ri = buoyancy / (shear_sq + NEKO_EPS)
+             ! Richardson number of Lilly (1962), Ri = N^2 / |S|^2
+             ri = N2 / (s_sq + NEKO_EPS)
 
              if (ri .le. ri_c) then
-                correction = sqrt(1 - ri/ri_c)
-                nut%x(i,1,1,e) = correction * nut%x(i,1,1,e)
+                nu = sqrt(max(0.0_rp, 1.0_rp - ri/ri_c)) * nu
              else
-                nut%x(i,1,1,e) = NEKO_EPS
+                nu = NEKO_EPS
              end if
+             nut%x(i,1,1,e) = nu
           end do
        end do
        !$omp end parallel do
