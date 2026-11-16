@@ -54,9 +54,13 @@ module vreman
   type, public, extends(les_model_t) :: vreman_t
      !> Model constant, defaults to 0.07.
      real(kind=rp) :: c
+     !> Critical Richardson number and reference temperature.
      real(kind=rp) :: ri_c, ref_temp
+     !> Gravity vector
      real(kind=rp) :: g(3)
-     logical :: if_corr
+     !> Whether to apply the Richardson-number correction.
+     logical :: if_corr = .false.
+     !> Name of the scalar field used for the stability treatment.
      character(len=:), allocatable :: scalar_name
    contains
      !> Constructor from JSON.
@@ -94,26 +98,27 @@ contains
     call json_get_or_default(json, "extrapolation", if_ext, .false.)
     call json_get_or_default(json, "buoyancy_correction", if_corr, .false.)
 
+    ri_c = 0.25_rp
+    if (if_corr) then
+       call json_get_or_lookup(json, "Ri_c", ri_c)
+       if (ri_c .le. 0.0_rp) then
+          call neko_error("The critical Richardson number should be positive.")
+       end if
+    end if
+
     if (if_corr) then
        call json_get(json, "scalar_field", scalar_name)
-       call json_get_or_lookup(json, "Ri_c", ri_c)
        call json_get_or_lookup(json, "reference_temperature", ref_temp)
        call json_get_or_lookup(json, "g", g)
        if (.not. size(g) == 3) then
           call neko_error("VREMAN: The gravity vector should have 3 components")
        end if
-
-       if (ri_c .le. 0.0_rp) then
-          call neko_error("The critical Richardson number should be positive.")
-       end if
-
        if (ref_temp .le. 0.0_rp) then
           call neko_error("The reference temperature should be positive.")
        end if
     else
        ! These values are not used
        g = [0.0_rp, 0.0_rp, 0.0_rp]
-       ri_c = 0.0_rp
        ref_temp = 0.0_rp
        scalar_name = ""
     end if
@@ -143,10 +148,11 @@ contains
   !! @param delta_type The type of filter size.
   !! @param if_ext Whether to extrapolate the velocity.
   !! @param if_corr Whether to apply buoyancy correction.
-  !! @param scalar_name The name of the scalar field for buoyancy correction.
+  !! @param scalar_name The name of the scalar field for the stability
+  !! treatment.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
-  !! @param g The gravity vector.
+  !! @param g The gravity vector, pointing in the direction of gravity.
   subroutine vreman_init_from_components(this, fluid, c, nut_name, &
        delta_type, if_ext, if_corr, scalar_name, ri_c, ref_temp, g)
     class(vreman_t), intent(inout) :: this
@@ -165,8 +171,16 @@ contains
     this%if_corr = if_corr
     this%ri_c = ri_c
     this%ref_temp = ref_temp
-    this%g = g
+    ! Reversed so that g points upwards inside the model, as in the
+    ! Deardorff model; the case file gives g in the direction of gravity.
+    this%g = -g
     this%scalar_name = scalar_name
+
+    if (this%if_corr .and. &
+         sqrt(sum(this%g**2)) .le. 0.0_rp) then
+       call neko_error("VREMAN: The gravity vector must have at least " // &
+            "one nonzero component")
+    end if
 
   end subroutine vreman_init_from_components
 

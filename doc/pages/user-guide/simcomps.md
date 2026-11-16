@@ -722,19 +722,35 @@ keywords:
   - `dynamic_smagorinsky`: The dynamic Smagorinsky model.
     - `test_filter`: The test filter for the dynamic Smagorinsky model
   - `vreman`: The Vreman model. Configured by the following additional keywords:
-    - `c`: The model constant, defaults to 0.07.
-    - `buoyancy_correction`: Whether or not to apply a correction to the eddy
-      viscosity field based on the local Richardson number as described by Moeng
-      and Sullivan 2015 (http://dx.doi.org/10.1016/B978-0-12-382225-3.00201-2).
-      Defaults to `false`.
+    - `c`: The model constant, defaults to 0.07, which corresponds to the
+      Smagorinsky constant 0.17 through `c = 2.5 c_s^2` (Vreman 2004).
+    - `buoyancy_correction`: Whether or not to apply the stability correction
+      of Lilly (1962) to the eddy viscosity, `nut * sqrt(1 - Ri / Ri_c)` for
+      `Ri <= Ri_c` and (almost) zero above, with the local Richardson number
+      `Ri = N^2 / |S|^2`. Here `N^2` is the squared Brunt-Vaisala frequency and
+      `|S|^2 = 2 S_ij S_ij` the squared magnitude of the resolved strain rate,
+      both averaged over the elements sharing a node. Defaults to `false`.
+      Note that `|S|^2` contains all strain components, not only the vertical
+      shear `(du/dz)^2 + (dv/dz)^2` used by Huusko et al. (2025), so the
+      correction is weaker in stable and milder in unstable stratification.
+      With the vertical shear, the enhancement for `Ri < 0` is unbounded where
+      the shear vanishes, which can make the simulation unstable.
       - `true`: Add a buoyancy correction according to the following parameters:
         - `scalar_field`: Name of the scalar field based on which the buoyancy
           effect is computed.
         - `Ri_c`: The critical Richardson number.
         - `reference_temperature`: The reference temperature for computation of
           the Richardson number.
-        - `g`: The gravity vector.
+        - `g`: The gravity vector, pointing in the direction of gravity, e.g.
+          `[0, 0, -9.81]` (the model reverses it internally, as the Deardorff
+          model does).
       - `false`: Compute the standard Vreman eddy viscosity.
+    - With `buoyancy_correction`, the scalar eddy diffusivity then follows from the (corrected) eddy viscosity
+      through a constant turbulent Prandtl number, i.e. `"alphat":
+      {"nut_dependency": true, "nut_field": <nut_field>, "Pr_t": Pr_t}` in the
+      scalar. In Lilly's derivation the critical Richardson number equals the
+      turbulent Prandtl number, so a consistent choice is `Ri_c = Pr_t`
+      (e.g. 1/3).
   - `sigma`: The Sigma model. Configured by the following additional keyword:
     - `c`: The model constant, defaults to 1.35.
   - `wale`: The WALE model. Configured by the following additional keyword:
@@ -744,7 +760,8 @@ keywords:
     Configured by the following additional keyword:
     - `c_k`: The model constant, defaults to 0.1.
     - `T0`: The reference temperature.
-    - `g`: The gravity vector.
+    - `g`: The gravity vector, pointing in the direction of gravity, e.g.
+      `[0, 0, -9.81]` (the model reverses it internally).
     - `temperature_field`: The field name of the temperature field,
       defaults to `temperature`.
     - `TKE_field`: The field name of the turbulent kinetic energy (TKE) field,
