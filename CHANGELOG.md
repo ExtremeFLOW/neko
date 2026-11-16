@@ -14,6 +14,8 @@
 
 ## Develop
 
+- Organaized `fluid_pnpn_t`, so that types extending `fluid_pnpn_t` can
+  reuse them.
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
