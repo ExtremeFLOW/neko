@@ -129,18 +129,12 @@ void opencl_duprat_compute(void *u_d, void *v_d, void *w_d, void *n_x_d,
  * @param n_x_d The x component of the wall normals.
  * @param n_y_d The y component of the wall normals.
  * @param n_z_d The z component of the wall normals.
- * @param nu_d The kinematic viscosity at wall points.
- * @param rho_w_d The density at wall points.
- * @param h_d The wall-model sampling distances.
- * @param stokes_limit Whether to limit the gradient to the Stokes bound.
  * @param dpds_d The pressure gradient along the flow direction.
  * @param n_nodes The number of wall points.
  */
 void opencl_duprat_update_dpds(void *dpx_d, void *dpy_d, void *dpz_d, void *u_d,
                                void *v_d, void *w_d, void *n_x_d, void *n_y_d,
-                               void *n_z_d, void *nu_d, void *rho_w_d,
-                               void *h_d, int *stokes_limit, void *dpds_d,
-                               int *n_nodes) {
+                               void *n_z_d, void *dpds_d, int *n_nodes) {
   cl_int err;
 
   if (*n_nodes < 1)
@@ -163,12 +157,8 @@ void opencl_duprat_update_dpds(void *dpx_d, void *dpy_d, void *dpz_d, void *u_d,
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&n_x_d));
   CL_CHECK(clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&n_y_d));
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&n_z_d));
-  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&nu_d));
-  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(cl_mem), (void *)&rho_w_d));
-  CL_CHECK(clSetKernelArg(kernel, 11, sizeof(cl_mem), (void *)&h_d));
-  CL_CHECK(clSetKernelArg(kernel, 12, sizeof(int), stokes_limit));
-  CL_CHECK(clSetKernelArg(kernel, 13, sizeof(cl_mem), (void *)&dpds_d));
-  CL_CHECK(clSetKernelArg(kernel, 14, sizeof(int), n_nodes));
+  CL_CHECK(clSetKernelArg(kernel, 9, sizeof(cl_mem), (void *)&dpds_d));
+  CL_CHECK(clSetKernelArg(kernel, 10, sizeof(int), n_nodes));
 
   const int nb = ((*n_nodes) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;

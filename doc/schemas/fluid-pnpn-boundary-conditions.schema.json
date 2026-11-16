@@ -650,9 +650,6 @@
                     },
                     "start_time": {
                       "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
-                    },
-                    "stokes_limit": {
-                      "type": "boolean"
                     }
                   },
                   "if": {
@@ -686,11 +683,6 @@
                         {
                           "required": [
                             "start_time"
-                          ]
-                        },
-                        {
-                          "required": [
-                            "stokes_limit"
                           ]
                         }
                       ]

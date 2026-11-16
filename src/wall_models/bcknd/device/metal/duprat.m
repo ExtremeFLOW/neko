@@ -118,21 +118,15 @@ void metal_duprat_compute(void *u_d, void *v_d, void *w_d, void *n_x_d,
  * @param n_x_d The x component of the wall normals.
  * @param n_y_d The y component of the wall normals.
  * @param n_z_d The z component of the wall normals.
- * @param nu_d The kinematic viscosity at wall points.
- * @param rho_w_d The density at wall points.
- * @param h_d The wall-model sampling distances.
- * @param stokes_limit Whether to limit the gradient to the Stokes bound.
  * @param dpds_d The pressure gradient along the flow direction.
  * @param n_nodes The number of wall points.
  */
 void metal_duprat_update_dpds(void *dpx_d, void *dpy_d, void *dpz_d, void *u_d,
                               void *v_d, void *w_d, void *n_x_d, void *n_y_d,
-                              void *n_z_d, void *nu_d, void *rho_w_d, void *h_d,
-                              int *stokes_limit, void *dpds_d, int *n_nodes) {
+                              void *n_z_d, void *dpds_d, int *n_nodes) {
   if (*n_nodes < 1)
     return;
 
-  const int stokes_limit_r = *stokes_limit;
   const int n_nodes_r = *n_nodes;
 
   neko_metal_dispatch_1d(
@@ -147,12 +141,8 @@ void metal_duprat_update_dpds(void *dpx_d, void *dpy_d, void *dpz_d, void *u_d,
         [enc setBuffer:(__bridge id<MTLBuffer>)n_x_d offset:0 atIndex:6];
         [enc setBuffer:(__bridge id<MTLBuffer>)n_y_d offset:0 atIndex:7];
         [enc setBuffer:(__bridge id<MTLBuffer>)n_z_d offset:0 atIndex:8];
-        [enc setBuffer:(__bridge id<MTLBuffer>)nu_d offset:0 atIndex:9];
-        [enc setBuffer:(__bridge id<MTLBuffer>)rho_w_d offset:0 atIndex:10];
-        [enc setBuffer:(__bridge id<MTLBuffer>)h_d offset:0 atIndex:11];
-        [enc setBytes:&stokes_limit_r length:sizeof(int) atIndex:12];
-        [enc setBuffer:(__bridge id<MTLBuffer>)dpds_d offset:0 atIndex:13];
-        [enc setBytes:&n_nodes_r length:sizeof(int) atIndex:14];
+        [enc setBuffer:(__bridge id<MTLBuffer>)dpds_d offset:0 atIndex:9];
+        [enc setBytes:&n_nodes_r length:sizeof(int) atIndex:10];
       },
       (NSUInteger)n_nodes_r);
 }

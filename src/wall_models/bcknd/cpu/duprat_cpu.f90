@@ -160,11 +160,7 @@ contains
   !! At each wall node, the filtered pressure gradient vector is projected
   !! on the direction of the sampled wall-parallel velocity, which gives the
   !! streamwise gradient dp/ds of Duprat et al. (2011), positive when adverse
-  !! to the local flow. Optionally, it is limited to
-  !! \f$ |\partial p / \partial s| \le (\rho / \nu) (u \nu / h)^{3/2} \f$,
-  !! i.e. the pressure velocity u_p may not exceed the friction velocity of
-  !! a laminar (Stokes) profile through the sampled velocity. This limit is
-  !! not part of the model of Duprat et al.
+  !! to the local flow.
   !! @param dpx The x component of the filtered pressure gradient.
   !! @param dpy The y component of the filtered pressure gradient.
   !! @param dpz The z component of the filtered pressure gradient.
@@ -174,26 +170,20 @@ contains
   !! @param n_x The x component of the wall normal.
   !! @param n_y The y component of the wall normal.
   !! @param n_z The z component of the wall normal.
-  !! @param nu The kinematic viscosity at the wall.
-  !! @param rho_w The density at the wall.
-  !! @param h The wall-normal distance of the sampling point.
-  !! @param stokes_limit Whether to limit the gradient to the Stokes bound.
   !! @param dpds The pressure gradient along the flow direction. Nodes
   !! without a wall-parallel velocity keep their previous value.
   !! @param n_nodes The number of wall nodes.
   subroutine duprat_update_dpds_cpu(dpx, dpy, dpz, u, v, w, n_x, n_y, n_z, &
-       nu, rho_w, h, stokes_limit, dpds, n_nodes)
+       dpds, n_nodes)
     integer, intent(in) :: n_nodes
     real(kind=rp), dimension(n_nodes), intent(in) :: dpx, dpy, dpz
     real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z
-    real(kind=rp), dimension(n_nodes), intent(in) :: nu, rho_w, h
-    logical, intent(in) :: stokes_limit
     real(kind=rp), dimension(n_nodes), intent(inout) :: dpds
     integer :: i
-    real(kind=rp) :: ui, vi, wi, normu, magu, dp, dp_max
+    real(kind=rp) :: ui, vi, wi, normu, magu
 
-    !$omp parallel do private(i, ui, vi, wi, normu, magu, dp, dp_max)
+    !$omp parallel do private(i, ui, vi, wi, normu, magu)
     do i = 1, n_nodes
        ! Wall-parallel part of the sampled velocity
        normu = u(i) * n_x(i) + v(i) * n_y(i) + w(i) * n_z(i)
@@ -206,15 +196,7 @@ contains
        if (magu .le. NEKO_EPS) cycle
 
        ! Streamwise pressure gradient, positive when adverse
-       dp = (dpx(i) * ui + dpy(i) * vi + dpz(i) * wi) / magu
-
-       ! Limit to the Stokes bound, u_p <= sqrt(u nu / h)
-       if (stokes_limit) then
-          dp_max = rho_w(i) / nu(i) * (magu * nu(i) / h(i))**1.5_rp
-          dp = sign(min(abs(dp), dp_max), dp)
-       end if
-
-       dpds(i) = dp
+       dpds(i) = (dpx(i) * ui + dpy(i) * vi + dpz(i) * wi) / magu
     end do
     !$omp end parallel do
 

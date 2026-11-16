@@ -56,17 +56,15 @@ module duprat_device
   end interface
   interface
      subroutine hip_duprat_update_dpds( &
-          dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-          rho_w_d, h_d, stokes_limit, dpds_d, n_nodes) &
+          dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+          n_nodes) &
           bind(c, name = 'hip_duprat_update_dpds')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
        type(c_ptr), value :: dpx_d, dpy_d, dpz_d, u_d, v_d
-       type(c_ptr), value :: w_d, n_x_d, n_y_d, n_z_d, nu_d
-       type(c_ptr), value :: rho_w_d, h_d
-       type(c_ptr), value :: dpds_d
-       integer(c_int) :: stokes_limit, n_nodes
+       type(c_ptr), value :: w_d, n_x_d, n_y_d, n_z_d, dpds_d
+       integer(c_int) :: n_nodes
      end subroutine hip_duprat_update_dpds
   end interface
 #elif HAVE_CUDA
@@ -87,17 +85,15 @@ module duprat_device
   end interface
   interface
      subroutine cuda_duprat_update_dpds( &
-          dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-          rho_w_d, h_d, stokes_limit, dpds_d, n_nodes) &
+          dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+          n_nodes) &
           bind(c, name = 'cuda_duprat_update_dpds')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
        type(c_ptr), value :: dpx_d, dpy_d, dpz_d, u_d, v_d
-       type(c_ptr), value :: w_d, n_x_d, n_y_d, n_z_d, nu_d
-       type(c_ptr), value :: rho_w_d, h_d
-       type(c_ptr), value :: dpds_d
-       integer(c_int) :: stokes_limit, n_nodes
+       type(c_ptr), value :: w_d, n_x_d, n_y_d, n_z_d, dpds_d
+       integer(c_int) :: n_nodes
      end subroutine cuda_duprat_update_dpds
   end interface
 #elif HAVE_OPENCL
@@ -118,17 +114,15 @@ module duprat_device
   end interface
   interface
      subroutine opencl_duprat_update_dpds( &
-          dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-          rho_w_d, h_d, stokes_limit, dpds_d, n_nodes) &
+          dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+          n_nodes) &
           bind(c, name = 'opencl_duprat_update_dpds')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
        type(c_ptr), value :: dpx_d, dpy_d, dpz_d, u_d, v_d
-       type(c_ptr), value :: w_d, n_x_d, n_y_d, n_z_d, nu_d
-       type(c_ptr), value :: rho_w_d, h_d
-       type(c_ptr), value :: dpds_d
-       integer(c_int) :: stokes_limit, n_nodes
+       type(c_ptr), value :: w_d, n_x_d, n_y_d, n_z_d, dpds_d
+       integer(c_int) :: n_nodes
      end subroutine opencl_duprat_update_dpds
   end interface
 #elif HAVE_METAL
@@ -149,17 +143,15 @@ module duprat_device
   end interface
   interface
      subroutine metal_duprat_update_dpds( &
-          dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-          rho_w_d, h_d, stokes_limit, dpds_d, n_nodes) &
+          dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+          n_nodes) &
           bind(c, name = 'metal_duprat_update_dpds')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
        implicit none
        type(c_ptr), value :: dpx_d, dpy_d, dpz_d, u_d, v_d
-       type(c_ptr), value :: w_d, n_x_d, n_y_d, n_z_d, nu_d
-       type(c_ptr), value :: rho_w_d, h_d
-       type(c_ptr), value :: dpds_d
-       integer(c_int) :: stokes_limit, n_nodes
+       type(c_ptr), value :: w_d, n_x_d, n_y_d, n_z_d, dpds_d
+       integer(c_int) :: n_nodes
      end subroutine metal_duprat_update_dpds
   end interface
 #endif
@@ -227,41 +219,32 @@ contains
   !! @param n_x_d The x component of the wall normal.
   !! @param n_y_d The y component of the wall normal.
   !! @param n_z_d The z component of the wall normal.
-  !! @param nu_d The kinematic viscosity at the wall.
-  !! @param rho_w_d The density at the wall.
-  !! @param h_d The wall-normal distance of the sampling point.
-  !! @param stokes_limit Whether to limit the gradient to the Stokes bound.
   !! @param dpds_d The pressure gradient along the flow direction.
   !! @param n_nodes The number of wall nodes.
   subroutine duprat_update_dpds_device( &
-       dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-       rho_w_d, h_d, stokes_limit, dpds_d, n_nodes)
+       dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+       n_nodes)
     integer, intent(in) :: n_nodes
     type(c_ptr), intent(in) :: dpx_d, dpy_d, dpz_d, u_d, v_d, w_d
-    type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d
+    type(c_ptr), intent(in) :: n_x_d, n_y_d, n_z_d
     type(c_ptr), intent(inout) :: dpds_d
-    logical, intent(in) :: stokes_limit
-    integer :: limit
-
-    limit = 0
-    if (stokes_limit) limit = 1
 
 #if HAVE_HIP
     call hip_duprat_update_dpds( &
-         dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-         rho_w_d, h_d, limit, dpds_d, n_nodes)
+         dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+         n_nodes)
 #elif HAVE_CUDA
     call cuda_duprat_update_dpds( &
-         dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-         rho_w_d, h_d, limit, dpds_d, n_nodes)
+         dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+         n_nodes)
 #elif HAVE_OPENCL
     call opencl_duprat_update_dpds( &
-         dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-         rho_w_d, h_d, limit, dpds_d, n_nodes)
+         dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+         n_nodes)
 #elif HAVE_METAL
     call metal_duprat_update_dpds( &
-         dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, &
-         rho_w_d, h_d, limit, dpds_d, n_nodes)
+         dpx_d, dpy_d, dpz_d, u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, dpds_d, &
+         n_nodes)
 #else
     call neko_error('No device backend configured')
 #endif

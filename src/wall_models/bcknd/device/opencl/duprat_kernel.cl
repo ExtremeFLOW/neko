@@ -284,7 +284,7 @@ __kernel void duprat_compute_kernel(__global const real *__restrict__ u_d,
 
 /**
  * OpenCL kernel projecting the filtered pressure gradient on the flow
- * direction, optionally limited to the Stokes bound.
+ * direction.
  * @param dpx_d The x component of the filtered pressure gradient.
  * @param dpy_d The y component of the filtered pressure gradient.
  * @param dpz_d The z component of the filtered pressure gradient.
@@ -294,28 +294,21 @@ __kernel void duprat_compute_kernel(__global const real *__restrict__ u_d,
  * @param n_x_d The x component of the wall normals.
  * @param n_y_d The y component of the wall normals.
  * @param n_z_d The z component of the wall normals.
- * @param nu_d The kinematic viscosity at wall points.
- * @param rho_w_d The density at wall points.
- * @param h_d The wall-model sampling distances.
- * @param stokes_limit Whether to limit the gradient to the Stokes bound.
  * @param dpds_d The pressure gradient along the flow direction. Nodes
  * without a wall-parallel velocity keep their previous value.
  * @param n_nodes The number of wall points.
  */
-__kernel void duprat_update_dpds_kernel(
-    __global const real *__restrict__ dpx_d,
-    __global const real *__restrict__ dpy_d,
-    __global const real *__restrict__ dpz_d,
-    __global const real *__restrict__ u_d,
-    __global const real *__restrict__ v_d,
-    __global const real *__restrict__ w_d,
-    __global const real *__restrict__ n_x_d,
-    __global const real *__restrict__ n_y_d,
-    __global const real *__restrict__ n_z_d,
-    __global const real *__restrict__ nu_d,
-    __global const real *__restrict__ rho_w_d,
-    __global const real *__restrict__ h_d, const int stokes_limit,
-    __global real *__restrict__ dpds_d, const int n_nodes) {
+__kernel void duprat_update_dpds_kernel(__global const real *__restrict__ dpx_d,
+                                        __global const real *__restrict__ dpy_d,
+                                        __global const real *__restrict__ dpz_d,
+                                        __global const real *__restrict__ u_d,
+                                        __global const real *__restrict__ v_d,
+                                        __global const real *__restrict__ w_d,
+                                        __global const real *__restrict__ n_x_d,
+                                        __global const real *__restrict__ n_y_d,
+                                        __global const real *__restrict__ n_z_d,
+                                        __global real *__restrict__ dpds_d,
+                                        const int n_nodes) {
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   const real eps_mach =
@@ -336,17 +329,7 @@ __kernel void duprat_update_dpds_kernel(
     }
 
     /* Streamwise pressure gradient, positive when adverse */
-    real dp = (dpx_d[i] * ui + dpy_d[i] * vi + dpz_d[i] * wi) / magu;
-
-    /* Limit to the Stokes bound, u_p <= sqrt(u nu / h) */
-    if (stokes_limit) {
-      const real dp_max =
-          rho_w_d[i] / nu_d[i] * pow(magu * nu_d[i] / h_d[i], (real)1.5);
-      if (fabs(dp) > dp_max)
-        dp = copysign(dp_max, dp);
-    }
-
-    dpds_d[i] = dp;
+    dpds_d[i] = (dpx_d[i] * ui + dpy_d[i] * vi + dpz_d[i] * wi) / magu;
   }
 }
 

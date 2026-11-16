@@ -439,14 +439,7 @@ A more detailed description of each boundary condition is provided below.
        direction changes often, as in separated regions. The filter time
        constant \f$ T \f$ is given by the required `filter_time`, where `0`
        disables the filtering. The optional `start_time` (default `0`) delays
-       the use of the local gradient; before, the gradient is zero. The
-       optional `stokes_limit` (default `false`) limits the gradient such that
-       \f$ u_p \f$ does not exceed the friction velocity of a laminar profile
-       through the sampled velocity,
-       \f$ |\partial p / \partial s| \le (\rho / \nu) (u \nu / h)^{3/2} \f$.
-       This limit is not part of the model of Duprat et al. It reduces the
-       gradient wherever the sampled velocity is small, e.g. in separated
-       regions.
+       the use of the local gradient; before, the gradient is zero.
        The filtered gradient starts from zero, so that it enters gradually
        over about one `filter_time`. It is not stored in checkpoints and
        restarts from zero after a restart.

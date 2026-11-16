@@ -286,7 +286,7 @@ duprat_compute(const T *__restrict__ u_d, const T *__restrict__ v_d,
 
 /**
  * CUDA kernel projecting the filtered pressure gradient on the flow
- * direction, optionally limited to the Stokes bound.
+ * direction.
  * @param dpx_d The x component of the filtered pressure gradient.
  * @param dpy_d The y component of the filtered pressure gradient.
  * @param dpz_d The z component of the filtered pressure gradient.
@@ -296,10 +296,6 @@ duprat_compute(const T *__restrict__ u_d, const T *__restrict__ v_d,
  * @param n_x_d The x component of the wall normals.
  * @param n_y_d The y component of the wall normals.
  * @param n_z_d The z component of the wall normals.
- * @param nu_d The kinematic viscosity at wall points.
- * @param rho_w_d The density at wall points.
- * @param h_d The wall-model sampling distances.
- * @param stokes_limit Whether to limit the gradient to the Stokes bound.
  * @param dpds_d The pressure gradient along the flow direction. Nodes
  * without a wall-parallel velocity keep their previous value.
  * @param n_nodes The number of wall points.
@@ -310,9 +306,7 @@ duprat_update_dpds(const T *__restrict__ dpx_d, const T *__restrict__ dpy_d,
                    const T *__restrict__ dpz_d, const T *__restrict__ u_d,
                    const T *__restrict__ v_d, const T *__restrict__ w_d,
                    const T *__restrict__ n_x_d, const T *__restrict__ n_y_d,
-                   const T *__restrict__ n_z_d, const T *__restrict__ nu_d,
-                   const T *__restrict__ rho_w_d, const T *__restrict__ h_d,
-                   const int stokes_limit, T *__restrict__ dpds_d,
+                   const T *__restrict__ n_z_d, T *__restrict__ dpds_d,
                    const int n_nodes) {
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -333,17 +327,7 @@ duprat_update_dpds(const T *__restrict__ dpx_d, const T *__restrict__ dpy_d,
     }
 
     /* Streamwise pressure gradient, positive when adverse */
-    T dp = (dpx_d[i] * ui + dpy_d[i] * vi + dpz_d[i] * wi) / magu;
-
-    /* Limit to the Stokes bound, u_p <= sqrt(u nu / h) */
-    if (stokes_limit) {
-      const T dp_max = rho_w_d[i] / nu_d[i] *
-                       pow(magu * nu_d[i] / h_d[i], static_cast<T>(1.5));
-      if (fabs(dp) > dp_max)
-        dp = copysign(dp_max, dp);
-    }
-
-    dpds_d[i] = dp;
+    dpds_d[i] = (dpx_d[i] * ui + dpy_d[i] * vi + dpz_d[i] * wi) / magu;
   }
 }
 

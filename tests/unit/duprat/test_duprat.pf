@@ -346,22 +346,18 @@ contains
   end subroutine test_previous_stress_as_guess
 
   !> Verify the projection of the filtered pressure gradient on the
-  !! wall-parallel flow direction, without and with the limit to the Stokes
-  !! bound, and that nodes without a flow direction keep their previous
-  !! value.
+  !! wall-parallel flow direction, and that nodes without a flow direction
+  !! keep their previous value.
   @test
   subroutine test_update_dpds(this)
     class(test_duprat_case), intent(inout) :: this
     integer, parameter :: n = 3
     real(kind=rp), dimension(n) :: dpx, dpy, dpz, u, v, w, n_x, n_y, n_z
-    real(kind=rp), dimension(n) :: nu, rho, h, dpds, ref
-    logical :: stokes_limit
-    integer :: k
+    real(kind=rp), dimension(n) :: dpds, ref
 
     ! Node 1: wall normal z, wall-parallel velocity (3, 4, 0), so
-    ! dp/ds = (0.2 * 3 - 0.1 * 4) / 5 = 0.04, below the bound.
-    ! Node 2: wall normal y, wall-parallel velocity (5, 0, 0), dp/ds = -100,
-    ! limited to -(rho / nu) (u nu / h)^(3/2) = -1200 * 0.05^(3/2).
+    ! dp/ds = (0.2 * 3 - 0.1 * 4) / 5 = 0.04.
+    ! Node 2: wall normal y, wall-parallel velocity (5, 0, 0), dp/ds = -100.
     ! Node 3: purely wall-normal velocity, no flow direction.
     dpx = [0.2_rp, -100.0_rp, 1.0_rp]
     dpy = [-0.1_rp, 3.0_rp, 1.0_rp]
@@ -372,26 +368,15 @@ contains
     n_x = [0.0_rp, 0.0_rp, 0.0_rp]
     n_y = [0.0_rp, 1.0_rp, 1.0_rp]
     n_z = [1.0_rp, 0.0_rp, 0.0_rp]
-    nu = 1.0e-3_rp
-    rho = [1.0_rp, 1.2_rp, 1.0_rp]
-    h = 0.1_rp
+    dpds = [0.1_rp, 2.0_rp, 0.3_rp]
+    ref = [0.04_rp, -100.0_rp, 0.3_rp]
 
-    do k = 1, 2
-       stokes_limit = k .eq. 2
-       if (stokes_limit) then
-          ref = [0.04_rp, -1.34164078649987406e+01_rp, 0.3_rp]
-       else
-          ref = [0.04_rp, -100.0_rp, 0.3_rp]
-       end if
-       dpds = [0.1_rp, 2.0_rp, 0.3_rp]
+    call duprat_update_dpds_cpu(dpx, dpy, dpz, u, v, w, n_x, n_y, n_z, &
+         dpds, n)
 
-       call duprat_update_dpds_cpu(dpx, dpy, dpz, u, v, w, n_x, n_y, n_z, &
-            nu, rho, h, stokes_limit, dpds, n)
-
-       @assertEqual(ref(1), dpds(1), tolerance = tol() * abs(ref(1)))
-       @assertEqual(ref(2), dpds(2), tolerance = tol() * abs(ref(2)))
-       @assertEqual(ref(3), dpds(3))
-    end do
+    @assertEqual(ref(1), dpds(1), tolerance = tol() * abs(ref(1)))
+    @assertEqual(ref(2), dpds(2), tolerance = tol() * abs(ref(2)))
+    @assertEqual(ref(3), dpds(3))
   end subroutine test_update_dpds
 
 end module test_duprat

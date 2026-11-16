@@ -284,7 +284,7 @@ kernel void duprat_compute_kernel(
 
 /**
  * Metal kernel projecting the filtered pressure gradient on the flow
- * direction, optionally limited to the Stokes bound.
+ * direction.
  * @param dpx_d The x component of the filtered pressure gradient.
  * @param dpy_d The y component of the filtered pressure gradient.
  * @param dpz_d The z component of the filtered pressure gradient.
@@ -294,10 +294,6 @@ kernel void duprat_compute_kernel(
  * @param n_x_d The x component of the wall normals.
  * @param n_y_d The y component of the wall normals.
  * @param n_z_d The z component of the wall normals.
- * @param nu_d The kinematic viscosity at wall points.
- * @param rho_w_d The density at wall points.
- * @param h_d The wall-model sampling distances.
- * @param stokes_limit Whether to limit the gradient to the Stokes bound.
  * @param dpds_d The pressure gradient along the flow direction. Nodes
  * without a wall-parallel velocity keep their previous value.
  * @param n_nodes The number of wall points.
@@ -311,13 +307,8 @@ kernel void duprat_update_dpds_kernel(device const float *dpx_d [[buffer(0)]],
                                       device const float *n_x_d [[buffer(6)]],
                                       device const float *n_y_d [[buffer(7)]],
                                       device const float *n_z_d [[buffer(8)]],
-                                      device const float *nu_d [[buffer(9)]],
-                                      device const float *rho_w_d
-                                      [[buffer(10)]],
-                                      device const float *h_d [[buffer(11)]],
-                                      constant int &stokes_limit [[buffer(12)]],
-                                      device float *dpds_d [[buffer(13)]],
-                                      constant int &n_nodes [[buffer(14)]],
+                                      device float *dpds_d [[buffer(9)]],
+                                      constant int &n_nodes [[buffer(10)]],
                                       uint idx [[thread_position_in_grid]]) {
   if (idx >= (uint)n_nodes)
     return;
@@ -338,15 +329,5 @@ kernel void duprat_update_dpds_kernel(device const float *dpx_d [[buffer(0)]],
   }
 
   /* Streamwise pressure gradient, positive when adverse */
-  float dp = (dpx_d[i] * ui + dpy_d[i] * vi + dpz_d[i] * wi) / magu;
-
-  /* Limit to the Stokes bound, u_p <= sqrt(u nu / h) */
-  if (stokes_limit) {
-    const float dp_max =
-        rho_w_d[i] / nu_d[i] * pow(magu * nu_d[i] / h_d[i], 1.5f);
-    if (fabs(dp) > dp_max)
-      dp = copysign(dp_max, dp);
-  }
-
-  dpds_d[i] = dp;
+  dpds_d[i] = (dpx_d[i] * ui + dpy_d[i] * vi + dpz_d[i] * wi) / magu;
 }

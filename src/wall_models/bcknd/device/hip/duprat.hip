@@ -93,17 +93,12 @@ void hip_duprat_compute(void *u_d, void *v_d, void *w_d, void *n_x_d,
  * @param n_x_d The x component of the wall normals.
  * @param n_y_d The y component of the wall normals.
  * @param n_z_d The z component of the wall normals.
- * @param nu_d The kinematic viscosity at wall points.
- * @param rho_w_d The density at wall points.
- * @param h_d The wall-model sampling distances.
- * @param stokes_limit Whether to limit the gradient to the Stokes bound.
  * @param dpds_d The pressure gradient along the flow direction.
  * @param n_nodes The number of wall points.
  */
 void hip_duprat_update_dpds(void *dpx_d, void *dpy_d, void *dpz_d, void *u_d,
                             void *v_d, void *w_d, void *n_x_d, void *n_y_d,
-                            void *n_z_d, void *nu_d, void *rho_w_d, void *h_d,
-                            int *stokes_limit, void *dpds_d, int *n_nodes) {
+                            void *n_z_d, void *dpds_d, int *n_nodes) {
   const dim3 nthrds(256, 1, 1);
   const dim3 nblcks(((*n_nodes) + 256 - 1) / 256, 1, 1);
 
@@ -112,8 +107,7 @@ void hip_duprat_update_dpds(void *dpx_d, void *dpy_d, void *dpz_d, void *u_d,
                        nthrds, 0, (hipStream_t)glb_cmd_queue, (real *)dpx_d,
                        (real *)dpy_d, (real *)dpz_d, (real *)u_d, (real *)v_d,
                        (real *)w_d, (real *)n_x_d, (real *)n_y_d, (real *)n_z_d,
-                       (real *)nu_d, (real *)rho_w_d, (real *)h_d,
-                       *stokes_limit, (real *)dpds_d, *n_nodes);
+                       (real *)dpds_d, *n_nodes);
     HIP_CHECK(hipGetLastError());
   }
 }
