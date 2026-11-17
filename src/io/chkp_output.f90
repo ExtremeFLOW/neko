@@ -79,9 +79,9 @@ contains
        path_len = len_trim(path)
        if (path_len .gt. 0) then
           if (path(path_len:path_len) .eq. '/') then
-             fname = path(1:path_len) // trim(fname)
+             fname = trim(path) // trim(fname)
           else
-             fname = path(1:path_len) // '/' // trim(fname)
+             fname = trim(path) // '/' // trim(fname)
           end if
        end if
     end if
