@@ -58,13 +58,17 @@ extern "C" {
  * @param kappa The von Karman coefficient.
  * @param beta The exponent of the pressure-gradient term.
  * @param A The damping constant.
+ * @param gl_x_d The Gauss-Legendre nodes on [0, 1].
+ * @param gl_w_d The Gauss-Legendre weights on [0, 1].
+ * @param n_gl The number of Gauss-Legendre points.
  * @param tstep The current time-step.
  */
 void cuda_duprat_compute(void *u_d, void *v_d, void *w_d, void *n_x_d,
                          void *n_y_d, void *n_z_d, void *nu_d, void *rho_w_d,
                          void *h_d, void *dpds_d, void *tau_x_d, void *tau_y_d,
                          void *tau_z_d, void *alpha_d, int *n_nodes,
-                         real *kappa, real *beta, real *A, int *tstep) {
+                         real *kappa, real *beta, real *A, void *gl_x_d,
+                         void *gl_w_d, int *n_gl, int *tstep) {
   const dim3 nthrds(256, 1, 1);
   const dim3 nblcks(((*n_nodes) + 256 - 1) / 256, 1, 1);
   const cudaStream_t stream = (cudaStream_t)glb_cmd_queue;
@@ -74,7 +78,8 @@ void cuda_duprat_compute(void *u_d, void *v_d, void *w_d, void *n_x_d,
         (real *)u_d, (real *)v_d, (real *)w_d, (real *)n_x_d, (real *)n_y_d,
         (real *)n_z_d, (real *)nu_d, (real *)rho_w_d, (real *)h_d,
         (real *)dpds_d, (real *)tau_x_d, (real *)tau_y_d, (real *)tau_z_d,
-        (real *)alpha_d, *n_nodes, *kappa, *beta, *A, *tstep);
+        (real *)alpha_d, *n_nodes, *kappa, *beta, *A, (real *)gl_x_d,
+        (real *)gl_w_d, *n_gl, *tstep);
     CUDA_CHECK(cudaGetLastError());
   }
 }

@@ -34,25 +34,20 @@
 module duprat_cpu
   use num_types, only : rp
   use math, only : NEKO_EPS
+  use speclib, only : zwgl
   use logger, only : neko_log, NEKO_LOG_DEBUG, LOG_SIZE
   implicit none
   private
 
-  public :: duprat_compute_cpu, duprat_update_dpds_cpu, duprat_u_star
+  public :: duprat_compute_cpu, duprat_update_dpds_cpu, duprat_u_star, &
+       duprat_gauss_rule
 
   !> Number of sub-intervals of the composite quadrature for U*.
   integer, parameter :: N_SUB = 12
-  !> Number of Gauss-Legendre points per sub-interval.
-  integer, parameter :: N_GL = 5
-  !> Gauss-Legendre nodes on [0, 1].
-  real(kind=rp), parameter :: GL_X(N_GL) = [ &
-       0.0469100770306680_rp, 0.2307653449471585_rp, 0.5_rp, &
-       0.7692346550528415_rp, 0.9530899229693320_rp]
-  !> Gauss-Legendre weights on [0, 1].
-  real(kind=rp), parameter :: GL_W(N_GL) = [ &
-       0.1184634425280945_rp, 0.2393143352496832_rp, &
-       0.2844444444444444_rp, 0.2393143352496832_rp, &
-       0.1184634425280945_rp]
+  !> Number of Gauss-Legendre points per sub-interval. The rule integrates
+  !! the one-dimensional velocity profile of the model, so it does not
+  !! depend on the polynomial order of the flow solver.
+  integer, public, parameter :: DUPRAT_N_GL = 5
 
 contains
   !> Compute the wall shear stress on cpu using the model of Duprat et al.
@@ -76,16 +71,22 @@ contains
   !! @param beta The exponent of the pressure-gradient term in the eddy
   !! viscosity.
   !! @param A The damping constant of the eddy viscosity.
+  !! @param gl_x The Gauss-Legendre nodes on [0, 1], see
+  !! `duprat_gauss_rule`.
+  !! @param gl_w The Gauss-Legendre weights on [0, 1].
+  !! @param n_gl The number of Gauss-Legendre points.
   !! @param tstep The current time-step.
   subroutine duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho_w, h, dpds, &
-       tau_x, tau_y, tau_z, alpha, n_nodes, kappa, beta, A, tstep)
-    integer, intent(in) :: n_nodes, tstep
+       tau_x, tau_y, tau_z, alpha, n_nodes, kappa, beta, A, gl_x, gl_w, &
+       n_gl, tstep)
+    integer, intent(in) :: n_nodes, n_gl, tstep
     real(kind=rp), dimension(n_nodes), intent(in) :: u, v, w
     real(kind=rp), dimension(n_nodes), intent(in) :: rho_w, dpds
     real(kind=rp), dimension(n_nodes), intent(in) :: n_x, n_y, n_z, h, nu
     real(kind=rp), dimension(n_nodes), intent(inout) :: tau_x, tau_y, tau_z
     real(kind=rp), dimension(n_nodes), intent(inout) :: alpha
     real(kind=rp), intent(in) :: kappa, beta, A
+    real(kind=rp), intent(in) :: gl_x(n_gl), gl_w(n_gl)
     integer :: i
     real(kind=rp) :: ui, vi, wi, magu, utau, normu, guess, rho, up, sp, st
 
@@ -128,7 +129,7 @@ contains
        st = 1.0_rp
        if (sp .gt. 0.0_rp .and. up .gt. 0.0_rp) then
           if (up * duprat_u_star(h(i) * up / nu(i), 0.0_rp, sp, st, kappa, &
-               beta, A) .gt. magu) st = -1.0_rp
+               beta, A, gl_x, gl_w) .gt. magu) st = -1.0_rp
        end if
 
        ! Get initial guess for Newton solver
@@ -139,7 +140,8 @@ contains
           guess = sqrt(sqrt(guess) / rho)
        end if
 
-       utau = solve_cpu(magu, h(i), guess, nu(i), up, sp, st, kappa, beta, A)
+       utau = solve_cpu(magu, h(i), guess, nu(i), up, sp, st, kappa, beta, A, &
+            gl_x, gl_w)
 
        ! Distribute according to the velocity vector. The stress opposes the
        ! near-wall flow, which is reversed for st = -1.
@@ -202,6 +204,20 @@ contains
 
   end subroutine duprat_update_dpds_cpu
 
+  !> Gauss-Legendre rule on [0, 1] for the composite quadrature of U*,
+  !! obtained from the rule on [-1, 1] of `speclib`.
+  !! @param gl_x The nodes on [0, 1].
+  !! @param gl_w The weights on [0, 1], which sum to 1.
+  !! @param n The number of points.
+  subroutine duprat_gauss_rule(gl_x, gl_w, n)
+    integer, intent(in) :: n
+    real(kind=rp), intent(out) :: gl_x(n), gl_w(n)
+
+    call zwgl(gl_x, gl_w, n)
+    gl_x = 0.5_rp * (gl_x + 1.0_rp)
+    gl_w = 0.5_rp * gl_w
+  end subroutine duprat_gauss_rule
+
   !> Dimensionless velocity U*(y*) of the model of Duprat et al. (2011).
   !! Integrates Eq. (5),
   !! \f$ \frac{dU^*}{dy^*} = \frac{s_p (1 - \alpha)^{3/2} y^* + s_\tau \alpha}
@@ -219,8 +235,12 @@ contains
   !! @param kappa The von Karman coefficient.
   !! @param beta The exponent of the pressure-gradient term.
   !! @param A The damping constant.
-  pure function duprat_u_star(ys, alpha, sp, st, kappa, beta, A) result(us)
+  !! @param gl_x The Gauss-Legendre nodes on [0, 1].
+  !! @param gl_w The Gauss-Legendre weights on [0, 1].
+  pure function duprat_u_star(ys, alpha, sp, st, kappa, beta, A, gl_x, &
+       gl_w) result(us)
     real(kind=rp), intent(in) :: ys, alpha, sp, st, kappa, beta, A
+    real(kind=rp), intent(in) :: gl_x(:), gl_w(:)
     real(kind=rp) :: us
     real(kind=rp) :: ds, s0, eta, apg, damp, nut
     integer :: j, k
@@ -234,12 +254,12 @@ contains
 
     do k = 1, N_SUB
        s0 = real(k - 1, rp) * ds
-       do j = 1, N_GL
-          eta = exp(s0 + GL_X(j) * ds) - 1.0_rp
+       do j = 1, size(gl_x)
+          eta = exp(s0 + gl_x(j) * ds) - 1.0_rp
           nut = kappa * eta * (alpha + eta * apg)**beta * &
                (1.0_rp - exp(-eta / damp))**2
           ! dU*/dy* times the Jacobian d(eta)/ds = 1 + eta
-          us = us + GL_W(j) * ds * (sp * apg * eta + st * alpha) / &
+          us = us + gl_w(j) * ds * (sp * apg * eta + st * alpha) / &
                (1.0_rp + nut) * (1.0_rp + eta)
        end do
     end do
@@ -258,9 +278,12 @@ contains
   !! @param kappa The von Karman coefficient.
   !! @param beta The exponent of the pressure-gradient term.
   !! @param A The damping constant.
-  pure function residual(utau, u, y, nu, up, sp, st, kappa, beta, A) &
-       result(f)
+  !! @param gl_x The Gauss-Legendre nodes on [0, 1].
+  !! @param gl_w The Gauss-Legendre weights on [0, 1].
+  pure function residual(utau, u, y, nu, up, sp, st, kappa, beta, A, gl_x, &
+       gl_w) result(f)
     real(kind=rp), intent(in) :: utau, u, y, nu, up, sp, st, kappa, beta, A
+    real(kind=rp), intent(in) :: gl_x(:), gl_w(:)
     real(kind=rp) :: f, utp, alpha
 
     ! Extended velocity scale u_tau_p = sqrt(u_tau^2 + u_p^2), Eq. (4).
@@ -269,7 +292,7 @@ contains
     utp = sqrt(utau**2 + up**2)
     alpha = utau**2 / (utau**2 + up**2)
     f = st * (utp * duprat_u_star(y * utp / nu, alpha, sp, st, kappa, beta, &
-         A) - u)
+         A, gl_x, gl_w) - u)
   end function residual
 
   !> Safeguarded Newton solver for the friction velocity.
@@ -287,9 +310,12 @@ contains
   !! @param kappa The von Karman coefficient.
   !! @param beta The exponent of the pressure-gradient term.
   !! @param A The damping constant.
-  function solve_cpu(u, y, guess, nu, up, sp, st, kappa, beta, A) &
-       result(utau)
+  !! @param gl_x The Gauss-Legendre nodes on [0, 1].
+  !! @param gl_w The Gauss-Legendre weights on [0, 1].
+  function solve_cpu(u, y, guess, nu, up, sp, st, kappa, beta, A, gl_x, &
+       gl_w) result(utau)
     real(kind=rp), intent(in) :: u, y, guess, nu, up, sp, st, kappa, beta, A
+    real(kind=rp), intent(in) :: gl_x(:), gl_w(:)
     real(kind=rp) :: utau
     real(kind=rp) :: f, df, delta, lo, hi, f_lo, f_hi, step, tol, tiny
     integer :: k
@@ -305,17 +331,17 @@ contains
     ! from the guess. f grows without bound for large utau.
     lo = max(guess, tiny)
     hi = lo
-    f_lo = residual(lo, u, y, nu, up, sp, st, kappa, beta, A)
+    f_lo = residual(lo, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w)
     f_hi = f_lo
     do k = 1, maxiter
        if (f_hi .gt. 0.0_rp) exit
        hi = 2.0_rp * hi
-       f_hi = residual(hi, u, y, nu, up, sp, st, kappa, beta, A)
+       f_hi = residual(hi, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w)
     end do
     do k = 1, maxiter
        if (f_lo .lt. 0.0_rp .or. lo .le. tiny) exit
        lo = max(0.5_rp * lo, tiny)
-       f_lo = residual(lo, u, y, nu, up, sp, st, kappa, beta, A)
+       f_lo = residual(lo, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w)
     end do
 
     ! No sign change down to utau ~ 0: the shear stress vanishes.
@@ -326,7 +352,7 @@ contains
 
     utau = 0.5_rp * (lo + hi)
     if (guess .gt. lo .and. guess .lt. hi) utau = guess
-    f = residual(utau, u, y, nu, up, sp, st, kappa, beta, A)
+    f = residual(utau, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w)
 
     do k = 1, maxiter
        ! Shrink the bracket
@@ -339,8 +365,8 @@ contains
        ! Newton step with a finite-difference derivative, or bisection if
        ! the step leaves the bracket.
        delta = sqrt(NEKO_EPS) * utau
-       df = (residual(utau + delta, u, y, nu, up, sp, st, kappa, beta, A) - f) &
-            / delta
+       df = (residual(utau + delta, u, y, nu, up, sp, st, kappa, beta, A, &
+            gl_x, gl_w) - f) / delta
        step = f / df
        if (df .le. 0.0_rp .or. utau - step .le. lo .or. &
             utau - step .ge. hi) then
@@ -353,7 +379,7 @@ contains
           converged = .true.
           exit
        end if
-       f = residual(utau, u, y, nu, up, sp, st, kappa, beta, A)
+       f = residual(utau, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w)
     end do
 
     if (.not. converged) then

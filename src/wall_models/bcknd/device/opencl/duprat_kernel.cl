@@ -38,8 +38,9 @@
  * Dimensionless velocity U*(y*) of the model of Duprat et al. (2011).
  * Integrates
  * dU* / dy* = (s_p (1 - alpha)^(3/2) y* + s_tau alpha) / (1 + nu_t / nu),
- * Eq. (5), with the eddy viscosity of Eq. (6), using a composite 12 x 5-point
- * Gauss-Legendre rule in the stretched coordinate s = ln(1 + y*).
+ * Eq. (5), with the eddy viscosity of Eq. (6), using a composite rule of 12
+ * sub-intervals with n_gl Gauss-Legendre points each in the stretched
+ * coordinate s = ln(1 + y*).
  * @param ys The upper integration limit y*.
  * @param alpha The ratio u_tau^2 / u_tau_p^2.
  * @param sp The sign of the pressure gradient relative to the flow.
@@ -48,16 +49,15 @@
  * @param kappa The von Karman coefficient.
  * @param beta The exponent of the pressure-gradient term.
  * @param A The damping constant.
+ * @param gl_x The Gauss-Legendre nodes on [0, 1].
+ * @param gl_w The Gauss-Legendre weights on [0, 1].
+ * @param n_gl The number of Gauss-Legendre points.
  */
 inline real duprat_u_star(const real ys, const real alpha, const real sp,
                           const real st, const real kappa, const real beta,
-                          const real A) {
-  const real gl_x[5] = {(real)0.0469100770306680, (real)0.2307653449471585,
-                        (real)0.5, (real)0.7692346550528415,
-                        (real)0.9530899229693320};
-  const real gl_w[5] = {(real)0.1184634425280945, (real)0.2393143352496832,
-                        (real)0.2844444444444444, (real)0.2393143352496832,
-                        (real)0.1184634425280945};
+                          const real A, __global const real *__restrict__ gl_x,
+                          __global const real *__restrict__ gl_w,
+                          const int n_gl) {
   const int n_sub = 12;
   const real one = (real)1.0;
   real us = (real)0.0;
@@ -72,7 +72,7 @@ inline real duprat_u_star(const real ys, const real alpha, const real sp,
 
   for (int k = 0; k < n_sub; ++k) {
     const real s0 = (real)k * ds;
-    for (int j = 0; j < 5; ++j) {
+    for (int j = 0; j < n_gl; ++j) {
       const real eta = exp(s0 + gl_x[j] * ds) - one;
       const real edamp = one - exp(-eta / damp);
       const real nut =
@@ -93,12 +93,16 @@ inline real duprat_u_star(const real ys, const real alpha, const real sp,
 inline real duprat_residual(const real utau, const real u, const real y,
                             const real nu, const real up, const real sp,
                             const real st, const real kappa, const real beta,
-                            const real A) {
+                            const real A,
+                            __global const real *__restrict__ gl_x,
+                            __global const real *__restrict__ gl_w,
+                            const int n_gl) {
   const real utp = sqrt(utau * utau + up * up);
   /* alpha without the square root, so that it cannot exceed 1 */
   const real alpha = utau * utau / (utau * utau + up * up);
-  return st *
-         (utp * duprat_u_star(y * utp / nu, alpha, sp, st, kappa, beta, A) - u);
+  return st * (utp * duprat_u_star(y * utp / nu, alpha, sp, st, kappa, beta, A,
+                                   gl_x, gl_w, n_gl) -
+               u);
 }
 
 /**
@@ -110,7 +114,9 @@ inline real duprat_residual(const real utau, const real u, const real y,
 inline real duprat_solve(const real u, const real y, const real guess,
                          const real nu, const real up, const real sp,
                          const real st, const real kappa, const real beta,
-                         const real A) {
+                         const real A, __global const real *__restrict__ gl_x,
+                         __global const real *__restrict__ gl_w,
+                         const int n_gl) {
   const int maxiter = 100;
   const real eps =
       (sizeof(real) == sizeof(float)) ? (real)FLT_EPSILON : (real)DBL_EPSILON;
@@ -121,15 +127,18 @@ inline real duprat_solve(const real u, const real y, const real guess,
   /* Bracket the root, f(lo) < 0 < f(hi) */
   real lo = (guess > tiny) ? guess : tiny;
   real hi = lo;
-  real f_lo = duprat_residual(lo, u, y, nu, up, sp, st, kappa, beta, A);
+  real f_lo = duprat_residual(lo, u, y, nu, up, sp, st, kappa, beta, A, gl_x,
+                              gl_w, n_gl);
   real f_hi = f_lo;
   for (int k = 0; k < maxiter && f_hi <= (real)0.0; ++k) {
     hi = (real)2.0 * hi;
-    f_hi = duprat_residual(hi, u, y, nu, up, sp, st, kappa, beta, A);
+    f_hi = duprat_residual(hi, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w,
+                           n_gl);
   }
   for (int k = 0; k < maxiter && f_lo >= (real)0.0 && lo > tiny; ++k) {
     lo = ((real)0.5 * lo > tiny) ? (real)0.5 * lo : tiny;
-    f_lo = duprat_residual(lo, u, y, nu, up, sp, st, kappa, beta, A);
+    f_lo = duprat_residual(lo, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w,
+                           n_gl);
   }
 
   /* No sign change down to utau ~ 0: the shear stress vanishes */
@@ -139,7 +148,8 @@ inline real duprat_solve(const real u, const real y, const real guess,
   real utau = (real)0.5 * (lo + hi);
   if (guess > lo && guess < hi)
     utau = guess;
-  real f = duprat_residual(utau, u, y, nu, up, sp, st, kappa, beta, A);
+  real f = duprat_residual(utau, u, y, nu, up, sp, st, kappa, beta, A, gl_x,
+                           gl_w, n_gl);
 
   for (int k = 0; k < maxiter; ++k) {
     /* Shrink the bracket */
@@ -151,10 +161,10 @@ inline real duprat_solve(const real u, const real y, const real guess,
 
     /* Newton step, or bisection if it leaves the bracket */
     const real delta = sqrt(eps) * utau;
-    const real df =
-        (duprat_residual(utau + delta, u, y, nu, up, sp, st, kappa, beta, A) -
-         f) /
-        delta;
+    const real df = (duprat_residual(utau + delta, u, y, nu, up, sp, st, kappa,
+                                     beta, A, gl_x, gl_w, n_gl) -
+                     f) /
+                    delta;
     real step = f / df;
     if (df <= (real)0.0 || utau - step <= lo || utau - step >= hi) {
       step = utau - (real)0.5 * (lo + hi);
@@ -163,7 +173,8 @@ inline real duprat_solve(const real u, const real y, const real guess,
 
     if (fabs(step) < tol * utau || (hi - lo) < tol * utau)
       break;
-    f = duprat_residual(utau, u, y, nu, up, sp, st, kappa, beta, A);
+    f = duprat_residual(utau, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w,
+                        n_gl);
   }
   return utau;
 }
@@ -189,25 +200,27 @@ inline real duprat_solve(const real u, const real y, const real guess,
  * @param kappa The von Karman coefficient.
  * @param beta The exponent of the pressure-gradient term.
  * @param A The damping constant.
+ * @param gl_x_d The Gauss-Legendre nodes on [0, 1].
+ * @param gl_w_d The Gauss-Legendre weights on [0, 1].
+ * @param n_gl The number of Gauss-Legendre points.
  * @param tstep The current time-step.
  */
-__kernel void duprat_compute_kernel(__global const real *__restrict__ u_d,
-                                    __global const real *__restrict__ v_d,
-                                    __global const real *__restrict__ w_d,
-                                    __global const real *__restrict__ n_x_d,
-                                    __global const real *__restrict__ n_y_d,
-                                    __global const real *__restrict__ n_z_d,
-                                    __global const real *__restrict__ nu_d,
-                                    __global const real *__restrict__ rho_w_d,
-                                    __global const real *__restrict__ h_d,
-                                    __global const real *__restrict__ dpds_d,
-                                    __global real *__restrict__ tau_x_d,
-                                    __global real *__restrict__ tau_y_d,
-                                    __global real *__restrict__ tau_z_d,
-                                    __global real *__restrict__ alpha_d,
-                                    const int n_nodes, const real kappa,
-                                    const real beta, const real A,
-                                    const int tstep) {
+__kernel void duprat_compute_kernel(
+    __global const real *__restrict__ u_d,
+    __global const real *__restrict__ v_d,
+    __global const real *__restrict__ w_d,
+    __global const real *__restrict__ n_x_d,
+    __global const real *__restrict__ n_y_d,
+    __global const real *__restrict__ n_z_d,
+    __global const real *__restrict__ nu_d,
+    __global const real *__restrict__ rho_w_d,
+    __global const real *__restrict__ h_d,
+    __global const real *__restrict__ dpds_d,
+    __global real *__restrict__ tau_x_d, __global real *__restrict__ tau_y_d,
+    __global real *__restrict__ tau_z_d, __global real *__restrict__ alpha_d,
+    const int n_nodes, const real kappa, const real beta, const real A,
+    __global const real *__restrict__ gl_x_d,
+    __global const real *__restrict__ gl_w_d, const int n_gl, const int tstep) {
   const int idx = get_global_id(0);
   const int str = get_global_size(0);
   const real eps =
@@ -253,7 +266,8 @@ __kernel void duprat_compute_kernel(__global const real *__restrict__ u_d,
     real st = (real)1.0;
     if (sp > (real)0.0 && up > (real)0.0) {
       const real u_sep =
-          up * duprat_u_star(h * up / nu, (real)0.0, sp, st, kappa, beta, A);
+          up * duprat_u_star(h * up / nu, (real)0.0, sp, st, kappa, beta, A,
+                             gl_x_d, gl_w_d, n_gl);
       if (u_sep > magu)
         st = -(real)1.0;
     }
@@ -267,8 +281,8 @@ __kernel void duprat_compute_kernel(__global const real *__restrict__ u_d,
       guess = sqrt(sqrt(guess) / rho);
     }
 
-    const real utau =
-        duprat_solve(magu, h, guess, nu, up, sp, st, kappa, beta, A);
+    const real utau = duprat_solve(magu, h, guess, nu, up, sp, st, kappa, beta,
+                                   A, gl_x_d, gl_w_d, n_gl);
 
     /* Distribute according to the velocity vector. The stress opposes the
        near-wall flow, which is reversed for st = -1. */

@@ -65,6 +65,9 @@
  * @param kappa The von Karman coefficient.
  * @param beta The exponent of the pressure-gradient term.
  * @param A The damping constant.
+ * @param gl_x_d The Gauss-Legendre nodes on [0, 1].
+ * @param gl_w_d The Gauss-Legendre weights on [0, 1].
+ * @param n_gl The number of Gauss-Legendre points.
  * @param tstep The current time-step.
  */
 void opencl_duprat_compute(void *u_d, void *v_d, void *w_d, void *n_x_d,
@@ -72,7 +75,7 @@ void opencl_duprat_compute(void *u_d, void *v_d, void *w_d, void *n_x_d,
                            void *h_d, void *dpds_d, void *tau_x_d,
                            void *tau_y_d, void *tau_z_d, void *alpha_d,
                            int *n_nodes, real *kappa, real *beta, real *A,
-                           int *tstep) {
+                           void *gl_x_d, void *gl_w_d, int *n_gl, int *tstep) {
   cl_int err;
 
   if (*n_nodes < 1)
@@ -104,7 +107,10 @@ void opencl_duprat_compute(void *u_d, void *v_d, void *w_d, void *n_x_d,
   CL_CHECK(clSetKernelArg(kernel, 15, sizeof(real), kappa));
   CL_CHECK(clSetKernelArg(kernel, 16, sizeof(real), beta));
   CL_CHECK(clSetKernelArg(kernel, 17, sizeof(real), A));
-  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(int), tstep));
+  CL_CHECK(clSetKernelArg(kernel, 18, sizeof(cl_mem), (void *)&gl_x_d));
+  CL_CHECK(clSetKernelArg(kernel, 19, sizeof(cl_mem), (void *)&gl_w_d));
+  CL_CHECK(clSetKernelArg(kernel, 20, sizeof(int), n_gl));
+  CL_CHECK(clSetKernelArg(kernel, 21, sizeof(int), tstep));
 
   const int nb = ((*n_nodes) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;

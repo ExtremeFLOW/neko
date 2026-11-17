@@ -45,7 +45,8 @@ module duprat
   use registry, only : neko_registry
   use json_utils, only : json_get_or_lookup, json_get_or_lookup_or_default, &
        json_get_or_default, json_get_subdict_or_empty
-  use duprat_cpu, only : duprat_compute_cpu, duprat_update_dpds_cpu
+  use duprat_cpu, only : duprat_compute_cpu, duprat_update_dpds_cpu, &
+       duprat_gauss_rule, DUPRAT_N_GL
   use duprat_device, only : duprat_compute_device, duprat_update_dpds_device
   use operators, only : grad
   use field_math, only : field_invcol3
@@ -55,6 +56,7 @@ module duprat
   use device_math, only : device_masked_gather_copy_0, &
        device_masked_scatter_copy_0, device_cfill, device_col2
   use gs_ops, only : GS_OP_ADD
+  use device, only : HOST_TO_DEVICE
   use scratch_registry, only : neko_scratch_registry
   use logger, only : LOG_SIZE, neko_log
   use utils, only : neko_error
@@ -111,6 +113,9 @@ module duprat
      type(vector_t) :: dpx_s, dpy_s, dpz_s
      !> Sampled pressure gradient, filtered in time (local mode).
      type(vector_t) :: dpx_f, dpy_f, dpz_f
+     !> Gauss-Legendre nodes and weights on [0, 1] for the quadrature of the
+     !! velocity profile.
+     type(vector_t) :: gl_x, gl_w
      !> Registry field with dp/ds at the wall nodes, for output.
      type(field_t), pointer :: dpds_field => null()
      !> Registry field with alpha at the wall nodes, for output.
@@ -321,6 +326,13 @@ contains
     call this%rho_w%init(this%n_nodes)
     call this%dpds%init(this%n_nodes)
     call this%alpha%init(this%n_nodes)
+
+    ! Gauss-Legendre rule for the quadrature of the velocity profile
+    call this%gl_x%init(DUPRAT_N_GL)
+    call this%gl_w%init(DUPRAT_N_GL)
+    call duprat_gauss_rule(this%gl_x%x, this%gl_w%x, DUPRAT_N_GL)
+    call this%gl_x%copy_from(HOST_TO_DEVICE, sync = .false.)
+    call this%gl_w%copy_from(HOST_TO_DEVICE, sync = .true.)
     call this%validate_single_sample()
     call this%u_s%init(this%n_nodes)
     call this%v_s%init(this%n_nodes)
@@ -402,6 +414,8 @@ contains
     call this%rho_w%free()
     call this%dpds%free()
     call this%alpha%free()
+    call this%gl_x%free()
+    call this%gl_w%free()
     call this%dpx_s%free()
     call this%dpy_s%free()
     call this%dpz_s%free()
@@ -446,7 +460,8 @@ contains
             this%n_x%x_d, this%n_y%x_d, this%n_z%x_d, &
             this%nu%x_d, this%rho_w%x_d, this%sampler%h%x_d, this%dpds%x_d, &
             this%tau_x%x_d, this%tau_y%x_d, this%tau_z%x_d, this%alpha%x_d, &
-            this%n_nodes, this%kappa, this%beta, this%A, tstep)
+            this%n_nodes, this%kappa, this%beta, this%A, this%gl_x%x_d, &
+            this%gl_w%x_d, DUPRAT_N_GL, tstep)
 
        ! Copy dp/ds and alpha to the output fields
        call device_masked_scatter_copy_0(this%dpds_field%x_d, &
@@ -459,7 +474,8 @@ contains
             this%n_x%x, this%n_y%x, this%n_z%x, &
             this%nu%x, this%rho_w%x, this%sampler%h%x, this%dpds%x, &
             this%tau_x%x, this%tau_y%x, this%tau_z%x, this%alpha%x, &
-            this%n_nodes, this%kappa, this%beta, this%A, tstep)
+            this%n_nodes, this%kappa, this%beta, this%A, this%gl_x%x, &
+            this%gl_w%x, DUPRAT_N_GL, tstep)
 
        ! Copy dp/ds and alpha to the output fields
        do i = 1, this%n_nodes

@@ -42,7 +42,8 @@ module duprat_device
   interface
      subroutine hip_duprat_compute( &
           u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-          tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep) &
+          tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, &
+          gl_x_d, gl_w_d, n_gl, tstep) &
           bind(c, name = 'hip_duprat_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -50,8 +51,9 @@ module duprat_device
        type(c_ptr), value :: u_d, v_d, w_d, n_x_d, n_y_d
        type(c_ptr), value :: n_z_d, nu_d, rho_w_d, h_d, dpds_d
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d, alpha_d
+       type(c_ptr), value :: gl_x_d, gl_w_d
        real(c_rp) :: kappa, beta, A
-       integer(c_int) :: n_nodes, tstep
+       integer(c_int) :: n_nodes, n_gl, tstep
      end subroutine hip_duprat_compute
   end interface
   interface
@@ -71,7 +73,8 @@ module duprat_device
   interface
      subroutine cuda_duprat_compute( &
           u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-          tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep) &
+          tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, &
+          gl_x_d, gl_w_d, n_gl, tstep) &
           bind(c, name = 'cuda_duprat_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -79,8 +82,9 @@ module duprat_device
        type(c_ptr), value :: u_d, v_d, w_d, n_x_d, n_y_d
        type(c_ptr), value :: n_z_d, nu_d, rho_w_d, h_d, dpds_d
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d, alpha_d
+       type(c_ptr), value :: gl_x_d, gl_w_d
        real(c_rp) :: kappa, beta, A
-       integer(c_int) :: n_nodes, tstep
+       integer(c_int) :: n_nodes, n_gl, tstep
      end subroutine cuda_duprat_compute
   end interface
   interface
@@ -100,7 +104,8 @@ module duprat_device
   interface
      subroutine opencl_duprat_compute( &
           u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-          tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep) &
+          tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, &
+          gl_x_d, gl_w_d, n_gl, tstep) &
           bind(c, name = 'opencl_duprat_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -108,8 +113,9 @@ module duprat_device
        type(c_ptr), value :: u_d, v_d, w_d, n_x_d, n_y_d
        type(c_ptr), value :: n_z_d, nu_d, rho_w_d, h_d, dpds_d
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d, alpha_d
+       type(c_ptr), value :: gl_x_d, gl_w_d
        real(c_rp) :: kappa, beta, A
-       integer(c_int) :: n_nodes, tstep
+       integer(c_int) :: n_nodes, n_gl, tstep
      end subroutine opencl_duprat_compute
   end interface
   interface
@@ -129,7 +135,8 @@ module duprat_device
   interface
      subroutine metal_duprat_compute( &
           u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-          tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep) &
+          tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, &
+          gl_x_d, gl_w_d, n_gl, tstep) &
           bind(c, name = 'metal_duprat_compute')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        use num_types, only : c_rp
@@ -137,8 +144,9 @@ module duprat_device
        type(c_ptr), value :: u_d, v_d, w_d, n_x_d, n_y_d
        type(c_ptr), value :: n_z_d, nu_d, rho_w_d, h_d, dpds_d
        type(c_ptr), value :: tau_x_d, tau_y_d, tau_z_d, alpha_d
+       type(c_ptr), value :: gl_x_d, gl_w_d
        real(c_rp) :: kappa, beta, A
-       integer(c_int) :: n_nodes, tstep
+       integer(c_int) :: n_nodes, n_gl, tstep
      end subroutine metal_duprat_compute
   end interface
   interface
@@ -177,32 +185,41 @@ contains
   !! @param kappa The von Karman coefficient.
   !! @param beta The exponent of the pressure-gradient term.
   !! @param A The damping constant.
+  !! @param gl_x_d The Gauss-Legendre nodes on [0, 1].
+  !! @param gl_w_d The Gauss-Legendre weights on [0, 1].
+  !! @param n_gl The number of Gauss-Legendre points.
   !! @param tstep The current time-step.
   subroutine duprat_compute_device( &
        u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-       tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep)
-    integer, intent(in) :: n_nodes, tstep
+       tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, gl_x_d, &
+       gl_w_d, n_gl, tstep)
+    integer, intent(in) :: n_nodes, n_gl, tstep
     type(c_ptr), intent(in) :: u_d, v_d, w_d, n_x_d, n_y_d, n_z_d
     type(c_ptr), intent(in) :: nu_d, rho_w_d, h_d, dpds_d
     type(c_ptr), intent(inout) :: tau_x_d, tau_y_d, tau_z_d, alpha_d
+    type(c_ptr), intent(in) :: gl_x_d, gl_w_d
     real(kind=rp), intent(in) :: kappa, beta, A
 
 #if HAVE_HIP
     call hip_duprat_compute( &
          u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-         tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep)
+         tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, &
+         gl_x_d, gl_w_d, n_gl, tstep)
 #elif HAVE_CUDA
     call cuda_duprat_compute( &
          u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-         tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep)
+         tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, &
+         gl_x_d, gl_w_d, n_gl, tstep)
 #elif HAVE_OPENCL
     call opencl_duprat_compute( &
          u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-         tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep)
+         tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, &
+         gl_x_d, gl_w_d, n_gl, tstep)
 #elif HAVE_METAL
     call metal_duprat_compute( &
          u_d, v_d, w_d, n_x_d, n_y_d, n_z_d, nu_d, rho_w_d, h_d, dpds_d, &
-         tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, tstep)
+         tau_x_d, tau_y_d, tau_z_d, alpha_d, n_nodes, kappa, beta, A, &
+         gl_x_d, gl_w_d, n_gl, tstep)
 #else
     call neko_error('No device backend configured')
 #endif

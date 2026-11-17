@@ -5,7 +5,7 @@ module test_duprat
   use num_types, only : rp
   use math, only : NEKO_EPS
   use duprat_cpu, only : duprat_compute_cpu, duprat_update_dpds_cpu, &
-       duprat_u_star
+       duprat_u_star, duprat_gauss_rule, DUPRAT_N_GL
   implicit none
 
   @TestCase
@@ -50,6 +50,9 @@ module test_duprat
   real(kind=rp), parameter :: UTAU_SEP_ATT = 5.72722076270732253e-03_rp
   real(kind=rp), parameter :: ALPHA_SEP_ATT = 2.35977157198659047e-02_rp
 
+  ! Gauss-Legendre rule of the quadrature of U*, set in setUp
+  real(kind=rp) :: gl_x(DUPRAT_N_GL), gl_w(DUPRAT_N_GL)
+
 contains
 
   subroutine setUp(this)
@@ -58,6 +61,7 @@ contains
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_init
     end if
+    call duprat_gauss_rule(gl_x, gl_w, DUPRAT_N_GL)
   end subroutine setUp
 
   subroutine tearDown(this)
@@ -73,6 +77,29 @@ contains
     real(kind=rp) :: t
     t = max(1.0e-8_rp, 1.0e3_rp * NEKO_EPS)
   end function tol
+
+  !> Verify the Gauss-Legendre rule on [0, 1] taken from speclib against the
+  !! 5-point rule (nodes 1/2 -+ sqrt(5 -+ 2 sqrt(10/7)) / 6, weights summing
+  !! to 1).
+  @test
+  subroutine test_gauss_rule(this)
+    class(test_duprat_case), intent(inout) :: this
+    real(kind=rp), parameter :: x_ref(5) = [ &
+         4.69100770306680036e-02_rp, 2.30765344947158454e-01_rp, 0.5_rp, &
+         7.69234655052841546e-01_rp, 9.53089922969331996e-01_rp]
+    real(kind=rp), parameter :: w_ref(5) = [ &
+         1.18463442528094544e-01_rp, 2.39314335249683234e-01_rp, &
+         2.84444444444444444e-01_rp, 2.39314335249683234e-01_rp, &
+         1.18463442528094544e-01_rp]
+    integer :: j
+
+    @assertEqual(5, DUPRAT_N_GL)
+    do j = 1, 5
+       @assertEqual(x_ref(j), gl_x(j), tolerance = 10.0_rp * NEKO_EPS)
+       @assertEqual(w_ref(j), gl_w(j), tolerance = 10.0_rp * NEKO_EPS)
+    end do
+    @assertEqual(1.0_rp, sum(gl_w), tolerance = 10.0_rp * NEKO_EPS)
+  end subroutine test_gauss_rule
 
   !> Verify the quadrature of the dimensionless velocity U*(y*) against
   !! reference values, without and with adverse and favourable pressure
@@ -97,13 +124,13 @@ contains
 
     do i = 1, n
        us = duprat_u_star(ys(i), alpha(i), sp(i), st(i), 0.41_rp, 0.78_rp, &
-            17.0_rp)
+            17.0_rp, gl_x, gl_w)
        @assertEqual(ref(i), us, tolerance = tol() * abs(ref(i)))
     end do
 
     ! U* vanishes at the wall
     us = duprat_u_star(0.0_rp, 1.0_rp, 1.0_rp, 1.0_rp, 0.41_rp, 0.78_rp, &
-         17.0_rp)
+         17.0_rp, gl_x, gl_w)
     @assertEqual(0.0_rp, us)
   end subroutine test_u_star_reference_values
 
@@ -137,7 +164,8 @@ contains
     alpha = 0.0_rp
 
     call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
-         tau_x, tau_y, tau_z, alpha, n, 0.41_rp, 0.78_rp, 17.0_rp, 1)
+         tau_x, tau_y, tau_z, alpha, n, 0.41_rp, 0.78_rp, 17.0_rp, &
+         gl_x, gl_w, DUPRAT_N_GL, 1)
 
     do i = 1, n
        ! The stress opposes the flow
@@ -172,7 +200,8 @@ contains
     alpha = 0.0_rp
 
     call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
-         tau_x, tau_y, tau_z, alpha, 1, 0.40_rp, 0.7_rp, 20.0_rp, 1)
+         tau_x, tau_y, tau_z, alpha, 1, 0.40_rp, 0.7_rp, 20.0_rp, &
+         gl_x, gl_w, DUPRAT_N_GL, 1)
 
     @assertEqual(-UTAU_CUSTOM**2, tau_x(1), tolerance = tol() * UTAU_CUSTOM**2)
     @assertEqual(ALPHA_CUSTOM, alpha(1), tolerance = tol() * ALPHA_CUSTOM)
@@ -213,7 +242,8 @@ contains
     scale = maxval(abs(ref))
 
     call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
-         tau_x, tau_y, tau_z, alpha, 1, 0.41_rp, 0.78_rp, 17.0_rp, 1)
+         tau_x, tau_y, tau_z, alpha, 1, 0.41_rp, 0.78_rp, 17.0_rp, &
+         gl_x, gl_w, DUPRAT_N_GL, 1)
 
     @assertEqual(ref(1), tau_x(1), tolerance = tol() * scale)
     @assertEqual(ref(2), tau_y(1), tolerance = tol() * scale)
@@ -248,7 +278,8 @@ contains
     alpha = 0.0_rp
 
     call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
-         tau_x, tau_y, tau_z, alpha, 2, 0.41_rp, 0.78_rp, 17.0_rp, 1)
+         tau_x, tau_y, tau_z, alpha, 2, 0.41_rp, 0.78_rp, 17.0_rp, &
+         gl_x, gl_w, DUPRAT_N_GL, 1)
 
     @assertEqual(0.0_rp, tau_x)
     @assertEqual(0.0_rp, tau_y)
@@ -288,7 +319,8 @@ contains
     alpha = 0.0_rp
 
     call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
-         tau_x, tau_y, tau_z, alpha, n, 0.41_rp, 0.78_rp, 17.0_rp, 1)
+         tau_x, tau_y, tau_z, alpha, n, 0.41_rp, 0.78_rp, 17.0_rp, &
+         gl_x, gl_w, DUPRAT_N_GL, 1)
 
     ! Reversed: the stress points along the sampled velocity
     scale = UTAU_REV**2
@@ -337,7 +369,8 @@ contains
     alpha = 0.0_rp
 
     call duprat_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, dpds, &
-         tau_x, tau_y, tau_z, alpha, n, 0.41_rp, 0.78_rp, 17.0_rp, 5)
+         tau_x, tau_y, tau_z, alpha, n, 0.41_rp, 0.78_rp, 17.0_rp, &
+         gl_x, gl_w, DUPRAT_N_GL, 5)
 
     @assertEqual(-UTAU_APG**2, tau_x(1), tolerance = tol() * UTAU_APG**2)
     @assertEqual(-UTAU_APG**2, tau_x(2), tolerance = tol() * UTAU_APG**2)

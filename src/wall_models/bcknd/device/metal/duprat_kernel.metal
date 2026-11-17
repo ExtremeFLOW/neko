@@ -45,8 +45,9 @@ using namespace metal;
  * Dimensionless velocity U*(y*) of the model of Duprat et al. (2011).
  * Integrates
  * dU* / dy* = (s_p (1 - alpha)^(3/2) y* + s_tau alpha) / (1 + nu_t / nu),
- * Eq. (5), with the eddy viscosity of Eq. (6), using a composite 12 x 5-point
- * Gauss-Legendre rule in the stretched coordinate s = ln(1 + y*).
+ * Eq. (5), with the eddy viscosity of Eq. (6), using a composite rule of 12
+ * sub-intervals with n_gl Gauss-Legendre points each in the stretched
+ * coordinate s = ln(1 + y*).
  * @param ys The upper integration limit y*.
  * @param alpha The ratio u_tau^2 / u_tau_p^2.
  * @param sp The sign of the pressure gradient relative to the flow.
@@ -55,15 +56,14 @@ using namespace metal;
  * @param kappa The von Karman coefficient.
  * @param beta The exponent of the pressure-gradient term.
  * @param A The damping constant.
+ * @param gl_x The Gauss-Legendre nodes on [0, 1].
+ * @param gl_w The Gauss-Legendre weights on [0, 1].
+ * @param n_gl The number of Gauss-Legendre points.
  */
 static float duprat_u_star(const float ys, const float alpha, const float sp,
                            const float st, const float kappa, const float beta,
-                           const float A) {
-  const float gl_x[5] = {0.0469100770306680f, 0.2307653449471585f, 0.5f,
-                         0.7692346550528415f, 0.9530899229693320f};
-  const float gl_w[5] = {0.1184634425280945f, 0.2393143352496832f,
-                         0.2844444444444444f, 0.2393143352496832f,
-                         0.1184634425280945f};
+                           const float A, device const float *gl_x,
+                           device const float *gl_w, const int n_gl) {
   const int n_sub = 12;
   const float one = 1.0f;
   float us = 0.0f;
@@ -78,7 +78,7 @@ static float duprat_u_star(const float ys, const float alpha, const float sp,
 
   for (int k = 0; k < n_sub; ++k) {
     const float s0 = (float)k * ds;
-    for (int j = 0; j < 5; ++j) {
+    for (int j = 0; j < n_gl; ++j) {
       const float eta = exp(s0 + gl_x[j] * ds) - one;
       const float edamp = one - exp(-eta / damp);
       const float nut =
@@ -99,12 +99,15 @@ static float duprat_u_star(const float ys, const float alpha, const float sp,
 static float duprat_residual(const float utau, const float u, const float y,
                              const float nu, const float up, const float sp,
                              const float st, const float kappa,
-                             const float beta, const float A) {
+                             const float beta, const float A,
+                             device const float *gl_x, device const float *gl_w,
+                             const int n_gl) {
   const float utp = sqrt(utau * utau + up * up);
   /* alpha without the square root, so that it cannot exceed 1 */
   const float alpha = utau * utau / (utau * utau + up * up);
-  return st *
-         (utp * duprat_u_star(y * utp / nu, alpha, sp, st, kappa, beta, A) - u);
+  return st * (utp * duprat_u_star(y * utp / nu, alpha, sp, st, kappa, beta, A,
+                                   gl_x, gl_w, n_gl) -
+               u);
 }
 
 /**
@@ -116,7 +119,8 @@ static float duprat_residual(const float utau, const float u, const float y,
 static float duprat_solve(const float u, const float y, const float guess,
                           const float nu, const float up, const float sp,
                           const float st, const float kappa, const float beta,
-                          const float A) {
+                          const float A, device const float *gl_x,
+                          device const float *gl_w, const int n_gl) {
   const int maxiter = 100;
   const float eps = FLT_EPSILON;
   const float tol = 10.0f * FLT_EPSILON;
@@ -125,15 +129,18 @@ static float duprat_solve(const float u, const float y, const float guess,
   /* Bracket the root, f(lo) < 0 < f(hi) */
   float lo = (guess > tiny) ? guess : tiny;
   float hi = lo;
-  float f_lo = duprat_residual(lo, u, y, nu, up, sp, st, kappa, beta, A);
+  float f_lo = duprat_residual(lo, u, y, nu, up, sp, st, kappa, beta, A, gl_x,
+                               gl_w, n_gl);
   float f_hi = f_lo;
   for (int k = 0; k < maxiter && f_hi <= 0.0f; ++k) {
     hi = 2.0f * hi;
-    f_hi = duprat_residual(hi, u, y, nu, up, sp, st, kappa, beta, A);
+    f_hi = duprat_residual(hi, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w,
+                           n_gl);
   }
   for (int k = 0; k < maxiter && f_lo >= 0.0f && lo > tiny; ++k) {
     lo = (0.5f * lo > tiny) ? 0.5f * lo : tiny;
-    f_lo = duprat_residual(lo, u, y, nu, up, sp, st, kappa, beta, A);
+    f_lo = duprat_residual(lo, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w,
+                           n_gl);
   }
 
   /* No sign change down to utau ~ 0: the shear stress vanishes */
@@ -143,7 +150,8 @@ static float duprat_solve(const float u, const float y, const float guess,
   float utau = 0.5f * (lo + hi);
   if (guess > lo && guess < hi)
     utau = guess;
-  float f = duprat_residual(utau, u, y, nu, up, sp, st, kappa, beta, A);
+  float f = duprat_residual(utau, u, y, nu, up, sp, st, kappa, beta, A, gl_x,
+                            gl_w, n_gl);
 
   for (int k = 0; k < maxiter; ++k) {
     /* Shrink the bracket */
@@ -155,10 +163,10 @@ static float duprat_solve(const float u, const float y, const float guess,
 
     /* Newton step, or bisection if it leaves the bracket */
     const float delta = sqrt(eps) * utau;
-    const float df =
-        (duprat_residual(utau + delta, u, y, nu, up, sp, st, kappa, beta, A) -
-         f) /
-        delta;
+    const float df = (duprat_residual(utau + delta, u, y, nu, up, sp, st, kappa,
+                                      beta, A, gl_x, gl_w, n_gl) -
+                      f) /
+                     delta;
     float step = f / df;
     if (df <= 0.0f || utau - step <= lo || utau - step >= hi) {
       step = utau - 0.5f * (lo + hi);
@@ -167,7 +175,8 @@ static float duprat_solve(const float u, const float y, const float guess,
 
     if (fabs(step) < tol * utau || (hi - lo) < tol * utau)
       break;
-    f = duprat_residual(utau, u, y, nu, up, sp, st, kappa, beta, A);
+    f = duprat_residual(utau, u, y, nu, up, sp, st, kappa, beta, A, gl_x, gl_w,
+                        n_gl);
   }
   return utau;
 }
@@ -192,6 +201,9 @@ static float duprat_solve(const float u, const float y, const float guess,
  * @param kappa The von Karman coefficient.
  * @param beta The exponent of the pressure-gradient term.
  * @param A The damping constant.
+ * @param gl_x_d The Gauss-Legendre nodes on [0, 1].
+ * @param gl_w_d The Gauss-Legendre weights on [0, 1].
+ * @param n_gl The number of Gauss-Legendre points.
  * @param tstep The current time-step.
  */
 kernel void duprat_compute_kernel(
@@ -209,7 +221,10 @@ kernel void duprat_compute_kernel(
     device float *tau_z_d [[buffer(12)]], device float *alpha_d [[buffer(13)]],
     constant int &n_nodes [[buffer(14)]], constant float &kappa [[buffer(15)]],
     constant float &beta [[buffer(16)]], constant float &A [[buffer(17)]],
-    constant int &tstep [[buffer(18)]], uint idx [[thread_position_in_grid]]) {
+    device const float *gl_x_d [[buffer(18)]],
+    device const float *gl_w_d [[buffer(19)]],
+    constant int &n_gl [[buffer(20)]], constant int &tstep [[buffer(21)]],
+    uint idx [[thread_position_in_grid]]) {
   if (idx >= (uint)n_nodes)
     return;
 
@@ -254,8 +269,8 @@ kernel void duprat_compute_kernel(
      velocity means reversed flow below the sampling point. */
   float st = 1.0f;
   if (sp > 0.0f && up > 0.0f) {
-    const float u_sep =
-        up * duprat_u_star(h * up / nu, 0.0f, sp, st, kappa, beta, A);
+    const float u_sep = up * duprat_u_star(h * up / nu, 0.0f, sp, st, kappa,
+                                           beta, A, gl_x_d, gl_w_d, n_gl);
     if (u_sep > magu)
       st = -1.0f;
   }
@@ -269,8 +284,8 @@ kernel void duprat_compute_kernel(
     guess = sqrt(sqrt(guess) / rho);
   }
 
-  const float utau =
-      duprat_solve(magu, h, guess, nu, up, sp, st, kappa, beta, A);
+  const float utau = duprat_solve(magu, h, guess, nu, up, sp, st, kappa, beta,
+                                  A, gl_x_d, gl_w_d, n_gl);
 
   /* Distribute according to the velocity vector. The stress opposes the
      near-wall flow, which is reversed for st = -1. */
