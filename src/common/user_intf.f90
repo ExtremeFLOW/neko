@@ -42,7 +42,7 @@ module user_intf
   use overset_interface, only : morph_overset_interface
   use field_dirichlet, only : field_dirichlet_update
   use field_neumann, only : field_neumann_update
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use json_utils, only : json_extract_item, json_get, json_get_or_default
   use utils, only : neko_error, neko_warning
@@ -145,12 +145,15 @@ module user_intf
   !! @param scheme_name The name of the scheme calling the routine.
   !! @param rhs The right-hand fields to be computed by the user.
   !! @param time The time state.
+  !! @param eval_time The time at which to evaluate the source term. It is
+  !! chosen by the time scheme and need not always equal `time%t`.
   abstract interface
-     subroutine user_source_term_intf(scheme_name, rhs, time)
-       import rp, time_state_t, field_list_t
+     subroutine user_source_term_intf(scheme_name, rhs, time, eval_time)
+       import dp, time_state_t, field_list_t
        character(len=*), intent(in) :: scheme_name
        type(field_list_t), intent(inout) :: rhs
        type(time_state_t), intent(in) :: time
+       real(kind=dp), intent(in) :: eval_time
      end subroutine user_source_term_intf
   end interface
 
@@ -469,10 +472,11 @@ contains
   end subroutine dummy_user_initial_conditions
 
   !> Dummy user source_term
-  subroutine dummy_user_source_term(scheme_name, rhs, time)
+  subroutine dummy_user_source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     call neko_error('Dummy user defined source term set')
   end subroutine dummy_user_source_term
 

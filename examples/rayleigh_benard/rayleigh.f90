@@ -80,10 +80,11 @@ contains
   end subroutine initial_conditions
 
   ! Forcing
-  subroutine forcing_source_term(scheme_name, rhs, time)
+  subroutine forcing_source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     integer :: i
     type(field_t), pointer :: u, v, w, s, rhs_u, rhs_v, rhs_w

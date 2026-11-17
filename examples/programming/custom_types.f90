@@ -45,7 +45,7 @@
 !!        ],
 !! NOTE: the module name must be the same as the file name sans the extension.
 module custom_types
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use json_utils, only: json_get, json_get_or_default
   use field_list, only : field_list_t
@@ -113,9 +113,11 @@ contains
 
   !> Will just bring our greeting to the console.
   !! @param time The time state.
-  subroutine my_source_term_compute(this, time)
+  !! @param eval_time The time at which to evaluate the source term.
+  subroutine my_source_term_compute(this, time, eval_time)
     class(my_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     write(*,*) this%greeting
 

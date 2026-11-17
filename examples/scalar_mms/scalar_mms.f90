@@ -25,10 +25,11 @@ contains
   end subroutine user_mesh_scale
 
   !> Set source term
-  subroutine mms_source_term(scheme_name, rhs, time)
+  subroutine mms_source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     real(kind=rp) :: x
     type(field_t), pointer :: f

@@ -58,10 +58,11 @@ contains
 
   end subroutine finalize
 
-  subroutine source_term(scheme_name, rhs, time)
+  subroutine source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
   end subroutine source_term
 

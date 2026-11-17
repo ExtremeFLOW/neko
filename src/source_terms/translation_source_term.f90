@@ -34,7 +34,7 @@
 !> Implements the `translation_source_term_t` type.
 
 module translation_source_term
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field_list, only : field_list_t
   use json_module, only : json_file
   use json_utils, only: json_get_or_lookup, json_get_or_lookup_or_default
@@ -138,14 +138,16 @@ contains
 
   !> Computes the source term and adds the result to `fields`.
   !! @param time The time state.
+  !! @param eval_time The time at which to evaluate the source term.
   !! @note In this case we get the convection term produced by
   !! the mesh velocity, which comes from using the relative velocity
   !! as advection velocity. The term comes from ((u-u_mesh) . div) u
   !! Here we calculate - (u_mesh . div) u. In conservative form so
   !! - div (u_mesh u). Then we put it in the RHS as +
-  subroutine translation_source_term_compute(this, time)
+  subroutine translation_source_term_compute(this, time, eval_time)
     class(translation_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     type(field_t), pointer :: u, v, w
     type(field_t), pointer :: work1, work2, work3
     type(field_t), pointer :: work4, work5, work6, work7

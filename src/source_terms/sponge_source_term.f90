@@ -481,9 +481,11 @@ contains
   !! condition being JSON dependent quite deep, there should be a nice way
   !! to get rid of that but it should take some effort.
   !! @param time The current time state.
-  subroutine sponge_compute(this, time)
+  !! @param eval_time The time at which to evaluate the source term.
+  subroutine sponge_compute(this, time, eval_time)
     class(sponge_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     integer :: i, nfields
     type(field_t), pointer :: fu, fv, fw

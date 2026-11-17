@@ -435,14 +435,17 @@ See the relevant sections on the [fluid](@ref case-file_fluid-source-term) and
 case-file) for more details.
 
 The associated user functions for the fluid and/or scalar source terms can then
-be added to the user file. An example for the fluid, taken from the `scalar_mms`
-example, is shown below.
+be added to the user file. Besides the time state `time`, the routine is passed
+`eval_time`, the time at which the source term should be evaluated. A
+time-dependent source term must use `eval_time` rather than `time%t`. An example
+of a user source term, taken from the `scalar_mms` example, is shown below.
 
 ```fortran
-  subroutine source_term(scheme_name, rhs, time)
+  subroutine source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     real(kind=rp) :: x
     type(field_t), pointer :: f
@@ -701,6 +704,12 @@ The arguments and their purpose are as follows:
 * `time`, is a simple structure that contains various info on time stepping,
   notably, the current time iteration and time value.
 
+@note The flux is extrapolated in time together with the other explicit terms,
+so it should be evaluated at the start of the time step, `time%tlag(1)`, and not
+at `time%t`, which is the end of the step. Evaluating a time-dependent flux at
+`time%t` reduces the accuracy in time to first order, regardless of the order of
+the time scheme.
+
 Links to the documentation to learn more about what the types mentioned above
 contain and how to use them: `src/field/field.f90`, `src/bc/bc.f90`.
 
@@ -722,7 +731,8 @@ A very simple example illustrating the above is shown below.
     real(kind=rp) :: t
 
     s_flux => fields%get_by_name("s")
-    t = time%t
+    ! The flux is evaluated at the start of the time step
+    t = time%tlag(1)
     if (bc%zone_indices(1) == 1) then
        do i = 1, bc%facet_node_msk(0)
           s_flux%x(bc%facet_node_msk(i), 1, 1, 1) = sin(t)
@@ -971,10 +981,11 @@ An example where manual transfer to the GPU was necessary has already been
 given for the source term. It is reiterated below.
 
 ```fortran
-  subroutine source_term(scheme_name, rhs, time)
+  subroutine source_term(scheme_name, rhs, time, eval_time)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: rhs
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
 
     real(kind=rp) :: x
     type(field_t), pointer :: f

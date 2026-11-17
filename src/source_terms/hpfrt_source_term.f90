@@ -32,7 +32,7 @@
 !
 !> Implements the `hpfrt_source_term_t` type.
 module hpfrt_source_term
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use field_list, only : field_list_t
   use field_math, only : field_add2, field_cmult, field_sub3
@@ -192,9 +192,11 @@ contains
 
   !> Computes the source term and adds the result to `fields`.
   !! @param time The time state.
-  subroutine hpfrt_source_term_compute(this, time)
+  !! @param eval_time The time at which to evaluate the source term.
+  subroutine hpfrt_source_term_compute(this, time, eval_time)
     class(hpfrt_source_term_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
+    real(kind=dp), intent(in) :: eval_time
     type(field_t), pointer :: rhs, source, work
     integer :: i, work_idx
 
