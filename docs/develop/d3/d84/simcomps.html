@@ -144,7 +144,8 @@ List of simulation components</h1>
 </ul>
 <h1 class="doxsection"><a class="anchor" id="autotoc_md180"></a>
 Controlling execution and file output</h1>
-<p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <span class="tt">compute_control</span> and <span class="tt">compute_value</span> parameters for the computation and the <span class="tt">output_control</span> and <span class="tt">output_value</span> for the output to disk. The parameters for the <span class="tt">_control</span> values are the same as for the fluid and checkpointing. Additionally, one can set <span class="tt">output_control</span> to <span class="tt">global</span> and <span class="tt">never</span>. The former will sync the <span class="tt">output_</span> parameter to that of the fluid. Choosing <span class="tt">never</span> will suppress output all together. If no parameters for the <span class="tt">output_</span> parameters are provided, they are set to be the same as for <span class="tt">compute_</span>. In order to simplify the configuration, the <span class="tt">compute_control</span> can be set to <span class="tt"><a class="el" href="../../d6/d60/namespacefluid__output.html" title="Defines an output for a fluid.">fluid_output</a></span> to sync the computation to the fluid output. All <span class="tt">_value</span> keywords can also be strings pointing to an entry under <span class="tt">constants.scalars</span>.</p>
+<p>Each simulation component is, by default, executed once per time step to perform associated computations and output. However, this can be modified by using the <span class="tt">compute_control</span> and <span class="tt">compute_value</span> parameters for the computation and the <span class="tt">output_control</span> and <span class="tt">output_value</span> for the output to disk. The parameters for the <span class="tt">_control</span> values are the same as for the fluid and checkpointing. Additionally, one can set <span class="tt">output_control</span> to <span class="tt">global</span> and <span class="tt">never</span>. The former will sync the <span class="tt">output_</span> parameter to that of the fluid. For most components, choosing <span class="tt">never</span> suppresses output altogether. If no <span class="tt">output_</span> parameters are provided, they are set to be the same as for <span class="tt">compute_</span>. In order to simplify the configuration, the <span class="tt">compute_control</span> can be set to <span class="tt"><a class="el" href="../../d6/d60/namespacefluid__output.html" title="Defines an output for a fluid.">fluid_output</a></span> to sync the computation to the fluid output. All <span class="tt">_value</span> keywords can also be strings pointing to an entry under <span class="tt">constants.scalars</span>.</p>
+<p>The <a class="el" href="#simcomp_probes_sampling_output">probes component</a> writes every computed sample immediately. Its <span class="tt">output_</span> parameters control HDF5 file rotation and do not suppress samples or control CSV output. Use <span class="tt">compute_control: "never"</span> to disable probe sampling.</p>
 <p>For simcomps that compute 3D fields, the output can be either added to the main <span class="tt">.fld</span> file, containing velocity and pressure, or saved to a separate file. For the latter, the <span class="tt">output_filename</span> keyword should be provided. One can additionally provide the <span class="tt">precision</span> keyword, which can be set to either <span class="tt">single</span> or <span class="tt">double</span> to control the precision of the written data.</p>
 <p>For example, in the <span class="tt">tgv</span> example case the <span class="tt">curl</span> component is executed once per 50 time steps. The <span class="tt">output_</span> parameters are synced to that, and the vorticity fields will be added to the main <span class="tt">.fld</span> file. </p><div class="fragment"><div class="line">{</div>
 <div class="line">  &quot;type&quot;: &quot;curl&quot;,</div>
@@ -303,6 +304,30 @@ probes</h2>
 </div><!-- fragment --></li>
 </ul>
 <p>It is also possible to set a <span class="tt">start_time</span> before which the probes will not be executed (same behavior as the statistics).</p>
+<h3 class="doxsection"><a class="anchor" id="simcomp_probes_sampling_output"></a>
+Sampling and output</h3>
+<p>Use <span class="tt">compute_control</span> and <span class="tt">compute_value</span> to set the probe sampling schedule. Every computed sample is written to disk immediately, after <span class="tt">start_time</span> has been reached. Probes do not buffer samples for a later output event. If <span class="tt">compute_control</span> is omitted, probes compute and write following <span class="tt">compute_control</span>, even if <span class="tt">output_control</span> is specified.</p>
+<p>The output format determines the meaning of <span class="tt">output_control</span> and <span class="tt">output_value</span>:</p>
+<ul>
+<li><b>CSV:</b> Every computed sample is appended to the same file. The <span class="tt">output_</span> parameters do not filter samples or rotate files. In particular, <span class="tt">output_control: "never"</span> still writes every computed sample.</li>
+<li><b>HDF5:</b> Every computed sample is written to the current file. The <span class="tt">output_</span> parameters set the schedule for closing that file and opening the next numbered file. At a sampling step when an output event is due, the current sample is written before the file is rotated. <span class="tt">output_control: "never"</span> is the default behaviour and disables rotation, keeping all samples in one file for the run. Omitting the output schedule, or setting it to the same control mode and value as the compute schedule, also keeps one file for the run.</li>
+</ul>
+<p>To disable probe sampling and sample output in either format, set <span class="tt">compute_control: "never"</span>. The output file and probe coordinates are still initialised.</p>
+<p>For example, the following configuration requests a compute interval of 10 time steps and an HDF5 file rotation interval of 100 time steps:</p>
+<div class="fragment"><div class="line">{</div>
+<div class="line">  &quot;type&quot;: &quot;probes&quot;,</div>
+<div class="line">  &quot;fields&quot;: [&quot;u&quot;, &quot;v&quot;, &quot;w&quot;, &quot;p&quot;],</div>
+<div class="line">  &quot;output_file&quot;: &quot;probes.hdf5&quot;,</div>
+<div class="line">  &quot;compute_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">  &quot;compute_value&quot;: 10,</div>
+<div class="line">  &quot;output_control&quot;: &quot;tsteps&quot;,</div>
+<div class="line">  &quot;output_value&quot;: 100,</div>
+<div class="line">  &quot;points&quot;: [</div>
+<div class="line">    {&quot;type&quot;: &quot;points&quot;, &quot;coordinates&quot;: [0.25, 0.25, 0.25]}</div>
+<div class="line">  ]</div>
+<div class="line">}</div>
+</div><!-- fragment --><p>Changing <span class="tt">output_file</span> to <span class="tt">probes.csv</span> writes the same samples every 10 time steps to one CSV file; the output schedule has no effect on those samples.</p>
+<p>The <span class="tt">output_control</span> is meant to be used for fault-tolerance, to avoid losing all probes on node failure, since HDF5 files might be unrecoverable if not closed properly. THe default is, however, to simply use one file per run.</p>
 <h3 class="doxsection"><a class="anchor" id="autotoc_md183"></a>
 Supported types</h3>
 <ul>
@@ -395,7 +420,7 @@ Example usage</h3>
 <div class="line">/probes/u                Dataset {400/Inf}</div>
 <div class="line">/probes/v                Dataset {400/Inf}</div>
 <div class="line">/probes/w                Dataset {400/Inf}</div>
-</div><!-- fragment --><p>Note that here the sample time is stored as a dedicated variable. </p>
+</div><!-- fragment --><p>Note that here the sample time is stored as a dedicated variable. With <span class="tt">append_output=true</span>, the HDF5 file stays open until the simulation ends. Each sample is written when it is produced.</p>
 <h2 class="doxsection"><a class="anchor" id="simcomp_field_writer"></a>
 field_writer</h2>
 <p>Outputs registered 3D fields to a file. Requires a list of field names in the <span class="tt">fields</span> keyword. Primarily to be used for outputting new fields defined in the user file. The fields are added to the <span class="tt">neko_registry</span> object and are expected to be updated in the user file, or, perhaps, by other simcomps. Since this simcomp does not compute anything, <span class="tt">compute_</span> configuration is irrelevant.</p>

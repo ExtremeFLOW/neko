@@ -57,6 +57,7 @@ var user_guide =
           [ "Output files", "d3/d84/simcomps.html#autotoc_md182", null ]
         ] ],
         [ "probes", "d3/d84/simcomps.html#simcomp_probes", [
+          [ "Sampling and output", "d3/d84/simcomps.html#simcomp_probes_sampling_output", null ],
           [ "Supported types", "d3/d84/simcomps.html#autotoc_md183", null ],
           [ "Example usage", "d3/d84/simcomps.html#autotoc_md184", null ]
         ] ],

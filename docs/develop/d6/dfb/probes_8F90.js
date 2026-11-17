@@ -8,6 +8,7 @@ var probes_8F90 =
     [ "probes::probes_init_common", "d2/d4d/namespaceprobes.html#a28d38f5a46cf9b57d460ce423df2de15", null ],
     [ "probes::probes_init_from_components", "d2/d4d/namespaceprobes.html#a22c28850a3ce979cfcc91eb3d8542dc0", null ],
     [ "probes::probes_init_from_json", "d2/d4d/namespaceprobes.html#afb0ca751eadf5869b849ac2eef557885", null ],
+    [ "probes::probes_open_output", "d2/d4d/namespaceprobes.html#ae694088a695dfb8c76c9911102aaa93d", null ],
     [ "probes::probes_setup_offset", "d2/d4d/namespaceprobes.html#ac550f5297c326f7c18d84029598f907e", null ],
     [ "probes::probes_show", "d2/d4d/namespaceprobes.html#a75970ed841060318618a648c631f38dc", null ],
     [ "probes::read_circle", "d2/d4d/namespaceprobes.html#a1d8c59288fa41e5db3c1bb6427b7a164", null ],

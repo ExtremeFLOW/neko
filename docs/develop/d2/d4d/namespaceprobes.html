@@ -128,6 +128,8 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:a27da5032a894e076ade6b945085a2164"><td class="mdescLeft">&#160;</td><td class="mdescRight">Append a new list of points to the exsiting list.  <br /></td></tr>
 <tr class="memitem:a28d38f5a46cf9b57d460ce423df2de15" id="r_a28d38f5a46cf9b57d460ce423df2de15"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a28d38f5a46cf9b57d460ce423df2de15">probes_init_common</a> (this, dof, output_file, name)</td></tr>
 <tr class="memdesc:a28d38f5a46cf9b57d460ce423df2de15"><td class="mdescLeft">&#160;</td><td class="mdescRight">Common constructor.  <br /></td></tr>
+<tr class="memitem:ae694088a695dfb8c76c9911102aaa93d" id="r_ae694088a695dfb8c76c9911102aaa93d"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae694088a695dfb8c76c9911102aaa93d">probes_open_output</a> (this)</td></tr>
+<tr class="memdesc:ae694088a695dfb8c76c9911102aaa93d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a new numbered file and initialize its probe metadata.  <br /></td></tr>
 <tr class="memitem:a7718a4200ee572a7357b0ceb910c42a9" id="r_a7718a4200ee572a7357b0ceb910c42a9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7718a4200ee572a7357b0ceb910c42a9">probes_free</a> (this)</td></tr>
 <tr class="memdesc:a7718a4200ee572a7357b0ceb910c42a9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="memitem:a75970ed841060318618a648c631f38dc" id="r_a75970ed841060318618a648c631f38dc"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a75970ed841060318618a648c631f38dc">probes_show</a> (this)</td></tr>
@@ -180,7 +182,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00484">484</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00504">504</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -207,7 +209,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00710">710</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00745">745</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -246,9 +248,8 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 <p>Do not execute if we are below the start_time</p>
-<p>Check controller to determine if we must write</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00751">751</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00786">786</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -275,7 +276,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00633">633</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00656">656</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -327,11 +328,9 @@ Functions/Subroutines</h2></td></tr>
 <p>Allocate output array</p>
 <p>Initialize the output file</p>
 <p>Necessary for not-parallel csv format... offsets and n points per pe Needed at root for sequential csv i/o</p>
-<p>This is always on cpus.</p>
-<p>Set up output</p>
-<p>Set up the output matrix</p>
+<p>Set up the timestamp buffer for appended output</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00517">517</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00537">537</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -392,7 +391,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00251">251</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00271">271</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -421,7 +420,7 @@ Functions/Subroutines</h2></td></tr>
 </div><div class="memdoc">
 <p>Read from case file</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00139">139</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00148">148</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -438,6 +437,33 @@ Here is the call graph for this function:</div>
 <area shape="poly" title=" " alt="" coords="351,145,392,148,387,148,351,150"/>
 </map>
 </div>
+
+</div>
+</div>
+<a id="ae694088a695dfb8c76c9911102aaa93d" name="ae694088a695dfb8c76c9911102aaa93d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae694088a695dfb8c76c9911102aaa93d">&#9670;&#160;</a></span>probes_open_output()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine probes::probes_open_output </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../d7/dd3/structprobes_1_1probes__t.html">probes_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00634">634</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -464,7 +490,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00727">727</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00762">762</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -491,7 +517,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00680">680</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00715">715</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -540,7 +566,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00367">367</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00387">387</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -579,7 +605,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00277">277</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00297">297</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -629,7 +655,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00323">323</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00343">343</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -668,7 +694,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00298">298</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00318">318</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 
 </div>
 </div>
@@ -711,7 +737,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00443">443</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00463">463</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -776,7 +802,7 @@ Here is the call graph for this function:</div>
 <p>Reads on rank 0 and distributes the probes across the different ranks</p>
 <p>Close the file</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00872">872</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00902">902</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -848,7 +874,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00917">917</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d6/dfb/probes_8F90_source.html#l00947">947</a> of file <a class="el" href="../../d6/dfb/probes_8F90_source.html">probes.F90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">

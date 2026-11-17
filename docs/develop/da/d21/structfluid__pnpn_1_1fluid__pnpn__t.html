@@ -335,6 +335,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a09cf98fc2dfc7714aee7529ab0c060dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
 <tr class="memitem:a37c0f37d771e03caa13bf6f918a595b1" id="r_a37c0f37d771e03caa13bf6f918a595b1"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a37c0f37d771e03caa13bf6f918a595b1">step</a> (this, time, dt_controller)</td></tr>
 <tr class="memdesc:a37c0f37d771e03caa13bf6f918a595b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a single time-step of the scheme.  <br /></td></tr>
+<tr class="memitem:aa718ba149fbf0bc7e30221a6d6b581f6" id="r_aa718ba149fbf0bc7e30221a6d6b581f6"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa718ba149fbf0bc7e30221a6d6b581f6">assemble_rhs</a> (this, time)</td></tr>
+<tr class="memdesc:aa718ba149fbf0bc7e30221a6d6b581f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assemble the explicit part of the right-hand side.  <br /></td></tr>
+<tr class="memitem:a93c8e7f22c8d27c8cd6b63a10e3fe3ac" id="r_a93c8e7f22c8d27c8cd6b63a10e3fe3ac"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a93c8e7f22c8d27c8cd6b63a10e3fe3ac">recompute_metrics</a> (this)</td></tr>
+<tr class="memdesc:a93c8e7f22c8d27c8cd6b63a10e3fe3ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recompute geometry-dependent quantities after the mesh has moved.  <br /></td></tr>
+<tr class="memitem:abda9365d8ff280eff1a5e8a7d3408bcc" id="r_abda9365d8ff280eff1a5e8a7d3408bcc"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abda9365d8ff280eff1a5e8a7d3408bcc">update_velocity_lags</a> (this)</td></tr>
+<tr class="memdesc:abda9365d8ff280eff1a5e8a7d3408bcc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shift the velocity history by one time step.  <br /></td></tr>
+<tr class="memitem:aeea32e76791c074f28f787a943bd07b8" id="r_aeea32e76791c074f28f787a943bd07b8"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeea32e76791c074f28f787a943bd07b8">solve</a> (this, time, dt_controller, <a class="el" href="#a79a862abc3ae328a3ce7f8f30919e760">proj_prs</a>, <a class="el" href="#a017f3499397bee7049aff68ea82711bc">proj_vel</a>)</td></tr>
+<tr class="memdesc:aeea32e76791c074f28f787a943bd07b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve for the pressure and velocity.  <br /></td></tr>
 <tr class="memitem:a0105a346180326e97d09a9b109a11bfa" id="r_a0105a346180326e97d09a9b109a11bfa"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0105a346180326e97d09a9b109a11bfa">restart</a> (this, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#aa331befeee572eeeb9a24f05ae4a2226">chkp</a>)</td></tr>
 <tr class="memdesc:a0105a346180326e97d09a9b109a11bfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart from a previous solution.  <br /></td></tr>
 <tr class="memitem:a84fab74d10824a6e269d85300569b5b4" id="r_a84fab74d10824a6e269d85300569b5b4"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a84fab74d10824a6e269d85300569b5b4">set_initial_condition</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
@@ -549,6 +557,35 @@ Static Public Attributes</h2></td></tr>
 <div class="textblock">
 <p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function/Subroutine Documentation</h2>
+<a id="aa718ba149fbf0bc7e30221a6d6b581f6" name="aa718ba149fbf0bc7e30221a6d6b581f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa718ba149fbf0bc7e30221a6d6b581f6">&#9670;&#160;</a></span>assemble_rhs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) fluid_pnpn::fluid_pnpn_t::assemble_rhs </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>time</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The time state. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00200">200</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+
+</div>
+</div>
 <a id="a114deae587167f7283d188ebfdcec927" name="a114deae587167f7283d188ebfdcec927"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a114deae587167f7283d188ebfdcec927">&#9670;&#160;</a></span>bc_apply_prs()</h2>
 
@@ -933,6 +970,25 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a93c8e7f22c8d27c8cd6b63a10e3fe3ac" name="a93c8e7f22c8d27c8cd6b63a10e3fe3ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93c8e7f22c8d27c8cd6b63a10e3fe3ac">&#9670;&#160;</a></span>recompute_metrics()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) fluid_pnpn::fluid_pnpn_t::recompute_metrics </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00202">202</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+
+</div>
+</div>
 <a id="a0105a346180326e97d09a9b109a11bfa" name="a0105a346180326e97d09a9b109a11bfa"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0105a346180326e97d09a9b109a11bfa">&#9670;&#160;</a></span>restart() <span class="overload">[1/2]</span></h2>
 
@@ -952,7 +1008,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00200">200</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00210">210</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -1045,7 +1101,7 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00203">203</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00213">213</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -1277,7 +1333,7 @@ Static Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00206">206</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00216">216</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -1314,6 +1370,54 @@ Static Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00135">135</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+
+</div>
+</div>
+<a id="aeea32e76791c074f28f787a943bd07b8" name="aeea32e76791c074f28f787a943bd07b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeea32e76791c074f28f787a943bd07b8">&#9670;&#160;</a></span>solve()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) fluid_pnpn::fluid_pnpn_t::solve </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>time</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>dt_controller</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>), intent(inout), optional</td>          <td class="paramname"><span class="paramname"><em>proj_prs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d8/dfd/structprojection__vel_1_1projection__vel__t.html">projection_vel_t</a>), intent(inout), optional</td>          <td class="paramname"><span class="paramname"><em>proj_vel</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The time state. </td></tr>
+    <tr><td class="paramname">dt_controller</td><td>timestep controller </td></tr>
+    <tr><td class="paramname">proj_prs</td><td>Projection space for the pressure solve. </td></tr>
+    <tr><td class="paramname">proj_vel</td><td>Projection space for the velocity solve. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>A solve is done without projection when its projection space is not passed. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00208">208</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -1497,6 +1601,25 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="abda9365d8ff280eff1a5e8a7d3408bcc" name="abda9365d8ff280eff1a5e8a7d3408bcc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abda9365d8ff280eff1a5e8a7d3408bcc">&#9670;&#160;</a></span>update_velocity_lags()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, pass(this) fluid_pnpn::fluid_pnpn_t::update_velocity_lags </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00205">205</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+
+</div>
+</div>
 <a id="a5142fdbd177359a4b8aa17f97825dc79" name="a5142fdbd177359a4b8aa17f97825dc79"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5142fdbd177359a4b8aa17f97825dc79">&#9670;&#160;</a></span>validate() <span class="overload">[1/2]</span></h2>
 
@@ -1566,7 +1689,7 @@ Static Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00208">208</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00218">218</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>

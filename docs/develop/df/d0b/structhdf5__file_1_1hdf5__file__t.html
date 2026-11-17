@@ -118,9 +118,11 @@ Collaboration diagram for hdf5_file::hdf5_file_t:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../d8/d77/structhdf5__file_1_1hdf5__file__t__coll__graph.png" border="0" usemap="#ahdf5__file_1_1hdf5__file__t_coll__map" loading="lazy" alt="Collaboration graph"/></div>
 <map name="ahdf5__file_1_1hdf5__file__t_coll__map" id="ahdf5__file_1_1hdf5__file__t_coll__map">
-<area shape="rect" title="Interface for HDF5 files." alt="" coords="5,98,159,126"/>
-<area shape="rect" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="6,5,158,50"/>
-<area shape="poly" title=" " alt="" coords="84,64,85,98,79,96,80,68"/>
+<area shape="rect" title="Interface for HDF5 files." alt="" coords="101,123,254,151"/>
+<area shape="rect" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="5,5,158,50"/>
+<area shape="poly" title=" " alt="" coords="112,59,169,122,163,123,109,64"/>
+<area shape="rect" href="../../d9/d7d/structhdf5__file_1_1hdf5__dataset__t.html" title="Dataset resources retained while the active group remains open." alt="" coords="182,14,365,42"/>
+<area shape="poly" title=" " alt="" coords="255,52,191,124,188,120,249,54"/>
 </map>
 <center><span class="legend">[<a target="top" href="../../graph_legend.html">legend</a>]</span></center></div>
 <table class="memberdecls">
@@ -136,14 +138,23 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ac9c39bb2d43e79e63f33692288fb75a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the overwrite flag for HDF5 files.  <br /></td></tr>
 <tr class="memitem:aef4b08a27e72b2847f32e5e31324815c" id="r_aef4b08a27e72b2847f32e5e31324815c"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aef4b08a27e72b2847f32e5e31324815c">open</a> (this, <a class="el" href="#a117748ce48f24d08b0b33fc61bbf4025">mode</a>)</td></tr>
 <tr class="memdesc:aef4b08a27e72b2847f32e5e31324815c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a HDF5 file in a given mode.  <br /></td></tr>
+<tr class="memitem:a71a0ed44bae7f47ad2da955fee949ced" id="r_a71a0ed44bae7f47ad2da955fee949ced"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a71a0ed44bae7f47ad2da955fee949ced">open_new</a> (this)</td></tr>
+<tr class="memdesc:a71a0ed44bae7f47ad2da955fee949ced"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open a fresh numbered file, skipping names already present on disk.  <br /></td></tr>
 <tr class="memitem:ac8a5eb88823e5151b29fed346ace8688" id="r_ac8a5eb88823e5151b29fed346ace8688"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac8a5eb88823e5151b29fed346ace8688">close</a> (this)</td></tr>
 <tr class="memdesc:ac8a5eb88823e5151b29fed346ace8688"><td class="mdescLeft">&#160;</td><td class="mdescRight">Close the file.  <br /></td></tr>
+<tr class="memitem:af1a35fe3d7db6a85de88eede418cdff1" id="r_af1a35fe3d7db6a85de88eede418cdff1"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af1a35fe3d7db6a85de88eede418cdff1">free</a> (this)</td></tr>
+<tr class="memdesc:af1a35fe3d7db6a85de88eede418cdff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release an open file and its retained dataset resources.  <br /></td></tr>
+<tr class="memitem:af446fd5b331e6158d7b4500507a215d8" id="r_af446fd5b331e6158d7b4500507a215d8"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af446fd5b331e6158d7b4500507a215d8">ifdef</a> ifdef</td></tr>
+<tr class="memitem:a30c715d7b806c8e3fe7b1fdecc151cb0" id="r_a30c715d7b806c8e3fe7b1fdecc151cb0"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a30c715d7b806c8e3fe7b1fdecc151cb0">have_hdf5</a> have_hdf5</td></tr>
+<tr class="memitem:a0827fe597ad9c0d44c9b52bb3f1247c1" id="r_a0827fe597ad9c0d44c9b52bb3f1247c1"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0827fe597ad9c0d44c9b52bb3f1247c1">endif</a> endif</td></tr>
 <tr class="memitem:ad6e9930174f3484d244cf53c6a27af32" id="r_ad6e9930174f3484d244cf53c6a27af32"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad6e9930174f3484d244cf53c6a27af32">set_active_group</a> (this, group_name_path)</td></tr>
 <tr class="memdesc:ad6e9930174f3484d244cf53c6a27af32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the active group for HDF5 files.  <br /></td></tr>
 <tr class="memitem:a7adca2f2a0fe6695433d8bf6373704ad" id="r_a7adca2f2a0fe6695433d8bf6373704ad"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7adca2f2a0fe6695433d8bf6373704ad">set_precision</a> (this, <a class="el" href="#a8a6bc90628705fe7f4541c77b2f6ff21">precision</a>)</td></tr>
 <tr class="memdesc:a7adca2f2a0fe6695433d8bf6373704ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the precision for the output (single or double).  <br /></td></tr>
-<tr class="memitem:a503858a6861d2342546ec7365f5c7de4" id="r_a503858a6861d2342546ec7365f5c7de4"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a503858a6861d2342546ec7365f5c7de4">write_vector</a> (this, vec)</td></tr>
-<tr class="memitem:aba68507c723000e1b1b869ce196deaf8" id="r_aba68507c723000e1b1b869ce196deaf8"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aba68507c723000e1b1b869ce196deaf8">write_matrix</a> (this, mat)</td></tr>
+<tr class="memitem:a422bfa288d977de0b7c6585b701607bc" id="r_a422bfa288d977de0b7c6585b701607bc"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a422bfa288d977de0b7c6585b701607bc">write_array</a> (this, values, name, layout)</td></tr>
+<tr class="memdesc:a422bfa288d977de0b7c6585b701607bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Write a one-dimensional host array, optionally reusing its layout.  <br /></td></tr>
+<tr class="memitem:ae9d82ce3e9e9ec747cc6d7ee1c2555d9" id="r_ae9d82ce3e9e9ec747cc6d7ee1c2555d9"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae9d82ce3e9e9ec747cc6d7ee1c2555d9">write_vector</a> (this, vec, layout)</td></tr>
+<tr class="memitem:a5e975c6ea1b7577a5d01bfca97efb779" id="r_a5e975c6ea1b7577a5d01bfca97efb779"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e975c6ea1b7577a5d01bfca97efb779">write_matrix</a> (this, mat, layout)</td></tr>
 <tr class="memitem:a8fb153bdc0f249fd15f74145ed6fc222" id="r_a8fb153bdc0f249fd15f74145ed6fc222"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8fb153bdc0f249fd15f74145ed6fc222">write_field</a> (this, fld)</td></tr>
 <tr class="memitem:a4ac93b8f8e2a5cd9a1c6f3b2b5298719" id="r_a4ac93b8f8e2a5cd9a1c6f3b2b5298719"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4ac93b8f8e2a5cd9a1c6f3b2b5298719">write_int_attribute</a> (this, attr_name, attr)</td></tr>
 <tr class="memitem:a276156a3726b4509ecb5fef5175804cd" id="r_a276156a3726b4509ecb5fef5175804cd"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a276156a3726b4509ecb5fef5175804cd">write_rp_attribute</a> (this, attr_name, attr)</td></tr>
@@ -151,7 +162,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac0aa1528f45fefde80e296caef34f5db" id="r_ac0aa1528f45fefde80e296caef34f5db"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac0aa1528f45fefde80e296caef34f5db">read_matrix</a> (this, data_name, mat, strategy)</td></tr>
 <tr class="memitem:a3105986e622bcf68137b051e3109e8b5" id="r_a3105986e622bcf68137b051e3109e8b5"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3105986e622bcf68137b051e3109e8b5">read_int_attribute</a> (this, attr_name, attr, attr_exists)</td></tr>
 <tr class="memitem:a5291b6aedf9e9bc1365f12830d51659a" id="r_a5291b6aedf9e9bc1365f12830d51659a"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5291b6aedf9e9bc1365f12830d51659a">read_rp_attribute</a> (this, attr_name, attr, attr_exists)</td></tr>
-<tr class="memitem:ad557ae7b25724095d1304ef543f9faea" id="r_ad557ae7b25724095d1304ef543f9faea"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad557ae7b25724095d1304ef543f9faea">write_dataset</a> (this, data)</td></tr>
+<tr class="memitem:a7df70f5507f2c86c3002860bbf5829b5" id="r_a7df70f5507f2c86c3002860bbf5829b5"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7df70f5507f2c86c3002860bbf5829b5">write_dataset</a> (this, data, name, layout)</td></tr>
 <tr class="memitem:a2d26069b454fb54905936a54d7df9c34" id="r_a2d26069b454fb54905936a54d7df9c34"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2d26069b454fb54905936a54d7df9c34">read_dataset</a> (this, data_name, data, strategy)</td></tr>
 <tr class="memitem:a1d22794f340163483f2bd9cce7b939bd" id="r_a1d22794f340163483f2bd9cce7b939bd"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1d22794f340163483f2bd9cce7b939bd">write_attribute</a> (this, data_name, data)</td></tr>
 <tr class="memitem:a3676cc48ce19acf7fe12678ae12ebbeb" id="r_a3676cc48ce19acf7fe12678ae12ebbeb"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3676cc48ce19acf7fe12678ae12ebbeb">read_attribute</a> (this, data_name, data, exist)</td></tr>
@@ -183,6 +194,9 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a2ecc5dc31515696f2df0bb0e3007b5b7" id="r_a2ecc5dc31515696f2df0bb0e3007b5b7"><td class="memItemLeft" align="right" valign="top">integer(hid_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2ecc5dc31515696f2df0bb0e3007b5b7">file_id</a> = -1_hid_t</td></tr>
+<tr class="memitem:a819551b20fb8cb725235f0d63a2cd9d7" id="r_a819551b20fb8cb725235f0d63a2cd9d7"><td class="memItemLeft" align="right" valign="top">integer(hid_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a819551b20fb8cb725235f0d63a2cd9d7">active_group_id</a> = -1_hid_t</td></tr>
+<tr class="memitem:a1b84bcd49ffffb0c20faf0f319740d6d" id="r_a1b84bcd49ffffb0c20faf0f319740d6d"><td class="memItemLeft" align="right" valign="top">integer(hid_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1b84bcd49ffffb0c20faf0f319740d6d">plist_id</a> = -1_hid_t</td></tr>
 <tr class="memitem:a117748ce48f24d08b0b33fc61bbf4025" id="r_a117748ce48f24d08b0b33fc61bbf4025"><td class="memItemLeft" align="right" valign="top">character(len=1)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a117748ce48f24d08b0b33fc61bbf4025">mode</a></td></tr>
 <tr class="memitem:a8a6bc90628705fe7f4541c77b2f6ff21" id="r_a8a6bc90628705fe7f4541c77b2f6ff21"><td class="memItemLeft" align="right" valign="top">integer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8a6bc90628705fe7f4541c77b2f6ff21">precision</a> = -1</td></tr>
 <tr class="memitem:a9b04974841ee2c4d41f8982cc8765364" id="r_a9b04974841ee2c4d41f8982cc8765364"><td class="memItemLeft" align="right" valign="top">integer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9b04974841ee2c4d41f8982cc8765364">offset</a> = 0</td></tr>
@@ -191,15 +205,26 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:a5c58822d2a60425c9c0a508f0ce7ac36"><td class="mdescLeft">&#160;</td><td class="mdescRight">File format is serial.  <br /></td></tr>
 <tr class="memitem:a83d94631b6a99d757b267bb39198d020" id="r_a83d94631b6a99d757b267bb39198d020"><td class="memItemLeft" align="right" valign="top">logical&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a83d94631b6a99d757b267bb39198d020">overwrite</a> = .false.</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pri-methods" class="groupheader"><a id="pri-methods" name="pri-methods"></a>
+Private Member Functions</h2></td></tr>
+<tr class="memitem:a75ac393639b9a7fd5f50414490913f09" id="r_a75ac393639b9a7fd5f50414490913f09"><td class="memItemLeft" align="right" valign="top">procedure, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a75ac393639b9a7fd5f50414490913f09">clear_datasets</a> hdf5_file_clear_datasets</td></tr>
+<tr class="memdesc:a75ac393639b9a7fd5f50414490913f09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release the datasets of the active group.  <br /></td></tr>
+<tr class="memitem:ac74a304e408fbd0595bf32eda9688c39" id="r_ac74a304e408fbd0595bf32eda9688c39"><td class="memItemLeft" align="right" valign="top">procedure, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac74a304e408fbd0595bf32eda9688c39">prepare_dataset</a> hdf5_file_prepare_dataset</td></tr>
+<tr class="memdesc:ac74a304e408fbd0595bf32eda9688c39"><td class="mdescLeft">&#160;</td><td class="mdescRight">Open or reuse a dataset and prepare the next write selection.  <br /></td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pri-attribs" class="groupheader"><a id="pri-attribs" name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
+<tr class="memitem:ad85ef8f8521ad3cf88fde5fbb70905d0" id="r_ad85ef8f8521ad3cf88fde5fbb70905d0"><td class="memItemLeft" align="right" valign="top">integer(hid_t), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad85ef8f8521ad3cf88fde5fbb70905d0">xfer_id</a> = -1_hid_t</td></tr>
+<tr class="memdesc:ad85ef8f8521ad3cf88fde5fbb70905d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collective transfer properties shared by writes to this open file.  <br /></td></tr>
+<tr class="memitem:a63e27ef42f113a1d8f5fa7a891b2f6da" id="r_a63e27ef42f113a1d8f5fa7a891b2f6da"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d9/d7d/structhdf5__file_1_1hdf5__dataset__t.html">hdf5_dataset_t</a>), dimension(:), allocatable, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a63e27ef42f113a1d8f5fa7a891b2f6da">datasets</a></td></tr>
+<tr class="memdesc:a63e27ef42f113a1d8f5fa7a891b2f6da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Datasets belonging to the active group, released before changing it.  <br /></td></tr>
 <tr class="memitem:a799a56687f86ad7540b4e5ab92a78230" id="r_a799a56687f86ad7540b4e5ab92a78230"><td class="memItemLeft" align="right" valign="top">character(len=1024), private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a799a56687f86ad7540b4e5ab92a78230">fname</a></td></tr>
 <tr class="memitem:a348c38fcfe4de5c515221da1561ce5b3" id="r_a348c38fcfe4de5c515221da1561ce5b3"><td class="memItemLeft" align="right" valign="top">integer, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#a348c38fcfe4de5c515221da1561ce5b3">counter</a> = -1</td></tr>
 <tr class="memitem:ab6715e33fc0466279e687f333c6e8794" id="r_ab6715e33fc0466279e687f333c6e8794"><td class="memItemLeft" align="right" valign="top">integer, private&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../d5/d37/structgeneric__file_1_1generic__file__t.html#ab6715e33fc0466279e687f333c6e8794">start_counter</a> = 0</td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00068">68</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00107">107</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a6019f3063f90b496f9ab9d84a4bb472b" name="a6019f3063f90b496f9ab9d84a4bb472b"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6019f3063f90b496f9ab9d84a4bb472b">&#9670;&#160;</a></span>check_exists()</h2>
@@ -228,6 +253,30 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a75ac393639b9a7fd5f50414490913f09" name="a75ac393639b9a7fd5f50414490913f09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75ac393639b9a7fd5f50414490913f09">&#9670;&#160;</a></span>clear_datasets()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, private hdf5_file::hdf5_file_t::clear_datasets</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00141">141</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
 <a id="ac8a5eb88823e5151b29fed346ace8688" name="ac8a5eb88823e5151b29fed346ace8688"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac8a5eb88823e5151b29fed346ace8688">&#9670;&#160;</a></span>close()</h2>
 
@@ -243,7 +292,42 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00091">91</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00136">136</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
+<a id="a0827fe597ad9c0d44c9b52bb3f1247c1" name="a0827fe597ad9c0d44c9b52bb3f1247c1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0827fe597ad9c0d44c9b52bb3f1247c1">&#9670;&#160;</a></span>endif()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">hdf5_file::hdf5_file_t::endif</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00144">144</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
+<a id="af1a35fe3d7db6a85de88eede418cdff1" name="af1a35fe3d7db6a85de88eede418cdff1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af1a35fe3d7db6a85de88eede418cdff1">&#9670;&#160;</a></span>free()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure hdf5_file::hdf5_file_t::free </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../df/d0b/structhdf5__file_1_1hdf5__file__t.html">hdf5_file_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00138">138</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -370,7 +454,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00087">87</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00130">130</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -398,6 +482,38 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="a30c715d7b806c8e3fe7b1fdecc151cb0" name="a30c715d7b806c8e3fe7b1fdecc151cb0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30c715d7b806c8e3fe7b1fdecc151cb0">&#9670;&#160;</a></span>have_hdf5()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">hdf5_file::hdf5_file_t::have_hdf5</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00139">139</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
+<a id="af446fd5b331e6158d7b4500507a215d8" name="af446fd5b331e6158d7b4500507a215d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af446fd5b331e6158d7b4500507a215d8">&#9670;&#160;</a></span>ifdef()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">hdf5_file::hdf5_file_t::ifdef</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00139">139</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -479,7 +595,50 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00090">90</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00133">133</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
+<a id="a71a0ed44bae7f47ad2da955fee949ced" name="a71a0ed44bae7f47ad2da955fee949ced"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71a0ed44bae7f47ad2da955fee949ced">&#9670;&#160;</a></span>open_new()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure hdf5_file::hdf5_file_t::open_new </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../df/d0b/structhdf5__file_1_1hdf5__file__t.html">hdf5_file_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00135">135</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
+<a id="ac74a304e408fbd0595bf32eda9688c39" name="ac74a304e408fbd0595bf32eda9688c39"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac74a304e408fbd0595bf32eda9688c39">&#9670;&#160;</a></span>prepare_dataset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure, private hdf5_file::hdf5_file_t::prepare_dataset</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00143">143</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -539,7 +698,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00084">84</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00127">127</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -572,7 +731,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00107">107</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00162">162</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -605,7 +764,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00105">105</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00160">160</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -638,7 +797,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00102">102</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00157">157</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -671,7 +830,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00101">101</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00156">156</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -704,7 +863,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00103">103</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00158">158</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -737,7 +896,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00100">100</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00155">155</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -760,7 +919,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00092">92</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00145">145</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -845,7 +1004,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00088">88</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00131">131</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -868,7 +1027,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00093">93</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00146">146</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -970,7 +1129,40 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00086">86</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00129">129</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
+<a id="a422bfa288d977de0b7c6585b701607bc" name="a422bfa288d977de0b7c6585b701607bc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a422bfa288d977de0b7c6585b701607bc">&#9670;&#160;</a></span>write_array()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">procedure hdf5_file::hdf5_file_t::write_array </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../df/d0b/structhdf5__file_1_1hdf5__file__t.html">hdf5_file_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:), intent(in)</td>          <td class="paramname"><span class="paramname"><em>values</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in)</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/dcf/structhdf5__file_1_1hdf5__layout__t.html">hdf5_layout_t</a>), intent(in), optional</td>          <td class="paramname"><span class="paramname"><em>layout</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00148">148</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -998,12 +1190,12 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00106">106</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00161">161</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
-<a id="ad557ae7b25724095d1304ef543f9faea" name="ad557ae7b25724095d1304ef543f9faea"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad557ae7b25724095d1304ef543f9faea">&#9670;&#160;</a></span>write_dataset()</h2>
+<a id="a7df70f5507f2c86c3002860bbf5829b5" name="a7df70f5507f2c86c3002860bbf5829b5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7df70f5507f2c86c3002860bbf5829b5">&#9670;&#160;</a></span>write_dataset()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1016,12 +1208,22 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">class(*), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>data</em></span>&#160;)</td>
+          <td class="paramtype">class(*), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>data</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">character(len=*), intent(in), optional</td>          <td class="paramname"><span class="paramname"><em>name</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/dcf/structhdf5__file_1_1hdf5__layout__t.html">hdf5_layout_t</a>), intent(in), optional</td>          <td class="paramname"><span class="paramname"><em>layout</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00104">104</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00159">159</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -1044,7 +1246,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00096">96</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00151">151</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -1072,12 +1274,12 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00097">97</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00152">152</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
-<a id="aba68507c723000e1b1b869ce196deaf8" name="aba68507c723000e1b1b869ce196deaf8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aba68507c723000e1b1b869ce196deaf8">&#9670;&#160;</a></span>write_matrix()</h2>
+<a id="a5e975c6ea1b7577a5d01bfca97efb779" name="a5e975c6ea1b7577a5d01bfca97efb779"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e975c6ea1b7577a5d01bfca97efb779">&#9670;&#160;</a></span>write_matrix()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1090,12 +1292,17 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>mat</em></span>&#160;)</td>
+          <td class="paramtype">type(<a class="el" href="../../da/d95/structmatrix_1_1matrix__t.html">matrix_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>mat</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/dcf/structhdf5__file_1_1hdf5__layout__t.html">hdf5_layout_t</a>), intent(in), optional</td>          <td class="paramname"><span class="paramname"><em>layout</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00095">95</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00150">150</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -1123,12 +1330,12 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00099">99</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00154">154</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
-<a id="a503858a6861d2342546ec7365f5c7de4" name="a503858a6861d2342546ec7365f5c7de4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a503858a6861d2342546ec7365f5c7de4">&#9670;&#160;</a></span>write_vector()</h2>
+<a id="ae9d82ce3e9e9ec747cc6d7ee1c2555d9" name="ae9d82ce3e9e9ec747cc6d7ee1c2555d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae9d82ce3e9e9ec747cc6d7ee1c2555d9">&#9670;&#160;</a></span>write_vector()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1141,16 +1348,37 @@ Private Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>vec</em></span>&#160;)</td>
+          <td class="paramtype">type(<a class="el" href="../../d3/d5b/structvector_1_1vector__t.html">vector_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>vec</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../da/dcf/structhdf5__file_1_1hdf5__layout__t.html">hdf5_layout_t</a>), intent(in), optional</td>          <td class="paramname"><span class="paramname"><em>layout</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00094">94</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00149">149</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
 <a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
+<a id="a819551b20fb8cb725235f0d63a2cd9d7" name="a819551b20fb8cb725235f0d63a2cd9d7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a819551b20fb8cb725235f0d63a2cd9d7">&#9670;&#160;</a></span>active_group_id</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(hid_t) hdf5_file::hdf5_file_t::active_group_id = -1_hid_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00112">112</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
 <a id="ad7f23d29ff5bafd0000d3bab147cfb08" name="ad7f23d29ff5bafd0000d3bab147cfb08"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad7f23d29ff5bafd0000d3bab147cfb08">&#9670;&#160;</a></span>count</h2>
 
@@ -1163,7 +1391,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00079">79</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00122">122</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -1188,6 +1416,46 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00044">44</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="a63e27ef42f113a1d8f5fa7a891b2f6da" name="a63e27ef42f113a1d8f5fa7a891b2f6da"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a63e27ef42f113a1d8f5fa7a891b2f6da">&#9670;&#160;</a></span>datasets</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(<a class="el" href="../../d9/d7d/structhdf5__file_1_1hdf5__dataset__t.html">hdf5_dataset_t</a>), dimension(:), allocatable, private hdf5_file::hdf5_file_t::datasets</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00117">117</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
+<a id="a2ecc5dc31515696f2df0bb0e3007b5b7" name="a2ecc5dc31515696f2df0bb0e3007b5b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2ecc5dc31515696f2df0bb0e3007b5b7">&#9670;&#160;</a></span>file_id</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(hid_t) hdf5_file::hdf5_file_t::file_id = -1_hid_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00111">111</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -1227,7 +1495,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00076">76</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00119">119</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -1243,7 +1511,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00078">78</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00121">121</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -1271,6 +1539,22 @@ Private Attributes</h2></td></tr>
 
 </div>
 </div>
+<a id="a1b84bcd49ffffb0c20faf0f319740d6d" name="a1b84bcd49ffffb0c20faf0f319740d6d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1b84bcd49ffffb0c20faf0f319740d6d">&#9670;&#160;</a></span>plist_id</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(hid_t) hdf5_file::hdf5_file_t::plist_id = -1_hid_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00113">113</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+
+</div>
+</div>
 <a id="a8a6bc90628705fe7f4541c77b2f6ff21" name="a8a6bc90628705fe7f4541c77b2f6ff21"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8a6bc90628705fe7f4541c77b2f6ff21">&#9670;&#160;</a></span>precision</h2>
 
@@ -1283,7 +1567,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00077">77</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00120">120</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>
@@ -1332,6 +1616,30 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p class="definition">Definition at line <a class="el" href="../../d2/d26/generic__file_8f90_source.html#l00045">45</a> of file <a class="el" href="../../d2/d26/generic__file_8f90_source.html">generic_file.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad85ef8f8521ad3cf88fde5fbb70905d0" name="ad85ef8f8521ad3cf88fde5fbb70905d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad85ef8f8521ad3cf88fde5fbb70905d0">&#9670;&#160;</a></span>xfer_id</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">integer(hid_t), private hdf5_file::hdf5_file_t::xfer_id = -1_hid_t</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html#l00115">115</a> of file <a class="el" href="../../d7/d55/hdf5__file_8F90_source.html">hdf5_file.F90</a>.</p>
 
 </div>
 </div>

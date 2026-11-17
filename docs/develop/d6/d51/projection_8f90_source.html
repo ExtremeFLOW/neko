@@ -992,17 +992,19 @@ $(function(){initNavTree('d6/d51/projection_8f90_source.html','../../',''); });
 <div class="line"><a id="l00864" name="l00864"></a><span class="lineno">  864</span>          <span class="keyword">call </span>device_rzero(this%xx_d(i), n)</div>
 <div class="line"><a id="l00865" name="l00865"></a><span class="lineno">  865</span>          <span class="keyword">call </span>device_rzero(this%bb_d(i), n)</div>
 <div class="line"><a id="l00866" name="l00866"></a><span class="lineno">  866</span>       <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>          <span class="keywordflow">do</span> j = 1, n</div>
-<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>             this%xx(j,i) = 0.0_rp</div>
-<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>             this%bb(j,i) = 0.0_rp</div>
-<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span> </div>
-</div>
-<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">bcknd_clear</a></div>
+<div class="line"><a id="l00867" name="l00867"></a><span class="lineno">  867</span>          <span class="comment">!$omp parallel do</span></div>
+<div class="line"><a id="l00868" name="l00868"></a><span class="lineno">  868</span>          <span class="keywordflow">do</span> j = 1, n</div>
+<div class="line"><a id="l00869" name="l00869"></a><span class="lineno">  869</span>             this%xx(j,i) = 0.0_rp</div>
+<div class="line"><a id="l00870" name="l00870"></a><span class="lineno">  870</span>             this%bb(j,i) = 0.0_rp</div>
+<div class="line"><a id="l00871" name="l00871"></a><span class="lineno">  871</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l00872" name="l00872"></a><span class="lineno">  872</span>          <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l00873" name="l00873"></a><span class="lineno">  873</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l00874" name="l00874"></a><span class="lineno">  874</span><span class="keywordflow">    end do</span></div>
 <div class="line"><a id="l00875" name="l00875"></a><span class="lineno">  875</span> </div>
-<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d06/namespaceprojection.html">projection</a></div>
+</div>
+<div class="line"><a id="l00876" name="l00876"></a><span class="lineno">  876</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d3/d06/namespaceprojection.html#a1d059617b3b6ec1b9a0c4d4e6cf31df9">bcknd_clear</a></div>
+<div class="line"><a id="l00877" name="l00877"></a><span class="lineno">  877</span> </div>
+<div class="line"><a id="l00878" name="l00878"></a><span class="lineno">  878</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d3/d06/namespaceprojection.html">projection</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00113">device.F90:113</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate).</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00083">device.F90:83</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device).</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>

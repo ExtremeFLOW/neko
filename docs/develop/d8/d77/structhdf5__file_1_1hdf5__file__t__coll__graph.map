@@ -1,5 +1,7 @@
 <map id="hdf5_file::hdf5_file_t" name="hdf5_file::hdf5_file_t">
-<area shape="rect" id="Node000001" title="Interface for HDF5 files." alt="" coords="5,98,159,126"/>
-<area shape="rect" id="Node000002" href="$d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="6,5,158,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="84,64,85,98,79,96,80,68"/>
+<area shape="rect" id="Node000001" title="Interface for HDF5 files." alt="" coords="101,123,254,151"/>
+<area shape="rect" id="Node000002" href="$d5/d37/structgeneric__file_1_1generic__file__t.html" title="A generic file handler." alt="" coords="5,5,158,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="112,59,169,122,163,123,109,64"/>
+<area shape="rect" id="Node000003" href="$d9/d7d/structhdf5__file_1_1hdf5__dataset__t.html" title="Dataset resources retained while the active group remains open." alt="" coords="182,14,365,42"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="255,52,191,124,188,120,249,54"/>
 </map>

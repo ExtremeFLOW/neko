@@ -924,6 +924,8 @@ var annotated_dup =
       [ "gs_utofu_t", "d8/dce/structgs__utofu_1_1gs__utofu__t.html", "d8/dce/structgs__utofu_1_1gs__utofu__t" ]
     ] ],
     [ "hdf5_file", "d6/dbe/namespacehdf5__file.html", [
+      [ "hdf5_layout_t", "da/dcf/structhdf5__file_1_1hdf5__layout__t.html", "da/dcf/structhdf5__file_1_1hdf5__layout__t" ],
+      [ "hdf5_dataset_t", "d9/d7d/structhdf5__file_1_1hdf5__dataset__t.html", "d9/d7d/structhdf5__file_1_1hdf5__dataset__t" ],
       [ "hdf5_file_t", "df/d0b/structhdf5__file_1_1hdf5__file__t.html", "df/d0b/structhdf5__file_1_1hdf5__file__t" ],
       [ "hdf5_checkpoint_layout_t", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t.html", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t" ]
     ] ],

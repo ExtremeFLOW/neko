@@ -123,6 +123,14 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:aa2582bae4203cde06a4a72c54aebd215" id="r_aa2582bae4203cde06a4a72c54aebd215"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa2582bae4203cde06a4a72c54aebd215">fluid_pnpn_free</a> (this)</td></tr>
 <tr class="memitem:a96ca79ca6ac5e710dbed4e47c979235a" id="r_a96ca79ca6ac5e710dbed4e47c979235a"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a96ca79ca6ac5e710dbed4e47c979235a">fluid_pnpn_step</a> (this, time, dt_controller)</td></tr>
 <tr class="memdesc:a96ca79ca6ac5e710dbed4e47c979235a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advance fluid simulation in time.  <br /></td></tr>
+<tr class="memitem:a9bd7be1d072c8d8926474aab8cb2ea1f" id="r_a9bd7be1d072c8d8926474aab8cb2ea1f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9bd7be1d072c8d8926474aab8cb2ea1f">fluid_pnpn_assemble_rhs</a> (this, time)</td></tr>
+<tr class="memdesc:a9bd7be1d072c8d8926474aab8cb2ea1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assemble the explicit part of the right-hand side and extrapolate the velocity.  <br /></td></tr>
+<tr class="memitem:a2a187fc095b76d6b770af365a643ce8b" id="r_a2a187fc095b76d6b770af365a643ce8b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a187fc095b76d6b770af365a643ce8b">fluid_pnpn_recompute_metrics</a> (this)</td></tr>
+<tr class="memdesc:a2a187fc095b76d6b770af365a643ce8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recompute geometry-dependent quantities after the mesh has moved.  <br /></td></tr>
+<tr class="memitem:ab093d814508c5d9af8397b592756c08a" id="r_ab093d814508c5d9af8397b592756c08a"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab093d814508c5d9af8397b592756c08a">fluid_pnpn_update_velocity_lags</a> (this)</td></tr>
+<tr class="memdesc:ab093d814508c5d9af8397b592756c08a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Shift the velocity history by one time step. Called once per step, after the right-hand side is assembled and before the velocity is overwritten.  <br /></td></tr>
+<tr class="memitem:afcd85eb8c32646c4c8bd966fabac3395" id="r_afcd85eb8c32646c4c8bd966fabac3395"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afcd85eb8c32646c4c8bd966fabac3395">fluid_pnpn_solve</a> (this, time, dt_controller, proj_prs, proj_vel)</td></tr>
+<tr class="memdesc:afcd85eb8c32646c4c8bd966fabac3395"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solve for the pressure and velocity, given an assembled right-hand side.  <br /></td></tr>
 <tr class="memitem:a1e1c19eeee43186db5669e6e0ed96d36" id="r_a1e1c19eeee43186db5669e6e0ed96d36"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1e1c19eeee43186db5669e6e0ed96d36">fluid_pnpn_setup_bcs</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, params)</td></tr>
 <tr class="memdesc:a1e1c19eeee43186db5669e6e0ed96d36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the boundary conditions for the scheme.  <br /></td></tr>
 <tr class="memitem:a7f70c90f36be1ce04e75fa930aed3819" id="r_a7f70c90f36be1ce04e75fa930aed3819"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7f70c90f36be1ce04e75fa930aed3819">fluid_pnpn_write_boundary_conditions</a> (this)</td></tr>
@@ -140,6 +148,44 @@ Variables</h2></td></tr>
 <tr class="memdesc:a3c39bc58a8619d4de7e8540f0b9c7872"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of <span class="tt"><a class="el" href="#a43d628d6d676f9a6de62f82dc1db497d" title="Registry of user-defined pressure boundary condition allocators.">fluid_pnpn_pressure_bc_registry</a></span>.  <br /></td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a9bd7be1d072c8d8926474aab8cb2ea1f" name="a9bd7be1d072c8d8926474aab8cb2ea1f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9bd7be1d072c8d8926474aab8cb2ea1f">&#9670;&#160;</a></span>fluid_pnpn_assemble_rhs()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine fluid_pnpn::fluid_pnpn_assemble_rhs </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>time</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The time state. </td></tr>
+  </table>
+  </dd>
+</dl>
+<p>adds div.(u_i*wm) to RHS</p>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00894">894</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+
+</div>
+</div>
 <a id="a21e7a0cfb7be2640882fe62d11311950" name="a21e7a0cfb7be2640882fe62d11311950"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a21e7a0cfb7be2640882fe62d11311950">&#9670;&#160;</a></span>fluid_pnpn_ax_vel_factory()</h2>
 
@@ -163,7 +209,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00566">566</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00576">576</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -190,7 +236,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00753">753</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00763">763</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -242,7 +288,34 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <p>Set the number of schwarz iterations to perform each time step.</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00350">350</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00360">360</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+
+</div>
+</div>
+<a id="a2a187fc095b76d6b770af365a643ce8b" name="a2a187fc095b76d6b770af365a643ce8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a187fc095b76d6b770af365a643ce8b">&#9670;&#160;</a></span>fluid_pnpn_recompute_metrics()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine fluid_pnpn::fluid_pnpn_recompute_metrics </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00997">997</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -273,7 +346,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00596">596</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00606">606</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -316,7 +389,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00733">733</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00743">743</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -359,7 +432,63 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l01155">1155</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l01217">1217</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+
+</div>
+</div>
+<a id="afcd85eb8c32646c4c8bd966fabac3395" name="afcd85eb8c32646c4c8bd966fabac3395"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afcd85eb8c32646c4c8bd966fabac3395">&#9670;&#160;</a></span>fluid_pnpn_solve()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine fluid_pnpn::fluid_pnpn_solve </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d7/d90/structtime__state_1_1time__state__t.html">time_state_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>time</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dab/structtime__step__controller_1_1time__step__controller__t.html">time_step_controller_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>dt_controller</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d5/dcf/structprojection_1_1projection__t.html">projection_t</a>), intent(inout), optional</td>          <td class="paramname"><span class="paramname"><em>proj_prs</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(<a class="el" href="../../d8/dfd/structprojection__vel_1_1projection__vel__t.html">projection_vel_t</a>), intent(inout), optional</td>          <td class="paramname"><span class="paramname"><em>proj_vel</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">time</td><td>The time state. </td></tr>
+    <tr><td class="paramname">dt_controller</td><td>timestep controller </td></tr>
+    <tr><td class="paramname">proj_prs</td><td>Projection space for the pressure solve. </td></tr>
+    <tr><td class="paramname">proj_vel</td><td>Projection space for the velocity solve. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section note"><dt>Note</dt><dd>A solve is done without projection when its projection space is not passed. </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l01030">1030</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -404,9 +533,35 @@ Variables</h2></td></tr>
   </table>
   </dd>
 </dl>
-<p>adds div.(u_i*wm) to RHS</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00851">851</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00861">861</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+
+</div>
+</div>
+<a id="ab093d814508c5d9af8397b592756c08a" name="ab093d814508c5d9af8397b592756c08a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab093d814508c5d9af8397b592756c08a">&#9670;&#160;</a></span>fluid_pnpn_update_velocity_lags()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine fluid_pnpn::fluid_pnpn_update_velocity_lags </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html">fluid_pnpn_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l01015">1015</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -433,7 +588,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l01420">1420</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l01482">1482</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -458,7 +613,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00338">338</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00348">348</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -482,7 +637,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00342">342</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00352">352</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -506,7 +661,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00331">331</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00341">341</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -530,7 +685,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00335">335</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html#l00345">345</a> of file <a class="el" href="../../d7/db9/fluid__pnpn_8f90_source.html">fluid_pnpn.f90</a>.</p>
 
 </div>
 </div>

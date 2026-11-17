@@ -474,6 +474,8 @@ var hierarchy =
     [ "htable::h_cptr_t", "dc/d02/structhtable_1_1h__cptr__t.html", null ],
     [ "htable::h_tuple_t", "d8/d5b/structhtable_1_1h__tuple__t.html", null ],
     [ "hdf5_file::hdf5_checkpoint_layout_t", "d4/d26/structhdf5__file_1_1hdf5__checkpoint__layout__t.html", null ],
+    [ "hdf5_file::hdf5_dataset_t", "d9/d7d/structhdf5__file_1_1hdf5__dataset__t.html", null ],
+    [ "hdf5_file::hdf5_layout_t", "da/dcf/structhdf5__file_1_1hdf5__layout__t.html", null ],
     [ "richardson_cpu::heat_flux_interface", "d4/da1/interfacerichardson__cpu_1_1heat__flux__interface.html", null ],
     [ "hip_math::hip_absval", "d0/d22/interfacehip__math_1_1hip__absval.html", null ],
     [ "hip_math::hip_add2", "d9/dfc/interfacehip__math_1_1hip__add2.html", null ],

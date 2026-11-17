@@ -1541,264 +1541,268 @@ $(function(){initNavTree('d0/dd2/vector__bc__projector_8f90_source.html','../../
 <div class="line"><a id="l01387" name="l01387"></a><span class="lineno"> 1387</span>       <span class="keywordflow">else</span></div>
 <div class="line"><a id="l01388" name="l01388"></a><span class="lineno"> 1388</span>          mixed_msk =&gt; this%mixed_dof_mask%get()</div>
 <div class="line"><a id="l01389" name="l01389"></a><span class="lineno"> 1389</span> </div>
-<div class="line"><a id="l01390" name="l01390"></a><span class="lineno"> 1390</span>          <span class="keywordflow">do</span> i = 1, m</div>
-<div class="line"><a id="l01391" name="l01391"></a><span class="lineno"> 1391</span>             j = mixed_msk(i)</div>
-<div class="line"><a id="l01392" name="l01392"></a><span class="lineno"> 1392</span> </div>
-<div class="line"><a id="l01393" name="l01393"></a><span class="lineno"> 1393</span>             u(1) = x(j)</div>
-<div class="line"><a id="l01394" name="l01394"></a><span class="lineno"> 1394</span>             u(2) = y(j)</div>
-<div class="line"><a id="l01395" name="l01395"></a><span class="lineno"> 1395</span>             u(3) = z(j)</div>
-<div class="line"><a id="l01396" name="l01396"></a><span class="lineno"> 1396</span> </div>
-<div class="line"><a id="l01397" name="l01397"></a><span class="lineno"> 1397</span>             uloc(1) = u(1) * this%n%x(1,i) + u(2) * this%n%x(2,i) + &amp;</div>
-<div class="line"><a id="l01398" name="l01398"></a><span class="lineno"> 1398</span>                  u(3) * this%n%x(3,i)</div>
-<div class="line"><a id="l01399" name="l01399"></a><span class="lineno"> 1399</span>             uloc(2) = u(1) * this%t1%x(1,i) + u(2) * this%t1%x(2,i) + &amp;</div>
-<div class="line"><a id="l01400" name="l01400"></a><span class="lineno"> 1400</span>                  u(3) * this%t1%x(3,i)</div>
-<div class="line"><a id="l01401" name="l01401"></a><span class="lineno"> 1401</span>             uloc(3) = u(1) * this%t2%x(1,i) + u(2) * this%t2%x(2,i) + &amp;</div>
-<div class="line"><a id="l01402" name="l01402"></a><span class="lineno"> 1402</span>                  u(3) * this%t2%x(3,i)</div>
-<div class="line"><a id="l01403" name="l01403"></a><span class="lineno"> 1403</span> </div>
-<div class="line"><a id="l01404" name="l01404"></a><span class="lineno"> 1404</span>             <span class="keywordflow">if</span> (this%constraint_n(i) .ne. 0) uloc(1) = 0.0_rp</div>
-<div class="line"><a id="l01405" name="l01405"></a><span class="lineno"> 1405</span>             <span class="keywordflow">if</span> (this%constraint_t1(i) .ne. 0) uloc(2) = 0.0_rp</div>
-<div class="line"><a id="l01406" name="l01406"></a><span class="lineno"> 1406</span>             <span class="keywordflow">if</span> (this%constraint_t2(i) .ne. 0) uloc(3) = 0.0_rp</div>
-<div class="line"><a id="l01407" name="l01407"></a><span class="lineno"> 1407</span> </div>
-<div class="line"><a id="l01408" name="l01408"></a><span class="lineno"> 1408</span>             u = uloc(1) * this%n%x(:,i) + uloc(2) * this%t1%x(:,i) + &amp;</div>
-<div class="line"><a id="l01409" name="l01409"></a><span class="lineno"> 1409</span>                  uloc(3) * this%t2%x(:,i)</div>
+<div class="line"><a id="l01390" name="l01390"></a><span class="lineno"> 1390</span>          <span class="comment">! Each dof appears once in the mixed mask, so the nodes are</span></div>
+<div class="line"><a id="l01391" name="l01391"></a><span class="lineno"> 1391</span>          <span class="comment">! independent</span></div>
+<div class="line"><a id="l01392" name="l01392"></a><span class="lineno"> 1392</span>          <span class="comment">!$omp parallel do private(j, u, uloc)</span></div>
+<div class="line"><a id="l01393" name="l01393"></a><span class="lineno"> 1393</span>          <span class="keywordflow">do</span> i = 1, m</div>
+<div class="line"><a id="l01394" name="l01394"></a><span class="lineno"> 1394</span>             j = mixed_msk(i)</div>
+<div class="line"><a id="l01395" name="l01395"></a><span class="lineno"> 1395</span> </div>
+<div class="line"><a id="l01396" name="l01396"></a><span class="lineno"> 1396</span>             u(1) = x(j)</div>
+<div class="line"><a id="l01397" name="l01397"></a><span class="lineno"> 1397</span>             u(2) = y(j)</div>
+<div class="line"><a id="l01398" name="l01398"></a><span class="lineno"> 1398</span>             u(3) = z(j)</div>
+<div class="line"><a id="l01399" name="l01399"></a><span class="lineno"> 1399</span> </div>
+<div class="line"><a id="l01400" name="l01400"></a><span class="lineno"> 1400</span>             uloc(1) = u(1) * this%n%x(1,i) + u(2) * this%n%x(2,i) + &amp;</div>
+<div class="line"><a id="l01401" name="l01401"></a><span class="lineno"> 1401</span>                  u(3) * this%n%x(3,i)</div>
+<div class="line"><a id="l01402" name="l01402"></a><span class="lineno"> 1402</span>             uloc(2) = u(1) * this%t1%x(1,i) + u(2) * this%t1%x(2,i) + &amp;</div>
+<div class="line"><a id="l01403" name="l01403"></a><span class="lineno"> 1403</span>                  u(3) * this%t1%x(3,i)</div>
+<div class="line"><a id="l01404" name="l01404"></a><span class="lineno"> 1404</span>             uloc(3) = u(1) * this%t2%x(1,i) + u(2) * this%t2%x(2,i) + &amp;</div>
+<div class="line"><a id="l01405" name="l01405"></a><span class="lineno"> 1405</span>                  u(3) * this%t2%x(3,i)</div>
+<div class="line"><a id="l01406" name="l01406"></a><span class="lineno"> 1406</span> </div>
+<div class="line"><a id="l01407" name="l01407"></a><span class="lineno"> 1407</span>             <span class="keywordflow">if</span> (this%constraint_n(i) .ne. 0) uloc(1) = 0.0_rp</div>
+<div class="line"><a id="l01408" name="l01408"></a><span class="lineno"> 1408</span>             <span class="keywordflow">if</span> (this%constraint_t1(i) .ne. 0) uloc(2) = 0.0_rp</div>
+<div class="line"><a id="l01409" name="l01409"></a><span class="lineno"> 1409</span>             <span class="keywordflow">if</span> (this%constraint_t2(i) .ne. 0) uloc(3) = 0.0_rp</div>
 <div class="line"><a id="l01410" name="l01410"></a><span class="lineno"> 1410</span> </div>
-<div class="line"><a id="l01411" name="l01411"></a><span class="lineno"> 1411</span>             x(j) = u(1)</div>
-<div class="line"><a id="l01412" name="l01412"></a><span class="lineno"> 1412</span>             y(j) = u(2)</div>
-<div class="line"><a id="l01413" name="l01413"></a><span class="lineno"> 1413</span>             z(j) = u(3)</div>
-<div class="line"><a id="l01414" name="l01414"></a><span class="lineno"> 1414</span><span class="keywordflow">          end do</span></div>
-<div class="line"><a id="l01415" name="l01415"></a><span class="lineno"> 1415</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01416" name="l01416"></a><span class="lineno"> 1416</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01411" name="l01411"></a><span class="lineno"> 1411</span>             u = uloc(1) * this%n%x(:,i) + uloc(2) * this%t1%x(:,i) + &amp;</div>
+<div class="line"><a id="l01412" name="l01412"></a><span class="lineno"> 1412</span>                  uloc(3) * this%t2%x(:,i)</div>
+<div class="line"><a id="l01413" name="l01413"></a><span class="lineno"> 1413</span> </div>
+<div class="line"><a id="l01414" name="l01414"></a><span class="lineno"> 1414</span>             x(j) = u(1)</div>
+<div class="line"><a id="l01415" name="l01415"></a><span class="lineno"> 1415</span>             y(j) = u(2)</div>
+<div class="line"><a id="l01416" name="l01416"></a><span class="lineno"> 1416</span>             z(j) = u(3)</div>
+<div class="line"><a id="l01417" name="l01417"></a><span class="lineno"> 1417</span><span class="keywordflow">          end do</span></div>
+<div class="line"><a id="l01418" name="l01418"></a><span class="lineno"> 1418</span>          <span class="comment">!$omp end parallel do</span></div>
+<div class="line"><a id="l01419" name="l01419"></a><span class="lineno"> 1419</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01420" name="l01420"></a><span class="lineno"> 1420</span><span class="keywordflow">    end if</span></div>
 </div>
-<div class="line"><a id="l01417" name="l01417"></a><span class="lineno"> 1417</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a5453e00a463042510055e4ff55f114ae">coupled_vector_bc_projector_apply</a></div>
-<div class="line"><a id="l01418" name="l01418"></a><span class="lineno"> 1418</span><span class="comment"></span> </div>
-<div class="line"><a id="l01419" name="l01419"></a><span class="lineno"> 1419</span><span class="comment">  !&gt; Write fields showing the coupled projector mask and basis.</span></div>
-<div class="line"><a id="l01420" name="l01420"></a><span class="lineno"> 1420</span><span class="comment">  !! @param[in] field_name Optional base name for the output file. The `.fld`</span></div>
-<div class="line"><a id="l01421" name="l01421"></a><span class="lineno"> 1421</span><span class="comment">  !! suffix is appended automatically.</span></div>
-<div class="foldopen" id="foldopen01422" data-start="" data-end="">
-<div class="line"><a id="l01422" name="l01422"></a><span class="lineno"><a class="line" href="../../d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511"> 1422</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511">coupled_vector_bc_projector_debug_output</a>(this, field_name)</div>
-<div class="line"><a id="l01423" name="l01423"></a><span class="lineno"> 1423</span>    <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/d73/namespacedevice__math.html">device_math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a7561ba2bdd6fe5d32b286d8f0f7e10b4">device_cfill_mask</a></div>
-<div class="line"><a id="l01424" name="l01424"></a><span class="lineno"> 1424</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html">coupled_vector_bc_projector_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01425" name="l01425"></a><span class="lineno"> 1425</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: field_name</div>
-<div class="line"><a id="l01426" name="l01426"></a><span class="lineno"> 1426</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: mask_field</div>
-<div class="line"><a id="l01427" name="l01427"></a><span class="lineno"> 1427</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: nx_field, ny_field, nz_field</div>
-<div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>) :: basis_fields</div>
-<div class="line"><a id="l01429" name="l01429"></a><span class="lineno"> 1429</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>) :: basis_file</div>
-<div class="line"><a id="l01430" name="l01430"></a><span class="lineno"> 1430</span>    <span class="keywordtype">integer</span> :: scratch_idx(4)</div>
-<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: mixed_mask_values(:)</div>
-<div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>    <span class="keywordtype">integer</span> :: dof_size, mixed_mask_size</div>
-<div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: field_name_</div>
-<div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span> </div>
-<div class="line"><a id="l01435" name="l01435"></a><span class="lineno"> 1435</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(field_name)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01436" name="l01436"></a><span class="lineno"> 1436</span>       field_name_ = trim(field_name)</div>
-<div class="line"><a id="l01437" name="l01437"></a><span class="lineno"> 1437</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01438" name="l01438"></a><span class="lineno"> 1438</span>       field_name_ = <span class="stringliteral">&#39;bc_projector&#39;</span></div>
-<div class="line"><a id="l01439" name="l01439"></a><span class="lineno"> 1439</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01440" name="l01440"></a><span class="lineno"> 1440</span> </div>
-<div class="line"><a id="l01441" name="l01441"></a><span class="lineno"> 1441</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(mask_field, scratch_idx(1), .true.)</div>
-<div class="line"><a id="l01442" name="l01442"></a><span class="lineno"> 1442</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(nx_field, scratch_idx(2), .true.)</div>
-<div class="line"><a id="l01443" name="l01443"></a><span class="lineno"> 1443</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(ny_field, scratch_idx(3), .true.)</div>
-<div class="line"><a id="l01444" name="l01444"></a><span class="lineno"> 1444</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(nz_field, scratch_idx(4), .true.)</div>
-<div class="line"><a id="l01445" name="l01445"></a><span class="lineno"> 1445</span> </div>
-<div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span>    dof_size = this%dof%size()</div>
-<div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span>    mixed_mask_size = this%mixed_dof_mask%size()</div>
-<div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span> </div>
-<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(mask_field%x, dof_size)</div>
-<div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(nx_field%x, dof_size)</div>
-<div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(ny_field%x, dof_size)</div>
-<div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(nz_field%x, dof_size)</div>
-<div class="line"><a id="l01453" name="l01453"></a><span class="lineno"> 1453</span> </div>
-<div class="line"><a id="l01454" name="l01454"></a><span class="lineno"> 1454</span>    <span class="keywordflow">if</span> (this%mixed_dof_mask%is_set()) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01455" name="l01455"></a><span class="lineno"> 1455</span>       mixed_mask_values =&gt; this%mixed_dof_mask%get()</div>
-<div class="line"><a id="l01456" name="l01456"></a><span class="lineno"> 1456</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a330e394dc6220fdd80603e904283424d">masked_scatter_copy</a>(nx_field%x(:,1,1,1), this%n%x(1,:), &amp;</div>
-<div class="line"><a id="l01457" name="l01457"></a><span class="lineno"> 1457</span>            mixed_mask_values, dof_size, mixed_mask_size)</div>
-<div class="line"><a id="l01458" name="l01458"></a><span class="lineno"> 1458</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a330e394dc6220fdd80603e904283424d">masked_scatter_copy</a>(ny_field%x(:,1,1,1), this%n%x(2,:), &amp;</div>
-<div class="line"><a id="l01459" name="l01459"></a><span class="lineno"> 1459</span>            mixed_mask_values, dof_size, mixed_mask_size)</div>
-<div class="line"><a id="l01460" name="l01460"></a><span class="lineno"> 1460</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a330e394dc6220fdd80603e904283424d">masked_scatter_copy</a>(nz_field%x(:,1,1,1), this%n%x(3,:), &amp;</div>
+<div class="line"><a id="l01421" name="l01421"></a><span class="lineno"> 1421</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a5453e00a463042510055e4ff55f114ae">coupled_vector_bc_projector_apply</a></div>
+<div class="line"><a id="l01422" name="l01422"></a><span class="lineno"> 1422</span><span class="comment"></span> </div>
+<div class="line"><a id="l01423" name="l01423"></a><span class="lineno"> 1423</span><span class="comment">  !&gt; Write fields showing the coupled projector mask and basis.</span></div>
+<div class="line"><a id="l01424" name="l01424"></a><span class="lineno"> 1424</span><span class="comment">  !! @param[in] field_name Optional base name for the output file. The `.fld`</span></div>
+<div class="line"><a id="l01425" name="l01425"></a><span class="lineno"> 1425</span><span class="comment">  !! suffix is appended automatically.</span></div>
+<div class="foldopen" id="foldopen01426" data-start="" data-end="">
+<div class="line"><a id="l01426" name="l01426"></a><span class="lineno"><a class="line" href="../../d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511"> 1426</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511">coupled_vector_bc_projector_debug_output</a>(this, field_name)</div>
+<div class="line"><a id="l01427" name="l01427"></a><span class="lineno"> 1427</span>    <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d2/d73/namespacedevice__math.html">device_math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>, <a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a7561ba2bdd6fe5d32b286d8f0f7e10b4">device_cfill_mask</a></div>
+<div class="line"><a id="l01428" name="l01428"></a><span class="lineno"> 1428</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html">coupled_vector_bc_projector_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01429" name="l01429"></a><span class="lineno"> 1429</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: field_name</div>
+<div class="line"><a id="l01430" name="l01430"></a><span class="lineno"> 1430</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: mask_field</div>
+<div class="line"><a id="l01431" name="l01431"></a><span class="lineno"> 1431</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: nx_field, ny_field, nz_field</div>
+<div class="line"><a id="l01432" name="l01432"></a><span class="lineno"> 1432</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>) :: basis_fields</div>
+<div class="line"><a id="l01433" name="l01433"></a><span class="lineno"> 1433</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>) :: basis_file</div>
+<div class="line"><a id="l01434" name="l01434"></a><span class="lineno"> 1434</span>    <span class="keywordtype">integer</span> :: scratch_idx(4)</div>
+<div class="line"><a id="l01435" name="l01435"></a><span class="lineno"> 1435</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: mixed_mask_values(:)</div>
+<div class="line"><a id="l01436" name="l01436"></a><span class="lineno"> 1436</span>    <span class="keywordtype">integer</span> :: dof_size, mixed_mask_size</div>
+<div class="line"><a id="l01437" name="l01437"></a><span class="lineno"> 1437</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: field_name_</div>
+<div class="line"><a id="l01438" name="l01438"></a><span class="lineno"> 1438</span> </div>
+<div class="line"><a id="l01439" name="l01439"></a><span class="lineno"> 1439</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(field_name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01440" name="l01440"></a><span class="lineno"> 1440</span>       field_name_ = trim(field_name)</div>
+<div class="line"><a id="l01441" name="l01441"></a><span class="lineno"> 1441</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01442" name="l01442"></a><span class="lineno"> 1442</span>       field_name_ = <span class="stringliteral">&#39;bc_projector&#39;</span></div>
+<div class="line"><a id="l01443" name="l01443"></a><span class="lineno"> 1443</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01444" name="l01444"></a><span class="lineno"> 1444</span> </div>
+<div class="line"><a id="l01445" name="l01445"></a><span class="lineno"> 1445</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(mask_field, scratch_idx(1), .true.)</div>
+<div class="line"><a id="l01446" name="l01446"></a><span class="lineno"> 1446</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(nx_field, scratch_idx(2), .true.)</div>
+<div class="line"><a id="l01447" name="l01447"></a><span class="lineno"> 1447</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(ny_field, scratch_idx(3), .true.)</div>
+<div class="line"><a id="l01448" name="l01448"></a><span class="lineno"> 1448</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(nz_field, scratch_idx(4), .true.)</div>
+<div class="line"><a id="l01449" name="l01449"></a><span class="lineno"> 1449</span> </div>
+<div class="line"><a id="l01450" name="l01450"></a><span class="lineno"> 1450</span>    dof_size = this%dof%size()</div>
+<div class="line"><a id="l01451" name="l01451"></a><span class="lineno"> 1451</span>    mixed_mask_size = this%mixed_dof_mask%size()</div>
+<div class="line"><a id="l01452" name="l01452"></a><span class="lineno"> 1452</span> </div>
+<div class="line"><a id="l01453" name="l01453"></a><span class="lineno"> 1453</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(mask_field%x, dof_size)</div>
+<div class="line"><a id="l01454" name="l01454"></a><span class="lineno"> 1454</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(nx_field%x, dof_size)</div>
+<div class="line"><a id="l01455" name="l01455"></a><span class="lineno"> 1455</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(ny_field%x, dof_size)</div>
+<div class="line"><a id="l01456" name="l01456"></a><span class="lineno"> 1456</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(nz_field%x, dof_size)</div>
+<div class="line"><a id="l01457" name="l01457"></a><span class="lineno"> 1457</span> </div>
+<div class="line"><a id="l01458" name="l01458"></a><span class="lineno"> 1458</span>    <span class="keywordflow">if</span> (this%mixed_dof_mask%is_set()) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01459" name="l01459"></a><span class="lineno"> 1459</span>       mixed_mask_values =&gt; this%mixed_dof_mask%get()</div>
+<div class="line"><a id="l01460" name="l01460"></a><span class="lineno"> 1460</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a330e394dc6220fdd80603e904283424d">masked_scatter_copy</a>(nx_field%x(:,1,1,1), this%n%x(1,:), &amp;</div>
 <div class="line"><a id="l01461" name="l01461"></a><span class="lineno"> 1461</span>            mixed_mask_values, dof_size, mixed_mask_size)</div>
-<div class="line"><a id="l01462" name="l01462"></a><span class="lineno"> 1462</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01463" name="l01463"></a><span class="lineno"> 1463</span> </div>
-<div class="line"><a id="l01464" name="l01464"></a><span class="lineno"> 1464</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01465" name="l01465"></a><span class="lineno"> 1465</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>(mask_field%x_d, 5.0_rp, dof_size)</div>
-<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span> </div>
-<div class="line"><a id="l01467" name="l01467"></a><span class="lineno"> 1467</span>       <span class="keywordflow">if</span> (this%dirichlet_dof_mask%is_set()) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01468" name="l01468"></a><span class="lineno"> 1468</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a7561ba2bdd6fe5d32b286d8f0f7e10b4">device_cfill_mask</a>(mask_field%x_d, 1.0_rp, dof_size, &amp;</div>
-<div class="line"><a id="l01469" name="l01469"></a><span class="lineno"> 1469</span>               this%dirichlet_dof_mask%get_d(), &amp;</div>
-<div class="line"><a id="l01470" name="l01470"></a><span class="lineno"> 1470</span>               this%dirichlet_dof_mask%size())</div>
-<div class="line"><a id="l01471" name="l01471"></a><span class="lineno"> 1471</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01472" name="l01472"></a><span class="lineno"> 1472</span> </div>
-<div class="line"><a id="l01473" name="l01473"></a><span class="lineno"> 1473</span>       <span class="keywordflow">if</span> (this%mixed_dof_mask%is_set()) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01474" name="l01474"></a><span class="lineno"> 1474</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a7561ba2bdd6fe5d32b286d8f0f7e10b4">device_cfill_mask</a>(mask_field%x_d, 2.0_rp, dof_size, &amp;</div>
-<div class="line"><a id="l01475" name="l01475"></a><span class="lineno"> 1475</span>               this%mixed_dof_mask%get_d(), this%mixed_dof_mask%size())</div>
-<div class="line"><a id="l01476" name="l01476"></a><span class="lineno"> 1476</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01477" name="l01477"></a><span class="lineno"> 1477</span> </div>
-<div class="line"><a id="l01478" name="l01478"></a><span class="lineno"> 1478</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(mask_field%x, mask_field%x_d, dof_size, &amp;</div>
-<div class="line"><a id="l01479" name="l01479"></a><span class="lineno"> 1479</span>            <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, &amp;</div>
-<div class="line"><a id="l01480" name="l01480"></a><span class="lineno"> 1480</span>            sync = .true.)</div>
-<div class="line"><a id="l01481" name="l01481"></a><span class="lineno"> 1481</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01482" name="l01482"></a><span class="lineno"> 1482</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121">cfill</a>(mask_field%x, 5.0_rp, dof_size)</div>
-<div class="line"><a id="l01483" name="l01483"></a><span class="lineno"> 1483</span> </div>
-<div class="line"><a id="l01484" name="l01484"></a><span class="lineno"> 1484</span>       <span class="keywordflow">if</span> (this%dirichlet_dof_mask%is_set()) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01485" name="l01485"></a><span class="lineno"> 1485</span>          <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#adcea1b6eb422b5097c9241c0798631ae">cfill_mask</a>(mask_field%x, 1.0_rp, dof_size, &amp;</div>
-<div class="line"><a id="l01486" name="l01486"></a><span class="lineno"> 1486</span>               this%dirichlet_dof_mask%get(), this%dirichlet_dof_mask%size())</div>
-<div class="line"><a id="l01487" name="l01487"></a><span class="lineno"> 1487</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01488" name="l01488"></a><span class="lineno"> 1488</span> </div>
-<div class="line"><a id="l01489" name="l01489"></a><span class="lineno"> 1489</span>       <span class="keywordflow">if</span> (this%mixed_dof_mask%is_set()) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01490" name="l01490"></a><span class="lineno"> 1490</span>          <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#adcea1b6eb422b5097c9241c0798631ae">cfill_mask</a>(mask_field%x, 2.0_rp, dof_size, &amp;</div>
-<div class="line"><a id="l01491" name="l01491"></a><span class="lineno"> 1491</span>               this%mixed_dof_mask%get(), this%mixed_dof_mask%size())</div>
-<div class="line"><a id="l01492" name="l01492"></a><span class="lineno"> 1492</span><span class="keywordflow">       end if</span></div>
-<div class="line"><a id="l01493" name="l01493"></a><span class="lineno"> 1493</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01494" name="l01494"></a><span class="lineno"> 1494</span> </div>
-<div class="line"><a id="l01495" name="l01495"></a><span class="lineno"> 1495</span>    <span class="keyword">call </span>basis_fields%init(4)</div>
-<div class="line"><a id="l01496" name="l01496"></a><span class="lineno"> 1496</span>    <span class="keyword">call </span>basis_fields%assign(1, mask_field)</div>
-<div class="line"><a id="l01497" name="l01497"></a><span class="lineno"> 1497</span>    <span class="keyword">call </span>basis_fields%assign(2, nx_field)</div>
-<div class="line"><a id="l01498" name="l01498"></a><span class="lineno"> 1498</span>    <span class="keyword">call </span>basis_fields%assign(3, ny_field)</div>
-<div class="line"><a id="l01499" name="l01499"></a><span class="lineno"> 1499</span>    <span class="keyword">call </span>basis_fields%assign(4, nz_field)</div>
-<div class="line"><a id="l01500" name="l01500"></a><span class="lineno"> 1500</span> </div>
-<div class="line"><a id="l01501" name="l01501"></a><span class="lineno"> 1501</span>    <span class="keyword">call </span>basis_file%init(field_name_ // <span class="stringliteral">&#39;.fld&#39;</span>)</div>
-<div class="line"><a id="l01502" name="l01502"></a><span class="lineno"> 1502</span>    <span class="keyword">call </span>basis_file%write(basis_fields)</div>
-<div class="line"><a id="l01503" name="l01503"></a><span class="lineno"> 1503</span>    <span class="keyword">call </span>basis_fields%free()</div>
+<div class="line"><a id="l01462" name="l01462"></a><span class="lineno"> 1462</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a330e394dc6220fdd80603e904283424d">masked_scatter_copy</a>(ny_field%x(:,1,1,1), this%n%x(2,:), &amp;</div>
+<div class="line"><a id="l01463" name="l01463"></a><span class="lineno"> 1463</span>            mixed_mask_values, dof_size, mixed_mask_size)</div>
+<div class="line"><a id="l01464" name="l01464"></a><span class="lineno"> 1464</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a330e394dc6220fdd80603e904283424d">masked_scatter_copy</a>(nz_field%x(:,1,1,1), this%n%x(3,:), &amp;</div>
+<div class="line"><a id="l01465" name="l01465"></a><span class="lineno"> 1465</span>            mixed_mask_values, dof_size, mixed_mask_size)</div>
+<div class="line"><a id="l01466" name="l01466"></a><span class="lineno"> 1466</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01467" name="l01467"></a><span class="lineno"> 1467</span> </div>
+<div class="line"><a id="l01468" name="l01468"></a><span class="lineno"> 1468</span>    <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01469" name="l01469"></a><span class="lineno"> 1469</span>       <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e">device_cfill</a>(mask_field%x_d, 5.0_rp, dof_size)</div>
+<div class="line"><a id="l01470" name="l01470"></a><span class="lineno"> 1470</span> </div>
+<div class="line"><a id="l01471" name="l01471"></a><span class="lineno"> 1471</span>       <span class="keywordflow">if</span> (this%dirichlet_dof_mask%is_set()) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01472" name="l01472"></a><span class="lineno"> 1472</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a7561ba2bdd6fe5d32b286d8f0f7e10b4">device_cfill_mask</a>(mask_field%x_d, 1.0_rp, dof_size, &amp;</div>
+<div class="line"><a id="l01473" name="l01473"></a><span class="lineno"> 1473</span>               this%dirichlet_dof_mask%get_d(), &amp;</div>
+<div class="line"><a id="l01474" name="l01474"></a><span class="lineno"> 1474</span>               this%dirichlet_dof_mask%size())</div>
+<div class="line"><a id="l01475" name="l01475"></a><span class="lineno"> 1475</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01476" name="l01476"></a><span class="lineno"> 1476</span> </div>
+<div class="line"><a id="l01477" name="l01477"></a><span class="lineno"> 1477</span>       <span class="keywordflow">if</span> (this%mixed_dof_mask%is_set()) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01478" name="l01478"></a><span class="lineno"> 1478</span>          <span class="keyword">call </span><a class="code hl_function" href="../../d2/d73/namespacedevice__math.html#a7561ba2bdd6fe5d32b286d8f0f7e10b4">device_cfill_mask</a>(mask_field%x_d, 2.0_rp, dof_size, &amp;</div>
+<div class="line"><a id="l01479" name="l01479"></a><span class="lineno"> 1479</span>               this%mixed_dof_mask%get_d(), this%mixed_dof_mask%size())</div>
+<div class="line"><a id="l01480" name="l01480"></a><span class="lineno"> 1480</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01481" name="l01481"></a><span class="lineno"> 1481</span> </div>
+<div class="line"><a id="l01482" name="l01482"></a><span class="lineno"> 1482</span>       <span class="keyword">call </span><a class="code hl_interface" href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device_memcpy</a>(mask_field%x, mask_field%x_d, dof_size, &amp;</div>
+<div class="line"><a id="l01483" name="l01483"></a><span class="lineno"> 1483</span>            <a class="code hl_variable" href="../../d0/dbe/namespacedevice.html#a7c3556984ffad14469de7accab5bc84b">device_to_host</a>, &amp;</div>
+<div class="line"><a id="l01484" name="l01484"></a><span class="lineno"> 1484</span>            sync = .true.)</div>
+<div class="line"><a id="l01485" name="l01485"></a><span class="lineno"> 1485</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01486" name="l01486"></a><span class="lineno"> 1486</span>       <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121">cfill</a>(mask_field%x, 5.0_rp, dof_size)</div>
+<div class="line"><a id="l01487" name="l01487"></a><span class="lineno"> 1487</span> </div>
+<div class="line"><a id="l01488" name="l01488"></a><span class="lineno"> 1488</span>       <span class="keywordflow">if</span> (this%dirichlet_dof_mask%is_set()) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01489" name="l01489"></a><span class="lineno"> 1489</span>          <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#adcea1b6eb422b5097c9241c0798631ae">cfill_mask</a>(mask_field%x, 1.0_rp, dof_size, &amp;</div>
+<div class="line"><a id="l01490" name="l01490"></a><span class="lineno"> 1490</span>               this%dirichlet_dof_mask%get(), this%dirichlet_dof_mask%size())</div>
+<div class="line"><a id="l01491" name="l01491"></a><span class="lineno"> 1491</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01492" name="l01492"></a><span class="lineno"> 1492</span> </div>
+<div class="line"><a id="l01493" name="l01493"></a><span class="lineno"> 1493</span>       <span class="keywordflow">if</span> (this%mixed_dof_mask%is_set()) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01494" name="l01494"></a><span class="lineno"> 1494</span>          <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#adcea1b6eb422b5097c9241c0798631ae">cfill_mask</a>(mask_field%x, 2.0_rp, dof_size, &amp;</div>
+<div class="line"><a id="l01495" name="l01495"></a><span class="lineno"> 1495</span>               this%mixed_dof_mask%get(), this%mixed_dof_mask%size())</div>
+<div class="line"><a id="l01496" name="l01496"></a><span class="lineno"> 1496</span><span class="keywordflow">       end if</span></div>
+<div class="line"><a id="l01497" name="l01497"></a><span class="lineno"> 1497</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01498" name="l01498"></a><span class="lineno"> 1498</span> </div>
+<div class="line"><a id="l01499" name="l01499"></a><span class="lineno"> 1499</span>    <span class="keyword">call </span>basis_fields%init(4)</div>
+<div class="line"><a id="l01500" name="l01500"></a><span class="lineno"> 1500</span>    <span class="keyword">call </span>basis_fields%assign(1, mask_field)</div>
+<div class="line"><a id="l01501" name="l01501"></a><span class="lineno"> 1501</span>    <span class="keyword">call </span>basis_fields%assign(2, nx_field)</div>
+<div class="line"><a id="l01502" name="l01502"></a><span class="lineno"> 1502</span>    <span class="keyword">call </span>basis_fields%assign(3, ny_field)</div>
+<div class="line"><a id="l01503" name="l01503"></a><span class="lineno"> 1503</span>    <span class="keyword">call </span>basis_fields%assign(4, nz_field)</div>
 <div class="line"><a id="l01504" name="l01504"></a><span class="lineno"> 1504</span> </div>
-<div class="line"><a id="l01505" name="l01505"></a><span class="lineno"> 1505</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(scratch_idx)</div>
+<div class="line"><a id="l01505" name="l01505"></a><span class="lineno"> 1505</span>    <span class="keyword">call </span>basis_file%init(field_name_ // <span class="stringliteral">&#39;.fld&#39;</span>)</div>
+<div class="line"><a id="l01506" name="l01506"></a><span class="lineno"> 1506</span>    <span class="keyword">call </span>basis_file%write(basis_fields)</div>
+<div class="line"><a id="l01507" name="l01507"></a><span class="lineno"> 1507</span>    <span class="keyword">call </span>basis_fields%free()</div>
+<div class="line"><a id="l01508" name="l01508"></a><span class="lineno"> 1508</span> </div>
+<div class="line"><a id="l01509" name="l01509"></a><span class="lineno"> 1509</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(scratch_idx)</div>
 </div>
-<div class="line"><a id="l01506" name="l01506"></a><span class="lineno"> 1506</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511">coupled_vector_bc_projector_debug_output</a></div>
-<div class="line"><a id="l01507" name="l01507"></a><span class="lineno"> 1507</span><span class="comment"></span> </div>
-<div class="line"><a id="l01508" name="l01508"></a><span class="lineno"> 1508</span><span class="comment">  !&gt; Write scalar fields with the normal component `u.n` on mixed BC nodes.</span></div>
-<div class="line"><a id="l01509" name="l01509"></a><span class="lineno"> 1509</span><span class="comment">  !! @details The output is zero outside `mixed_dof_mask`. The normal vectors</span></div>
-<div class="line"><a id="l01510" name="l01510"></a><span class="lineno"> 1510</span><span class="comment">  !! come from (1) the resolved basis stored in this projector and</span></div>
-<div class="line"><a id="l01511" name="l01511"></a><span class="lineno"> 1511</span><span class="comment">  !! (2) the normals stored in `coef_t`. No area scaling is applied.</span></div>
-<div class="line"><a id="l01512" name="l01512"></a><span class="lineno"> 1512</span><span class="comment">  !! @param[in] x x-component of the vector field.</span></div>
-<div class="line"><a id="l01513" name="l01513"></a><span class="lineno"> 1513</span><span class="comment">  !! @param[in] y y-component of the vector field.</span></div>
-<div class="line"><a id="l01514" name="l01514"></a><span class="lineno"> 1514</span><span class="comment">  !! @param[in] z z-component of the vector field.</span></div>
-<div class="line"><a id="l01515" name="l01515"></a><span class="lineno"> 1515</span><span class="comment">  !! @param[in] n Number of entries in x, y, z.</span></div>
-<div class="line"><a id="l01516" name="l01516"></a><span class="lineno"> 1516</span><span class="comment">  !! @param[in] field_name Optional base name for the output file. The `.fld`</span></div>
-<div class="line"><a id="l01517" name="l01517"></a><span class="lineno"> 1517</span><span class="comment">  !! suffix is appended automatically.</span></div>
-<div class="foldopen" id="foldopen01518" data-start="" data-end="">
-<div class="line"><a id="l01518" name="l01518"></a><span class="lineno"><a class="line" href="../../d6/dcb/namespacevector__bc__projector.html#a54de387e17a3143efbcb2c8a7000315e"> 1518</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a54de387e17a3143efbcb2c8a7000315e">coupled_vector_bc_projector_debug_output_normal_component</a>( &amp;</div>
-<div class="line"><a id="l01519" name="l01519"></a><span class="lineno"> 1519</span>       this, x, y, z, n, field_name)</div>
-<div class="line"><a id="l01520" name="l01520"></a><span class="lineno"> 1520</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html">coupled_vector_bc_projector_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l01521" name="l01521"></a><span class="lineno"> 1521</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l01522" name="l01522"></a><span class="lineno"> 1522</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: x(n)</div>
-<div class="line"><a id="l01523" name="l01523"></a><span class="lineno"> 1523</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: y(n)</div>
-<div class="line"><a id="l01524" name="l01524"></a><span class="lineno"> 1524</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: z(n)</div>
-<div class="line"><a id="l01525" name="l01525"></a><span class="lineno"> 1525</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: field_name</div>
-<div class="line"><a id="l01526" name="l01526"></a><span class="lineno"> 1526</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: normal_component_field</div>
-<div class="line"><a id="l01527" name="l01527"></a><span class="lineno"> 1527</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: normal_component_coef_field</div>
-<div class="line"><a id="l01528" name="l01528"></a><span class="lineno"> 1528</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>) :: output_fields</div>
-<div class="line"><a id="l01529" name="l01529"></a><span class="lineno"> 1529</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>) :: output_file</div>
-<div class="line"><a id="l01530" name="l01530"></a><span class="lineno"> 1530</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: projector_nx_field, projector_ny_field, projector_nz_field</div>
-<div class="line"><a id="l01531" name="l01531"></a><span class="lineno"> 1531</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: coef_nx_field, coef_ny_field, coef_nz_field</div>
-<div class="line"><a id="l01532" name="l01532"></a><span class="lineno"> 1532</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>) :: normals_fields</div>
-<div class="line"><a id="l01533" name="l01533"></a><span class="lineno"> 1533</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>) :: normals_file</div>
-<div class="line"><a id="l01534" name="l01534"></a><span class="lineno"> 1534</span>    <span class="keywordtype">integer</span> :: scratch_idx(8)</div>
-<div class="line"><a id="l01535" name="l01535"></a><span class="lineno"> 1535</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: mixed_mask_values(:)</div>
-<div class="line"><a id="l01536" name="l01536"></a><span class="lineno"> 1536</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: mixed_lut(:)</div>
-<div class="line"><a id="l01537" name="l01537"></a><span class="lineno"> 1537</span>    <span class="keywordtype">integer</span> :: dof_size, mixed_mask_size</div>
-<div class="line"><a id="l01538" name="l01538"></a><span class="lineno"> 1538</span>    <span class="keywordtype">integer</span> :: i, j, m, k, facet</div>
-<div class="line"><a id="l01539" name="l01539"></a><span class="lineno"> 1539</span>    <span class="keywordtype">integer</span> :: idx(4)</div>
-<div class="line"><a id="l01540" name="l01540"></a><span class="lineno"> 1540</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: coef_normal(3)</div>
-<div class="line"><a id="l01541" name="l01541"></a><span class="lineno"> 1541</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <span class="keywordtype">pointer</span> :: <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
-<div class="line"><a id="l01542" name="l01542"></a><span class="lineno"> 1542</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: field_name_</div>
-<div class="line"><a id="l01543" name="l01543"></a><span class="lineno"> 1543</span> </div>
-<div class="line"><a id="l01544" name="l01544"></a><span class="lineno"> 1544</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(field_name)) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01545" name="l01545"></a><span class="lineno"> 1545</span>       field_name_ = trim(field_name)</div>
-<div class="line"><a id="l01546" name="l01546"></a><span class="lineno"> 1546</span>    <span class="keywordflow">else</span></div>
-<div class="line"><a id="l01547" name="l01547"></a><span class="lineno"> 1547</span>       field_name_ = <span class="stringliteral">&#39;bc_projector_normal_component&#39;</span></div>
-<div class="line"><a id="l01548" name="l01548"></a><span class="lineno"> 1548</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01549" name="l01549"></a><span class="lineno"> 1549</span> </div>
-<div class="line"><a id="l01550" name="l01550"></a><span class="lineno"> 1550</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(normal_component_field, &amp;</div>
-<div class="line"><a id="l01551" name="l01551"></a><span class="lineno"> 1551</span>         scratch_idx(1), .true.)</div>
-<div class="line"><a id="l01552" name="l01552"></a><span class="lineno"> 1552</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(normal_component_coef_field, &amp;</div>
-<div class="line"><a id="l01553" name="l01553"></a><span class="lineno"> 1553</span>         scratch_idx(2), .true.)</div>
-<div class="line"><a id="l01554" name="l01554"></a><span class="lineno"> 1554</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(projector_nx_field, &amp;</div>
-<div class="line"><a id="l01555" name="l01555"></a><span class="lineno"> 1555</span>         scratch_idx(3), .true.)</div>
-<div class="line"><a id="l01556" name="l01556"></a><span class="lineno"> 1556</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(projector_ny_field, &amp;</div>
-<div class="line"><a id="l01557" name="l01557"></a><span class="lineno"> 1557</span>         scratch_idx(4), .true.)</div>
-<div class="line"><a id="l01558" name="l01558"></a><span class="lineno"> 1558</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(projector_nz_field, &amp;</div>
-<div class="line"><a id="l01559" name="l01559"></a><span class="lineno"> 1559</span>         scratch_idx(5), .true.)</div>
-<div class="line"><a id="l01560" name="l01560"></a><span class="lineno"> 1560</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(coef_nx_field, &amp;</div>
-<div class="line"><a id="l01561" name="l01561"></a><span class="lineno"> 1561</span>         scratch_idx(6), .true.)</div>
-<div class="line"><a id="l01562" name="l01562"></a><span class="lineno"> 1562</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(coef_ny_field, &amp;</div>
-<div class="line"><a id="l01563" name="l01563"></a><span class="lineno"> 1563</span>         scratch_idx(7), .true.)</div>
-<div class="line"><a id="l01564" name="l01564"></a><span class="lineno"> 1564</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(coef_nz_field, &amp;</div>
-<div class="line"><a id="l01565" name="l01565"></a><span class="lineno"> 1565</span>         scratch_idx(8), .true.)</div>
-<div class="line"><a id="l01566" name="l01566"></a><span class="lineno"> 1566</span> </div>
-<div class="line"><a id="l01567" name="l01567"></a><span class="lineno"> 1567</span>    dof_size = this%dof%size()</div>
-<div class="line"><a id="l01568" name="l01568"></a><span class="lineno"> 1568</span>    mixed_mask_size = this%mixed_dof_mask%size()</div>
-<div class="line"><a id="l01569" name="l01569"></a><span class="lineno"> 1569</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(normal_component_field%x, dof_size)</div>
-<div class="line"><a id="l01570" name="l01570"></a><span class="lineno"> 1570</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(normal_component_coef_field%x, dof_size)</div>
-<div class="line"><a id="l01571" name="l01571"></a><span class="lineno"> 1571</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(projector_nx_field%x, dof_size)</div>
-<div class="line"><a id="l01572" name="l01572"></a><span class="lineno"> 1572</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(projector_ny_field%x, dof_size)</div>
-<div class="line"><a id="l01573" name="l01573"></a><span class="lineno"> 1573</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(projector_nz_field%x, dof_size)</div>
-<div class="line"><a id="l01574" name="l01574"></a><span class="lineno"> 1574</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(coef_nx_field%x, dof_size)</div>
-<div class="line"><a id="l01575" name="l01575"></a><span class="lineno"> 1575</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(coef_ny_field%x, dof_size)</div>
-<div class="line"><a id="l01576" name="l01576"></a><span class="lineno"> 1576</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(coef_nz_field%x, dof_size)</div>
-<div class="line"><a id="l01577" name="l01577"></a><span class="lineno"> 1577</span> </div>
-<div class="line"><a id="l01578" name="l01578"></a><span class="lineno"> 1578</span>    <span class="keyword">allocate</span>(mixed_lut(dof_size))</div>
-<div class="line"><a id="l01579" name="l01579"></a><span class="lineno"> 1579</span>    mixed_lut = 0</div>
-<div class="line"><a id="l01580" name="l01580"></a><span class="lineno"> 1580</span>    <span class="keywordflow">if</span> (this%mixed_dof_mask%is_set()) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01581" name="l01581"></a><span class="lineno"> 1581</span>       mixed_mask_values =&gt; this%mixed_dof_mask%get()</div>
-<div class="line"><a id="l01582" name="l01582"></a><span class="lineno"> 1582</span>       <span class="keywordflow">do</span> i = 1, mixed_mask_size</div>
-<div class="line"><a id="l01583" name="l01583"></a><span class="lineno"> 1583</span>          mixed_lut(mixed_mask_values(i)) = i</div>
-<div class="line"><a id="l01584" name="l01584"></a><span class="lineno"> 1584</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01585" name="l01585"></a><span class="lineno"> 1585</span><span class="keywordflow">    end if</span></div>
-<div class="line"><a id="l01586" name="l01586"></a><span class="lineno"> 1586</span> </div>
-<div class="line"><a id="l01587" name="l01587"></a><span class="lineno"> 1587</span>    <span class="keywordflow">do</span> i = 1, this%bcs%size()</div>
-<div class="line"><a id="l01588" name="l01588"></a><span class="lineno"> 1588</span>       <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a> =&gt; this%bcs%get(i)</div>
-<div class="line"><a id="l01589" name="l01589"></a><span class="lineno"> 1589</span>       <span class="keywordflow">do</span> m = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet_node_msk(0)</div>
-<div class="line"><a id="l01590" name="l01590"></a><span class="lineno"> 1590</span>          k = <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet_node_msk(m)</div>
-<div class="line"><a id="l01591" name="l01591"></a><span class="lineno"> 1591</span>          facet = <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet(m)</div>
-<div class="line"><a id="l01592" name="l01592"></a><span class="lineno"> 1592</span>          idx = <a class="code hl_function" href="../../d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b">nonlinear_index</a>(k, this%coef%Xh%lx, this%coef%Xh%ly, &amp;</div>
-<div class="line"><a id="l01593" name="l01593"></a><span class="lineno"> 1593</span>               this%coef%Xh%lz)</div>
-<div class="line"><a id="l01594" name="l01594"></a><span class="lineno"> 1594</span> </div>
-<div class="line"><a id="l01595" name="l01595"></a><span class="lineno"> 1595</span>          coef_normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), &amp;</div>
-<div class="line"><a id="l01596" name="l01596"></a><span class="lineno"> 1596</span>               facet)</div>
-<div class="line"><a id="l01597" name="l01597"></a><span class="lineno"> 1597</span>          coef_nx_field%x(k,1,1,1) = coef_normal(1)</div>
-<div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span>          coef_ny_field%x(k,1,1,1) = coef_normal(2)</div>
-<div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>          coef_nz_field%x(k,1,1,1) = coef_normal(3)</div>
-<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>          normal_component_coef_field%x(k,1,1,1) = &amp;</div>
-<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>               x(k) * coef_normal(1) + y(k) * coef_normal(2) + z(k) * coef_normal(3)</div>
-<div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span> </div>
-<div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span>          j = mixed_lut(k)</div>
-<div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span>          <span class="keywordflow">if</span> (j .gt. 0) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span>             projector_nx_field%x(k,1,1,1) = this%n%x(1,j)</div>
-<div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span>             projector_ny_field%x(k,1,1,1) = this%n%x(2,j)</div>
-<div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span>             projector_nz_field%x(k,1,1,1) = this%n%x(3,j)</div>
-<div class="line"><a id="l01608" name="l01608"></a><span class="lineno"> 1608</span>             normal_component_field%x(k,1,1,1) = &amp;</div>
-<div class="line"><a id="l01609" name="l01609"></a><span class="lineno"> 1609</span>                  x(k) * this%n%x(1,j) + y(k) * this%n%x(2,j) + z(k) * this%n%x(3,j)</div>
-<div class="line"><a id="l01610" name="l01610"></a><span class="lineno"> 1610</span><span class="keywordflow">          end if</span></div>
-<div class="line"><a id="l01611" name="l01611"></a><span class="lineno"> 1611</span><span class="keywordflow">       end do</span></div>
-<div class="line"><a id="l01612" name="l01612"></a><span class="lineno"> 1612</span><span class="keywordflow">    end do</span></div>
-<div class="line"><a id="l01613" name="l01613"></a><span class="lineno"> 1613</span> </div>
-<div class="line"><a id="l01614" name="l01614"></a><span class="lineno"> 1614</span>    <span class="keyword">deallocate</span>(mixed_lut)</div>
-<div class="line"><a id="l01615" name="l01615"></a><span class="lineno"> 1615</span> </div>
-<div class="line"><a id="l01616" name="l01616"></a><span class="lineno"> 1616</span>    <span class="keyword">call </span>output_fields%init(2)</div>
-<div class="line"><a id="l01617" name="l01617"></a><span class="lineno"> 1617</span>    <span class="keyword">call </span>output_fields%assign(1, normal_component_field)</div>
-<div class="line"><a id="l01618" name="l01618"></a><span class="lineno"> 1618</span>    <span class="keyword">call </span>output_fields%assign(2, normal_component_coef_field)</div>
-<div class="line"><a id="l01619" name="l01619"></a><span class="lineno"> 1619</span>    <span class="keyword">call </span>output_file%init(field_name_ // <span class="stringliteral">&#39;.fld&#39;</span>)</div>
-<div class="line"><a id="l01620" name="l01620"></a><span class="lineno"> 1620</span>    <span class="keyword">call </span>output_file%write(output_fields)</div>
-<div class="line"><a id="l01621" name="l01621"></a><span class="lineno"> 1621</span>    <span class="keyword">call </span>output_fields%free()</div>
-<div class="line"><a id="l01622" name="l01622"></a><span class="lineno"> 1622</span> </div>
-<div class="line"><a id="l01623" name="l01623"></a><span class="lineno"> 1623</span>    <span class="keyword">call </span>normals_fields%init(3)</div>
-<div class="line"><a id="l01624" name="l01624"></a><span class="lineno"> 1624</span>    <span class="keyword">call </span>normals_fields%assign(1, projector_nx_field)</div>
-<div class="line"><a id="l01625" name="l01625"></a><span class="lineno"> 1625</span>    <span class="keyword">call </span>normals_fields%assign(2, projector_ny_field)</div>
-<div class="line"><a id="l01626" name="l01626"></a><span class="lineno"> 1626</span>    <span class="keyword">call </span>normals_fields%assign(3, projector_nz_field)</div>
-<div class="line"><a id="l01627" name="l01627"></a><span class="lineno"> 1627</span>    <span class="keyword">call </span>normals_file%init(field_name_ // <span class="stringliteral">&#39;_projector_normals.fld&#39;</span>)</div>
-<div class="line"><a id="l01628" name="l01628"></a><span class="lineno"> 1628</span>    <span class="keyword">call </span>normals_file%write(normals_fields)</div>
-<div class="line"><a id="l01629" name="l01629"></a><span class="lineno"> 1629</span>    <span class="keyword">call </span>normals_fields%free()</div>
-<div class="line"><a id="l01630" name="l01630"></a><span class="lineno"> 1630</span> </div>
-<div class="line"><a id="l01631" name="l01631"></a><span class="lineno"> 1631</span>    <span class="keyword">call </span>normals_fields%init(3)</div>
-<div class="line"><a id="l01632" name="l01632"></a><span class="lineno"> 1632</span>    <span class="keyword">call </span>normals_fields%assign(1, coef_nx_field)</div>
-<div class="line"><a id="l01633" name="l01633"></a><span class="lineno"> 1633</span>    <span class="keyword">call </span>normals_fields%assign(2, coef_ny_field)</div>
-<div class="line"><a id="l01634" name="l01634"></a><span class="lineno"> 1634</span>    <span class="keyword">call </span>normals_fields%assign(3, coef_nz_field)</div>
-<div class="line"><a id="l01635" name="l01635"></a><span class="lineno"> 1635</span>    <span class="keyword">call </span>normals_file%init(field_name_ // <span class="stringliteral">&#39;_coef_normals.fld&#39;</span>)</div>
-<div class="line"><a id="l01636" name="l01636"></a><span class="lineno"> 1636</span>    <span class="keyword">call </span>normals_file%write(normals_fields)</div>
-<div class="line"><a id="l01637" name="l01637"></a><span class="lineno"> 1637</span>    <span class="keyword">call </span>normals_fields%free()</div>
-<div class="line"><a id="l01638" name="l01638"></a><span class="lineno"> 1638</span> </div>
-<div class="line"><a id="l01639" name="l01639"></a><span class="lineno"> 1639</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(scratch_idx)</div>
+<div class="line"><a id="l01510" name="l01510"></a><span class="lineno"> 1510</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511">coupled_vector_bc_projector_debug_output</a></div>
+<div class="line"><a id="l01511" name="l01511"></a><span class="lineno"> 1511</span><span class="comment"></span> </div>
+<div class="line"><a id="l01512" name="l01512"></a><span class="lineno"> 1512</span><span class="comment">  !&gt; Write scalar fields with the normal component `u.n` on mixed BC nodes.</span></div>
+<div class="line"><a id="l01513" name="l01513"></a><span class="lineno"> 1513</span><span class="comment">  !! @details The output is zero outside `mixed_dof_mask`. The normal vectors</span></div>
+<div class="line"><a id="l01514" name="l01514"></a><span class="lineno"> 1514</span><span class="comment">  !! come from (1) the resolved basis stored in this projector and</span></div>
+<div class="line"><a id="l01515" name="l01515"></a><span class="lineno"> 1515</span><span class="comment">  !! (2) the normals stored in `coef_t`. No area scaling is applied.</span></div>
+<div class="line"><a id="l01516" name="l01516"></a><span class="lineno"> 1516</span><span class="comment">  !! @param[in] x x-component of the vector field.</span></div>
+<div class="line"><a id="l01517" name="l01517"></a><span class="lineno"> 1517</span><span class="comment">  !! @param[in] y y-component of the vector field.</span></div>
+<div class="line"><a id="l01518" name="l01518"></a><span class="lineno"> 1518</span><span class="comment">  !! @param[in] z z-component of the vector field.</span></div>
+<div class="line"><a id="l01519" name="l01519"></a><span class="lineno"> 1519</span><span class="comment">  !! @param[in] n Number of entries in x, y, z.</span></div>
+<div class="line"><a id="l01520" name="l01520"></a><span class="lineno"> 1520</span><span class="comment">  !! @param[in] field_name Optional base name for the output file. The `.fld`</span></div>
+<div class="line"><a id="l01521" name="l01521"></a><span class="lineno"> 1521</span><span class="comment">  !! suffix is appended automatically.</span></div>
+<div class="foldopen" id="foldopen01522" data-start="" data-end="">
+<div class="line"><a id="l01522" name="l01522"></a><span class="lineno"><a class="line" href="../../d6/dcb/namespacevector__bc__projector.html#a54de387e17a3143efbcb2c8a7000315e"> 1522</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a54de387e17a3143efbcb2c8a7000315e">coupled_vector_bc_projector_debug_output_normal_component</a>( &amp;</div>
+<div class="line"><a id="l01523" name="l01523"></a><span class="lineno"> 1523</span>       this, x, y, z, n, field_name)</div>
+<div class="line"><a id="l01524" name="l01524"></a><span class="lineno"> 1524</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../db/d93/structvector__bc__projector_1_1coupled__vector__bc__projector__t.html">coupled_vector_bc_projector_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l01525" name="l01525"></a><span class="lineno"> 1525</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l01526" name="l01526"></a><span class="lineno"> 1526</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: x(n)</div>
+<div class="line"><a id="l01527" name="l01527"></a><span class="lineno"> 1527</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: y(n)</div>
+<div class="line"><a id="l01528" name="l01528"></a><span class="lineno"> 1528</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span> :: z(n)</div>
+<div class="line"><a id="l01529" name="l01529"></a><span class="lineno"> 1529</span>    <span class="keywordtype">character(len=*)</span>, <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: field_name</div>
+<div class="line"><a id="l01530" name="l01530"></a><span class="lineno"> 1530</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: normal_component_field</div>
+<div class="line"><a id="l01531" name="l01531"></a><span class="lineno"> 1531</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: normal_component_coef_field</div>
+<div class="line"><a id="l01532" name="l01532"></a><span class="lineno"> 1532</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>) :: output_fields</div>
+<div class="line"><a id="l01533" name="l01533"></a><span class="lineno"> 1533</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>) :: output_file</div>
+<div class="line"><a id="l01534" name="l01534"></a><span class="lineno"> 1534</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: projector_nx_field, projector_ny_field, projector_nz_field</div>
+<div class="line"><a id="l01535" name="l01535"></a><span class="lineno"> 1535</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), <span class="keywordtype">pointer</span> :: coef_nx_field, coef_ny_field, coef_nz_field</div>
+<div class="line"><a id="l01536" name="l01536"></a><span class="lineno"> 1536</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d3/d90/structfield__list_1_1field__list__t.html">field_list_t</a>) :: normals_fields</div>
+<div class="line"><a id="l01537" name="l01537"></a><span class="lineno"> 1537</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../dd/d2f/structfld__file_1_1fld__file__t.html">fld_file_t</a>) :: normals_file</div>
+<div class="line"><a id="l01538" name="l01538"></a><span class="lineno"> 1538</span>    <span class="keywordtype">integer</span> :: scratch_idx(8)</div>
+<div class="line"><a id="l01539" name="l01539"></a><span class="lineno"> 1539</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">pointer</span> :: mixed_mask_values(:)</div>
+<div class="line"><a id="l01540" name="l01540"></a><span class="lineno"> 1540</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">allocatable</span> :: mixed_lut(:)</div>
+<div class="line"><a id="l01541" name="l01541"></a><span class="lineno"> 1541</span>    <span class="keywordtype">integer</span> :: dof_size, mixed_mask_size</div>
+<div class="line"><a id="l01542" name="l01542"></a><span class="lineno"> 1542</span>    <span class="keywordtype">integer</span> :: i, j, m, k, facet</div>
+<div class="line"><a id="l01543" name="l01543"></a><span class="lineno"> 1543</span>    <span class="keywordtype">integer</span> :: idx(4)</div>
+<div class="line"><a id="l01544" name="l01544"></a><span class="lineno"> 1544</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>) :: coef_normal(3)</div>
+<div class="line"><a id="l01545" name="l01545"></a><span class="lineno"> 1545</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d6/db3/structbc_1_1bc__t.html">bc_t</a>), <span class="keywordtype">pointer</span> :: <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a></div>
+<div class="line"><a id="l01546" name="l01546"></a><span class="lineno"> 1546</span>    <span class="keywordtype">character(len=:)</span>, <span class="keywordtype">allocatable</span> :: field_name_</div>
+<div class="line"><a id="l01547" name="l01547"></a><span class="lineno"> 1547</span> </div>
+<div class="line"><a id="l01548" name="l01548"></a><span class="lineno"> 1548</span>    <span class="keywordflow">if</span> (<span class="keyword">present</span>(field_name)) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01549" name="l01549"></a><span class="lineno"> 1549</span>       field_name_ = trim(field_name)</div>
+<div class="line"><a id="l01550" name="l01550"></a><span class="lineno"> 1550</span>    <span class="keywordflow">else</span></div>
+<div class="line"><a id="l01551" name="l01551"></a><span class="lineno"> 1551</span>       field_name_ = <span class="stringliteral">&#39;bc_projector_normal_component&#39;</span></div>
+<div class="line"><a id="l01552" name="l01552"></a><span class="lineno"> 1552</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01553" name="l01553"></a><span class="lineno"> 1553</span> </div>
+<div class="line"><a id="l01554" name="l01554"></a><span class="lineno"> 1554</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(normal_component_field, &amp;</div>
+<div class="line"><a id="l01555" name="l01555"></a><span class="lineno"> 1555</span>         scratch_idx(1), .true.)</div>
+<div class="line"><a id="l01556" name="l01556"></a><span class="lineno"> 1556</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(normal_component_coef_field, &amp;</div>
+<div class="line"><a id="l01557" name="l01557"></a><span class="lineno"> 1557</span>         scratch_idx(2), .true.)</div>
+<div class="line"><a id="l01558" name="l01558"></a><span class="lineno"> 1558</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(projector_nx_field, &amp;</div>
+<div class="line"><a id="l01559" name="l01559"></a><span class="lineno"> 1559</span>         scratch_idx(3), .true.)</div>
+<div class="line"><a id="l01560" name="l01560"></a><span class="lineno"> 1560</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(projector_ny_field, &amp;</div>
+<div class="line"><a id="l01561" name="l01561"></a><span class="lineno"> 1561</span>         scratch_idx(4), .true.)</div>
+<div class="line"><a id="l01562" name="l01562"></a><span class="lineno"> 1562</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(projector_nz_field, &amp;</div>
+<div class="line"><a id="l01563" name="l01563"></a><span class="lineno"> 1563</span>         scratch_idx(5), .true.)</div>
+<div class="line"><a id="l01564" name="l01564"></a><span class="lineno"> 1564</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(coef_nx_field, &amp;</div>
+<div class="line"><a id="l01565" name="l01565"></a><span class="lineno"> 1565</span>         scratch_idx(6), .true.)</div>
+<div class="line"><a id="l01566" name="l01566"></a><span class="lineno"> 1566</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(coef_ny_field, &amp;</div>
+<div class="line"><a id="l01567" name="l01567"></a><span class="lineno"> 1567</span>         scratch_idx(7), .true.)</div>
+<div class="line"><a id="l01568" name="l01568"></a><span class="lineno"> 1568</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%request_field(coef_nz_field, &amp;</div>
+<div class="line"><a id="l01569" name="l01569"></a><span class="lineno"> 1569</span>         scratch_idx(8), .true.)</div>
+<div class="line"><a id="l01570" name="l01570"></a><span class="lineno"> 1570</span> </div>
+<div class="line"><a id="l01571" name="l01571"></a><span class="lineno"> 1571</span>    dof_size = this%dof%size()</div>
+<div class="line"><a id="l01572" name="l01572"></a><span class="lineno"> 1572</span>    mixed_mask_size = this%mixed_dof_mask%size()</div>
+<div class="line"><a id="l01573" name="l01573"></a><span class="lineno"> 1573</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(normal_component_field%x, dof_size)</div>
+<div class="line"><a id="l01574" name="l01574"></a><span class="lineno"> 1574</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(normal_component_coef_field%x, dof_size)</div>
+<div class="line"><a id="l01575" name="l01575"></a><span class="lineno"> 1575</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(projector_nx_field%x, dof_size)</div>
+<div class="line"><a id="l01576" name="l01576"></a><span class="lineno"> 1576</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(projector_ny_field%x, dof_size)</div>
+<div class="line"><a id="l01577" name="l01577"></a><span class="lineno"> 1577</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(projector_nz_field%x, dof_size)</div>
+<div class="line"><a id="l01578" name="l01578"></a><span class="lineno"> 1578</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(coef_nx_field%x, dof_size)</div>
+<div class="line"><a id="l01579" name="l01579"></a><span class="lineno"> 1579</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(coef_ny_field%x, dof_size)</div>
+<div class="line"><a id="l01580" name="l01580"></a><span class="lineno"> 1580</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>(coef_nz_field%x, dof_size)</div>
+<div class="line"><a id="l01581" name="l01581"></a><span class="lineno"> 1581</span> </div>
+<div class="line"><a id="l01582" name="l01582"></a><span class="lineno"> 1582</span>    <span class="keyword">allocate</span>(mixed_lut(dof_size))</div>
+<div class="line"><a id="l01583" name="l01583"></a><span class="lineno"> 1583</span>    mixed_lut = 0</div>
+<div class="line"><a id="l01584" name="l01584"></a><span class="lineno"> 1584</span>    <span class="keywordflow">if</span> (this%mixed_dof_mask%is_set()) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01585" name="l01585"></a><span class="lineno"> 1585</span>       mixed_mask_values =&gt; this%mixed_dof_mask%get()</div>
+<div class="line"><a id="l01586" name="l01586"></a><span class="lineno"> 1586</span>       <span class="keywordflow">do</span> i = 1, mixed_mask_size</div>
+<div class="line"><a id="l01587" name="l01587"></a><span class="lineno"> 1587</span>          mixed_lut(mixed_mask_values(i)) = i</div>
+<div class="line"><a id="l01588" name="l01588"></a><span class="lineno"> 1588</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01589" name="l01589"></a><span class="lineno"> 1589</span><span class="keywordflow">    end if</span></div>
+<div class="line"><a id="l01590" name="l01590"></a><span class="lineno"> 1590</span> </div>
+<div class="line"><a id="l01591" name="l01591"></a><span class="lineno"> 1591</span>    <span class="keywordflow">do</span> i = 1, this%bcs%size()</div>
+<div class="line"><a id="l01592" name="l01592"></a><span class="lineno"> 1592</span>       <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a> =&gt; this%bcs%get(i)</div>
+<div class="line"><a id="l01593" name="l01593"></a><span class="lineno"> 1593</span>       <span class="keywordflow">do</span> m = 1, <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet_node_msk(0)</div>
+<div class="line"><a id="l01594" name="l01594"></a><span class="lineno"> 1594</span>          k = <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet_node_msk(m)</div>
+<div class="line"><a id="l01595" name="l01595"></a><span class="lineno"> 1595</span>          facet = <a class="code hl_namespace" href="../../d0/dc0/namespacebc.html">bc</a>%facet(m)</div>
+<div class="line"><a id="l01596" name="l01596"></a><span class="lineno"> 1596</span>          idx = <a class="code hl_function" href="../../d6/d84/namespaceutils.html#acd2a2375ca2ed5c299af5a955f53389b">nonlinear_index</a>(k, this%coef%Xh%lx, this%coef%Xh%ly, &amp;</div>
+<div class="line"><a id="l01597" name="l01597"></a><span class="lineno"> 1597</span>               this%coef%Xh%lz)</div>
+<div class="line"><a id="l01598" name="l01598"></a><span class="lineno"> 1598</span> </div>
+<div class="line"><a id="l01599" name="l01599"></a><span class="lineno"> 1599</span>          coef_normal = this%coef%get_normal(idx(1), idx(2), idx(3), idx(4), &amp;</div>
+<div class="line"><a id="l01600" name="l01600"></a><span class="lineno"> 1600</span>               facet)</div>
+<div class="line"><a id="l01601" name="l01601"></a><span class="lineno"> 1601</span>          coef_nx_field%x(k,1,1,1) = coef_normal(1)</div>
+<div class="line"><a id="l01602" name="l01602"></a><span class="lineno"> 1602</span>          coef_ny_field%x(k,1,1,1) = coef_normal(2)</div>
+<div class="line"><a id="l01603" name="l01603"></a><span class="lineno"> 1603</span>          coef_nz_field%x(k,1,1,1) = coef_normal(3)</div>
+<div class="line"><a id="l01604" name="l01604"></a><span class="lineno"> 1604</span>          normal_component_coef_field%x(k,1,1,1) = &amp;</div>
+<div class="line"><a id="l01605" name="l01605"></a><span class="lineno"> 1605</span>               x(k) * coef_normal(1) + y(k) * coef_normal(2) + z(k) * coef_normal(3)</div>
+<div class="line"><a id="l01606" name="l01606"></a><span class="lineno"> 1606</span> </div>
+<div class="line"><a id="l01607" name="l01607"></a><span class="lineno"> 1607</span>          j = mixed_lut(k)</div>
+<div class="line"><a id="l01608" name="l01608"></a><span class="lineno"> 1608</span>          <span class="keywordflow">if</span> (j .gt. 0) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l01609" name="l01609"></a><span class="lineno"> 1609</span>             projector_nx_field%x(k,1,1,1) = this%n%x(1,j)</div>
+<div class="line"><a id="l01610" name="l01610"></a><span class="lineno"> 1610</span>             projector_ny_field%x(k,1,1,1) = this%n%x(2,j)</div>
+<div class="line"><a id="l01611" name="l01611"></a><span class="lineno"> 1611</span>             projector_nz_field%x(k,1,1,1) = this%n%x(3,j)</div>
+<div class="line"><a id="l01612" name="l01612"></a><span class="lineno"> 1612</span>             normal_component_field%x(k,1,1,1) = &amp;</div>
+<div class="line"><a id="l01613" name="l01613"></a><span class="lineno"> 1613</span>                  x(k) * this%n%x(1,j) + y(k) * this%n%x(2,j) + z(k) * this%n%x(3,j)</div>
+<div class="line"><a id="l01614" name="l01614"></a><span class="lineno"> 1614</span><span class="keywordflow">          end if</span></div>
+<div class="line"><a id="l01615" name="l01615"></a><span class="lineno"> 1615</span><span class="keywordflow">       end do</span></div>
+<div class="line"><a id="l01616" name="l01616"></a><span class="lineno"> 1616</span><span class="keywordflow">    end do</span></div>
+<div class="line"><a id="l01617" name="l01617"></a><span class="lineno"> 1617</span> </div>
+<div class="line"><a id="l01618" name="l01618"></a><span class="lineno"> 1618</span>    <span class="keyword">deallocate</span>(mixed_lut)</div>
+<div class="line"><a id="l01619" name="l01619"></a><span class="lineno"> 1619</span> </div>
+<div class="line"><a id="l01620" name="l01620"></a><span class="lineno"> 1620</span>    <span class="keyword">call </span>output_fields%init(2)</div>
+<div class="line"><a id="l01621" name="l01621"></a><span class="lineno"> 1621</span>    <span class="keyword">call </span>output_fields%assign(1, normal_component_field)</div>
+<div class="line"><a id="l01622" name="l01622"></a><span class="lineno"> 1622</span>    <span class="keyword">call </span>output_fields%assign(2, normal_component_coef_field)</div>
+<div class="line"><a id="l01623" name="l01623"></a><span class="lineno"> 1623</span>    <span class="keyword">call </span>output_file%init(field_name_ // <span class="stringliteral">&#39;.fld&#39;</span>)</div>
+<div class="line"><a id="l01624" name="l01624"></a><span class="lineno"> 1624</span>    <span class="keyword">call </span>output_file%write(output_fields)</div>
+<div class="line"><a id="l01625" name="l01625"></a><span class="lineno"> 1625</span>    <span class="keyword">call </span>output_fields%free()</div>
+<div class="line"><a id="l01626" name="l01626"></a><span class="lineno"> 1626</span> </div>
+<div class="line"><a id="l01627" name="l01627"></a><span class="lineno"> 1627</span>    <span class="keyword">call </span>normals_fields%init(3)</div>
+<div class="line"><a id="l01628" name="l01628"></a><span class="lineno"> 1628</span>    <span class="keyword">call </span>normals_fields%assign(1, projector_nx_field)</div>
+<div class="line"><a id="l01629" name="l01629"></a><span class="lineno"> 1629</span>    <span class="keyword">call </span>normals_fields%assign(2, projector_ny_field)</div>
+<div class="line"><a id="l01630" name="l01630"></a><span class="lineno"> 1630</span>    <span class="keyword">call </span>normals_fields%assign(3, projector_nz_field)</div>
+<div class="line"><a id="l01631" name="l01631"></a><span class="lineno"> 1631</span>    <span class="keyword">call </span>normals_file%init(field_name_ // <span class="stringliteral">&#39;_projector_normals.fld&#39;</span>)</div>
+<div class="line"><a id="l01632" name="l01632"></a><span class="lineno"> 1632</span>    <span class="keyword">call </span>normals_file%write(normals_fields)</div>
+<div class="line"><a id="l01633" name="l01633"></a><span class="lineno"> 1633</span>    <span class="keyword">call </span>normals_fields%free()</div>
+<div class="line"><a id="l01634" name="l01634"></a><span class="lineno"> 1634</span> </div>
+<div class="line"><a id="l01635" name="l01635"></a><span class="lineno"> 1635</span>    <span class="keyword">call </span>normals_fields%init(3)</div>
+<div class="line"><a id="l01636" name="l01636"></a><span class="lineno"> 1636</span>    <span class="keyword">call </span>normals_fields%assign(1, coef_nx_field)</div>
+<div class="line"><a id="l01637" name="l01637"></a><span class="lineno"> 1637</span>    <span class="keyword">call </span>normals_fields%assign(2, coef_ny_field)</div>
+<div class="line"><a id="l01638" name="l01638"></a><span class="lineno"> 1638</span>    <span class="keyword">call </span>normals_fields%assign(3, coef_nz_field)</div>
+<div class="line"><a id="l01639" name="l01639"></a><span class="lineno"> 1639</span>    <span class="keyword">call </span>normals_file%init(field_name_ // <span class="stringliteral">&#39;_coef_normals.fld&#39;</span>)</div>
+<div class="line"><a id="l01640" name="l01640"></a><span class="lineno"> 1640</span>    <span class="keyword">call </span>normals_file%write(normals_fields)</div>
+<div class="line"><a id="l01641" name="l01641"></a><span class="lineno"> 1641</span>    <span class="keyword">call </span>normals_fields%free()</div>
+<div class="line"><a id="l01642" name="l01642"></a><span class="lineno"> 1642</span> </div>
+<div class="line"><a id="l01643" name="l01643"></a><span class="lineno"> 1643</span>    <span class="keyword">call </span><a class="code hl_variable" href="../../d7/dda/namespacescratch__registry.html#a7b6f3078b09ebf3bee55b4cdcc701f01">neko_scratch_registry</a>%relinquish_field(scratch_idx)</div>
 </div>
-<div class="line"><a id="l01640" name="l01640"></a><span class="lineno"> 1640</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a54de387e17a3143efbcb2c8a7000315e">coupled_vector_bc_projector_debug_output_normal_component</a></div>
-<div class="line"><a id="l01641" name="l01641"></a><span class="lineno"> 1641</span> </div>
-<div class="line"><a id="l01642" name="l01642"></a><span class="lineno"> 1642</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/dcb/namespacevector__bc__projector.html">vector_bc_projector</a></div>
+<div class="line"><a id="l01644" name="l01644"></a><span class="lineno"> 1644</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d6/dcb/namespacevector__bc__projector.html#a54de387e17a3143efbcb2c8a7000315e">coupled_vector_bc_projector_debug_output_normal_component</a></div>
+<div class="line"><a id="l01645" name="l01645"></a><span class="lineno"> 1645</span> </div>
+<div class="line"><a id="l01646" name="l01646"></a><span class="lineno"> 1646</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../d6/dcb/namespacevector__bc__projector.html">vector_bc_projector</a></div>
 <div class="ttc" id="ainterfacedevice_1_1device__get__ptr_html"><div class="ttname"><a href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device::device_get_ptr</a></div><div class="ttdoc">Return the device pointer for an associated Fortran array.</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00113">device.F90:113</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate).</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00083">device.F90:83</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__memcpy_html"><div class="ttname"><a href="../../d6/dac/interfacedevice_1_1device__memcpy.html">device::device_memcpy</a></div><div class="ttdoc">Copy data between host and device (or device and device).</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00072">device.F90:72</a></div></div>
@@ -1865,9 +1869,9 @@ $(function(){initNavTree('d0/dd2/vector__bc__projector_8f90_source.html','../../
 <div class="ttc" id="anamespacevector__bc__projector_html_a10ff0f18db523e56c1346304ded12cff"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a10ff0f18db523e56c1346304ded12cff">vector_bc_projector::segregated_vector_bc_projector_init</a></div><div class="ttdeci">subroutine segregated_vector_bc_projector_init(this, coef)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00326">vector_bc_projector.f90:327</a></div></div>
 <div class="ttc" id="anamespacevector__bc__projector_html_a1a142c0ba1ee042b60c2f9d1ba0c67f0"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a1a142c0ba1ee042b60c2f9d1ba0c67f0">vector_bc_projector::vector_bc_projector_components</a></div><div class="ttdeci">subroutine, public vector_bc_projector_components(this, x, y, z)</div><div class="ttdoc">Access the component scalar projectors from a segregated vector projector.</div><div class="ttdef"><b>Definition</b> <a href="#l00439">vector_bc_projector.f90:440</a></div></div>
 <div class="ttc" id="anamespacevector__bc__projector_html_a2ef44aacb6afe1535283ec3cfa0fa74a"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a2ef44aacb6afe1535283ec3cfa0fa74a">vector_bc_projector::coupled_vector_bc_projector_clear_masks</a></div><div class="ttdeci">subroutine coupled_vector_bc_projector_clear_masks(this)</div><div class="ttdoc">Clear the resolved mask-side state of the coupled projector.</div><div class="ttdef"><b>Definition</b> <a href="#l00577">vector_bc_projector.f90:578</a></div></div>
-<div class="ttc" id="anamespacevector__bc__projector_html_a52b3875526b0c387adb13abba5a33511"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511">vector_bc_projector::coupled_vector_bc_projector_debug_output</a></div><div class="ttdeci">subroutine coupled_vector_bc_projector_debug_output(this, field_name)</div><div class="ttdoc">Write fields showing the coupled projector mask and basis.</div><div class="ttdef"><b>Definition</b> <a href="#l01422">vector_bc_projector.f90:1423</a></div></div>
+<div class="ttc" id="anamespacevector__bc__projector_html_a52b3875526b0c387adb13abba5a33511"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a52b3875526b0c387adb13abba5a33511">vector_bc_projector::coupled_vector_bc_projector_debug_output</a></div><div class="ttdeci">subroutine coupled_vector_bc_projector_debug_output(this, field_name)</div><div class="ttdoc">Write fields showing the coupled projector mask and basis.</div><div class="ttdef"><b>Definition</b> <a href="#l01426">vector_bc_projector.f90:1427</a></div></div>
 <div class="ttc" id="anamespacevector__bc__projector_html_a5453e00a463042510055e4ff55f114ae"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a5453e00a463042510055e4ff55f114ae">vector_bc_projector::coupled_vector_bc_projector_apply</a></div><div class="ttdeci">subroutine coupled_vector_bc_projector_apply(this, x, y, z, n, strm)</div><div class="ttdoc">Apply homogeneous boundary constraints in the local basis.</div><div class="ttdef"><b>Definition</b> <a href="#l01330">vector_bc_projector.f90:1331</a></div></div>
-<div class="ttc" id="anamespacevector__bc__projector_html_a54de387e17a3143efbcb2c8a7000315e"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a54de387e17a3143efbcb2c8a7000315e">vector_bc_projector::coupled_vector_bc_projector_debug_output_normal_component</a></div><div class="ttdeci">subroutine coupled_vector_bc_projector_debug_output_normal_component(this, x, y, z, n, field_name)</div><div class="ttdoc">Write scalar fields with the normal component u.n on mixed BC nodes.</div><div class="ttdef"><b>Definition</b> <a href="#l01518">vector_bc_projector.f90:1520</a></div></div>
+<div class="ttc" id="anamespacevector__bc__projector_html_a54de387e17a3143efbcb2c8a7000315e"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a54de387e17a3143efbcb2c8a7000315e">vector_bc_projector::coupled_vector_bc_projector_debug_output_normal_component</a></div><div class="ttdeci">subroutine coupled_vector_bc_projector_debug_output_normal_component(this, x, y, z, n, field_name)</div><div class="ttdoc">Write scalar fields with the normal component u.n on mixed BC nodes.</div><div class="ttdef"><b>Definition</b> <a href="#l01522">vector_bc_projector.f90:1524</a></div></div>
 <div class="ttc" id="anamespacevector__bc__projector_html_a58c707c25e73fe72ddba6be1e481b5f8"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a58c707c25e73fe72ddba6be1e481b5f8">vector_bc_projector::segregated_vector_bc_projector_free</a></div><div class="ttdeci">subroutine segregated_vector_bc_projector_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00317">vector_bc_projector.f90:318</a></div></div>
 <div class="ttc" id="anamespacevector__bc__projector_html_a724a8edaa09d7a7c36cbbaf42a28744a"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a724a8edaa09d7a7c36cbbaf42a28744a">vector_bc_projector::segregated_vector_bc_projector_mark_bc</a></div><div class="ttdeci">subroutine segregated_vector_bc_projector_mark_bc(this, bc)</div><div class="ttdoc">Mark a boundary condition in the segregated projector.</div><div class="ttdef"><b>Definition</b> <a href="#l00344">vector_bc_projector.f90:345</a></div></div>
 <div class="ttc" id="anamespacevector__bc__projector_html_a9b2f5725c5cea5f2b87f3b640716d891"><div class="ttname"><a href="../../d6/dcb/namespacevector__bc__projector.html#a9b2f5725c5cea5f2b87f3b640716d891">vector_bc_projector::coupled_vector_bc_projector_clear_basis</a></div><div class="ttdeci">subroutine coupled_vector_bc_projector_clear_basis(this)</div><div class="ttdoc">Clear the resolved basis-side state of the coupled projector.</div><div class="ttdef"><b>Definition</b> <a href="#l00613">vector_bc_projector.f90:614</a></div></div>

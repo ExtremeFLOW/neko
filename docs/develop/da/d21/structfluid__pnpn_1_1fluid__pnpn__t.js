@@ -1,5 +1,6 @@
 var structfluid__pnpn_1_1fluid__pnpn__t =
 [
+    [ "assemble_rhs", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aa718ba149fbf0bc7e30221a6d6b581f6", null ],
     [ "bc_apply_prs", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a114deae587167f7283d188ebfdcec927", null ],
     [ "bc_apply_vel", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a4a726a97d5381fbd304391e778a0801c", null ],
     [ "compute_cfl", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a37f4164f756483b936243df0c43f04ba", null ],
@@ -10,6 +11,7 @@ var structfluid__pnpn_1_1fluid__pnpn__t =
     [ "init", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#af987ca36fb46b1404cfa5315f0a17ba3", null ],
     [ "init_base", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a005e98b98cac8df8bb54c6dc290fe44b", null ],
     [ "precon_factory_", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a61564cb9b5f4efc560be17a3a53a3deb", null ],
+    [ "recompute_metrics", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a93c8e7f22c8d27c8cd6b63a10e3fe3ac", null ],
     [ "restart", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a0105a346180326e97d09a9b109a11bfa", null ],
     [ "restart", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#afb9ac5dbab8430bc3e9e842d06e8fc89", null ],
     [ "scheme_free", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aae65ac3ca82fb48d9504697dd39e7c4f", null ],
@@ -21,11 +23,13 @@ var structfluid__pnpn_1_1fluid__pnpn__t =
     [ "set_user_initial_condition", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a0d8812bdf496a9484a577413b10265f5", null ],
     [ "setup_bcs", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aa22e0f35e436b1b0dc72eb451bc50a91", null ],
     [ "setup_bcs", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a02c94cc170dc5687e74155f3ab84e3f2", null ],
+    [ "solve", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#aeea32e76791c074f28f787a943bd07b8", null ],
     [ "solver_factory", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a987a7af2d532fda6cfe6fa9ba42a3a32", null ],
     [ "step", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a37c0f37d771e03caa13bf6f918a595b1", null ],
     [ "step", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#ab7d759e5176f779e4bd1d60b8e6d03fc", null ],
     [ "update_material_properties", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a11d1439624b61e927f1cfd7478496e3f", null ],
     [ "update_material_properties", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a11537d3e071107627c4c166ef5d647c5", null ],
+    [ "update_velocity_lags", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#abda9365d8ff280eff1a5e8a7d3408bcc", null ],
     [ "validate", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a5142fdbd177359a4b8aa17f97825dc79", null ],
     [ "validate", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#a48d4aac803805c4e3427a186dc457120", null ],
     [ "write_boundary_conditions", "da/d21/structfluid__pnpn_1_1fluid__pnpn__t.html#ade34898f6985041969019685f65a1cdf", null ],

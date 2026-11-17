@@ -132,7 +132,7 @@ $(function(){initNavTree('d4/dda/adv__oifs_8f90_source.html','../../',''); });
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d5/d0d/namespacespace.html">space</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../da/d99/structspace_1_1space__t.html">space_t</a>, <a class="code hl_variable" href="../../d5/d0d/namespacespace.html#af3a3b77d2af96ed2ef14c8ad311c6ce5">gl</a></div>
 <div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dc/da9/namespacefield.html">field</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a></div>
 <div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d6/dbe/namespacecoefs.html">coefs</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d47/namespacemath.html">math</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">copy</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">rzero</a>, <a class="code hl_function" href="../../dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">addcol3s2</a></div>
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../dd/d30/namespaceoperators.html">operators</a>, <span class="keywordtype">only</span> : <a class="code hl_function" href="../../dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da">runge_kutta</a>, <a class="code hl_function" href="../../dd/d30/namespaceoperators.html#a0b1759aebe89495e5ee40574e50e3e21">set_convect_rst</a></div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/d77/namespaceneko__config.html">neko_config</a>, <span class="keywordtype">only</span> : <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a>, <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#a13c7db96ad80fa8aa04f81574ebd39db">neko_bcknd_sx</a>, <a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#add791e211e40d85e93174767b4679294">neko_bcknd_xsmm</a></div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>  <span class="keywordtype">use </span><a class="code hl_namespace" href="../../d9/da0/namespaceinterpolation.html">interpolation</a>, <span class="keywordtype">only</span> : <a class="code hl_struct" href="../../db/d74/structinterpolation_1_1interpolator__t.html">interpolator_t</a></div>
@@ -564,7 +564,7 @@ $(function(){initNavTree('d4/dda/adv__oifs_8f90_source.html','../../',''); });
 <div class="line"><a id="l00452" name="l00452"></a><span class="lineno">  452</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
 <div class="line"><a id="l00453" name="l00453"></a><span class="lineno">  453</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#ae2be59b6de7b874ce5c12fd87f9e8b5e">rp</a>), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: dt</div>
 <div class="line"><a id="l00454" name="l00454"></a><span class="lineno">  454</span><span class="keywordtype">    real</span>(kind=<a class="code hl_variable" href="../../df/d48/namespacenum__types.html#aab47a6c4827cb5c6bbd741a44c87e956">dp</a>) :: tau, tau1, th, dtau</div>
-<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>    <span class="keywordtype">integer</span> :: i, ilag, itau, nel, n_GL</div>
+<div class="line"><a id="l00455" name="l00455"></a><span class="lineno">  455</span>    <span class="keywordtype">integer</span> :: ilag, itau, nel, n_GL</div>
 <div class="line"><a id="l00456" name="l00456"></a><span class="lineno">  456</span> </div>
 <div class="line"><a id="l00457" name="l00457"></a><span class="lineno">  457</span>    nel = coef%msh%nelv</div>
 <div class="line"><a id="l00458" name="l00458"></a><span class="lineno">  458</span>    n_gl = nel * this%Xh_GL%lxyz</div>
@@ -615,198 +615,179 @@ $(function(){initNavTree('d4/dda/adv__oifs_8f90_source.html','../../',''); });
 <div class="line"><a id="l00503" name="l00503"></a><span class="lineno">  503</span><span class="keywordflow">            end if</span></div>
 <div class="line"><a id="l00504" name="l00504"></a><span class="lineno">  504</span>         <span class="keywordflow">else</span></div>
 <div class="line"><a id="l00505" name="l00505"></a><span class="lineno">  505</span>            <span class="keywordflow">if</span> (ilag .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>               <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>                  fx%x(i,1,1,1) = fx%x(i,1,1,1) + &amp;</div>
-<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>                       oifs_scheme%diffusion_coeffs%x(2) &amp;</div>
-<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span>                       * vx%x(i,1,1,1) * coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span>                  fy%x(i,1,1,1) = fy%x(i,1,1,1) + &amp;</div>
-<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>                       oifs_scheme%diffusion_coeffs%x(2) &amp;</div>
-<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>                       * vy%x(i,1,1,1) * coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>                  fz%x(i,1,1,1) = fz%x(i,1,1,1) + &amp;</div>
-<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>                       oifs_scheme%diffusion_coeffs%x(2) &amp;</div>
-<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>                       * vz%x(i,1,1,1) * coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span><span class="keywordflow">               end do</span></div>
-<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>            <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>               <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span>                  fx%x(i,1,1,1) = fx%x(i,1,1,1) + &amp;</div>
-<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span>                       oifs_scheme%diffusion_coeffs%x(ilag+1) &amp;</div>
-<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>                       * ulag%lf(ilag-1)%x(i,1,1,1) &amp;</div>
-<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>                       * coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>                  fy%x(i,1,1,1) = fy%x(i,1,1,1) + &amp;</div>
-<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>                       oifs_scheme%diffusion_coeffs%x(ilag+1) &amp;</div>
-<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>                       * vlag%lf(ilag-1)%x(i,1,1,1) &amp;</div>
-<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>                       * coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>                  fz%x(i,1,1,1) = fz%x(i,1,1,1) + &amp;</div>
-<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>                       oifs_scheme%diffusion_coeffs%x(ilag+1) &amp;</div>
-<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>                       * wlag%lf(ilag-1)%x(i,1,1,1) &amp;</div>
-<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>                       * coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span><span class="keywordflow">               end do</span></div>
-<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span><span class="keywordflow">            end if</span></div>
-<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>         dtau = dctlag(ilag)/<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(ntaubd)</div>
-<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>         <span class="keywordflow">do</span> itau = 1, ntaubd</div>
-<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>            th = tau + dtau/2.</div>
-<div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>            tau1 = tau + dtau</div>
-<div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, cr_k1, convr_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, cs_k1, convs_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, ct_k1, convt_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, cr_k23, convr_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, cs_k23, convs_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, ct_k23, convt_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, cr_k4, convr_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, cs_k4, convs_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, ct_k4, convt_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da">runge_kutta</a>(fx, conv_k1, conv_k23, conv_k4, xh, xh_gl, &amp;</div>
-<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span>                 coef, coef_gl, gll_to_gl, tau, dtau, &amp;</div>
-<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>                 n, nel, n_gl)</div>
-<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da">runge_kutta</a>(fy, conv_k1, conv_k23, conv_k4, xh, xh_gl, &amp;</div>
-<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span>                 coef, coef_gl, gll_to_gl, tau, dtau, &amp;</div>
-<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span>                 n, nel, n_gl)</div>
-<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da">runge_kutta</a>(fz, conv_k1, conv_k23, conv_k4, xh, xh_gl, &amp;</div>
-<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span>                 coef, coef_gl, gll_to_gl, tau, dtau, &amp;</div>
-<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span>                 n, nel, n_gl)</div>
-<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span>            tau = tau1</div>
-<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span> </div>
-<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span> </div>
+<div class="line"><a id="l00506" name="l00506"></a><span class="lineno">  506</span>               <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">addcol3s2</a>(fx%x, vx%x, coef%B, &amp;</div>
+<div class="line"><a id="l00507" name="l00507"></a><span class="lineno">  507</span>                    oifs_scheme%diffusion_coeffs%x(2), n)</div>
+<div class="line"><a id="l00508" name="l00508"></a><span class="lineno">  508</span>               <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">addcol3s2</a>(fy%x, vy%x, coef%B, &amp;</div>
+<div class="line"><a id="l00509" name="l00509"></a><span class="lineno">  509</span>                    oifs_scheme%diffusion_coeffs%x(2), n)</div>
+<div class="line"><a id="l00510" name="l00510"></a><span class="lineno">  510</span>               <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">addcol3s2</a>(fz%x, vz%x, coef%B, &amp;</div>
+<div class="line"><a id="l00511" name="l00511"></a><span class="lineno">  511</span>                    oifs_scheme%diffusion_coeffs%x(2), n)</div>
+<div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>            <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span>               <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">addcol3s2</a>(fx%x, ulag%lf(ilag-1)%x, coef%B, &amp;</div>
+<div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)</div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>               <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">addcol3s2</a>(fy%x, vlag%lf(ilag-1)%x, coef%B, &amp;</div>
+<div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span>                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)</div>
+<div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>               <span class="keyword">call </span><a class="code hl_function" href="../../dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">addcol3s2</a>(fz%x, wlag%lf(ilag-1)%x, coef%B, &amp;</div>
+<div class="line"><a id="l00518" name="l00518"></a><span class="lineno">  518</span>                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)</div>
+<div class="line"><a id="l00519" name="l00519"></a><span class="lineno">  519</span><span class="keywordflow">            end if</span></div>
+<div class="line"><a id="l00520" name="l00520"></a><span class="lineno">  520</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00521" name="l00521"></a><span class="lineno">  521</span>         dtau = dctlag(ilag)/<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(ntaubd)</div>
+<div class="line"><a id="l00522" name="l00522"></a><span class="lineno">  522</span>         <span class="keywordflow">do</span> itau = 1, ntaubd</div>
+<div class="line"><a id="l00523" name="l00523"></a><span class="lineno">  523</span>            th = tau + dtau/2.</div>
+<div class="line"><a id="l00524" name="l00524"></a><span class="lineno">  524</span>            tau1 = tau + dtau</div>
+<div class="line"><a id="l00525" name="l00525"></a><span class="lineno">  525</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, cr_k1, convr_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00526" name="l00526"></a><span class="lineno">  526</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, cs_k1, convs_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00527" name="l00527"></a><span class="lineno">  527</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, ct_k1, convt_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00528" name="l00528"></a><span class="lineno">  528</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, cr_k23, convr_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00529" name="l00529"></a><span class="lineno">  529</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, cs_k23, convs_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00530" name="l00530"></a><span class="lineno">  530</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, ct_k23, convt_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00531" name="l00531"></a><span class="lineno">  531</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, cr_k4, convr_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00532" name="l00532"></a><span class="lineno">  532</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, cs_k4, convs_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00533" name="l00533"></a><span class="lineno">  533</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, ct_k4, convt_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00534" name="l00534"></a><span class="lineno">  534</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da">runge_kutta</a>(fx, conv_k1, conv_k23, conv_k4, xh, xh_gl, &amp;</div>
+<div class="line"><a id="l00535" name="l00535"></a><span class="lineno">  535</span>                 coef, coef_gl, gll_to_gl, tau, dtau, &amp;</div>
+<div class="line"><a id="l00536" name="l00536"></a><span class="lineno">  536</span>                 n, nel, n_gl)</div>
+<div class="line"><a id="l00537" name="l00537"></a><span class="lineno">  537</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da">runge_kutta</a>(fy, conv_k1, conv_k23, conv_k4, xh, xh_gl, &amp;</div>
+<div class="line"><a id="l00538" name="l00538"></a><span class="lineno">  538</span>                 coef, coef_gl, gll_to_gl, tau, dtau, &amp;</div>
+<div class="line"><a id="l00539" name="l00539"></a><span class="lineno">  539</span>                 n, nel, n_gl)</div>
+<div class="line"><a id="l00540" name="l00540"></a><span class="lineno">  540</span>            <span class="keyword">call </span><a class="code hl_function" href="../../dd/d30/namespaceoperators.html#af34806c82391877b1cfcc36bddaf16da">runge_kutta</a>(fz, conv_k1, conv_k23, conv_k4, xh, xh_gl, &amp;</div>
+<div class="line"><a id="l00541" name="l00541"></a><span class="lineno">  541</span>                 coef, coef_gl, gll_to_gl, tau, dtau, &amp;</div>
+<div class="line"><a id="l00542" name="l00542"></a><span class="lineno">  542</span>                 n, nel, n_gl)</div>
+<div class="line"><a id="l00543" name="l00543"></a><span class="lineno">  543</span>            tau = tau1</div>
+<div class="line"><a id="l00544" name="l00544"></a><span class="lineno">  544</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00545" name="l00545"></a><span class="lineno">  545</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00546" name="l00546"></a><span class="lineno">  546</span> </div>
+<div class="line"><a id="l00547" name="l00547"></a><span class="lineno">  547</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00548" name="l00548"></a><span class="lineno">  548</span> </div>
 </div>
-<div class="line"><a id="l00562" name="l00562"></a><span class="lineno">  562</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732">adv_oifs_compute</a><span class="comment"></span></div>
-<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span><span class="comment">  !&gt; Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the</span></div>
-<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span><span class="comment">  !! RHS.</span></div>
-<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span><span class="comment">  !! @param this The object.</span></div>
-<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span><span class="comment">  !! @param vx The x component of velocity.</span></div>
-<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span><span class="comment">  !! @param vy The y component of velocity.</span></div>
-<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span><span class="comment">  !! @param vz The z component of velocity.</span></div>
-<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span><span class="comment">  !! @param s The scalar.</span></div>
-<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span><span class="comment">  !! @param fs The source term.</span></div>
-<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span><span class="comment">  !! @param Xh The function space.</span></div>
-<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span><span class="comment">  !! @param coef The coefficients of the (Xh, mesh) pair.</span></div>
-<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span><span class="comment">  !! @param n Typically the size of the mesh.</span></div>
-<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span><span class="comment">  !! @param dt Current time-step.</span></div>
-<div class="foldopen" id="foldopen00575" data-start="" data-end="">
-<div class="line"><a id="l00575" name="l00575"></a><span class="lineno"><a class="line" href="../../dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">  575</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">adv_oifs_compute_scalar</a>(this, vx, vy, vz, s, fs, Xh, coef, n, dt)</div>
-<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>    <span class="keywordtype">implicit none</span></div>
-<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
-<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: fs</div>
-<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: s</div>
-<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>    <span class="keywordtype">type</span>(space_t), <span class="keywordtype">intent(in)</span> :: Xh</div>
-<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: dt</div>
-<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span> </div>
-<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span><span class="keywordtype">    real</span>(kind=dp) :: tau, tau1, th, dtau</div>
-<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>    <span class="keywordtype">integer</span> :: i, ilag, itau, nel, n_GL</div>
-<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span>    nel = coef%msh%nelv</div>
-<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>    n_gl = nel * this%Xh_GL%lxyz</div>
+<div class="line"><a id="l00549" name="l00549"></a><span class="lineno">  549</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732">adv_oifs_compute</a><span class="comment"></span></div>
+<div class="line"><a id="l00550" name="l00550"></a><span class="lineno">  550</span><span class="comment">  !&gt; Add the advection term for a scalar, i.e. \f$u \cdot \nabla s \f$, to the</span></div>
+<div class="line"><a id="l00551" name="l00551"></a><span class="lineno">  551</span><span class="comment">  !! RHS.</span></div>
+<div class="line"><a id="l00552" name="l00552"></a><span class="lineno">  552</span><span class="comment">  !! @param this The object.</span></div>
+<div class="line"><a id="l00553" name="l00553"></a><span class="lineno">  553</span><span class="comment">  !! @param vx The x component of velocity.</span></div>
+<div class="line"><a id="l00554" name="l00554"></a><span class="lineno">  554</span><span class="comment">  !! @param vy The y component of velocity.</span></div>
+<div class="line"><a id="l00555" name="l00555"></a><span class="lineno">  555</span><span class="comment">  !! @param vz The z component of velocity.</span></div>
+<div class="line"><a id="l00556" name="l00556"></a><span class="lineno">  556</span><span class="comment">  !! @param s The scalar.</span></div>
+<div class="line"><a id="l00557" name="l00557"></a><span class="lineno">  557</span><span class="comment">  !! @param fs The source term.</span></div>
+<div class="line"><a id="l00558" name="l00558"></a><span class="lineno">  558</span><span class="comment">  !! @param Xh The function space.</span></div>
+<div class="line"><a id="l00559" name="l00559"></a><span class="lineno">  559</span><span class="comment">  !! @param coef The coefficients of the (Xh, mesh) pair.</span></div>
+<div class="line"><a id="l00560" name="l00560"></a><span class="lineno">  560</span><span class="comment">  !! @param n Typically the size of the mesh.</span></div>
+<div class="line"><a id="l00561" name="l00561"></a><span class="lineno">  561</span><span class="comment">  !! @param dt Current time-step.</span></div>
+<div class="foldopen" id="foldopen00562" data-start="" data-end="">
+<div class="line"><a id="l00562" name="l00562"></a><span class="lineno"><a class="line" href="../../dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">  562</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">adv_oifs_compute_scalar</a>(this, vx, vy, vz, s, fs, Xh, coef, n, dt)</div>
+<div class="line"><a id="l00563" name="l00563"></a><span class="lineno">  563</span>    <span class="keywordtype">implicit none</span></div>
+<div class="line"><a id="l00564" name="l00564"></a><span class="lineno">  564</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00565" name="l00565"></a><span class="lineno">  565</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
+<div class="line"><a id="l00566" name="l00566"></a><span class="lineno">  566</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: fs</div>
+<div class="line"><a id="l00567" name="l00567"></a><span class="lineno">  567</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: s</div>
+<div class="line"><a id="l00568" name="l00568"></a><span class="lineno">  568</span>    <span class="keywordtype">type</span>(space_t), <span class="keywordtype">intent(in)</span> :: Xh</div>
+<div class="line"><a id="l00569" name="l00569"></a><span class="lineno">  569</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00570" name="l00570"></a><span class="lineno">  570</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00571" name="l00571"></a><span class="lineno">  571</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: dt</div>
+<div class="line"><a id="l00572" name="l00572"></a><span class="lineno">  572</span> </div>
+<div class="line"><a id="l00573" name="l00573"></a><span class="lineno">  573</span><span class="keywordtype">    real</span>(kind=dp) :: tau, tau1, th, dtau</div>
+<div class="line"><a id="l00574" name="l00574"></a><span class="lineno">  574</span>    <span class="keywordtype">integer</span> :: ilag, itau, nel, n_GL</div>
+<div class="line"><a id="l00575" name="l00575"></a><span class="lineno">  575</span>    nel = coef%msh%nelv</div>
+<div class="line"><a id="l00576" name="l00576"></a><span class="lineno">  576</span>    n_gl = nel * this%Xh_GL%lxyz</div>
+<div class="line"><a id="l00577" name="l00577"></a><span class="lineno">  577</span> </div>
+<div class="line"><a id="l00578" name="l00578"></a><span class="lineno">  578</span>    associate(slag =&gt; this%slag, ctlag =&gt; this%ctlag, dctlag =&gt; this%dctlag, &amp;</div>
+<div class="line"><a id="l00579" name="l00579"></a><span class="lineno">  579</span>         dtime =&gt; this%dtime, xh_gl =&gt; this%Xh_GL, coef_gl =&gt; this%coef_GL, &amp;</div>
+<div class="line"><a id="l00580" name="l00580"></a><span class="lineno">  580</span>         ntaubd =&gt; this%ntaubd, gll_to_gl =&gt; this%GLL_to_GL, &amp;</div>
+<div class="line"><a id="l00581" name="l00581"></a><span class="lineno">  581</span>         oifs_scheme =&gt; this%oifs_scheme, cr_k1 =&gt; this%cr_K1, &amp;</div>
+<div class="line"><a id="l00582" name="l00582"></a><span class="lineno">  582</span>         cs_k1 =&gt; this%cs_K1, ct_k1 =&gt; this%ct_K1, cr_k23 =&gt; this%cr_K23, &amp;</div>
+<div class="line"><a id="l00583" name="l00583"></a><span class="lineno">  583</span>         cs_k23 =&gt; this%cs_K23, ct_k23 =&gt; this%ct_K23, cr_k4 =&gt; this%cr_K4, &amp;</div>
+<div class="line"><a id="l00584" name="l00584"></a><span class="lineno">  584</span>         cs_k4 =&gt; this%cs_K4, ct_k4 =&gt; this%ct_K4, &amp;</div>
+<div class="line"><a id="l00585" name="l00585"></a><span class="lineno">  585</span>         convr_gl =&gt; this%convr_GL, convs_gl =&gt; this%convs_GL, &amp;</div>
+<div class="line"><a id="l00586" name="l00586"></a><span class="lineno">  586</span>         convt_gl =&gt; this%convt_GL, conv_k1 =&gt; this%conv_k1, &amp;</div>
+<div class="line"><a id="l00587" name="l00587"></a><span class="lineno">  587</span>         conv_k23 =&gt; this%conv_k23, conv_k4 =&gt; this%conv_k4)</div>
+<div class="line"><a id="l00588" name="l00588"></a><span class="lineno">  588</span> </div>
+<div class="line"><a id="l00589" name="l00589"></a><span class="lineno">  589</span>      <span class="keyword">call </span>dtime%init(oifs_scheme%ndiff)</div>
 <div class="line"><a id="l00590" name="l00590"></a><span class="lineno">  590</span> </div>
-<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>    associate(slag =&gt; this%slag, ctlag =&gt; this%ctlag, dctlag =&gt; this%dctlag, &amp;</div>
-<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span>         dtime =&gt; this%dtime, xh_gl =&gt; this%Xh_GL, coef_gl =&gt; this%coef_GL, &amp;</div>
-<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>         ntaubd =&gt; this%ntaubd, gll_to_gl =&gt; this%GLL_to_GL, &amp;</div>
-<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span>         oifs_scheme =&gt; this%oifs_scheme, cr_k1 =&gt; this%cr_K1, &amp;</div>
-<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>         cs_k1 =&gt; this%cs_K1, ct_k1 =&gt; this%ct_K1, cr_k23 =&gt; this%cr_K23, &amp;</div>
-<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>         cs_k23 =&gt; this%cs_K23, ct_k23 =&gt; this%ct_K23, cr_k4 =&gt; this%cr_K4, &amp;</div>
-<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>         cs_k4 =&gt; this%cs_K4, ct_k4 =&gt; this%ct_K4, &amp;</div>
-<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>         convr_gl =&gt; this%convr_GL, convs_gl =&gt; this%convs_GL, &amp;</div>
-<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span>         convt_gl =&gt; this%convt_GL, conv_k1 =&gt; this%conv_k1, &amp;</div>
-<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span>         conv_k23 =&gt; this%conv_k23, conv_k4 =&gt; this%conv_k4)</div>
-<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span> </div>
-<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>      <span class="keyword">call </span>dtime%init(oifs_scheme%ndiff)</div>
-<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span> </div>
-<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>      tau = ctlag(oifs_scheme%ndiff)</div>
-<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span> </div>
-<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>      <span class="keyword">call </span>this%set_conv_velocity_fst(vx, vy, vz)</div>
-<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span> </div>
-<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span>         <span class="keyword">call </span>device_rzero(fs%x_d,n)</div>
-<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>      <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>         <span class="keyword">call </span>rzero(fs%x,n)</div>
-<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span><span class="keywordflow">      end if</span></div>
-<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span> </div>
-<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>      <span class="keywordflow">do</span> ilag = oifs_scheme%ndiff, 1, -1</div>
-<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>         <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>            <span class="keywordflow">if</span> (ilag .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span>               <span class="keyword">call </span>device_addcol3s2(fs%x_d, s%x_d, coef%B_d, &amp;</div>
-<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span>                    oifs_scheme%diffusion_coeffs%x(2), n)</div>
-<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>            <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>               <span class="keyword">call </span>device_addcol3s2(fs%x_d, slag%lf(ilag-1)%x_d, coef%B_d, &amp;</div>
-<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)</div>
-<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span><span class="keywordflow">            end if</span></div>
-<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>         <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>            <span class="keywordflow">if</span> (ilag .eq. 1) <span class="keywordflow">then</span></div>
-<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>               <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>                  fs%x(i,1,1,1) = fs%x(i,1,1,1) + &amp;</div>
-<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>                       oifs_scheme%diffusion_coeffs%x(2) &amp;</div>
-<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>                       * s%x(i,1,1,1) * coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span><span class="keywordflow">               end do</span></div>
-<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>            <span class="keywordflow">else</span></div>
-<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>               <span class="keywordflow">do</span> i = 1, n</div>
-<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>                  fs%x(i,1,1,1) = fs%x(i,1,1,1) + &amp;</div>
-<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>                       oifs_scheme%diffusion_coeffs%x(ilag+1) &amp;</div>
-<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>                       * slag%lf(ilag-1)%x(i,1,1,1) * coef%B(i,1,1,1)</div>
-<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span><span class="keywordflow">               end do</span></div>
-<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span><span class="keywordflow">            end if</span></div>
-<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span><span class="keywordflow">         end if</span></div>
-<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span>         dtau = dctlag(ilag)/<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(ntaubd)</div>
-<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>         <span class="keywordflow">do</span> itau = 1, ntaubd</div>
-<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span>            th = tau + dtau/2.</div>
-<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>            tau1 = tau + dtau</div>
-<div class="line"><a id="l00642" name="l00642"></a><span class="lineno">  642</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, cr_k1, convr_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, cs_k1, convs_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, ct_k1, convt_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, cr_k23, convr_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, cs_k23, convs_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, ct_k23, convt_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, cr_k4, convr_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, cs_k4, convs_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00650" name="l00650"></a><span class="lineno">  650</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, ct_k4, convt_gl, ctlag, n_gl)</div>
-<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>            <span class="keyword">call </span>runge_kutta(fs, conv_k1, conv_k23, conv_k4, xh, xh_gl, &amp;</div>
-<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>                 coef, coef_gl, gll_to_gl, tau, dtau, &amp;</div>
-<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>                 n, nel, n_gl)</div>
-<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>            tau = tau1</div>
-<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span><span class="keywordflow">         end do</span></div>
-<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span><span class="keywordflow">      end do</span></div>
-<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span> </div>
-<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span> </div>
+<div class="line"><a id="l00591" name="l00591"></a><span class="lineno">  591</span>      tau = ctlag(oifs_scheme%ndiff)</div>
+<div class="line"><a id="l00592" name="l00592"></a><span class="lineno">  592</span> </div>
+<div class="line"><a id="l00593" name="l00593"></a><span class="lineno">  593</span>      <span class="keyword">call </span>this%set_conv_velocity_fst(vx, vy, vz)</div>
+<div class="line"><a id="l00594" name="l00594"></a><span class="lineno">  594</span> </div>
+<div class="line"><a id="l00595" name="l00595"></a><span class="lineno">  595</span>      <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00596" name="l00596"></a><span class="lineno">  596</span>         <span class="keyword">call </span>device_rzero(fs%x_d,n)</div>
+<div class="line"><a id="l00597" name="l00597"></a><span class="lineno">  597</span>      <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00598" name="l00598"></a><span class="lineno">  598</span>         <span class="keyword">call </span>rzero(fs%x,n)</div>
+<div class="line"><a id="l00599" name="l00599"></a><span class="lineno">  599</span><span class="keywordflow">      end if</span></div>
+<div class="line"><a id="l00600" name="l00600"></a><span class="lineno">  600</span> </div>
+<div class="line"><a id="l00601" name="l00601"></a><span class="lineno">  601</span>      <span class="keywordflow">do</span> ilag = oifs_scheme%ndiff, 1, -1</div>
+<div class="line"><a id="l00602" name="l00602"></a><span class="lineno">  602</span>         <span class="keywordflow">if</span> (neko_bcknd_device .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00603" name="l00603"></a><span class="lineno">  603</span>            <span class="keywordflow">if</span> (ilag .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00604" name="l00604"></a><span class="lineno">  604</span>               <span class="keyword">call </span>device_addcol3s2(fs%x_d, s%x_d, coef%B_d, &amp;</div>
+<div class="line"><a id="l00605" name="l00605"></a><span class="lineno">  605</span>                    oifs_scheme%diffusion_coeffs%x(2), n)</div>
+<div class="line"><a id="l00606" name="l00606"></a><span class="lineno">  606</span>            <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00607" name="l00607"></a><span class="lineno">  607</span>               <span class="keyword">call </span>device_addcol3s2(fs%x_d, slag%lf(ilag-1)%x_d, coef%B_d, &amp;</div>
+<div class="line"><a id="l00608" name="l00608"></a><span class="lineno">  608</span>                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)</div>
+<div class="line"><a id="l00609" name="l00609"></a><span class="lineno">  609</span><span class="keywordflow">            end if</span></div>
+<div class="line"><a id="l00610" name="l00610"></a><span class="lineno">  610</span>         <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00611" name="l00611"></a><span class="lineno">  611</span>            <span class="keywordflow">if</span> (ilag .eq. 1) <span class="keywordflow">then</span></div>
+<div class="line"><a id="l00612" name="l00612"></a><span class="lineno">  612</span>               <span class="keyword">call </span>addcol3s2(fs%x, s%x, coef%B, &amp;</div>
+<div class="line"><a id="l00613" name="l00613"></a><span class="lineno">  613</span>                    oifs_scheme%diffusion_coeffs%x(2), n)</div>
+<div class="line"><a id="l00614" name="l00614"></a><span class="lineno">  614</span>            <span class="keywordflow">else</span></div>
+<div class="line"><a id="l00615" name="l00615"></a><span class="lineno">  615</span>               <span class="keyword">call </span>addcol3s2(fs%x, slag%lf(ilag-1)%x, coef%B, &amp;</div>
+<div class="line"><a id="l00616" name="l00616"></a><span class="lineno">  616</span>                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)</div>
+<div class="line"><a id="l00617" name="l00617"></a><span class="lineno">  617</span><span class="keywordflow">            end if</span></div>
+<div class="line"><a id="l00618" name="l00618"></a><span class="lineno">  618</span><span class="keywordflow">         end if</span></div>
+<div class="line"><a id="l00619" name="l00619"></a><span class="lineno">  619</span>         dtau = dctlag(ilag)/<a class="code hl_typedef" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(ntaubd)</div>
+<div class="line"><a id="l00620" name="l00620"></a><span class="lineno">  620</span>         <span class="keywordflow">do</span> itau = 1, ntaubd</div>
+<div class="line"><a id="l00621" name="l00621"></a><span class="lineno">  621</span>            th = tau + dtau/2.</div>
+<div class="line"><a id="l00622" name="l00622"></a><span class="lineno">  622</span>            tau1 = tau + dtau</div>
+<div class="line"><a id="l00623" name="l00623"></a><span class="lineno">  623</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, cr_k1, convr_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00624" name="l00624"></a><span class="lineno">  624</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, cs_k1, convs_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00625" name="l00625"></a><span class="lineno">  625</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau, ct_k1, convt_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00626" name="l00626"></a><span class="lineno">  626</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, cr_k23, convr_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00627" name="l00627"></a><span class="lineno">  627</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, cs_k23, convs_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00628" name="l00628"></a><span class="lineno">  628</span>            <span class="keyword">call </span>dtime%interpolate_scalar(th, ct_k23, convt_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00629" name="l00629"></a><span class="lineno">  629</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, cr_k4, convr_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00630" name="l00630"></a><span class="lineno">  630</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, cs_k4, convs_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00631" name="l00631"></a><span class="lineno">  631</span>            <span class="keyword">call </span>dtime%interpolate_scalar(tau1, ct_k4, convt_gl, ctlag, n_gl)</div>
+<div class="line"><a id="l00632" name="l00632"></a><span class="lineno">  632</span>            <span class="keyword">call </span>runge_kutta(fs, conv_k1, conv_k23, conv_k4, xh, xh_gl, &amp;</div>
+<div class="line"><a id="l00633" name="l00633"></a><span class="lineno">  633</span>                 coef, coef_gl, gll_to_gl, tau, dtau, &amp;</div>
+<div class="line"><a id="l00634" name="l00634"></a><span class="lineno">  634</span>                 n, nel, n_gl)</div>
+<div class="line"><a id="l00635" name="l00635"></a><span class="lineno">  635</span>            tau = tau1</div>
+<div class="line"><a id="l00636" name="l00636"></a><span class="lineno">  636</span><span class="keywordflow">         end do</span></div>
+<div class="line"><a id="l00637" name="l00637"></a><span class="lineno">  637</span><span class="keywordflow">      end do</span></div>
+<div class="line"><a id="l00638" name="l00638"></a><span class="lineno">  638</span> </div>
+<div class="line"><a id="l00639" name="l00639"></a><span class="lineno">  639</span>    <span class="keyword">end </span>associate</div>
+<div class="line"><a id="l00640" name="l00640"></a><span class="lineno">  640</span> </div>
 </div>
-<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">adv_oifs_compute_scalar</a></div>
-<div class="foldopen" id="foldopen00661" data-start="" data-end="">
-<div class="line"><a id="l00661" name="l00661"></a><span class="lineno"><a class="line" href="../../dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">  661</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">recompute_metrics_oifs</a>(this, coef, moving_boundary)</div>
-<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00663" name="l00663"></a><span class="lineno">  663</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00664" name="l00664"></a><span class="lineno">  664</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: moving_boundary</div>
-<div class="line"><a id="l00665" name="l00665"></a><span class="lineno">  665</span>    <span class="comment">! no-op</span></div>
+<div class="line"><a id="l00641" name="l00641"></a><span class="lineno">  641</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">adv_oifs_compute_scalar</a></div>
+<div class="foldopen" id="foldopen00642" data-start="" data-end="">
+<div class="line"><a id="l00642" name="l00642"></a><span class="lineno"><a class="line" href="../../dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">  642</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">recompute_metrics_oifs</a>(this, coef, moving_boundary)</div>
+<div class="line"><a id="l00643" name="l00643"></a><span class="lineno">  643</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00644" name="l00644"></a><span class="lineno">  644</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00645" name="l00645"></a><span class="lineno">  645</span>    <span class="keywordtype">logical</span>, <span class="keywordtype">intent(in)</span> :: moving_boundary</div>
+<div class="line"><a id="l00646" name="l00646"></a><span class="lineno">  646</span>    <span class="comment">! no-op</span></div>
 </div>
-<div class="line"><a id="l00666" name="l00666"></a><span class="lineno">  666</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">recompute_metrics_oifs</a></div>
-<div class="line"><a id="l00667" name="l00667"></a><span class="lineno">  667</span> </div>
-<div class="line"><a id="l00668" name="l00668"></a><span class="lineno">  668</span> </div>
-<div class="foldopen" id="foldopen00669" data-start="" data-end="">
-<div class="line"><a id="l00669" name="l00669"></a><span class="lineno"><a class="line" href="../../dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d">  669</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d">adv_oifs_compute_ale</a>(this, vx, vy, vz, wm_x, wm_y, wm_z, &amp;</div>
-<div class="line"><a id="l00670" name="l00670"></a><span class="lineno">  670</span>       fx, fy, fz, Xh, coef, n, dt)</div>
-<div class="line"><a id="l00671" name="l00671"></a><span class="lineno">  671</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
-<div class="line"><a id="l00672" name="l00672"></a><span class="lineno">  672</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
-<div class="line"><a id="l00673" name="l00673"></a><span class="lineno">  673</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: wm_x, wm_y, wm_z</div>
-<div class="line"><a id="l00674" name="l00674"></a><span class="lineno">  674</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: fx, fy, fz</div>
-<div class="line"><a id="l00675" name="l00675"></a><span class="lineno">  675</span>    <span class="keywordtype">type</span>(space_t), <span class="keywordtype">intent(in)</span> :: Xh</div>
-<div class="line"><a id="l00676" name="l00676"></a><span class="lineno">  676</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
-<div class="line"><a id="l00677" name="l00677"></a><span class="lineno">  677</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
-<div class="line"><a id="l00678" name="l00678"></a><span class="lineno">  678</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: dt</div>
-<div class="line"><a id="l00679" name="l00679"></a><span class="lineno">  679</span>    <span class="comment">! no-op</span></div>
+<div class="line"><a id="l00647" name="l00647"></a><span class="lineno">  647</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">recompute_metrics_oifs</a></div>
+<div class="line"><a id="l00648" name="l00648"></a><span class="lineno">  648</span> </div>
+<div class="line"><a id="l00649" name="l00649"></a><span class="lineno">  649</span> </div>
+<div class="foldopen" id="foldopen00650" data-start="" data-end="">
+<div class="line"><a id="l00650" name="l00650"></a><span class="lineno"><a class="line" href="../../dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d">  650</a></span>  <span class="keyword">subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d">adv_oifs_compute_ale</a>(this, vx, vy, vz, wm_x, wm_y, wm_z, &amp;</div>
+<div class="line"><a id="l00651" name="l00651"></a><span class="lineno">  651</span>       fx, fy, fz, Xh, coef, n, dt)</div>
+<div class="line"><a id="l00652" name="l00652"></a><span class="lineno">  652</span>    <span class="keywordtype">class</span>(<a class="code hl_struct" href="../../d0/d27/structadv__oifs_1_1adv__oifs__t.html">adv_oifs_t</a>), <span class="keywordtype">intent(inout)</span> :: this</div>
+<div class="line"><a id="l00653" name="l00653"></a><span class="lineno">  653</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: vx, vy, vz</div>
+<div class="line"><a id="l00654" name="l00654"></a><span class="lineno">  654</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: wm_x, wm_y, wm_z</div>
+<div class="line"><a id="l00655" name="l00655"></a><span class="lineno">  655</span>    <span class="keywordtype">type</span>(field_t), <span class="keywordtype">intent(inout)</span> :: fx, fy, fz</div>
+<div class="line"><a id="l00656" name="l00656"></a><span class="lineno">  656</span>    <span class="keywordtype">type</span>(space_t), <span class="keywordtype">intent(in)</span> :: Xh</div>
+<div class="line"><a id="l00657" name="l00657"></a><span class="lineno">  657</span>    <span class="keywordtype">type</span>(coef_t), <span class="keywordtype">intent(in)</span> :: coef</div>
+<div class="line"><a id="l00658" name="l00658"></a><span class="lineno">  658</span>    <span class="keywordtype">integer</span>, <span class="keywordtype">intent(in)</span> :: n</div>
+<div class="line"><a id="l00659" name="l00659"></a><span class="lineno">  659</span><span class="keywordtype">    real</span>(kind=rp), <span class="keywordtype">intent(in)</span>, <span class="keywordtype">optional</span> :: dt</div>
+<div class="line"><a id="l00660" name="l00660"></a><span class="lineno">  660</span>    <span class="comment">! no-op</span></div>
 </div>
-<div class="line"><a id="l00680" name="l00680"></a><span class="lineno">  680</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d">adv_oifs_compute_ale</a></div>
-<div class="line"><a id="l00681" name="l00681"></a><span class="lineno">  681</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d97/namespaceadv__oifs.html">adv_oifs</a></div>
+<div class="line"><a id="l00661" name="l00661"></a><span class="lineno">  661</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d">adv_oifs_compute_ale</a></div>
+<div class="line"><a id="l00662" name="l00662"></a><span class="lineno">  662</span><span class="keyword">end module </span><a class="code hl_namespace" href="../../dd/d97/namespaceadv__oifs.html">adv_oifs</a></div>
 <div class="ttc" id="adevice__config_8h_html_a11d147c64891830c9e79b3315b1b2e21"><div class="ttname"><a href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a></div><div class="ttdeci">double real</div><div class="ttdef"><b>Definition</b> <a href="../../d8/dc8/device__config_8h_source.html#l00012">device_config.h:12</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__map_html"><div class="ttname"><a href="../../da/db0/interfacedevice_1_1device__map.html">device::device_map</a></div><div class="ttdoc">Map a Fortran array to a device (allocate and associate).</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00083">device.F90:83</a></div></div>
 <div class="ttc" id="ainterfacedevice_1_1device__unmap_html"><div class="ttname"><a href="../../db/d56/interfacedevice_1_1device__unmap.html">device::device_unmap</a></div><div class="ttdoc">Unmap a Fortran array from a device (deassociate and free).</div><div class="ttdef"><b>Definition</b> <a href="../../d4/d2a/device_8F90_source.html#l00089">device.F90:89</a></div></div>
 <div class="ttc" id="anamespaceadv__oifs_html"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html">adv_oifs</a></div><div class="ttdoc">Subroutines to add advection terms to the RHS of a transport equation.</div><div class="ttdef"><b>Definition</b> <a href="#l00034">adv_oifs.f90:34</a></div></div>
-<div class="ttc" id="anamespaceadv__oifs_html_a1ccfb5e43ee2923b38a1a32540379f3a"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">adv_oifs::adv_oifs_compute_scalar</a></div><div class="ttdeci">subroutine adv_oifs_compute_scalar(this, vx, vy, vz, s, fs, xh, coef, n, dt)</div><div class="ttdoc">Add the advection term for a scalar, i.e. , to the RHS.</div><div class="ttdef"><b>Definition</b> <a href="#l00575">adv_oifs.f90:576</a></div></div>
+<div class="ttc" id="anamespaceadv__oifs_html_a1ccfb5e43ee2923b38a1a32540379f3a"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#a1ccfb5e43ee2923b38a1a32540379f3a">adv_oifs::adv_oifs_compute_scalar</a></div><div class="ttdeci">subroutine adv_oifs_compute_scalar(this, vx, vy, vz, s, fs, xh, coef, n, dt)</div><div class="ttdoc">Add the advection term for a scalar, i.e. , to the RHS.</div><div class="ttdef"><b>Definition</b> <a href="#l00562">adv_oifs.f90:563</a></div></div>
 <div class="ttc" id="anamespaceadv__oifs_html_a37bfdd2df96d4089b7576bab525e758b"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#a37bfdd2df96d4089b7576bab525e758b">adv_oifs::adv_oifs_restart</a></div><div class="ttdeci">subroutine adv_oifs_restart(this)</div><div class="ttdoc">Rebuild the convecting field series after a restart.</div><div class="ttdef"><b>Definition</b> <a href="#l00422">adv_oifs.f90:423</a></div></div>
-<div class="ttc" id="anamespaceadv__oifs_html_a5adba8362142924804a277c81ce0a45d"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d">adv_oifs::adv_oifs_compute_ale</a></div><div class="ttdeci">subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, fx, fy, fz, xh, coef, n, dt)</div><div class="ttdef"><b>Definition</b> <a href="#l00669">adv_oifs.f90:671</a></div></div>
+<div class="ttc" id="anamespaceadv__oifs_html_a5adba8362142924804a277c81ce0a45d"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#a5adba8362142924804a277c81ce0a45d">adv_oifs::adv_oifs_compute_ale</a></div><div class="ttdeci">subroutine adv_oifs_compute_ale(this, vx, vy, vz, wm_x, wm_y, wm_z, fx, fy, fz, xh, coef, n, dt)</div><div class="ttdef"><b>Definition</b> <a href="#l00650">adv_oifs.f90:652</a></div></div>
 <div class="ttc" id="anamespaceadv__oifs_html_a80799e22bf67ad6539d6b2420520e732"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#a80799e22bf67ad6539d6b2420520e732">adv_oifs::adv_oifs_compute</a></div><div class="ttdeci">subroutine adv_oifs_compute(this, vx, vy, vz, fx, fy, fz, xh, coef, n, dt)</div><div class="ttdoc">Add the advection term for the fluid, i.e. , to the RHS using the OIFS method.</div><div class="ttdef"><b>Definition</b> <a href="#l00445">adv_oifs.f90:446</a></div></div>
-<div class="ttc" id="anamespaceadv__oifs_html_ab312d6b1435ada7e69b1c277cc5089b2"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">adv_oifs::recompute_metrics_oifs</a></div><div class="ttdeci">subroutine recompute_metrics_oifs(this, coef, moving_boundary)</div><div class="ttdef"><b>Definition</b> <a href="#l00661">adv_oifs.f90:662</a></div></div>
+<div class="ttc" id="anamespaceadv__oifs_html_ab312d6b1435ada7e69b1c277cc5089b2"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#ab312d6b1435ada7e69b1c277cc5089b2">adv_oifs::recompute_metrics_oifs</a></div><div class="ttdeci">subroutine recompute_metrics_oifs(this, coef, moving_boundary)</div><div class="ttdef"><b>Definition</b> <a href="#l00642">adv_oifs.f90:643</a></div></div>
 <div class="ttc" id="anamespaceadv__oifs_html_abf88b9e745adde6b8cb80b4a00930cba"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#abf88b9e745adde6b8cb80b4a00930cba">adv_oifs::set_conv_velocity_fst</a></div><div class="ttdeci">subroutine set_conv_velocity_fst(this, u, v, w)</div><div class="ttdoc">Mapping the velocity fields to GL space and transforming them to the rst format.</div><div class="ttdef"><b>Definition</b> <a href="#l00391">adv_oifs.f90:392</a></div></div>
 <div class="ttc" id="anamespaceadv__oifs_html_ae09ccdb55142e86ed6fb78ca5d6a90b4"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#ae09ccdb55142e86ed6fb78ca5d6a90b4">adv_oifs::adv_oifs_init</a></div><div class="ttdeci">subroutine adv_oifs_init(this, lxd, coef, ctarget, ulag, vlag, wlag, dtlag, tlag, time_scheme, slag)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00136">adv_oifs.f90:138</a></div></div>
 <div class="ttc" id="anamespaceadv__oifs_html_af6833f87fe3310b13d5e5152d4cf1466"><div class="ttname"><a href="../../dd/d97/namespaceadv__oifs.html#af6833f87fe3310b13d5e5152d4cf1466">adv_oifs::adv_oifs_free</a></div><div class="ttdeci">subroutine adv_oifs_free(this)</div><div class="ttdoc">Destructor.</div><div class="ttdef"><b>Definition</b> <a href="#l00286">adv_oifs.f90:287</a></div></div>
@@ -821,6 +802,7 @@ $(function(){initNavTree('d4/dda/adv__oifs_8f90_source.html','../../',''); });
 <div class="ttc" id="anamespacefield_html"><div class="ttname"><a href="../../dc/da9/namespacefield.html">field</a></div><div class="ttdoc">Defines a field.</div><div class="ttdef"><b>Definition</b> <a href="../../d3/dc1/field_8f90_source.html#l00034">field.f90:34</a></div></div>
 <div class="ttc" id="anamespaceinterpolation_html"><div class="ttname"><a href="../../d9/da0/namespaceinterpolation.html">interpolation</a></div><div class="ttdoc">Routines to interpolate between different spaces.</div><div class="ttdef"><b>Definition</b> <a href="../../da/dbb/interpolation_8f90_source.html#l00034">interpolation.f90:34</a></div></div>
 <div class="ttc" id="anamespacemath_html"><div class="ttname"><a href="../../dd/d47/namespacemath.html">math</a></div><div class="ttdef"><b>Definition</b> <a href="../../d6/dc0/math_8F90_source.html#l00060">math.F90:60</a></div></div>
+<div class="ttc" id="anamespacemath_html_a2b7e2d2411f2e7a0ddce6ff916d48ed6"><div class="ttname"><a href="../../dd/d47/namespacemath.html#a2b7e2d2411f2e7a0ddce6ff916d48ed6">math::addcol3s2</a></div><div class="ttdeci">subroutine, public addcol3s2(a, b, c, s, n)</div><div class="ttdoc">Returns .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dc0/math_8F90_source.html#l01245">math.F90:1246</a></div></div>
 <div class="ttc" id="anamespacemath_html_aaa9e139d5611c1df894a7e88d240f602"><div class="ttname"><a href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602">math::copy</a></div><div class="ttdeci">subroutine, public copy(a, b, n)</div><div class="ttdoc">Copy a vector .</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dc0/math_8F90_source.html#l00304">math.F90:305</a></div></div>
 <div class="ttc" id="anamespacemath_html_accd3b06fc22b453552cc46d0fbf80677"><div class="ttname"><a href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677">math::rzero</a></div><div class="ttdeci">subroutine, public rzero(a, n)</div><div class="ttdoc">Zero a real vector.</div><div class="ttdef"><b>Definition</b> <a href="../../d6/dc0/math_8F90_source.html#l00248">math.F90:249</a></div></div>
 <div class="ttc" id="anamespaceneko__config_html"><div class="ttname"><a href="../../d9/d77/namespaceneko__config.html">neko_config</a></div><div class="ttdoc">Build configurations.</div><div class="ttdef"><b>Definition</b> <a href="../../d7/d2d/neko__config_8f90_source.html#l00034">neko_config.f90:34</a></div></div>
