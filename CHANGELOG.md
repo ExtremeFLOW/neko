@@ -11,6 +11,12 @@
 - PR#2891 `csv_file_t%header` is now a deferred-length allocatable, which
   stays unallocated until the header is set. Code reading it directly must
   check `allocated()` first.
+- PR#2897 The fluid `init` takes only the fluid section of the case file,
+  `case.fluid`, instead of the whole case file, plus `case.numerics` as a
+  separate `numerics_params` argument and `case.output_boundary` as the
+  logical `output_boundary`. Accordingly, `fluid%params` is now a copy of
+  `case.fluid`, so keys must be looked up relative to it, e.g.
+  `initial_condition` rather than `case.fluid.initial_condition`.
 
 ## Develop
 

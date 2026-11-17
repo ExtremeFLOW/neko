@@ -144,7 +144,7 @@ contains
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
     logical :: found, logical_val, load_balance
-    logical :: write_at_start
+    logical :: write_at_start, output_boundary
     integer :: integer_val, var_type
     real(kind=rp) :: real_val
     real(kind=dp) :: double_val
@@ -154,7 +154,7 @@ contains
     character(len=NEKO_FNAME_LEN) :: lb_file, lb_name, lb_path, lb_ext
     integer :: output_dir_len
     integer :: precision, layout
-    type(json_file) :: scalar_params, numerics_params
+    type(json_file) :: fluid_params, scalar_params, numerics_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
     logical :: tmp_feature
@@ -294,10 +294,15 @@ contains
 
     call json_get_or_lookup(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
+    call json_get(this%params, 'case.fluid', fluid_params)
+    call json_get(this%params, 'case.numerics', numerics_params)
+    call json_get_or_default(this%params, 'case.output_boundary', &
+         output_boundary, .false.)
     ! Set time lags in chkp
     call this%chkp%init()
     call this%chkp%add_time_state(this%time)
-    call this%fluid%init(this%msh, lx, this%params, this%user, this%chkp)
+    call this%fluid%init(this%msh, lx, fluid_params, numerics_params, &
+         this%user, this%chkp, output_boundary)
 
 
     !
@@ -324,7 +329,6 @@ contains
 
     if (scalar) then
        allocate(this%scalars)
-       call json_get(this%params, 'case.numerics', numerics_params)
        if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility
           call json_get(this%params, 'case.scalar', scalar_params)
