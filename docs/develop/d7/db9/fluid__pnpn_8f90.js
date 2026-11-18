@@ -6,7 +6,7 @@ var fluid__pnpn_8f90 =
     [ "fluid_pnpn::fluid_pnpn_assemble_rhs", "dc/da3/namespacefluid__pnpn.html#a9bd7be1d072c8d8926474aab8cb2ea1f", null ],
     [ "fluid_pnpn::fluid_pnpn_ax_vel_factory", "dc/da3/namespacefluid__pnpn.html#a21e7a0cfb7be2640882fe62d11311950", null ],
     [ "fluid_pnpn::fluid_pnpn_free", "dc/da3/namespacefluid__pnpn.html#aa2582bae4203cde06a4a72c54aebd215", null ],
-    [ "fluid_pnpn::fluid_pnpn_init", "dc/da3/namespacefluid__pnpn.html#aba03bcf1446e7bee67439441ad8c8970", null ],
+    [ "fluid_pnpn::fluid_pnpn_init", "dc/da3/namespacefluid__pnpn.html#a6a685f6c2c7af95578d6e7272e022b4b", null ],
     [ "fluid_pnpn::fluid_pnpn_recompute_metrics", "dc/da3/namespacefluid__pnpn.html#a2a187fc095b76d6b770af365a643ce8b", null ],
     [ "fluid_pnpn::fluid_pnpn_restart", "dc/da3/namespacefluid__pnpn.html#a2c1343c39852c088298081c8d91ae6b6", null ],
     [ "fluid_pnpn::fluid_pnpn_set_initial_condition", "dc/da3/namespacefluid__pnpn.html#aa16bfaecffa603b9f3c25f5c379c0758", null ],

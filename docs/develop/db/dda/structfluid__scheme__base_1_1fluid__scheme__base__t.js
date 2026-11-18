@@ -2,7 +2,7 @@ var structfluid__scheme__base_1_1fluid__scheme__base__t =
 [
     [ "compute_cfl", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a37f4164f756483b936243df0c43f04ba", null ],
     [ "free", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a464378437252b52223f927ff0379dfb1", null ],
-    [ "init", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#af987ca36fb46b1404cfa5315f0a17ba3", null ],
+    [ "init", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a3450153228af76dc77b10785e8f8b739", null ],
     [ "restart", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#afb9ac5dbab8430bc3e9e842d06e8fc89", null ],
     [ "set_initial_condition", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a23e3bb8f7ca09a735c080953765299ca", null ],
     [ "set_initial_condition_base", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#adf8801e476d6b706abf2c6b33fa3728c", null ],
@@ -28,7 +28,7 @@ var structfluid__scheme__base_1_1fluid__scheme__base__t =
     [ "mu", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a11320207e91a737a15e4695b4b40d961", null ],
     [ "name", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a67458c3867d3bec385c8df70e8a96d3d", null ],
     [ "p", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a2c2eafb9ed41ca75247aa37720cc3823", null ],
-    [ "params", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#ad19229a5aac438306051b6509cf8ab2c", null ],
+    [ "params", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#af714414e2810970a66dce5af4e0b47d5", null ],
     [ "rho", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a613224f8034bbbe56c471ae153ebe431", null ],
     [ "u", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#ac5a241796167b65dc25822aeeefe086d", null ],
     [ "ulag", "db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a83f85c3368985db1cbf3cbc0ddf17c0d", null ],

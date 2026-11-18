@@ -1,6 +1,6 @@
 <map id="user_intf::dummy_user_ale_rigid_kinematics" name="user_intf::dummy_user_ale_rigid_kinematics">
 <area shape="rect" id="Node000001" title=" " alt="" coords="281,109,451,154"/>
-<area shape="rect" id="Node000002" href="$dd/db4/namespaceale__manager.html#aeb40eb6b82f696a5696324c68d7f9501" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="5,5,233,33"/>
+<area shape="rect" id="Node000002" href="$dd/db4/namespaceale__manager.html#a975788787506626fb64450ffc012af6a" title="Initialize ALE Manager Sets up solver, registers fields, solves for base shape, etc." alt="" coords="5,5,233,33"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="321,100,280,73,232,48,197,36,197,31,234,43,282,69,326,99"/>
 <area shape="rect" id="Node000003" href="$d7/da0/structuser__intf_1_1user__t.html#acce1164ad09d873988b2931b92d5013c" title="Constructor that points non&#45;associated routines to dummy ones. Calling a dummy routine causes an erro..." alt="" coords="42,57,196,85"/>
 <area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="263,105,232,99,187,88,186,83,233,94,268,104"/>

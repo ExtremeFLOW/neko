@@ -176,7 +176,7 @@ var searchData=
   ['log_5fsection_173',['log_section',['../d8/da0/namespacelogger.html#af26458fdb2a8632e8c01296fc65f962b',1,'logger::log_section()'],['../d4/d8d/neko__log_8h.html#ab1629da16eb42a5e01533232e6eff57e',1,'log_section():&#160;neko_log.h']]],
   ['log_5fsection_5fc_174',['log_section_c',['../d8/da0/namespacelogger.html#accdcb0b637b2330ce2717845b8fe1c55',1,'logger']]],
   ['log_5fsize_175',['log_size',['../d8/da0/namespacelogger.html#ade757cfc4235350ea17397117ea3c4a6',1,'logger']]],
-  ['log_5fsolver_5finfo_176',['log_solver_info',['../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#a5ce97a91a8ade2a3b394d6c478cb895b',1,'fluid_scheme_compressible::fluid_scheme_compressible_t']]],
+  ['log_5fsolver_5finfo_176',['log_solver_info',['../d1/dc1/structfluid__scheme__compressible_1_1fluid__scheme__compressible__t.html#aad5fe65977c6eb1ce5eccbc57738830f',1,'fluid_scheme_compressible::fluid_scheme_compressible_t']]],
   ['log_5fstatus_177',['log_status',['../d6/d7d/structlpt_1_1lpt__t.html#a534d5522b1824bc1c6b9846eeddcf1df',1,'lpt::lpt_t::log_status()'],['../dd/d2c/namespacelpt.html#a4a7dbb2157f1a42ef2b232b609402eec',1,'lpt::log_status()']]],
   ['log_5ft_178',['log_t',['../d0/d7b/structlogger_1_1log__t.html',1,'logger']]],
   ['log_5fwarning_179',['log_warning',['../d8/da0/namespacelogger.html#a865ce1013019a8679865fc3ba1dc17bf',1,'logger::log_warning()'],['../d4/d8d/neko__log_8h.html#a79f5bd852d3a6aadf7173e97ce0b53fd',1,'log_warning():&#160;neko_log.h']]],

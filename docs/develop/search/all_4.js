@@ -270,7 +270,7 @@ var searchData=
   ['ale_5fmanager_267',['ale_manager',['../dd/db4/namespaceale__manager.html',1,'']]],
   ['ale_5fmanager_2ef90_268',['ale_manager.f90',['../d6/dc8/ale__manager_8f90.html',1,'']]],
   ['ale_5fmanager_5ffree_269',['ale_manager_free',['../dd/db4/namespaceale__manager.html#a1640b47a70ca1091f1fd85c5e8283b80',1,'ale_manager']]],
-  ['ale_5fmanager_5finit_270',['ale_manager_init',['../dd/db4/namespaceale__manager.html#aeb40eb6b82f696a5696324c68d7f9501',1,'ale_manager']]],
+  ['ale_5fmanager_5finit_270',['ale_manager_init',['../dd/db4/namespaceale__manager.html#a975788787506626fb64450ffc012af6a',1,'ale_manager']]],
   ['ale_5fmanager_5ft_271',['ale_manager_t',['../dd/d75/structale__manager_1_1ale__manager__t.html',1,'ale_manager']]],
   ['ale_5fmesh_5fvelocity_272',['ale_mesh_velocity',['../d7/da0/structuser__intf_1_1user__t.html#aba96f4b118733f4e8c17219a07c13a8f',1,'user_intf::user_t']]],
   ['ale_5fpivot_273',['ale_pivot',['../dd/d75/structale__manager_1_1ale__manager__t.html#a4d25ff39a1fbf208244773ea7bec6593',1,'ale_manager::ale_manager_t']]],

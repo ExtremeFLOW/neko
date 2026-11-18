@@ -34,7 +34,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.11</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -106,14 +106,26 @@ $(function(){initNavTree('de/df3/interfacefluid__scheme__base_1_1fluid__scheme__
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac130cb0ba920a527e693f0dd8fc2ed7b" id="r_ac130cb0ba920a527e693f0dd8fc2ed7b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac130cb0ba920a527e693f0dd8fc2ed7b">fluid_scheme_base_init_intrf</a> (this, msh, lx, params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, chkp)</td></tr>
+<tr class="memitem:a76720e1c5869a926328c8a22c219f070" id="r_a76720e1c5869a926328c8a22c219f070"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a76720e1c5869a926328c8a22c219f070">fluid_scheme_base_init_intrf</a> (this, msh, lx, params, numerics_params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, chkp, output_boundary)</td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00213">213</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<div class="textblock"><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">msh</td><td>The mesh. </td></tr>
+    <tr><td class="paramname">lx</td><td>The number of GLL points in each direction. </td></tr>
+    <tr><td class="paramname">params</td><td>The fluid parameters, i.e. <span class="tt">case.fluid</span>. </td></tr>
+    <tr><td class="paramname">numerics_params</td><td>The numerical parameters, i.e. <span class="tt">case.numerics</span>. </td></tr>
+    <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
+    <tr><td class="paramname">chkp</td><td>Checkpoint for restarts. </td></tr>
+    <tr><td class="paramname">output_boundary</td><td>Whether to write the boundary condition markers to file. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00222">222</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 </div><a name="doc-constructors" id="doc-constructors"></a><h2 id="header-doc-constructors" class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ac130cb0ba920a527e693f0dd8fc2ed7b" name="ac130cb0ba920a527e693f0dd8fc2ed7b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac130cb0ba920a527e693f0dd8fc2ed7b">&#9670;&#160;</a></span>fluid_scheme_base_init_intrf()</h2>
+<a id="a76720e1c5869a926328c8a22c219f070" name="a76720e1c5869a926328c8a22c219f070"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76720e1c5869a926328c8a22c219f070">&#9670;&#160;</a></span>fluid_scheme_base_init_intrf()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -144,12 +156,22 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(json_file), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>numerics_params</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in), target</td>          <td class="paramname"><span class="paramname"><em>user</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>chkp</em></span>&#160;)</td>
+          <td class="paramtype">type(<a class="el" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>chkp</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in)</td>          <td class="paramname"><span class="paramname"><em>output_boundary</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -159,7 +181,7 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00213">213</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00222">222</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>

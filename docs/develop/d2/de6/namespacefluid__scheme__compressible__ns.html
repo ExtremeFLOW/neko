@@ -34,7 +34,7 @@ MathJax.Hub.Config({
  <tbody>
  <tr id="projectrow">
   <td id="projectalign">
-   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.10</span>
+   <div id="projectname">Neko<span id="projectnumber">&#160;1.99.11</span>
    </div>
    <div id="projectbrief">A portable framework for high-order spectral element flow simulations</div>
   </td>
@@ -107,8 +107,8 @@ Data Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
 Functions/Subroutines</h2></td></tr>
-<tr class="memitem:acdd63103fc015bc6fb81668da6faf864" id="r_acdd63103fc015bc6fb81668da6faf864"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acdd63103fc015bc6fb81668da6faf864">fluid_scheme_compressible_ns_init</a> (this, msh, lx, params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, chkp)</td></tr>
-<tr class="memdesc:acdd63103fc015bc6fb81668da6faf864"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boundary condition factory for density.  <br /></td></tr>
+<tr class="memitem:a1718744b238510cb63e3869207a44f85" id="r_a1718744b238510cb63e3869207a44f85"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1718744b238510cb63e3869207a44f85">fluid_scheme_compressible_ns_init</a> (this, msh, lx, params, numerics_params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, chkp, output_boundary)</td></tr>
+<tr class="memdesc:a1718744b238510cb63e3869207a44f85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boundary condition factory for density.  <br /></td></tr>
 <tr class="memitem:aa249ee10d4cee174cf84db3fb3657a00" id="r_aa249ee10d4cee174cf84db3fb3657a00"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa249ee10d4cee174cf84db3fb3657a00">fluid_scheme_compressible_ns_free</a> (this)</td></tr>
 <tr class="memdesc:aa249ee10d4cee174cf84db3fb3657a00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free allocated memory and cleanup.  <br /></td></tr>
 <tr class="memitem:a323892dc62891b09c6108d2fbd6b1edf" id="r_a323892dc62891b09c6108d2fbd6b1edf"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a323892dc62891b09c6108d2fbd6b1edf">fluid_scheme_compressible_ns_step</a> (this, time, dt_controller)</td></tr>
@@ -149,12 +149,12 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00251">251</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00255">255</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
 
 </div>
 </div>
-<a id="acdd63103fc015bc6fb81668da6faf864" name="acdd63103fc015bc6fb81668da6faf864"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acdd63103fc015bc6fb81668da6faf864">&#9670;&#160;</a></span>fluid_scheme_compressible_ns_init()</h2>
+<a id="a1718744b238510cb63e3869207a44f85" name="a1718744b238510cb63e3869207a44f85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1718744b238510cb63e3869207a44f85">&#9670;&#160;</a></span>fluid_scheme_compressible_ns_init()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -182,12 +182,22 @@ Functions/Subroutines</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(json_file), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>numerics_params</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in), target</td>          <td class="paramname"><span class="paramname"><em>user</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>chkp</em></span>&#160;)</td>
+          <td class="paramtype">type(<a class="el" href="../../d9/d88/structcheckpoint_1_1chkp__t.html">chkp_t</a>), intent(inout), target</td>          <td class="paramname"><span class="paramname"><em>chkp</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">logical, intent(in)</td>          <td class="paramname"><span class="paramname"><em>output_boundary</em></span>&#160;)</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -221,14 +231,16 @@ Functions/Subroutines</h2></td></tr>
     <tr><td class="paramdir"></td><td class="paramname">this</td><td>The fluid scheme object </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">msh</td><td>Mesh data structure </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">lx</td><td>Polynomial order in x-direction </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">params</td><td>JSON configuration parameters </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">params</td><td>The fluid parameters, i.e. <span class="tt">case.fluid</span> </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">numerics_params</td><td>The numerical parameters, i.e. <span class="tt">case.numerics</span> </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">user</td><td>User-defined parameters and functions </td></tr>
     <tr><td class="paramdir"></td><td class="paramname">chkp</td><td>Checkpoint to write to </td></tr>
+    <tr><td class="paramdir"></td><td class="paramname">output_boundary</td><td>Not supported by this scheme, ignored </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00168">168</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00170">170</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
 
 </div>
 </div>
@@ -267,7 +279,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00540">540</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00544">544</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
 
 </div>
 </div>
@@ -311,7 +323,7 @@ Functions/Subroutines</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00429">429</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00433">433</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
 
 </div>
 </div>
@@ -365,7 +377,7 @@ Functions/Subroutines</h2></td></tr>
 <p>Update temperature T = p / (rho * (gamma - 1))</p>
 <p>Update maximum wave speed for CFL computation</p>
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00301">301</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00305">305</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
 
 </div>
 </div>
@@ -396,7 +408,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00545">545</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html#l00549">549</a> of file <a class="el" href="../../d4/d6e/fluid__scheme__compressible__ns_8f90_source.html">fluid_scheme_compressible_ns.f90</a>.</p>
 
 </div>
 </div>
