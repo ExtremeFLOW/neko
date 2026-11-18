@@ -1232,7 +1232,9 @@ contains
     call copy(this%rst, this%rst_local, 3*n_points)
     call copy(this%xyz, this%xyz_local, 3*n_points)
     this%pe_owner = this%pe_rank
-    this%el_owner0 = this%el_owner0_local
+    ! Candidate storage can exceed the final number of owned points.
+    ! Keep the mapped destination allocation when copying the owned prefix.
+    this%el_owner0(:) = this%el_owner0_local(1:this%n_points)
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_memcpy(this%el_owner0, this%el_owner0_d, &
             this%n_points, HOST_TO_DEVICE, sync = .true.)
