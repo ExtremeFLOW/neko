@@ -852,7 +852,23 @@ contains
        call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
        call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, write_target, ierr, &
             access_prp = ext_plist_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot create step file: ' // &
+               trim(ext_fname))
+       end if
        call h5pclose_f(ext_plist_id, ierr)
+
+       ! Readers find the step files through the VDS printf pattern and
+       ! probe the next index themselves. Flush now so the superblock is on
+       ! disk before any field data: an interrupted write then leaves a
+       ! valid file without datasets, which readers skip, rather than a
+       ! headerless file that breaks every read through the VDS (bar the
+       ! brief window before this flush completes).
+       call h5fflush_f(write_target, H5F_SCOPE_GLOBAL_F, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot flush step file: ' // &
+               trim(ext_fname))
+       end if
 
     else
        ! Non-temporal: write directly into the main file's PointData group
