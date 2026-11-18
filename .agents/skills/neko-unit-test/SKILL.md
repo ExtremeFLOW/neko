@@ -171,18 +171,25 @@ Do not read mesh files in unit tests. Use `tests/unit/fixtures/mesh_fixture.f90`
 `single_skewed_element_mesh`, `two_adjacent_unit_hex_mesh`,
 `three_hex_right_triangle_tip_mesh`) and extend it when a new shape is
 needed. Wire it into the suite as `tests/unit/bc_projector/Makefile.in`
-does:
+does, compiling a private copy of the fixture in the suite directory:
 
 ```make
-../fixtures/mesh_fixture.o : ../fixtures/mesh_fixture.f90 $(NEKO_LIB)
+mesh_fixture.o : ../fixtures/mesh_fixture.f90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) -o $@ $<
 
-<binary>_OTHER_SOURCES = ../fixtures/mesh_fixture.f90
-test_<x>.o: ../fixtures/mesh_fixture.o      # one line per .pf that uses it
+<binary>_OTHER_SOURCES = mesh_fixture.f90
+test_<x>.o: mesh_fixture.o      # one line per .pf that uses it
 ```
 
-and add `../fixtures/mesh_fixture.o` to the `clean` target. Fixture sources
-must also be listed in `EXTRA_DIST` in `tests/unit/Makefile.am`.
+`_OTHER_SOURCES` only names the object to link, so `mesh_fixture.f90` need
+not exist in the suite directory, and the template `clean` target already
+removes the copy. Never compile a fixture to `../fixtures/*.o`: the compiler
+writes the module file into the directory it runs in, while make tracks only
+the object, so a second suite sharing that object finds it up to date, never
+compiles it, and fails with `Cannot open module file 'mesh_fixture.mod'`.
+Keep the `$(NEKO_LIB)` prerequisite, or the fixture is not rebuilt when
+`libneko` changes. Fixture sources must also be listed in `EXTRA_DIST` in
+`tests/unit/Makefile.am`.
 
 ## Death tests: asserting that neko_error is raised
 
@@ -199,18 +206,19 @@ Enable error redirection for a whole suite in its `Makefile.in`, exactly as
 `tests/unit/errors/Makefile.in` does:
 
 ```make
-../fixtures/error_redirection.o : ../fixtures/error_redirection.f90 $(NEKO_LIB)
+error_redirection.o : ../fixtures/error_redirection.f90 $(NEKO_LIB)
 	$(FC) -c $(FFLAGS) -o $@ $<
 
-<binary>_OTHER_SOURCES = ../fixtures/error_redirection.f90
+<binary>_OTHER_SOURCES = error_redirection.f90
 <binary>_EXTRA_USE := error_redirection
 <binary>_EXTRA_INITIALIZE := redirect_errors
 $(eval $(call make_pfunit_test,<binary>))
-<binary>_driver.o: ../fixtures/error_redirection.o
-test_<x>.o: ../fixtures/error_redirection.o
+<binary>_driver.o: error_redirection.o
+test_<x>.o: error_redirection.o
 ```
 
-plus `../fixtures/error_redirection.o` in `clean`. pFUnit calls
+This compiles a private copy of the fixture, for the reasons given under
+Meshes. pFUnit calls
 `redirect_errors` once when the driver starts, before any test.
 Alternatively, drop the two `EXTRA_` lines and call `redirect_errors` in
 `setUp` and `restore_errors` in `tearDown`, which lets a death test live in

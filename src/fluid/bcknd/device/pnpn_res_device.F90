@@ -43,7 +43,6 @@ module pnpn_res_device
   use device_math, only : device_cfill, device_rzero
   use device_mathops, only : device_opcolv
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t
-  use device, only : device_event_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, c_int
   use scratch_registry, only : neko_scratch_registry
   implicit none
@@ -339,7 +338,6 @@ contains
 
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 1, c_Xh)
     call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD, event)
-    call device_event_sync(event)
     call rotate_cyc(ta1%x_d, ta2%x_d, ta3%x_d, 0, c_Xh)
 
     call device_opcolv(ta1%x_d, ta2%x_d, ta3%x_d, c_Xh%Binv_d, gdim, n)

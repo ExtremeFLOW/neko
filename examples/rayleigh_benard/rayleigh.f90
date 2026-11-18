@@ -103,7 +103,7 @@ contains
        ta2pr = ta2*Pr
 
        call field_cmult2(rhs_u, v, Ta2Pr)
-       call field_cmult2(rhs_v, u, Ta2Pr)
+       call field_cmult2(rhs_v, u, -Ta2Pr)
        call field_cmult2(rhs_w, s, rapr)
     end if
   end subroutine forcing_source_term

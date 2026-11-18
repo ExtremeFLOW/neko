@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -92,8 +92,6 @@ module fluid_scheme_base
      ! List of boundary conditions for velocity
      type(bc_list_t) :: bcs_vel
 
-     !> Copy of the fluid parameters, i.e. `case.fluid`
-     type(json_file), pointer :: params => null()
      type(mesh_t), pointer :: msh => null() !< Mesh
 
      !> Boundary condition labels (if any)
@@ -390,10 +388,13 @@ contains
 
   !> Set the initial condition of the velocity and pressure. A built-in
   !! initial condition is set here, a user one by `set_user_initial_condition`.
+  !! @param params The fluid parameters, i.e. `case.fluid`.
   !! @param user Type with user-defined procedures.
   !! @param is_restart Whether the case is restarting from a checkpoint.
-  subroutine fluid_scheme_base_set_initial_condition(this, user, is_restart)
+  subroutine fluid_scheme_base_set_initial_condition(this, params, user, &
+       is_restart)
     class(fluid_scheme_base_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
     type(user_t), intent(in) :: user
     logical, intent(in) :: is_restart
     character(len=:), allocatable :: ic_type
@@ -405,12 +406,12 @@ contains
        call neko_log%message("Restart file specified, " // &
             "initial conditions ignored")
     else
-       call json_get(this%params, 'initial_condition.type', ic_type)
+       call json_get(params, 'initial_condition.type', ic_type)
 
        ! Common, non-user initial conditions are handled here by the
        ! base type.
        if (trim(ic_type) .ne. 'user') then
-          call json_get(this%params, 'initial_condition', ic_params)
+          call json_get(params, 'initial_condition', ic_params)
           call set_flow_ic_builtin(this%u, this%v, this%w, this%p, this%c_Xh, &
                this%gs_Xh, ic_type, ic_params)
           call ic_params%destroy()

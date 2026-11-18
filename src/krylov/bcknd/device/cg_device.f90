@@ -44,7 +44,7 @@ module cg_device
        vector_bc_projector_components
   use math, only : abscmp
   use device, only : device_map, device_event_create, device_unmap, &
-       device_event_destroy, device_get_ptr, device_event_sync
+       device_event_destroy, device_get_ptr
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2, device_add2s1
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
@@ -214,7 +214,6 @@ contains
 
        call Ax%compute(this%w, this%p, coef, x%msh, x%Xh)
        call gs_h%op(this%w, n, GS_OP_ADD, this%gs_event)
-       call device_event_sync(this%gs_event)
        call bc_projector%apply(this%w, n)
 
        pap = device_glsc3(this%w_d, coef%mult_d, this%p_d, n)

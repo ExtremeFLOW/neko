@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.9])
+AC_INIT([neko],[1.99.11])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -515,6 +515,7 @@ AC_CONFIG_FILES([tests/unit/stack/Makefile\
         tests/unit/checkpoint_payload/Makefile\
         tests/unit/wall_sampling/Makefile\
         tests/unit/map_1d/Makefile\
+        tests/unit/runtime_stats/Makefile\
         tests/unit/crystal_router/Makefile\
         tests/unit/geo_compression/Makefile\
         tests/unit/templates/serial/Makefile])
@@ -535,7 +536,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/psnr/Makefile\
 		    contrib/rea2nbin/rea2nbin.1\
 		    contrib/prepart/prepart.1])
-   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh])
+   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh contrib/checkneko])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])

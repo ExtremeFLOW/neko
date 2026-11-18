@@ -61,8 +61,7 @@ module fluid_scheme_incompressible
        user_material_properties_intf
   use utils, only : neko_error
   use field_math, only : field_cfill, field_addcol3, field_copy
-  use device, only : device_event_sync, glb_cmd_event, DEVICE_TO_HOST, &
-       device_memcpy
+  use device, only : glb_cmd_event, DEVICE_TO_HOST, device_memcpy
   use time_state, only : time_state_t
   use spectral_vanishing_viscosity, only : svv_t
   use flow_ic, only : set_flow_ic_user_incompressible
@@ -190,14 +189,6 @@ contains
 
     ! Assign Dofmap to scratch registry
     call neko_scratch_registry%set_dofmap(this%dm_Xh)
-
-    ! Keep a copy of the fluid parameters
-    if (associated(this%params)) then
-       call this%params%destroy()
-       deallocate(this%params)
-    end if
-    allocate(this%params)
-    this%params = params
 
     ! Assign a name
     call json_get_or_default(params, 'name', this%name, "fluid")
@@ -481,11 +472,6 @@ contains
     call this%Xh%free()
     nullify(this%msh)
 
-    if (associated(this%params)) then
-       call this%params%destroy()
-       deallocate(this%params)
-    end if
-
   end subroutine fluid_scheme_free
 
   !> Validate that all fields, solvers etc necessary for
@@ -555,12 +541,8 @@ contains
          this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), time, strong)
 
     call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
-    call this%gs_Xh%op(this%u, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%v, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%w, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+    call this%gs_Xh%op(this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), &
+         GS_OP_MIN, glb_cmd_event)
     call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
     ! Double pass for Dirichlet bcs only.
@@ -573,12 +555,8 @@ contains
     end do
 
     call rotate_cyc(this%u, this%v, this%w, 1, this%c_Xh)
-    call this%gs_Xh%op(this%u, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%v, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
-    call this%gs_Xh%op(this%w, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
+    call this%gs_Xh%op(this%u%x, this%v%x, this%w%x, this%dm_Xh%size(), &
+         GS_OP_MAX, glb_cmd_event)
     call rotate_cyc(this%u, this%v, this%w, 0, this%c_Xh)
 
     do i = 1, this%bcs_vel%size()
@@ -601,11 +579,9 @@ contains
 
     call this%bcs_prs%apply(this%p, time)
     call this%gs_Xh%op(this%p, GS_OP_MIN, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
 
     call this%bcs_prs%apply(this%p, time)
     call this%gs_Xh%op(this%p, GS_OP_MAX, glb_cmd_event)
-    call device_event_sync(glb_cmd_event)
 
     do i = 1, this%bcs_prs%size()
        b => this%bcs_prs%get(i)
