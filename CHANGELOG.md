@@ -19,6 +19,9 @@
   removed. Their `set_initial_condition` and the scalars'
   `set_initial_conditions` instead take the parameters as the first argument
   after `this`.
+  logical `output_boundary`. Accordingly, `fluid%params` is now a copy of
+  `case.fluid`, so keys must be looked up relative to it, e.g.
+  `initial_condition` rather than `case.fluid.initial_condition`.
 
 ## Develop
 
