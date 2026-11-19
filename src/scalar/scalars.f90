@@ -53,6 +53,7 @@ module scalars
   use utils, only : neko_error
   use coefs, only : coef_t
   use time_state, only : time_state_t
+  use profiler, only : profiler_start_region, profiler_end_region
   implicit none
   private
 
@@ -193,12 +194,15 @@ contains
 
     all_frozen = .true.
 
-    ! Iterate through all scalar fields
+    ! Iterate through all scalar fields, in one fixed-id region like the
+    ! fluid's, so all scalars are profiled together as well as one by one
+    call profiler_start_region('Scalar', 2)
     do i = 1, size(this%scalar_fields)
        all_frozen = all_frozen .and. this%scalar_fields(i)%scalar%freeze
        call this%scalar_fields(i)%scalar%step(time, ext_bdf, dt_controller, &
             ksp_results(i))
     end do
+    call profiler_end_region('Scalar', 2)
 
     if (.not. all_frozen) then
        call ksp_results(i)%print_header()
