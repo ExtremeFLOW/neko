@@ -1,12 +1,21 @@
 """Regression test for runtime statistics with several scalars."""
 
 import json
+import re
 import subprocess
 
 from testlib import configure_nprocs, get_genmeshbox, get_neko, run_neko
 
 
 SCALAR_NAMES = ["temperature", "dye"]
+
+# Regions shared by all scalars, with fixed ids like the fluid's
+COMMON_REGIONS = ["Scalar", "Scalar_residual", "Scalar_solve"]
+
+# A statistics row: the region name and three times
+STATS_ROW = re.compile(
+    r"^\s*(\S.*?)\s+(\S+E[+-]\d+)\s+(\S+E[+-]\d+)\s+(\S+E[+-]\d+)\s*$"
+)
 
 
 def scalar_params(name, value):
@@ -26,7 +35,7 @@ def scalar_params(name, value):
 
 
 def test_scalar_profile_regions(launcher_script, log_file, tmp_path):
-    """Every scalar gets its own profiling regions in the statistics."""
+    """The scalars share common profiling regions and each has its own."""
     mesh = tmp_path / "box.nmsh"
     result = subprocess.run(
         [
@@ -98,12 +107,32 @@ def test_scalar_profile_regions(launcher_script, log_file, tmp_path):
     )
     assert result.returncode == 0
 
-    # Each statistics row starts with the name of its region
     with open(log_file) as f:
         log = f.read()
+    assert "Normal end." in log
     assert "Runtime statistics" in log
     stats = log.split("Runtime statistics", 1)[1]
-    regions = {line.split()[0] for line in stats.splitlines() if line.strip()}
-    for name in SCALAR_NAMES:
-        for suffix in ["", "_residual", "_solve"]:
-            assert name + suffix in regions
+    regions = [
+        match.group(1).strip()
+        for match in map(STATS_ROW.match, stats.splitlines())
+        if match
+    ]
+
+    # One row for each common region, whatever the number of scalars
+    for name in COMMON_REGIONS:
+        assert regions.count(name) == 1, regions
+
+    # One row for each region of every scalar
+    own_regions = [
+        name + suffix
+        for name in SCALAR_NAMES
+        for suffix in ["", "_residual", "_solve"]
+    ]
+    for name in own_regions:
+        assert regions.count(name) == 1, regions
+
+    # The report lists the regions by id, so those with a fixed id come
+    # before those allocated by name
+    first_named = min(regions.index(name) for name in own_regions)
+    for name in COMMON_REGIONS:
+        assert regions.index(name) < first_named, regions

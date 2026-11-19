@@ -536,6 +536,9 @@ contains
       call this%apply_strong_bcs(time)
 
       ! Compute scalar residual.
+      ! Every scalar shares the fixed-id regions, which are named the same
+      ! for all, and nests its own named region inside.
+      call profiler_start_region('Scalar_residual', 20)
       call profiler_start_region(trim(this%name) // '_residual')
       call res%compute(Ax, s, s_res, f_Xh, c_Xh, msh, Xh, lambda_tot, &
            rho_cp, ext_bdf%diffusion_coeffs%x(1), &
@@ -547,15 +550,18 @@ contains
       call this%bc_projector%apply(s_res%x, dm_Xh%size())
 
       call profiler_end_region(trim(this%name) // '_residual')
+      call profiler_end_region('Scalar_residual', 20)
 
       call this%proj_s%pre_solving(s_res%x, tstep, c_Xh, n, dt_controller)
 
       call this%pc%update()
+      call profiler_start_region('Scalar_solve', 21)
       call profiler_start_region(trim(this%name) // '_solve')
       ksp_results = this%ksp%solve(Ax, ds, s_res%x, n, &
            c_Xh, this%bc_projector, gs_Xh)
       ksp_results%name = trim(this%name)
       call profiler_end_region(trim(this%name) // '_solve')
+      call profiler_end_region('Scalar_solve', 21)
 
       call this%proj_s%post_solving(ds%x, Ax, c_Xh, this%bc_projector, gs_Xh, &
            n, tstep, dt_controller)
