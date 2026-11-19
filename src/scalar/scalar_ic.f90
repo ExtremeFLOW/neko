@@ -65,7 +65,7 @@ module scalar_ic
   private
 
   interface set_scalar_ic
-     module procedure set_scalar_ic_int, set_scalar_ic_usr
+     module procedure set_scalar_ic_builtin, set_scalar_ic_user
   end interface set_scalar_ic
 
   public :: set_scalar_ic
@@ -85,7 +85,7 @@ contains
   !! @param type Type of initial condition.
   !! @param params JSON parameters.
   !! @param i Index of the scalar field.
-  subroutine set_scalar_ic_int(s, coef, gs, type, params, i)
+  subroutine set_scalar_ic_builtin(s, coef, gs, type, params, i)
     type(field_t), intent(inout) :: s
     type(coef_t), intent(in) :: coef
     type(gs_t), intent(inout) :: gs
@@ -150,7 +150,7 @@ contains
 
     call set_scalar_ic_common(s, coef, gs)
 
-  end subroutine set_scalar_ic_int
+  end subroutine set_scalar_ic_builtin
 
   !> Set scalar intial condition (user defined)
   !! @details Set scalar initial condition using a user defined function.
@@ -162,7 +162,7 @@ contains
   !! @note No data is copied between the host and the device. The user routine
   !! must leave the values where the backend operates on them, i.e. on the
   !! device when running on GPUs.
-  subroutine set_scalar_ic_usr(scheme_name, s, coef, gs, user_proc)
+  subroutine set_scalar_ic_user(scheme_name, s, coef, gs, user_proc)
     character(len=*), intent(in) :: scheme_name
     type(field_t), target, intent(inout) :: s
     type(coef_t), intent(in) :: coef
@@ -186,7 +186,7 @@ contains
 
     call set_scalar_ic_common(s, coef, gs)
 
-  end subroutine set_scalar_ic_usr
+  end subroutine set_scalar_ic_user
 
   !> Set scalar initial condition (common)
   !! @details Finalize scalar initial condition by distributing the initial

@@ -155,6 +155,7 @@ module ale_manager
      procedure, pass(this) :: solve_base_mesh_displacement
      procedure, pass(this) :: advance_mesh
      procedure, pass(this) :: update_mesh_velocity
+     procedure, pass(this) :: set_initial_mesh_velocity
      procedure, pass(this) :: set_pivot_restart
      procedure, pass(this) :: sync_chkp
      procedure, pass(this) :: request_tracker
@@ -181,7 +182,6 @@ contains
     type(chkp_t), intent(inout) :: chkp
     type(json_file) :: body_sub, bc_subdict
     type(json_file) :: precon_params, solver_params
-    type(time_state_t) :: t_init
     integer, allocatable :: zone_indices(:)
     integer :: time_order
     integer :: n_moving_zones
@@ -800,15 +800,6 @@ contains
     call this%solve_base_mesh_displacement(coef, json, import_base_shapes, &
          solver_params, precon_type, precon_params)
 
-    ! If we are restarting, we skip this. It will be handled
-    ! properly by chkp file.
-    if (.not. json%valid_path('case.restart_file')) then
-       t_init%t = 0.0_rp
-       t_init%tstep = 0
-       t_init%dt = 0.0_rp
-       call this%update_mesh_velocity(coef, t_init)
-    end if
-
     call this%wm_x_lag%init(this%wm_x, 2)
     call this%wm_y_lag%init(this%wm_y, 2)
     call this%wm_z_lag%init(this%wm_z, 2)
@@ -1220,6 +1211,21 @@ contains
     call profiler_end_region('ALE add mesh velocity')
 
   end subroutine update_mesh_velocity
+
+  !> Set the mesh velocity at t = 0. Not called on a restart, where the
+  !! mesh velocity is read from the checkpoint.
+  !! @param coef The coefficients.
+  subroutine set_initial_mesh_velocity(this, coef)
+    class(ale_manager_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    type(time_state_t) :: t_init
+
+    t_init%t = 0.0_rp
+    t_init%tstep = 0
+    t_init%dt = 0.0_rp
+    call this%update_mesh_velocity(coef, t_init)
+
+  end subroutine set_initial_mesh_velocity
 
   !> Main routine to advance the mesh in time
   subroutine advance_mesh(this, coef, time, nadv)

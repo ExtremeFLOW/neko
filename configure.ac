@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([neko],[1.99.9])
+AC_INIT([neko],[1.99.10])
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 AM_MAINTAINER_MODE
 AC_CONFIG_MACRO_DIR([m4])
@@ -536,7 +536,7 @@ if test "x${enable_contrib}" = xyes; then
 		    contrib/psnr/Makefile\
 		    contrib/rea2nbin/rea2nbin.1\
 		    contrib/prepart/prepart.1])
-   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh])
+   AC_CONFIG_SUBDIRS([contrib/gmsh2nmsh contrib/checkneko])
 fi
 # Doxygen
 AC_CONFIG_FILES([doc/Doxyfile doc/Makefile])

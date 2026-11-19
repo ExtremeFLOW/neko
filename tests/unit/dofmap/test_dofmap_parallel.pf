@@ -109,6 +109,68 @@ contains
 
   end subroutine test_dofmap_genxyz
 
+  !> The global size must not wrap when lx*ly*lz*glb_nelv exceeds the range of
+  !! a default integer.
+  @test(npes=[1])
+  subroutine test_dofmap_global_size_i8(this)
+    class (test_dofmap), intent(inout) :: this
+    type(dofmap_t) :: d
+    type(mesh_t) :: m
+    type(linear_dist_t) :: dist
+    type(space_t) :: Xh
+    type(point_t) :: p(12)
+    integer, parameter :: gdim = 3
+
+    dist = linear_dist_t(2, this%getProcessRank(), &
+         this%getNumProcesses(), NEKO_COMM)
+
+    call p(1)%init(0d0, 0d0, 0d0)
+    call p(1)%set_id(1)
+    call p(2)%init(1d0, 0d0, 0d0)
+    call p(2)%set_id(2)
+    call p(3)%init(0d0, 1d0, 0d0)
+    call p(3)%set_id(4)
+    call p(4)%init(1d0, 1d0, 0d0)
+    call p(4)%set_id(3)
+    call p(5)%init(2d0, 0d0, 0d0)
+    call p(5)%set_id(5)
+    call p(6)%init(2d0, 1d0, 0d0)
+    call p(6)%set_id(6)
+    call p(7)%init(0d0, 0d0, 1d0)
+    call p(7)%set_id(7)
+    call p(8)%init(1d0, 0d0, 1d0)
+    call p(8)%set_id(8)
+    call p(9)%init(1d0, 1d0, 1d0)
+    call p(9)%set_id(9)
+    call p(10)%init(0d0, 1d0, 1d0)
+    call p(10)%set_id(10)
+    call p(11)%init(2d0, 0d0, 1d0)
+    call p(11)%set_id(11)
+    call p(12)%init(2d0, 1d0, 1d0)
+    call p(12)%set_id(12)
+
+    call m%init(gdim, dist)
+
+    call m%add_element(1, 1, p(1), p(2), p(3), p(4), &
+         p(7), p(8), p(10), p(9))
+
+    call m%add_element(2, 2, p(2), p(5), p(4), p(6), &
+         p(8), p(11), p(9), p(12))
+
+    call Xh%init(GLL, 8, 8, 8)
+
+    call m%generate_conn()
+    call d%init(m, Xh)
+
+    @assertEqual(1024_i8, d%global_size())
+
+    ! The size only depends on the global element count, so no such mesh is
+    ! needed: 8**3 * 5000000 does not fit in a default integer.
+    d%msh%glb_nelv = 5000000
+    @assertEqual(2560000000_i8, d%global_size())
+
+  end subroutine test_dofmap_global_size_i8
+
   @test(npes=[1])
   subroutine test_dofmap_face12(this)
     class (test_dofmap), intent(inout) :: this

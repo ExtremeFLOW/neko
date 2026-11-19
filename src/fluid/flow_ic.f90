@@ -67,16 +67,17 @@ module flow_ic
   private
 
   interface set_flow_ic
-     module procedure set_flow_ic_int, set_flow_ic_usr, &
-          set_compressible_flow_ic_usr
+     module procedure set_flow_ic_builtin, set_flow_ic_user_incompressible, &
+          set_flow_ic_user_compressible
   end interface set_flow_ic
 
-  public :: set_flow_ic, set_flow_ic_fld
+  public :: set_flow_ic, set_flow_ic_builtin, set_flow_ic_user_incompressible, &
+       set_flow_ic_user_compressible, set_flow_ic_fld
 
 contains
 
   !> Set initial flow condition (builtin)
-  subroutine set_flow_ic_int(u, v, w, p, coef, gs, type, params)
+  subroutine set_flow_ic_builtin(u, v, w, p, coef, gs, type, params)
     type(field_t), intent(inout) :: u
     type(field_t), intent(inout) :: v
     type(field_t), intent(inout) :: w
@@ -144,13 +145,14 @@ contains
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
-  end subroutine set_flow_ic_int
+  end subroutine set_flow_ic_builtin
 
-  !> Set initial flow condition (user defined)
+  !> Set initial flow condition (user defined) for incompressible flows
   !! @note No data is copied between the host and the device. The user routine
   !! must leave the values where the backend operates on them, i.e. on the
   !! device when running on GPUs.
-  subroutine set_flow_ic_usr(u, v, w, p, coef, gs, user_proc, scheme_name)
+  subroutine set_flow_ic_user_incompressible(u, v, w, p, coef, gs, user_proc, &
+       scheme_name)
     type(field_t), target, intent(inout) :: u
     type(field_t), target, intent(inout) :: v
     type(field_t), target, intent(inout) :: w
@@ -190,14 +192,13 @@ contains
 
     call set_flow_ic_common(u, v, w, p, coef, gs)
 
-  end subroutine set_flow_ic_usr
+  end subroutine set_flow_ic_user_incompressible
 
-  !> Set initial flow condition (user defined)
-  !> for compressible flows
+  !> Set initial flow condition (user defined) for compressible flows
   !! @note No data is copied between the host and the device. The user routine
   !! must leave the values where the backend operates on them, i.e. on the
   !! device when running on GPUs.
-  subroutine set_compressible_flow_ic_usr(rho, u, v, w, p, coef, gs, &
+  subroutine set_flow_ic_user_compressible(rho, u, v, w, p, coef, gs, &
        user_proc, scheme_name)
     type(field_t), target, intent(inout) :: rho
     type(field_t), target, intent(inout) :: u
@@ -256,7 +257,7 @@ contains
        call col2(p%x, coef%mult, p%dof%size())
     end if
 
-  end subroutine set_compressible_flow_ic_usr
+  end subroutine set_flow_ic_user_compressible
 
   !> Make the initial velocity continuous across elements.
   !! @details Operates on the device arrays when running on GPUs, so the

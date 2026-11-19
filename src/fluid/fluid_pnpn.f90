@@ -50,9 +50,9 @@ module fluid_pnpn
   use fluid_aux, only : fluid_step_info
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
-       glb_cmd_event
+  use device, only : device_memcpy, HOST_TO_DEVICE, glb_cmd_event
   use advection, only : advection_t, advection_factory
+  use adv_oifs, only : adv_oifs_t
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item, &
@@ -198,6 +198,10 @@ module fluid_pnpn
      procedure, pass(this) :: step => fluid_pnpn_step
      !> Restart from a previous solution.
      procedure, pass(this) :: restart => fluid_pnpn_restart
+     !> Set the initial condition, the lagged velocity fields and the ALE
+     !! mesh velocity.
+     procedure, pass(this) :: set_initial_condition => &
+          fluid_pnpn_set_initial_condition
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs => fluid_pnpn_setup_bcs
      !> Write a field with boundary condition specifications.
@@ -712,7 +716,39 @@ contains
 
     nullify(bc_i)
 
+    ! The OIFS convecting field series is not in the checkpoint, rebuild it
+    ! from the restored velocity lags.
+    select type (adv => this%adv)
+    type is (adv_oifs_t)
+       call adv%restart()
+    end select
+
   end subroutine fluid_pnpn_restart
+
+  !> Set the initial condition of the velocity and pressure, copy the initial
+  !! velocity to the lagged velocity fields, and set the initial ALE mesh
+  !! velocity.
+  !! @param user Type with user-defined procedures.
+  !! @param is_restart Whether the case is restarting from a checkpoint.
+  subroutine fluid_pnpn_set_initial_condition(this, user, is_restart)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+    logical, intent(in) :: is_restart
+
+    ! Set before the IC
+    if (.not. is_restart) then
+       call this%ale%set_initial_mesh_velocity(this%c_Xh)
+    end if
+
+    call this%set_initial_condition_base(user, is_restart)
+
+    if (.not. is_restart) then
+       call this%ulag%set(this%u)
+       call this%vlag%set(this%v)
+       call this%wlag%set(this%w)
+    end if
+
+  end subroutine fluid_pnpn_set_initial_condition
 
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this
@@ -981,7 +1017,6 @@ contains
          end if
 
          call gs_Xh%op(p_res, GS_OP_ADD, event)
-         call device_event_sync(event)
 
          ! Set the residual to zero at strong pressure boundaries.
          call this%bcs_prs_projector%apply(p_res%x, p%dof%size())
@@ -1036,7 +1071,6 @@ contains
          call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
          call gs_Xh%op(u_res%x, v_res%x, w_res%x, dm_Xh%size(), &
               GS_OP_ADD, event)
-         call device_event_sync(event)
          call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
          ! Set residual to zero at strong velocity boundaries.

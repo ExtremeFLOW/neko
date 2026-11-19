@@ -152,6 +152,83 @@ def test_rejects_custom_properties_for_builtin_scalar_bc(tmp_path):
     assert result.returncode != 0
 
 
+@pytest.mark.parametrize(
+    "example, property_path, value",
+    [
+        ("tgv/tgv.case",
+         ("case", "fluid", "initial_condition", "amplitude"), 1.0),
+        ("scalar_mms/scalar_mms.case",
+         ("case", "scalar", "initial_condition", "value"), 1.0),
+        ("scalar_mms/scalar_mms.case",
+         ("case", "scalar", "boundary_conditions", 0),
+         {"type": "user_dirichlet", "zone_indices": [1],
+          "custom_parameter": 2.0}),
+        ("scalar_mms/scalar_mms.case",
+         ("case", "scalar", "boundary_conditions", 1),
+         {"type": "user_neumann", "zone_indices": [2],
+          "custom_parameter": 2.0}),
+        ("cylinder/cylinder.case",
+         ("case", "fluid", "boundary_conditions", 0),
+         {"type": "user_velocity", "zone_indices": [1],
+          "profile": "parabolic"}),
+        ("tgv/tgv.case",
+         ("case", "fluid", "source_terms"),
+         [{"type": "user", "custom_parameter": 2.0}]),
+        ("tgv/tgv.case", ("postprocess",), {"tool": "custom"}),
+    ],
+    ids=[
+        "fluid_user_initial_condition",
+        "scalar_user_initial_condition",
+        "user_dirichlet",
+        "user_neumann",
+        "user_velocity",
+        "user_source_term",
+        "top_level_section",
+    ],
+)
+def test_allows_custom_keys_in_user_components(
+    tmp_path, example, property_path, value
+):
+    """User-defined components take parameters the user file defines, and
+    other tools may add sections next to the case."""
+    with (EXAMPLES_DIR / example).open(encoding="utf-8") as handle:
+        data = json5.load(handle)
+
+    target = data
+    for key in property_path[:-1]:
+        target = target[key]
+    target[property_path[-1]] = value
+
+    case_file = tmp_path / "custom.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_rejects_custom_keys_in_builtin_initial_condition(tmp_path):
+    with (EXAMPLES_DIR / "cylinder" / "cylinder.case").open(
+        encoding="utf-8"
+    ) as handle:
+        data = json5.load(handle)
+
+    data["case"]["fluid"]["initial_condition"]["custom_parameter"] = 2.0
+
+    case_file = tmp_path / "invalid_initial_condition.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+
+
 def test_rejects_real_encoding_for_integer_controller_value(tmp_path):
     with (EXAMPLES_DIR / "rayleigh_benard_cylinder" / "rayleigh.case").open(
         encoding="utf-8"
@@ -189,7 +266,8 @@ def test_rejects_integer_encoding_for_real_parameter(tmp_path):
 
 
 def test_rejects_integer_encoding_in_real_array(tmp_path):
-    with (EXAMPLES_DIR / "api" / "c" / "cylinder.case").open(
+    # The first boundary condition is a velocity_value, whose value is real
+    with (EXAMPLES_DIR / "cylinder" / "cylinder.case").open(
         encoding="utf-8"
     ) as handle:
         data = json5.load(handle)
