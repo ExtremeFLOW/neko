@@ -131,8 +131,10 @@ def test_scalar_profile_regions(launcher_script, log_file, tmp_path):
     for name in own_regions:
         assert regions.count(name) == 1, regions
 
-    # The report lists the regions by id, so those with a fixed id come
-    # before those allocated by name
-    first_named = min(regions.index(name) for name in own_regions)
+    # The report lists the regions by id: the fixed ids first, then those
+    # allocated by name in the order they are first started. "Time-Step"
+    # has no id and starts before any scalar region, so a common region
+    # listed after it has no fixed id.
+    time_step = regions.index("Time-Step")
     for name in COMMON_REGIONS:
-        assert regions.index(name) < first_named, regions
+        assert regions.index(name) < time_step, regions
