@@ -167,8 +167,9 @@ contains
   !! @param user User-defined parameters and functions
   !! @param chkp Checkpoint to write to
   !! @param output_boundary Not supported by this scheme, ignored
+  !! @param output_directory Not supported by this scheme, ignored
   subroutine fluid_scheme_compressible_ns_init(this, msh, lx, params, &
-       numerics_params, user, chkp, output_boundary)
+       numerics_params, user, chkp, output_boundary, output_directory)
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
@@ -177,6 +178,7 @@ contains
     type(user_t), target, intent(in) :: user
     type(chkp_t), target, intent(inout) :: chkp
     logical, intent(in) :: output_boundary
+    character(len=:), allocatable, intent(in) :: output_directory
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
 
