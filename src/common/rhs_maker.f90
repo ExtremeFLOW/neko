@@ -86,12 +86,12 @@ module rhs_maker
   abstract interface
      subroutine rhs_maker_ext(fx_lag, fy_lag, fz_lag, &
           fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
-          rho, ext_coeffs, n)
+          ext_coeffs, n)
        import field_t
        import rp
        type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
        type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-       real(kind=rp), intent(in) :: rho, ext_coeffs(4)
+       real(kind=rp), intent(in) :: ext_coeffs(4)
        integer, intent(in) :: n
        real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
      end subroutine rhs_maker_ext

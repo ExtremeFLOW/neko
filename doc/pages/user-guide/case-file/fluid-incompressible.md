@@ -380,6 +380,7 @@ A more detailed description of each boundary condition is provided below.
 * `shear_stress`. Non-penetration condition combined with a set shear stress
    vector. Only works with axis-aligned boundaries. The stress value is
    specified by the `value` keyword, which should be an array of 3 reals. It is
+   a stress, i.e. a force per unit area, not divided by the density. It is
    the responsibility of the user to set the vector in the direction parallel
    to the boundary.
   ```json
