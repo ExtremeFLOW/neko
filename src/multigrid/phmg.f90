@@ -470,7 +470,7 @@ contains
     type(ksp_monitor_t) :: ksp_results
     integer :: i
 
-    call profiler_start_region('PHMG_solve', 8)
+    call profiler_start_region('PHMG_solve', 23)
     associate( mglvl => this%phmg_hrchy%lvl)
       if (NEKO_BCKND_DEVICE .eq. 1) then
          z_d = device_get_ptr(z)
@@ -512,7 +512,7 @@ contains
          !$omp end parallel do
       end if
     end associate
-    call profiler_end_region('PHMG_solve', 8)
+    call profiler_end_region('PHMG_solve', 23)
 
   end subroutine phmg_solve
 
