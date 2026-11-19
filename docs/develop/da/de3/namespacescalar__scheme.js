@@ -12,7 +12,7 @@ var namespacescalar__scheme =
     [ "scalar_scheme_init", "da/de3/namespacescalar__scheme.html#a2babd40d9acd6b4f4ca8dabfbe2e37e9", null ],
     [ "scalar_scheme_precon_factory", "da/de3/namespacescalar__scheme.html#ab4c8e192fe61bb325c7598193bb878a6", null ],
     [ "scalar_scheme_register_checkpoint", "da/de3/namespacescalar__scheme.html#aa2f488b99c645a710c5d753ddb926068", null ],
-    [ "scalar_scheme_set_initial_condition", "da/de3/namespacescalar__scheme.html#afe219aba510b669da4f2c1042297e0d5", null ],
+    [ "scalar_scheme_set_initial_condition", "da/de3/namespacescalar__scheme.html#aec5af66998427814d6facbb6d8cdeaea", null ],
     [ "scalar_scheme_set_material_properties", "da/de3/namespacescalar__scheme.html#ab72269e4be11d711d345d540ff333415", null ],
     [ "scalar_scheme_solver_factory", "da/de3/namespacescalar__scheme.html#a5cbeed855d8b8de25f037f9d83ac9a61", null ],
     [ "scalar_scheme_update_material_properties", "da/de3/namespacescalar__scheme.html#a9f1e7d30e723418c67f7d22f72f0ace1", null ],

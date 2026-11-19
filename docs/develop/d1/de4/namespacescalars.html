@@ -118,8 +118,8 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memdesc:af37ab3c3ae5da1e41850d1cd49785220"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a time step for all scalar fields.  <br /></td></tr>
 <tr class="memitem:af4125cbb8c80f37a45452e2be6f3183f" id="r_af4125cbb8c80f37a45452e2be6f3183f"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af4125cbb8c80f37a45452e2be6f3183f">scalars_restart</a> (this, chkp)</td></tr>
 <tr class="memdesc:af4125cbb8c80f37a45452e2be6f3183f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart from checkpoint data.  <br /></td></tr>
-<tr class="memitem:a650457d40ab73552424b240514b1b96e" id="r_a650457d40ab73552424b240514b1b96e"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a650457d40ab73552424b240514b1b96e">scalars_set_initial_conditions</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
-<tr class="memdesc:a650457d40ab73552424b240514b1b96e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial conditions for all scalar fields.  <br /></td></tr>
+<tr class="memitem:a0a316dd6a562cd0c81c34940fd107476" id="r_a0a316dd6a562cd0c81c34940fd107476"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0a316dd6a562cd0c81c34940fd107476">scalars_set_initial_conditions</a> (this, params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
+<tr class="memdesc:a0a316dd6a562cd0c81c34940fd107476"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial conditions for all scalar fields.  <br /></td></tr>
 <tr class="memitem:a4957a8e763f681b0e721e1211f50ee6b" id="r_a4957a8e763f681b0e721e1211f50ee6b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4957a8e763f681b0e721e1211f50ee6b">scalars_validate</a> (this)</td></tr>
 <tr class="memdesc:a4957a8e763f681b0e721e1211f50ee6b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the configuration is valid.  <br /></td></tr>
 <tr class="memitem:ae4263eeb73f4973fd1a4027c2896e8c9" id="r_ae4263eeb73f4973fd1a4027c2896e8c9"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae4263eeb73f4973fd1a4027c2896e8c9">scalars_free</a> (this)</td></tr>
@@ -149,7 +149,7 @@ Functions/Subroutines</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00271">271</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00286">286</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -373,8 +373,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a650457d40ab73552424b240514b1b96e" name="a650457d40ab73552424b240514b1b96e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a650457d40ab73552424b240514b1b96e">&#9670;&#160;</a></span>scalars_set_initial_conditions()</h2>
+<a id="a0a316dd6a562cd0c81c34940fd107476" name="a0a316dd6a562cd0c81c34940fd107476"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a316dd6a562cd0c81c34940fd107476">&#9670;&#160;</a></span>scalars_set_initial_conditions()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -386,6 +386,11 @@ Here is the caller graph for this function:</div>
           <td class="memname">subroutine scalars::scalars_set_initial_conditions </td>
           <td>(</td>
           <td class="paramtype">class(<a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html">scalars_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -406,13 +411,14 @@ Here is the caller graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">params</td><td>The scalar parameters passed to <span class="tt">init</span>, i.e. either the <span class="tt">case.scalars</span> array or the single <span class="tt">case.scalar</span> object. </td></tr>
     <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
     <tr><td class="paramname">is_restart</td><td>Whether the case is restarting from a checkpoint. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00228">228</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00230">230</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>
@@ -490,7 +496,7 @@ Here is the call graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00259">259</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../dc/da2/scalars_8f90_source.html#l00274">274</a> of file <a class="el" href="../../dc/da2/scalars_8f90_source.html">scalars.f90</a>.</p>
 
 </div>
 </div>

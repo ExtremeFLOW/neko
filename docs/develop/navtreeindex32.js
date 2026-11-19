@@ -1,9 +1,5 @@
 var NAVTREEINDEX32 =
 {
-"d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#a9f72805a437aae973aa02b78cfd98e07":[1,0,50,0,6],
-"d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#a9f72805a437aae973aa02b78cfd98e07":[2,0,47,0,6],
-"d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#aa485a77f2a223a2249231cfe6ef19c8a":[1,0,50,0,15],
-"d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#aa485a77f2a223a2249231cfe6ef19c8a":[2,0,47,0,15],
 "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#aad3ba8338f7108d775b528b93eb92810":[1,0,50,0,13],
 "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#aad3ba8338f7108d775b528b93eb92810":[2,0,47,0,13],
 "d4/d0c/structbox__point__zone_1_1box__point__zone__t.html#ac699b1324da0a9c2e54450bb0c486f89":[1,0,50,0,5],
@@ -249,5 +245,9 @@ var NAVTREEINDEX32 =
 "d4/d43/interfacedevice__wale__nut_1_1hip__wale__nut__compute.html":[1,0,137,0],
 "d4/d43/interfacedevice__wale__nut_1_1hip__wale__nut__compute.html":[2,0,121,0],
 "d4/d43/interfacedevice__wale__nut_1_1hip__wale__nut__compute.html#a6e4391cf1ffdbfa1b841b6ff80f82010":[1,0,137,0,0],
-"d4/d43/interfacedevice__wale__nut_1_1hip__wale__nut__compute.html#a6e4391cf1ffdbfa1b841b6ff80f82010":[2,0,121,0,0]
+"d4/d43/interfacedevice__wale__nut_1_1hip__wale__nut__compute.html#a6e4391cf1ffdbfa1b841b6ff80f82010":[2,0,121,0,0],
+"d4/d45/buffer_8F90.html":[3,0,3,14,0,0],
+"d4/d45/buffer_8F90_source.html":[3,0,3,14,0,0],
+"d4/d46/interfacecuda__mappings_1_1cuda__smooth__step.html":[1,0,97,0],
+"d4/d46/interfacecuda__mappings_1_1cuda__smooth__step.html":[2,0,84,0]
 };

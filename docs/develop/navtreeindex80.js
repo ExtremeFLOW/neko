@@ -1,15 +1,5 @@
 var NAVTREEINDEX80 =
 {
-"da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html#a42a9629f39f5777f6a820f3f669e68d9":[1,0,322,0,0],
-"da/d3c/interfaceparmetis_1_1parmetis__v3__partmeshkway.html#a42a9629f39f5777f6a820f3f669e68d9":[2,0,276,0,0],
-"da/d3f/namespacespatial__average.html":[1,0,412],
-"da/d3f/namespacespatial__average.html#a0bd2dcb6cf714a62d3ddab40d68686c6":[1,0,412,2],
-"da/d3f/namespacespatial__average.html#a3413625dd169789b9f12e9f32b6371f2":[1,0,412,4],
-"da/d3f/namespacespatial__average.html#a720bef0af0405e094e89caffc62743fe":[1,0,412,1],
-"da/d3f/namespacespatial__average.html#ac09a3667c6c34bdfd9379e0a4e2728e1":[1,0,412,3],
-"da/d40/structmap_1_1map__t.html":[1,0,271,0],
-"da/d40/structmap_1_1map__t.html":[2,0,241,0],
-"da/d40/structmap_1_1map__t.html#a384f2f22466311f9c022d49fae63477b":[1,0,271,0,6],
 "da/d40/structmap_1_1map__t.html#a384f2f22466311f9c022d49fae63477b":[2,0,241,0,6],
 "da/d40/structmap_1_1map__t.html#a5de4fee9c7d9a74398e87778a3419fc3":[1,0,271,0,7],
 "da/d40/structmap_1_1map__t.html#a5de4fee9c7d9a74398e87778a3419fc3":[2,0,241,0,7],
@@ -249,5 +239,15 @@ var NAVTREEINDEX80 =
 "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#a69fca4e0adb811821249e10fe2b15fbf":[1,0,18,0,6],
 "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#a69fca4e0adb811821249e10fe2b15fbf":[2,0,17,0,6],
 "da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#abaac9ebc7264e92a2900c0431f99e62b":[1,0,18,0,5],
-"da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#abaac9ebc7264e92a2900c0431f99e62b":[2,0,17,0,5]
+"da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#abaac9ebc7264e92a2900c0431f99e62b":[2,0,17,0,5],
+"da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#ac94330c49f69bf0512577b5190580df6":[1,0,18,0,1],
+"da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#ac94330c49f69bf0512577b5190580df6":[2,0,17,0,1],
+"da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#aefbf1f213a23feefc7827ec127d95c68":[1,0,18,0,4],
+"da/d4b/structax__helm__compr__cpu_1_1ax__helm__compr__cpu__t.html#aefbf1f213a23feefc7827ec127d95c68":[2,0,17,0,4],
+"da/d4b/tri__mesh_8f90.html":[3,0,3,19,19],
+"da/d4b/tri__mesh_8f90_source.html":[3,0,3,19,19],
+"da/d4f/interfaceuset_1_1uset__init.html":[1,0,460,4],
+"da/d4f/interfaceuset_1_1uset__init.html":[2,0,395,4],
+"da/d4f/interfaceuset_1_1uset__init.html#aa11e26b6a25d0a412329508d3ce15ee2":[1,0,460,4,0],
+"da/d4f/interfaceuset_1_1uset__init.html#aa11e26b6a25d0a412329508d3ce15ee2":[2,0,395,4,0]
 };

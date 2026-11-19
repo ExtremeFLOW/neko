@@ -6,7 +6,7 @@ var structscalars_1_1scalars__t =
     [ "restart", "d2/df2/structscalars_1_1scalars__t.html#a8428ba514ce6e98434a9ca9caa81e8fc", null ],
     [ "scalars_init", "d2/df2/structscalars_1_1scalars__t.html#a52b6e704dcf432df6ee42d09c18bba99", null ],
     [ "scalars_init_single", "d2/df2/structscalars_1_1scalars__t.html#aba148cbf38f5cf066038509dad829d3d", null ],
-    [ "set_initial_conditions", "d2/df2/structscalars_1_1scalars__t.html#ae85b69e64e9e3778d12431ccd58afc21", null ],
+    [ "set_initial_conditions", "d2/df2/structscalars_1_1scalars__t.html#a1d7766d34823eb20dbbf65deec9d401c", null ],
     [ "step", "d2/df2/structscalars_1_1scalars__t.html#aaa4e908bbb27d2e69e3c7e52f14af72e", null ],
     [ "validate", "d2/df2/structscalars_1_1scalars__t.html#a2668464591feb74ec4da76b33dcbc722", null ],
     [ "scalar_fields", "d2/df2/structscalars_1_1scalars__t.html#ae7ab1cf0960d65741c9620347e0a1937", null ],

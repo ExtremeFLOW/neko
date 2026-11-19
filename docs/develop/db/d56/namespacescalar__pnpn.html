@@ -122,8 +122,8 @@ Functions/Subroutines</h2></td></tr>
 <tr class="memitem:ae9cb374a82558fd2a9518313a098672b" id="r_ae9cb374a82558fd2a9518313a098672b"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae9cb374a82558fd2a9518313a098672b">scalar_pnpn_free</a> (this)</td></tr>
 <tr class="memitem:a02dec199dcccfda5a426be5e11a59322" id="r_a02dec199dcccfda5a426be5e11a59322"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a02dec199dcccfda5a426be5e11a59322">scalar_pnpn_step</a> (this, time, ext_bdf, dt_controller, ksp_results)</td></tr>
 <tr class="memitem:ad0f0e5d3f3bacefca090315ad14e8716" id="r_ad0f0e5d3f3bacefca090315ad14e8716"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad0f0e5d3f3bacefca090315ad14e8716">print_debug</a> (this)</td></tr>
-<tr class="memitem:a0e502972f6b3d04db3f9d78b89471819" id="r_a0e502972f6b3d04db3f9d78b89471819"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0e502972f6b3d04db3f9d78b89471819">scalar_pnpn_setup_bcs_</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>)</td></tr>
-<tr class="memdesc:a0e502972f6b3d04db3f9d78b89471819"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize boundary conditions.  <br /></td></tr>
+<tr class="memitem:a7ed67f486d36d106867f3195e9fbaf24" id="r_a7ed67f486d36d106867f3195e9fbaf24"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7ed67f486d36d106867f3195e9fbaf24">scalar_pnpn_setup_bcs_</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, params)</td></tr>
+<tr class="memdesc:a7ed67f486d36d106867f3195e9fbaf24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initialize boundary conditions.  <br /></td></tr>
 <tr class="memitem:a2efb992b05cebc3a94f108c0f901e541" id="r_a2efb992b05cebc3a94f108c0f901e541"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2efb992b05cebc3a94f108c0f901e541">scalar_scheme_apply_strong_bcs</a> (this, time)</td></tr>
 <tr class="memdesc:a2efb992b05cebc3a94f108c0f901e541"><td class="mdescLeft">&#160;</td><td class="mdescRight">Apply strong boundary conditions.  <br /></td></tr>
 </table><table class="memberdecls">
@@ -353,8 +353,8 @@ Variables</h2></td></tr>
 
 </div>
 </div>
-<a id="a0e502972f6b3d04db3f9d78b89471819" name="a0e502972f6b3d04db3f9d78b89471819"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0e502972f6b3d04db3f9d78b89471819">&#9670;&#160;</a></span>scalar_pnpn_setup_bcs_()</h2>
+<a id="a7ed67f486d36d106867f3195e9fbaf24" name="a7ed67f486d36d106867f3195e9fbaf24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ed67f486d36d106867f3195e9fbaf24">&#9670;&#160;</a></span>scalar_pnpn_setup_bcs_()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -370,7 +370,12 @@ Variables</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in), target</td>          <td class="paramname"><span class="paramname"><em>user</em></span>&#160;)</td>
+          <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in), target</td>          <td class="paramname"><span class="paramname"><em>user</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -382,11 +387,12 @@ Variables</h2></td></tr>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">user</td><td>The user object binding the user-defined routines. </td></tr>
+    <tr><td class="paramname">params</td><td>The parameters of this scalar. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00601">601</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00602">602</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>
@@ -470,7 +476,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00697">697</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html#l00699">699</a> of file <a class="el" href="../../d0/dc1/scalar__pnpn_8f90_source.html">scalar_pnpn.f90</a>.</p>
 
 </div>
 </div>

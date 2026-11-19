@@ -1,11 +1,5 @@
 var NAVTREEINDEX51 =
 {
-"d6/dbe/namespacecoefs.html#a7109166ad05f1f18a62a9b96be52900e":[1,0,78,7],
-"d6/dbe/namespacecoefs.html#aa8326a68db87fc07727e473a8e2dc484":[1,0,78,5],
-"d6/dbe/namespacecoefs.html#ab1645d4837b6a1c84037ca83009d57a2":[1,0,78,14],
-"d6/dbe/namespacecoefs.html#ab18a023f50f810b07e1b0b2ca61957b3":[1,0,78,23],
-"d6/dbe/namespacecoefs.html#ab213da30e14982fe1d5f8f43ab8863ae":[1,0,78,15],
-"d6/dbe/namespacecoefs.html#abea20332c1a728c0f7a81bbb14aaad21":[1,0,78,2],
 "d6/dbe/namespacecoefs.html#ac1f20a6fb2255ce94759199ec7637bc4":[1,0,78,18],
 "d6/dbe/namespacecoefs.html#ac218afed6e2fc2dd7e59121cb2de18d2":[1,0,78,22],
 "d6/dbe/namespacecoefs.html#ae7ebaa7ea8090c9d2e235ed4fd8e34fa":[1,0,78,6],
@@ -249,5 +243,11 @@ var NAVTREEINDEX51 =
 "d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a4dda0aad3d2c4d2ab859f6dc8f1e5454":[2,0,332,0,16],
 "d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a52ac2a6498e1d4e07e8b519bb530318c":[1,0,383,0,6],
 "d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a52ac2a6498e1d4e07e8b519bb530318c":[2,0,332,0,6],
-"d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a5ac25f8b76cd4311d42835c8a4e3f73a":[1,0,383,0,34]
+"d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a5ac25f8b76cd4311d42835c8a4e3f73a":[1,0,383,0,34],
+"d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a5ac25f8b76cd4311d42835c8a4e3f73a":[2,0,332,0,34],
+"d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a5bbbafdd10fc5f071a23b4f96383d5e5":[1,0,383,0,28],
+"d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a5bbbafdd10fc5f071a23b4f96383d5e5":[2,0,332,0,28],
+"d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a6885b522092cb5a27728f28748391969":[1,0,383,0,19],
+"d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a6885b522092cb5a27728f28748391969":[2,0,332,0,19],
+"d6/dd1/structscalar__sgs__stats__simcomp_1_1scalar__sgs__stats__simcomp__t.html#a7cc94f55b836ee869d970a657470ad6a":[1,0,383,0,35]
 };

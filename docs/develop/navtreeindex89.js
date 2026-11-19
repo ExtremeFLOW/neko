@@ -1,15 +1,5 @@
 var NAVTREEINDEX89 =
 {
-"db/d27/governing-equations.html#autotoc_md64":[0,3,0,2],
-"db/d27/governing-equations.html#autotoc_md65":[0,3,0,3],
-"db/d28/structcheby_1_1cheby__t.html":[1,0,72,0],
-"db/d28/structcheby_1_1cheby__t.html":[2,0,66,0],
-"db/d28/structcheby_1_1cheby__t.html#a0604caa64f407001658d0678f200e426":[1,0,72,0,24],
-"db/d28/structcheby_1_1cheby__t.html#a0604caa64f407001658d0678f200e426":[2,0,66,0,24],
-"db/d28/structcheby_1_1cheby__t.html#a212e2f4ae22fc2b8b984a036ac549985":[1,0,72,0,3],
-"db/d28/structcheby_1_1cheby__t.html#a212e2f4ae22fc2b8b984a036ac549985":[2,0,66,0,3],
-"db/d28/structcheby_1_1cheby__t.html#a23bd4feaa3faea1c9ef96f32106154ff":[1,0,72,0,4],
-"db/d28/structcheby_1_1cheby__t.html#a23bd4feaa3faea1c9ef96f32106154ff":[2,0,66,0,4],
 "db/d28/structcheby_1_1cheby__t.html#a28a4c9b86fb1d7419f87185bcdff744d":[1,0,72,0,25],
 "db/d28/structcheby_1_1cheby__t.html#a28a4c9b86fb1d7419f87185bcdff744d":[2,0,66,0,25],
 "db/d28/structcheby_1_1cheby__t.html#a2a27126d7e255eb318856063d2e4a9ab":[1,0,72,0,17],
@@ -249,5 +239,15 @@ var NAVTREEINDEX89 =
 "db/d3a/structtet__mesh_1_1tet__mesh__t.html#ab4fe74ecc02efd27a4ba37feb4238226":[2,0,376,0,4],
 "db/d3b/interfacemetal__math_1_1metal__addsqr2s2.html":[1,0,289,22],
 "db/d3b/interfacemetal__math_1_1metal__addsqr2s2.html":[2,0,253,22],
-"db/d3b/interfacemetal__math_1_1metal__addsqr2s2.html#a5fed4e4d1f8e3106065212ddac1f854e":[1,0,289,22,0]
+"db/d3b/interfacemetal__math_1_1metal__addsqr2s2.html#a5fed4e4d1f8e3106065212ddac1f854e":[1,0,289,22,0],
+"db/d3b/interfacemetal__math_1_1metal__addsqr2s2.html#a5fed4e4d1f8e3106065212ddac1f854e":[2,0,253,22,0],
+"db/d3c/namespacedevice__vreman__nut.html":[1,0,136],
+"db/d3c/namespacedevice__vreman__nut.html#ac53720ad8de120f63fdfe365beb039b1":[1,0,136,2],
+"db/d3c/namespacedevice__vreman__nut.html#acb6233012f81d00a8afa12fd5e6d58f9":[1,0,136,3],
+"db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html":[1,0,376,0],
+"db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html":[2,0,325,0],
+"db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html#a79290e8f7e1d70b99c9855a5c99bb174":[1,0,376,0,0],
+"db/d3c/structscalar__residual__cpu_1_1scalar__residual__cpu__t.html#a79290e8f7e1d70b99c9855a5c99bb174":[2,0,325,0,0],
+"db/d3d/namespacecg__cpld__device.html":[1,0,69],
+"db/d3d/namespacecg__cpld__device.html#a801d9e47f3ad6cca31e92f8ed777abf7":[1,0,69,1]
 };

@@ -259,7 +259,7 @@ Collaboration diagram for fluid_scheme_compressible::fluid_scheme_compressible_t
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab3610c9a2019bf4d047785e2b3d23a54" id="r_ab3610c9a2019bf4d047785e2b3d23a54"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab3610c9a2019bf4d047785e2b3d23a54">scheme_init</a> (this, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a36e8b27bc76d0b9bbbee5ea9d39b2076">msh</a>, lx, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#af714414e2810970a66dce5af4e0b47d5">params</a>, numerics_params, scheme, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>)</td></tr>
+<tr class="memitem:ab3610c9a2019bf4d047785e2b3d23a54" id="r_ab3610c9a2019bf4d047785e2b3d23a54"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab3610c9a2019bf4d047785e2b3d23a54">scheme_init</a> (this, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a36e8b27bc76d0b9bbbee5ea9d39b2076">msh</a>, lx, params, numerics_params, scheme, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>)</td></tr>
 <tr class="memdesc:ab3610c9a2019bf4d047785e2b3d23a54"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructors.  <br /></td></tr>
 <tr class="memitem:aad302efccf480738dd59c7533c775bd7" id="r_aad302efccf480738dd59c7533c775bd7"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad302efccf480738dd59c7533c775bd7">scheme_free</a> (this)</td></tr>
 <tr class="memdesc:aad302efccf480738dd59c7533c775bd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor for the base type.  <br /></td></tr>
@@ -269,7 +269,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a10c5880caae7d160a5722a4f7bd6cee5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition with the user routine.  <br /></td></tr>
 <tr class="memitem:ad7fb22f1612eef7d26bb12e3992f4f5c" id="r_ad7fb22f1612eef7d26bb12e3992f4f5c"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7fb22f1612eef7d26bb12e3992f4f5c">compute_cfl</a> (this, <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ad519bd443b2b8cced1f8ec5408b28fdf">dt</a>)</td></tr>
 <tr class="memdesc:ad7fb22f1612eef7d26bb12e3992f4f5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the CFL number.  <br /></td></tr>
-<tr class="memitem:a3b43626752e3223dfe5a67bddb863113" id="r_a3b43626752e3223dfe5a67bddb863113"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3b43626752e3223dfe5a67bddb863113">set_material_properties</a> (this, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#af714414e2810970a66dce5af4e0b47d5">params</a>, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>)</td></tr>
+<tr class="memitem:a3b43626752e3223dfe5a67bddb863113" id="r_a3b43626752e3223dfe5a67bddb863113"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3b43626752e3223dfe5a67bddb863113">set_material_properties</a> (this, params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>)</td></tr>
 <tr class="memdesc:a3b43626752e3223dfe5a67bddb863113"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set rho and mu.  <br /></td></tr>
 <tr class="memitem:a65779ec1448a9a86a423a02d9d404b46" id="r_a65779ec1448a9a86a423a02d9d404b46"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a65779ec1448a9a86a423a02d9d404b46">update_material_properties</a> (this, time)</td></tr>
 <tr class="memdesc:a65779ec1448a9a86a423a02d9d404b46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update variable material properties.  <br /></td></tr>
@@ -279,7 +279,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a6b84da9c664a3d1d7cf9c28aec661de8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute maximum wave speed.  <br /></td></tr>
 <tr class="memitem:aad5fe65977c6eb1ce5eccbc57738830f" id="r_aad5fe65977c6eb1ce5eccbc57738830f"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad5fe65977c6eb1ce5eccbc57738830f">log_solver_info</a> (this, numerics_params, scheme, lx)</td></tr>
 <tr class="memdesc:aad5fe65977c6eb1ce5eccbc57738830f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Log solver information.  <br /></td></tr>
-<tr class="memitem:a3450153228af76dc77b10785e8f8b739" id="r_a3450153228af76dc77b10785e8f8b739"><td class="memItemLeft" align="right" valign="top">procedure(fluid_scheme_base_init_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a3450153228af76dc77b10785e8f8b739">init</a> (this, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a36e8b27bc76d0b9bbbee5ea9d39b2076">msh</a>, lx, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#af714414e2810970a66dce5af4e0b47d5">params</a>, numerics_params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#aa331befeee572eeeb9a24f05ae4a2226">chkp</a>, output_boundary)</td></tr>
+<tr class="memitem:a3450153228af76dc77b10785e8f8b739" id="r_a3450153228af76dc77b10785e8f8b739"><td class="memItemLeft" align="right" valign="top">procedure(fluid_scheme_base_init_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a3450153228af76dc77b10785e8f8b739">init</a> (this, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a36e8b27bc76d0b9bbbee5ea9d39b2076">msh</a>, lx, params, numerics_params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#aa331befeee572eeeb9a24f05ae4a2226">chkp</a>, output_boundary)</td></tr>
 <tr class="memdesc:a3450153228af76dc77b10785e8f8b739"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <br /></td></tr>
 <tr class="memitem:a464378437252b52223f927ff0379dfb1" id="r_a464378437252b52223f927ff0379dfb1"><td class="memItemLeft" align="right" valign="top">procedure(fluid_scheme_base_free_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a464378437252b52223f927ff0379dfb1">free</a> (this)</td></tr>
 <tr class="memdesc:a464378437252b52223f927ff0379dfb1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <br /></td></tr>
@@ -287,13 +287,13 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:ab7d759e5176f779e4bd1d60b8e6d03fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Advance one step in time.  <br /></td></tr>
 <tr class="memitem:afb9ac5dbab8430bc3e9e842d06e8fc89" id="r_afb9ac5dbab8430bc3e9e842d06e8fc89"><td class="memItemLeft" align="right" valign="top">procedure(fluid_scheme_base_restart_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#afb9ac5dbab8430bc3e9e842d06e8fc89">restart</a> (this, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#aa331befeee572eeeb9a24f05ae4a2226">chkp</a>)</td></tr>
 <tr class="memdesc:afb9ac5dbab8430bc3e9e842d06e8fc89"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart from a checkpoint.  <br /></td></tr>
-<tr class="memitem:a23e3bb8f7ca09a735c080953765299ca" id="r_a23e3bb8f7ca09a735c080953765299ca"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a23e3bb8f7ca09a735c080953765299ca">set_initial_condition</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
-<tr class="memdesc:a23e3bb8f7ca09a735c080953765299ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition.  <br /></td></tr>
-<tr class="memitem:adf8801e476d6b706abf2c6b33fa3728c" id="r_adf8801e476d6b706abf2c6b33fa3728c"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#adf8801e476d6b706abf2c6b33fa3728c">set_initial_condition_base</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
-<tr class="memdesc:adf8801e476d6b706abf2c6b33fa3728c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition, for overrides of <span class="tt"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a23e3bb8f7ca09a735c080953765299ca" title="Set the initial condition.">set_initial_condition</a></span>.  <br /></td></tr>
+<tr class="memitem:a9c0e3699e495c3cd660c5a380ea3981e" id="r_a9c0e3699e495c3cd660c5a380ea3981e"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a9c0e3699e495c3cd660c5a380ea3981e">set_initial_condition</a> (this, params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
+<tr class="memdesc:a9c0e3699e495c3cd660c5a380ea3981e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition.  <br /></td></tr>
+<tr class="memitem:afec82d373f0afa3a16076ac7a9892673" id="r_afec82d373f0afa3a16076ac7a9892673"><td class="memItemLeft" align="right" valign="top">procedure, pass(this)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#afec82d373f0afa3a16076ac7a9892673">set_initial_condition_base</a> (this, params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
+<tr class="memdesc:afec82d373f0afa3a16076ac7a9892673"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition, for overrides of <span class="tt"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a9c0e3699e495c3cd660c5a380ea3981e" title="Set the initial condition.">set_initial_condition</a></span>.  <br /></td></tr>
 <tr class="memitem:a158e71b58adbd2c9ff34f655ea5d6dd7" id="r_a158e71b58adbd2c9ff34f655ea5d6dd7"><td class="memItemLeft" align="right" valign="top">procedure(fluid_scheme_base_set_user_initial_condition_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a158e71b58adbd2c9ff34f655ea5d6dd7">set_user_initial_condition</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>)</td></tr>
 <tr class="memdesc:a158e71b58adbd2c9ff34f655ea5d6dd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the initial condition with the user routine.  <br /></td></tr>
-<tr class="memitem:a02c94cc170dc5687e74155f3ab84e3f2" id="r_a02c94cc170dc5687e74155f3ab84e3f2"><td class="memItemLeft" align="right" valign="top">procedure(fluid_scheme_setup_bcs_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a02c94cc170dc5687e74155f3ab84e3f2">setup_bcs</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, <a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#af714414e2810970a66dce5af4e0b47d5">params</a>)</td></tr>
+<tr class="memitem:a02c94cc170dc5687e74155f3ab84e3f2" id="r_a02c94cc170dc5687e74155f3ab84e3f2"><td class="memItemLeft" align="right" valign="top">procedure(fluid_scheme_setup_bcs_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a02c94cc170dc5687e74155f3ab84e3f2">setup_bcs</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, params)</td></tr>
 <tr class="memitem:a5142fdbd177359a4b8aa17f97825dc79" id="r_a5142fdbd177359a4b8aa17f97825dc79"><td class="memItemLeft" align="right" valign="top">procedure(validate_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a5142fdbd177359a4b8aa17f97825dc79">validate</a> (this)</td></tr>
 <tr class="memdesc:a5142fdbd177359a4b8aa17f97825dc79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the user inflow.  <br /></td></tr>
 <tr class="memitem:a37f4164f756483b936243df0c43f04ba" id="r_a37f4164f756483b936243df0c43f04ba"><td class="memItemLeft" align="right" valign="top">procedure(fluid_scheme_base_compute_cfl_intrf), deferred, pass&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a37f4164f756483b936243df0c43f04ba">compute_cfl</a> (this, <a class="el" href="../../d3/dd9/cuda_2cdtp__kernel_8h.html#ad519bd443b2b8cced1f8ec5408b28fdf">dt</a>)</td></tr>
@@ -368,8 +368,6 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:ae7176706c8e0d55b82e4f91352120c2b" id="r_ae7176706c8e0d55b82e4f91352120c2b"><td class="memItemLeft" align="right" valign="top">type(bc_list_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#ae7176706c8e0d55b82e4f91352120c2b">bcs_prs</a></td></tr>
 <tr class="memdesc:ae7176706c8e0d55b82e4f91352120c2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Boundary conditions.  <br /></td></tr>
 <tr class="memitem:aa2d769e8bed75a811894beb36f1fd5df" id="r_aa2d769e8bed75a811894beb36f1fd5df"><td class="memItemLeft" align="right" valign="top">type(bc_list_t)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#aa2d769e8bed75a811894beb36f1fd5df">bcs_vel</a></td></tr>
-<tr class="memitem:af714414e2810970a66dce5af4e0b47d5" id="r_af714414e2810970a66dce5af4e0b47d5"><td class="memItemLeft" align="right" valign="top">type(json_file), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#af714414e2810970a66dce5af4e0b47d5">params</a></td></tr>
-<tr class="memdesc:af714414e2810970a66dce5af4e0b47d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy of the fluid parameters, i.e. <span class="tt">case.fluid</span>.  <br /></td></tr>
 <tr class="memitem:a36e8b27bc76d0b9bbbee5ea9d39b2076" id="r_a36e8b27bc76d0b9bbbee5ea9d39b2076"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d7/d28/structmesh_1_1mesh__t.html">mesh_t</a>), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a36e8b27bc76d0b9bbbee5ea9d39b2076">msh</a> =&gt; null()</td></tr>
 <tr class="memdesc:a36e8b27bc76d0b9bbbee5ea9d39b2076"><td class="mdescLeft">&#160;</td><td class="mdescRight">Mesh.  <br /></td></tr>
 <tr class="memitem:a2f3549b5b6feae729a898f691498a9c8" id="r_a2f3549b5b6feae729a898f691498a9c8"><td class="memItemLeft" align="right" valign="top">character(len=neko_msh_max_zlbl_len), dimension(:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="../../db/dda/structfluid__scheme__base_1_1fluid__scheme__base__t.html#a2f3549b5b6feae729a898f691498a9c8">bc_labels</a></td></tr>
@@ -419,7 +417,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00141">141</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00139">139</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -502,7 +500,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00121">121</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -563,7 +561,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00119">119</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00117">117</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -636,7 +634,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00125">125</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -725,8 +723,8 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a23e3bb8f7ca09a735c080953765299ca" name="a23e3bb8f7ca09a735c080953765299ca"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a23e3bb8f7ca09a735c080953765299ca">&#9670;&#160;</a></span>set_initial_condition()</h2>
+<a id="a9c0e3699e495c3cd660c5a380ea3981e" name="a9c0e3699e495c3cd660c5a380ea3981e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c0e3699e495c3cd660c5a380ea3981e">&#9670;&#160;</a></span>set_initial_condition()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -742,6 +740,11 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>user</em></span>, </td>
         </tr>
         <tr>
@@ -758,18 +761,19 @@ Static Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Set the initial condition of the velocity and pressure. A built-in initial condition is set here, a user one by <span class="tt"><a class="el" href="#a10c5880caae7d160a5722a4f7bd6cee5" title="Set the initial condition with the user routine.">set_user_initial_condition</a></span>. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">params</td><td>The fluid parameters, i.e. <span class="tt">case.fluid</span>. </td></tr>
     <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
     <tr><td class="paramname">is_restart</td><td>Whether the case is restarting from a checkpoint. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00127">127</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00125">125</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
-<a id="adf8801e476d6b706abf2c6b33fa3728c" name="adf8801e476d6b706abf2c6b33fa3728c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adf8801e476d6b706abf2c6b33fa3728c">&#9670;&#160;</a></span>set_initial_condition_base()</h2>
+<a id="afec82d373f0afa3a16076ac7a9892673" name="afec82d373f0afa3a16076ac7a9892673"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afec82d373f0afa3a16076ac7a9892673">&#9670;&#160;</a></span>set_initial_condition_base()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -785,6 +789,11 @@ Static Public Attributes</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
           <td class="paramtype">type(<a class="el" href="../../d7/da0/structuser__intf_1_1user__t.html">user_t</a>), intent(in)</td>          <td class="paramname"><span class="paramname"><em>user</em></span>, </td>
         </tr>
         <tr>
@@ -801,13 +810,14 @@ Static Public Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Set the initial condition of the velocity and pressure. A built-in initial condition is set here, a user one by <span class="tt"><a class="el" href="#a10c5880caae7d160a5722a4f7bd6cee5" title="Set the initial condition with the user routine.">set_user_initial_condition</a></span>. </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">params</td><td>The fluid parameters, i.e. <span class="tt">case.fluid</span>. </td></tr>
     <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
     <tr><td class="paramname">is_restart</td><td>Whether the case is restarting from a checkpoint. </td></tr>
   </table>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00130">130</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00128">128</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -874,7 +884,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00133">133</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00131">131</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -939,7 +949,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00136">136</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00134">134</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -975,7 +985,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00123">123</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00121">121</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1006,7 +1016,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00144">144</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00142">142</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1090,7 +1100,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00139">139</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00137">137</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1188,7 +1198,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00099">99</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00097">97</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1444,7 +1454,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00111">111</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00109">109</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1621,7 +1631,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00108">108</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00106">106</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1661,7 +1671,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00096">96</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1685,7 +1695,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00105">105</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00103">103</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1753,30 +1763,6 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="af714414e2810970a66dce5af4e0b47d5" name="af714414e2810970a66dce5af4e0b47d5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af714414e2810970a66dce5af4e0b47d5">&#9670;&#160;</a></span>params</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">type(json_file), allocatable fluid_scheme_base::fluid_scheme_base_t::params</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inherited">inherited</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00095">95</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
-
-</div>
-</div>
 <a id="a613224f8034bbbe56c471ae153ebe431" name="a613224f8034bbbe56c471ae153ebe431"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a613224f8034bbbe56c471ae153ebe431">&#9670;&#160;</a></span>rho</h2>
 
@@ -1797,7 +1783,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00100">100</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>
@@ -1886,7 +1872,7 @@ Static Public Attributes</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00114">114</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html#l00112">112</a> of file <a class="el" href="../../d1/d25/fluid__scheme__base_8f90_source.html">fluid_scheme_base.f90</a>.</p>
 
 </div>
 </div>

@@ -93,7 +93,7 @@ $(function(){initNavTree('dd/dd2/cartesian__pe__finder_8f90_source.html','../../
   <div class="headertitle"><div class="title">cartesian_pe_finder.f90</div></div>
 </div><!--header-->
 <div class="contents">
-<a href="../../dd/dd2/cartesian__pe__finder_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2020-2023, The Neko Authors</span></div>
+<a href="../../dd/dd2/cartesian__pe__finder_8f90.html">Go to the documentation of this file.</a><div class="fragment"><div class="line"><a id="l00001" name="l00001"></a><span class="lineno">    1</span><span class="comment">! Copyright (c) 2020-2026, The Neko Authors</span></div>
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">! All rights reserved.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">!</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="comment">! Redistribution and use in source and binary forms, with or without</span></div>
@@ -141,7 +141,7 @@ $(function(){initNavTree('dd/dd2/cartesian__pe__finder_8f90_source.html','../../
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>  <span class="keywordtype">use </span>mpi_f08, <span class="keywordtype">only</span>: mpi_max, mpi_allreduce, mpi_comm, mpi_comm_rank, &amp;</div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>       mpi_comm_size, mpi_wtime, mpi_integer, mpi_integer8, &amp;</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>       mpi_min, mpi_sum, mpi_irecv, mpi_isend, &amp;</div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>       mpi_exscan, mpi_request, mpi_status, &amp;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>       mpi_exscan, mpi_request, mpi_status, mpi_wait, &amp;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>       mpi_alltoall, mpi_in_place, mpi_barrier</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>  <span class="keywordtype">implicit none</span></div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>  <span class="keywordtype">private</span></div>

@@ -8,7 +8,7 @@ var namespacescalar__pnpn =
     [ "scalar_pnpn_init", "db/d56/namespacescalar__pnpn.html#aac3871c62463a0fd85ede135a64b7ae2", null ],
     [ "scalar_pnpn_register_checkpoint", "db/d56/namespacescalar__pnpn.html#a6b78d402b342f4e7faacc3a9df636477", null ],
     [ "scalar_pnpn_restart", "db/d56/namespacescalar__pnpn.html#a5bc7c6cbc66ce116d725461cc7aff9de", null ],
-    [ "scalar_pnpn_setup_bcs_", "db/d56/namespacescalar__pnpn.html#a0e502972f6b3d04db3f9d78b89471819", null ],
+    [ "scalar_pnpn_setup_bcs_", "db/d56/namespacescalar__pnpn.html#a7ed67f486d36d106867f3195e9fbaf24", null ],
     [ "scalar_pnpn_step", "db/d56/namespacescalar__pnpn.html#a02dec199dcccfda5a426be5e11a59322", null ],
     [ "scalar_scheme_apply_strong_bcs", "db/d56/namespacescalar__pnpn.html#a2efb992b05cebc3a94f108c0f901e541", null ],
     [ "scalar_pnpn_bc_registry", "db/d56/namespacescalar__pnpn.html#a3188e9c7595c46483c3ffc10200c7221", null ],

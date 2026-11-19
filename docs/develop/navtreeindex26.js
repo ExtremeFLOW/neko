@@ -1,9 +1,5 @@
 var NAVTREEINDEX26 =
 {
-"d3/d0d/namespacevector__math.html#a22f87d8888f31b8cadc879fd56ed03f4":[1,0,465,23],
-"d3/d0d/namespacevector__math.html#a2ca83e4227ff57fef1ae01d8c4d3e963":[1,0,465,1],
-"d3/d0d/namespacevector__math.html#a2dda46ce20ce34f6b2cff7601e742ad6":[1,0,465,40],
-"d3/d0d/namespacevector__math.html#a37ffda7f54dcc1310d9db2032117013e":[1,0,465,17],
 "d3/d0d/namespacevector__math.html#a40da5cd57b058d7e69b8890f04115fb4":[1,0,465,38],
 "d3/d0d/namespacevector__math.html#a483a64e1a80182c7d4237f89448eb636":[1,0,465,33],
 "d3/d0d/namespacevector__math.html#a4b22f3cb13faa637574a1ff59e78a237":[1,0,465,13],
@@ -249,5 +245,9 @@ var NAVTREEINDEX26 =
 "d3/d39/interfacehip__intf_1_1hipmemcpyasync.html#aec4b9a7937c905d999947ed35fc4d907":[1,0,237,7,0],
 "d3/d39/interfacehip__intf_1_1hipmemcpyasync.html#aec4b9a7937c905d999947ed35fc4d907":[2,0,209,7,0],
 "d3/d39/interfacemetal__math_1_1metal__radd.html":[1,0,289,14],
-"d3/d39/interfacemetal__math_1_1metal__radd.html":[2,0,253,14]
+"d3/d39/interfacemetal__math_1_1metal__radd.html":[2,0,253,14],
+"d3/d39/interfacemetal__math_1_1metal__radd.html#ac8ccfd7ac81e715bfb62c253120e64e0":[1,0,289,14,0],
+"d3/d39/interfacemetal__math_1_1metal__radd.html#ac8ccfd7ac81e715bfb62c253120e64e0":[2,0,253,14,0],
+"d3/d39/opr__conv1_8hip.html":[3,0,3,18,0,1,1,29],
+"d3/d39/opr__conv1_8hip.html#a1f05745b9e72d232a8f9ae5b243541cf":[3,0,3,18,0,1,1,29,4]
 };

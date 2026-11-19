@@ -578,7 +578,7 @@ $(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../',''); });
 <div class="line"><a id="l00470" name="l00470"></a><span class="lineno">  470</span>    <span class="keywordtype">type</span>(<a class="code hl_struct" href="../../d4/d33/structkrylov_1_1ksp__monitor__t.html">ksp_monitor_t</a>) :: ksp_results</div>
 <div class="line"><a id="l00471" name="l00471"></a><span class="lineno">  471</span>    <span class="keywordtype">integer</span> :: i</div>
 <div class="line"><a id="l00472" name="l00472"></a><span class="lineno">  472</span> </div>
-<div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&#39;PHMG_solve&#39;</span>, 8)</div>
+<div class="line"><a id="l00473" name="l00473"></a><span class="lineno">  473</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101">profiler_start_region</a>(<span class="stringliteral">&#39;PHMG_solve&#39;</span>, 23)</div>
 <div class="line"><a id="l00474" name="l00474"></a><span class="lineno">  474</span>    associate( mglvl =&gt; this%phmg_hrchy%lvl)</div>
 <div class="line"><a id="l00475" name="l00475"></a><span class="lineno">  475</span>      <span class="keywordflow">if</span> (<a class="code hl_variable" href="../../d9/d77/namespaceneko__config.html#ac196ccb4b3efd94171f0cfbfedaa7b9d">neko_bcknd_device</a> .eq. 1) <span class="keywordflow">then</span></div>
 <div class="line"><a id="l00476" name="l00476"></a><span class="lineno">  476</span>         z_d = <a class="code hl_interface" href="../../dd/d49/interfacedevice_1_1device__get__ptr.html">device_get_ptr</a>(z)</div>
@@ -620,7 +620,7 @@ $(function(){initNavTree('d4/da1/phmg_8f90_source.html','../../',''); });
 <div class="line"><a id="l00512" name="l00512"></a><span class="lineno">  512</span>         <span class="comment">!$omp end parallel do</span></div>
 <div class="line"><a id="l00513" name="l00513"></a><span class="lineno">  513</span><span class="keywordflow">      end if</span></div>
 <div class="line"><a id="l00514" name="l00514"></a><span class="lineno">  514</span>    <span class="keyword">end </span>associate</div>
-<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&#39;PHMG_solve&#39;</span>, 8)</div>
+<div class="line"><a id="l00515" name="l00515"></a><span class="lineno">  515</span>    <span class="keyword">call </span><a class="code hl_function" href="../../dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5">profiler_end_region</a>(<span class="stringliteral">&#39;PHMG_solve&#39;</span>, 23)</div>
 <div class="line"><a id="l00516" name="l00516"></a><span class="lineno">  516</span> </div>
 </div>
 <div class="line"><a id="l00517" name="l00517"></a><span class="lineno">  517</span>  <span class="keyword">end subroutine </span><a class="code hl_function" href="../../d1/d38/namespacephmg.html#a2174d59460e75e83696f622b4a7c0678">phmg_solve</a></div>

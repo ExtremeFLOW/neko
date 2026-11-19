@@ -1,9 +1,5 @@
 var NAVTREEINDEX35 =
 {
-"d4/da2/structbc_1_1bc__alloc__t.html":[2,0,35,2],
-"d4/da2/structbc_1_1bc__alloc__t.html#a34a3561ad7bcb13af3f39db13a6a5588":[1,0,36,2,0],
-"d4/da2/structbc_1_1bc__alloc__t.html#a34a3561ad7bcb13af3f39db13a6a5588":[2,0,35,2,0],
-"d4/da3/interfacehip__math_1_1hip__glsc3__many.html":[1,0,239,46],
 "d4/da3/interfacehip__math_1_1hip__glsc3__many.html":[2,0,211,46],
 "d4/da3/interfacehip__math_1_1hip__glsc3__many.html#a30a5fd76fc9aaffa1639598e68570767":[1,0,239,46,0],
 "d4/da3/interfacehip__math_1_1hip__glsc3__many.html#a30a5fd76fc9aaffa1639598e68570767":[2,0,211,46,0],
@@ -249,5 +245,9 @@ var NAVTREEINDEX35 =
 "d4/dce/namespacelpt__periodic__bc__device.html":[1,0,267],
 "d4/dce/namespacelpt__periodic__bc__device.html#a6a2e1c4d6bf56949a0ed95304b09691e":[1,0,267,2],
 "d4/dce/namespacelpt__periodic__bc__device.html#af876bd0d02464b158bb50f74417161ec":[1,0,267,3],
-"d4/dd2/field__subsampler_8f90.html":[3,0,3,26,8]
+"d4/dd2/field__subsampler_8f90.html":[3,0,3,26,8],
+"d4/dd2/field__subsampler_8f90_source.html":[3,0,3,26,8],
+"d4/dd6/namespaceweak__gradient__simcomp.html":[1,0,486],
+"d4/dd6/namespaceweak__gradient__simcomp.html#a02a71dedb326d6b670d052bde9984cad":[1,0,486,4],
+"d4/dd6/namespaceweak__gradient__simcomp.html#a27412a66c3941847bd3618479a1cd65e":[1,0,486,2]
 };

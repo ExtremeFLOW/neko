@@ -1,11 +1,5 @@
 var NAVTREEINDEX62 =
 {
-"d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#ae8f72a1d601dafd9585ac05ad4c85210":[1,0,105,0,25],
-"d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#ae8f72a1d601dafd9585ac05ad4c85210":[2,0,91,0,25],
-"d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#af80d3ebdd69b66b3db6fd3f9b6c4c542":[1,0,105,0,10],
-"d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#af80d3ebdd69b66b3db6fd3f9b6c4c542":[2,0,91,0,10],
-"d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#af9c0b27676fef9e7fb196249313e6edc":[1,0,105,0,3],
-"d8/d07/structdata__streamer__simcomp_1_1data__streamer__simcomp__t.html#af9c0b27676fef9e7fb196249313e6edc":[2,0,91,0,3],
 "d8/d08/interfacecuda__math_1_1cuda__subcol3.html":[1,0,98,34],
 "d8/d08/interfacecuda__math_1_1cuda__subcol3.html":[2,0,85,34],
 "d8/d08/interfacecuda__math_1_1cuda__subcol3.html#a4e58ca24c5d3fbc52d6ae0a08d00a345":[1,0,98,34,0],
@@ -249,5 +243,11 @@ var NAVTREEINDEX62 =
 "d8/d1e/structgmres__device_1_1gmres__device__t.html#a5c729906e6dede7a59ba5c200cdb3b72":[1,0,212,0,16],
 "d8/d1e/structgmres__device_1_1gmres__device__t.html#a5c729906e6dede7a59ba5c200cdb3b72":[2,0,186,0,16],
 "d8/d1e/structgmres__device_1_1gmres__device__t.html#a71f24bb281c79a3afa36c5c8e90c6cc6":[1,0,212,0,32],
-"d8/d1e/structgmres__device_1_1gmres__device__t.html#a71f24bb281c79a3afa36c5c8e90c6cc6":[2,0,186,0,32]
+"d8/d1e/structgmres__device_1_1gmres__device__t.html#a71f24bb281c79a3afa36c5c8e90c6cc6":[2,0,186,0,32],
+"d8/d1e/structgmres__device_1_1gmres__device__t.html#a724a142176886d2efaf8cba013247f09":[1,0,212,0,23],
+"d8/d1e/structgmres__device_1_1gmres__device__t.html#a724a142176886d2efaf8cba013247f09":[2,0,186,0,23],
+"d8/d1e/structgmres__device_1_1gmres__device__t.html#a7297615d8f59dfb8b46acd8d14aa2ed2":[1,0,212,0,38],
+"d8/d1e/structgmres__device_1_1gmres__device__t.html#a7297615d8f59dfb8b46acd8d14aa2ed2":[2,0,186,0,38],
+"d8/d1e/structgmres__device_1_1gmres__device__t.html#a75721421d4d26e4ea23205cfbc34443b":[1,0,212,0,6],
+"d8/d1e/structgmres__device_1_1gmres__device__t.html#a75721421d4d26e4ea23205cfbc34443b":[2,0,186,0,6]
 };

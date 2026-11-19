@@ -1,11 +1,5 @@
 var NAVTREEINDEX58 =
 {
-"d7/da0/structuser__intf_1_1user__t.html":[2,0,392,13],
-"d7/da0/structuser__intf_1_1user__t.html#a00d29933f0101440b51ba97d7eca80bb":[1,0,457,13,6],
-"d7/da0/structuser__intf_1_1user__t.html#a00d29933f0101440b51ba97d7eca80bb":[2,0,392,13,6],
-"d7/da0/structuser__intf_1_1user__t.html#a1f4a0734bde48ea423f3b1bcb0f0a035":[1,0,457,13,8],
-"d7/da0/structuser__intf_1_1user__t.html#a1f4a0734bde48ea423f3b1bcb0f0a035":[2,0,392,13,8],
-"d7/da0/structuser__intf_1_1user__t.html#a2e2347300e0cff94539d338eb1f3ca6f":[1,0,457,13,17],
 "d7/da0/structuser__intf_1_1user__t.html#a2e2347300e0cff94539d338eb1f3ca6f":[2,0,392,13,17],
 "d7/da0/structuser__intf_1_1user__t.html#a5306453b2d6113e1cf0133e844bf094a":[1,0,457,13,1],
 "d7/da0/structuser__intf_1_1user__t.html#a5306453b2d6113e1cf0133e844bf094a":[2,0,392,13,1],
@@ -249,5 +243,11 @@ var NAVTREEINDEX58 =
 "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a32f3db9485da514b89f5b1bea264c263":[1,0,205,0,52],
 "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a32f3db9485da514b89f5b1bea264c263":[2,0,179,0,52],
 "d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a34dae2b9d3aff8de33af53f6bb156bc4":[1,0,205,0,6],
-"d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a34dae2b9d3aff8de33af53f6bb156bc4":[2,0,179,0,6]
+"d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a34dae2b9d3aff8de33af53f6bb156bc4":[2,0,179,0,6],
+"d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a363a0a1cc1f84d40e5483142a1c2c252":[1,0,205,0,31],
+"d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a363a0a1cc1f84d40e5483142a1c2c252":[2,0,179,0,31],
+"d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a39467d0a5f0620de72b7a1a6e68e93d0":[1,0,205,0,1],
+"d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a39467d0a5f0620de72b7a1a6e68e93d0":[2,0,179,0,1],
+"d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a4042147d57d0d95b4bd76d46cf509974":[1,0,205,0,49],
+"d7/db3/structfusedcg__cpld__device_1_1fusedcg__cpld__device__t.html#a4042147d57d0d95b4bd76d46cf509974":[2,0,179,0,49]
 };

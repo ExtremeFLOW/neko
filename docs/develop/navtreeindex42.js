@@ -1,11 +1,5 @@
 var NAVTREEINDEX42 =
 {
-"d5/d90/namespacespalding.html#a8fceccd55236c0ec4100055cd9bacc81":[1,0,409,2],
-"d5/d90/namespacespalding.html#aa1992784746946088e0166160cdea281":[1,0,409,3],
-"d5/d90/namespacespalding.html#ad588e3751bb9734297a449647e137d2c":[1,0,409,4],
-"d5/d95/avm__simcomp_8f90.html":[3,0,3,26,0],
-"d5/d95/avm__simcomp_8f90_source.html":[3,0,3,26,0],
-"d5/d97/structax__helm__compr__dmma__vector__dispatch.html":[2,0,420],
 "d5/d97/structax__helm__compr__dmma__vector__dispatch.html#a59a9f514838c6d1bf4c90d95f13c6f6a":[2,0,420,0],
 "d5/d99/filter_8f90.html":[3,0,3,10,2],
 "d5/d99/filter_8f90_source.html":[3,0,3,10,2],
@@ -249,5 +243,11 @@ var NAVTREEINDEX42 =
 "d5/dc5/amg__cheby_8cu.html#af88a31e5a124e84798585b9c5e01634d":[3,0,3,20,0,0,0,0,0],
 "d5/dc5/amg__cheby_8cu_source.html":[3,0,3,20,0,0,0,0],
 "d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html":[1,0,481,0],
-"d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html":[2,0,410,0]
+"d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html":[2,0,410,0],
+"d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html#aab4cc413854818e5fbb11a3a1f0b0ae5":[1,0,481,0,0],
+"d5/dc5/interfacewall__model__device_1_1hip__wall__model__compute__mag__field.html#aab4cc413854818e5fbb11a3a1f0b0ae5":[2,0,410,0,0],
+"d5/dc6/cuda__math_8f90.html":[3,0,3,18,0,1,0,14],
+"d5/dc6/cuda__math_8f90_source.html":[3,0,3,18,0,1,0,14],
+"d5/dc6/interfacepipecg__device_1_1cuda__cg__update__xp.html":[1,0,329,2],
+"d5/dc6/interfacepipecg__device_1_1cuda__cg__update__xp.html":[2,0,283,2]
 };

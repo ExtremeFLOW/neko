@@ -124,8 +124,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:aaa4e908bbb27d2e69e3c7e52f14af72e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a time step for all scalar fields.  <br /></td></tr>
 <tr class="memitem:a8428ba514ce6e98434a9ca9caa81e8fc" id="r_a8428ba514ce6e98434a9ca9caa81e8fc"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8428ba514ce6e98434a9ca9caa81e8fc">restart</a> (this, chkp)</td></tr>
 <tr class="memdesc:a8428ba514ce6e98434a9ca9caa81e8fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Restart from checkpoint data.  <br /></td></tr>
-<tr class="memitem:ae85b69e64e9e3778d12431ccd58afc21" id="r_ae85b69e64e9e3778d12431ccd58afc21"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae85b69e64e9e3778d12431ccd58afc21">set_initial_conditions</a> (this, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
-<tr class="memdesc:ae85b69e64e9e3778d12431ccd58afc21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial conditions for all scalar fields.  <br /></td></tr>
+<tr class="memitem:a1d7766d34823eb20dbbf65deec9d401c" id="r_a1d7766d34823eb20dbbf65deec9d401c"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1d7766d34823eb20dbbf65deec9d401c">set_initial_conditions</a> (this, params, <a class="el" href="../../dc/d44/namespaceuser.html">user</a>, is_restart)</td></tr>
+<tr class="memdesc:a1d7766d34823eb20dbbf65deec9d401c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set initial conditions for all scalar fields.  <br /></td></tr>
 <tr class="memitem:a2668464591feb74ec4da76b33dcbc722" id="r_a2668464591feb74ec4da76b33dcbc722"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2668464591feb74ec4da76b33dcbc722">validate</a> (this)</td></tr>
 <tr class="memdesc:a2668464591feb74ec4da76b33dcbc722"><td class="mdescLeft">&#160;</td><td class="mdescRight">Check if the configuration is valid.  <br /></td></tr>
 <tr class="memitem:a806eb73a610d4ed8acb10cb37a0307b3" id="r_a806eb73a610d4ed8acb10cb37a0307b3"><td class="memItemLeft" align="right" valign="top">procedure&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a806eb73a610d4ed8acb10cb37a0307b3">free</a> (this)</td></tr>
@@ -540,8 +540,8 @@ Here is the call graph for this function:</div>
 
 </div>
 </div>
-<a id="ae85b69e64e9e3778d12431ccd58afc21" name="ae85b69e64e9e3778d12431ccd58afc21"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae85b69e64e9e3778d12431ccd58afc21">&#9670;&#160;</a></span>set_initial_conditions()</h2>
+<a id="a1d7766d34823eb20dbbf65deec9d401c" name="a1d7766d34823eb20dbbf65deec9d401c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d7766d34823eb20dbbf65deec9d401c">&#9670;&#160;</a></span>set_initial_conditions()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -550,6 +550,11 @@ Here is the call graph for this function:</div>
           <td class="memname">procedure scalars::scalars_t::set_initial_conditions </td>
           <td>(</td>
           <td class="paramtype">class(<a class="el" href="../../d2/df2/structscalars_1_1scalars__t.html">scalars_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">type(json_file), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>params</em></span>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -565,6 +570,7 @@ Here is the call graph for this function:</div>
 </div><div class="memdoc">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">params</td><td>The scalar parameters passed to <span class="tt"><a class="el" href="#a7c321b8c164ea1623a1fce3a6c17a59f" title="Initialize the scalars container.">init</a></span>, i.e. either the <span class="tt">case.scalars</span> array or the single <span class="tt">case.scalar</span> object. </td></tr>
     <tr><td class="paramname">user</td><td>Type with user-defined procedures. </td></tr>
     <tr><td class="paramname">is_restart</td><td>Whether the case is restarting from a checkpoint. </td></tr>
   </table>

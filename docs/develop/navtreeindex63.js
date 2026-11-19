@@ -1,11 +1,5 @@
 var NAVTREEINDEX63 =
 {
-"d8/d1e/structgmres__device_1_1gmres__device__t.html#a724a142176886d2efaf8cba013247f09":[1,0,212,0,23],
-"d8/d1e/structgmres__device_1_1gmres__device__t.html#a724a142176886d2efaf8cba013247f09":[2,0,186,0,23],
-"d8/d1e/structgmres__device_1_1gmres__device__t.html#a7297615d8f59dfb8b46acd8d14aa2ed2":[1,0,212,0,38],
-"d8/d1e/structgmres__device_1_1gmres__device__t.html#a7297615d8f59dfb8b46acd8d14aa2ed2":[2,0,186,0,38],
-"d8/d1e/structgmres__device_1_1gmres__device__t.html#a75721421d4d26e4ea23205cfbc34443b":[1,0,212,0,6],
-"d8/d1e/structgmres__device_1_1gmres__device__t.html#a75721421d4d26e4ea23205cfbc34443b":[2,0,186,0,6],
 "d8/d1e/structgmres__device_1_1gmres__device__t.html#a7a26ca7475df8bbbae8e745679a8f146":[1,0,212,0,43],
 "d8/d1e/structgmres__device_1_1gmres__device__t.html#a7a26ca7475df8bbbae8e745679a8f146":[2,0,186,0,43],
 "d8/d1e/structgmres__device_1_1gmres__device__t.html#a7db7297d01016af16e05d7c3c0a8590e":[1,0,212,0,26],
@@ -249,5 +243,11 @@ var NAVTREEINDEX63 =
 "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#ae7bfd09bcf4ed21331b9798d57249ae1":[1,0,387,0,21],
 "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#ae7bfd09bcf4ed21331b9798d57249ae1":[2,0,336,0,21],
 "d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#af80d3ebdd69b66b3db6fd3f9b6c4c542":[1,0,387,0,9],
-"d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#af80d3ebdd69b66b3db6fd3f9b6c4c542":[2,0,336,0,9]
+"d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#af80d3ebdd69b66b3db6fd3f9b6c4c542":[2,0,336,0,9],
+"d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#af9c0b27676fef9e7fb196249313e6edc":[1,0,387,0,2],
+"d8/d43/structscalar__stats__simcomp_1_1scalar__stats__simcomp__t.html#af9c0b27676fef9e7fb196249313e6edc":[2,0,336,0,2],
+"d8/d43/structscratch__registry_1_1scratch__registry__t.html":[1,0,390,0],
+"d8/d43/structscratch__registry_1_1scratch__registry__t.html":[2,0,339,0],
+"d8/d43/structscratch__registry_1_1scratch__registry__t.html#a007e9345ebdec9160665bc71a9ffc847":[1,0,390,0,22],
+"d8/d43/structscratch__registry_1_1scratch__registry__t.html#a007e9345ebdec9160665bc71a9ffc847":[2,0,339,0,22]
 };
