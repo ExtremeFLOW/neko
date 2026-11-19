@@ -33,9 +33,9 @@
 !> Object for handling masks in Neko.
 module mask
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr, &
-       c_size_t
+       c_size_t, c_associated
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_map, device_unmap, device_memcpy, &
+  use device, only : device_alloc, device_free, device_memcpy, &
        HOST_TO_DEVICE, DEVICE_TO_HOST, DEVICE_TO_DEVICE
   use device_math, only : device_cadd
   use utils, only : neko_error
@@ -51,8 +51,14 @@ module mask
   type, public :: mask_t
      private
      integer :: n_elements = 0 ! Number of elements in the mask
-     integer, allocatable :: mask(:) ! The mask array
-     type(c_ptr) :: mask_d = c_null_ptr ! Pointer to the device mask array
+     !> The mask array, 1-based (Fortran) indices
+     integer, allocatable :: mask(:)
+     !> Device copy of the mask, 0-based indices. It is a separate
+     !! allocation and never a mapping of @a mask: the two copies carry
+     !! different conventions, and on a unified-memory backend a mapped
+     !! array aliases its host array, so the in-place shift to 0-based
+     !! would corrupt the host copy that later merges read.
+     type(c_ptr) :: mask_d = c_null_ptr
      logical :: is_set_ = .false. ! Flag to indicate if the mask is set
 
    contains
@@ -100,7 +106,7 @@ contains
     allocate(this%mask(n_elements))
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%mask, this%mask_d, n_elements)
+       call device_alloc(this%mask_d, int(n_elements, c_size_t) * 4_c_size_t)
     end if
 
     this%n_elements = n_elements
@@ -111,8 +117,8 @@ contains
     class(mask_t), intent(inout) :: this
 
     if (allocated(this%mask)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%mask, this%mask_d)
+       if (c_associated(this%mask_d)) then
+          call device_free(this%mask_d)
        end if
        deallocate(this%mask)
     end if
@@ -154,7 +160,7 @@ contains
          DEVICE_TO_DEVICE, sync = .false.)
     call device_memcpy(this%mask, mask_array_d, n_elements, &
          DEVICE_TO_HOST, sync = .true.)
-    this%mask = this%mask - 1 ! Adjust for 0-based indexing
+    this%mask = this%mask + 1 ! device copy is 0-based, host is 1-based
 
     this%is_set_ = .true.
   end subroutine init_from_array_device
@@ -300,7 +306,7 @@ contains
          DEVICE_TO_DEVICE, sync = .false.)
     call device_memcpy(this%mask, mask_array_d, n_elements, &
          DEVICE_TO_HOST, sync = .true.)
-    this%mask = this%mask - 1 ! Adjust for 0-based indexing
+    this%mask = this%mask + 1 ! device copy is 0-based, host is 1-based
 
     this%is_set_ = .true.
   end subroutine mask_set_d

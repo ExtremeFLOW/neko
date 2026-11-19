@@ -37,7 +37,7 @@ module adv_oifs
   use space, only : space_t, GL
   use field, only : field_t
   use coefs, only : coef_t
-  use math, only : copy, rzero
+  use math, only : copy, rzero, addcol3s2
   use operators, only : runge_kutta, set_convect_rst
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
   use interpolation, only : interpolator_t
@@ -109,6 +109,8 @@ module adv_oifs
      procedure, pass(this) :: init => adv_oifs_init
      !> setting characteristic convecting field
      procedure, pass(this) :: set_conv_velocity_fst
+     !> Rebuild the convecting field series after a restart
+     procedure, pass(this) :: restart => adv_oifs_restart
      !> Destructor
      procedure, pass(this) :: free => adv_oifs_free
      !> add the advection term for ALE, i.e. \f$(u - w_m) \cdot \nabla s \f$, to
@@ -412,6 +414,21 @@ contains
 
   end subroutine set_conv_velocity_fst
 
+  !> Rebuild the convecting field series after a restart.
+  !! @details `convr_GL`, `convs_GL` and `convt_GL` are not stored in the
+  !! checkpoint. They are recomputed from the restored lagged velocities,
+  !! first `lf(2)` and then `lf(1)`. The next call to `compute` or
+  !! `compute_scalar` adds the current velocity, as in a run without restart.
+  subroutine adv_oifs_restart(this)
+    class(adv_oifs_t), intent(inout) :: this
+
+    call this%set_conv_velocity_fst(this%ulag%lf(2), this%vlag%lf(2), &
+         this%wlag%lf(2))
+    call this%set_conv_velocity_fst(this%ulag%lf(1), this%vlag%lf(1), &
+         this%wlag%lf(1))
+
+  end subroutine adv_oifs_restart
+
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
   !! the RHS using the OIFS method.
@@ -435,7 +452,7 @@ contains
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
     real(kind=dp) :: tau, tau1, th, dtau
-    integer :: i, ilag, itau, nel, n_GL
+    integer :: ilag, itau, nel, n_GL
 
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
@@ -486,32 +503,19 @@ contains
             end if
          else
             if (ilag .eq. 1) then
-               do i = 1, n
-                  fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(2) &
-                       * vx%x(i,1,1,1) * coef%B(i,1,1,1)
-                  fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(2) &
-                       * vy%x(i,1,1,1) * coef%B(i,1,1,1)
-                  fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(2) &
-                       * vz%x(i,1,1,1) * coef%B(i,1,1,1)
-               end do
+               call addcol3s2(fx%x, vx%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(2), n)
+               call addcol3s2(fy%x, vy%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(2), n)
+               call addcol3s2(fz%x, vz%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(2), n)
             else
-               do i = 1, n
-                  fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
-                       * ulag%lf(ilag-1)%x(i,1,1,1) &
-                       * coef%B(i,1,1,1)
-                  fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
-                       * vlag%lf(ilag-1)%x(i,1,1,1) &
-                       * coef%B(i,1,1,1)
-                  fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
-                       * wlag%lf(ilag-1)%x(i,1,1,1) &
-                       * coef%B(i,1,1,1)
-               end do
+               call addcol3s2(fx%x, ulag%lf(ilag-1)%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
+               call addcol3s2(fy%x, vlag%lf(ilag-1)%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
+               call addcol3s2(fz%x, wlag%lf(ilag-1)%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
             end if
          end if
          dtau = dctlag(ilag)/real(ntaubd)
@@ -567,7 +571,7 @@ contains
     real(kind=rp), intent(in), optional :: dt
 
     real(kind=dp) :: tau, tau1, th, dtau
-    integer :: i, ilag, itau, nel, n_GL
+    integer :: ilag, itau, nel, n_GL
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
 
@@ -605,17 +609,11 @@ contains
             end if
          else
             if (ilag .eq. 1) then
-               do i = 1, n
-                  fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(2) &
-                       * s%x(i,1,1,1) * coef%B(i,1,1,1)
-               end do
+               call addcol3s2(fs%x, s%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(2), n)
             else
-               do i = 1, n
-                  fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
-                       * slag%lf(ilag-1)%x(i,1,1,1) * coef%B(i,1,1,1)
-               end do
+               call addcol3s2(fs%x, slag%lf(ilag-1)%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
             end if
          end if
          dtau = dctlag(ilag)/real(ntaubd)

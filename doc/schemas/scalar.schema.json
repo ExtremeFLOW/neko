@@ -53,7 +53,7 @@
               "const": "user"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         },
         {
           "type": "object",
@@ -219,7 +219,7 @@
               "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         },
         {
           "type": "object",
@@ -267,7 +267,7 @@
               "$ref": "urn:neko:schema:common#/$defs/numberOrRef"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         },
         {
           "type": "object",
