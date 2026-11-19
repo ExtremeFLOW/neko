@@ -158,10 +158,12 @@ contains
     class(file_t), intent(inout) :: this
 
     if (allocated(this%file_type)) then
-       ! Release the (device mapped) output mask of an fld file
+       ! Release resources owned by the backend before deallocating it.
        select type (ft => this%file_type)
        class is (fld_file_t)
           call ft%set_mask()
+       class is (hdf5_file_t)
+          call ft%free()
        end select
        deallocate(this%file_type)
     end if

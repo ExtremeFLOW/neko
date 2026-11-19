@@ -1387,6 +1387,9 @@ contains
        else
           mixed_msk => this%mixed_dof_mask%get()
 
+          ! Each dof appears once in the mixed mask, so the nodes are
+          ! independent
+          !$omp parallel do private(j, u, uloc)
           do i = 1, m
              j = mixed_msk(i)
 
@@ -1412,6 +1415,7 @@ contains
              y(j) = u(2)
              z(j) = u(3)
           end do
+          !$omp end parallel do
        end if
     end if
   end subroutine coupled_vector_bc_projector_apply
