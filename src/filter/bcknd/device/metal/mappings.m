@@ -56,7 +56,6 @@ extern void *glb_cmd_queue;
  */
 static id<MTLComputePipelineState>
 get_mappings_pipeline(const char *name) {
-  id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = neko_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
   id<MTLFunction> func = [lib newFunctionWithName:nsName];
@@ -66,7 +65,7 @@ get_mappings_pipeline(const char *name) {
   }
   NSError *error = nil;
   id<MTLComputePipelineState> pso =
-    [device newComputePipelineStateWithFunction:func error:&error];
+    neko_metal_new_pipeline(func, NEKO_METAL_MAX_THREADS, &error);
   METAL_CHECK(error);
   return pso;
 }
@@ -93,6 +92,7 @@ static void mappings_dispatch(id<MTLComputePipelineState> pso,
     [enc endEncoding];
     [cb commit];
     [cb waitUntilCompleted];
+    METAL_CHECK_CB(cb);
   }
 }
 

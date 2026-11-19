@@ -41,6 +41,7 @@ module dynamic_smagorinsky_device
   use coefs, only : coef_t
   use elementwise_filter, only : elementwise_filter_t
   use gs_ops, only : GS_OP_ADD
+  use device, only : glb_cmd_event
   use device_math, only : device_col2
   use device_dynamic_smagorinsky_nut, only : device_s_abs_compute, &
        device_lij_compute_part1, device_lij_compute_part2, &
@@ -114,12 +115,10 @@ contains
     call strain_rate(s11%x_d, s22%x_d, s33%x_d, s12%x_d, s13%x_d, s23%x_d, &
          u%x_d, v%x_d, w%x_d, coef)
 
-    call coef%gs_h%op(s11, GS_OP_ADD)
-    call coef%gs_h%op(s22, GS_OP_ADD)
-    call coef%gs_h%op(s33, GS_OP_ADD)
-    call coef%gs_h%op(s12, GS_OP_ADD)
-    call coef%gs_h%op(s13, GS_OP_ADD)
-    call coef%gs_h%op(s23, GS_OP_ADD)
+    call coef%gs_h%op(s11%x, s22%x, s33%x, s11%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
+    call coef%gs_h%op(s12%x, s13%x, s23%x, s12%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
 
     call device_col2(s11%x_d, coef%mult_d, s11%dof%size())
     call device_col2(s22%x_d, coef%mult_d, s22%dof%size())
@@ -138,7 +137,7 @@ contains
          s_abs, test_filter, delta, alpha, &
          coef, u%dof%size())
 
-    call coef%gs_h%op(nut, GS_OP_ADD)
+    call coef%gs_h%op(nut, GS_OP_ADD, glb_cmd_event)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(tmp_indices)
