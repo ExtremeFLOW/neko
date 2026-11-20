@@ -48,6 +48,7 @@ module source_term_handler
   use device_math, only : device_col2
   use time_state, only : time_state_t
   use scratch_registry, only : neko_scratch_registry
+  use utils, only : neko_error
   implicit none
   private
 
@@ -75,6 +76,11 @@ module source_term_handler
      !> Number of source terms that are not extrapolated in time, counted
      !! when the terms are added.
      integer :: n_unextrapolated = 0
+     !> Number of source terms with an implicitly treated part, counted
+     !! when the terms are added.
+     integer :: n_implicit = 0
+     !> Whether the owning scheme can treat source terms implicitly.
+     logical :: supports_implicit = .false.
 
    contains
      !> Constructor.
@@ -83,6 +89,9 @@ module source_term_handler
      procedure, pass(this) :: free => source_term_handler_free
      !> Add source terms to the right-hand side fields.
      procedure, pass(this) :: compute => source_term_handler_compute
+     !> Sum the coefficients of the implicitly treated source parts.
+     procedure, pass(this) :: compute_implicit_coefficient => &
+          source_term_handler_compute_implicit_coefficient
      !> Generic interface to add a source term to the list.
      generic :: add => add_source_term, add_json_source_terms
      !> Append a new source term to the source_terms array.
@@ -144,6 +153,8 @@ contains
        deallocate(this%source_terms)
     end if
     this%n_unextrapolated = 0
+    this%n_implicit = 0
+    this%supports_implicit = .false.
 
     nullify(this%coef)
     nullify(this%user)
@@ -232,6 +243,55 @@ contains
 
   end subroutine source_term_handler_compute
 
+  !> Sum the coefficients of the implicitly treated source parts.
+  !! @details A source term with an implicitly treated part contributes
+  !! \f$ a_i u_i \f$ to the equation for each component \f$ u_i \f$ of the
+  !! unknown. The coefficients \f$ a_i \f$ of all such terms are summed into
+  !! `a`, which the scheme then moves to the left-hand side.
+  !! @param time The time state.
+  !! @param a The summed coefficients, one for each component of the unknown.
+  subroutine source_term_handler_compute_implicit_coefficient(this, time, a)
+    class(source_term_handler_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    type(field_list_t), intent(inout) :: a
+    integer :: i
+
+    do i = 1, a%size()
+       call field_rzero(a%get(i))
+    end do
+
+    if (.not. allocated(this%source_terms)) return
+
+    do i = 1, size(this%source_terms)
+       if (.not. this%source_terms(i)%source_term%has_implicit_coefficient) &
+            cycle
+       call this%source_terms(i)%source_term%compute_implicit_coefficient( &
+            a, time)
+    end do
+
+  end subroutine source_term_handler_compute_implicit_coefficient
+
+  !> Count the source terms with an implicitly treated part.
+  subroutine source_term_handler_count_implicit(this)
+    class(source_term_handler_t), intent(inout) :: this
+    integer :: i
+
+    this%n_implicit = 0
+    if (.not. allocated(this%source_terms)) return
+
+    do i = 1, size(this%source_terms)
+       if (this%source_terms(i)%source_term%has_implicit_coefficient) then
+          this%n_implicit = this%n_implicit + 1
+       end if
+    end do
+
+    if (this%n_implicit .gt. 0 .and. .not. this%supports_implicit) then
+       call neko_error("Source terms with an implicitly treated part are " // &
+            "not supported by " // trim(this%scheme_name))
+    end if
+
+  end subroutine source_term_handler_count_implicit
+
   !> Count the source terms that are not extrapolated in time.
   subroutine source_term_handler_count_unextrapolated(this)
     class(source_term_handler_t), intent(inout) :: this
@@ -303,6 +363,7 @@ contains
        end do
 
        call source_term_handler_count_unextrapolated(this)
+       call source_term_handler_count_implicit(this)
     end if
 
   end subroutine source_term_handler_add_json_source_terms
@@ -335,6 +396,7 @@ contains
     this%source_terms(n_sources + 1)%source_term = source_term
 
     call source_term_handler_count_unextrapolated(this)
+    call source_term_handler_count_implicit(this)
 
   end subroutine source_term_handler_add_source_term
 end module source_term_handler
