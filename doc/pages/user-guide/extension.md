@@ -36,9 +36,12 @@ supports this. Here is a list of things you can implement.
 - Matrix-vector products (`ax_t` descendants).
 - Scalar schemes (`scalar_scheme_t` descendants).
 - Scalar boundary conditions ([bc_t](#bc::bc_t) descendants).
+- Fluid schemes (`fluid_scheme_base_t` descendants). In practice, extend
+  `fluid_scheme_incompressible_t`, `fluid_scheme_compressible_t` or
+  `fluid_pnpn_t`, since parts of Neko outside the fluid, such as the scalars
+  and the LES models, rely on the components these types set up.
 
-This list will hopefully be extended later. Fluid schemes are a notable
-omission.
+This list will hopefully be extended later.
 
 To implement a new type, the easiest thing is to start by copying over the
 `.f90` of an already existing type, renaming things inside and then adding the

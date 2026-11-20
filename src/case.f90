@@ -33,7 +33,7 @@
 !> Defines a simulation case
 module case
   use num_types, only : rp, sp, dp
-  use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
+  use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
   use mesh_field, only : mesh_fld_t
@@ -289,9 +289,6 @@ contains
     !
     ! Setup fluid scheme
     !
-    call json_get(this%params, 'case.fluid.scheme', string_val)
-    call fluid_scheme_base_factory(this%fluid, trim(string_val))
-
     call json_get_or_lookup(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
     call json_get(this%params, 'case.fluid', fluid_params)
@@ -301,8 +298,8 @@ contains
     ! Set time lags in chkp
     call this%chkp%init()
     call this%chkp%add_time_state(this%time)
-    call this%fluid%init(this%msh, lx, fluid_params, numerics_params, &
-         this%user, this%chkp, output_boundary)
+    call fluid_scheme_factory(this%fluid, this%msh, lx, fluid_params, &
+         numerics_params, this%user, this%chkp, output_boundary)
 
 
     !
