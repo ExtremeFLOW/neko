@@ -365,6 +365,9 @@
         "freeze": {
           "type": "boolean"
         },
+        "strict_convergence": {
+          "type": "boolean"
+        },
         "Pe": {
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
