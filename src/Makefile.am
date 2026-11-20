@@ -491,8 +491,11 @@ neko_fortran_SOURCES = \
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/spalding.f90\
 	wall_models/cai_sagaut_model_ii.f90\
+	wall_models/reichardt.f90\
 	wall_models/bcknd/cpu/spalding_cpu.f90\
 	wall_models/bcknd/cpu/cai_sagaut_model_ii_cpu.f90\
+	wall_models/bcknd/cpu/reichardt_cpu.f90\
+	wall_models/bcknd/device/reichardt_device.F90\
 	wall_models/bcknd/device/spalding_device.F90\
 	wall_models/bcknd/device/cai_sagaut_model_ii_device.F90\
 	wall_models/rough_log_law.f90\
@@ -605,6 +608,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/hip/deardorff_nut.hip\
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
+	wall_models/bcknd/device/hip/reichardt.hip\
 	wall_models/bcknd/device/hip/cai_sagaut_model_ii.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
 	wall_models/bcknd/device/hip/most.hip\
@@ -681,6 +685,7 @@ libneko_la_SOURCES += \
 	comm/bcknd/device/cuda/comm_nvshmem.cu\
 	wall_models/bcknd/device/cuda/wall_model.cu\
 	wall_models/bcknd/device/cuda/spalding.cu\
+	wall_models/bcknd/device/cuda/reichardt.cu\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii.cu\
 	wall_models/bcknd/device/cuda/rough_log_law.cu\
 	wall_models/bcknd/device/cuda/most.cu\
@@ -787,6 +792,7 @@ libneko_la_SOURCES += \
 	wall_models/bcknd/device/opencl/wall_model.c\
 	wall_models/bcknd/device/opencl/rough_log_law.c\
 	wall_models/bcknd/device/opencl/spalding.c\
+	wall_models/bcknd/device/opencl/reichardt.c\
 	wall_models/bcknd/device/opencl/richardson.c\
 	wall_models/bcknd/device/opencl/most.c\
 	lpt/bcknd/device/opencl/lpt_periodic_bc.c\
@@ -866,6 +872,7 @@ METAL_OBJS = \
 	wall_models/bcknd/device/metal/wall_model.lo\
 	wall_models/bcknd/device/metal/rough_log_law.lo\
 	wall_models/bcknd/device/metal/spalding.lo\
+	wall_models/bcknd/device/metal/reichardt.lo\
 	wall_models/bcknd/device/metal/richardson.lo\
 	wall_models/bcknd/device/metal/most.lo\
 	lpt/bcknd/device/metal/lpt_periodic_bc.lo\
@@ -931,6 +938,7 @@ dist_noinst_DATA = \
 	wall_models/bcknd/device/metal/wall_model.m\
 	wall_models/bcknd/device/metal/rough_log_law.m\
 	wall_models/bcknd/device/metal/spalding.m\
+	wall_models/bcknd/device/metal/reichardt.m\
 	wall_models/bcknd/device/metal/richardson.m\
 	wall_models/bcknd/device/metal/most.m\
 	lpt/bcknd/device/metal/lpt_periodic_bc.m\
@@ -993,6 +1001,7 @@ METAL_KERNELS = \
 	wall_models/bcknd/device/metal/wall_model_kernel.metal\
 	wall_models/bcknd/device/metal/rough_log_law_kernel.metal\
 	wall_models/bcknd/device/metal/spalding_kernel.metal\
+	wall_models/bcknd/device/metal/reichardt_kernel.metal\
 	wall_models/bcknd/device/metal/richardson_kernel.metal\
 	wall_models/bcknd/device/metal/most_kernel.metal\
 	lpt/bcknd/device/metal/lpt_periodic_bc_kernel.metal\
@@ -1170,6 +1179,7 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/cuda/wall_model_kernel.h\
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
+	wall_models/bcknd/device/cuda/reichardt_kernel.h\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
     ale/bcknd/device/hip/ale_kinematics_kernel.h\
@@ -1243,6 +1253,7 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/hip/wall_model_kernel.h\
 	wall_models/bcknd/device/hip/spalding_kernel.h\
+	wall_models/bcknd/device/hip/reichardt_kernel.h\
 	wall_models/bcknd/device/hip/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
 	wall_models/bcknd/device/hip/most_kernel.h\
@@ -1299,6 +1310,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/opencl/wall_model_kernel.cl\
 	wall_models/bcknd/device/opencl/rough_log_law_kernel.cl\
 	wall_models/bcknd/device/opencl/spalding_kernel.cl\
+	wall_models/bcknd/device/opencl/reichardt_kernel.cl\
 	wall_models/bcknd/device/opencl/richardson_kernel.cl\
 	wall_models/bcknd/device/opencl/most_kernel.cl\
 	lpt/bcknd/device/opencl/lpt_periodic_bc_kernel.cl\
@@ -1370,6 +1382,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/metal/wall_model_kernel.metal\
 	wall_models/bcknd/device/metal/rough_log_law_kernel.metal\
 	wall_models/bcknd/device/metal/spalding_kernel.metal\
+	wall_models/bcknd/device/metal/reichardt_kernel.metal\
 	wall_models/bcknd/device/metal/richardson_kernel.metal\
 	wall_models/bcknd/device/metal/most_kernel.metal\
 	lpt/bcknd/device/metal/lpt_periodic_bc_kernel.metal\
