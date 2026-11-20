@@ -81,6 +81,8 @@ module checkpoint
      procedure, pass(this) :: get_time_history => chkp_get_time_history
      !> Return the restart time from a loaded checkpoint.
      procedure, pass(this) :: restart_time => chkp_restart_time
+     !> Whether a loaded checkpoint was interpolated onto the running case.
+     procedure, pass(this) :: is_interpolated => chkp_is_interpolated
      !> Restore a simulation time state from the checkpoint.
      procedure, pass(this) :: set_time_state => chkp_set_time_state
      !> Release all checkpoint payloads and restart metadata.
@@ -328,6 +330,20 @@ contains
 
     rtime = this%t
   end function chkp_restart_time
+
+  !> Whether a loaded checkpoint was interpolated onto the running case.
+  !! This is true when it was written on another mesh, set through
+  !! `case.restart_mesh_file`, or at another polynomial order.
+  !! @param Xh Function space of the running case.
+  !! @return True if the checkpoint data was interpolated when read.
+  pure function chkp_is_interpolated(this, Xh) result(interpolated)
+    class(chkp_t), intent(in) :: this
+    type(space_t), intent(in) :: Xh
+    logical :: interpolated
+
+    interpolated = allocated(this%previous_mesh%elements) .or. &
+         this%previous_Xh%lx .ne. Xh%lx
+  end function chkp_is_interpolated
 
   !> Restore a simulation time state from the checkpoint.
   !! @param time_state Simulation time state to restore.

@@ -991,18 +991,20 @@ contains
   !> Read and optionally interpolate one legacy checkpoint field.
   !! @param fh Open MPI file handle.
   !! @param byte_offset Byte offset of the rank-local field data.
-  !! @param x Simulation-space field storage to populate.
-  !! @param nel Number of local elements.
+  !! @param x Simulation-space field storage to populate. With mesh2mesh
+  !! interpolation it has the running case's size, not `nel` elements.
+  !! @param nel Number of local elements of the mesh the checkpoint is
+  !! laid out in.
   subroutine chkp_read_field(this, fh, byte_offset, x, nel)
     class(chkp_file_t) :: this
     type(MPI_File) :: fh
     integer(kind=MPI_OFFSET_KIND) :: byte_offset
     integer, intent(in) :: nel
-    real(kind=rp) :: x(this%sim_Xh%lxyz, nel)
+    real(kind=rp) :: x(*)
     real(kind=rp), allocatable :: read_array(:)
     integer :: nel_stride, frac_space
     type(MPI_Status) :: status
-    integer :: ierr, i, n
+    integer :: ierr, n
     logical :: interp_on_host = .true.
 
     n = this%chkp_xh%lxyz*nel
@@ -1012,15 +1014,13 @@ contains
     call MPI_File_read_at_all(fh, byte_offset, read_array, &
          n, MPI_REAL_PRECISION, status, ierr)
     if (this%mesh2mesh) then
-       x = 0.0_rp
+       ! x has the running case's size, one value per interpolation point
+       call rzero(x, this%global_interp%n_points)
        call this%global_interp%evaluate(x, read_array, interp_on_host)
-
     else if (this%sim_Xh%lx .ne. this%chkp_Xh%lx) then
        call this%space_interp%map_host(x, read_array, nel, this%sim_Xh)
     else
-       do i = 1,n
-          x(i,1) = read_array(i)
-       end do
+       x(1:n) = read_array(1:n)
     end if
     deallocate(read_array)
   end subroutine chkp_read_field
