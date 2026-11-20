@@ -317,6 +317,15 @@ else
    AC_SUBST(NEKO_BCKND, "CPU")
 fi
 
+# CUDA_ARCH is passed verbatim to nvcc, so it must carry its own flag:
+# a bare sm_80 is read by nvcc as an input file and the build fails.
+# Check the first word, as leading blanks are harmless.
+if test "x${have_cuda}" = xyes; then
+   set dummy $CUDA_ARCH
+   AS_CASE([$2], [''|-*], [],
+           [AC_MSG_ERROR([CUDA_ARCH='$CUDA_ARCH' is not an nvcc flag, use e.g. CUDA_ARCH=-arch=sm_80])])
+fi
+
 # Check if device aware MPI is requested
 if (test "x${have_cuda}" = xyes ||
     test "x${have_hip}" = xyes  ||
@@ -338,7 +347,7 @@ if (test "x${have_cuda}" = xyes ||
          # wrong architecture for the target GPU silently hurts performance
          # rather than failing to build -- worse than a clear error.
          AS_IF([test -z "$CUDA_ARCH"],
-               [AC_MSG_ERROR([CUDA_ARCH must be set explicitly to a value >= sm_60 for device-aware MPI])])
+               [AC_MSG_ERROR([CUDA_ARCH must be set explicitly for device-aware MPI, as an nvcc flag for sm_60 or newer, e.g. CUDA_ARCH=-arch=sm_80])])
       fi
 
       if  test "x${have_hip}" = xyes; then
