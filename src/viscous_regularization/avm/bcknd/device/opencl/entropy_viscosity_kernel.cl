@@ -99,8 +99,10 @@ __kernel void entropy_visc_apply_element_max_kernel(__global real * __restrict__
   sdata[tid] = max_val;
   barrier(CLK_LOCAL_MEM_FENCE);
 
-  for (int s = local_size / 2; s > 0; s >>= 1) {
-    if (tid < s) {
+  int s = 1;
+  while (s < local_size) s <<= 1;
+  for (s >>= 1; s > 0; s >>= 1) {
+    if (tid < s && tid + s < local_size) {
       sdata[tid] = fmax(sdata[tid], sdata[tid + s]);
     }
     barrier(CLK_LOCAL_MEM_FENCE);

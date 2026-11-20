@@ -155,6 +155,7 @@ module ale_manager
      procedure, pass(this) :: solve_base_mesh_displacement
      procedure, pass(this) :: advance_mesh
      procedure, pass(this) :: update_mesh_velocity
+     procedure, pass(this) :: set_initial_mesh_velocity
      procedure, pass(this) :: set_pivot_restart
      procedure, pass(this) :: sync_chkp
      procedure, pass(this) :: request_tracker
@@ -173,15 +174,20 @@ contains
 
   !> Initialize ALE Manager
   !> Sets up solver, registers fields, solves for base shape, etc.
-  subroutine ale_manager_init(this, coef, json, user, chkp)
+  !! @param coef The coefficients.
+  !! @param json The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  !! @param user Type with user-defined procedures.
+  !! @param chkp Checkpoint for restarts.
+  subroutine ale_manager_init(this, coef, json, numerics_params, user, chkp)
     class(ale_manager_t), intent(inout), target :: this
     type(coef_t), target, intent(inout) :: coef
     type(json_file), intent(inout) :: json
+    type(json_file), intent(inout) :: numerics_params
     type(user_t), intent(in) :: user
     type(chkp_t), intent(inout) :: chkp
     type(json_file) :: body_sub, bc_subdict
     type(json_file) :: precon_params, solver_params
-    type(time_state_t) :: t_init
     integer, allocatable :: zone_indices(:)
     integer :: time_order
     integer :: n_moving_zones
@@ -203,10 +209,10 @@ contains
     logical :: has_builtin_osc, has_builtin_rot, is_rot_active
     logical :: import_base_shapes
 
-    if (json%valid_path('case.fluid.ale')) then
-       call json_get(json, 'case.fluid.ale.enabled', this%active)
+    if (json%valid_path('ale')) then
+       call json_get(json, 'ale.enabled', this%active)
     end if
-    call json_get_or_default(json, 'case.numerics.oifs', oifs, .false.)
+    call json_get_or_default(numerics_params, 'oifs', oifs, .false.)
 
     if (.not. this%active) then
        neko_ale => null()
@@ -273,7 +279,7 @@ contains
 
     ! Enable B history (Blag, Blaglag)
     call coef%enable_B_history()
-    call json_get(json, 'case.numerics.time_order', time_order)
+    call json_get(numerics_params, 'time_order', time_order)
 
     ! Stuff for zone_id checks
     n_moving_zones = 0
@@ -295,11 +301,11 @@ contains
     call this%bc_moving%init_from_components(coef)
     call this%bc_fixed%init_from_components(coef)
 
-    if (json%valid_path('case.fluid.boundary_conditions')) then
-       call json%info('case.fluid.boundary_conditions', n_children = n_bcs)
+    if (json%valid_path('boundary_conditions')) then
+       call json%info('boundary_conditions', n_children = n_bcs)
 
        do i = 1, n_bcs
-          call json_extract_item(json, 'case.fluid.boundary_conditions', &
+          call json_extract_item(json, 'boundary_conditions', &
                i, bc_subdict)
 
           if (allocated(bc_type)) deallocate(bc_type)
@@ -338,8 +344,8 @@ contains
     call this%bc_list%append(this%bc_fixed)
 
     ! Mesh Stiffness
-    if (json%valid_path('case.fluid.ale.solver.mesh_stiffness.type')) then
-       call json%get('case.fluid.ale.solver.mesh_stiffness.type', tmp_str)
+    if (json%valid_path('ale.solver.mesh_stiffness.type')) then
+       call json%get('ale.solver.mesh_stiffness.type', tmp_str)
        this%config%stiffness_type = tmp_str
        if (.not. (trim(tmp_str) .eq. 'built-in')) then
           call neko_error("ALE: stiffness_type must be 'built-in'")
@@ -358,8 +364,8 @@ contains
     call neko_log%message(' ')
 
     ! Bodies
-    if (json%valid_path('case.fluid.ale.bodies')) then
-       call json%info('case.fluid.ale.bodies', n_children = n_bodies)
+    if (json%valid_path('ale.bodies')) then
+       call json%info('ale.bodies', n_children = n_bodies)
        this%config%nbodies = n_bodies
        allocate(this%config%bodies(n_bodies))
        allocate(this%ale_pivot(n_bodies))
@@ -385,7 +391,7 @@ contains
        end do
 
        do i = 1, n_bodies
-          call json_extract_item(json, 'case.fluid.ale.bodies', i, body_sub)
+          call json_extract_item(json, 'ale.bodies', i, body_sub)
           this%config%bodies(i)%id = i
 
           if (body_sub%valid_path('name')) then
@@ -800,15 +806,6 @@ contains
     call this%solve_base_mesh_displacement(coef, json, import_base_shapes, &
          solver_params, precon_type, precon_params)
 
-    ! If we are restarting, we skip this. It will be handled
-    ! properly by chkp file.
-    if (.not. json%valid_path('case.restart_file')) then
-       t_init%t = 0.0_rp
-       t_init%tstep = 0
-       t_init%dt = 0.0_rp
-       call this%update_mesh_velocity(coef, t_init)
-    end if
-
     call this%wm_x_lag%init(this%wm_x, 2)
     call this%wm_y_lag%init(this%wm_y, 2)
     call this%wm_z_lag%init(this%wm_z, 2)
@@ -822,7 +819,7 @@ contains
     if (allocated(tmp_vec)) deallocate(tmp_vec)
 
     ! Performing mesh_preview.
-    call this%mesh_preview(coef, json)
+    call this%mesh_preview(coef, json, numerics_params)
 
     ! Register checkpoint fields
     call this%register_checkpoint_fields(coef, chkp)
@@ -878,7 +875,7 @@ contains
 
        do body_idx = 1, this%config%nbodies
 
-          call json_extract_item(json, 'case.fluid.ale.bodies', &
+          call json_extract_item(json, 'ale.bodies', &
                body_idx, body_sub)
 
           call json_get(body_sub, 'base_shape_import_file', tmp_str)
@@ -1220,6 +1217,21 @@ contains
     call profiler_end_region('ALE add mesh velocity')
 
   end subroutine update_mesh_velocity
+
+  !> Set the mesh velocity at t = 0. Not called on a restart, where the
+  !! mesh velocity is read from the checkpoint.
+  !! @param coef The coefficients.
+  subroutine set_initial_mesh_velocity(this, coef)
+    class(ale_manager_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    type(time_state_t) :: t_init
+
+    t_init%t = 0.0_rp
+    t_init%tstep = 0
+    t_init%dt = 0.0_rp
+    call this%update_mesh_velocity(coef, t_init)
+
+  end subroutine set_initial_mesh_velocity
 
   !> Main routine to advance the mesh in time
   subroutine advance_mesh(this, coef, time, nadv)
@@ -1756,10 +1768,14 @@ contains
   end subroutine append_unique_int
 
   !> Performs a preview of the mesh motion to verify quality/topology
-  subroutine mesh_preview(this, coef, json)
+  !! @param coef The coefficients.
+  !! @param json The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  subroutine mesh_preview(this, coef, json, numerics_params)
     class(ale_manager_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: json
+    type(json_file), intent(inout) :: numerics_params
     type(fld_file_output_t) :: fout
     type(field_t) :: dummy_field
     type(time_state_t) :: t_state
@@ -1777,28 +1793,28 @@ contains
 
     mesh_preview_active = .false.
 
-    if (json%valid_path('case.fluid.ale.mesh_preview.enabled')) then
-       call json%get('case.fluid.ale.mesh_preview.enabled', &
+    if (json%valid_path('ale.mesh_preview.enabled')) then
+       call json%get('ale.mesh_preview.enabled', &
             mesh_preview_active)
     end if
 
     if (.not. mesh_preview_active) return
 
-    call json_get_or_default(json, 'case.fluid.ale.mesh_preview.start_time', &
+    call json_get_or_default(json, 'ale.mesh_preview.start_time', &
          t_start, 0.0_rp)
-    call json_get(json, 'case.fluid.ale.mesh_preview.end_time', &
+    call json_get(json, 'ale.mesh_preview.end_time', &
          t_end)
-    call json_get(json, 'case.fluid.ale.mesh_preview.dt', &
+    call json_get(json, 'ale.mesh_preview.dt', &
          dt)
     call json_get(json, &
-         'case.fluid.ale.mesh_preview.output_freq', &
+         'ale.mesh_preview.output_freq', &
          output_freq)
 
     call neko_log%section("ALE Mesh Preview")
     call neko_log%message("Executing mesh motion preview...")
 
     n_steps = int((t_end - t_start) / dt)
-    call json_get(json, 'case.numerics.time_order', nadv_sim)
+    call json_get(numerics_params, 'time_order', nadv_sim)
 
     write(log_buf, '(A, ES23.15)') '  Start Time : ', t_start
     call neko_log%message(log_buf)
@@ -2190,37 +2206,37 @@ contains
     if (allocated(precon_type)) deallocate(precon_type)
 
     call json_get_or_default(json, &
-         'case.fluid.ale.solver.import_base_shape', &
+         'ale.solver.import_base_shape', &
          import_base_shapes, .false.)
 
-    call json_get_or_default(json, 'case.fluid.ale.solver.type', &
+    call json_get_or_default(json, 'ale.solver.type', &
          ksp_solver, 'cg')
 
     call json_get_or_default(json, &
-         'case.fluid.ale.solver.preconditioner.type', precon_type, 'jacobi')
+         'ale.solver.preconditioner.type', precon_type, 'jacobi')
 
-    if (json%valid_path('case.fluid.ale.solver.preconditioner')) then
-       call json_get(json, 'case.fluid.ale.solver.preconditioner', &
+    if (json%valid_path('ale.solver.preconditioner')) then
+       call json_get(json, 'ale.solver.preconditioner', &
             precon_params)
     end if
 
     call json_get_or_default(json, &
-         'case.fluid.ale.solver.absolute_tolerance', abstol, 1.0e-10_rp)
+         'ale.solver.absolute_tolerance', abstol, 1.0e-10_rp)
 
-    call json_get(json, 'case.fluid.ale.solver', solver_params)
+    call json_get(json, 'ale.solver', solver_params)
 
-    if (json%valid_path('case.fluid.ale.solver.output_base_shape')) then
-       call json%get('case.fluid.ale.solver.output_base_shape', tmp_logical)
+    if (json%valid_path('ale.solver.output_base_shape')) then
+       call json%get('ale.solver.output_base_shape', tmp_logical)
        this%config%if_output_phi = tmp_logical
     end if
-    if (json%valid_path('case.fluid.ale.solver.output_stiffness')) then
-       call json%get('case.fluid.ale.solver.output_stiffness', tmp_logical)
+    if (json%valid_path('ale.solver.output_stiffness')) then
+       call json%get('ale.solver.output_stiffness', tmp_logical)
        this%config%if_output_stiffness = tmp_logical
     end if
 
     ! Mesh Stiffness
-    if (json%valid_path('case.fluid.ale.solver.mesh_stiffness.type')) then
-       call json%get('case.fluid.ale.solver.mesh_stiffness.type', tmp_str)
+    if (json%valid_path('ale.solver.mesh_stiffness.type')) then
+       call json%get('ale.solver.mesh_stiffness.type', tmp_str)
        this%config%stiffness_type = tmp_str
        if (.not. (trim(tmp_str) .eq. 'built-in')) then
           call neko_error("ALE: stiffness_type must be 'built-in'")

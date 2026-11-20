@@ -1,0 +1,51 @@
+USEMPI=YES
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
+FC = @FC@
+
+# Depend on the library so the test objects follow any change to Neko.
+NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
+
+%.o : %.F90 $(NEKO_LIB)
+	$(FC) -c $(FFLAGS) $<
+
+# Compile a private copy of the shared fixture, so that its module file
+# lands in this directory regardless of which suite was built first.
+error_redirection.o : ../fixtures/error_redirection.f90 $(NEKO_LIB)
+	$(FC) -c $(FFLAGS) -o error_redirection.o $<
+error_redirection.mod : error_redirection.o
+
+
+check: runtime_stats_suite
+
+# Regenerate this Makefile from Makefile.in via config.status
+# whenever it changes.
+SUBDIR := $(patsubst $(abspath @top_builddir@)/%,%,$(CURDIR))
+
+Makefile: Makefile.in @top_builddir@/config.status
+	cd @top_builddir@ && $(SHELL) ./config.status $(SUBDIR)/Makefile
+
+runtime_stats_suite_TESTS := test_runtime_stats.pf
+runtime_stats_suite_OTHER_LIBRARIES = error_redirection.o \
+    -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+# Redirect errors to pFUnit exceptions, so that a neko_error fails the test.
+runtime_stats_suite_EXTRA_USE := error_redirection
+runtime_stats_suite_EXTRA_INITIALIZE := redirect_errors
+$(eval $(call make_pfunit_test,runtime_stats_suite))
+runtime_stats_suite.inc: Makefile
+runtime_stats_suite_driver.o: error_redirection.o
+test_runtime_stats.o: error_redirection.o
+runtime_stats_suite: error_redirection.o
+
+distclean:
+clean:
+	$(RM) *.o *.mod *.a *.inc *.F90 runtime_stats_suite
+
+
+
+all:
+html:
+install:
+distdir:

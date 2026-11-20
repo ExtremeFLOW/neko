@@ -1,0 +1,187 @@
+!> Tests of the region table in runtime_stats_t.
+module test_runtime_stats
+  use pfunit
+  use comm, only : pe_rank
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use json_module, only : json_file
+  use runtime_stats, only : neko_rt_stats
+  implicit none
+
+  !> A name longer than the 25 characters a region name is stored with.
+  character(len=*), parameter :: long_name = 'abcdefghijklmnopqrstuvwxyz'
+
+  @TestCase
+  type, extends(MPITestCase) :: test_runtime_stats_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_runtime_stats_case
+
+contains
+
+  subroutine setUp(this)
+    class(test_runtime_stats_case), intent(inout) :: this
+
+    call comm_init_test(this%getMpiCommunicator())
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_init
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_runtime_stats_case), intent(inout) :: this
+
+    call neko_rt_stats%free()
+    if (NEKO_BCKND_DEVICE .eq. 1) call device_finalize
+    call comm_free_test()
+  end subroutine tearDown
+
+  !> Enable the runtime statistics, writing profile.csv if @a output_profile.
+  !! A stale profile.csv is removed, since the report appends to it.
+  !! @param output_profile Whether the report writes profile.csv.
+  subroutine enable_stats(output_profile)
+    logical, intent(in) :: output_profile
+    type(json_file) :: params
+    integer :: unit
+
+    if (output_profile .and. pe_rank .eq. 0) then
+       open(newunit = unit, file = 'profile.csv')
+       close(unit, status = 'delete')
+    end if
+
+    call params%initialize()
+    call params%add('case.runtime_statistics.enabled', .true.)
+    call params%add('case.runtime_statistics.output_profile', output_profile)
+    call neko_rt_stats%init(params)
+    call params%destroy()
+  end subroutine enable_stats
+
+  !> Report, then check profile.csv on rank 0 and delete it.
+  !! @param expected The expected header line.
+  !! @param nrows The expected number of rows of samples.
+  subroutine check_profile(expected, nrows)
+    character(len=*), intent(in) :: expected
+    integer, intent(in) :: nrows
+    character(len=4096) :: line
+    integer :: unit, ierr, n
+
+    call neko_rt_stats%report()
+    if (pe_rank .ne. 0) return
+
+    open(newunit = unit, file = 'profile.csv', status = 'old', &
+         action = 'read', iostat = ierr)
+    @assertEqual(0, ierr, 'Could not open profile.csv')
+
+    read(unit, '(A)', iostat = ierr) line
+    if (ierr .ne. 0) line = ''
+    n = 0
+    do
+       read(unit, '(A)', iostat = ierr)
+       if (ierr .ne. 0) exit
+       n = n + 1
+    end do
+    close(unit, status = 'delete')
+    @assertEqual(expected, trim(line))
+    @assertEqual(nrows, n)
+  end subroutine check_profile
+
+  !> More distinct names than the initial table holds all get a region,
+  !! and the report reduces each of them over the ranks.
+  @test(npes=[2])
+  subroutine test_many_distinct_names(this)
+    class(test_runtime_stats_case), intent(inout) :: this
+    character(len=16) :: name
+    character(len=:), allocatable :: expected
+    integer :: i
+
+    call enable_stats(.true.)
+    expected = ''
+    do i = 1, 60
+       write(name, '(A,I0)') 'region_', i
+       call neko_rt_stats%start_region(trim(name))
+       if (anyExceptions()) return
+       call neko_rt_stats%end_region(trim(name))
+       if (anyExceptions()) return
+       expected = expected // trim(name) // ','
+    end do
+
+    ! A second sample of a region recorded before the table grew
+    call neko_rt_stats%start_region('region_1')
+    call neko_rt_stats%end_region('region_1')
+
+    call check_profile(expected, 2)
+  end subroutine test_many_distinct_names
+
+  !> A name longer than the stored length reuses a single region.
+  @test(npes=[2])
+  subroutine test_long_name_repeated(this)
+    class(test_runtime_stats_case), intent(inout) :: this
+    integer :: i
+
+    call enable_stats(.true.)
+    do i = 1, 30
+       call neko_rt_stats%start_region(long_name)
+       if (anyExceptions()) return
+       call neko_rt_stats%end_region()
+       if (anyExceptions()) return
+    end do
+
+    call check_profile(long_name(1:25) // ',', 30)
+  end subroutine test_long_name_repeated
+
+  !> A name longer than the stored length can be ended by name.
+  @test(npes=[2])
+  subroutine test_long_name_end_by_name(this)
+    class(test_runtime_stats_case), intent(inout) :: this
+
+    call enable_stats(.false.)
+    call neko_rt_stats%start_region(long_name)
+    if (anyExceptions()) return
+    call neko_rt_stats%end_region(long_name)
+  end subroutine test_long_name_end_by_name
+
+  !> A region with a reserved id and a long name can be ended and restarted.
+  @test(npes=[2])
+  subroutine test_long_name_reserved_id(this)
+    class(test_runtime_stats_case), intent(inout) :: this
+    integer :: i
+
+    call enable_stats(.false.)
+    do i = 1, 2
+       call neko_rt_stats%start_region(long_name, 7)
+       if (anyExceptions()) return
+       call neko_rt_stats%end_region(long_name, 7)
+       if (anyExceptions()) return
+    end do
+  end subroutine test_long_name_reserved_id
+
+  !> The profile.csv header lists every region of a full table, reserved
+  !! and named, even when it is longer than any fixed-length buffer.
+  @test(npes=[2])
+  subroutine test_profile_header_complete(this)
+    class(test_runtime_stats_case), intent(inout) :: this
+    character(len=25) :: name
+    character(len=:), allocatable :: expected
+    integer :: i
+
+    call enable_stats(.true.)
+    expected = ''
+    do i = 1, 50
+       write(name, '(A,I3.3)') 'region_name_of_length_', i
+       if (i .le. 25) then
+          call neko_rt_stats%start_region(name, i)
+          if (anyExceptions()) return
+          call neko_rt_stats%end_region(name, i)
+       else
+          call neko_rt_stats%start_region(name)
+          if (anyExceptions()) return
+          call neko_rt_stats%end_region(name)
+       end if
+       if (anyExceptions()) return
+       expected = expected // name // ','
+    end do
+
+    call check_profile(expected, 1)
+  end subroutine test_profile_header_complete
+
+end module test_runtime_stats

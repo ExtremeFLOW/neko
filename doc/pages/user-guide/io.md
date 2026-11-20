@@ -209,7 +209,10 @@ timestep is saved under `filename.data/###.h5`, while the main VTKHDF file
 `filename.vtkhdf` loads these files seamlessly when opened in ParaView. This
 approach allows for efficient storage and access of large temporal datasets
 while maintaining compatibility with the VTKHDF specification. Please note that
-the data must be stored as specified above to function.
+the data must be stored as specified above to function. A run interrupted while
+writing a timestep normally leaves the file of the timestep being written in
+`filename.data/` without data. Readers ignore such a file, and the next write
+of that timestep replaces it.
 
 Please see the HDF5 documentation for Virtual Datasets if needed:
 https://support.hdfgroup.org/documentation/hdf5/latest/_v_d_s_t_n.html

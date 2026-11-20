@@ -85,6 +85,8 @@ expression/expression_test
 point_interpolation/point_interpolation_suite
 **/test_write_*.vtkhdf
 **/test_write_*.data/*.h5
+**/test_read_*.vtkhdf
+**/test_read_*.data/*.h5
 restart_consistency/restart_consistency_suite
 restart_consistency_hdf5/restart_consistency_hdf5_suite
 **/restart_consistency*.nmsh
