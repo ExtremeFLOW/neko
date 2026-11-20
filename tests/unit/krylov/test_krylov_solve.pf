@@ -1,0 +1,351 @@
+!> Solves of a small Helmholtz system with the Krylov solvers, checking that
+!! a solver returns the solution whose residual it reports, whether it stops
+!! because it converged or because it reached its iteration limit.
+module test_krylov_solve
+  use pfunit
+  use num_types, only : rp
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use device, only : device_init, device_finalize, device_memcpy, &
+       HOST_TO_DEVICE
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_CUDA, &
+       NEKO_BCKND_HIP, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
+  use mesh_fixture, only : stacked_unit_hex_column_mesh
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t, GS_OP_ADD
+  use coefs, only : coef_t
+  use field, only : field_t
+  use ax_product, only : ax_t, ax_helm_allocator
+  use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory, &
+       KSP_MAX_ITER
+  use precon, only : pc_t
+  use identity, only : ident_t
+  use device_identity, only : device_ident_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : segregated_vector_bc_projector_t
+  use math, only : glsc3, sub3, NEKO_EPS
+  use device_math, only : device_glsc3, device_sub3
+  implicit none
+
+  !> Number of points per direction in each element.
+  integer, parameter :: lx_test = 6
+  !> Number of elements in the mesh.
+  integer, parameter :: nel_test = 4
+  !> Largest iteration limit of the solves that stop at their limit. It
+  !! covers several accumulation cycles of every pipelined solver.
+  integer, parameter :: max_iter_test = 30
+  !> Absolute tolerance no solve reaches.
+  real(kind=rp), parameter :: unreachable_tol = tiny(1.0_rp)
+  !> Tolerance for the difference between the reported and the true
+  !! residual, relative to the initial residual. The recursively updated
+  !! residual of a solver drifts from the true one by rounding errors, which
+  !! scale with the initial residual.
+  real(kind=rp), parameter :: res_tol = 1.0e4_rp * NEKO_EPS
+
+  @TestCase
+  type, extends(MPITestCase) :: krylov_solve_case
+     type(mesh_t) :: msh
+     type(space_t) :: Xh
+     type(dofmap_t) :: dof
+     type(gs_t) :: gs
+     type(coef_t) :: coef
+     !> Helmholtz operator.
+     class(ax_t), allocatable :: Ax
+     !> Projector without any constrained points.
+     type(scalar_bc_projector_t) :: bcp
+     !> Right-hand side.
+     type(field_t) :: f
+     !> Solution.
+     type(field_t) :: x
+     !> Work fields for the residual.
+     type(field_t) :: w, r
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type krylov_solve_case
+
+contains
+
+  subroutine setUp(this)
+    class(krylov_solve_case), intent(inout) :: this
+    integer :: i, n
+
+    call comm_init_test(this%getMpiCommunicator())
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call neko_mpi_types_init()
+
+    call stacked_unit_hex_column_mesh(this%msh, nel_test)
+    call this%Xh%init(GLL, lx_test, lx_test, lx_test)
+    call this%dof%init(this%msh, this%Xh)
+    call this%gs%init(this%dof)
+    call this%coef%init(this%gs)
+
+    ! With the mass term, h1 K + h2 B with h1 = h2 = 1 is symmetric positive
+    ! definite without any boundary conditions.
+    this%coef%ifh2 = .true.
+    call ax_helm_allocator(this%Ax, 'standard')
+
+    call this%f%init(this%dof, 'f')
+    call this%x%init(this%dof, 'x')
+    call this%w%init(this%dof, 'w')
+    call this%r%init(this%dof, 'r')
+
+    ! A right-hand side that excites the whole spectrum, so that the solves
+    ! take many iterations, summed over shared points to make it continuous.
+    n = this%dof%size()
+    do i = 1, n
+       this%f%x(i,1,1,1) = modulo(0.618034_rp * real(i, rp), 1.0_rp) - 0.5_rp
+    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(this%f%x, this%f%x_d, n, HOST_TO_DEVICE, &
+            sync = .true.)
+    end if
+    call this%gs%op(this%f, GS_OP_ADD)
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(krylov_solve_case), intent(inout) :: this
+
+    call this%r%free()
+    call this%w%free()
+    call this%x%free()
+    call this%f%free()
+    call this%bcp%free()
+    call this%Ax%free()
+    deallocate(this%Ax)
+    call this%coef%free()
+    call this%gs%free()
+    call this%dof%free()
+    call this%Xh%free()
+    call this%msh%free()
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+    call neko_mpi_types_free()
+    call comm_free_test()
+  end subroutine tearDown
+
+  !> Pipelined CG returns the solution whose residual it reports when it
+  !! converges, for exits spread over several of its accumulation cycles.
+  @test(npes=[1])
+  subroutine test_pipecg_converged_solution(this)
+    class(krylov_solve_case), intent(inout) :: this
+    type(ksp_monitor_t) :: ksp_results
+    real(kind=rp) :: f_norm, abs_tol, res, tol
+    integer :: k, last_iter
+    integer, parameter :: n_tol = 12
+    character(len=80) :: msg
+
+    if (.not. pipecg_supported()) return
+
+    f_norm = field_norm(this, this%f)
+    last_iter = 0
+    do k = 1, n_tol
+       abs_tol = f_norm * 10.0_rp**(-2.0_rp * real(k, rp) / real(n_tol, rp))
+       ksp_results = solve_system(this, 'pipecg', KSP_MAX_ITER, abs_tol, &
+            this%x)
+       res = residual_norm(this, this%x)
+       tol = res_tol * ksp_results%res_start
+       write(msg, '(A,I0,A)') 'pipecg converged after ', ksp_results%iter, &
+            ' iterations'
+       @assertTrue(ksp_results%converged, message=msg)
+       @assertEqual(res, ksp_results%res_final, tolerance=tol, message=msg)
+       last_iter = max(last_iter, ksp_results%iter)
+    end do
+
+    ! The exits must reach past the first accumulation cycles.
+    @assertTrue(last_iter .gt. max_iter_test)
+  end subroutine test_pipecg_converged_solution
+
+  !> Pipelined CG returns the solution whose residual it reports when it
+  !! stops at its iteration limit, at every point of its accumulation cycle.
+  @test(npes=[1])
+  subroutine test_pipecg_max_iter_solution(this)
+    class(krylov_solve_case), intent(inout) :: this
+    type(ksp_monitor_t) :: ksp_results
+    real(kind=rp) :: res, tol
+    integer :: max_iter
+    character(len=80) :: msg
+
+    if (.not. pipecg_supported()) return
+
+    do max_iter = 1, max_iter_test
+       ksp_results = solve_system(this, 'pipecg', max_iter, unreachable_tol, &
+            this%x)
+       res = residual_norm(this, this%x)
+       tol = res_tol * ksp_results%res_start
+       write(msg, '(A,I0)') 'pipecg with max_iter = ', max_iter
+       @assertFalse(ksp_results%converged, message=msg)
+       @assertEqual(res, ksp_results%res_final, tolerance=tol, message=msg)
+    end do
+  end subroutine test_pipecg_max_iter_solution
+
+  !> Fused CG stops at its iteration limit and returns the solution whose
+  !! residual it reports.
+  @test(npes=[1])
+  subroutine test_fusedcg_max_iter(this)
+    class(krylov_solve_case), intent(inout) :: this
+    type(ksp_monitor_t) :: ksp_results
+    real(kind=rp) :: res, tol
+    integer :: max_iter
+    character(len=80) :: msg
+
+    if (.not. fusedcg_supported()) return
+
+    do max_iter = 1, max_iter_test
+       ksp_results = solve_system(this, 'fused_cg', max_iter, &
+            unreachable_tol, this%x)
+       res = residual_norm(this, this%x)
+       tol = res_tol * ksp_results%res_start
+       write(msg, '(A,I0,A,I0)') 'fused_cg with max_iter = ', max_iter, &
+            ' stopped at ', ksp_results%iter
+       @assertTrue(ksp_results%iter .le. max_iter + 1, message=msg)
+       @assertFalse(ksp_results%converged, message=msg)
+       @assertEqual(res, ksp_results%res_final, tolerance=tol, message=msg)
+    end do
+  end subroutine test_fusedcg_max_iter
+
+  !> Coupled fused CG stops at its iteration limit and returns the solution
+  !! whose residual it reports.
+  @test(npes=[1])
+  subroutine test_fused_coupled_cg_max_iter(this)
+    class(krylov_solve_case), intent(inout) :: this
+    type(ksp_monitor_t) :: ksp_results(3)
+    type(segregated_vector_bc_projector_t) :: vbcp
+    type(field_t) :: y, z
+    class(ksp_t), allocatable :: ksp
+    class(pc_t), allocatable, target :: M
+    real(kind=rp) :: res, tol
+    integer :: max_iter, n
+    character(len=80) :: msg
+
+    if (.not. fusedcg_supported()) return
+
+    n = this%dof%size()
+    call y%init(this%dof, 'y')
+    call z%init(this%dof, 'z')
+    call vbcp%init(this%coef)
+    do max_iter = 1, max_iter_test
+       call identity_precon(M)
+       call krylov_solver_factory(ksp, n, 'fused_coupled_cg', max_iter, &
+            unreachable_tol, M)
+       ksp_results = ksp%solve_coupled(this%Ax, this%x, y, z, &
+            this%f%x, this%f%x, this%f%x, n, this%coef, vbcp, this%gs)
+       call ksp%free()
+       deallocate(ksp)
+       call M%free()
+       deallocate(M)
+
+       ! The solver reports the norm of the residuals of all components.
+       res = sqrt(residual_norm(this, this%x)**2 + &
+            residual_norm(this, y)**2 + residual_norm(this, z)**2)
+       tol = res_tol * ksp_results(1)%res_start
+       write(msg, '(A,I0,A,I0)') 'fused_coupled_cg with max_iter = ', &
+            max_iter, ' stopped at ', ksp_results(1)%iter
+       @assertTrue(ksp_results(1)%iter .le. max_iter + 1, message=msg)
+       @assertFalse(ksp_results(1)%converged, message=msg)
+       @assertEqual(res, ksp_results(1)%res_final, tolerance=tol, message=msg)
+    end do
+    call vbcp%free()
+    call z%free()
+    call y%free()
+  end subroutine test_fused_coupled_cg_max_iter
+
+  !> Solve the system of the test case with a new Krylov solver and the
+  !! identity preconditioner.
+  !! @param type_name Type of the Krylov solver.
+  !! @param max_iter Iteration limit of the solver.
+  !! @param abs_tol Absolute tolerance of the solver.
+  !! @param u Solution.
+  function solve_system(this, type_name, max_iter, abs_tol, u) &
+       result(ksp_results)
+    class(krylov_solve_case), intent(inout) :: this
+    character(len=*), intent(in) :: type_name
+    integer, intent(in) :: max_iter
+    real(kind=rp), intent(in) :: abs_tol
+    type(field_t), intent(inout) :: u
+    type(ksp_monitor_t) :: ksp_results
+    class(ksp_t), allocatable :: ksp
+    class(pc_t), allocatable, target :: M
+    integer :: n
+
+    n = this%dof%size()
+    call identity_precon(M)
+    call krylov_solver_factory(ksp, n, type_name, max_iter, abs_tol, M)
+    ksp_results = ksp%solve(this%Ax, u, this%f%x, n, this%coef, this%bcp, &
+         this%gs)
+    call ksp%free()
+    deallocate(ksp)
+    call M%free()
+    deallocate(M)
+  end function solve_system
+
+  !> Norm of the residual f - A u, as the Krylov solvers measure it.
+  !! @param u Solution.
+  function residual_norm(this, u) result(rnorm)
+    class(krylov_solve_case), intent(inout) :: this
+    type(field_t), intent(inout) :: u
+    real(kind=rp) :: rnorm
+    integer :: n
+
+    n = this%dof%size()
+    call this%Ax%compute(this%w%x, u%x, this%coef, this%msh, this%Xh)
+    call this%gs%op(this%w, GS_OP_ADD)
+    call this%bcp%apply(this%w%x, n)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_sub3(this%r%x_d, this%f%x_d, this%w%x_d, n)
+    else
+       call sub3(this%r%x, this%f%x, this%w%x, n)
+    end if
+    rnorm = field_norm(this, this%r)
+  end function residual_norm
+
+  !> Norm of a field, as the Krylov solvers measure residuals.
+  !! @param u Field.
+  function field_norm(this, u) result(unorm)
+    class(krylov_solve_case), intent(inout) :: this
+    type(field_t), intent(inout) :: u
+    real(kind=rp) :: unorm
+    integer :: n
+
+    n = this%dof%size()
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       unorm = device_glsc3(u%x_d, this%coef%mult_d, u%x_d, n)
+    else
+       unorm = glsc3(u%x, this%coef%mult, u%x, n)
+    end if
+    unorm = sqrt(unorm) / sqrt(this%coef%volume)
+  end function field_norm
+
+  !> Allocate the identity preconditioner of the backend.
+  !! @param M Preconditioner.
+  subroutine identity_precon(M)
+    class(pc_t), allocatable, intent(inout) :: M
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       allocate(device_ident_t :: M)
+    else
+       allocate(ident_t :: M)
+    end if
+  end subroutine identity_precon
+
+  !> Whether the backend has a pipelined CG solver.
+  pure function pipecg_supported() result(supported)
+    logical :: supported
+
+    supported = NEKO_BCKND_OPENCL .ne. 1 .and. NEKO_BCKND_METAL .ne. 1
+  end function pipecg_supported
+
+  !> Whether the backend has the fused CG solvers.
+  pure function fusedcg_supported() result(supported)
+    logical :: supported
+
+    supported = NEKO_BCKND_CUDA .eq. 1 .or. NEKO_BCKND_HIP .eq. 1
+  end function fusedcg_supported
+
+end module test_krylov_solve

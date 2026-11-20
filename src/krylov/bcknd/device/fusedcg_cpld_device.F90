@@ -32,7 +32,7 @@
 !
 !> Defines a fused Conjugate Gradient method for accelerators
 module fusedcg_cpld_device
-  use krylov, only : ksp_t, ksp_monitor_t, KSP_MAX_ITER
+  use krylov, only : ksp_t, ksp_monitor_t
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only : rp, c_rp
@@ -563,7 +563,7 @@ contains
     if (present(niter)) then
        max_iter = niter
     else
-       max_iter = KSP_MAX_ITER
+       max_iter = this%max_iter
     end if
     norm_fac = 1.0_rp / sqrt(coef%volume)
 

@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2024, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -476,12 +476,21 @@ contains
          end if
       end do
 
+      ! Add the updates not yet added to x, held in slots 1 to p_cur - 1
       if ( p_cur .ne. 1) then
-         call device_memcpy(alpha, alpha_d, p_cur, HOST_TO_DEVICE, &
+         call device_memcpy(alpha, alpha_d, p_cur - 1, HOST_TO_DEVICE, &
               sync = .false.)
-         call device_memcpy(beta, beta_d, p_cur, HOST_TO_DEVICE, sync = .false.)
-         call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, p_cur, &
-              DEVICE_PIPECG_P_SPACE, n)
+         call device_memcpy(beta, beta_d, p_cur - 1, HOST_TO_DEVICE, &
+              sync = .false.)
+         call device_cg_update_xp(x%x_d, p_d, u_d_d, alpha_d, beta_d, &
+              p_cur - 1, DEVICE_PIPECG_P_SPACE, n)
+      end if
+
+      ! At max_iter, rnorm is still the residual from before the last
+      ! update, which x includes
+      if (iter .gt. max_iter) then
+         rtr = device_glsc3(r_d, coef%mult_d, r_d, n)
+         rnorm = sqrt(rtr)*norm_fac
       end if
       call this%monitor_stop()
       ksp_results%res_final = rnorm
