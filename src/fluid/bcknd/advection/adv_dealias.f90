@@ -49,22 +49,78 @@ module adv_dealias
   implicit none
   private
 
-  !> Type encapsulating advection routines with dealiasing
-  type, public, extends(advection_t) :: adv_dealias_t
-     !> Coeffs of the higher-order space
-     type(coef_t) :: coef_GL
-     !> Coeffs of the original space in the simulation
-     type(coef_t), pointer :: coef_GLL
-     !> Interpolator between the original and higher-order spaces
-     type(interpolator_t) :: GLL_to_GL
+  !> Shared, reference-counted state for every dealiased advection instance
+  !! built on the same (lxd, coef) pair.
+  !!
+  !! The fluid and every scalar construct their own advection object, but the
+  !! GL space and the geometry mapped onto it are identical between them, and
+  !! the work arrays are only live inside a single compute() call. One node
+  !! therefore serves all of them: at lx = 8 that is 30 field units of
+  !! duplicated geometry and 27 of duplicated scratch reclaimed per scalar.
+  !!
+  !! Nodes are individually allocated and held in a linked list so that the
+  !! pointers handed out to instances stay valid as the list grows.
+  type :: adv_dealias_scratch_t
+     !> Order of the dealiasing space, part of the lookup key.
+     integer :: lxd = -1
+     !> The fine-level coefficients this node was built from, the other half
+     !! of the lookup key. Also the only coef whose geometry it holds.
+     type(coef_t), pointer :: key_coef => null()
+     !> Number of adv_dealias_t instances pointing at this node.
+     integer :: refcount = 0
+     !> Set while a compute() is using the work arrays. Sharing them is only
+     !! sound because the schemes are advanced one at a time; this turns a
+     !! violation of that into an error instead of a silent data race.
+     logical :: busy = .false.
+     !> `key_coef%metrics_version` at the last geometry refresh, so that a
+     !! moving mesh re-maps the derivative arrays once rather than once per
+     !! scheme sharing this node.
+     integer :: metrics_version = -1
      !> The additional higher-order space used in dealiasing
      type(space_t) :: Xh_GL
-     !> The original space used in the simulation
-     type(space_t), pointer :: Xh_GLL
+     !> Coeffs of the higher-order space
+     type(coef_t) :: coef_GL
+     !> Interpolator between the original and higher-order spaces
+     type(interpolator_t) :: GLL_to_GL
      real(kind=rp), allocatable :: temp(:), tbf(:)
      !> Temporary arrays
      real(kind=rp), allocatable :: tx(:), ty(:), tz(:)
      real(kind=rp), allocatable :: vr(:), vs(:), vt(:)
+     type(c_ptr) :: temp_d = C_NULL_PTR
+     type(c_ptr) :: tbf_d = C_NULL_PTR
+     type(c_ptr) :: tx_d = C_NULL_PTR
+     type(c_ptr) :: ty_d = C_NULL_PTR
+     type(c_ptr) :: tz_d = C_NULL_PTR
+     type(c_ptr) :: vr_d = C_NULL_PTR
+     type(c_ptr) :: vs_d = C_NULL_PTR
+     type(c_ptr) :: vt_d = C_NULL_PTR
+     !> Next node in the pool.
+     type(adv_dealias_scratch_t), pointer :: next => null()
+  end type adv_dealias_scratch_t
+
+  !> Head of the shared scratch pool.
+  type(adv_dealias_scratch_t), pointer :: adv_dealias_pool => null()
+
+  !> Type encapsulating advection routines with dealiasing
+  type, public, extends(advection_t) :: adv_dealias_t
+     !> The shared node backing every pointer below.
+     type(adv_dealias_scratch_t), pointer :: scratch => null()
+     !> Coeffs of the higher-order space
+     type(coef_t), pointer :: coef_GL => null()
+     !> Coeffs of the original space in the simulation
+     type(coef_t), pointer :: coef_GLL => null()
+     !> Interpolator between the original and higher-order spaces
+     type(interpolator_t), pointer :: GLL_to_GL => null()
+     !> The additional higher-order space used in dealiasing
+     type(space_t), pointer :: Xh_GL => null()
+     !> The original space used in the simulation
+     type(space_t), pointer :: Xh_GLL => null()
+     real(kind=rp), pointer, contiguous :: temp(:) => null(), tbf(:) => null()
+     !> Temporary arrays
+     real(kind=rp), pointer, contiguous :: tx(:) => null(), ty(:) => null(), &
+          tz(:) => null()
+     real(kind=rp), pointer, contiguous :: vr(:) => null(), vs(:) => null(), &
+          vt(:) => null()
      !> Device pointer for `temp`
      type(c_ptr) :: temp_d = C_NULL_PTR
      !> Device pointer for `tbf`
@@ -108,50 +164,44 @@ contains
     class(adv_dealias_t), target, intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), intent(inout), target :: coef
-    integer :: nel, n_GL, n
 
-    call this%Xh_GL%init(GL, lxd, lxd, lxd)
+    call this%free()
+
+    ! The GL space, its geometry and the work arrays are identical for every
+    ! scheme built on this (lxd, coef), so take a reference to a shared node
+    ! rather than building a private copy.
+    this%scratch => adv_dealias_scratch_acquire(lxd, coef)
+
+    this%Xh_GL => this%scratch%Xh_GL
+    this%coef_GL => this%scratch%coef_GL
+    this%GLL_to_GL => this%scratch%GLL_to_GL
     this%Xh_GLL => coef%Xh
     this%coef_GLL => coef
-    call this%GLL_to_GL%init(this%Xh_GL, this%Xh_GLL)
 
-    call this%coef_GL%init(this%Xh_GL, coef%msh)
+    ! The plain CPU path builds its temporaries per element on the stack and
+    ! the node allocates nothing, so there is nothing to point at there.
+    if (allocated(this%scratch%temp)) then
+       this%temp => this%scratch%temp
+       this%tbf => this%scratch%tbf
+       this%tx => this%scratch%tx
+       this%ty => this%scratch%ty
+       this%tz => this%scratch%tz
+       this%vr => this%scratch%vr
+       this%vs => this%scratch%vs
+       this%vt => this%scratch%vt
 
-    nel = coef%msh%nelv
-    n_GL = nel*this%Xh_GL%lxyz
-    n = nel*coef%Xh%lxyz
-    call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
-    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
-         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_METAL .eq. 1) .or. &
-         (NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
-       allocate(this%temp(n_GL))
-       allocate(this%tbf(n_GL))
-       allocate(this%tx(n_GL))
-       allocate(this%ty(n_GL))
-       allocate(this%tz(n_GL))
-       allocate(this%vr(n_GL))
-       allocate(this%vs(n_GL))
-       allocate(this%vt(n_GL))
+       this%temp_d = this%scratch%temp_d
+       this%tbf_d = this%scratch%tbf_d
+       this%tx_d = this%scratch%tx_d
+       this%ty_d = this%scratch%ty_d
+       this%tz_d = this%scratch%tz_d
+       this%vr_d = this%scratch%vr_d
+       this%vs_d = this%scratch%vs_d
+       this%vt_d = this%scratch%vt_d
     end if
 
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_map(this%temp, this%temp_d, n_GL)
-       call device_map(this%tbf, this%tbf_d, n_GL)
-       call device_map(this%tx, this%tx_d, n_GL)
-       call device_map(this%ty, this%ty_d, n_GL)
-       call device_map(this%tz, this%tz_d, n_GL)
-       call device_map(this%vr, this%vr_d, n_GL)
-       call device_map(this%vs, this%vs_d, n_GL)
-       call device_map(this%vt, this%vt_d, n_GL)
-    end if
+    ! No-op for every instance after the first on this node.
+    call adv_dealias_scratch_refresh(this%scratch, coef)
 
   end subroutine init_dealias
 
@@ -159,62 +209,32 @@ contains
   subroutine free_dealias(this)
     class(adv_dealias_t), intent(inout) :: this
 
-    if (allocated(this%temp)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%temp, this%temp_d)
-       end if
-       deallocate(this%temp)
-    end if
+    nullify(this%temp)
+    nullify(this%tbf)
+    nullify(this%tx)
+    nullify(this%ty)
+    nullify(this%tz)
+    nullify(this%vr)
+    nullify(this%vs)
+    nullify(this%vt)
 
-    if (allocated(this%tbf)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%tbf, this%tbf_d)
-       end if
-       deallocate(this%tbf)
-    end if
-    if (allocated(this%tx)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%tx, this%tx_d)
-       end if
-       deallocate(this%tx)
-    end if
-    if (allocated(this%ty)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%ty, this%ty_d)
-       end if
-       deallocate(this%ty)
-    end if
-    if (allocated(this%tz)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%tz, this%tz_d)
-       end if
-       deallocate(this%tz)
-    end if
-    if (allocated(this%vr)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%vr, this%vr_d)
-       end if
-       deallocate(this%vr)
-    end if
-    if (allocated(this%vs)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%vs, this%vs_d)
-       end if
-       deallocate(this%vs)
-    end if
-    if (allocated(this%vt)) then
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call device_unmap(this%vt, this%vt_d)
-       end if
-       deallocate(this%vt)
-    end if
+    this%temp_d = C_NULL_PTR
+    this%tbf_d = C_NULL_PTR
+    this%tx_d = C_NULL_PTR
+    this%ty_d = C_NULL_PTR
+    this%tz_d = C_NULL_PTR
+    this%vr_d = C_NULL_PTR
+    this%vs_d = C_NULL_PTR
+    this%vt_d = C_NULL_PTR
 
-    call this%coef_GL%free()
-    call this%GLL_to_GL%free()
-    call this%Xh_GL%free()
-
+    nullify(this%coef_GL)
+    nullify(this%GLL_to_GL)
+    nullify(this%Xh_GL)
     nullify(this%Xh_GLL)
     nullify(this%coef_GLL)
+
+    ! Releases the shared node once the last instance lets go of it.
+    call adv_dealias_scratch_release(this%scratch)
 
   end subroutine free_dealias
 
@@ -251,6 +271,8 @@ contains
     n_GL = nel * this%Xh_GL%lxyz
 
     !This is extremely primitive and unoptimized  on the device //Karp
+    call adv_dealias_scratch_claim(this%scratch)
+
     associate(c_GL => this%coef_GL)
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call this%GLL_to_GL%map(this%tx, vx%x, nel, this%Xh_GL)
@@ -338,6 +360,7 @@ contains
          !$omp end parallel do
       end if
     end associate
+    call adv_dealias_scratch_yield(this%scratch)
 
   end subroutine compute_advection_dealias
 
@@ -372,6 +395,8 @@ contains
 
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
+
+    call adv_dealias_scratch_claim(this%scratch)
 
     associate(c_GL => this%coef_GL)
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -452,6 +477,7 @@ contains
          !$omp end parallel do
       end if
     end associate
+    call adv_dealias_scratch_yield(this%scratch)
 
   end subroutine compute_scalar_advection_dealias
 
@@ -496,6 +522,8 @@ contains
 
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
+
+    call adv_dealias_scratch_claim(this%scratch)
 
     associate(c_GL => this%coef_GL)
       if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -652,29 +680,216 @@ contains
          !$omp end parallel do
       end if
     end associate
+    call adv_dealias_scratch_yield(this%scratch)
   end subroutine compute_ale_advection_dealias
 
   subroutine recompute_metrics_dealias(this, coef, moving_boundary)
     class(adv_dealias_t), intent(inout) :: this
     type(coef_t), intent(in) :: coef
     logical, intent(in) :: moving_boundary
-    integer :: nel
 
     if (.not. moving_boundary) return
 
-    nel = coef%msh%nelv
-    call this%GLL_to_GL%map(this%coef_GL%drdx, coef%drdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdx, coef%dsdx, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdx, coef%dtdx, nel, this%Xh_GL)
-
-    call this%GLL_to_GL%map(this%coef_GL%drdy, coef%drdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdy, coef%dsdy, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdy, coef%dtdy, nel, this%Xh_GL)
-
-    call this%GLL_to_GL%map(this%coef_GL%drdz, coef%drdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dsdz, coef%dsdz, nel, this%Xh_GL)
-    call this%GLL_to_GL%map(this%coef_GL%dtdz, coef%dtdz, nel, this%Xh_GL)
+    ! The node is keyed on this coef, so every scheme sharing it asks for the
+    ! same refresh. The version guard inside does it once.
+    call adv_dealias_scratch_refresh(this%scratch, coef)
 
   end subroutine recompute_metrics_dealias
+
+  !> Find, or build, the shared node for a (lxd, coef) pair and take a
+  !! reference to it.
+  !! @param lxd The polynomial order of the dealiasing space.
+  !! @param coef The fine-level coefficients the space is built over.
+  function adv_dealias_scratch_acquire(lxd, coef) result(s)
+    integer, intent(in) :: lxd
+    type(coef_t), intent(inout), target :: coef
+    type(adv_dealias_scratch_t), pointer :: s
+    integer :: nel, n_GL
+
+    s => adv_dealias_pool
+    do while (associated(s))
+       if (s%lxd .eq. lxd .and. associated(s%key_coef, coef)) then
+          s%refcount = s%refcount + 1
+          return
+       end if
+       s => s%next
+    end do
+
+    allocate(s)
+    s%lxd = lxd
+    s%key_coef => coef
+    s%refcount = 1
+
+    call s%Xh_GL%init(GL, lxd, lxd, lxd)
+    call s%GLL_to_GL%init(s%Xh_GL, coef%Xh)
+    call s%coef_GL%init(s%Xh_GL, coef%msh)
+
+    nel = coef%msh%nelv
+    n_GL = nel * s%Xh_GL%lxyz
+
+    ! Only the backends that work on whole-field buffers need these; the plain
+    ! CPU path builds its temporaries per element on the stack.
+    if ((NEKO_BCKND_HIP .eq. 1) .or. (NEKO_BCKND_CUDA .eq. 1) .or. &
+         (NEKO_BCKND_OPENCL .eq. 1) .or. (NEKO_BCKND_METAL .eq. 1) .or. &
+         (NEKO_BCKND_SX .eq. 1) .or. (NEKO_BCKND_XSMM .eq. 1)) then
+       allocate(s%temp(n_GL))
+       allocate(s%tbf(n_GL))
+       allocate(s%tx(n_GL))
+       allocate(s%ty(n_GL))
+       allocate(s%tz(n_GL))
+       allocate(s%vr(n_GL))
+       allocate(s%vs(n_GL))
+       allocate(s%vt(n_GL))
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_map(s%temp, s%temp_d, n_GL)
+          call device_map(s%tbf, s%tbf_d, n_GL)
+          call device_map(s%tx, s%tx_d, n_GL)
+          call device_map(s%ty, s%ty_d, n_GL)
+          call device_map(s%tz, s%tz_d, n_GL)
+          call device_map(s%vr, s%vr_d, n_GL)
+          call device_map(s%vs, s%vs_d, n_GL)
+          call device_map(s%vt, s%vt_d, n_GL)
+       end if
+    end if
+
+    s%next => adv_dealias_pool
+    adv_dealias_pool => s
+
+  end function adv_dealias_scratch_acquire
+
+  !> Drop a reference to a shared node, freeing it once nothing points at it.
+  !! @param s The node; nullified on return.
+  subroutine adv_dealias_scratch_release(s)
+    type(adv_dealias_scratch_t), pointer, intent(inout) :: s
+    type(adv_dealias_scratch_t), pointer :: p
+
+    if (.not. associated(s)) return
+
+    s%refcount = s%refcount - 1
+    if (s%refcount .gt. 0) then
+       nullify(s)
+       return
+    end if
+
+    if (associated(adv_dealias_pool, s)) then
+       adv_dealias_pool => s%next
+    else
+       p => adv_dealias_pool
+       do while (associated(p))
+          if (associated(p%next, s)) then
+             p%next => s%next
+             exit
+          end if
+          p => p%next
+       end do
+    end if
+
+    if (allocated(s%temp)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%temp, s%temp_d)
+       deallocate(s%temp)
+    end if
+    if (allocated(s%tbf)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%tbf, s%tbf_d)
+       deallocate(s%tbf)
+    end if
+    if (allocated(s%tx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%tx, s%tx_d)
+       deallocate(s%tx)
+    end if
+    if (allocated(s%ty)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%ty, s%ty_d)
+       deallocate(s%ty)
+    end if
+    if (allocated(s%tz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%tz, s%tz_d)
+       deallocate(s%tz)
+    end if
+    if (allocated(s%vr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vr, s%vr_d)
+       deallocate(s%vr)
+    end if
+    if (allocated(s%vs)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vs, s%vs_d)
+       deallocate(s%vs)
+    end if
+    if (allocated(s%vt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(s%vt, s%vt_d)
+       deallocate(s%vt)
+    end if
+
+    call s%coef_GL%free()
+    call s%GLL_to_GL%free()
+    call s%Xh_GL%free()
+    nullify(s%key_coef)
+    nullify(s%next)
+
+    deallocate(s)
+    nullify(s)
+
+  end subroutine adv_dealias_scratch_release
+
+  !> Map the fine-level derivative arrays onto the node's GL space.
+  !!
+  !! Runs once per `metrics_version` of the keying coefficients, so on a moving
+  !! mesh the nine interpolations happen once however many schemes share the
+  !! node.
+  !! @param s The shared node.
+  !! @param coef The fine-level coefficients the node was keyed on.
+  subroutine adv_dealias_scratch_refresh(s, coef)
+    type(adv_dealias_scratch_t), pointer, intent(inout) :: s
+    type(coef_t), intent(in) :: coef
+    integer :: nel
+
+    if (.not. associated(s)) return
+    if (s%metrics_version .eq. coef%metrics_version) return
+
+    nel = coef%msh%nelv
+    call s%GLL_to_GL%map(s%coef_GL%drdx, coef%drdx, nel, s%Xh_GL)
+    call s%GLL_to_GL%map(s%coef_GL%dsdx, coef%dsdx, nel, s%Xh_GL)
+    call s%GLL_to_GL%map(s%coef_GL%dtdx, coef%dtdx, nel, s%Xh_GL)
+
+    call s%GLL_to_GL%map(s%coef_GL%drdy, coef%drdy, nel, s%Xh_GL)
+    call s%GLL_to_GL%map(s%coef_GL%dsdy, coef%dsdy, nel, s%Xh_GL)
+    call s%GLL_to_GL%map(s%coef_GL%dtdy, coef%dtdy, nel, s%Xh_GL)
+
+    call s%GLL_to_GL%map(s%coef_GL%drdz, coef%drdz, nel, s%Xh_GL)
+    call s%GLL_to_GL%map(s%coef_GL%dsdz, coef%dsdz, nel, s%Xh_GL)
+    call s%GLL_to_GL%map(s%coef_GL%dtdz, coef%dtdz, nel, s%Xh_GL)
+
+    s%metrics_version = coef%metrics_version
+
+  end subroutine adv_dealias_scratch_refresh
+
+  !> Take the shared work arrays for the duration of one compute() call.
+  !!
+  !! The arrays are shared across every scheme on the node, which is sound only
+  !! because the schemes are advanced one at a time. Claiming makes a violation
+  !! of that an error rather than a silent data race.
+  !! @param s The shared node.
+  subroutine adv_dealias_scratch_claim(s)
+    type(adv_dealias_scratch_t), pointer, intent(inout) :: s
+
+    if (.not. associated(s)) return
+    if (.not. allocated(s%temp)) return
+
+    if (s%busy) then
+       call neko_error('adv_dealias: the shared dealiasing work arrays are ' // &
+            'already in use. Two advection operators cannot compute at the ' // &
+            'same time.')
+    end if
+    s%busy = .true.
+
+  end subroutine adv_dealias_scratch_claim
+
+  !> Give the shared work arrays back.
+  !! @param s The shared node.
+  subroutine adv_dealias_scratch_yield(s)
+    type(adv_dealias_scratch_t), pointer, intent(inout) :: s
+
+    if (.not. associated(s)) return
+    s%busy = .false.
+
+  end subroutine adv_dealias_scratch_yield
 
 end module adv_dealias
