@@ -83,14 +83,14 @@ module rhs_maker_device
      subroutine rhs_maker_ext_hip(abx1_d, aby1_d, abz1_d, &
           abx2_d, aby2_d, abz2_d, &
           bfx_d, bfy_d, bfz_d, &
-          rho, ab1, ab2, ab3, n) &
+          ab1, ab2, ab3, n) &
           bind(c, name = 'rhs_maker_ext_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
        type(c_ptr), value :: abx2_d, aby2_d, abz2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d
-       real(c_rp) :: rho, ab1, ab2, ab3
+       real(c_rp) :: ab1, ab2, ab3
        integer(c_int) :: n
      end subroutine rhs_maker_ext_hip
   end interface
@@ -176,14 +176,14 @@ module rhs_maker_device
      subroutine rhs_maker_ext_cuda(abx1_d, aby1_d, abz1_d, &
           abx2_d, aby2_d, abz2_d, &
           bfx_d, bfy_d, bfz_d, &
-          rho, ab1, ab2, ab3, n) &
+          ab1, ab2, ab3, n) &
           bind(c, name = 'rhs_maker_ext_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
        type(c_ptr), value :: abx2_d, aby2_d, abz2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d
-       real(c_rp) :: rho, ab1, ab2, ab3
+       real(c_rp) :: ab1, ab2, ab3
        integer(c_int) :: n
      end subroutine rhs_maker_ext_cuda
   end interface
@@ -269,14 +269,14 @@ module rhs_maker_device
      subroutine rhs_maker_ext_opencl(abx1_d, aby1_d, abz1_d, &
           abx2_d, aby2_d, abz2_d, &
           bfx_d, bfy_d, bfz_d, &
-          rho, ab1, ab2, ab3, n) &
+          ab1, ab2, ab3, n) &
           bind(c, name = 'rhs_maker_ext_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
        type(c_ptr), value :: abx2_d, aby2_d, abz2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d
-       real(c_rp) :: rho, ab1, ab2, ab3
+       real(c_rp) :: ab1, ab2, ab3
        integer(c_int) :: n
      end subroutine rhs_maker_ext_opencl
   end interface
@@ -360,14 +360,14 @@ module rhs_maker_device
      subroutine rhs_maker_ext_metal(abx1_d, aby1_d, abz1_d, &
           abx2_d, aby2_d, abz2_d, &
           bfx_d, bfy_d, bfz_d, &
-          rho, ab1, ab2, ab3, n) &
+          ab1, ab2, ab3, n) &
           bind(c, name = 'rhs_maker_ext_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
        type(c_ptr), value :: abx2_d, aby2_d, abz2_d
        type(c_ptr), value :: bfx_d, bfy_d, bfz_d
-       real(c_rp) :: rho, ab1, ab2, ab3
+       real(c_rp) :: ab1, ab2, ab3
        integer(c_int) :: n
      end subroutine rhs_maker_ext_metal
   end interface
@@ -470,10 +470,10 @@ contains
 
   subroutine rhs_maker_ext_device(fx_lag, fy_lag, fz_lag, &
        fx_laglag, fy_laglag, fz_laglag, fx, fy, fz, &
-       rho, ext_coeffs, n)
+       ext_coeffs, n)
     type(field_t), intent(inout) :: fx_lag, fy_lag, fz_lag
     type(field_t), intent(inout) :: fx_laglag, fy_laglag, fz_laglag
-    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fx(n), fy(n), fz(n)
     type(c_ptr) :: fx_d, fy_d, fz_d
@@ -485,22 +485,22 @@ contains
 #ifdef HAVE_HIP
     call rhs_maker_ext_hip(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
          fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-         fx_d, fy_d, fz_d, rho, &
+         fx_d, fy_d, fz_d, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_CUDA
     call rhs_maker_ext_cuda(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
          fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-         fx_d, fy_d, fz_d, rho, &
+         fx_d, fy_d, fz_d, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_OPENCL
     call rhs_maker_ext_opencl(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
          fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-         fx_d, fy_d, fz_d, rho, &
+         fx_d, fy_d, fz_d, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_METAL
     call rhs_maker_ext_metal(fx_lag%x_d, fy_lag%x_d, fz_lag%x_d, &
          fx_laglag%x_d, fy_laglag%x_d, fz_laglag%x_d, &
-         fx_d, fy_d, fz_d, rho, &
+         fx_d, fy_d, fz_d, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
 
