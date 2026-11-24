@@ -52,10 +52,12 @@ SUBDIRS = tuple\
 	  checkpoint_payload\
 	  wall_sampling\
 	  map_1d\
+	  runtime_stats\
 	  geo_compression\
 	  duprat\
 	  restart_consistency\
 	  crystal_router\
+	  reichardt\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -112,10 +114,12 @@ TESTS = device/device_test\
 	checkpoint_payload/checkpoint_payload_test\
 	wall_sampling/wall_sampling_test\
 	map_1d/map_1d_test\
+	runtime_stats/runtime_stats_test\
 	geo_compression/geo_compression_test\
 	duprat/duprat_test\
 	restart_consistency/restart_consistency_test\
 	crystal_router/crystal_router_test\
+	reichardt/reichardt_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -220,6 +224,8 @@ EXTRA_DIST = \
 	wall_sampling/wall_sampling_test\
 	map_1d/test_map_1d.pf\
 	map_1d/map_1d_test\
+	runtime_stats/test_runtime_stats.pf\
+	runtime_stats/runtime_stats_test\
 	geo_compression/test_geo_compression_parallel.pf\
 	geo_compression/geo_compression_test\
 	restart_consistency/test_restart_consistency.pf\
@@ -231,6 +237,7 @@ EXTRA_DIST = \
 	crystal_router/crystal_router_test\
 	duprat/test_duprat.pf\
 	fixtures/mesh_fixture.f90\
+	reichardt/test_reichardt.pf\
 	templates/serial/test_serial.pf
 
 if ENABLE_HDF5

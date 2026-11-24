@@ -335,6 +335,8 @@ neko_fortran_SOURCES = \
 	math/bcknd/cpu/ax_helm_cpu.f90\
 	math/bcknd/cpu/ax_helm_svv_one_sided_cpu.f90\
 	math/bcknd/cpu/ax_helm_svv_one_sided_full_cpu.f90\
+	math/bcknd/cpu/ax_helm_svv_factorized_cpu.f90\
+	math/bcknd/cpu/ax_helm_svv_factorized_full_cpu.f90\
 	math/bcknd/cpu/ax_helm_vector_cpu.f90\
 	math/bcknd/cpu/ax_helm_full_cpu.f90\
 	math/bcknd/cpu/ax_helm_compr_cpu.f90\
@@ -345,6 +347,8 @@ neko_fortran_SOURCES = \
 	math/bcknd/device/ax_helm_device.F90\
 	math/bcknd/device/ax_helm_svv_one_sided_device.F90\
 	math/bcknd/device/ax_helm_svv_one_sided_full_device.F90\
+	math/bcknd/device/ax_helm_svv_factorized_device.F90\
+	math/bcknd/device/ax_helm_svv_factorized_full_device.F90\
 	math/bcknd/device/ax_helm_full_device.F90\
 	math/bcknd/device/ax_helm_compr_device.F90\
 	common/projection.f90\
@@ -491,8 +495,11 @@ neko_fortran_SOURCES = \
 	wall_models/bcknd/device/wall_model_device.F90\
 	wall_models/spalding.f90\
 	wall_models/cai_sagaut_model_ii.f90\
+	wall_models/reichardt.f90\
 	wall_models/bcknd/cpu/spalding_cpu.f90\
 	wall_models/bcknd/cpu/cai_sagaut_model_ii_cpu.f90\
+	wall_models/bcknd/cpu/reichardt_cpu.f90\
+	wall_models/bcknd/device/reichardt_device.F90\
 	wall_models/bcknd/device/spalding_device.F90\
 	wall_models/bcknd/device/cai_sagaut_model_ii_device.F90\
 	wall_models/duprat.f90\
@@ -567,6 +574,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/hip/ax_helm_compr.hip\
 	math/bcknd/device/hip/ax_helm_svv_one_sided.hip\
 	math/bcknd/device/hip/ax_helm_svv_one_sided_full.hip\
+	math/bcknd/device/hip/ax_helm_svv_factorized.hip\
+	math/bcknd/device/hip/ax_helm_svv_factorized_full.hip\
 	math/bcknd/device/hip/ax_helm_full.hip\
 	krylov/bcknd/device/hip/bicgstab_aux.hip\
 	krylov/bcknd/device/hip/pc_jacobi.hip\
@@ -608,6 +617,7 @@ libneko_la_SOURCES += \
 	les/bcknd/device/hip/deardorff_nut.hip\
 	wall_models/bcknd/device/hip/wall_model.hip\
 	wall_models/bcknd/device/hip/spalding.hip\
+	wall_models/bcknd/device/hip/reichardt.hip\
 	wall_models/bcknd/device/hip/cai_sagaut_model_ii.hip\
 	wall_models/bcknd/device/hip/rough_log_law.hip\
 	wall_models/bcknd/device/hip/duprat.hip\
@@ -643,6 +653,8 @@ libneko_la_SOURCES += \
 	math/bcknd/device/cuda/ax_helm_compr.cu\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided.cu\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided_full.cu\
+	math/bcknd/device/cuda/ax_helm_svv_factorized.cu\
+	math/bcknd/device/cuda/ax_helm_svv_factorized_full.cu\
 	math/bcknd/device/cuda/ax_helm_full.cu\
 	krylov/bcknd/device/cuda/bicgstab_aux.cu\
 	krylov/bcknd/device/cuda/pc_jacobi.cu\
@@ -685,6 +697,7 @@ libneko_la_SOURCES += \
 	comm/bcknd/device/cuda/comm_nvshmem.cu\
 	wall_models/bcknd/device/cuda/wall_model.cu\
 	wall_models/bcknd/device/cuda/spalding.cu\
+	wall_models/bcknd/device/cuda/reichardt.cu\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii.cu\
 	wall_models/bcknd/device/cuda/rough_log_law.cu\
 	wall_models/bcknd/device/cuda/duprat.cu\
@@ -793,6 +806,7 @@ libneko_la_SOURCES += \
 	wall_models/bcknd/device/opencl/rough_log_law.c\
 	wall_models/bcknd/device/opencl/duprat.c\
 	wall_models/bcknd/device/opencl/spalding.c\
+	wall_models/bcknd/device/opencl/reichardt.c\
 	wall_models/bcknd/device/opencl/richardson.c\
 	wall_models/bcknd/device/opencl/most.c\
 	lpt/bcknd/device/opencl/lpt_periodic_bc.c\
@@ -873,6 +887,7 @@ METAL_OBJS = \
 	wall_models/bcknd/device/metal/rough_log_law.lo\
 	wall_models/bcknd/device/metal/duprat.lo\
 	wall_models/bcknd/device/metal/spalding.lo\
+	wall_models/bcknd/device/metal/reichardt.lo\
 	wall_models/bcknd/device/metal/richardson.lo\
 	wall_models/bcknd/device/metal/most.lo\
 	lpt/bcknd/device/metal/lpt_periodic_bc.lo\
@@ -939,6 +954,7 @@ dist_noinst_DATA = \
 	wall_models/bcknd/device/metal/rough_log_law.m\
 	wall_models/bcknd/device/metal/duprat.m\
 	wall_models/bcknd/device/metal/spalding.m\
+	wall_models/bcknd/device/metal/reichardt.m\
 	wall_models/bcknd/device/metal/richardson.m\
 	wall_models/bcknd/device/metal/most.m\
 	lpt/bcknd/device/metal/lpt_periodic_bc.m\
@@ -1002,6 +1018,7 @@ METAL_KERNELS = \
 	wall_models/bcknd/device/metal/rough_log_law_kernel.metal\
 	wall_models/bcknd/device/metal/duprat_kernel.metal\
 	wall_models/bcknd/device/metal/spalding_kernel.metal\
+	wall_models/bcknd/device/metal/reichardt_kernel.metal\
 	wall_models/bcknd/device/metal/richardson_kernel.metal\
 	wall_models/bcknd/device/metal/most_kernel.metal\
 	lpt/bcknd/device/metal/lpt_periodic_bc_kernel.metal\
@@ -1152,6 +1169,8 @@ EXTRA_DIST = \
 	math/bcknd/device/cuda/ax_helm_compr_kernel.h\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided_kernel.h\
 	math/bcknd/device/cuda/ax_helm_svv_one_sided_full_kernel.h\
+	math/bcknd/device/cuda/ax_helm_svv_factorized_kernel.h\
+	math/bcknd/device/cuda/ax_helm_svv_factorized_full_kernel.h\
 	math/bcknd/device/cuda/ax_helm_full_kernel.h\
 	math/bcknd/device/cuda/dmma_kernel.h\
 	math/bcknd/device/cuda/dmma_tma_kernel.h\
@@ -1179,6 +1198,7 @@ EXTRA_DIST = \
 	les/bcknd/device/cuda/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/cuda/wall_model_kernel.h\
 	wall_models/bcknd/device/cuda/spalding_kernel.h\
+	wall_models/bcknd/device/cuda/reichardt_kernel.h\
 	wall_models/bcknd/device/cuda/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/cuda/rough_log_law_kernel.h\
 	wall_models/bcknd/device/cuda/duprat_kernel.h\
@@ -1216,6 +1236,8 @@ EXTRA_DIST = \
 	math/bcknd/device/hip/ax_helm_compr_kernel.h\
 	math/bcknd/device/hip/ax_helm_svv_one_sided_kernel.h\
 	math/bcknd/device/hip/ax_helm_svv_one_sided_full_kernel.h\
+	math/bcknd/device/hip/ax_helm_svv_factorized_kernel.h\
+	math/bcknd/device/hip/ax_helm_svv_factorized_full_kernel.h\
 	math/bcknd/device/hip/ax_helm_full_kernel.h\
 	math/bcknd/device/hip/mfma_kernel.h\
 	math/bcknd/device/hip/elem_block.h\
@@ -1253,6 +1275,7 @@ EXTRA_DIST = \
 	les/bcknd/device/hip/deardorff_nut_kernel.h\
 	wall_models/bcknd/device/hip/wall_model_kernel.h\
 	wall_models/bcknd/device/hip/spalding_kernel.h\
+	wall_models/bcknd/device/hip/reichardt_kernel.h\
 	wall_models/bcknd/device/hip/cai_sagaut_model_ii_kernel.h\
 	wall_models/bcknd/device/hip/rough_log_law_kernel.h\
 	wall_models/bcknd/device/hip/duprat_kernel.h\
@@ -1311,6 +1334,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/opencl/rough_log_law_kernel.cl\
 	wall_models/bcknd/device/opencl/duprat_kernel.cl\
 	wall_models/bcknd/device/opencl/spalding_kernel.cl\
+	wall_models/bcknd/device/opencl/reichardt_kernel.cl\
 	wall_models/bcknd/device/opencl/richardson_kernel.cl\
 	wall_models/bcknd/device/opencl/most_kernel.cl\
 	lpt/bcknd/device/opencl/lpt_periodic_bc_kernel.cl\
@@ -1383,6 +1407,7 @@ EXTRA_DIST = \
 	wall_models/bcknd/device/metal/rough_log_law_kernel.metal\
 	wall_models/bcknd/device/metal/duprat_kernel.metal\
 	wall_models/bcknd/device/metal/spalding_kernel.metal\
+	wall_models/bcknd/device/metal/reichardt_kernel.metal\
 	wall_models/bcknd/device/metal/richardson_kernel.metal\
 	wall_models/bcknd/device/metal/most_kernel.metal\
 	lpt/bcknd/device/metal/lpt_periodic_bc_kernel.metal\

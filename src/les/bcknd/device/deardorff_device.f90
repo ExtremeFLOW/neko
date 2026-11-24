@@ -41,6 +41,7 @@ module deardorff_device
   use operators, only : grad
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use device, only : glb_cmd_event
   use device_math, only : device_col2
   use device_deardorff_nut, only : device_deardorff_nut_compute
   implicit none
@@ -99,9 +100,8 @@ contains
     ! Calculate vertical temperature gradients
     call grad(dTdx%x, dTdy%x, dTdz%x, temperature%x, coef)
 
-    call coef%gs_h%op(dTdx, GS_OP_ADD)
-    call coef%gs_h%op(dTdy, GS_OP_ADD)
-    call coef%gs_h%op(dTdz, GS_OP_ADD)
+    call coef%gs_h%op(dTdx%x, dTdy%x, dTdz%x, dTdx%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
     call device_col2(dTdx%x_d, coef%mult_d, nut%dof%size())
     call device_col2(dTdy%x_d, coef%mult_d, nut%dof%size())
     call device_col2(dTdz%x_d, coef%mult_d, nut%dof%size())
@@ -121,15 +121,12 @@ contains
     call grad(a21%x, a22%x, a23%x, v%x, coef)
     call grad(a31%x, a32%x, a33%x, w%x, coef)
 
-    call coef%gs_h%op(a11, GS_OP_ADD)
-    call coef%gs_h%op(a12, GS_OP_ADD)
-    call coef%gs_h%op(a13, GS_OP_ADD)
-    call coef%gs_h%op(a21, GS_OP_ADD)
-    call coef%gs_h%op(a22, GS_OP_ADD)
-    call coef%gs_h%op(a23, GS_OP_ADD)
-    call coef%gs_h%op(a31, GS_OP_ADD)
-    call coef%gs_h%op(a32, GS_OP_ADD)
-    call coef%gs_h%op(a33, GS_OP_ADD)
+    call coef%gs_h%op(a11%x, a12%x, a13%x, a11%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
+    call coef%gs_h%op(a21%x, a22%x, a23%x, a21%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
+    call coef%gs_h%op(a31%x, a32%x, a33%x, a31%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
 
     call device_col2(a11%x_d, coef%mult_d, nut%dof%size())
     call device_col2(a12%x_d, coef%mult_d, nut%dof%size())

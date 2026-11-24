@@ -44,7 +44,7 @@ module bicgstab_device
        vector_bc_projector_components
   use math, only : NEKO_EPS
   use device, only : device_map, device_unmap, device_get_ptr, &
-       device_event_create, device_event_destroy, device_event_sync, &
+       device_event_create, device_event_destroy, &
        glb_cmd_queue
   use device_math, only : device_rzero, device_copy, device_glsc3, &
        device_add2s2
@@ -712,7 +712,6 @@ contains
          call this%M%solve(this%p_hat, this%p, n)
          call Ax%compute(this%v, this%p_hat, coef, x%msh, x%Xh)
          call gs_h%op(this%v, n, GS_OP_ADD, this%gs_event)
-         call device_event_sync(this%gs_event)
          call bc_projector%apply(this%v, n)
 
          ! The alpha denominator is another BiCG breakdown point. Reducing it
@@ -741,7 +740,6 @@ contains
          call this%M%solve(this%s_hat, this%s, n)
          call Ax%compute(this%t, this%s_hat, coef, x%msh, x%Xh)
          call gs_h%op(this%t, n, GS_OP_ADD, this%gs_event)
-         call device_event_sync(this%gs_event)
          call bc_projector%apply(this%t, n)
 
          call device_bicgstab_product_and_norm(stt, ttt, s_d, t_d, &
