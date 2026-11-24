@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['launch_0',['LAUNCH',['../d7/d52/ax__helm__svv__one__sided_8cu.html#a62d1971f587fa5f78fb28c4cfcd33ddc',1,'LAUNCH:&#160;ax_helm_svv_one_sided.cu'],['../d5/df7/ax__helm__svv__one__sided__full_8cu.html#a62d1971f587fa5f78fb28c4cfcd33ddc',1,'LAUNCH:&#160;ax_helm_svv_one_sided_full.cu']]]
+  ['launch_0',['LAUNCH',['../dc/d62/ax__helm__svv__factorized_8cu.html#aad02c5c2663c0bd25625593678c49522',1,'LAUNCH:&#160;ax_helm_svv_factorized.cu'],['../df/d39/ax__helm__svv__factorized__full_8cu.html#aad02c5c2663c0bd25625593678c49522',1,'LAUNCH:&#160;ax_helm_svv_factorized_full.cu'],['../d7/d52/ax__helm__svv__one__sided_8cu.html#a62d1971f587fa5f78fb28c4cfcd33ddc',1,'LAUNCH:&#160;ax_helm_svv_one_sided.cu'],['../d5/df7/ax__helm__svv__one__sided__full_8cu.html#a62d1971f587fa5f78fb28c4cfcd33ddc',1,'LAUNCH:&#160;ax_helm_svv_one_sided_full.cu'],['../db/d3d/ax__helm__svv__factorized_8hip.html#aad02c5c2663c0bd25625593678c49522',1,'LAUNCH:&#160;ax_helm_svv_factorized.hip'],['../dd/dbf/ax__helm__svv__factorized__full_8hip.html#aad02c5c2663c0bd25625593678c49522',1,'LAUNCH:&#160;ax_helm_svv_factorized_full.hip']]]
 ];

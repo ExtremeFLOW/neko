@@ -1,0 +1,9 @@
+<map id="reichardt_cpu::reichardt_compute_cpu" name="reichardt_cpu::reichardt_compute_cpu">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress on cpu using Reichardt&#39;s law." alt="" coords="5,24,181,68"/>
+<area shape="rect" id="Node000002" href="$d1/d9a/namespacereichardt__cpu.html#ae1fca049cb1f16f76d1effe2e1b8985a" title="Newton solver for the algebraic equation defined by the law on cpu. Solves f(utau) = utau * u+(y utau..." alt="" coords="229,32,411,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="181,43,216,45,211,46,181,48"/>
+<area shape="rect" id="Node000003" href="$d1/d9a/namespacereichardt__cpu.html#a3832d4ba06ef8371269882f6e650433c" title="Evaluate the derivative du+/dy+ of Reichardt&#39;s law of the wall." alt="" coords="459,5,665,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="411,33,446,32,441,33,412,38"/>
+<area shape="rect" id="Node000004" href="$d1/d9a/namespacereichardt__cpu.html#a9346e1af330d8f96677950845ad710e9" title="Evaluate Reichardt&#39;s law of the wall, u+ as a function of y+." alt="" coords="463,57,661,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="412,53,450,59,445,59,411,58"/>
+</map>

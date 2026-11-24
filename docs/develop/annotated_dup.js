@@ -107,6 +107,20 @@ var annotated_dup =
     [ "ax_helm_svv", "dd/dfe/namespaceax__helm__svv.html", [
       [ "ax_helm_svv_t", "d2/d41/structax__helm__svv_1_1ax__helm__svv__t.html", "d2/d41/structax__helm__svv_1_1ax__helm__svv__t" ]
     ] ],
+    [ "ax_helm_svv_factorized_cpu", "d5/dda/namespaceax__helm__svv__factorized__cpu.html", [
+      [ "ax_helm_svv_factorized_cpu_t", "df/da4/structax__helm__svv__factorized__cpu_1_1ax__helm__svv__factorized__cpu__t.html", "df/da4/structax__helm__svv__factorized__cpu_1_1ax__helm__svv__factorized__cpu__t" ]
+    ] ],
+    [ "ax_helm_svv_factorized_device", "d7/db7/namespaceax__helm__svv__factorized__device.html", [
+      [ "ax_helm_svv_factorized_device_t", "d1/da4/structax__helm__svv__factorized__device_1_1ax__helm__svv__factorized__device__t.html", "d1/da4/structax__helm__svv__factorized__device_1_1ax__helm__svv__factorized__device__t" ],
+      [ "hip_ax_helm_svv_factorized", "d3/db4/interfaceax__helm__svv__factorized__device_1_1hip__ax__helm__svv__factorized.html", "d3/db4/interfaceax__helm__svv__factorized__device_1_1hip__ax__helm__svv__factorized" ]
+    ] ],
+    [ "ax_helm_svv_factorized_full_cpu", "d8/d8e/namespaceax__helm__svv__factorized__full__cpu.html", [
+      [ "ax_helm_svv_factorized_full_cpu_t", "d8/d8d/structax__helm__svv__factorized__full__cpu_1_1ax__helm__svv__factorized__full__cpu__t.html", "d8/d8d/structax__helm__svv__factorized__full__cpu_1_1ax__helm__svv__factorized__full__cpu__t" ]
+    ] ],
+    [ "ax_helm_svv_factorized_full_device", "d3/d73/namespaceax__helm__svv__factorized__full__device.html", [
+      [ "ax_helm_svv_factorized_full_device_t", "d4/dfe/structax__helm__svv__factorized__full__device_1_1ax__helm__svv__factorized__full__device__t.html", "d4/dfe/structax__helm__svv__factorized__full__device_1_1ax__helm__svv__factorized__full__device__t" ],
+      [ "hip_ax_helm_svv_factorized_full", "d7/d24/interfaceax__helm__svv__factorized__full__device_1_1hip__ax__helm__svv__factorized__full.html", "d7/d24/interfaceax__helm__svv__factorized__full__device_1_1hip__ax__helm__svv__factorized__full" ]
+    ] ],
     [ "ax_helm_svv_full", "dc/dd1/namespaceax__helm__svv__full.html", [
       [ "ax_helm_svv_full_t", "db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t.html", "db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t" ]
     ] ],
@@ -1605,6 +1619,12 @@ var annotated_dup =
     ] ],
     [ "registry_entry", "da/dd7/namespaceregistry__entry.html", [
       [ "registry_entry_t", "df/db9/structregistry__entry_1_1registry__entry__t.html", "df/db9/structregistry__entry_1_1registry__entry__t" ]
+    ] ],
+    [ "reichardt", "da/daf/namespacereichardt.html", [
+      [ "reichardt_t", "d0/dda/structreichardt_1_1reichardt__t.html", "d0/dda/structreichardt_1_1reichardt__t" ]
+    ] ],
+    [ "reichardt_device", "d3/df6/namespacereichardt__device.html", [
+      [ "hip_reichardt_compute", "da/dc8/interfacereichardt__device_1_1hip__reichardt__compute.html", "da/dc8/interfacereichardt__device_1_1hip__reichardt__compute" ]
     ] ],
     [ "rhs_maker", "db/d98/namespacerhs__maker.html", [
       [ "rhs_maker_sumab_t", "df/daa/structrhs__maker_1_1rhs__maker__sumab__t.html", "df/daa/structrhs__maker_1_1rhs__maker__sumab__t" ],

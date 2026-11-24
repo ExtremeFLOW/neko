@@ -65,6 +65,8 @@ var hierarchy =
           [ "ax_helm_compr_device::ax_helm_compr_device_t", "da/d91/structax__helm__compr__device_1_1ax__helm__compr__device__t.html", null ]
         ] ],
         [ "ax_helm_svv::ax_helm_svv_t", "d2/d41/structax__helm__svv_1_1ax__helm__svv__t.html", [
+          [ "ax_helm_svv_factorized_cpu::ax_helm_svv_factorized_cpu_t", "df/da4/structax__helm__svv__factorized__cpu_1_1ax__helm__svv__factorized__cpu__t.html", null ],
+          [ "ax_helm_svv_factorized_device::ax_helm_svv_factorized_device_t", "d1/da4/structax__helm__svv__factorized__device_1_1ax__helm__svv__factorized__device__t.html", null ],
           [ "ax_helm_svv_one_sided_cpu::ax_helm_svv_one_sided_cpu_t", "d2/d78/structax__helm__svv__one__sided__cpu_1_1ax__helm__svv__one__sided__cpu__t.html", null ],
           [ "ax_helm_svv_one_sided_device::ax_helm_svv_one_sided_device_t", "db/dd2/structax__helm__svv__one__sided__device_1_1ax__helm__svv__one__sided__device__t.html", null ]
         ] ],
@@ -79,6 +81,8 @@ var hierarchy =
         [ "ax_helm_full_device::ax_helm_full_device_t", "db/d3f/structax__helm__full__device_1_1ax__helm__full__device__t.html", null ]
       ] ],
       [ "ax_helm_svv_full::ax_helm_svv_full_t", "db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t.html", [
+        [ "ax_helm_svv_factorized_full_cpu::ax_helm_svv_factorized_full_cpu_t", "d8/d8d/structax__helm__svv__factorized__full__cpu_1_1ax__helm__svv__factorized__full__cpu__t.html", null ],
+        [ "ax_helm_svv_factorized_full_device::ax_helm_svv_factorized_full_device_t", "d4/dfe/structax__helm__svv__factorized__full__device_1_1ax__helm__svv__factorized__full__device__t.html", null ],
         [ "ax_helm_svv_one_sided_full_cpu::ax_helm_svv_one_sided_full_cpu_t", "d0/d5a/structax__helm__svv__one__sided__full__cpu_1_1ax__helm__svv__one__sided__full__cpu__t.html", null ],
         [ "ax_helm_svv_one_sided_full_device::ax_helm_svv_one_sided_full_device_t", "da/d60/structax__helm__svv__one__sided__full__device_1_1ax__helm__svv__one__sided__full__device__t.html", null ]
       ] ]
@@ -498,6 +502,8 @@ var hierarchy =
     [ "ax_helm_compr_device::hip_ax_helm_compr_vector", "dc/df5/interfaceax__helm__compr__device_1_1hip__ax__helm__compr__vector.html", null ],
     [ "ax_helm_full_device::hip_ax_helm_stress_vector", "d6/d0b/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector.html", null ],
     [ "ax_helm_full_device::hip_ax_helm_stress_vector_part2", "da/de5/interfaceax__helm__full__device_1_1hip__ax__helm__stress__vector__part2.html", null ],
+    [ "ax_helm_svv_factorized_device::hip_ax_helm_svv_factorized", "d3/db4/interfaceax__helm__svv__factorized__device_1_1hip__ax__helm__svv__factorized.html", null ],
+    [ "ax_helm_svv_factorized_full_device::hip_ax_helm_svv_factorized_full", "d7/d24/interfaceax__helm__svv__factorized__full__device_1_1hip__ax__helm__svv__factorized__full.html", null ],
     [ "ax_helm_svv_one_sided_device::hip_ax_helm_svv_one_sided", "d3/d58/interfaceax__helm__svv__one__sided__device_1_1hip__ax__helm__svv__one__sided.html", null ],
     [ "ax_helm_svv_one_sided_full_device::hip_ax_helm_svv_one_sided_full", "df/d29/interfaceax__helm__svv__one__sided__full__device_1_1hip__ax__helm__svv__one__sided__full.html", null ],
     [ "ax_helm_device::hip_ax_helm_vector", "d1/d0f/interfaceax__helm__device_1_1hip__ax__helm__vector.html", null ],
@@ -626,6 +632,7 @@ var hierarchy =
     [ "hip_math::hip_pwmin_vec2", "da/d3a/interfacehip__math_1_1hip__pwmin__vec2.html", null ],
     [ "hip_math::hip_pwmin_vec3", "dd/d3b/interfacehip__math_1_1hip__pwmin__vec3.html", null ],
     [ "hip_math::hip_radd", "d3/d3d/interfacehip__math_1_1hip__radd.html", null ],
+    [ "reichardt_device::hip_reichardt_compute", "da/dc8/interfacereichardt__device_1_1hip__reichardt__compute.html", null ],
     [ "richardson_device::hip_richardson_compute", "da/d24/interfacerichardson__device_1_1hip__richardson__compute.html", null ],
     [ "opr_device::hip_rotate_cyc", "d1/dea/interfaceopr__device_1_1hip__rotate__cyc.html", null ],
     [ "rough_log_law_device::hip_rough_log_law_compute", "da/de5/interfacerough__log__law__device_1_1hip__rough__log__law__compute.html", null ],
@@ -1364,6 +1371,7 @@ var hierarchy =
     [ "wall_model::wall_model_t", "d4/d70/structwall__model_1_1wall__model__t.html", [
       [ "cai_sagaut_model_ii::cai_sagaut_model_ii_t", "d9/d4a/structcai__sagaut__model__ii_1_1cai__sagaut__model__ii__t.html", null ],
       [ "most::most_t", "de/d0b/structmost_1_1most__t.html", null ],
+      [ "reichardt::reichardt_t", "d0/dda/structreichardt_1_1reichardt__t.html", null ],
       [ "richardson::richardson_t", "dd/df1/structrichardson_1_1richardson__t.html", null ],
       [ "rough_log_law::rough_log_law_t", "df/d21/structrough__log__law_1_1rough__log__law__t.html", null ],
       [ "spalding::spalding_t", "df/df1/structspalding_1_1spalding__t.html", null ],

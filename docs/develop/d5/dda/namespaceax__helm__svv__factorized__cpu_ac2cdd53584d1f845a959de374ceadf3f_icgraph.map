@@ -1,0 +1,5 @@
+<map id="ax_helm_svv_factorized_cpu::ax_helm_svv_factorized_lx" name="ax_helm_svv_factorized_cpu::ax_helm_svv_factorized_lx">
+<area shape="rect" id="Node000001" title="Generic CPU kernel for the Helmholz matrix&#45;vector product." alt="" coords="271,14,507,58"/>
+<area shape="rect" id="Node000002" href="$d5/dda/namespaceax__helm__svv__factorized__cpu.html#a6b12a1dcfed9b41d3424b3d64c6b878b" title="Compute the product." alt="" coords="5,5,223,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="252,36,223,39,223,34,258,36"/>
+</map>

@@ -1,0 +1,16 @@
+<map id="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/reichardt.hip" name="/home/runner/work/neko/neko/src/wall_models/bcknd/device/hip/reichardt.hip">
+<area shape="rect" id="Node000001" title=" " alt="" coords="88,5,309,67"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="92,191,227,218"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="86,62,47,84,29,99,14,116,9,128,9,138,13,147,21,156,47,172,82,185,77,187,45,176,18,160,9,150,4,139,4,127,9,114,25,95,44,80,89,57"/>
+<area shape="rect" id="Node000003" href="$d8/dc8/device__config_8h.html" title=" " alt="" coords="24,115,194,143"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="171,66,134,106,131,102,167,69"/>
+<area shape="rect" id="Node000004" href="$d4/d7a/hip_2check_8h.html" title=" " alt="" coords="218,115,360,143"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="229,65,268,104,263,104,228,70"/>
+<area shape="rect" id="Node000005" href="$d0/db2/hip_2reichardt__kernel_8h.html" title=" " alt="" coords="384,115,522,143"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="284,65,404,109,399,110,283,70"/>
+<area shape="poly" id="edge4_Node000004_Node000002" title=" " alt="" coords="269,143,197,185,195,180,263,144"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="382,191,439,218"/>
+<area shape="poly" id="edge6_Node000005_Node000006" title=" " alt="" coords="448,142,427,179,424,175,443,145"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="463,191,526,218"/>
+<area shape="poly" id="edge7_Node000005_Node000007" title=" " alt="" coords="462,141,482,178,477,176,459,146"/>
+</map>

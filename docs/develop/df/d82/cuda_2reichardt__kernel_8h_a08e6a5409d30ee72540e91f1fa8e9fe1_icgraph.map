@@ -1,0 +1,17 @@
+<map id="reichardt_up" name="reichardt_up">
+<area shape="rect" id="Node000001" title=" " alt="" coords="1065,88,1167,115"/>
+<area shape="rect" id="Node000002" href="$df/d82/cuda_2reichardt__kernel_8h.html#a9f45810c7ec514acdf79acb7dd45c9ee" title=" " alt="" coords="896,88,1017,115"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="1047,102,1017,104,1017,99,1052,101"/>
+<area shape="rect" id="Node000003" href="$df/d82/cuda_2reichardt__kernel_8h.html#afc5ecc7bdf5fd2aaeee466402273e4ee" title=" " alt="" coords="704,88,848,115"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="877,102,848,104,848,99,883,101"/>
+<area shape="rect" id="Node000004" href="$d1/d15/reichardt_8cu.html#a22fae481bdd8292800cfba01a9898300" title=" " alt="" coords="475,61,656,89"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="686,90,657,89,657,84,691,90"/>
+<area shape="rect" id="Node000008" href="$d8/dad/reichardt_8hip.html#ad4ea0e11deca5f8f87f926406d5b228f" title=" " alt="" coords="480,113,651,141"/>
+<area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="691,112,651,119,651,114,686,112"/>
+<area shape="rect" id="Node000005" href="$d3/df6/namespacereichardt__device.html#a1d6e0e99ca08de2677ed49523788efcc" title="Compute the wall shear stress on device using Reichardt&#39;s law." alt="" coords="232,52,427,97"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="457,75,428,77,427,72,462,75"/>
+<area shape="rect" id="Node000006" href="$da/dc8/interfacereichardt__device_1_1hip__reichardt__compute.html#a39f4bad54bd7b6cab97020428e17a85a" title=" " alt="" coords="5,5,184,67"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="214,57,184,54,184,48,219,56"/>
+<area shape="rect" id="Node000007" href="$da/daf/namespacereichardt.html#a4d3181de0fa0de4e7178e8ddf878c86c" title="Compute the wall shear stress." alt="" coords="22,91,167,136"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="214,94,168,104,167,99,219,93"/>
+</map>

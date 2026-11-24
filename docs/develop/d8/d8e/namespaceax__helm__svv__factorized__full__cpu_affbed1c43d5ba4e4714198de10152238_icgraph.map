@@ -1,0 +1,5 @@
+<map id="ax_helm_svv_factorized_full_cpu::ax_helm_svv_factorized_full_lx" name="ax_helm_svv_factorized_full_cpu::ax_helm_svv_factorized_full_lx">
+<area shape="rect" id="Node000001" title="Generic CPU kernel for the factorized full&#45;stress SVV product." alt="" coords="287,5,466,67"/>
+<area shape="rect" id="Node000002" href="$d8/d8e/namespaceax__helm__svv__factorized__full__cpu.html#a808031e22fa702182b30d54f3d49f629" title="Compute &#160;inside a Krylov method, taking 3 components of a vector field in a coupled manner." alt="" coords="5,5,239,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="268,36,239,39,239,34,274,36"/>
+</map>

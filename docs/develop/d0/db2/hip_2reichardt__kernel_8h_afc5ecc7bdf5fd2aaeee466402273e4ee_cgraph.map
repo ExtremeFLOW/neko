@@ -1,0 +1,9 @@
+<map id="reichardt_compute" name="reichardt_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,149,60"/>
+<area shape="rect" id="Node000002" href="$df/d82/cuda_2reichardt__kernel_8h.html#a9f45810c7ec514acdf79acb7dd45c9ee" title=" " alt="" coords="197,32,318,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,43,184,45,178,46,149,48"/>
+<area shape="rect" id="Node000003" href="$df/d82/cuda_2reichardt__kernel_8h.html#ab7dd3b1870a6210c05a758b8b25a2ffa" title=" " alt="" coords="366,5,476,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="318,33,348,31,353,30,319,39"/>
+<area shape="rect" id="Node000004" href="$df/d82/cuda_2reichardt__kernel_8h.html#a08e6a5409d30ee72540e91f1fa8e9fe1" title=" " alt="" coords="370,57,472,85"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="318,53,357,61,352,61,318,58"/>
+</map>

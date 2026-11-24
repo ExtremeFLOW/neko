@@ -5,6 +5,7 @@ var dir_14d462b807dd4f670634472c12bd510d =
     [ "opencl", "dir_0b8c05963a0cd7a0a0718082bc7dab06.html", "dir_0b8c05963a0cd7a0a0718082bc7dab06" ],
     [ "cai_sagaut_model_ii_device.F90", "df/db8/cai__sagaut__model__ii__device_8F90.html", "df/db8/cai__sagaut__model__ii__device_8F90" ],
     [ "most_device.F90", "db/d29/most__device_8F90.html", "db/d29/most__device_8F90" ],
+    [ "reichardt_device.F90", "dd/db8/reichardt__device_8F90.html", "dd/db8/reichardt__device_8F90" ],
     [ "richardson_device.F90", "de/d62/richardson__device_8F90.html", "de/d62/richardson__device_8F90" ],
     [ "rough_log_law_device.F90", "da/dc0/rough__log__law__device_8F90.html", "da/dc0/rough__log__law__device_8F90" ],
     [ "spalding_device.F90", "d8/dc5/spalding__device_8F90.html", "d8/dc5/spalding__device_8F90" ],

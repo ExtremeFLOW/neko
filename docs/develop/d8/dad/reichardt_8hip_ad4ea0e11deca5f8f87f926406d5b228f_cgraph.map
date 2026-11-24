@@ -1,0 +1,11 @@
+<map id="hip_reichardt_compute" name="hip_reichardt_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,32,176,60"/>
+<area shape="rect" id="Node000002" href="$df/d82/cuda_2reichardt__kernel_8h.html#afc5ecc7bdf5fd2aaeee466402273e4ee" title=" " alt="" coords="224,32,367,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="176,43,211,45,206,46,176,48"/>
+<area shape="rect" id="Node000003" href="$df/d82/cuda_2reichardt__kernel_8h.html#a9f45810c7ec514acdf79acb7dd45c9ee" title=" " alt="" coords="415,32,536,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="367,43,402,46,397,46,368,48"/>
+<area shape="rect" id="Node000004" href="$df/d82/cuda_2reichardt__kernel_8h.html#ab7dd3b1870a6210c05a758b8b25a2ffa" title=" " alt="" coords="584,5,695,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="536,33,566,31,572,30,537,39"/>
+<area shape="rect" id="Node000005" href="$df/d82/cuda_2reichardt__kernel_8h.html#a08e6a5409d30ee72540e91f1fa8e9fe1" title=" " alt="" coords="588,57,691,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="537,53,576,61,570,61,536,58"/>
+</map>

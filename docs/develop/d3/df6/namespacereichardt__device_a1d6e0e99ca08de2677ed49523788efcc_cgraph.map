@@ -1,0 +1,17 @@
+<map id="reichardt_device::reichardt_compute_device" name="reichardt_device::reichardt_compute_device">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress on device using Reichardt&#39;s law." alt="" coords="5,50,201,95"/>
+<area shape="rect" id="Node000002" href="$d1/d15/reichardt_8cu.html#a22fae481bdd8292800cfba01a9898300" title=" " alt="" coords="255,32,436,60"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="201,59,242,57,236,58,202,64"/>
+<area shape="rect" id="Node000007" href="$d3/dd4/reichardt_8c.html#af900f8bb5a731d1d2a1c204ac9e5970d" title=" " alt="" coords="249,84,442,112"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="201,80,236,86,230,86,201,85"/>
+<area shape="rect" id="Node000003" href="$df/d82/cuda_2reichardt__kernel_8h.html#afc5ecc7bdf5fd2aaeee466402273e4ee" title=" " alt="" coords="490,32,633,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="436,43,478,46,472,46,437,48"/>
+<area shape="rect" id="Node000004" href="$df/d82/cuda_2reichardt__kernel_8h.html#a9f45810c7ec514acdf79acb7dd45c9ee" title=" " alt="" coords="681,32,803,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="634,43,668,46,663,46,634,48"/>
+<area shape="rect" id="Node000005" href="$df/d82/cuda_2reichardt__kernel_8h.html#ab7dd3b1870a6210c05a758b8b25a2ffa" title=" " alt="" coords="851,5,961,33"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="803,33,833,31,838,30,803,39"/>
+<area shape="rect" id="Node000006" href="$df/d82/cuda_2reichardt__kernel_8h.html#a08e6a5409d30ee72540e91f1fa8e9fe1" title=" " alt="" coords="855,57,957,85"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="803,53,842,61,837,61,803,58"/>
+<area shape="rect" id="Node000008" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="496,84,627,112"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="442,95,483,98,477,98,442,100"/>
+</map>

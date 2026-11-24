@@ -212,6 +212,8 @@ Public Attributes</h2></td></tr>
 <tr class="memdesc:ab447525eab0d6739d73e5e6cf02a3db4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Element-local modal low-pass filter.  <br /></td></tr>
 <tr class="memitem:a5e3bbc51f3076710804962c1b9b7fbe2" id="r_a5e3bbc51f3076710804962c1b9b7fbe2"><td class="memItemLeft" align="right" valign="top">character(len=:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e3bbc51f3076710804962c1b9b7fbe2">direction</a></td></tr>
 <tr class="memdesc:a5e3bbc51f3076710804962c1b9b7fbe2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference directions in which the filter is applied.  <br /></td></tr>
+<tr class="memitem:a5937383b8bfb72765c195ab7ae8645e8" id="r_a5937383b8bfb72765c195ab7ae8645e8"><td class="memItemLeft" align="right" valign="top">character(len=:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5937383b8bfb72765c195ab7ae8645e8">formulation</a></td></tr>
+<tr class="memdesc:a5937383b8bfb72765c195ab7ae8645e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">SVV operator formulation.  <br /></td></tr>
 <tr class="memitem:aa1ce4691b40bef9bdf7a2eaf1548cc2c" id="r_aa1ce4691b40bef9bdf7a2eaf1548cc2c"><td class="memItemLeft" align="right" valign="top">character(len=:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa1ce4691b40bef9bdf7a2eaf1548cc2c">kernel_type</a></td></tr>
 <tr class="memdesc:aa1ce4691b40bef9bdf7a2eaf1548cc2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Kernel type defining the modal transfer function.  <br /></td></tr>
 <tr class="memitem:a635c6cabf7f1da64268d75ef7e567dba" id="r_a635c6cabf7f1da64268d75ef7e567dba"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d0/dea/structcoefs_1_1coef__t.html">coef_t</a>), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a635c6cabf7f1da64268d75ef7e567dba">coef</a> =&gt; null()</td></tr>
@@ -222,6 +224,13 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a3579edf3a8350db6049ea07e20f7ae0f" id="r_a3579edf3a8350db6049ea07e20f7ae0f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3579edf3a8350db6049ea07e20f7ae0f">ident</a></td></tr>
 <tr class="memdesc:a3579edf3a8350db6049ea07e20f7ae0f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Identity matrix used to disable filtering in selected directions.  <br /></td></tr>
 <tr class="memitem:a6420b1b3d478fb9cf608832b09a0f521" id="r_a6420b1b3d478fb9cf608832b09a0f521"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6420b1b3d478fb9cf608832b09a0f521">ident_d</a> = C_NULL_PTR</td></tr>
+<tr class="memitem:acce42cc83fd0994ec08da912ba212c2b" id="r_acce42cc83fd0994ec08da912ba212c2b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acce42cc83fd0994ec08da912ba212c2b">br</a></td></tr>
+<tr class="memdesc:acce42cc83fd0994ec08da912ba212c2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Complementary derivatives, (I - F) D, for factorized SVV.  <br /></td></tr>
+<tr class="memitem:a9eb906ee87cb55b20bd37f13af3a935f" id="r_a9eb906ee87cb55b20bd37f13af3a935f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9eb906ee87cb55b20bd37f13af3a935f">bs</a></td></tr>
+<tr class="memitem:a42335693bd783e0c20e8cd25f47714f6" id="r_a42335693bd783e0c20e8cd25f47714f6"><td class="memItemLeft" align="right" valign="top"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42335693bd783e0c20e8cd25f47714f6">bt</a></td></tr>
+<tr class="memitem:a0b3ae83960b08b3c17a3525c12a52a8c" id="r_a0b3ae83960b08b3c17a3525c12a52a8c"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0b3ae83960b08b3c17a3525c12a52a8c">br_d</a> = C_NULL_PTR</td></tr>
+<tr class="memitem:ab6768144c173beac5e96c408e1006ba1" id="r_ab6768144c173beac5e96c408e1006ba1"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab6768144c173beac5e96c408e1006ba1">bs_d</a> = C_NULL_PTR</td></tr>
+<tr class="memitem:ad04b7fe58fc831d95ce3e6a123ccfff7" id="r_ad04b7fe58fc831d95ce3e6a123ccfff7"><td class="memItemLeft" align="right" valign="top">type(c_ptr)&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad04b7fe58fc831d95ce3e6a123ccfff7">bt_d</a> = C_NULL_PTR</td></tr>
 <tr class="memitem:afdea2a0c667c10d95c44926321809c99" id="r_afdea2a0c667c10d95c44926321809c99"><td class="memItemLeft" align="right" valign="top">character(len=:), allocatable&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afdea2a0c667c10d95c44926321809c99">nue_field_name</a></td></tr>
 <tr class="memdesc:afdea2a0c667c10d95c44926321809c99"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name and pointer for a field-valued SVV viscosity.  <br /></td></tr>
 <tr class="memitem:adb22b23e677ef3832977843d6a758aad" id="r_adb22b23e677ef3832977843d6a758aad"><td class="memItemLeft" align="right" valign="top">type(<a class="el" href="../../d3/d5f/structfield_1_1field__t.html">field_t</a>), pointer&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adb22b23e677ef3832977843d6a758aad">nue</a> =&gt; null()</td></tr>
@@ -230,7 +239,7 @@ Public Attributes</h2></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00061">61</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00062">62</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function/Subroutine Documentation</h2>
 <a id="a49e7d1e48fedde5cd895271eff604186" name="a49e7d1e48fedde5cd895271eff604186"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a49e7d1e48fedde5cd895271eff604186">&#9670;&#160;</a></span>free()</h2>
@@ -253,7 +262,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00091">91</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -295,7 +304,7 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00090">90</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -331,11 +340,107 @@ Public Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00084">84</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00092">92</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
 <a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
+<a id="acce42cc83fd0994ec08da912ba212c2b" name="acce42cc83fd0994ec08da912ba212c2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acce42cc83fd0994ec08da912ba212c2b">&#9670;&#160;</a></span>br</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), allocatable spectral_vanishing_viscosity::svv_t::br</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+
+</div>
+</div>
+<a id="a0b3ae83960b08b3c17a3525c12a52a8c" name="a0b3ae83960b08b3c17a3525c12a52a8c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b3ae83960b08b3c17a3525c12a52a8c">&#9670;&#160;</a></span>br_d</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr) spectral_vanishing_viscosity::svv_t::br_d = C_NULL_PTR</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00081">81</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+
+</div>
+</div>
+<a id="a9eb906ee87cb55b20bd37f13af3a935f" name="a9eb906ee87cb55b20bd37f13af3a935f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9eb906ee87cb55b20bd37f13af3a935f">&#9670;&#160;</a></span>bs</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), allocatable spectral_vanishing_viscosity::svv_t::bs</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+
+</div>
+</div>
+<a id="ab6768144c173beac5e96c408e1006ba1" name="ab6768144c173beac5e96c408e1006ba1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6768144c173beac5e96c408e1006ba1">&#9670;&#160;</a></span>bs_d</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr) spectral_vanishing_viscosity::svv_t::bs_d = C_NULL_PTR</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00082">82</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+
+</div>
+</div>
+<a id="a42335693bd783e0c20e8cd25f47714f6" name="a42335693bd783e0c20e8cd25f47714f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42335693bd783e0c20e8cd25f47714f6">&#9670;&#160;</a></span>bt</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="../../d8/dc8/device__config_8h.html#a11d147c64891830c9e79b3315b1b2e21">real</a>(kind=rp), dimension(:,:), allocatable spectral_vanishing_viscosity::svv_t::bt</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+
+</div>
+</div>
+<a id="ad04b7fe58fc831d95ce3e6a123ccfff7" name="ad04b7fe58fc831d95ce3e6a123ccfff7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad04b7fe58fc831d95ce3e6a123ccfff7">&#9670;&#160;</a></span>bt_d</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">type(c_ptr) spectral_vanishing_viscosity::svv_t::bt_d = C_NULL_PTR</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00083">83</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+
+</div>
+</div>
 <a id="a635c6cabf7f1da64268d75ef7e567dba" name="a635c6cabf7f1da64268d75ef7e567dba"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a635c6cabf7f1da64268d75ef7e567dba">&#9670;&#160;</a></span>coef</h2>
 
@@ -348,7 +453,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00069">69</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -364,7 +469,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00065">65</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00066">66</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -380,7 +485,23 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00063">63</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00064">64</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+
+</div>
+</div>
+<a id="a5937383b8bfb72765c195ab7ae8645e8" name="a5937383b8bfb72765c195ab7ae8645e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5937383b8bfb72765c195ab7ae8645e8">&#9670;&#160;</a></span>formulation</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">character(len=:), allocatable spectral_vanishing_viscosity::svv_t::formulation</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00068">68</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -396,7 +517,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00071">71</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -412,7 +533,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00072">72</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -428,7 +549,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00074">74</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -444,7 +565,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00075">75</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -460,7 +581,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00067">67</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00070">70</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -476,7 +597,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00078">78</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00086">86</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -492,7 +613,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00077">77</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00085">85</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -508,7 +629,7 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00080">80</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00088">88</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>

@@ -113,6 +113,8 @@ Data Types</h2></td></tr>
 Functions/Subroutines</h2></td></tr>
 <tr class="memitem:a8c0bdf5b707bccf135352b810d4ad61c" id="r_a8c0bdf5b707bccf135352b810d4ad61c"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8c0bdf5b707bccf135352b810d4ad61c">svv_init_from_json</a> (this, json, coef, rho)</td></tr>
 <tr class="memdesc:a8c0bdf5b707bccf135352b810d4ad61c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct an SVV object from case parameters.  <br /></td></tr>
+<tr class="memitem:a81a66744f9f8c3450678bb8210289974" id="r_a81a66744f9f8c3450678bb8210289974"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a81a66744f9f8c3450678bb8210289974">svv_build_complementary_derivatives</a> (this)</td></tr>
+<tr class="memdesc:a81a66744f9f8c3450678bb8210289974"><td class="mdescLeft">&#160;</td><td class="mdescRight">Build the complementary derivative matrices used by factorized SVV.  <br /></td></tr>
 <tr class="memitem:a3d71df5785d40081cf59c00c6c20ef74" id="r_a3d71df5785d40081cf59c00c6c20ef74"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3d71df5785d40081cf59c00c6c20ef74">svv_update_h1</a> (this, rho, tstep)</td></tr>
 <tr class="memdesc:a3d71df5785d40081cf59c00c6c20ef74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update a time-varying, field-valued SVV viscosity.  <br /></td></tr>
 <tr class="memitem:a75e0477e83c8e78e458e07e7dd5a8f28" id="r_a75e0477e83c8e78e458e07e7dd5a8f28"><td class="memItemLeft" align="right" valign="top">subroutine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a75e0477e83c8e78e458e07e7dd5a8f28">svv_copy_viscosity</a> (this, rho)</td></tr>
@@ -125,11 +127,54 @@ Functions/Subroutines</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 id="header-var-members" class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:ab9ae64897e5e932fff891244b39a9da3" id="r_ab9ae64897e5e932fff891244b39a9da3"><td class="memItemLeft" align="right" valign="top">character(len=3), dimension(7), parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab9ae64897e5e932fff891244b39a9da3">known_directions</a> = [character(len=3) :: &quot;rst&quot;, &quot;rs&quot;, &quot;rt&quot;, &quot;st&quot;, &quot;r&quot;, &quot;s&quot;, &quot;t&quot;]</td></tr>
-<tr class="memitem:a69fe9dc1b7e909550114a5dffa56cd9e" id="r_a69fe9dc1b7e909550114a5dffa56cd9e"><td class="memItemLeft" align="right" valign="top">character(len=9), dimension(1), parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a69fe9dc1b7e909550114a5dffa56cd9e">known_formulations</a> = [character(len=9) :: &quot;one-sided&quot;]</td></tr>
+<tr class="memitem:a97d544ae5fbb8aa0e2b685165a9c87e1" id="r_a97d544ae5fbb8aa0e2b685165a9c87e1"><td class="memItemLeft" align="right" valign="top">character(len=10), dimension(2), parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a97d544ae5fbb8aa0e2b685165a9c87e1">known_formulations</a> = [character(len=10) :: &quot;one-sided&quot;, &quot;factorized&quot;]</td></tr>
 <tr class="memitem:ab03e385208eace20245a795cf7130f2e" id="r_ab03e385208eace20245a795cf7130f2e"><td class="memItemLeft" align="right" valign="top">character(len=5), dimension(2), parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab03e385208eace20245a795cf7130f2e">known_nu_types</a> = [character(len=5) :: &quot;value&quot;, &quot;field&quot;]</td></tr>
 <tr class="memitem:aa2cf1e3abe963fc4f80f27db3e1368c3" id="r_aa2cf1e3abe963fc4f80f27db3e1368c3"><td class="memItemLeft" align="right" valign="top">character(len=5), dimension(1), parameter&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa2cf1e3abe963fc4f80f27db3e1368c3">known_kernel_types</a> = [character(len=5) :: &quot;power&quot;]</td></tr>
 </table>
 <a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function/Subroutine Documentation</h2>
+<a id="a81a66744f9f8c3450678bb8210289974" name="a81a66744f9f8c3450678bb8210289974"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a81a66744f9f8c3450678bb8210289974">&#9670;&#160;</a></span>svv_build_complementary_derivatives()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">subroutine spectral_vanishing_viscosity::svv_build_complementary_derivatives </td>
+          <td>(</td>
+          <td class="paramtype">class(<a class="el" href="../../df/d33/structspectral__vanishing__viscosity_1_1svv__t.html">svv_t</a>), intent(inout)</td>          <td class="paramname"><span class="paramname"><em>this</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel private">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">this</td><td>SVV object. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00213">213</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<div class="dynheader">
+Here is the caller graph for this function:</div>
+<div class="dyncontent">
+<div class="center"><img src="../../db/d19/namespacespectral__vanishing__viscosity_a81a66744f9f8c3450678bb8210289974_icgraph.png" border="0" usemap="#adb/d19/namespacespectral__vanishing__viscosity_a81a66744f9f8c3450678bb8210289974_icgraph" loading="lazy" alt=""/></div>
+<map name="adb/d19/namespacespectral__vanishing__viscosity_a81a66744f9f8c3450678bb8210289974_icgraph" id="adb/d19/namespacespectral__vanishing__viscosity_a81a66744f9f8c3450678bb8210289974_icgraph">
+<area shape="rect" title="Build the complementary derivative matrices used by factorized SVV." alt="" coords="198,5,409,67"/>
+<area shape="rect" href="../../db/d19/namespacespectral__vanishing__viscosity.html#a8c0bdf5b707bccf135352b810d4ad61c" title="Construct an SVV object from case parameters." alt="" coords="5,5,150,67"/>
+<area shape="poly" title=" " alt="" coords="180,37,150,39,150,34,185,36"/>
+</map>
+</div>
+
+</div>
+</div>
 <a id="a75e0477e83c8e78e458e07e7dd5a8f28" name="a75e0477e83c8e78e458e07e7dd5a8f28"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a75e0477e83c8e78e458e07e7dd5a8f28">&#9670;&#160;</a></span>svv_copy_viscosity()</h2>
 
@@ -164,7 +209,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00217">217</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00275">275</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -225,7 +270,7 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00232">232</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00290">290</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -267,37 +312,39 @@ Here is the caller graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00094">94</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00102">102</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
 <div class="center"><img src="../../db/d19/namespacespectral__vanishing__viscosity_a8c0bdf5b707bccf135352b810d4ad61c_cgraph.png" border="0" usemap="#adb/d19/namespacespectral__vanishing__viscosity_a8c0bdf5b707bccf135352b810d4ad61c_cgraph" loading="lazy" alt=""/></div>
 <map name="adb/d19/namespacespectral__vanishing__viscosity_a8c0bdf5b707bccf135352b810d4ad61c_cgraph" id="adb/d19/namespacespectral__vanishing__viscosity_a8c0bdf5b707bccf135352b810d4ad61c_cgraph">
-<area shape="rect" title="Construct an SVV object from case parameters." alt="" coords="5,196,150,258"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="236,5,322,33"/>
-<area shape="poly" title=" " alt="" coords="90,195,131,123,161,83,196,49,223,35,219,39,199,53,165,87,136,125,95,197"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="460,59,550,86"/>
-<area shape="poly" title=" " alt="" coords="100,194,142,151,168,130,197,113,260,90,326,76,390,69,447,69,442,71,390,75,327,81,261,95,199,118,171,134,145,155,105,197"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="201,244,357,288"/>
-<area shape="poly" title=" " alt="" coords="149,238,188,247,183,249,151,244"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="410,115,600,142"/>
-<area shape="poly" title=" " alt="" coords="112,194,151,166,197,143,246,130,297,122,397,119,392,122,297,128,247,135,199,148,154,170,115,198"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="201,313,357,358"/>
-<area shape="poly" title=" " alt="" coords="126,256,199,298,211,306,206,306,196,303,126,261"/>
-<area shape="rect" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b" title="Reports an error allocating a type for a particular base pointer class." alt="" coords="198,381,360,409"/>
-<area shape="poly" title=" " alt="" coords="98,256,141,314,168,343,199,368,208,374,202,374,196,372,165,347,137,317,97,261"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="231,433,327,461"/>
-<area shape="poly" title=" " alt="" coords="91,256,109,295,132,338,162,381,199,418,219,432,214,432,196,423,158,385,128,341,104,297,90,261"/>
-<area shape="rect" href="../../db/d19/namespacespectral__vanishing__viscosity.html#a75e0477e83c8e78e458e07e7dd5a8f28" title="Copy the configured viscosity field and multiply it by density." alt="" coords="202,158,356,219"/>
-<area shape="poly" title=" " alt="" coords="149,211,188,205,184,208,151,216"/>
-<area shape="rect" href="../../d6/d84/namespaceutils.html#a3b42fa80f3602b0ab45ac623156295ec" title="Default throw method that stops execution." alt="" coords="432,373,579,418"/>
-<area shape="poly" title=" " alt="" coords="360,393,418,395,413,395,360,398"/>
-<area shape="poly" title=" " alt="" coords="319,155,360,127,407,101,447,87,443,90,409,106,363,131,322,159"/>
-<area shape="poly" title=" " alt="" coords="355,166,438,146,433,148,358,170"/>
-<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="458,225,552,253"/>
-<area shape="poly" title=" " alt="" coords="356,203,446,225,441,226,357,208"/>
-<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="408,173,602,201"/>
-<area shape="poly" title=" " alt="" coords="356,185,395,187,390,189,357,191"/>
+<area shape="rect" title="Construct an SVV object from case parameters." alt="" coords="5,235,150,297"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#a7d6d8b6bc8f8caa027cb2ac482309121" title="Set all elements to a constant c ." alt="" coords="260,5,346,33"/>
+<area shape="poly" title=" " alt="" coords="85,234,100,192,123,142,155,92,196,49,219,35,247,26,243,30,221,40,199,53,159,95,128,145,105,194,90,235"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aa4aff8f68518460c91d81c9f905b2e2b" title="Vector multiplication ." alt="" coords="509,59,599,86"/>
+<area shape="poly" title=" " alt="" coords="91,233,108,202,131,167,161,134,196,108,233,90,272,77,352,63,429,59,496,64,491,66,429,65,353,68,273,82,235,95,199,112,164,138,135,171,112,205,95,236"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#adc0c8effa3af098f18442b81edc6fc6e" title="Set all elements to a constant c ." alt="" coords="225,244,382,288"/>
+<area shape="poly" title=" " alt="" coords="149,263,212,264,207,267,151,268"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a94ac78fc9b96b2e3ac600603c1afafb1" title="Vector multiplication ." alt="" coords="459,115,649,142"/>
+<area shape="poly" title=" " alt="" coords="97,233,138,185,166,161,197,143,258,123,322,112,385,109,446,113,441,115,385,115,322,118,259,128,199,148,169,166,142,188,101,236"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a532c70f5951b4896c7a9814057aec268" title="Zero a real vector." alt="" coords="225,313,382,358"/>
+<area shape="poly" title=" " alt="" coords="150,285,216,306,211,309,151,291"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#ac2aece3826d2efe73113379fc55ae05b" title="Reports an error allocating a type for a particular base pointer class." alt="" coords="222,381,384,409"/>
+<area shape="poly" title=" " alt="" coords="107,295,149,333,199,368,212,375,207,376,196,372,146,338,107,300"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#accd3b06fc22b453552cc46d0fbf80677" title="Zero a real vector." alt="" coords="255,433,352,461"/>
+<area shape="poly" title=" " alt="" coords="95,294,138,359,166,391,199,418,219,429,243,438,237,439,217,434,196,423,162,395,133,362,94,300"/>
+<area shape="rect" href="../../db/d19/namespacespectral__vanishing__viscosity.html#a81a66744f9f8c3450678bb8210289974" title="Build the complementary derivative matrices used by factorized SVV." alt="" coords="198,486,409,547"/>
+<area shape="poly" title=" " alt="" coords="90,294,108,335,131,382,162,429,200,471,205,477,200,476,196,474,157,432,127,384,103,337,89,300"/>
+<area shape="rect" href="../../db/d19/namespacespectral__vanishing__viscosity.html#a75e0477e83c8e78e458e07e7dd5a8f28" title="Copy the configured viscosity field and multiply it by density." alt="" coords="226,158,380,219"/>
+<area shape="poly" title=" " alt="" coords="148,239,214,218,210,222,152,243"/>
+<area shape="rect" href="../../d6/d84/namespaceutils.html#a3b42fa80f3602b0ab45ac623156295ec" title="Default throw method that stops execution." alt="" coords="480,373,628,418"/>
+<area shape="poly" title=" " alt="" coords="385,393,468,395,462,396,385,398"/>
+<area shape="poly" title=" " alt="" coords="353,155,402,127,456,101,497,88,492,91,458,106,405,132,356,159"/>
+<area shape="poly" title=" " alt="" coords="380,168,481,145,476,148,382,172"/>
+<area shape="rect" href="../../dd/d47/namespacemath.html#aaa9e139d5611c1df894a7e88d240f602" title="Copy a vector ." alt="" coords="507,225,601,253"/>
+<area shape="poly" title=" " alt="" coords="381,201,494,226,489,228,381,207"/>
+<area shape="rect" href="../../d2/d73/namespacedevice__math.html#a855e85405a5eb63227e1970691aa2a5a" title="Copy a vector ." alt="" coords="457,173,651,201"/>
+<area shape="poly" title=" " alt="" coords="380,186,444,187,439,189,382,191"/>
 </map>
 </div>
 
@@ -343,7 +390,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00197">197</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00255">255</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the call graph for this function:</div>
 <div class="dyncontent">
@@ -396,7 +443,7 @@ Here is the call graph for this function:</div>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00260">260</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00334">334</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 <div class="dynheader">
 Here is the caller graph for this function:</div>
 <div class="dyncontent">
@@ -435,8 +482,8 @@ Here is the caller graph for this function:</div>
 
 </div>
 </div>
-<a id="a69fe9dc1b7e909550114a5dffa56cd9e" name="a69fe9dc1b7e909550114a5dffa56cd9e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a69fe9dc1b7e909550114a5dffa56cd9e">&#9670;&#160;</a></span>known_formulations</h2>
+<a id="a97d544ae5fbb8aa0e2b685165a9c87e1" name="a97d544ae5fbb8aa0e2b685165a9c87e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a97d544ae5fbb8aa0e2b685165a9c87e1">&#9670;&#160;</a></span>known_formulations</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -445,7 +492,7 @@ Here is the caller graph for this function:</div>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">character(len=9), dimension(1), parameter spectral_vanishing_viscosity::known_formulations = [character(len=9) :: &quot;one-sided&quot;]</td>
+          <td class="memname">character(len=10), dimension(2), parameter spectral_vanishing_viscosity::known_formulations = [character(len=10) :: &quot;one-sided&quot;, &quot;factorized&quot;]</td>
         </tr>
       </table>
   </td>
@@ -479,7 +526,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00056">56</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00057">57</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>
@@ -503,7 +550,7 @@ Here is the caller graph for this function:</div>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00054">54</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
+<p class="definition">Definition at line <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html#l00055">55</a> of file <a class="el" href="../../d3/d9f/spectral__vanishing__viscosity_8f90_source.html">spectral_vanishing_viscosity.f90</a>.</p>
 
 </div>
 </div>

@@ -1,0 +1,7 @@
+<map id="ax_helm_svv_factorized_full_device::ax_helm_svv_factorized_full_device_t" name="ax_helm_svv_factorized_full_device::ax_helm_svv_factorized_full_device_t">
+<area shape="rect" id="Node000001" title="Device factorized full&#45;stress SVV Helmholtz operator." alt="" coords="5,174,219,235"/>
+<area shape="rect" id="Node000002" href="$db/d36/structax__helm__svv__full_1_1ax__helm__svv__full__t.html" title="Matrix&#45;vector product for a Helmholtz problem." alt="" coords="32,81,192,126"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="114,139,115,174,109,172,110,143"/>
+<area shape="rect" id="Node000003" href="$d3/d2c/structax__product_1_1ax__t.html" title="Base type for a matrix&#45;vector product providing ." alt="" coords="47,5,177,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="113,46,115,81,109,80,111,51"/>
+</map>

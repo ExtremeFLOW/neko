@@ -1,0 +1,27 @@
+<map id="reichardt::reichardt_compute" name="reichardt::reichardt_compute">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress." alt="" coords="5,80,151,124"/>
+<area shape="rect" id="Node000002" href="$d1/d9a/namespacereichardt__cpu.html#a4470d21a47c4d909b72a5d032c24695e" title="Compute the wall shear stress on cpu using Reichardt&#39;s law." alt="" coords="209,45,384,90"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,88,196,82,191,85,152,93"/>
+<area shape="rect" id="Node000006" href="$d3/df6/namespacereichardt__device.html#a1d6e0e99ca08de2677ed49523788efcc" title="Compute the wall shear stress on device using Reichardt&#39;s law." alt="" coords="199,114,394,159"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="151,111,186,118,181,119,151,116"/>
+<area shape="rect" id="Node000003" href="$d1/d9a/namespacereichardt__cpu.html#ae1fca049cb1f16f76d1effe2e1b8985a" title="Newton solver for the algebraic equation defined by the law on cpu. Solves f(utau) = utau * u+(y utau..." alt="" coords="448,53,630,81"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="384,65,435,67,429,68,385,70"/>
+<area shape="rect" id="Node000004" href="$d1/d9a/namespacereichardt__cpu.html#a3832d4ba06ef8371269882f6e650433c" title="Evaluate the derivative du+/dy+ of Reichardt&#39;s law of the wall." alt="" coords="683,5,890,33"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="613,50,699,36,694,37,614,55"/>
+<area shape="rect" id="Node000005" href="$d1/d9a/namespacereichardt__cpu.html#a9346e1af330d8f96677950845ad710e9" title="Evaluate Reichardt&#39;s law of the wall, u+ as a function of y+." alt="" coords="687,57,886,85"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="630,66,674,69,669,70,630,71"/>
+<area shape="rect" id="Node000007" href="$d1/d15/reichardt_8cu.html#a22fae481bdd8292800cfba01a9898300" title=" " alt="" coords="448,117,629,145"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="394,132,435,133,430,134,395,137"/>
+<area shape="rect" id="Node000012" href="$d3/dd4/reichardt_8c.html#af900f8bb5a731d1d2a1c204ac9e5970d" title=" " alt="" coords="442,169,635,197"/>
+<area shape="poly" id="edge11_Node000006_Node000012" title=" " alt="" coords="395,153,451,166,445,166,394,158"/>
+<area shape="rect" id="Node000008" href="$df/d82/cuda_2reichardt__kernel_8h.html#afc5ecc7bdf5fd2aaeee466402273e4ee" title=" " alt="" coords="715,117,858,145"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="630,129,702,131,697,131,630,134"/>
+<area shape="rect" id="Node000009" href="$df/d82/cuda_2reichardt__kernel_8h.html#a9f45810c7ec514acdf79acb7dd45c9ee" title=" " alt="" coords="938,117,1059,145"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="859,129,924,131,919,131,859,134"/>
+<area shape="rect" id="Node000010" href="$df/d82/cuda_2reichardt__kernel_8h.html#ab7dd3b1870a6210c05a758b8b25a2ffa" title=" " alt="" coords="1107,91,1217,118"/>
+<area shape="poly" id="edge9_Node000009_Node000010" title=" " alt="" coords="1059,119,1089,116,1094,116,1060,124"/>
+<area shape="rect" id="Node000011" href="$df/d82/cuda_2reichardt__kernel_8h.html#a08e6a5409d30ee72540e91f1fa8e9fe1" title=" " alt="" coords="1111,143,1213,170"/>
+<area shape="poly" id="edge10_Node000009_Node000011" title=" " alt="" coords="1059,138,1098,146,1093,146,1059,143"/>
+<area shape="rect" id="Node000013" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="721,169,852,197"/>
+<area shape="poly" id="edge12_Node000012_Node000013" title=" " alt="" coords="636,181,708,183,703,183,636,186"/>
+</map>

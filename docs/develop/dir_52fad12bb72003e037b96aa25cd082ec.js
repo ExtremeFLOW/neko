@@ -4,6 +4,8 @@ var dir_52fad12bb72003e037b96aa25cd082ec =
     [ "cai_sagaut_model_ii_kernel.h", "db/d07/hip_2cai__sagaut__model__ii__kernel_8h.html", "db/d07/hip_2cai__sagaut__model__ii__kernel_8h" ],
     [ "most.hip", "d3/d2d/most_8hip.html", "d3/d2d/most_8hip" ],
     [ "most_kernel.h", "d2/d35/hip_2most__kernel_8h.html", "d2/d35/hip_2most__kernel_8h" ],
+    [ "reichardt.hip", "d8/dad/reichardt_8hip.html", "d8/dad/reichardt_8hip" ],
+    [ "reichardt_kernel.h", "d0/db2/hip_2reichardt__kernel_8h.html", "d0/db2/hip_2reichardt__kernel_8h" ],
     [ "richardson.hip", "dc/db4/richardson_8hip.html", "dc/db4/richardson_8hip" ],
     [ "richardson_kernel.h", "d4/da0/hip_2richardson__kernel_8h.html", "d4/da0/hip_2richardson__kernel_8h" ],
     [ "rough_log_law.hip", "d2/dea/rough__log__law_8hip.html", "d2/dea/rough__log__law_8hip" ],

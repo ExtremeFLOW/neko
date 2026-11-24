@@ -1,0 +1,7 @@
+<map id="ax_helm_svv_factorized_device::ax_helm_svv_factorized_device_compute" name="ax_helm_svv_factorized_device::ax_helm_svv_factorized_device_compute">
+<area shape="rect" id="Node000001" title="Compute the factorized SVV Helmholtz product." alt="" coords="5,19,243,81"/>
+<area shape="rect" id="Node000002" href="$dc/d62/ax__helm__svv__factorized_8cu.html#a0290c9728f97ba505697a97dd92e3209" title=" " alt="" coords="291,5,508,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="242,34,278,32,273,34,243,39"/>
+<area shape="rect" id="Node000003" href="$d2/d73/namespacedevice__math.html#adbb01c2b3439ba15eefc12313ea79467" title="Returns ." alt="" coords="321,57,478,102"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="243,60,308,69,303,69,243,65"/>
+</map>

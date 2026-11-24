@@ -44,6 +44,7 @@ var prgm__lib_8F90 =
     [ "opencl_prgm_lib::opgrad_program", "d0/dc0/namespaceopencl__prgm__lib.html#a0857988837c24e3255fb6b88ca0210a2", null ],
     [ "opencl_prgm_lib::pnpn_res_program", "d0/dc0/namespaceopencl__prgm__lib.html#aa23394a56bd960ab80d7fb4299ca6240", null ],
     [ "opencl_prgm_lib::pnpn_stress_res_program", "d0/dc0/namespaceopencl__prgm__lib.html#adbd02248862f23ec4851d3ca89c658a2", null ],
+    [ "opencl_prgm_lib::reichardt_program", "d0/dc0/namespaceopencl__prgm__lib.html#a25f1257b26c266d2655d65d18ca09bc1", null ],
     [ "opencl_prgm_lib::rhs_maker_program", "d0/dc0/namespaceopencl__prgm__lib.html#ab6176c9407c4650ec0b77425b7706086", null ],
     [ "opencl_prgm_lib::richardson_program", "d0/dc0/namespaceopencl__prgm__lib.html#a7c64cebbb302f68f74be5095ffc063e2", null ],
     [ "opencl_prgm_lib::rotate_program", "d0/dc0/namespaceopencl__prgm__lib.html#a08fec87f65021c09df76f299e2a6b760", null ],

@@ -1,0 +1,5 @@
+<map id="spectral_vanishing_viscosity::svv_build_complementary_derivatives" name="spectral_vanishing_viscosity::svv_build_complementary_derivatives">
+<area shape="rect" id="Node000001" title="Build the complementary derivative matrices used by factorized SVV." alt="" coords="198,5,409,67"/>
+<area shape="rect" id="Node000002" href="$db/d19/namespacespectral__vanishing__viscosity.html#a8c0bdf5b707bccf135352b810d4ad61c" title="Construct an SVV object from case parameters." alt="" coords="5,5,150,67"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,37,150,39,150,34,185,36"/>
+</map>

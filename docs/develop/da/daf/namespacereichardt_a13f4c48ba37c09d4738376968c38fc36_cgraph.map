@@ -1,0 +1,7 @@
+<map id="reichardt::reichardt_init" name="reichardt::reichardt_init">
+<area shape="rect" id="Node000001" title="Constructor from JSON." alt="" coords="5,14,179,42"/>
+<area shape="rect" id="Node000002" href="$d0/d03/namespacewall__sampler__fctry.html#addd019f13ed5b9948db4f1cb9b7f0504" title="Wall sampler factory." alt="" coords="227,5,396,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="179,25,214,27,208,28,179,30"/>
+<area shape="rect" id="Node000003" href="$d0/d03/namespacewall__sampler__fctry.html#a81f09c7235d4c3951dd90f3b381c8283" title="Allocate a concrete wall sampler implementation by type name." alt="" coords="444,5,624,50"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="396,25,431,28,426,28,397,30"/>
+</map>

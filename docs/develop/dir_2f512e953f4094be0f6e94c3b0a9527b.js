@@ -4,6 +4,8 @@ var dir_2f512e953f4094be0f6e94c3b0a9527b =
     [ "cai_sagaut_model_ii_kernel.h", "dc/dd3/cuda_2cai__sagaut__model__ii__kernel_8h.html", "dc/dd3/cuda_2cai__sagaut__model__ii__kernel_8h" ],
     [ "most.cu", "d9/dbb/most_8cu.html", "d9/dbb/most_8cu" ],
     [ "most_kernel.h", "d5/dde/cuda_2most__kernel_8h.html", "d5/dde/cuda_2most__kernel_8h" ],
+    [ "reichardt.cu", "d1/d15/reichardt_8cu.html", "d1/d15/reichardt_8cu" ],
+    [ "reichardt_kernel.h", "df/d82/cuda_2reichardt__kernel_8h.html", "df/d82/cuda_2reichardt__kernel_8h" ],
     [ "richardson.cu", "d3/ddd/richardson_8cu.html", "d3/ddd/richardson_8cu" ],
     [ "richardson_kernel.h", "da/d4a/cuda_2richardson__kernel_8h.html", "da/d4a/cuda_2richardson__kernel_8h" ],
     [ "rough_log_law.cu", "d1/dc9/rough__log__law_8cu.html", "d1/dc9/rough__log__law_8cu" ],

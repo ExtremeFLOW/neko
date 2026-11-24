@@ -1,0 +1,7 @@
+<map id="reichardt_cpu::solve_cpu" name="reichardt_cpu::solve_cpu">
+<area shape="rect" id="Node000001" title="Newton solver for the algebraic equation defined by the law on cpu. Solves f(utau) = utau * u+(y utau..." alt="" coords="5,32,188,60"/>
+<area shape="rect" id="Node000002" href="$d1/d9a/namespacereichardt__cpu.html#a3832d4ba06ef8371269882f6e650433c" title="Evaluate the derivative du+/dy+ of Reichardt&#39;s law of the wall." alt="" coords="236,5,442,33"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="188,33,223,32,217,33,189,38"/>
+<area shape="rect" id="Node000003" href="$d1/d9a/namespacereichardt__cpu.html#a9346e1af330d8f96677950845ad710e9" title="Evaluate Reichardt&#39;s law of the wall, u+ as a function of y+." alt="" coords="240,57,438,85"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="188,53,227,59,221,59,188,58"/>
+</map>

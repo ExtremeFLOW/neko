@@ -1,0 +1,19 @@
+<map id="reichardt_device::hip_reichardt_compute::hip_reichardt_compute" name="reichardt_device::hip_reichardt_compute::hip_reichardt_compute">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,42,184,103"/>
+<area shape="rect" id="Node000002" href="$d3/df6/namespacereichardt__device.html#a1d6e0e99ca08de2677ed49523788efcc" title="Compute the wall shear stress on device using Reichardt&#39;s law." alt="" coords="232,50,427,95"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="184,70,219,72,214,73,184,75"/>
+<area shape="rect" id="Node000003" href="$d1/d15/reichardt_8cu.html#a22fae481bdd8292800cfba01a9898300" title=" " alt="" coords="481,32,662,60"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="427,59,468,57,463,58,428,64"/>
+<area shape="rect" id="Node000008" href="$d3/dd4/reichardt_8c.html#af900f8bb5a731d1d2a1c204ac9e5970d" title=" " alt="" coords="475,84,668,112"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="428,80,462,86,457,86,427,85"/>
+<area shape="rect" id="Node000004" href="$df/d82/cuda_2reichardt__kernel_8h.html#afc5ecc7bdf5fd2aaeee466402273e4ee" title=" " alt="" coords="716,32,860,60"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="663,43,704,46,699,46,663,48"/>
+<area shape="rect" id="Node000005" href="$df/d82/cuda_2reichardt__kernel_8h.html#a9f45810c7ec514acdf79acb7dd45c9ee" title=" " alt="" coords="908,32,1029,60"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="860,43,895,46,889,46,860,48"/>
+<area shape="rect" id="Node000006" href="$df/d82/cuda_2reichardt__kernel_8h.html#ab7dd3b1870a6210c05a758b8b25a2ffa" title=" " alt="" coords="1077,5,1187,33"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="1029,33,1059,31,1064,30,1030,39"/>
+<area shape="rect" id="Node000007" href="$df/d82/cuda_2reichardt__kernel_8h.html#a08e6a5409d30ee72540e91f1fa8e9fe1" title=" " alt="" coords="1081,57,1183,85"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="1029,53,1068,61,1063,61,1029,58"/>
+<area shape="rect" id="Node000009" href="$d6/df3/jit_8c.html#a7f4d1566adfd93b0565147e32387abf6" title=" " alt="" coords="722,84,854,112"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="669,95,709,98,704,98,669,100"/>
+</map>

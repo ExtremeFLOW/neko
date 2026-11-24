@@ -1,0 +1,5 @@
+<map id="reichardt_cpu::reichardt_compute_cpu" name="reichardt_cpu::reichardt_compute_cpu">
+<area shape="rect" id="Node000001" title="Compute the wall shear stress on cpu using Reichardt&#39;s law." alt="" coords="199,5,374,50"/>
+<area shape="rect" id="Node000002" href="$da/daf/namespacereichardt.html#a4d3181de0fa0de4e7178e8ddf878c86c" title="Compute the wall shear stress." alt="" coords="5,5,151,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="180,28,151,30,151,25,186,27"/>
+</map>
