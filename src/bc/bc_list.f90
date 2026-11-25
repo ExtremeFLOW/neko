@@ -400,7 +400,7 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
-    logical :: strong_, parallel_
+    logical :: strong_, parallel_, omp_in_parallel_
     type(c_ptr) :: strm_
     integer :: i
 
@@ -416,10 +416,13 @@ contains
     strm_ = glb_cmd_queue
     if (present(strm)) strm_ = strm
 
+    omp_in_parallel_ = .false.
+    !$ omp_in_parallel_ = omp_in_parallel()
+
     ! The device backends apply each condition with one kernel launch from
     ! the calling thread. A team would only repeat every launch once per
     ! thread, and the device wrappers are not thread safe.
-    parallel_ = NEKO_BCKND_DEVICE .ne. 1 .and. .not. omp_in_parallel()
+    parallel_ = NEKO_BCKND_DEVICE .ne. 1 .and. .not. omp_in_parallel_
 
     if (present(time)) then
        !$omp parallel if (parallel_)
