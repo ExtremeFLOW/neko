@@ -65,18 +65,16 @@
 !!   on a grid finer than the GLL grid, enlarged by the largest change
 !!   possible between samples estimated from the sampled derivatives.
 module lpt_wall_geometry
-  use num_types, only : rp, dp, i8
+  use num_types, only : rp, i8
   use math, only : NEKO_EPS
   use fast3d, only : fd_weights_full
   use mesh, only : mesh_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
   use utils, only : neko_error
-  use logger, only : neko_log, LOG_SIZE
   use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_Allgather, MPI_Alltoall, MPI_Alltoallv, &
-       MPI_Allreduce, MPI_INTEGER, MPI_INTEGER8, MPI_DOUBLE_PRECISION, &
-       MPI_SUM, MPI_MAX
+       MPI_INTEGER
   use device, only : device_map, device_memcpy, device_unmap, &
        device_alloc, device_free, HOST_TO_DEVICE, DEVICE_TO_HOST
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated, &
@@ -99,50 +97,21 @@ module lpt_wall_geometry
   !> Number of reals in the packed per-facet device record, see to_device
   !! and lpt_wall_intersect.h.
   integer, public, parameter :: LPT_WALL_NFR = 64
-  !> Number of statistics counters kept on the device.
-  integer, public, parameter :: LPT_WALL_NSTATS = 16
+  !> Number of diagnostic counters kept on the device, in the order of
+  !! lpt_wall_stats_t (and LPT_ST_* in lpt_wall_intersect.h).
+  integer, public, parameter :: LPT_WALL_NSTATS = 2
   !> Largest lx supported by the device kernels.
   integer, public, parameter :: LPT_WALL_MAX_LX_DEVICE = 16
   !> Newton solve outcomes.
   integer, parameter :: NEWTON_CONVERGED = 0, NEWTON_SINGULAR = 1, &
        NEWTON_NOT_CONVERGED = 2, NEWTON_OUTSIDE = 3
 
-  !> Counters of the collision handling, accumulated over the run.
+  !> Counters of degraded collision handling, accumulated over the run.
   type, public :: lpt_wall_stats_t
-     !> Particle-step evaluations.
-     integer(kind=i8) :: n_particles = 0_i8
-     !> Particle-steps with at least one facet passing the sphere filter.
-     integer(kind=i8) :: n_entered = 0_i8
-     !> Facets passing the sphere filter.
-     integer(kind=i8) :: n_facet_tests = 0_i8
-     !> Newton intersection solves.
-     integer(kind=i8) :: n_newton = 0_i8
-     !> Newton iterations in total.
-     integer(kind=i8) :: n_newton_iter = 0_i8
-     !> Largest number of iterations of one solve.
-     integer(kind=i8) :: max_newton_iter = 0_i8
-     !> Solves that did not converge.
-     integer(kind=i8) :: n_newton_failed = 0_i8
-     !> Retries with the exact finite-radius Jacobian.
-     integer(kind=i8) :: n_exact_retry = 0_i8
-     !> Patches subdivided because the normal cone test failed.
-     integer(kind=i8) :: n_subdivided = 0_i8
-     !> Patches subdivided because Newton failed.
-     integer(kind=i8) :: n_fallback = 0_i8
      !> Patches left unresolved at the finest level.
      integer(kind=i8) :: n_unresolved = 0_i8
-     !> Collisions applied.
-     integer(kind=i8) :: n_collisions = 0_i8
-     !> Collisions with a facet edge or corner.
-     integer(kind=i8) :: n_rim_collisions = 0_i8
-     !> Solves that left the search region (root outside the patch).
-     integer(kind=i8) :: n_newton_outside = 0_i8
-     !> Particles stopped at a contact because the bounce limit was hit.
-     integer(kind=i8) :: n_bounce_limit = 0_i8
      !> Particles exceeding the supported per-step displacement.
      integer(kind=i8) :: n_reach_exceeded = 0_i8
-     !> Time spent in collision handling (s).
-     real(kind=dp) :: time = 0.0_dp
   end type lpt_wall_stats_t
 
   !> High-order wall facets near the local mesh partition, including copies
@@ -208,10 +177,8 @@ module lpt_wall_geometry
      !! reals and (2, nf) integers (owning element, element facet).
      real(kind=rp), allocatable :: dev_fr(:,:)
      integer, allocatable :: dev_fi(:,:)
-     !> Device statistics counters, same order as lpt_wall_intersect.h.
-     integer(kind=i8), allocatable :: dev_stats(:)
-     !> Per-launch 32-bit counters of the OpenCL and Metal kernels.
-     integer, allocatable :: dev_stats32(:)
+     !> Per-launch device counters, same order as lpt_wall_stats_t.
+     integer, allocatable :: dev_stats(:)
      !> Per-particle scratch of the OpenCL and Metal kernels: hit counts
      !! and contact normals (3 x LPT_WALL_MAX_BOUNCES), for up to
      !! scratch_cap particles.
@@ -227,7 +194,6 @@ module lpt_wall_geometry
      type(c_ptr) :: el_facets_d = C_NULL_PTR
      type(c_ptr) :: el_radius_d = C_NULL_PTR
      type(c_ptr) :: stats_d = C_NULL_PTR
-     type(c_ptr) :: stats32_d = C_NULL_PTR
    contains
      !> Initialise from the mesh and a mask of wall facets.
      procedure, pass(this) :: init => lpt_wall_geometry_init
@@ -237,16 +203,14 @@ module lpt_wall_geometry
      procedure, pass(this) :: intersect => lpt_wall_facet_intersect
      !> Resolve all wall collisions of one particle in one step.
      procedure, pass(this) :: collide => lpt_wall_collide
-     !> Log the global collision statistics.
-     procedure, pass(this) :: report => lpt_wall_report
      !> Pack the geometry for the device kernels and copy it to the device.
      procedure, pass(this) :: to_device => lpt_wall_to_device
      !> Pack the geometry for the device kernels on the host only.
      procedure, pass(this) :: pack => lpt_wall_pack
      !> Size the per-particle device scratch of the two-kernel backends.
      procedure, pass(this) :: reserve_scratch => lpt_wall_reserve_scratch
-     !> Add the per-launch 32-bit device counters to the statistics.
-     procedure, pass(this) :: gather_stats32 => lpt_wall_gather_stats32
+     !> Add the per-launch device counters to the statistics.
+     procedure, pass(this) :: gather_stats => lpt_wall_gather_stats
   end type lpt_wall_geometry_t
 
 contains
@@ -342,13 +306,9 @@ contains
     if (c_associated(this%stats_d)) then
        call device_unmap(this%dev_stats, this%stats_d)
     end if
-    if (c_associated(this%stats32_d)) then
-       call device_unmap(this%dev_stats32, this%stats32_d)
-    end if
     if (c_associated(this%hits_d)) call device_free(this%hits_d)
     if (c_associated(this%normals_d)) call device_free(this%normals_d)
     this%scratch_cap = 0
-    if (allocated(this%dev_stats32)) deallocate(this%dev_stats32)
     if (allocated(this%dev_fr)) deallocate(this%dev_fr)
     if (allocated(this%dev_fi)) deallocate(this%dev_fi)
     if (allocated(this%dev_stats)) deallocate(this%dev_stats)
@@ -1100,7 +1060,6 @@ contains
     hmax = max(dot_product(x0 - cl, this%cone_axis(:, f)), &
          dot_product(x0 + dx - cl, this%cone_axis(:, f)))
     if (hmax .lt. this%slab(1, f) - a) return
-    this%stats%n_facet_tests = this%stats%n_facet_tests + 1_i8
 
     ! Edge and corner contacts of a finite sphere; they lie within a of
     ! the facet and so pass the same filters.
@@ -1163,14 +1122,11 @@ contains
 
           call newton_intersect(this, f, x0, dx, a, box, st0, al0, .false., &
                st, al, nrm, iters, status)
-          call count_newton(this, iters, status)
           if ((status .eq. NEWTON_SINGULAR .or. &
                status .eq. NEWTON_NOT_CONVERGED) .and. a .gt. 0.0_rp .and. &
                .not. this%planar(f)) then
-             this%stats%n_exact_retry = this%stats%n_exact_retry + 1_i8
              call newton_intersect(this, f, x0, dx, a, box, st0, al0, &
                   .true., st, al, nrm, iters, status)
-             call count_newton(this, iters, status)
           end if
 
           valid = .false.
@@ -1183,7 +1139,6 @@ contains
              ! bounce and the next contact): retry from the far end.
              call newton_intersect(this, f, x0, dx, a, box, [sm, tm], a_out, &
                   a .gt. 0.0_rp, st, al, nrm, iters, status)
-             call count_newton(this, iters, status)
              if (status .eq. NEWTON_CONVERGED) then
                 call accept_root(st, al, nrm, valid)
              end if
@@ -1195,14 +1150,12 @@ contains
                   (status .eq. NEWTON_OUTSIDE .and. graph)) then
                 ! The unique crossing is outside this patch or this step.
              else if (dep .lt. PATCH_MAX_DEPTH) then
-                this%stats%n_fallback = this%stats%n_fallback + 1_i8
                 subdivide = .true.
              else
                 this%stats%n_unresolved = this%stats%n_unresolved + 1_i8
              end if
           end if
        else
-          this%stats%n_subdivided = this%stats%n_subdivided + 1_i8
           subdivide = .true.
        end if
 
@@ -1254,23 +1207,6 @@ contains
     end subroutine accept_root
 
   end subroutine lpt_wall_facet_intersect
-
-  !> Accumulate Newton statistics.
-  subroutine count_newton(this, iters, status)
-    type(lpt_wall_geometry_t), intent(inout) :: this
-    integer, intent(in) :: iters, status
-
-    this%stats%n_newton = this%stats%n_newton + 1_i8
-    this%stats%n_newton_iter = this%stats%n_newton_iter + int(iters, i8)
-    this%stats%max_newton_iter = max(this%stats%max_newton_iter, &
-         int(iters, i8))
-    if (status .eq. NEWTON_OUTSIDE) then
-       this%stats%n_newton_outside = this%stats%n_newton_outside + 1_i8
-    else if (status .ne. NEWTON_CONVERGED) then
-       this%stats%n_newton_failed = this%stats%n_newton_failed + 1_i8
-    end if
-
-  end subroutine count_newton
 
   !> Earliest contact, with alpha < alpha_max, of a sphere of radius a > 0
   !! moving on x0 + alpha dx with the four edges and four corners of facet
@@ -1416,7 +1352,6 @@ contains
              gn = norm2(g)
           end do
           if (conv) status = NEWTON_CONVERGED
-          call count_newton(this, min(it, NEWTON_MAX_ITER), status)
           if (status .ne. NEWTON_NOT_CONVERGED) exit
        end do
        if (status .eq. NEWTON_NOT_CONVERGED) then
@@ -1641,13 +1576,11 @@ contains
     real(kind=rp), intent(in), optional :: rst_old(3)
     real(kind=rp) :: q0(3), q1(3), dx(3), r(3), nc(3), nbest(3), alpha
     real(kind=rp) :: rn, st_guess(2), tol_off, al_c, a_tie
-    integer(kind=i8) :: tests_before
     integer :: k, f, fbest, bounce
     logical :: found, have_guess, rim, rim_best
 
     n_hits = 0
     normals = 0.0_rp
-    this%stats%n_particles = this%stats%n_particles + 1_i8
     if (el .lt. 1 .or. el .gt. size(this%el_radius)) return
     if (this%el_ptr(el) .ge. this%el_ptr(el + 1)) return
 
@@ -1655,7 +1588,6 @@ contains
        this%stats%n_reach_exceeded = this%stats%n_reach_exceeded + 1_i8
     end if
 
-    tests_before = this%stats%n_facet_tests
     q0 = p0
     q1 = p1
     do bounce = 1, LPT_WALL_MAX_BOUNCES + 1
@@ -1704,7 +1636,6 @@ contains
           ! Out of bounces: stop at this contact, inside the domain. The
           ! next step starts in contact and collides at alpha = 0.
           q1 = q0 + alpha * dx - tol_off * nbest
-          this%stats%n_bounce_limit = this%stats%n_bounce_limit + 1_i8
           exit
        end if
        r = (1.0_rp - alpha) * dx
@@ -1714,109 +1645,11 @@ contains
        q1 = q0 + r
        n_hits = n_hits + 1
        normals(:, n_hits) = nbest
-       this%stats%n_collisions = this%stats%n_collisions + 1_i8
-       if (rim_best) then
-          this%stats%n_rim_collisions = this%stats%n_rim_collisions + 1_i8
-       end if
     end do
-    if (this%stats%n_facet_tests .gt. tests_before) then
-       this%stats%n_entered = this%stats%n_entered + 1_i8
-    end if
 
     p1 = q1
 
   end subroutine lpt_wall_collide
-
-  !> Log the collision statistics summed (maximum for the largest iteration
-  !! count and the time) over all ranks.
-  subroutine lpt_wall_report(this)
-    class(lpt_wall_geometry_t), intent(inout) :: this
-    integer(kind=i8) :: c(16), cg(16), mx(1), mxg(1)
-    real(kind=dp) :: t(1), tmax(1), tsum(1)
-    character(len=LOG_SIZE) :: buf
-    integer :: ierr
-    type(lpt_wall_stats_t) :: st
-
-    st = this%stats
-    if (c_associated(this%stats_d)) then
-       call device_memcpy(this%dev_stats, this%stats_d, LPT_WALL_NSTATS, &
-            DEVICE_TO_HOST, sync = .true.)
-       call add_device_stats(st, this%dev_stats)
-    end if
-
-    c = [st%n_particles, st%n_entered, &
-         st%n_facet_tests, st%n_newton, &
-         st%n_newton_iter, st%n_newton_failed, &
-         st%n_exact_retry, st%n_subdivided, &
-         st%n_fallback, st%n_unresolved, &
-         st%n_collisions, st%n_rim_collisions, &
-         st%n_reach_exceeded, int(this%n_facets, i8), &
-         st%n_newton_outside, st%n_bounce_limit]
-    call MPI_Allreduce(c, cg, 16, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
-    mx = st%max_newton_iter
-    call MPI_Allreduce(mx, mxg, 1, MPI_INTEGER8, MPI_MAX, NEKO_COMM, ierr)
-    t = st%time
-    call MPI_Allreduce(t, tmax, 1, MPI_DOUBLE_PRECISION, MPI_MAX, &
-         NEKO_COMM, ierr)
-    call MPI_Allreduce(t, tsum, 1, MPI_DOUBLE_PRECISION, MPI_SUM, &
-         NEKO_COMM, ierr)
-    if (cg(1) .eq. 0_i8) return
-
-    call neko_log%section("LPT wall collision statistics")
-    write(buf, '(A,I0,A,I0)') "Wall facets stored (incl. halo/images): ", &
-         cg(14), ",  particle-steps: ", cg(1)
-    call neko_log%message(buf)
-    write(buf, '(A,F8.4,A,I0)') "Fraction entering the solver: ", &
-         real(cg(2), dp) / real(cg(1), dp), ",  facet tests: ", cg(3)
-    call neko_log%message(buf)
-    write(buf, '(A,I0,A,F7.2,A,I0)') "Newton solves: ", cg(4), &
-         ",  mean iterations: ", real(cg(5), dp) / max(real(cg(4), dp), &
-         1.0_dp), ",  max: ", mxg(1)
-    call neko_log%message(buf)
-    write(buf, '(A,I0,A,I0)') "Solves with root outside patch/step: ", &
-         cg(15), ",  failed solves: ", cg(6)
-    call neko_log%message(buf)
-    write(buf, '(A,I0,A,I0)') "Exact-Jacobian retries: ", cg(7), &
-         ",  fallback splits: ", cg(9)
-    call neko_log%message(buf)
-    write(buf, '(A,I0,A,I0)') "Cone-test splits: ", cg(8), &
-         ",  unresolved patches: ", cg(10)
-    call neko_log%message(buf)
-    write(buf, '(A,I0,A,I0,A,I0)') "Collisions: ", cg(11), &
-         ",  edge/corner: ", cg(12), ",  bounce limit reached: ", cg(16)
-    call neko_log%message(buf)
-    write(buf, '(A,I0)') "Displacement beyond element reach: ", cg(13)
-    call neko_log%message(buf)
-    write(buf, '(A,ES11.4,A,ES11.4)') "Collision time (s), max rank: ", &
-         tmax(1), ",  sum: ", tsum(1)
-    call neko_log%message(buf)
-    call neko_log%end_section()
-
-  end subroutine lpt_wall_report
-
-  !> Add the device counters (order of lpt_wall_intersect.h) to st.
-  subroutine add_device_stats(st, d)
-    type(lpt_wall_stats_t), intent(inout) :: st
-    integer(kind=i8), intent(in) :: d(:)
-
-    st%n_particles = st%n_particles + d(1)
-    st%n_entered = st%n_entered + d(2)
-    st%n_facet_tests = st%n_facet_tests + d(3)
-    st%n_newton = st%n_newton + d(4)
-    st%n_newton_iter = st%n_newton_iter + d(5)
-    st%max_newton_iter = max(st%max_newton_iter, d(6))
-    st%n_newton_failed = st%n_newton_failed + d(7)
-    st%n_exact_retry = st%n_exact_retry + d(8)
-    st%n_subdivided = st%n_subdivided + d(9)
-    st%n_fallback = st%n_fallback + d(10)
-    st%n_unresolved = st%n_unresolved + d(11)
-    st%n_collisions = st%n_collisions + d(12)
-    st%n_rim_collisions = st%n_rim_collisions + d(13)
-    st%n_reach_exceeded = st%n_reach_exceeded + d(14)
-    st%n_newton_outside = st%n_newton_outside + d(15)
-    st%n_bounce_limit = st%n_bounce_limit + d(16)
-
-  end subroutine add_device_stats
 
   !> Pack the per-facet data for the device kernels (layout in
   !! lpt_wall_intersect.h): origin(3), orientation, facet-local bounding
@@ -1832,14 +1665,11 @@ contains
     if (allocated(this%dev_fr)) deallocate(this%dev_fr)
     if (allocated(this%dev_fi)) deallocate(this%dev_fi)
     if (allocated(this%dev_stats)) deallocate(this%dev_stats)
-    if (allocated(this%dev_stats32)) deallocate(this%dev_stats32)
     allocate(this%dev_fr(LPT_WALL_NFR, nf), this%dev_fi(2, nf))
     allocate(this%dev_stats(LPT_WALL_NSTATS))
-    allocate(this%dev_stats32(LPT_WALL_NSTATS))
-    this%dev_stats32 = 0
     this%dev_fr = 0.0_rp
     this%dev_fi = 0
-    this%dev_stats = 0_i8
+    this%dev_stats = 0
     do f = 1, this%n_facets
        this%dev_fr(1:3, f) = this%origin(:, f)
        this%dev_fr(4, f) = this%orient(f)
@@ -1900,9 +1730,6 @@ contains
          size(this%el_radius), HOST_TO_DEVICE, sync = .false.)
     call device_map(this%dev_stats, this%stats_d, LPT_WALL_NSTATS)
     call device_memcpy(this%dev_stats, this%stats_d, LPT_WALL_NSTATS, &
-         HOST_TO_DEVICE, sync = .false.)
-    call device_map(this%dev_stats32, this%stats32_d, LPT_WALL_NSTATS)
-    call device_memcpy(this%dev_stats32, this%stats32_d, LPT_WALL_NSTATS, &
          HOST_TO_DEVICE, sync = .true.)
 
   end subroutine lpt_wall_to_device
@@ -1926,19 +1753,24 @@ contains
 
   end subroutine lpt_wall_reserve_scratch
 
-  !> Add the per-launch 32-bit counters of the OpenCL and Metal kernels to
-  !! the statistics and reset them on the device.
-  subroutine lpt_wall_gather_stats32(this)
+  !> Add the per-launch device counters to the statistics and reset them on
+  !! the device. Called after every launch, so the 32-bit counters cannot
+  !! overflow and the warnings are raised in the step they occur.
+  subroutine lpt_wall_gather_stats(this)
     class(lpt_wall_geometry_t), intent(inout) :: this
 
-    call device_memcpy(this%dev_stats32, this%stats32_d, LPT_WALL_NSTATS, &
+    call device_memcpy(this%dev_stats, this%stats_d, LPT_WALL_NSTATS, &
          DEVICE_TO_HOST, sync = .true.)
-    call add_device_stats(this%stats, int(this%dev_stats32, i8))
-    this%dev_stats32 = 0
-    call device_memcpy(this%dev_stats32, this%stats32_d, LPT_WALL_NSTATS, &
+    if (all(this%dev_stats .eq. 0)) return
+    this%stats%n_unresolved = this%stats%n_unresolved + &
+         int(this%dev_stats(1), i8)
+    this%stats%n_reach_exceeded = this%stats%n_reach_exceeded + &
+         int(this%dev_stats(2), i8)
+    this%dev_stats = 0
+    call device_memcpy(this%dev_stats, this%stats_d, LPT_WALL_NSTATS, &
          HOST_TO_DEVICE, sync = .false.)
 
-  end subroutine lpt_wall_gather_stats32
+  end subroutine lpt_wall_gather_stats
 
   !> Per-element candidate facet lists in CSR form. A facet is a candidate
   !! of element e if its bounding sphere comes within two element radii of

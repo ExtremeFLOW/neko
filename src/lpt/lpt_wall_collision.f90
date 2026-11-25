@@ -40,8 +40,6 @@ submodule (lpt) lpt_wall_collision
        device_memcpy, device_deassociate, device_free, device_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
   use utils, only : neko_warning
-  use num_types, only : dp
-  use mpi_f08, only : MPI_Wtime
   implicit none
 
 contains
@@ -98,7 +96,6 @@ contains
     type(c_ptr) :: el_list_d
     integer :: i
     integer :: n
-    real(kind=dp) :: t_start
 
     associate(global_interp => this%global_interp, &
          x => this%particles%x, y => this%particles%y, &
@@ -145,7 +142,6 @@ contains
          call rst_old%copy_from(HOST_TO_DEVICE, .false.)
 
          ! High-order geometry, copied to the device at setup.
-         t_start = MPI_Wtime()
          call lpt_wall_collide_device(this%wall_geom, el_list_d, &
               rst_old%x_d, x_old, y_old, z_old, x, y, z, d, u, v, w, u_lag, &
               v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
@@ -153,10 +149,6 @@ contains
               u_old, v_old, w_old, acc_x, acc_y, acc_z, &
               LPT_WALL_RESTITUTION, lag_len, n)
          call device_sync()
-         this%wall_geom%stats%time = this%wall_geom%stats%time + &
-              (MPI_Wtime() - t_start)
-         ! On OpenCL and Metal the counters reach the host after every
-         ! launch; on CUDA and HIP they stay on the device until the report.
          call lpt_report_wall_diagnostics(this%wall_geom)
 
          call lpt_wall_collision_sync_from_device(x, y, z, u, v, w, u_lag, &
@@ -166,15 +158,12 @@ contains
 
          call rst_old%free()
       else
-         t_start = MPI_Wtime()
          call lpt_handle_elastic_wall_collisions_cpu(this%wall_geom, &
               el_list, global_interp%rst_local, x_old, y_old, z_old, x, y, &
               z, d, u, v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, &
               w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
               acc_ylaglag, acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, &
               acc_z, lag_len, n)
-         this%wall_geom%stats%time = this%wall_geom%stats%time + &
-              (MPI_Wtime() - t_start)
          call lpt_report_wall_diagnostics(this%wall_geom)
       end if
 

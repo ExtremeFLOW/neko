@@ -76,7 +76,7 @@ extern "C" {
           (real *) acc_xlaglag, (real *) acc_ylaglag, (real *) acc_zlaglag,
           (real *) u_old, (real *) v_old, (real *) w_old,
           (real *) acc_x, (real *) acc_y, (real *) acc_z,
-          *lag_len, *e_n, *n, (unsigned long long *) stats);
+          *lag_len, *e_n, *n, (unsigned int *) stats);
     CUDA_CHECK(cudaGetLastError());
   }
 

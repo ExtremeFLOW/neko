@@ -83,24 +83,10 @@
 #define LPT_FR_CN 52      /* 3 x 4 */
 #define LPT_NFR 64
 
-/* Statistics counters, same order as lpt_wall_stats_t on the host */
-#define LPT_ST_PARTICLES 0
-#define LPT_ST_ENTERED 1
-#define LPT_ST_FACET_TESTS 2
-#define LPT_ST_NEWTON 3
-#define LPT_ST_NEWTON_ITER 4
-#define LPT_ST_MAX_ITER 5
-#define LPT_ST_FAILED 6
-#define LPT_ST_EXACT 7
-#define LPT_ST_SUBDIV 8
-#define LPT_ST_FALLBACK 9
-#define LPT_ST_UNRESOLVED 10
-#define LPT_ST_COLLISIONS 11
-#define LPT_ST_RIM 12
-#define LPT_ST_REACH 13
-#define LPT_ST_OUTSIDE 14
-#define LPT_ST_BOUNCE_LIMIT 15
-#define LPT_NSTATS 16
+/* Diagnostic counters, same order as lpt_wall_stats_t on the host */
+#define LPT_ST_UNRESOLVED 0
+#define LPT_ST_REACH 1
+#define LPT_NSTATS 2
 
 template<typename T> LPT_DEV T lpt_eps();
 template<> LPT_DEV float lpt_eps<float>() { return 1.1920929e-7f; }
@@ -154,7 +140,7 @@ struct lpt_wall_geom {
 
 /* Per-thread counters, added to the global ones once per particle */
 struct lpt_wall_cnt {
-  unsigned long long c[LPT_NSTATS];
+  unsigned int c[LPT_NSTATS];
 };
 
 template<typename T>
@@ -471,14 +457,6 @@ LPT_DEV int lpt_newton(const lpt_wall_geom<T> &g, int f, lpt_v3<T> x0,
   return status;
 }
 
-LPT_DEV void lpt_count_newton(lpt_wall_cnt &cnt, int iters, int status) {
-  cnt.c[LPT_ST_NEWTON] += 1;
-  cnt.c[LPT_ST_NEWTON_ITER] += (unsigned long long) iters;
-  if ((unsigned long long) iters > cnt.c[LPT_ST_MAX_ITER])
-    cnt.c[LPT_ST_MAX_ITER] = (unsigned long long) iters;
-  if (status == LPT_NEWTON_OUTSIDE) cnt.c[LPT_ST_OUTSIDE] += 1;
-  else if (status != LPT_NEWTON_CONVERGED) cnt.c[LPT_ST_FAILED] += 1;
-}
 
 LPT_DEV void lpt_edge_st(int k, double u, double &s, double &t) {
   switch (k) {
@@ -642,8 +620,6 @@ LPT_DEV void lpt_rim(const lpt_wall_geom<T> &g, int f, lpt_v3<T> x0,
         g1 = g1t; g2 = g2t; gn = gnt;
       }
       if (conv) status = LPT_NEWTON_CONVERGED;
-      lpt_count_newton(cnt, it < LPT_NEWTON_MAX_ITER ? it : LPT_NEWTON_MAX_ITER,
-                       status);
       if (status != LPT_NEWTON_NOT_CONVERGED) break;
     }
     if (status == LPT_NEWTON_NOT_CONVERGED) cnt.c[LPT_ST_UNRESOLVED] += 1;
@@ -705,7 +681,6 @@ LPT_DEV void lpt_facet_intersect(const lpt_wall_geom<T> &g, int f,
     return;
   T hmax = lpt_max(dot3(x0 - cl, ax0), dot3(x0 + dx - cl, ax0));
   if (hmax < rec[LPT_FR_SLAB] - a) return;
-  cnt.c[LPT_ST_FACET_TESTS] += 1;
 
   T al_r = alpha;
   bool fd_r = false;
@@ -764,14 +739,11 @@ LPT_DEV void lpt_facet_intersect(const lpt_wall_geom<T> &g, int f,
       int iters;
       int status = lpt_newton(g, f, x0, dx, a, box, s0, t0, al0, false, s,
                               t, al, nrm, iters);
-      lpt_count_newton(cnt, iters, status);
       if ((status == LPT_NEWTON_SINGULAR ||
            status == LPT_NEWTON_NOT_CONVERGED) && a > (T) 0 &&
           rec[LPT_FR_PLANAR] == (T) 0) {
-        cnt.c[LPT_ST_EXACT] += 1;
         status = lpt_newton(g, f, x0, dx, a, box, s0, t0, al0, true, s, t,
                             al, nrm, iters);
-        lpt_count_newton(cnt, iters, status);
       }
       bool valid = false;
       if (status == LPT_NEWTON_CONVERGED)
@@ -780,7 +752,6 @@ LPT_DEV void lpt_facet_intersect(const lpt_wall_geom<T> &g, int f,
       if (!valid && !graph && dep == LPT_PATCH_MAX_DEPTH) {
         status = lpt_newton(g, f, x0, dx, a, box, sm, tm, a_out, a > (T) 0,
                             s, t, al, nrm, iters);
-        lpt_count_newton(cnt, iters, status);
         if (status == LPT_NEWTON_CONVERGED)
           valid = lpt_accept(s, t, al, nrm, dx, tol_st, tol_al, alpha,
                              found, nc);
@@ -790,14 +761,12 @@ LPT_DEV void lpt_facet_intersect(const lpt_wall_geom<T> &g, int f,
             (status == LPT_NEWTON_OUTSIDE && graph)) {
           /* the unique crossing is outside this patch or this step */
         } else if (dep < LPT_PATCH_MAX_DEPTH) {
-          cnt.c[LPT_ST_FALLBACK] += 1;
           subdivide = true;
         } else {
           cnt.c[LPT_ST_UNRESOLVED] += 1;
         }
       }
     } else {
-      cnt.c[LPT_ST_SUBDIV] += 1;
       subdivide = true;
     }
 
@@ -840,12 +809,10 @@ LPT_DEV int lpt_collide(const lpt_wall_geom<T> &g, int el, lpt_v3<T> p0,
                         const T *rst, lpt_wall_cnt &cnt) {
   const T eps = lpt_eps<T>();
   int n_hits = 0;
-  cnt.c[LPT_ST_PARTICLES] += 1;
   if (el < 1 || el > g.nelv) return 0;
   if (g.el_ptr[el - 1] >= g.el_ptr[el]) return 0;
   if (nrm3(p1 - p0) + a > g.el_radius[el - 1]) cnt.c[LPT_ST_REACH] += 1;
 
-  const unsigned long long tests_before = cnt.c[LPT_ST_FACET_TESTS];
   lpt_v3<T> q0 = p0, q1 = p1;
   for (int bounce = 1; bounce <= LPT_WALL_MAX_BOUNCES + 1; bounce++) {
     const lpt_v3<T> dx = q1 - q0;
@@ -889,7 +856,6 @@ LPT_DEV int lpt_collide(const lpt_wall_geom<T> &g, int el, lpt_v3<T> p0,
     const T tol_off = (T) 16 * eps * fr_of(g, fbest)[LPT_FR_SCALE];
     if (n_hits == LPT_WALL_MAX_BOUNCES) {
       q1 = q0 + alpha * dx - tol_off * nbest;
-      cnt.c[LPT_ST_BOUNCE_LIMIT] += 1;
       break;
     }
     lpt_v3<T> r = ((T) 1 - alpha) * dx;
@@ -899,10 +865,7 @@ LPT_DEV int lpt_collide(const lpt_wall_geom<T> &g, int el, lpt_v3<T> p0,
     q1 = q0 + r;
     normals[n_hits] = nbest;
     n_hits++;
-    cnt.c[LPT_ST_COLLISIONS] += 1;
-    if (rim_best) cnt.c[LPT_ST_RIM] += 1;
   }
-  if (cnt.c[LPT_ST_FACET_TESTS] > tests_before) cnt.c[LPT_ST_ENTERED] += 1;
   p1 = q1;
   return n_hits;
 }

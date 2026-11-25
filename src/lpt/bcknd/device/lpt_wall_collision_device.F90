@@ -238,7 +238,7 @@ contains
     call opencl_lpt_wall_collide(g%xf_d, g%fr_d, g%fi_d, g%zg_d, &
          g%el_ptr_d, g%el_facets_d, g%el_radius_d, lx_, nelv_, el_list_d, &
          rst_d, x_old%x_d, y_old%x_d, z_old%x_d, x%x_d, y%x_d, z%x_d, &
-         d%x_d, g%hits_d, g%normals_d, g%stats32_d, n_, e_n_, has_rst_, &
+         d%x_d, g%hits_d, g%normals_d, g%stats_d, n_, e_n_, has_rst_, &
          strm_)
     call opencl_lpt_wall_reflect(g%hits_d, g%normals_d, u%x_d, v%x_d, &
          w%x_d, u_old%x_d, v_old%x_d, w_old%x_d, acc_x%x_d, acc_y%x_d, &
@@ -246,13 +246,12 @@ contains
          acc_ylag%x_d, acc_zlag%x_d, u_laglag%x_d, v_laglag%x_d, &
          w_laglag%x_d, acc_xlaglag%x_d, acc_ylaglag%x_d, acc_zlaglag%x_d, &
          n_, lag_len_, e_n_, strm_)
-    call g%gather_stats32()
 #elif HAVE_METAL
     call g%reserve_scratch(n)
     call metal_lpt_wall_collide(g%xf_d, g%fr_d, g%fi_d, g%zg_d, &
          g%el_ptr_d, g%el_facets_d, g%el_radius_d, lx_, nelv_, el_list_d, &
          rst_d, x_old%x_d, y_old%x_d, z_old%x_d, x%x_d, y%x_d, z%x_d, &
-         d%x_d, g%hits_d, g%normals_d, g%stats32_d, n_, e_n_, has_rst_, &
+         d%x_d, g%hits_d, g%normals_d, g%stats_d, n_, e_n_, has_rst_, &
          strm_)
     call metal_lpt_wall_reflect(g%hits_d, g%normals_d, u%x_d, v%x_d, &
          w%x_d, u_old%x_d, v_old%x_d, w_old%x_d, acc_x%x_d, acc_y%x_d, &
@@ -260,10 +259,10 @@ contains
          acc_ylag%x_d, acc_zlag%x_d, u_laglag%x_d, v_laglag%x_d, &
          w_laglag%x_d, acc_xlaglag%x_d, acc_ylaglag%x_d, acc_zlaglag%x_d, &
          n_, lag_len_, e_n_, strm_)
-    call g%gather_stats32()
 #else
     call neko_error('No device backend configured')
 #endif
+    call g%gather_stats()
   end subroutine lpt_wall_collide_device
 
 end module lpt_wall_collision_device

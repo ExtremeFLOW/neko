@@ -881,7 +881,6 @@ contains
     this%coef => null()
     if (allocated(this%wall_zone_indices)) deallocate(this%wall_zone_indices)
     if (allocated(this%wall_facet_mask)) deallocate(this%wall_facet_mask)
-    if (this%wall_geom%lx .gt. 0) call this%wall_geom%report()
     call this%wall_geom%free()
     this%elastic_wall_enabled = .false.
     this%output_enabled = .false.

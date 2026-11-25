@@ -97,23 +97,9 @@ static inline real3 lw_v3(real a, real b, real c) { return real3(a, b, c); }
 #define LPT_FR_CN 52
 #define LPT_NFR 64
 
-#define LPT_ST_PARTICLES 0
-#define LPT_ST_ENTERED 1
-#define LPT_ST_FACET_TESTS 2
-#define LPT_ST_NEWTON 3
-#define LPT_ST_NEWTON_ITER 4
-#define LPT_ST_MAX_ITER 5
-#define LPT_ST_FAILED 6
-#define LPT_ST_EXACT 7
-#define LPT_ST_SUBDIV 8
-#define LPT_ST_FALLBACK 9
-#define LPT_ST_UNRESOLVED 10
-#define LPT_ST_COLLISIONS 11
-#define LPT_ST_RIM 12
-#define LPT_ST_REACH 13
-#define LPT_ST_OUTSIDE 14
-#define LPT_ST_BOUNCE_LIMIT 15
-#define LPT_NSTATS 16
+#define LPT_ST_UNRESOLVED 0
+#define LPT_ST_REACH 1
+#define LPT_NSTATS 2
 
 /* Machine epsilon of the working precision, 2^-23 or 2^-52 */
 #define LPT_EPS (sizeof(real) == 8 ? (real) 2.220446049250313e-16f \
@@ -462,13 +448,6 @@ LPT_INLINE int lw_newton(lw_geom g, int f, real3 x0, real3 dx, real a,
   return status;
 }
 
-LPT_INLINE void lw_count_newton(LPT_P uint *cnt, int iters, int status) {
-  cnt[LPT_ST_NEWTON] += 1;
-  cnt[LPT_ST_NEWTON_ITER] += (uint) iters;
-  if ((uint) iters > cnt[LPT_ST_MAX_ITER]) cnt[LPT_ST_MAX_ITER] = (uint) iters;
-  if (status == LPT_NEWTON_OUTSIDE) cnt[LPT_ST_OUTSIDE] += 1;
-  else if (status != LPT_NEWTON_CONVERGED) cnt[LPT_ST_FAILED] += 1;
-}
 
 LPT_INLINE void lw_edge_st(int k, real u, LPT_P real *s, LPT_P real *t) {
   if (k == 1) { *s = -1.0f; *t = u; }
@@ -627,8 +606,6 @@ LPT_INLINE void lw_rim(lw_geom g, int f, real3 x0, real3 dx, real a,
         g1 = g1t; g2 = g2t; gn = gnt;
       }
       if (conv) status = LPT_NEWTON_CONVERGED;
-      lw_count_newton(cnt, it < LPT_NEWTON_MAX_ITER ? it : LPT_NEWTON_MAX_ITER,
-                      status);
       if (status != LPT_NEWTON_NOT_CONVERGED) break;
     }
     if (status == LPT_NEWTON_NOT_CONVERGED) cnt[LPT_ST_UNRESOLVED] += 1;
@@ -688,7 +665,6 @@ LPT_INLINE void lw_facet_intersect(lw_geom g, int f, real3 x0g, real3 dx,
   real hmax = lw_max(lw_dot(lw_sub(x0, cl), ax0),
                      lw_dot(lw_sub(lw_add(x0, dx), cl), ax0));
   if (hmax < lw_fr(g, f, LPT_FR_SLAB) - a) return;
-  cnt[LPT_ST_FACET_TESTS] += 1;
 
   real al_r = *alpha;
   int fd_r = 0;
@@ -753,14 +729,11 @@ LPT_INLINE void lw_facet_intersect(lw_geom g, int f, real3 x0g, real3 dx,
       int iters;
       int status = lw_newton(g, f, x0, dx, a, box, s0, t0, al0, 0, &s, &t,
                              &al, &nrm, &iters);
-      lw_count_newton(cnt, iters, status);
       if ((status == LPT_NEWTON_SINGULAR ||
            status == LPT_NEWTON_NOT_CONVERGED) && a > 0.0f &&
           lw_fr(g, f, LPT_FR_PLANAR) == 0.0f) {
-        cnt[LPT_ST_EXACT] += 1;
         status = lw_newton(g, f, x0, dx, a, box, s0, t0, al0, 1, &s, &t,
                            &al, &nrm, &iters);
-        lw_count_newton(cnt, iters, status);
       }
       int valid = 0;
       if (status == LPT_NEWTON_CONVERGED)
@@ -769,7 +742,6 @@ LPT_INLINE void lw_facet_intersect(lw_geom g, int f, real3 x0g, real3 dx,
       if (!valid && !graph && dep == LPT_PATCH_MAX_DEPTH) {
         status = lw_newton(g, f, x0, dx, a, box, sm, tm, a_out, a > 0.0f,
                            &s, &t, &al, &nrm, &iters);
-        lw_count_newton(cnt, iters, status);
         if (status == LPT_NEWTON_CONVERGED)
           valid = lw_accept(s, t, al, nrm, dx, tol_st, tol_al, alpha,
                             found, nc);
@@ -779,14 +751,12 @@ LPT_INLINE void lw_facet_intersect(lw_geom g, int f, real3 x0g, real3 dx,
             (status == LPT_NEWTON_OUTSIDE && graph)) {
           /* the unique crossing is outside this patch or this step */
         } else if (dep < LPT_PATCH_MAX_DEPTH) {
-          cnt[LPT_ST_FALLBACK] += 1;
           subdivide = 1;
         } else {
           cnt[LPT_ST_UNRESOLVED] += 1;
         }
       }
     } else {
-      cnt[LPT_ST_SUBDIV] += 1;
       subdivide = 1;
     }
 
@@ -827,13 +797,11 @@ LPT_INLINE int lw_collide(lw_geom g, int el, real3 p0, LPT_P real3 *p1,
                           LPT_P uint *cnt) {
   const real eps = LPT_EPS;
   int n_hits = 0;
-  cnt[LPT_ST_PARTICLES] += 1;
   if (el < 1 || el > g.nelv) return 0;
   if (g.el_ptr[el - 1] >= g.el_ptr[el]) return 0;
   if (lw_nrm(lw_sub(*p1, p0)) + a > g.el_radius[el - 1])
     cnt[LPT_ST_REACH] += 1;
 
-  const uint tests_before = cnt[LPT_ST_FACET_TESTS];
   real3 q0 = p0, q1 = *p1;
   for (int bounce = 1; bounce <= LPT_WALL_MAX_BOUNCES + 1; bounce++) {
     const real3 dx = lw_sub(q1, q0);
@@ -876,7 +844,6 @@ LPT_INLINE int lw_collide(lw_geom g, int el, real3 p0, LPT_P real3 *p1,
     const real tol_off = 16.0f * eps * lw_fr(g, fbest, LPT_FR_SCALE);
     if (n_hits == LPT_WALL_MAX_BOUNCES) {
       q1 = lw_sub(lw_add(q0, lw_scale(alpha, dx)), lw_scale(tol_off, nbest));
-      cnt[LPT_ST_BOUNCE_LIMIT] += 1;
       break;
     }
     real3 rem = lw_scale(1.0f - alpha, dx);
@@ -886,10 +853,7 @@ LPT_INLINE int lw_collide(lw_geom g, int el, real3 p0, LPT_P real3 *p1,
     q1 = lw_add(q0, rem);
     normals[n_hits] = nbest;
     n_hits++;
-    cnt[LPT_ST_COLLISIONS] += 1;
-    if (rim_best) cnt[LPT_ST_RIM] += 1;
   }
-  if (cnt[LPT_ST_FACET_TESTS] > tests_before) cnt[LPT_ST_ENTERED] += 1;
   *p1 = q1;
   return n_hits;
 }
@@ -964,10 +928,7 @@ kernel void lpt_wall_collide_kernel(device const float *xf [[ buffer(0) ]],
   }
   for (int i = 0; i < LPT_NSTATS; i++) {
     if (cnt[i] == 0) continue;
-    if (i == LPT_ST_MAX_ITER)
-      atomic_fetch_max_explicit(&stats[i], cnt[i], memory_order_relaxed);
-    else
-      atomic_fetch_add_explicit(&stats[i], cnt[i], memory_order_relaxed);
+    atomic_fetch_add_explicit(&stats[i], cnt[i], memory_order_relaxed);
   }
 }
 

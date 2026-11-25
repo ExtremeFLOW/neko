@@ -87,7 +87,7 @@ __global__ void lpt_wall_collide_kernel(
     const int lag_len,
     const T e_n,
     const int n,
-    unsigned long long * __restrict__ stats) {
+    unsigned int * __restrict__ stats) {
 
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
@@ -119,8 +119,7 @@ __global__ void lpt_wall_collide_kernel(
        counters when something was counted beyond the particle itself. */
     for (int i = 0; i < LPT_NSTATS; i++) {
       if (cnt.c[i] == 0) continue;
-      if (i == LPT_ST_MAX_ITER) atomicMax(&stats[i], cnt.c[i]);
-      else atomicAdd(&stats[i], cnt.c[i]);
+      atomicAdd(&stats[i], cnt.c[i]);
     }
   }
 }
