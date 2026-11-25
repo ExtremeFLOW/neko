@@ -60,6 +60,14 @@ module checkpoint_payload
      integer(kind=i8) :: offset = 0_i8
      !> Whether every rank owns an identical copy of the array.
      logical :: replicated = .false.
+     !> Whether the local length may change between writes. Resizable arrays
+     !! own their double-precision storage in `buf` instead of pointing at
+     !! caller memory. Writers derive the global count and offsets from the
+     !! local sizes at write time, readers distribute the dataset evenly over
+     !! the ranks and reallocate `buf`.
+     logical :: resizable = .false.
+     !> Owned storage of a resizable array.
+     real(kind=dp), allocatable :: buf(:)
   end type checkpoint_array_t
 
   !> Pointer wrapper around `checkpoint_array_t`.
@@ -88,6 +96,23 @@ module checkpoint_payload
      type(checkpoint_mesh_array_t), pointer :: ptr => null()
   end type checkpoint_mesh_array_ptr_t
 
+  !> Callback run before a checkpoint is written, used by owners of resizable
+  !! arrays to pack their current state into the checkpoint buffers.
+  type, abstract, public :: checkpoint_hook_t
+   contains
+     !> Pack the owner's state into its checkpoint payload.
+     procedure(checkpoint_hook_prepare_write), pass(this), deferred :: &
+          prepare_write
+  end type checkpoint_hook_t
+
+  abstract interface
+     !> Pack the owner's state into its checkpoint payload.
+     subroutine checkpoint_hook_prepare_write(this)
+       import checkpoint_hook_t
+       class(checkpoint_hook_t), intent(inout) :: this
+     end subroutine checkpoint_hook_prepare_write
+  end interface
+
   !> A named collection of live fields to checkpoint together.
   type, public :: checkpoint_payload_t
      !> Payload path below the HDF5 `Payloads` group.
@@ -100,6 +125,12 @@ module checkpoint_payload
      type(checkpoint_array_ptr_t), allocatable :: arrays(:)
      !> Registered nodal arrays distributed over mesh elements.
      type(checkpoint_mesh_array_ptr_t), allocatable :: mesh_arrays(:)
+     !> Optional callback run before the payload is written.
+     class(checkpoint_hook_t), pointer :: hook => null()
+     !> Whether a reader may skip this payload when the file lacks it.
+     logical :: is_optional = .false.
+     !> Whether the payload was populated by the last checkpoint read.
+     logical :: loaded = .false.
    contains
      !> Initialize a payload.
      procedure, pass(this) :: init => checkpoint_payload_init
@@ -124,6 +155,10 @@ module checkpoint_payload
      !! `add_array` generic because `rp` and `dp` are the same kind in a
      !! double-precision build, which would make the generic ambiguous.
      procedure, pass(this) :: add_array_dp => checkpoint_payload_add_array_dp
+     !> Add a distributed array whose local length may change between
+     !! writes.
+     procedure, pass(this) :: add_resizable_array => &
+          checkpoint_payload_add_resizable_array
      !> Add a four-dimensional nodal mesh array.
      procedure, pass(this) :: add_mesh_array => add_mesh_array_4d
      !> Return the number of fields in a payload.
@@ -206,6 +241,9 @@ contains
                 nullify(this%arrays(i)%ptr%x_dp)
              end if
              this%arrays(i)%ptr%x_d = c_null_ptr
+             if (allocated(this%arrays(i)%ptr%buf)) then
+                deallocate(this%arrays(i)%ptr%buf)
+             end if
              deallocate(this%arrays(i)%ptr)
           end if
        end do
@@ -226,6 +264,10 @@ contains
        end do
        deallocate(this%mesh_arrays)
     end if
+
+    nullify(this%hook)
+    this%is_optional = .false.
+    this%loaded = .false.
 
     if (allocated(this%name)) deallocate(this%name)
 
@@ -551,6 +593,32 @@ contains
     call move_alloc(tmp, this%arrays)
 
   end subroutine checkpoint_payload_add_array_dp
+
+  !> Add a distributed double-precision array that owns its storage and whose
+  !! local length may change between writes.
+  !! @param name Dataset name within the payload.
+  !! @return Pointer to the registered descriptor, whose `buf` the owner
+  !! fills before a write and reads after a restart.
+  function checkpoint_payload_add_resizable_array(this, name) result(array)
+    class(checkpoint_payload_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    type(checkpoint_array_t), pointer :: array
+    type(checkpoint_array_ptr_t), allocatable :: tmp(:)
+    integer :: n
+
+    call checkpoint_payload_validate_name(this, name)
+
+    n = this%array_count()
+    allocate(tmp(n + 1))
+    if (n .gt. 0) tmp(1:n) = this%arrays
+    allocate(tmp(n + 1)%ptr)
+    tmp(n + 1)%ptr%name = trim(name)
+    tmp(n + 1)%ptr%resizable = .true.
+    allocate(tmp(n + 1)%ptr%buf(0))
+    array => tmp(n + 1)%ptr
+    call move_alloc(tmp, this%arrays)
+
+  end function checkpoint_payload_add_resizable_array
 
   !> Store a flattened nodal mesh array in a payload.
   !! @param name Dataset name within the payload.
