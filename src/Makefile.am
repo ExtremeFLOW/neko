@@ -415,6 +415,7 @@ neko_fortran_SOURCES = \
 	simulation_components/lpt_simcomp.f90\
 	lpt/lpt_migration.f90\
 	lpt/lpt_wall_collision.f90\
+	lpt/lpt_wall_geometry.f90\
 	simulation_components/curl_simcomp.f90\
 	simulation_components/divergence_simcomp.f90\
 	simulation_components/weak_gradient_simcomp.f90\
@@ -1181,6 +1182,7 @@ EXTRA_DIST = \
 	sem/bcknd/device/cuda/coef_kernel.h\
 	lpt/bcknd/device/cuda/lpt_periodic_bc_kernel.h\
 	lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h\
+	lpt/bcknd/device/lpt_wall_intersect.h\
 	les/bcknd/device/cuda/sigma_nut_kernel.h\
 	les/bcknd/device/cuda/vreman_nut_kernel.h\
 	les/bcknd/device/cuda/smagorinsky_nut_kernel.h\
