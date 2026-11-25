@@ -39,7 +39,6 @@ submodule (lpt) lpt_wall_collision
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST, device_map, &
        device_memcpy, device_deassociate, device_free, device_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use scratch_registry, only : neko_scratch_registry
   use utils, only : neko_warning
   use num_types, only : dp
   use mpi_f08, only : MPI_Wtime
@@ -94,13 +93,11 @@ contains
     class(lpt_t), intent(inout) :: this
     type(vector_t), intent(in) :: x_old, y_old, z_old
     type(vector_t), intent(inout) :: u_old, v_old, w_old
-    type(matrix_t) :: rst_new
-    type(vector_t), pointer :: resx, resy, resz
+    type(matrix_t) :: rst_old
     integer, allocatable :: el_list(:)
     type(c_ptr) :: el_list_d
     integer :: i
     integer :: n
-    integer :: ind(3)
     real(kind=dp) :: t_start
 
     associate(global_interp => this%global_interp, &
@@ -140,19 +137,17 @@ contains
       end if
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         call rst_new%init(3, n)
-         call neko_scratch_registry%request_vector(resx, ind(1), n, .false.)
-         call neko_scratch_registry%request_vector(resy, ind(2), n, .false.)
-         call neko_scratch_registry%request_vector(resz, ind(3), n, .false.)
-         call global_interp%rst_finder%find(rst_new, x, y, z, el_list, n, &
-              resx, resy, resz)
+         ! Reference coordinates of the start positions in their owner
+         ! elements, found when the particles were last located; they serve
+         ! as initial guesses, as on the CPU. Only a host copy exists.
+         call rst_old%init(3, n)
+         rst_old%x = global_interp%rst_local(:, 1:n)
+         call rst_old%copy_from(HOST_TO_DEVICE, .false.)
 
-         ! High-order geometry, copied to the device at setup; the
-         ! reference coordinates of the predicted positions serve as
-         ! initial guesses.
+         ! High-order geometry, copied to the device at setup.
          t_start = MPI_Wtime()
          call lpt_wall_collide_device(this%wall_geom, el_list_d, &
-              rst_new%x_d, x_old, y_old, z_old, x, y, z, d, u, v, w, u_lag, &
+              rst_old%x_d, x_old, y_old, z_old, x, y, z, d, u, v, w, u_lag, &
               v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
               acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
               u_old, v_old, w_old, acc_x, acc_y, acc_z, &
@@ -169,8 +164,7 @@ contains
               acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
               u_old, v_old, w_old, acc_x, acc_y, acc_z)
 
-         call rst_new%free()
-         call neko_scratch_registry%relinquish(ind)
+         call rst_old%free()
       else
          t_start = MPI_Wtime()
          call lpt_handle_elastic_wall_collisions_cpu(this%wall_geom, &

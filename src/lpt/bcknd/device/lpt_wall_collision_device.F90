@@ -174,8 +174,8 @@ contains
   !! lpt_wall_geometry_t%to_device.
   !! @param g High-order wall geometry with device copies.
   !! @param el_list_d Device list of local owner elements (0-based).
-  !! @param rst_d Device reference coordinates (3, n) of the predicted
-  !! positions in those elements, used as initial guesses.
+  !! @param rst_d Device reference coordinates (3, n) of the start
+  !! positions in those elements, used as initial guesses (may be null).
   !! @param e_n Normal coefficient of restitution.
   !! @param lag_len Number of history levels in use.
   !! @param n Number of local particles.
