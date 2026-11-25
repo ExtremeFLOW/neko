@@ -48,9 +48,16 @@ module field_source_term
   !> A source term that grabs the values from fields in the registry.
   !! The fields are specified with the `field_names` keyword, which should be an
   !! array, with a value for each component of the source.
+  !! The optional `implicit_coefficient_field_names` keyword names registry
+  !! fields \f$ a_i \f$, one for each component, and the source for the
+  !! component \f$ u_i \f$ becomes \f$ b_i + a_i u_i \f$, where \f$ b_i \f$
+  !! is given by `field_names` and \f$ a_i u_i \f$ is treated implicitly.
   type, public, extends(source_term_t) :: field_source_term_t
      !> The values for the source term, one for each field.
      type(field_list_t) :: registry_fields
+     !> The coefficients of the implicitly treated part, one for each field,
+     !! if any.
+     type(field_list_t) :: implicit_coefficients
    contains
      !> The common constructor using a JSON object.
      procedure, pass(this) :: init => field_source_term_init_from_json
@@ -61,6 +68,9 @@ module field_source_term
      procedure, pass(this) :: free => field_source_term_free
      !> Computes the source term and adds the result to `fields`.
      procedure, pass(this) :: compute_ => field_source_term_compute
+     !> Adds the coefficients of the implicitly treated part.
+     procedure, pass(this) :: compute_implicit_coefficient_ => &
+          field_source_term_compute_implicit_coefficient
   end type field_source_term_t
 
 contains
@@ -79,14 +89,23 @@ contains
     character(len=*), intent(in) :: variable_name
     real(kind=rp) :: start_time, end_time
     character(len=NEKO_VARNAME_LEN), allocatable :: field_names(:)
+    character(len=NEKO_VARNAME_LEN), allocatable :: &
+         implicit_coefficient_field_names(:)
 
     call json_get(json, "field_names", field_names)
     call json_get_or_default(json, "start_time", start_time, 0.0_rp)
     call json_get_or_default(json, "end_time", end_time, huge(0.0_rp))
 
-
-    call field_source_term_init_from_components(this, fields, field_names, &
-         coef, start_time, end_time)
+    if (json%valid_path("implicit_coefficient_field_names")) then
+       call json_get(json, "implicit_coefficient_field_names", &
+            implicit_coefficient_field_names)
+       call field_source_term_init_from_components(this, fields, &
+            field_names, coef, start_time, end_time, &
+            implicit_coefficient_field_names)
+    else
+       call field_source_term_init_from_components(this, fields, &
+            field_names, coef, start_time, end_time)
+    end if
 
   end subroutine field_source_term_init_from_json
 
@@ -97,14 +116,18 @@ contains
   !! @param coef The SEM coeffs.
   !! @param start_time When to start adding the source term.
   !! @param end_time When to stop adding the source term.
+  !! @param implicit_coefficient_field_names The names of the fields with the
+  !! coefficients of the implicitly treated part, one for each field.
   subroutine field_source_term_init_from_components(this, fields, field_names, &
-       coef, start_time, end_time)
+       coef, start_time, end_time, implicit_coefficient_field_names)
     class(field_source_term_t), intent(inout) :: this
     class(field_list_t), intent(in), target :: fields
     character(len=*), intent(in) :: field_names(:)
     type(coef_t), target :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
+    character(len=*), intent(in), optional :: &
+         implicit_coefficient_field_names(:)
 
     integer :: i
 
@@ -126,6 +149,24 @@ contains
             neko_registry%get_field(field_names(i)))
     end do
 
+    if (present(implicit_coefficient_field_names)) then
+       if (size(implicit_coefficient_field_names) .ne. fields%size()) then
+          call neko_error("Number of fields and implicit coefficient " // &
+               "field names inconsistent.")
+       end if
+
+       call this%implicit_coefficients%init( &
+            size(implicit_coefficient_field_names))
+
+       do i = 1, size(implicit_coefficient_field_names)
+          call neko_registry%add_field(this%coef%dof, &
+               implicit_coefficient_field_names(i), ignore_existing = .true.)
+          call this%implicit_coefficients%assign(i, &
+               neko_registry%get_field(implicit_coefficient_field_names(i)))
+       end do
+       this%has_implicit_coefficient = .true.
+    end if
+
   end subroutine field_source_term_init_from_components
 
   !> Destructor.
@@ -134,6 +175,7 @@ contains
 
     call this%free_base()
     call this%registry_fields%free()
+    call this%implicit_coefficients%free()
 
   end subroutine field_source_term_free
 
@@ -150,5 +192,20 @@ contains
        call field_add2(this%fields%get(i), this%registry_fields%get(i))
     end do
   end subroutine field_source_term_compute
+
+  !> Adds the coefficients of the implicitly treated part to `a`.
+  !! @param a The fields to which the coefficients are added, one for each
+  !! field.
+  !! @param time The time state.
+  subroutine field_source_term_compute_implicit_coefficient(this, a, time)
+    class(field_source_term_t), intent(inout) :: this
+    type(field_list_t), intent(inout) :: a
+    type(time_state_t), intent(in) :: time
+    integer :: i
+
+    do i = 1, this%implicit_coefficients%size()
+       call field_add2(a%get(i), this%implicit_coefficients%get(i))
+    end do
+  end subroutine field_source_term_compute_implicit_coefficient
 
 end module field_source_term

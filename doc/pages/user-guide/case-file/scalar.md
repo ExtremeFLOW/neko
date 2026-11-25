@@ -154,8 +154,33 @@ file documentation.
 
 ## Source terms
 
-The configuration of source terms is the same as for the fluid. A demonstration
-of using source terms for the scalar can be found in the `scalar_mms` example.
+The configuration of source terms is the same as for the
+[fluid](@ref case-file_fluid-source-term). A demonstration of using source terms
+for the scalar can be found in the `scalar_mms` example.
+
+### Implicit treatment of linear sources {#case-file_scalar-implicit-source}
+
+A part of the source that is linear in the scalar \f$ s \f$ can be treated
+implicitly with the `field` source term. The keyword
+`implicit_coefficient_field_names` names a field \f$ a \f$ in the
+`neko_registry`, and the source becomes \f$ b + a s \f$, where \f$ b \f$ is the
+field in `field_names`. Like `field_names`, it is an array with one entry for
+each component, so for the scalar it holds a single name. The term \f$ a s \f$
+is moved into the Helmholtz operator of the scalar, using \f$ a \f$ as given and
+the new value of \f$ s \f$, whereas \f$ b \f$ is extrapolated in time like other
+explicit terms. Both \f$ a \f$ and \f$ b \f$ are per unit \f$ \rho c_p \f$. A
+negative \f$ a \f$, a sink, makes the system more diagonally dominant and
+removes the time-step restriction of the explicit treatment.
+
+~~~~~~~~~~~~~~~{.json}
+"source_terms": [
+   {
+      "type": "field",
+      "field_names": ["source_b"],
+      "implicit_coefficient_field_names": ["source_a"]
+   }
+]
+~~~~~~~~~~~~~~~
 
 ## Linear solver configuration
 
