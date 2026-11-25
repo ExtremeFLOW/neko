@@ -400,7 +400,7 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
-    logical :: strong_
+    logical :: strong_, parallel_
     type(c_ptr) :: strm_
     integer :: i
 
@@ -416,15 +416,20 @@ contains
     strm_ = glb_cmd_queue
     if (present(strm)) strm_ = strm
 
+    ! The device backends apply each condition with one kernel launch from
+    ! the calling thread. A team would only repeat every launch once per
+    ! thread, and the device wrappers are not thread safe.
+    parallel_ = NEKO_BCKND_DEVICE .ne. 1 .and. .not. omp_in_parallel()
+
     if (present(time)) then
-       !$omp parallel if (.not. omp_in_parallel())
+       !$omp parallel if (parallel_)
        do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar_generic(x, time = time, &
                strong = strong_, strm = strm_)
        end do
        !$omp end parallel
     else
-       !$omp parallel if (.not. omp_in_parallel())
+       !$omp parallel if (parallel_)
        do i = 1, this%size_
           call this%items(i)%ptr%apply_scalar_generic(x, &
                strong = strong_, strm = strm_)
@@ -450,7 +455,7 @@ contains
     type(time_state_t), intent(in), optional :: time
     logical, intent(in), optional :: strong
     type(c_ptr), intent(inout), optional :: strm
-    logical :: strong_
+    logical :: strong_, parallel_
     type(c_ptr) :: strm_
     integer :: i
 
@@ -466,15 +471,20 @@ contains
     strm_ = glb_cmd_queue
     if (present(strm)) strm_ = strm
 
+    ! The device backends apply each condition with one kernel launch from
+    ! the calling thread. A team would only repeat every launch once per
+    ! thread, and the device wrappers are not thread safe.
+    parallel_ = NEKO_BCKND_DEVICE .ne. 1 .and. .not. omp_in_parallel()
+
     if (present(time)) then
-       !$omp parallel if (.not. omp_in_parallel())
+       !$omp parallel if (parallel_)
        do i = 1, this%size_
           call this%items(i)%ptr%apply_vector_generic(x, y, z, time = time, &
                strong = strong_, strm = strm_)
        end do
        !$omp end parallel
     else
-       !$omp parallel if (.not. omp_in_parallel())
+       !$omp parallel if (parallel_)
        do i = 1, this%size_
           call this%items(i)%ptr%apply_vector_generic(x, y, z, &
                strong = strong_, strm = strm_)
