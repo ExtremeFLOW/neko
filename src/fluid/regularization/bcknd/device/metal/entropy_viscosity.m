@@ -54,7 +54,6 @@ static id<MTLComputePipelineState> pso_ev_residual = nil;
 static id<MTLComputePipelineState> pso_ev_viscosity = nil;
 static id<MTLComputePipelineState> pso_ev_element_max = nil;
 static id<MTLComputePipelineState> pso_ev_clamp = nil;
-static id<MTLComputePipelineState> pso_ev_smooth = nil;
 
 /**
  * Create a compute pipeline state for the named kernel.
@@ -225,32 +224,6 @@ void metal_entropy_visc_clamp_to_low_order(void *reg_coeff, void *h,
   [enc setBuffer:(__bridge id<MTLBuffer>)max_wave_speed offset:0 atIndex:2];
   [enc setBytes:&c_avisc_low length:sizeof(real) atIndex:3];
   [enc setBytes:&n length:sizeof(int) atIndex:4];
-
-  entropy_visc_dispatch(cmdBuf, enc, n);
-}
-
-/**
- * Divide by the multiplicity (smoothing) on the Metal GPU.
- */
-void metal_entropy_visc_smooth_divide(void *reg_coeff, void *temp_field,
-                                      void *mult_field, int n) {
-
-  if (n <= 0)
-    return;
-
-  if (pso_ev_smooth == nil)
-    pso_ev_smooth =
-      get_entropy_visc_pipeline("entropy_visc_smooth_divide_kernel");
-
-  id<MTLCommandBuffer> cmdBuf;
-  id<MTLComputeCommandEncoder> enc = entropy_visc_encoder(&cmdBuf);
-
-  [enc setComputePipelineState:pso_ev_smooth];
-
-  [enc setBuffer:(__bridge id<MTLBuffer>)reg_coeff  offset:0 atIndex:0];
-  [enc setBuffer:(__bridge id<MTLBuffer>)temp_field offset:0 atIndex:1];
-  [enc setBuffer:(__bridge id<MTLBuffer>)mult_field offset:0 atIndex:2];
-  [enc setBytes:&n length:sizeof(int) atIndex:3];
 
   entropy_visc_dispatch(cmdBuf, enc, n);
 }

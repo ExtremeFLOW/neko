@@ -276,7 +276,7 @@ static int neko_tune_iters()
 #endif
 #define NEKO_TUNE_VERIFY_BLOCKS 256
 #define NEKO_TUNE_VERIFY_THREADS 256
-#define NEKO_TUNE_VERIFY_MAXIN 8
+#define NEKO_TUNE_VERIFY_MAXIN 16
 /* Upper bound on any formulation's candidate count, for the reject flags */
 #define NEKO_TUNE_MAXCAND 16
 

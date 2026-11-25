@@ -39,8 +39,7 @@ module entropy_viscosity_cpu
   public :: entropy_viscosity_compute_residual_cpu, &
        entropy_viscosity_compute_viscosity_cpu, &
        entropy_viscosity_apply_element_max_cpu, &
-       entropy_viscosity_clamp_to_low_order_cpu, &
-       entropy_viscosity_smooth_divide_cpu
+       entropy_viscosity_clamp_to_low_order_cpu
 
 contains
 
@@ -176,29 +175,5 @@ contains
     !$omp end parallel do simd
 
   end subroutine entropy_viscosity_clamp_to_low_order_cpu
-
-  !> Divide by multiplicity for smoothing on CPU
-  !! @param reg_coeff Regularization coefficient field (modified in-place)
-  !! @param temp_field Temporary field with summed values
-  !! @param mult_field Multiplicity field
-  !! @param n Number of points
-  subroutine entropy_viscosity_smooth_divide_cpu(reg_coeff, &
-       temp_field, mult_field, n)
-    integer, intent(in) :: n
-    real(kind=rp), dimension(n), intent(out) :: reg_coeff
-    real(kind=rp), dimension(n), intent(in) :: temp_field, mult_field
-    integer :: i
-
-    !OCL NORECURRENCE, NOVREC, NOALIAS
-    !DIR$ CONCURRENT
-    !DIR$ IVDEP
-    !GCC$ ivdep
-    !$omp parallel do simd
-    do i = 1, n
-       reg_coeff(i) = temp_field(i) / mult_field(i)
-    end do
-    !$omp end parallel do simd
-
-  end subroutine entropy_viscosity_smooth_divide_cpu
 
 end module entropy_viscosity_cpu

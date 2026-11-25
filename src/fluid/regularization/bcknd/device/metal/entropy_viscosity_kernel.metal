@@ -127,15 +127,3 @@ kernel void entropy_visc_clamp_to_low_order_kernel(device float *reg_coeff[[ buf
   const float low_order_visc = c_avisc_low * h[idx] * max_wave_speed[idx];
   reg_coeff[idx] = fmin(reg_coeff[idx], low_order_visc);
 }
-
-/**
- * Device kernel for dividing by the multiplicity (smoothing)
- */
-kernel void entropy_visc_smooth_divide_kernel(device float *reg_coeff[[ buffer(0) ]],
-                                              device const float *temp_field[[ buffer(1) ]],
-                                              device const float *mult_field[[ buffer(2) ]],
-                                              constant int &n[[ buffer(3) ]],
-                                              uint idx [[ thread_position_in_grid ]]) {
-  if (idx >= (uint)n) return;
-  reg_coeff[idx] = temp_field[idx] / mult_field[idx];
-}

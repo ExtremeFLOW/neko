@@ -132,18 +132,3 @@ __kernel void entropy_visc_clamp_to_low_order_kernel(__global real * __restrict_
     reg_coeff[i] = fmin(reg_coeff[i], low_order_visc);
   }
 }
-
-/**
- * Kernel for dividing by multiplicity (smoothing)
- */
-__kernel void entropy_visc_smooth_divide_kernel(__global real * __restrict__ reg_coeff,
-                                                __global const real * __restrict__ temp_field,
-                                                __global const real * __restrict__ mult_field,
-                                                const int n) {
-  const int idx = get_global_id(0);
-  const int str = get_global_size(0);
-
-  for (int i = idx; i < n; i += str) {
-    reg_coeff[i] = temp_field[i] / mult_field[i];
-  }
-}
