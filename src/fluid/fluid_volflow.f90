@@ -117,12 +117,12 @@ contains
     call this%free()
 
     !Initialize vol_flow (if there is a forced volume flow)
-    call json_get_or_lookup(params, 'case.fluid.flow_rate_force.direction', &
+    call json_get_or_lookup(params, 'flow_rate_force.direction', &
          direction)
-    call json_get_or_lookup(params, 'case.fluid.flow_rate_force.value', rate)
-    call json_get(params, 'case.fluid.flow_rate_force.use_averaged_flow',&
+    call json_get_or_lookup(params, 'flow_rate_force.value', rate)
+    call json_get(params, 'flow_rate_force.use_averaged_flow',&
          average)
-    call json_get_or_default(params, 'case.fluid.flow_rate_force.log', &
+    call json_get_or_default(params, 'flow_rate_force.log', &
          log_output, .true.)
 
     this%flow_dir = direction

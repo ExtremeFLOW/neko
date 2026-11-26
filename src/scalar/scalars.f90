@@ -41,7 +41,7 @@ module scalars
   use gather_scatter, only : gs_t
   use time_scheme_controller, only : time_scheme_controller_t
   use time_step_controller, only : time_step_controller_t
-  use json_module, only : json_file
+  use json_module, only : json_file, json_array
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use field, only : field_t
   use field_list, only : field_list_t
@@ -53,6 +53,7 @@ module scalars
   use utils, only : neko_error
   use coefs, only : coef_t
   use time_state, only : time_state_t
+  use profiler, only : profiler_start_region, profiler_end_region
   implicit none
   private
 
@@ -193,12 +194,15 @@ contains
 
     all_frozen = .true.
 
-    ! Iterate through all scalar fields
+    ! Iterate through all scalar fields, in one fixed-id region like the
+    ! fluid's, so all scalars are profiled together as well as one by one
+    call profiler_start_region('Scalar', 2)
     do i = 1, size(this%scalar_fields)
        all_frozen = all_frozen .and. this%scalar_fields(i)%scalar%freeze
        call this%scalar_fields(i)%scalar%step(time, ext_bdf, dt_controller, &
             ksp_results(i))
     end do
+    call profiler_end_region('Scalar', 2)
 
     if (.not. all_frozen) then
        call ksp_results(i)%print_header()
@@ -223,13 +227,17 @@ contains
   end subroutine scalars_restart
 
   !> Set initial conditions for all scalar fields.
+  !! @param params The scalar parameters passed to `init`, i.e. either the
+  !! `case.scalars` array or the single `case.scalar` object.
   !! @param user Type with user-defined procedures.
   !! @param is_restart Whether the case is restarting from a checkpoint.
-  subroutine scalars_set_initial_conditions(this, user, is_restart)
+  subroutine scalars_set_initial_conditions(this, params, user, is_restart)
     class(scalars_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
     type(user_t), intent(in) :: user
     logical, intent(in) :: is_restart
-    integer :: i, running_scalar_index, scalar_index
+    integer :: i, running_scalar_index, scalar_index, var_type
+    type(json_file) :: json_subdict
 
     call neko_log%section("Scalar initial condition ")
 
@@ -237,6 +245,10 @@ contains
        call neko_log%message("Restart file specified, " // &
             "initial conditions ignored")
     else
+       ! The parameters are an array for `case.scalars` and a single
+       ! object for `case.scalar`.
+       call params%info('', var_type = var_type)
+
        running_scalar_index = 0
        do i = 1, size(this%scalar_fields)
           if (trim(this%scalar_fields(i)%scalar%name) .eq. 'temperature') then
@@ -246,9 +258,16 @@ contains
              scalar_index = running_scalar_index
           end if
 
-          call this%scalar_fields(i)%scalar%set_initial_condition(user, &
-               scalar_index)
+          if (var_type .eq. json_array) then
+             call json_extract_item(params, "", i, json_subdict)
+             call this%scalar_fields(i)%scalar%set_initial_condition( &
+                  json_subdict, user, scalar_index)
+          else
+             call this%scalar_fields(i)%scalar%set_initial_condition( &
+                  params, user, scalar_index)
+          end if
        end do
+       call json_subdict%destroy()
     end if
 
     call neko_log%end_section()

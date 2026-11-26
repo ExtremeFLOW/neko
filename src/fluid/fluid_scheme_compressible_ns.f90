@@ -162,24 +162,28 @@ contains
   !! @param this The fluid scheme object
   !! @param msh Mesh data structure
   !! @param lx Polynomial order in x-direction
-  !! @param params JSON configuration parameters
+  !! @param params The fluid parameters, i.e. `case.fluid`
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`
   !! @param user User-defined parameters and functions
   !! @param chkp Checkpoint to write to
-  subroutine fluid_scheme_compressible_ns_init(this, msh, lx, params, user, &
-       chkp)
+  !! @param output_boundary Not supported by this scheme, ignored
+  subroutine fluid_scheme_compressible_ns_init(this, msh, lx, params, &
+       numerics_params, user, chkp, output_boundary)
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
     type(user_t), target, intent(in) :: user
     type(chkp_t), target, intent(inout) :: chkp
+    logical, intent(in) :: output_boundary
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
 
     call this%free()
 
     ! Initialize base class
-    call this%scheme_init(msh, lx, params, scheme, user)
+    call this%scheme_init(msh, lx, params, numerics_params, scheme, user)
 
     call compressible_rhs_factory(this%compressible_rhs, this%gamma)
 
@@ -236,7 +240,7 @@ contains
     call this%setup_viscous_regularization(params)
 
     ! Initialize Runge-Kutta scheme
-    call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
+    call json_get_or_default(numerics_params, 'time_order', rk_order, 4)
     call this%rk_scheme%init(rk_order)
 
     call neko_log%section("Fluid boundary conditions")
@@ -440,10 +444,10 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     ! Process boundary conditions
-    if (params%valid_path('case.fluid.boundary_conditions')) then
-       call params%info('case.fluid.boundary_conditions', n_children = n_bcs)
+    if (params%valid_path('boundary_conditions')) then
+       call params%info('boundary_conditions', n_children = n_bcs)
        call params%get_core(core)
-       call params%get('case.fluid.boundary_conditions', bc_object, found)
+       call params%get('boundary_conditions', bc_object, found)
 
        !
        ! Velocity bcs
@@ -550,8 +554,8 @@ contains
     character(len=:), allocatable :: viscous_regularization_type
 
     found = .false.
-    if (this%params%valid_path('case.fluid.viscous_regularization')) then
-       call json_get(params, 'case.fluid.viscous_regularization', &
+    if (params%valid_path('viscous_regularization')) then
+       call json_get(params, 'viscous_regularization', &
             reg_json)
        found = .true.
     end if

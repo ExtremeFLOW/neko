@@ -1,0 +1,15 @@
+diff --git a/configure.ac b/configure.ac
+index c67a54618e2..5f18b87b9d0 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -46,8 +46,8 @@ AC_ARG_ENABLE(python, AS_HELP_STRING([--enable-python],
+ # Test for a sane fortran environment (^-^)
+ AC_LANG([Fortran])
+ AC_PROG_FC(,90)
+-AX_COARRAY
+-AX_COARRAY_EVENTS
++# AX_COARRAY
++# AX_COARRAY_EVENTS
+ AX_DTYPE_IO
+ AX_REAL128
+

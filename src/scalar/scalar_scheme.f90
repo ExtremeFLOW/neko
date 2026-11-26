@@ -107,8 +107,6 @@ module scalar_scheme
      class(pc_t), allocatable :: pc
      !> List of boundary conditions, including the user one.
      type(bc_list_t) :: bcs
-     !> Case parameters.
-     type(json_file), pointer :: params => null()
      !> Mesh.
      type(mesh_t), pointer :: msh => null()
      !> Checkpoint for restarts.
@@ -398,11 +396,6 @@ contains
 
     this%Xh => this%u%Xh
     this%dm_Xh => this%u%dof
-    if (associated(this%params)) then
-       deallocate(this%params)
-    end if
-    allocate(this%params)
-    this%params = params
     this%msh => msh
 
     call neko_registry%add_field(this%dm_Xh, this%name, &
@@ -439,7 +432,7 @@ contains
     this%alphat_field_name = ""
     this%nut_field_name = ""
     if (params%valid_path('alphat')) then
-       call json_get(this%params, 'alphat', json_subdict)
+       call json_get(params, 'alphat', json_subdict)
        call json_get(json_subdict, 'nut_dependency', nut_dependency)
        if (nut_dependency) then
           call json_get_or_lookup(json_subdict, 'Pr_t', this%pr_turb)
@@ -471,17 +464,21 @@ contains
   end subroutine scalar_scheme_init
 
   !> Set the initial condition.
+  !! @param params The parameters of this scalar, i.e. `case.scalar` or an
+  !! element of `case.scalars`.
   !! @param user Type with user-defined procedures.
   !! @param scalar_index Index of the scalar in a field file.
-  subroutine scalar_scheme_set_initial_condition(this, user, scalar_index)
+  subroutine scalar_scheme_set_initial_condition(this, params, user, &
+       scalar_index)
     class(scalar_scheme_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
     type(user_t), intent(in) :: user
     integer, intent(in) :: scalar_index
     character(len=:), allocatable :: ic_type
     type(json_file) :: ic_params
 
-    call json_get(this%params, 'initial_condition.type', ic_type)
-    call json_get(this%params, 'initial_condition', ic_params)
+    call json_get(params, 'initial_condition.type', ic_type)
+    call json_get(params, 'initial_condition', ic_params)
 
     if (trim(ic_type) .ne. 'user') then
        call set_scalar_ic(this%s, this%c_Xh, this%gs_Xh, ic_type, &
@@ -528,10 +525,6 @@ contains
     nullify(this%dm_Xh)
     nullify(this%gs_Xh)
     nullify(this%c_Xh)
-    if (associated(this%params)) then
-       deallocate(this%params)
-       nullify(this%params)
-    end if
 
     if (allocated(this%ksp)) then
        call this%ksp%free()
@@ -611,10 +604,6 @@ contains
 
     if (.not. associated(this%f_Xh)) then
        call neko_error('No rhs allocated')
-    end if
-
-    if (.not. associated(this%params)) then
-       call neko_error('No parameters defined')
     end if
 
     if (.not. associated(this%rho)) then

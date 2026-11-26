@@ -852,7 +852,23 @@ contains
        call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
        call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, write_target, ierr, &
             access_prp = ext_plist_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot create step file: ' // &
+               trim(ext_fname))
+       end if
        call h5pclose_f(ext_plist_id, ierr)
+
+       ! Readers find the step files through the VDS printf pattern and
+       ! probe the next index themselves. Flush now so the superblock is on
+       ! disk before any field data: an interrupted write then leaves a
+       ! valid file without datasets, which readers skip, rather than a
+       ! headerless file that breaks every read through the VDS (bar the
+       ! brief window before this flush completes).
+       call h5fflush_f(write_target, H5F_SCOPE_GLOBAL_F, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot flush step file: ' // &
+               trim(ext_fname))
+       end if
 
     else
        ! Non-temporal: write directly into the main file's PointData group
@@ -930,7 +946,7 @@ contains
 
     if (present(t)) then
 
-       ! Temporal: set up per-timestep external file as write target
+       ! Temporal: record where this step's PointData starts
        call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
        time_offset = int(counter, kind=i8) * int(total_points, kind=i8)
 
@@ -948,15 +964,18 @@ contains
        call h5gclose_f(grp_id, ierr)
        call h5gclose_f(step_grp_id, ierr)
 
-       ! ===== Create or extend VDS in main file =====
-       call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
+       ! ===== Create the VDS in the main file on the first write =====
+       ! The VDS extent is never extended on later steps: with the %b
+       ! pattern and an unlimited dimension, HDF5 derives the extent from
+       ! the step files present when a reader asks for it. Extending it
+       ! explicitly made HDF5 open every existing step file at each write.
+       if (counter .eq. 0) then
+          call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
 
-       do i = 1, fields_written
-          field_name = name_list(i)
-          is_vector = vector_list(i)
+          do i = 1, fields_written
+             field_name = name_list(i)
+             is_vector = vector_list(i)
 
-          if (counter .eq. 0) then
-             ! First write: create VDS with pattern-based mapping
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
              precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
 
@@ -1012,25 +1031,10 @@ contains
 
              call h5pclose_f(dcpl_id, ierr)
              call h5dclose_f(dset_id, ierr)
+          end do
 
-          else
-             ! Subsequent write: extend VDS to include new timestep
-             call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
-
-             if (is_vector) then
-                pd_dims2 = [3_hsize_t, &
-                     int(counter + 1, hsize_t) * int(total_points, hsize_t)]
-                call h5dset_extent_f(dset_id, pd_dims2, ierr)
-             else
-                pd_dims1 = int(counter + 1, hsize_t) * int(total_points, hsize_t)
-                call h5dset_extent_f(dset_id, pd_dims1, ierr)
-             end if
-
-             call h5dclose_f(dset_id, ierr)
-          end if
-       end do
-
-       call h5gclose_f(pointdata_grp, ierr)
+          call h5gclose_f(pointdata_grp, ierr)
+       end if
     end if
 
     ! ------------------------------------------------------------------------ !

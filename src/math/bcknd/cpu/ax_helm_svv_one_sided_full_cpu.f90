@@ -206,6 +206,12 @@ contains
        filter_t = ident
     end if
 
+    !$omp parallel do private(e, i, j, k, l, t1, t2, t3) &
+    !$omp& private(u1, u2, u3, v1, v2, v3, w1, w2, w3) &
+    !$omp& private(s11_h, s22_h, s33_h, s12_h, s13_h, s23_h) &
+    !$omp& private(wur, wus, wut, wvr, wvs, wvt, wwr, wws, wwt) &
+    !$omp& private(s11, s22, s33, s12, s13, s23) &
+    !$omp& private(s11_svv, s22_svv, s33_svv, s12_svv, s13_svv, s23_svv)
     do e = 1, n
        do j = 1, lx * lx
           do i = 1, lx
@@ -404,6 +410,7 @@ contains
        end do
 
     end do
+    !$omp end parallel do
   end subroutine ax_helm_svv_one_sided_full_lx
 
 end module ax_helm_svv_one_sided_full_cpu
