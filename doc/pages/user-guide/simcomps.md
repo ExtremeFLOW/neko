@@ -742,8 +742,7 @@ keywords:
         - `reference_temperature`: The reference temperature for computation of
           the Richardson number.
         - `g`: The gravity vector, pointing in the direction of gravity, e.g.
-          `[0, 0, -9.81]` (the model reverses it internally, as the Deardorff
-          model does).
+          `[0, 0, -9.81]`.
       - `false`: Compute the standard Vreman eddy viscosity.
     - With `buoyancy_correction`, the scalar eddy diffusivity then follows from the (corrected) eddy viscosity
       through a constant turbulent Prandtl number, i.e. `"alphat":
@@ -761,7 +760,7 @@ keywords:
     - `c_k`: The model constant, defaults to 0.1.
     - `T0`: The reference temperature.
     - `g`: The gravity vector, pointing in the direction of gravity, e.g.
-      `[0, 0, -9.81]` (the model reverses it internally).
+      `[0, 0, -9.81]`.
     - `temperature_field`: The field name of the temperature field,
       defaults to `temperature`.
     - `TKE_field`: The field name of the turbulent kinetic energy (TKE) field,
