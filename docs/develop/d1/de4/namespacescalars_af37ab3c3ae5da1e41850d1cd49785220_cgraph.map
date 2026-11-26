@@ -1,5 +1,9 @@
 <map id="scalars::scalars_step" name="scalars::scalars_step">
-<area shape="rect" id="Node000001" title="Perform a time step for all scalar fields." alt="" coords="5,14,162,42"/>
-<area shape="rect" id="Node000002" href="$dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6" title="Prints for prs, velx, vely, velz the following: Number of iterations, start residual,..." alt="" coords="210,5,348,50"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="162,25,197,27,192,28,162,30"/>
+<area shape="rect" id="Node000001" title="Perform a time step for all scalar fields." alt="" coords="5,83,162,111"/>
+<area shape="rect" id="Node000002" href="$dc/dfc/namespaceprofiler.html#ad7a4d2965ed5d225bcd418d8587dc8b5" title="End the most recently started profiler region." alt="" coords="218,5,340,50"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="124,80,206,52,202,56,126,85"/>
+<area shape="rect" id="Node000003" href="$dc/dfc/namespaceprofiler.html#acc799d92dd19a73b36500a4ddd021101" title="Started a named (name) profiler region." alt="" coords="218,75,340,119"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="162,94,205,96,200,98,163,100"/>
+<area shape="rect" id="Node000004" href="$dc/d60/namespacescalar__aux.html#a1dac7b67e3209e0a5f34da08a33830a6" title="Prints for prs, velx, vely, velz the following: Number of iterations, start residual,..." alt="" coords="210,144,348,189"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="125,109,202,137,197,139,124,114"/>
 </map>
