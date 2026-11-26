@@ -46,7 +46,7 @@ module lpt
   use time_based_controller, only : time_based_controller_t
   use global_interpolation, only : global_interpolation_t
   use logger, only : neko_log, LOG_SIZE
-  use utils, only : neko_error, neko_warning
+  use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
   use vector_math, only : vector_add2s2, vector_cfill, vector_cmult2, &
@@ -875,25 +875,13 @@ contains
 
   !> Register the particle state in the case checkpoint.
   !! The payload is optional, so restarting from a checkpoint without particle
-  !! data keeps the seeded particles. Only the HDF5 checkpoint format stores
+  !! data keeps the seeded particles. Both the HDF5 and `.chkp` formats store
   !! the payload.
   !! @param case Case owning the checkpoint.
   subroutine register_checkpoint(this, case)
     class(lpt_t), intent(inout), target :: this
     class(case_t), intent(inout), target :: case
-    character(len=:), allocatable :: chkp_format
-    logical :: output_checkpoints
     integer :: n_vectors
-
-    call json_get_or_default(case%params, "case.output_checkpoints", &
-         output_checkpoints, .false.)
-    call json_get_or_default(case%params, "case.checkpoint_format", &
-         chkp_format, "chkp")
-    if (output_checkpoints .and. trim(chkp_format) .ne. "hdf5" .and. &
-         pe_rank .eq. 0) then
-       call neko_warning("lpt '" // trim(this%name) // "': particles are " // &
-            "only stored in checkpoints with case.checkpoint_format = hdf5")
-    end if
 
     this%chkp_payload => case%chkp%add_payload("lpt/" // trim(this%name))
     if (associated(this%chkp_payload%hook)) then

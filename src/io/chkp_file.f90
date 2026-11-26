@@ -51,14 +51,28 @@ module chkp_file
        MPI_DOUBLE_PRECISION_SIZE
   use global_interpolation, only : global_interpolation_t
   use logger, only : neko_log, NEKO_LOG_VERBOSE
-  use comm, only : NEKO_COMM, pe_rank, MPI_REAL_PRECISION
+  use comm, only : NEKO_COMM, pe_rank, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_File, MPI_Status, MPI_OFFSET_KIND, MPI_MODE_CREATE, &
        MPI_MODE_RDONLY, MPI_MODE_WRONLY, MPI_INFO_NULL, MPI_INTEGER, &
-       MPI_DOUBLE_PRECISION, MPI_LOGICAL, MPI_SUCCESS, &
-       MPI_File_open, MPI_File_close, MPI_File_read_all, MPI_File_write_all, &
-       MPI_File_read_at_all, MPI_File_write_at_all, MPI_Bcast
+       MPI_INTEGER8, MPI_CHARACTER, MPI_DOUBLE_PRECISION, MPI_LOGICAL, &
+       MPI_SUCCESS, MPI_SUM, MPI_File_open, MPI_File_close, &
+       MPI_File_read_all, MPI_File_write_all, MPI_File_read_at_all, &
+       MPI_File_write_at_all, MPI_File_get_size, MPI_Bcast, MPI_Exscan, &
+       MPI_Allreduce
   implicit none
   private
+
+  !> Bit in the `optional_fields` header word flagging the generic payload
+  !! section. Readers that predate it ignore the bit and the trailing data.
+  integer, parameter :: CHKP_PAYLOADS_BIT = 64
+  !> Marker closing the generic payload section footer ("NEKOPAY1").
+  integer(kind=i8), parameter :: CHKP_PAYLOADS_MAGIC = &
+       int(z'4E454B4F50415931', i8)
+  !> Size in bytes of an 8-byte integer or real in the payload section.
+  integer(kind=i8), parameter :: CHKP_WORD_BYTES = 8_i8
+  !> Array kinds stored in the generic payload section.
+  integer, parameter :: CHKP_ARRAY_REPLICATED = 0
+  integer, parameter :: CHKP_ARRAY_RESIZABLE = 1
 
   !> Temporary view of the payloads required by the positional .chkp format.
   type :: legacy_checkpoint_view_t
@@ -189,6 +203,8 @@ contains
     logical :: write_scalarlag, write_abvel
     integer :: i
     type(legacy_checkpoint_view_t) :: view
+    type(chkp_t), pointer :: chkp
+    logical :: write_payloads
 
     if (present(t)) then
        time = t
@@ -287,6 +303,12 @@ contains
           basis_vel_lag => view%basis_vel_lag
           optional_fields = optional_fields + 32
           write_ale = .true.
+       end if
+
+       chkp => data
+       write_payloads = chkp_generic_payload_count(chkp) .gt. 0
+       if (write_payloads) then
+          optional_fields = optional_fields + CHKP_PAYLOADS_BIT
        end if
 
     class default
@@ -571,6 +593,10 @@ contains
             int(size(basis_vel_lag), i8) * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
+    if (write_payloads) then
+       call chkp_write_generic_payloads(fh, mpi_offset, chkp)
+    end if
+
     call MPI_File_close(fh, ierr)
 
     if (ierr .ne. MPI_SUCCESS) then
@@ -624,7 +650,7 @@ contains
     integer :: glb_nelv, gdim, lx, have_lag, have_scalar, nel
     integer :: optional_fields, have_dtlag
     integer :: have_abvel, have_scalarlag
-    integer :: have_ale
+    integer :: have_ale, have_payloads
     logical :: read_lag, read_scalar, read_dtlag, read_abvel, read_scalarlag
     logical :: read_ale
     real(kind=dp) :: tol
@@ -749,6 +775,7 @@ contains
     have_abvel = mod(optional_fields,16)/8
     have_scalarlag = mod(optional_fields,32)/16
     have_ale = mod(optional_fields,64)/32
+    have_payloads = mod(optional_fields,128)/64
 
     if ( ( glb_nelv .ne. msh%glb_nelv ) .or. &
          ( gdim .ne. msh%gdim) .or. &
@@ -975,6 +1002,7 @@ contains
             int(size(basis_vel_lag), i8) * int(MPI_REAL_PREC_SIZE, i8)
     end if
 
+    call chkp_read_generic_payloads(fh, chkp, have_payloads .eq. 1)
 
     call MPI_File_close(fh, ierr)
 
@@ -1120,6 +1148,335 @@ contains
     end do
 
   end function chkp_find_payload
+
+  !> Whether a payload is stored in the fixed positional `.chkp` sections.
+  !! @param name Payload path.
+  pure function chkp_is_legacy_payload(name) result(legacy)
+    character(len=*), intent(in) :: name
+    logical :: legacy
+
+    legacy = trim(name) .eq. "fluid" .or. trim(name) .eq. "time" .or. &
+         trim(name) .eq. "ale" .or. index(name, "scalars/") .eq. 1
+  end function chkp_is_legacy_payload
+
+  !> Number of payloads stored in the generic payload section.
+  !! @param chkp Checkpoint registrations.
+  function chkp_generic_payload_count(chkp) result(n)
+    type(chkp_t), intent(in) :: chkp
+    integer :: n, i
+
+    n = 0
+    do i = 1, chkp%payload_count()
+       if (.not. chkp_is_legacy_payload(chkp%payloads(i)%ptr%name)) n = n + 1
+    end do
+  end function chkp_generic_payload_count
+
+  !> Write the payloads that have no fixed `.chkp` section.
+  !! @details The section starts at `mpi_offset` and is laid out as
+  !! @verbatim
+  !! int32 n_payloads
+  !! per payload: int32 name_len, char name(name_len), int32 n_arrays
+  !!   per array: int32 name_len, char name(name_len), int32 kind,
+  !!              int64 n_global, real64 data(n_global)
+  !! int64 section_start, int64 magic
+  !! @endverbatim
+  !! The footer lets readers locate the section from the end of the file,
+  !! independently of which legacy sections they consumed. Resizable arrays
+  !! are concatenated in rank order, replicated arrays are written by rank 0.
+  !! Only replicated and resizable arrays are supported.
+  !! @param fh Open MPI file handle.
+  !! @param mpi_offset Byte offset of the section start, advanced past it.
+  !! @param chkp Checkpoint registrations.
+  subroutine chkp_write_generic_payloads(fh, mpi_offset, chkp)
+    type(MPI_File), intent(inout) :: fh
+    integer(kind=MPI_OFFSET_KIND), intent(inout) :: mpi_offset
+    type(chkp_t), intent(in) :: chkp
+    type(checkpoint_payload_t), pointer :: payload
+    type(checkpoint_array_t), pointer :: array
+    type(MPI_Status) :: status
+    integer(kind=MPI_OFFSET_KIND) :: section_start
+    integer(kind=i8) :: n_local, n_global, offset
+    real(kind=dp), allocatable :: tmp(:)
+    integer :: i, j, ierr, root_count
+
+    root_count = merge(1, 0, pe_rank .eq. 0)
+    section_start = mpi_offset
+
+    call write_int(chkp_generic_payload_count(chkp))
+    do i = 1, chkp%payload_count()
+       payload => chkp%payloads(i)%ptr
+       if (chkp_is_legacy_payload(payload%name)) cycle
+
+       if (payload%field_count() .gt. 0 .or. &
+            payload%series_count() .gt. 0 .or. &
+            payload%mesh_array_count() .gt. 0) then
+          call neko_error("Checkpoint payload '" // trim(payload%name) // &
+               "' holds fields, which the .chkp format cannot store; " // &
+               "use HDF5 checkpointing")
+       end if
+
+       call write_str(payload%name)
+       call write_int(payload%array_count())
+       do j = 1, payload%array_count()
+          array => payload%arrays(j)%ptr
+          call write_str(array%name)
+
+          if (array%resizable) then
+             if (allocated(array%buf)) then
+                tmp = array%buf
+             else
+                allocate(tmp(0))
+             end if
+             n_local = int(size(tmp), i8)
+             offset = 0_i8
+             call MPI_Exscan(n_local, offset, 1, MPI_INTEGER8, MPI_SUM, &
+                  NEKO_COMM, ierr)
+             if (pe_rank .eq. 0) offset = 0_i8
+             call MPI_Allreduce(n_local, n_global, 1, MPI_INTEGER8, &
+                  MPI_SUM, NEKO_COMM, ierr)
+
+             call write_int(CHKP_ARRAY_RESIZABLE)
+             call write_i8(n_global)
+             call MPI_File_write_at_all(fh, &
+                  mpi_offset + offset * CHKP_WORD_BYTES, tmp, &
+                  int(n_local), MPI_DOUBLE_PRECISION, status, ierr)
+             deallocate(tmp)
+
+          else if (array%replicated) then
+             if (associated(array%x_dp)) then
+                tmp = array%x_dp
+             else
+                tmp = real(array%x, dp)
+             end if
+             n_global = int(size(tmp), i8)
+
+             call write_int(CHKP_ARRAY_REPLICATED)
+             call write_i8(n_global)
+             call MPI_File_write_at_all(fh, mpi_offset, tmp, &
+                  root_count * size(tmp), MPI_DOUBLE_PRECISION, status, ierr)
+             deallocate(tmp)
+
+          else
+             call neko_error("Checkpoint array '" // trim(payload%name) // &
+                  "/" // trim(array%name) // "' is distributed with a " // &
+                  "fixed layout, which the .chkp format cannot store; " // &
+                  "use HDF5 checkpointing")
+          end if
+          mpi_offset = mpi_offset + n_global * CHKP_WORD_BYTES
+       end do
+    end do
+
+    call write_i8(int(section_start, i8))
+    call write_i8(CHKP_PAYLOADS_MAGIC)
+
+  contains
+
+    !> Write one default integer from rank 0.
+    subroutine write_int(val)
+      integer, intent(in) :: val
+      integer :: buf(1)
+
+      buf(1) = val
+      call MPI_File_write_at_all(fh, mpi_offset, buf, root_count, &
+           MPI_INTEGER, status, ierr)
+      mpi_offset = mpi_offset + int(MPI_INTEGER_SIZE, i8)
+    end subroutine write_int
+
+    !> Write one 8-byte integer from rank 0.
+    subroutine write_i8(val)
+      integer(kind=i8), intent(in) :: val
+      integer(kind=i8) :: buf(1)
+
+      buf(1) = val
+      call MPI_File_write_at_all(fh, mpi_offset, buf, root_count, &
+           MPI_INTEGER8, status, ierr)
+      mpi_offset = mpi_offset + CHKP_WORD_BYTES
+    end subroutine write_i8
+
+    !> Write a length-prefixed string from rank 0.
+    subroutine write_str(str)
+      character(len=*), intent(in) :: str
+      character(len=len_trim(str)) :: buf
+
+      buf = trim(str)
+      call write_int(len(buf))
+      call MPI_File_write_at_all(fh, mpi_offset, buf, &
+           root_count * len(buf), MPI_CHARACTER, status, ierr)
+      mpi_offset = mpi_offset + int(len(buf), i8)
+    end subroutine write_str
+
+  end subroutine chkp_write_generic_payloads
+
+  !> Read the generic payload section and mark the payloads found there as
+  !! loaded. Payloads in the file that are not registered, and arrays a
+  !! registered payload does not declare, are skipped. Resizable arrays are
+  !! distributed evenly over the ranks, as for HDF5 checkpoints.
+  !! @param fh Open MPI file handle.
+  !! @param chkp Checkpoint registrations to populate.
+  !! @param have_payloads Whether the header flags a generic payload section.
+  subroutine chkp_read_generic_payloads(fh, chkp, have_payloads)
+    type(MPI_File), intent(inout) :: fh
+    type(chkp_t), intent(inout) :: chkp
+    logical, intent(in) :: have_payloads
+    type(checkpoint_payload_t), pointer :: payload
+    type(checkpoint_array_t), pointer :: array
+    type(MPI_Status) :: status
+    integer(kind=MPI_OFFSET_KIND) :: pos, file_size
+    integer(kind=i8) :: footer(2), n_global, n_local, offset, remainder
+    character(len=:), allocatable :: payload_name, array_name
+    logical, allocatable :: found(:)
+    real(kind=dp), allocatable :: tmp(:)
+    integer :: n_payloads, n_arrays, array_kind, i, j, k, ierr
+
+    do i = 1, chkp%payload_count()
+       if (.not. chkp_is_legacy_payload(chkp%payloads(i)%ptr%name)) then
+          chkp%payloads(i)%ptr%loaded = .false.
+       end if
+    end do
+
+    if (have_payloads) then
+       call MPI_File_get_size(fh, file_size, ierr)
+       call MPI_File_read_at_all(fh, file_size - 2_i8 * CHKP_WORD_BYTES, &
+            footer, 2, MPI_INTEGER8, status, ierr)
+       if (footer(2) .ne. CHKP_PAYLOADS_MAGIC) then
+          call neko_error("Corrupt payload section in .chkp file")
+       end if
+       pos = footer(1)
+
+       call read_int(n_payloads)
+       do k = 1, n_payloads
+          call read_str(payload_name)
+          payload => chkp_find_payload(chkp, payload_name)
+          if (associated(payload)) then
+             if (allocated(found)) deallocate(found)
+             allocate(found(payload%array_count()))
+             found = .false.
+          end if
+
+          call read_int(n_arrays)
+          do j = 1, n_arrays
+             call read_str(array_name)
+             call read_int(array_kind)
+             call read_i8(n_global)
+
+             nullify(array)
+             if (associated(payload)) then
+                do i = 1, payload%array_count()
+                   if (payload%arrays(i)%ptr%name .eq. array_name) then
+                      array => payload%arrays(i)%ptr
+                      found(i) = .true.
+                      exit
+                   end if
+                end do
+             end if
+
+             if (associated(array)) then
+                if (array%resizable .neqv. &
+                     (array_kind .eq. CHKP_ARRAY_RESIZABLE)) then
+                   call neko_error("Checkpoint array '" // payload_name // &
+                        "/" // array_name // "' has an incompatible layout")
+                end if
+
+                if (array%resizable) then
+                   n_local = n_global / int(pe_size, i8)
+                   remainder = mod(n_global, int(pe_size, i8))
+                   offset = int(pe_rank, i8) * n_local + &
+                        min(int(pe_rank, i8), remainder)
+                   if (int(pe_rank, i8) .lt. remainder) then
+                      n_local = n_local + 1_i8
+                   end if
+                   array%global_count = n_global
+                   array%offset = offset
+                   if (allocated(array%buf)) deallocate(array%buf)
+                   allocate(array%buf(n_local))
+                   call MPI_File_read_at_all(fh, &
+                        pos + offset * CHKP_WORD_BYTES, array%buf, &
+                        int(n_local), MPI_DOUBLE_PRECISION, status, ierr)
+                else
+                   if (associated(array%x_dp)) then
+                      n_local = int(size(array%x_dp), i8)
+                   else
+                      n_local = int(size(array%x), i8)
+                   end if
+                   if (n_local .ne. n_global) then
+                      call neko_error("Checkpoint array '" // payload_name &
+                           // "/" // array_name // &
+                           "' has an incompatible global extent")
+                   end if
+                   allocate(tmp(n_global))
+                   call MPI_File_read_at_all(fh, pos, tmp, int(n_global), &
+                        MPI_DOUBLE_PRECISION, status, ierr)
+                   if (associated(array%x_dp)) then
+                      array%x_dp = tmp
+                   else
+                      array%x = real(tmp, rp)
+                   end if
+                   deallocate(tmp)
+                end if
+             end if
+
+             pos = pos + n_global * CHKP_WORD_BYTES
+          end do
+
+          if (associated(payload)) then
+             do i = 1, payload%array_count()
+                if (.not. found(i)) then
+                   call neko_error("Checkpoint array '" // payload_name // &
+                        "/" // trim(payload%arrays(i)%ptr%name) // &
+                        "' is missing")
+                end if
+             end do
+             payload%loaded = .true.
+          end if
+       end do
+    end if
+
+    do i = 1, chkp%payload_count()
+       payload => chkp%payloads(i)%ptr
+       if (chkp_is_legacy_payload(payload%name)) cycle
+       if (.not. payload%loaded .and. .not. payload%is_optional) then
+          call neko_error("Checkpoint payload '" // trim(payload%name) // &
+               "' is missing")
+       end if
+    end do
+
+  contains
+
+    !> Read one default integer.
+    subroutine read_int(val)
+      integer, intent(out) :: val
+      integer :: buf(1)
+
+      call MPI_File_read_at_all(fh, pos, buf, 1, MPI_INTEGER, status, ierr)
+      val = buf(1)
+      pos = pos + int(MPI_INTEGER_SIZE, i8)
+    end subroutine read_int
+
+    !> Read one 8-byte integer.
+    subroutine read_i8(val)
+      integer(kind=i8), intent(out) :: val
+      integer(kind=i8) :: buf(1)
+
+      call MPI_File_read_at_all(fh, pos, buf, 1, MPI_INTEGER8, status, ierr)
+      val = buf(1)
+      pos = pos + CHKP_WORD_BYTES
+    end subroutine read_i8
+
+    !> Read a length-prefixed string.
+    subroutine read_str(str)
+      character(len=:), allocatable, intent(out) :: str
+      integer :: n
+
+      call read_int(n)
+      allocate(character(len=n) :: str)
+      if (n .gt. 0) then
+         call MPI_File_read_at_all(fh, pos, str, n, MPI_CHARACTER, &
+              status, ierr)
+      end if
+      pos = pos + int(n, i8)
+    end subroutine read_str
+
+  end subroutine chkp_read_generic_payloads
 
   !> Set whether checkpoint files may be overwritten.
   !! @param overwrite Whether existing files may be overwritten.

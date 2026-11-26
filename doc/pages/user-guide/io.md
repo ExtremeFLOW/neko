@@ -113,9 +113,10 @@ provide initial conditions. Instead, separate checkpoint files can be written
 for restarts. These contain additional information that allows a clean restart,
 including the time-integration history.
 
-The default `.chkp` format supports the fluid, ALE state, and at most one
-scalar. HDF5 checkpoints use the `.h5` suffix and support multiple scalars as
-well as ALE state. Both formats support restarting from the same mesh with a
+The default `.chkp` format supports the fluid, ALE state, at most one scalar,
+and the state of the \ref simcomp_lagrangian_particles "Lagrangian particles".
+HDF5 checkpoints use the `.h5` suffix and support multiple scalars as well as
+ALE and particle state. Both formats support restarting from the same mesh with a
 different polynomial order. Select HDF5 with `"checkpoint_format": "hdf5"` in
 the [case file](@ref case-file). HDF5 checkpointing requires Neko to be built
 with HDF5 support.
