@@ -80,7 +80,8 @@ void hip_entropy_visc_apply_element_max(void *reg_coeff,
                                         int *lx,
                                         int *nelv) {
   const int lx3 = (*lx) * (*lx) * (*lx);
-  const int nthrds_x = min(1024, lx3);
+  // The shared-memory reduction halves a power-of-two block.
+  const int nthrds_x = 256;
   const dim3 nthrds(nthrds_x, 1, 1);
   const dim3 nblcks(*nelv, 1, 1);
   const hipStream_t stream = (hipStream_t) glb_cmd_queue;
