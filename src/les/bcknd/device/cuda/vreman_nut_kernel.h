@@ -106,7 +106,7 @@ __global__ void vreman_nut_compute(const T * __restrict__ a11,
  * (hence the minus sign), so Ri is single-valued.
  */
 template<typename T>
-__global__ void vreman_stability(const T * __restrict__ a11,
+__global__ void vreman_buoyancy(const T * __restrict__ a11,
                                  const T * __restrict__ a12,
                                  const T * __restrict__ a13,
                                  const T * __restrict__ a21,

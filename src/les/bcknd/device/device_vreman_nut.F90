@@ -55,12 +55,12 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine hip_vreman_nut_compute
 
-     subroutine hip_vreman_stability(a11_d, a12_d, a13_d, &
+     subroutine hip_vreman_buoyancy(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &
           ri_c, ref_temp, eps, n) &
-          bind(c, name = 'hip_vreman_stability')
+          bind(c, name = 'hip_vreman_buoyancy')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
@@ -69,7 +69,7 @@ module device_vreman_nut
             gdT_d, nut_d, mult_d
        real(c_rp) :: ri_c, ref_temp, eps
        integer(c_int) :: n
-     end subroutine hip_vreman_stability
+     end subroutine hip_vreman_buoyancy
   end interface
 #elif HAVE_CUDA
   interface
@@ -88,12 +88,12 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine cuda_vreman_nut_compute
 
-     subroutine cuda_vreman_stability(a11_d, a12_d, a13_d, &
+     subroutine cuda_vreman_buoyancy(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &
           ri_c, ref_temp, eps, n) &
-          bind(c, name = 'cuda_vreman_stability')
+          bind(c, name = 'cuda_vreman_buoyancy')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
@@ -102,7 +102,7 @@ module device_vreman_nut
             gdT_d, nut_d, mult_d
        real(c_rp) :: ri_c, ref_temp, eps
        integer(c_int) :: n
-     end subroutine cuda_vreman_stability
+     end subroutine cuda_vreman_buoyancy
   end interface
 #elif HAVE_OPENCL
   interface
@@ -121,12 +121,12 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine opencl_vreman_nut_compute
 
-     subroutine opencl_vreman_stability(a11_d, a12_d, a13_d, &
+     subroutine opencl_vreman_buoyancy(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &
           ri_c, ref_temp, eps, n) &
-          bind(c, name = 'opencl_vreman_stability')
+          bind(c, name = 'opencl_vreman_buoyancy')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
@@ -135,7 +135,7 @@ module device_vreman_nut
             gdT_d, nut_d, mult_d
        real(c_rp) :: ri_c, ref_temp, eps
        integer(c_int) :: n
-     end subroutine opencl_vreman_stability
+     end subroutine opencl_vreman_buoyancy
   end interface
 #elif HAVE_METAL
   interface
@@ -154,12 +154,12 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine metal_vreman_nut_compute
 
-     subroutine metal_vreman_stability(a11_d, a12_d, a13_d, &
+     subroutine metal_vreman_buoyancy(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &
           ri_c, ref_temp, eps, n) &
-          bind(c, name = 'metal_vreman_stability')
+          bind(c, name = 'metal_vreman_buoyancy')
        use, intrinsic :: iso_c_binding, only : c_ptr, c_int
        import c_rp
        type(c_ptr), value :: a11_d, a12_d, a13_d, &
@@ -168,12 +168,12 @@ module device_vreman_nut
             gdT_d, nut_d, mult_d
        real(c_rp) :: ri_c, ref_temp, eps
        integer(c_int) :: n
-     end subroutine metal_vreman_stability
+     end subroutine metal_vreman_buoyancy
   end interface
 #endif
 
   public :: device_vreman_nut_compute
-  public :: device_vreman_stability
+  public :: device_vreman_buoyancy
 
 contains
 
@@ -216,7 +216,7 @@ contains
   !> Apply the Richardson-number correction of Lilly (1962),
   !! Ri = N^2 / |S|^2, to the Vreman eddy viscosity on the device.
   !! @param gdT_d The interface-averaged g . grad(T).
-  subroutine device_vreman_stability(a11_d, a12_d, a13_d, &
+  subroutine device_vreman_buoyancy(a11_d, a12_d, a13_d, &
        a21_d, a22_d, a23_d, &
        a31_d, a32_d, a33_d, &
        gdT_d, nut_d, mult_d, &
@@ -228,32 +228,32 @@ contains
     real(kind=rp) :: ri_c, ref_temp, eps
     integer :: n
 #if HAVE_HIP
-    call hip_vreman_stability(a11_d, a12_d, a13_d, &
+    call hip_vreman_buoyancy(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d, &
          ri_c, ref_temp, eps, n)
 #elif HAVE_CUDA
-    call cuda_vreman_stability(a11_d, a12_d, a13_d, &
+    call cuda_vreman_buoyancy(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d, &
          ri_c, ref_temp, eps, n)
 #elif HAVE_OPENCL
-    call opencl_vreman_stability(a11_d, a12_d, a13_d, &
+    call opencl_vreman_buoyancy(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d, &
          ri_c, ref_temp, eps, n)
 #elif HAVE_METAL
-    call metal_vreman_stability(a11_d, a12_d, a13_d, &
+    call metal_vreman_buoyancy(a11_d, a12_d, a13_d, &
          a21_d, a22_d, a23_d, &
          a31_d, a32_d, a33_d, &
          gdT_d, nut_d, mult_d, &
          ri_c, ref_temp, eps, n)
 #else
-    call neko_error('no device backend configured (vreman_stability)')
+    call neko_error('no device backend configured (vreman_buoyancy)')
 #endif
-  end subroutine device_vreman_stability
+  end subroutine device_vreman_buoyancy
 
 end module device_vreman_nut

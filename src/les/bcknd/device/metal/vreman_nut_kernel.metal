@@ -97,7 +97,7 @@ kernel void vreman_nut_compute_kernel(device const float *a11 [[ buffer(0) ]],
  * gdT is the interface-averaged -g*grad(T), with g pointing downwards
  * (hence the minus sign), so Ri is single-valued.
  */
-kernel void vreman_stability_kernel(
+kernel void vreman_buoyancy_kernel(
                                       device const float *a11 [[ buffer(0) ]],
                                       device const float *a12 [[ buffer(1) ]],
                                       device const float *a13 [[ buffer(2) ]],

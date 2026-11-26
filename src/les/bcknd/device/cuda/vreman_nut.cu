@@ -67,7 +67,7 @@ extern "C"
     CUDA_CHECK(cudaGetLastError());
   }
 
-  void cuda_vreman_stability(void *a11, void *a12, void *a13,
+  void cuda_vreman_buoyancy(void *a11, void *a12, void *a13,
                              void *a21, void *a22, void *a23,
                              void *a31, void *a32, void *a33,
                              void *gdT, void *nut, void *mult,
@@ -78,7 +78,7 @@ extern "C"
     const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
     const cudaStream_t stream = (cudaStream_t)glb_cmd_queue;
 
-    vreman_stability<real>
+    vreman_buoyancy<real>
         <<<nblcks, nthrds, 0, stream>>>(
             (real *)a11, (real *)a12, (real *)a13,
             (real *)a21, (real *)a22, (real *)a23,

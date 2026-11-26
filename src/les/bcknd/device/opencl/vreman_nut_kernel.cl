@@ -101,7 +101,7 @@ __kernel void vreman_nut_compute_kernel(__global const real * __restrict__ a11,
  * gdT is the interface-averaged -g*grad(T), with g pointing downwards
  * (hence the minus sign), so Ri is single-valued.
  */
-__kernel void vreman_stability_kernel(__global const real * __restrict__ a11,
+__kernel void vreman_buoyancy_kernel(__global const real * __restrict__ a11,
                                       __global const real * __restrict__ a12,
                                       __global const real * __restrict__ a13,
                                       __global const real * __restrict__ a21,
