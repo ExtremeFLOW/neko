@@ -102,8 +102,8 @@ __global__ void vreman_nut_compute(const T * __restrict__ a11,
  * (before the final gather-scatter average).
  * The velocity gradients a_ij are gather-scatter sums, so they are scaled
  * by mult to obtain the averaged gradient before forming |S|^2.
- * gdT is the interface-averaged g . grad(T), with g pointing upwards
- * (reversed from the case-file input at init), so Ri is single-valued.
+ * gdT is the interface-averaged -g*grad(T), with g pointing downwards
+ * (hence the minus sign), so Ri is single-valued.
  */
 template<typename T>
 __global__ void vreman_stability(const T * __restrict__ a11,
@@ -128,7 +128,8 @@ __global__ void vreman_stability(const T * __restrict__ a11,
     const T m = mult[i];
 
     // N^2 = (g . grad T) / T0 with g pointing upwards, > 0 when stable
-    const T N2 = gdT[i] / ref_temp;
+    // Since the input g is pointing downward, the minus sign is necessary
+    const T N2 = - gdT[i] / ref_temp;
 
     // |S|^2 = 2 S_ij S_ij of the averaged gradient (the a_ij are
     // gather-scatter sums, hence m*m)

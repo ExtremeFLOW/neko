@@ -98,8 +98,8 @@ __kernel void vreman_nut_compute_kernel(__global const real * __restrict__ a11,
  * Richardson-number correction of Lilly (1962), Ri = N^2 / |S|^2, for the
  * Vreman model, applied to an already computed nut field. The gradients
  * are gather-scatter sums and are scaled by mult before use.
- * gdT is the interface-averaged g . grad(T), g pointing upwards
- * (reversed from the case-file input at init).
+ * gdT is the interface-averaged -g*grad(T), with g pointing downwards
+ * (hence the minus sign), so Ri is single-valued.
  */
 __kernel void vreman_stability_kernel(__global const real * __restrict__ a11,
                                       __global const real * __restrict__ a12,
@@ -126,7 +126,7 @@ __kernel void vreman_stability_kernel(__global const real * __restrict__ a11,
 
   for (int i = idx; i < n; i += str) {
     const real m = mult[i];
-    const real N2 = gdT[i] / ref_temp;
+    const real N2 = - gdT[i] / ref_temp;
 
     /* |S|^2 = 2 S_ij S_ij of the averaged gradient (sums, hence m*m) */
     const real s12 = a12[i] + a21[i];

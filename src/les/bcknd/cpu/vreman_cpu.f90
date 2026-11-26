@@ -200,9 +200,9 @@ contains
           do i = 1, coef%Xh%lxyz
              m = coef%mult(i,1,1,e)
 
-             ! Squared Brunt-Vaisala frequency, positive for stable
-             ! stratification since g points upwards here.
-             N2 = dTdx%x(i,1,1,e) / ref_temp
+             ! Squared Brunt-Vaisala frequency, the minus is necessary
+             ! because g is negative in the input.
+             N2 = - dTdx%x(i,1,1,e) / ref_temp
 
              ! Element-local eddy viscosity: the summed gradients times
              ! mult give the element value, see above

@@ -195,7 +195,7 @@ contains
     this%T0 = T0
     this%temperature_field_name = temperature_field_name
     this%TKE_field_name = TKE_field_name
-    this%g = -g
+    this%g = g
 
   end subroutine deardorff_init_from_components
 
