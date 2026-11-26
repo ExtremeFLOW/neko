@@ -730,11 +730,6 @@ keywords:
       `Ri = N^2 / |S|^2`. Here `N^2` is the squared Brunt-Vaisala frequency and
       `|S|^2 = 2 S_ij S_ij` the squared magnitude of the resolved strain rate,
       both averaged over the elements sharing a node. Defaults to `false`.
-      Note that `|S|^2` contains all strain components, not only the vertical
-      shear `(du/dz)^2 + (dv/dz)^2` used by Huusko et al. (2025), so the
-      correction is weaker in stable and milder in unstable stratification.
-      With the vertical shear, the enhancement for `Ri < 0` is unbounded where
-      the shear vanishes, which can make the simulation unstable.
       - `true`: Add a buoyancy correction according to the following parameters:
         - `scalar_field`: Name of the scalar field based on which the buoyancy
           effect is computed.
