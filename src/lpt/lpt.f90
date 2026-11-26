@@ -127,6 +127,9 @@ module lpt
      type(checkpoint_array_t), pointer :: chkp_ids => null()
      !> Replicated LPT time-integration state stored in the checkpoint.
      real(kind=dp) :: chkp_state(LPT_CHKP_STATE_SIZE) = 0.0_dp
+     !> Serialised LPT configuration kept on restart, where seeding is
+     !! deferred until it is known whether the checkpoint holds particles.
+     character(len=:), allocatable :: seed_params
    contains
      procedure, pass(this) :: init => lpt_init_from_json
      procedure, pass(this) :: free => lpt_free
@@ -135,6 +138,7 @@ module lpt
      procedure, pass(this) :: restart => lpt_restart
      procedure, pass(this) :: pack_checkpoint => lpt_pack_checkpoint
      procedure, private, pass(this) :: register_checkpoint
+     procedure, private, pass(this) :: seed_particles
      procedure, private, pass(this) :: read_particles_json
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: evaluate_velocity
@@ -185,6 +189,8 @@ contains
     integer :: snapshots_per_file
     integer :: snapshots_per_file_type
     logical :: snapshots_per_file_found
+    character(len=:), allocatable :: restart_file
+    logical :: restarting
 
     call this%free()
 
@@ -246,9 +252,18 @@ contains
        end if
     end if
 
-    call this%read_particles_json(json)
-    call this%migration%initialize_particle_distribution(this%inertia, &
-         this%particles)
+    ! On restart the particles come from the checkpoint, so the initial
+    ! condition is only read if the checkpoint turns out to hold none.
+    restarting = .false.
+    if (case%params%valid_path("case.restart_file")) then
+       call json_get(case%params, "case.restart_file", restart_file)
+       restarting = len_trim(restart_file) .gt. 0
+    end if
+    if (restarting) then
+       call json%print_to_string(this%seed_params)
+    else
+       call this%seed_particles(json)
+    end if
 
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &
@@ -295,12 +310,25 @@ contains
          trim(output_format)
     call this%output%init(output_path, this%inertia, snapshots_per_file)
 
-    ! output at the initialisation
+    ! Output at the initialisation. On restart the restored particles
+    ! continue the previous trajectory, and seeded ones are written in
+    ! `lpt_restart` at the restart time.
     this%output_enabled = .true.
-    call this%write_output(case%time)
+    if (.not. restarting) call this%write_output(case%time)
 
     call this%log_status()
   end subroutine lpt_init_from_json
+
+  !> Seed the particles from the initial condition in the configuration.
+  !! @param json LPT configuration.
+  subroutine seed_particles(this, json)
+    class(lpt_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    call this%read_particles_json(json)
+    call this%migration%initialize_particle_distribution(this%inertia, &
+         this%particles)
+  end subroutine seed_particles
 
   !> Read particle data from JSON and initialise particles on rank 0.
   !! @param json LPT configuration containing either `coordinates` or
@@ -871,6 +899,7 @@ contains
     if (allocated(this%chkp_vectors)) deallocate(this%chkp_vectors)
     if (allocated(this%chkp_arrays)) deallocate(this%chkp_arrays)
     this%chkp_state = 0.0_dp
+    if (allocated(this%seed_params)) deallocate(this%seed_params)
   end subroutine lpt_free
 
   !> Register the particle state in the case checkpoint.
@@ -984,20 +1013,32 @@ contains
 
   !> Restore the particles after the case checkpoint has been read.
   !! Particles are read evenly distributed over the ranks and then migrated
-  !! to their owners. Without particle data in the checkpoint, the seeded
-  !! particles are kept and the LPT time history restarts.
+  !! to their owners. Without particle data in the checkpoint, the particles
+  !! are seeded from the initial condition at the restart time and the LPT
+  !! time history restarts.
   !! @param time Restored simulation time.
   subroutine lpt_restart(this, time)
     class(lpt_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: d(:), rho(:)
+    type(json_file) :: seed_json
     integer :: i, k, n, ierr
 
     if (.not. associated(this%chkp_payload)) return
 
     if (.not. this%chkp_payload%loaded) then
-       if (this%log) then
+       if (allocated(this%seed_params)) then
+          if (this%log) then
+             call neko_log%message("lpt '" // trim(this%name) // "': no " // &
+                  "particle data in checkpoint, seeding from the initial " // &
+                  "condition")
+          end if
+          call seed_json%load_from_string(this%seed_params)
+          call this%seed_particles(seed_json)
+          call seed_json%destroy()
+          deallocate(this%seed_params)
+       else if (this%log) then
           call neko_log%message("lpt '" // trim(this%name) // "': no " // &
                "particle data in checkpoint, keeping the seeded particles")
        end if
@@ -1005,9 +1046,11 @@ contains
        this%history_len = 0
        call this%sync_time_controller(time)
        call this%update_current_rhs()
+       if (this%output_enabled) call this%write_output(time)
        call this%output_controller%set_counter(time)
        return
     end if
+    if (allocated(this%seed_params)) deallocate(this%seed_params)
 
     n = size(this%chkp_ids%buf)
     call this%particles%free()
@@ -1073,9 +1116,13 @@ contains
     call neko_log%section("Lagrangian particle tracking")
     write(log_buf, '(A,A)') "Name: ", trim(this%name)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I0)') "Global seeded particles: ", &
-         this%particles%n_global
-    call neko_log%message(log_buf)
+    if (allocated(this%seed_params)) then
+       call neko_log%message("Particles: restored from the checkpoint")
+    else
+       write(log_buf, '(A,I0)') "Global seeded particles: ", &
+            this%particles%n_global
+       call neko_log%message(log_buf)
+    end if
     if (this%periodic_bc%periodic_enabled) then
        write(log_buf, '(A,I0)') "Periodic wrap directions: ", &
             this%periodic_bc%n_periodic_dirs
@@ -1096,7 +1143,9 @@ contains
     end if
     write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
          this%particles%n
-    if (pe_rank .eq. 0) call neko_log%message(log_buf)
+    if (pe_rank .eq. 0 .and. .not. allocated(this%seed_params)) then
+       call neko_log%message(log_buf)
+    end if
     call neko_log%end_section()
   end subroutine log_status
 
