@@ -16,8 +16,7 @@
 
 - Fixed the Richardson number of the Vreman buoyancy correction at element
   boundaries. The temperature gradient (g . grad T) is now also
-  averaged over the elements sharing a node, as well as the wrong sign of 
-  the buoyancy term in the device kernels of the Vreman buoyancy correction.
+  averaged over the elements sharing a node.
 - The Richardson number of the Vreman buoyancy correction is now the one of
   Lilly (1962), `Ri = N^2 / (2 S_ij S_ij)`, with the full resolved strain rate
   instead of the vertical shear only. With the vertical shear, the correction
