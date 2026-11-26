@@ -54,6 +54,8 @@ module lpt_simcomp
      procedure, pass(this) :: preprocess_ => lpt_simcomp_preprocess
      !> Main compute hook.
      procedure, pass(this) :: compute_ => lpt_simcomp_compute
+     !> Restore the particles from the checkpoint.
+     procedure, pass(this) :: restart_ => lpt_simcomp_restart
      !> The time until the next scheduled execution, output included.
      procedure, pass(this) :: time_to_next => lpt_simcomp_time_to_next
   end type lpt_simcomp_t
@@ -71,6 +73,7 @@ contains
     this%preprocess_controller = this%compute_controller
     call this%lpt%init(json, case)
     this%lpt%output_controller = this%output_controller
+    call this%lpt%write_initial_output(case%time)
     this%name = this%lpt%name
   end subroutine lpt_simcomp_init_from_json
 
@@ -112,5 +115,13 @@ contains
 
     call this%lpt%compute(time)
   end subroutine lpt_simcomp_compute
+
+  !> Restore the particles after the checkpoint has been read.
+  subroutine lpt_simcomp_restart(this, time)
+    class(lpt_simcomp_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    call this%lpt%restart(time)
+  end subroutine lpt_simcomp_restart
 
 end module lpt_simcomp

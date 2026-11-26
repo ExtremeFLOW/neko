@@ -32,14 +32,17 @@
 !
 !> Output support for Lagrangian particle tracking.
 module lpt_output
-  use num_types, only : rp
-  use utils, only : filename_split, filename_suffix, neko_error
+  use num_types, only : rp, dp, i8
+  use utils, only : filename_split, filename_suffix, neko_error, &
+       neko_warning
+  use logger, only : neko_log
   use file, only : file_t
   use hdf5_file, only : hdf5_file_t
   use matrix, only : matrix_t
   use tensor, only : trsp
   use comm, only : pe_rank, pe_size, NEKO_COMM, MPI_REAL_PRECISION
-  use mpi_f08, only : MPI_Barrier, MPI_Gather, MPI_Gatherv, MPI_INTEGER
+  use mpi_f08, only : MPI_Barrier, MPI_Gather, MPI_Gatherv, MPI_INTEGER, &
+       MPI_INTEGER8, MPI_LOGICAL, MPI_Bcast
   implicit none
   private
 
@@ -51,12 +54,18 @@ module lpt_output
      integer :: snapshots_per_file = 0
      integer :: snapshots_in_file = 0
      integer :: output_file_index = 1
-     integer :: hdf5_output_count = 0
      integer :: n_data = 0
    contains
      procedure, pass(this) :: init => lpt_output_init
      procedure, pass(this) :: free => lpt_output_free
      procedure, pass(this) :: write => lpt_output_write
+     !> Start a fresh output, replacing the files of any previous run.
+     procedure, pass(this) :: open_new => lpt_output_open_new
+     !> Continue the output files of a previous run at a restart.
+     procedure, pass(this) :: resume => lpt_output_resume
+     procedure, private, pass(this) :: count_records => &
+          lpt_output_count_records
+     procedure, private, pass(this) :: truncate => lpt_output_truncate
      procedure, private, pass(this) :: init_file => lpt_output_init_file
      procedure, private, pass(this) :: current_path => lpt_output_current_path
      procedure, private, pass(this) :: init_hdf5 => lpt_output_init_hdf5
@@ -70,11 +79,16 @@ contains
   !! @param output_path Base output path, including csv/hdf5 suffix.
   !! @param inertia Whether particle records include diameter and density.
   !! @param snapshots_per_file Number of snapshots per file, or 0 for all.
-  subroutine lpt_output_init(this, output_path, inertia, snapshots_per_file)
+  !! @param defer_open Leave the files untouched, so that a restart can choose
+  !! between `open_new` and `resume`. Defaults to false.
+  subroutine lpt_output_init(this, output_path, inertia, snapshots_per_file, &
+       defer_open)
     class(lpt_output_t), intent(inout) :: this
     character(len=*), intent(in) :: output_path
     logical, intent(in) :: inertia
     integer, intent(in) :: snapshots_per_file
+    logical, intent(in), optional :: defer_open
+    logical :: defer
 
     call this%free()
     this%output_path = trim(output_path)
@@ -87,8 +101,234 @@ contains
        this%n_data = 9
     end if
 
-    call this%init_file()
+    defer = .false.
+    if (present(defer_open)) defer = defer_open
+    if (.not. defer) call this%open_new()
   end subroutine lpt_output_init
+
+  !> Start a fresh output at the first file index, replacing any existing
+  !! file of that name.
+  subroutine lpt_output_open_new(this)
+    class(lpt_output_t), intent(inout) :: this
+
+    this%output_file_index = 0
+    call this%init_file()
+  end subroutine lpt_output_open_new
+
+  !> Continue the output files of a previous run at a restart.
+  !! The files are checked in index order for the last one whose first
+  !! record is at or before @a t_restart. Its records after @a t_restart,
+  !! written by the previous run after the checkpoint, are discarded and the
+  !! output is appended to it, moving on to the next index once it is full.
+  !! Files with higher indices are overwritten when reached. Without such a
+  !! file, a fresh output is started.
+  !! @param t_restart Simulation time of the restart.
+  subroutine lpt_output_resume(this, t_restart)
+    class(lpt_output_t), intent(inout) :: this
+    real(kind=dp), intent(in) :: t_restart
+    character(len=1024) :: path
+    character(len=80) :: suffix
+    character(len=16) :: n_str
+    integer(kind=i8) :: n_rows
+    integer :: n_snaps, idx, last_idx
+
+    ! Find the last file starting at or before the restart time. All existing
+    ! indices are checked, so that a file overwritten by an earlier restart
+    ! does not hide the files after it.
+    last_idx = -1
+    idx = 0
+    do
+       this%output_file_index = idx
+       call this%current_path(path)
+       if (.not. lpt_output_file_exists(path)) exit
+       call this%count_records(path, t_restart, .true., n_rows, n_snaps)
+       if (n_rows .gt. 0_i8) last_idx = idx
+       if (this%snapshots_per_file .eq. 0) exit
+       idx = idx + 1
+    end do
+
+    if (last_idx .lt. 0) then
+       this%output_file_index = 0
+       call this%current_path(path)
+       call neko_log%message("lpt output: no records up to the restart " // &
+            "time in " // trim(path) // ", starting a new output")
+       call this%open_new()
+       return
+    end if
+
+    this%output_file_index = last_idx
+    call this%current_path(path)
+    call this%count_records(path, t_restart, .false., n_rows, n_snaps)
+    call this%truncate(path, n_rows, n_snaps)
+
+    ! Append to the file, which already has its header and attributes.
+    call this%output_file%free()
+    call filename_suffix(path, suffix)
+    this%hdf5_output = trim(suffix) .ne. "csv"
+    if (this%hdf5_output) then
+       call this%output_file%init(path)
+       select type (ft => this%output_file%file_type)
+       type is (hdf5_file_t)
+          call ft%set_overwrite(.false.)
+       class default
+          call neko_error("lpt internal error: expected hdf5_file_t")
+       end select
+    else
+       call this%output_file%init(path, overwrite = .false.)
+    end if
+    this%snapshots_in_file = n_snaps
+
+    write(n_str, '(I0)') n_snaps
+    call neko_log%message("lpt output: continuing " // trim(path) // &
+         " after " // trim(n_str) // " snapshots")
+  end subroutine lpt_output_resume
+
+  !> Count the records of an output file up to a given time. Records are
+  !! stored in time order, so counting stops at the first later one.
+  !! @param path Output file.
+  !! @param t_max Latest time to count, up to rounding.
+  !! @param first_only Only check the first record.
+  !! @param n_rows Number of records at or before @a t_max.
+  !! @param n_snaps Number of snapshots these records belong to.
+  subroutine lpt_output_count_records(this, path, t_max, first_only, &
+       n_rows, n_snaps)
+    class(lpt_output_t), intent(inout) :: this
+    character(len=*), intent(in) :: path
+    real(kind=dp), intent(in) :: t_max
+    logical, intent(in) :: first_only
+    integer(kind=i8), intent(out) :: n_rows
+    integer, intent(out) :: n_snaps
+    type(file_t) :: h5_in
+    type(matrix_t) :: t_in
+    character(len=80) :: suffix
+    character(len=1024) :: line
+    real(kind=dp) :: t_lim, t_rec, t_prev, tstep_rec
+    integer :: file_unit, ierr, j
+
+    t_lim = t_max + 10.0_dp * epsilon(1.0_rp) * max(1.0_dp, abs(t_max))
+    t_prev = -huge(1.0_dp)
+    n_rows = 0_i8
+    n_snaps = 0
+
+    call filename_suffix(path, suffix)
+    if (trim(suffix) .eq. "csv") then
+       if (pe_rank .eq. 0) then
+          open(newunit = file_unit, file = trim(path), status = "old", &
+               action = "read", iostat = ierr)
+          if (ierr .eq. 0) then
+             ! Skip the header.
+             read(file_unit, '(A)', iostat = ierr)
+             do while (ierr .eq. 0)
+                read(file_unit, '(A)', iostat = ierr) line
+                if (ierr .ne. 0) exit
+                read(line, *, iostat = ierr) tstep_rec, t_rec
+                if (ierr .ne. 0 .or. t_rec .gt. t_lim) exit
+                call add_record(t_rec)
+                if (first_only) exit
+             end do
+             close(file_unit)
+          end if
+       end if
+    else
+       ! Collective read of the record times onto rank 0.
+       call h5_in%init(path)
+       select type (ft => h5_in%file_type)
+       type is (hdf5_file_t)
+          call ft%open("r")
+          call ft%set_active_group("lpt")
+          call ft%read_dataset("t", t_in, strategy = "rank_0")
+          call ft%close()
+       class default
+          call neko_error("lpt internal error: expected hdf5_file_t")
+       end select
+       call h5_in%free()
+       if (pe_rank .eq. 0) then
+          do j = 1, t_in%get_ncols()
+             t_rec = real(t_in%x(1, j), dp)
+             if (t_rec .gt. t_lim) exit
+             call add_record(t_rec)
+             if (first_only) exit
+          end do
+       end if
+       call t_in%free()
+    end if
+
+    call MPI_Bcast(n_rows, 1, MPI_INTEGER8, 0, NEKO_COMM, ierr)
+    call MPI_Bcast(n_snaps, 1, MPI_INTEGER, 0, NEKO_COMM, ierr)
+
+  contains
+
+    subroutine add_record(t_new)
+      real(kind=dp), intent(in) :: t_new
+
+      n_rows = n_rows + 1_i8
+      if (n_rows .eq. 1_i8 .or. t_new .ne. t_prev) n_snaps = n_snaps + 1
+      t_prev = t_new
+    end subroutine add_record
+
+  end subroutine lpt_output_count_records
+
+  !> Discard the records of an output file past the first @a n_rows.
+  !! @param path Output file.
+  !! @param n_rows Number of records to keep.
+  !! @param n_snaps Number of snapshots formed by the kept records.
+  subroutine lpt_output_truncate(this, path, n_rows, n_snaps)
+    class(lpt_output_t), intent(inout) :: this
+    character(len=*), intent(in) :: path
+    integer(kind=i8), intent(in) :: n_rows
+    integer, intent(in) :: n_snaps
+    type(file_t) :: h5_out
+    character(len=80) :: suffix
+    integer(kind=i8) :: i
+    integer :: file_unit, ierr, out_int
+
+    call filename_suffix(path, suffix)
+    if (trim(suffix) .eq. "csv") then
+       if (pe_rank .ne. 0) return
+       open(newunit = file_unit, file = trim(path), status = "old", &
+            action = "readwrite", iostat = ierr)
+       if (ierr .ne. 0) call neko_error("Error while opening " // trim(path))
+       ! Skip the header and the records to keep, then cut the file there.
+       do i = 0_i8, n_rows
+          read(file_unit, *, iostat = ierr)
+          if (ierr .ne. 0) exit
+       end do
+       if (ierr .eq. 0) endfile(file_unit)
+       close(file_unit)
+    else
+       call h5_out%init(path)
+       select type (ft => h5_out%file_type)
+       type is (hdf5_file_t)
+          call ft%open("w")
+          call ft%set_active_group("lpt")
+          call ft%truncate_dataset("tsteps", n_rows)
+          call ft%truncate_dataset("t", n_rows)
+          call ft%truncate_dataset("ids", n_rows)
+          call ft%truncate_dataset("position", n_rows)
+          call ft%truncate_dataset("velocity", n_rows)
+          call ft%truncate_dataset("diameter", n_rows)
+          call ft%truncate_dataset("density", n_rows)
+          out_int = n_snaps
+          call ft%write_attribute("NSteps", out_int)
+          call ft%close()
+       class default
+          call neko_error("lpt internal error: expected hdf5_file_t")
+       end select
+       call h5_out%free()
+    end if
+  end subroutine lpt_output_truncate
+
+  !> Whether a file exists, as seen by rank 0.
+  !! @param path File path.
+  function lpt_output_file_exists(path) result(exists)
+    character(len=*), intent(in) :: path
+    logical :: exists
+    integer :: ierr
+
+    exists = .false.
+    if (pe_rank .eq. 0) inquire(file = trim(path), exist = exists)
+    call MPI_Bcast(exists, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
+  end function lpt_output_file_exists
 
   !> Initialise the currently active LPT output file.
   subroutine lpt_output_init_file(this)
@@ -189,8 +429,6 @@ contains
     class default
        call neko_error("lpt internal error: expected hdf5_file_t")
     end select
-
-    this%hdf5_output_count = 0
   end subroutine lpt_output_init_hdf5
 
   !> Write one trajectory snapshot.
@@ -257,7 +495,8 @@ contains
     type is (hdf5_file_t)
        call ft%open("w")
        call ft%set_active_group("lpt")
-       out_int = this%hdf5_output_count + 1
+       ! Called before the snapshot is counted in `snapshots_in_file`.
+       out_int = this%snapshots_in_file + 1
        call ft%write_attribute("NSteps", out_int)
        call ft%write_dataset(tsteps)
        call ft%write_dataset(t)
@@ -273,7 +512,6 @@ contains
        call neko_error("lpt internal error: expected hdf5_file_t")
     end select
 
-    this%hdf5_output_count = this%hdf5_output_count + 1
     call tsteps%free()
     call t%free()
     call ids%free()
@@ -358,7 +596,6 @@ contains
     this%snapshots_per_file = 0
     this%snapshots_in_file = 0
     this%output_file_index = 0
-    this%hdf5_output_count = 0
     this%n_data = 0
   end subroutine lpt_output_free
 

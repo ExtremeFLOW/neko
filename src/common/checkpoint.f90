@@ -63,7 +63,8 @@ module checkpoint
    contains
      !> Initialize an empty checkpoint.
      procedure, pass(this) :: init => chkp_init
-     !> Synchronise registered checkpoint data from device to host.
+     !> Prepare registered checkpoint data for writing: run payload hooks and
+     !! synchronise device data to the host.
      procedure, pass(this) :: sync_host => chkp_sync_host
      !> Synchronise registered checkpoint data from host to device.
      procedure, pass(this) :: sync_device => chkp_sync_device
@@ -120,10 +121,18 @@ contains
 
   end subroutine chkp_free
 
-  !> Synchronise registered checkpoint data from device to host.
+  !> Prepare registered checkpoint data for writing.
+  !! Runs the pre-write hook of every payload, which packs state that is not
+  !! registered in place, then synchronises device data to the host.
   subroutine chkp_sync_host(this)
     class(chkp_t), intent(inout) :: this
     integer :: i, j
+
+    do i = 1, this%payload_count()
+       if (associated(this%payloads(i)%ptr%hook)) then
+          call this%payloads(i)%ptr%hook%prepare_write()
+       end if
+    end do
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        do i = 1, this%payload_count()

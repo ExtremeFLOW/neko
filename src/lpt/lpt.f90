@@ -32,7 +32,7 @@
 !
 !> Implements `lpt_t`. (Lagrangian Particle Tracking)
 module lpt
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use registry, only : neko_registry
   use field, only : field_t
@@ -58,15 +58,31 @@ module lpt
   use lpt_migrate, only : lpt_migrate_t, LPT_MIGRATE_TO_OWNER, &
        LPT_MIGRATE_NONE
   use lpt_output, only : lpt_output_t
-  use comm, only : pe_rank
+  use comm, only : pe_rank, NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   use csv_file, only : csv_file_t
-  use vector, only : vector_t
+  use vector, only : vector_t, vector_ptr_t
   use particles, only : particles_t
   use device, only : DEVICE_TO_HOST
+  use checkpoint_payload, only : checkpoint_payload_t, checkpoint_hook_t, &
+       checkpoint_array_t, checkpoint_array_ptr_t
   use profiler, only : profiler_start_region, profiler_end_region
   use scratch_registry, only : neko_scratch_registry
   implicit none
   private
+
+  !> Number of entries in the replicated LPT checkpoint state array:
+  !! initialised flag, history length, time step, t, dt, tlag(10), dtlag(10).
+  integer, parameter :: LPT_CHKP_STATE_SIZE = 25
+
+  !> Pre-write checkpoint hook packing the particle state of an LPT instance.
+  type, extends(checkpoint_hook_t) :: lpt_checkpoint_hook_t
+     !> LPT instance owning the hook.
+     type(lpt_t), pointer :: lpt => null()
+   contains
+     !> Pack the particle state into the checkpoint buffers.
+     procedure, pass(this) :: prepare_write => lpt_checkpoint_hook_prepare_write
+  end type lpt_checkpoint_hook_t
 
   !> Passive Lagrangian particle tracking.
   type, public :: lpt_t
@@ -99,11 +115,34 @@ module lpt
      logical :: output_enabled = .false.
      logical :: log = .true.
      real(kind=rp) :: start_time = -huge(0.0_rp)
+     !> Hook packing the particle state before a checkpoint is written.
+     type(lpt_checkpoint_hook_t) :: chkp_hook
+     !> Checkpoint payload holding the particle state.
+     type(checkpoint_payload_t), pointer :: chkp_payload => null()
+     !> Particle vectors stored in the checkpoint.
+     type(vector_ptr_t), allocatable :: chkp_vectors(:)
+     !> Checkpoint arrays paired with `chkp_vectors`.
+     type(checkpoint_array_ptr_t), allocatable :: chkp_arrays(:)
+     !> Checkpoint array holding the global particle ids.
+     type(checkpoint_array_t), pointer :: chkp_ids => null()
+     !> Replicated LPT time-integration state stored in the checkpoint.
+     real(kind=dp) :: chkp_state(LPT_CHKP_STATE_SIZE) = 0.0_dp
+     !> Serialised LPT configuration kept on restart, where seeding is
+     !! deferred until it is known whether the checkpoint holds particles.
+     character(len=:), allocatable :: seed_params
+     !> Offset added to the solver time step, which starts over at a
+     !! restart, so that the LPT step count continues across restarts.
+     integer :: tstep_offset = 0
    contains
      procedure, pass(this) :: init => lpt_init_from_json
      procedure, pass(this) :: free => lpt_free
      procedure, pass(this) :: preprocess => lpt_preprocess
      procedure, pass(this) :: compute => lpt_compute
+     procedure, pass(this) :: restart => lpt_restart
+     procedure, pass(this) :: write_initial_output => lpt_write_initial_output
+     procedure, pass(this) :: pack_checkpoint => lpt_pack_checkpoint
+     procedure, private, pass(this) :: register_checkpoint
+     procedure, private, pass(this) :: seed_particles
      procedure, private, pass(this) :: read_particles_json
      procedure, private, pass(this) :: read_particles_csv
      procedure, private, pass(this) :: evaluate_velocity
@@ -154,6 +193,8 @@ contains
     integer :: snapshots_per_file
     integer :: snapshots_per_file_type
     logical :: snapshots_per_file_found
+    character(len=:), allocatable :: restart_file
+    logical :: restarting
 
     call this%free()
 
@@ -215,9 +256,18 @@ contains
        end if
     end if
 
-    call this%read_particles_json(json)
-    call this%migration%initialize_particle_distribution(this%inertia, &
-         this%particles)
+    ! On restart the particles come from the checkpoint, so the initial
+    ! condition is only read if the checkpoint turns out to hold none.
+    restarting = .false.
+    if (case%params%valid_path("case.restart_file")) then
+       call json_get(case%params, "case.restart_file", restart_file)
+       restarting = len_trim(restart_file) .gt. 0
+    end if
+    if (restarting) then
+       call json%print_to_string(this%seed_params)
+    else
+       call this%seed_particles(json)
+    end if
 
     call json_get_subdict_or_empty(json, "interpolation", interp_subdict)
     call this%global_interp%init(case%fluid%dm_Xh, &
@@ -228,6 +278,7 @@ contains
          this%periodic_bc, this%inertia, this%particles)
     call this%sync_time_controller(case%time)
     call this%update_current_rhs()
+    call this%register_checkpoint(case)
 
     call json_get_or_default(json, "output_filename", output_filename, &
          trim(this%name))
@@ -261,14 +312,28 @@ contains
     end if
     output_path = case%output_directory // trim(output_filename) // "." // &
          trim(output_format)
-    call this%output%init(output_path, this%inertia, snapshots_per_file)
+    ! On restart the output files are opened in `lpt_restart`, which
+    ! continues those of the previous run.
+    call this%output%init(output_path, this%inertia, snapshots_per_file, &
+         defer_open = restarting)
 
-    ! output at the initialisation
+    ! The snapshot at initialisation is written by `write_initial_output`,
+    ! once `output_controller` is set up.
     this%output_enabled = .true.
-    call this%write_output(case%time)
 
     call this%log_status()
   end subroutine lpt_init_from_json
+
+  !> Seed the particles from the initial condition in the configuration.
+  !! @param json LPT configuration.
+  subroutine seed_particles(this, json)
+    class(lpt_t), intent(inout) :: this
+    type(json_file), intent(inout) :: json
+
+    call this%read_particles_json(json)
+    call this%migration%initialize_particle_distribution(this%inertia, &
+         this%particles)
+  end subroutine seed_particles
 
   !> Read particle data from JSON and initialise particles on rank 0.
   !! @param json LPT configuration containing either `coordinates` or
@@ -691,7 +756,7 @@ contains
     dt_local = time%t - this%lpt_time%t
     if (abs(dt_local) .le. epsilon(1.0_rp)) then
        this%lpt_time%t = time%t
-       this%lpt_time%tstep = time%tstep
+       this%lpt_time%tstep = time%tstep + this%tstep_offset
        this%lpt_time%dt = 0.0_rp
        return
     end if
@@ -704,7 +769,7 @@ contains
     this%lpt_time%tlag(1) = this%lpt_time%t
     this%lpt_time%dt = dt_local
     this%lpt_time%t = time%t
-    this%lpt_time%tstep = time%tstep
+    this%lpt_time%tstep = time%tstep + this%tstep_offset
   end subroutine sync_time_controller
 
   !> Advance a three-component state with variable-step Adams-Bashforth.
@@ -784,7 +849,7 @@ contains
     end if
     allocate(local_data(n_data, n_local))
     do i = 1, n_local
-       local_data(1,i) = real(time%tstep, rp)
+       local_data(1,i) = real(time%tstep + this%tstep_offset, rp)
        local_data(2,i) = time%t
        local_data(3,i) = real(this%particles%ids(i), rp)
        local_data(4,i) = this%particles%x%x(i)
@@ -830,7 +895,245 @@ contains
     if (allocated(this%name)) deallocate(this%name)
     call this%lpt_time%reset()
     this%lpt_time_initialized = .false.
+
+    ! The payload and its descriptors belong to the case checkpoint, which may
+    ! already be freed, so only drop the references here.
+    nullify(this%chkp_payload)
+    nullify(this%chkp_ids)
+    nullify(this%chkp_hook%lpt)
+    if (allocated(this%chkp_vectors)) deallocate(this%chkp_vectors)
+    if (allocated(this%chkp_arrays)) deallocate(this%chkp_arrays)
+    this%chkp_state = 0.0_dp
+    this%tstep_offset = 0
+    if (allocated(this%seed_params)) deallocate(this%seed_params)
   end subroutine lpt_free
+
+  !> Register the particle state in the case checkpoint.
+  !! The payload is optional, so restarting from a checkpoint without particle
+  !! data keeps the seeded particles. Both the HDF5 and `.chkp` formats store
+  !! the payload.
+  !! @param case Case owning the checkpoint.
+  subroutine register_checkpoint(this, case)
+    class(lpt_t), intent(inout), target :: this
+    class(case_t), intent(inout), target :: case
+    integer :: n_vectors
+
+    this%chkp_payload => case%chkp%add_payload("lpt/" // trim(this%name))
+    if (associated(this%chkp_payload%hook)) then
+       call neko_error("lpt name '" // trim(this%name) // "' is not unique")
+    end if
+    this%chkp_payload%is_optional = .true.
+    this%chkp_hook%lpt => this
+    this%chkp_payload%hook => this%chkp_hook
+
+    if (this%inertia) then
+       n_vectors = 20
+    else
+       n_vectors = 12
+    end if
+    allocate(this%chkp_vectors(n_vectors))
+    allocate(this%chkp_arrays(n_vectors))
+    n_vectors = 0
+
+    ! Keep x, y, z, u, v, w first and d, rho next: restart relies on it.
+    call add_vector("x", this%particles%x)
+    call add_vector("y", this%particles%y)
+    call add_vector("z", this%particles%z)
+    call add_vector("u", this%particles%u)
+    call add_vector("v", this%particles%v)
+    call add_vector("w", this%particles%w)
+    if (this%inertia) then
+       call add_vector("d", this%particles%d)
+       call add_vector("rho", this%particles%rho)
+    end if
+    call add_vector("u_lag", this%particles%u_lag)
+    call add_vector("v_lag", this%particles%v_lag)
+    call add_vector("w_lag", this%particles%w_lag)
+    call add_vector("u_laglag", this%particles%u_laglag)
+    call add_vector("v_laglag", this%particles%v_laglag)
+    call add_vector("w_laglag", this%particles%w_laglag)
+    if (this%inertia) then
+       call add_vector("acc_xlag", this%particles%acc_xlag)
+       call add_vector("acc_ylag", this%particles%acc_ylag)
+       call add_vector("acc_zlag", this%particles%acc_zlag)
+       call add_vector("acc_xlaglag", this%particles%acc_xlaglag)
+       call add_vector("acc_ylaglag", this%particles%acc_ylaglag)
+       call add_vector("acc_zlaglag", this%particles%acc_zlaglag)
+    end if
+
+    this%chkp_ids => this%chkp_payload%add_resizable_array("ids")
+    call this%chkp_payload%add_array_dp("state", this%chkp_state, &
+         replicated = .true.)
+
+  contains
+
+    subroutine add_vector(name, vec)
+      character(len=*), intent(in) :: name
+      type(vector_t), target, intent(inout) :: vec
+
+      n_vectors = n_vectors + 1
+      this%chkp_vectors(n_vectors)%ptr => vec
+      this%chkp_arrays(n_vectors)%ptr => &
+           this%chkp_payload%add_resizable_array(name)
+    end subroutine add_vector
+
+  end subroutine register_checkpoint
+
+  !> Pack the local particles and the LPT time state into the checkpoint
+  !! buffers. Called by the checkpoint before every write.
+  subroutine lpt_pack_checkpoint(this)
+    class(lpt_t), intent(inout) :: this
+    integer :: i, k, n
+
+    if (.not. associated(this%chkp_payload)) return
+
+    n = this%particles%n
+    call this%particles%device_sync(DEVICE_TO_HOST)
+
+    do k = 1, size(this%chkp_vectors)
+       if (allocated(this%chkp_arrays(k)%ptr%buf)) then
+          deallocate(this%chkp_arrays(k)%ptr%buf)
+       end if
+       allocate(this%chkp_arrays(k)%ptr%buf(n))
+       do i = 1, n
+          this%chkp_arrays(k)%ptr%buf(i) = &
+               real(this%chkp_vectors(k)%ptr%x(i), dp)
+       end do
+    end do
+
+    if (allocated(this%chkp_ids%buf)) deallocate(this%chkp_ids%buf)
+    allocate(this%chkp_ids%buf(n))
+    do i = 1, n
+       this%chkp_ids%buf(i) = real(this%particles%ids(i), dp)
+    end do
+
+    this%chkp_state(1) = merge(1.0_dp, 0.0_dp, this%lpt_time_initialized)
+    this%chkp_state(2) = real(this%history_len, dp)
+    this%chkp_state(3) = real(this%lpt_time%tstep, dp)
+    this%chkp_state(4) = this%lpt_time%t
+    this%chkp_state(5) = this%lpt_time%dt
+    this%chkp_state(6:15) = this%lpt_time%tlag
+    this%chkp_state(16:25) = this%lpt_time%dtlag
+
+  end subroutine lpt_pack_checkpoint
+
+  !> Restore the particles after the case checkpoint has been read.
+  !! Particles are read evenly distributed over the ranks and then migrated
+  !! to their owners. Without particle data in the checkpoint, the particles
+  !! are seeded from the initial condition at the restart time and the LPT
+  !! time history restarts.
+  !! @param time Restored simulation time.
+  subroutine lpt_restart(this, time)
+    class(lpt_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    character(len=LOG_SIZE) :: log_buf
+    real(kind=rp), allocatable :: d(:), rho(:)
+    type(json_file) :: seed_json
+    integer :: i, k, n, ierr
+
+    if (.not. associated(this%chkp_payload)) return
+
+    if (.not. this%chkp_payload%loaded) then
+       if (allocated(this%seed_params)) then
+          if (this%log) then
+             call neko_log%message("lpt '" // trim(this%name) // "': no " // &
+                  "particle data in checkpoint, seeding from the initial " // &
+                  "condition")
+          end if
+          call seed_json%load_from_string(this%seed_params)
+          call this%seed_particles(seed_json)
+          call seed_json%destroy()
+          deallocate(this%seed_params)
+       else if (this%log) then
+          call neko_log%message("lpt '" // trim(this%name) // "': no " // &
+               "particle data in checkpoint, keeping the seeded particles")
+       end if
+       this%lpt_time_initialized = .false.
+       this%history_len = 0
+       call this%sync_time_controller(time)
+       call this%update_current_rhs()
+       if (this%output_enabled) then
+          call this%output%open_new()
+          call this%write_output(time)
+       end if
+       call this%output_controller%set_counter(time)
+       return
+    end if
+    if (allocated(this%seed_params)) deallocate(this%seed_params)
+
+    n = size(this%chkp_ids%buf)
+    call this%particles%free()
+    if (n .gt. 0) then
+       associate(a => this%chkp_arrays)
+         if (this%inertia) then
+            d = real(a(7)%ptr%buf, rp)
+            rho = real(a(8)%ptr%buf, rp)
+            call this%particles%init(real(a(1)%ptr%buf, rp), &
+                 real(a(2)%ptr%buf, rp), real(a(3)%ptr%buf, rp), &
+                 this%time_order, real(a(4)%ptr%buf, rp), &
+                 real(a(5)%ptr%buf, rp), real(a(6)%ptr%buf, rp), d, rho)
+         else
+            call this%particles%init(real(a(1)%ptr%buf, rp), &
+                 real(a(2)%ptr%buf, rp), real(a(3)%ptr%buf, rp), &
+                 this%time_order)
+         end if
+       end associate
+       do k = 1, size(this%chkp_vectors)
+          this%chkp_vectors(k)%ptr = real(this%chkp_arrays(k)%ptr%buf, rp)
+       end do
+       do i = 1, n
+          this%particles%ids(i) = nint(this%chkp_ids%buf(i))
+       end do
+    end if
+    call MPI_Allreduce(n, this%particles%n_global, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM, ierr)
+
+    this%lpt_time_initialized = this%chkp_state(1) .gt. 0.5_dp
+    this%history_len = min(nint(this%chkp_state(2)), this%lag_len)
+    this%lpt_time%tstep = nint(this%chkp_state(3))
+    this%tstep_offset = this%lpt_time%tstep - time%tstep
+    this%lpt_time%t = this%chkp_state(4)
+    this%lpt_time%dt = this%chkp_state(5)
+    this%lpt_time%tlag = this%chkp_state(6:15)
+    this%lpt_time%dtlag = this%chkp_state(16:25)
+
+    ! Migrate the particles to their owners and refresh the current RHS.
+    call this%update_current_rhs()
+    call this%output_controller%set_counter(time)
+    if (this%output_enabled) call this%output%resume(time%t)
+
+    if (this%log) then
+       write(log_buf, '(A,A,A,I0,A)') "lpt '", trim(this%name), &
+            "': restored ", this%particles%n_global, " particles"
+       call neko_log%message(log_buf)
+    end if
+
+  end subroutine lpt_restart
+
+  !> Write the snapshot of the seeded particles at initialisation and
+  !! register it with `output_controller` as the execution at the start time,
+  !! so that the controller does not write another one at the first step.
+  !! Call it once `output_controller` is set up. Does nothing on restart,
+  !! where `lpt_restart` continues the output of the previous run.
+  !! @param time Initial time.
+  subroutine lpt_write_initial_output(this, time)
+    class(lpt_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    ! The configuration is only kept while a restart is pending.
+    if (allocated(this%seed_params)) return
+    if (.not. this%output_enabled) return
+
+    call this%write_output(time)
+    call this%output_controller%register_execution(time)
+  end subroutine lpt_write_initial_output
+
+  !> Pack the particle state of the owning LPT instance.
+  subroutine lpt_checkpoint_hook_prepare_write(this)
+    class(lpt_checkpoint_hook_t), intent(inout) :: this
+
+    if (associated(this%lpt)) call this%lpt%pack_checkpoint()
+  end subroutine lpt_checkpoint_hook_prepare_write
 
   !> Emit a setup summary for the configured LPT instance.
   subroutine log_status(this)
@@ -842,9 +1145,13 @@ contains
     call neko_log%section("Lagrangian particle tracking")
     write(log_buf, '(A,A)') "Name: ", trim(this%name)
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I0)') "Global seeded particles: ", &
-         this%particles%n_global
-    call neko_log%message(log_buf)
+    if (allocated(this%seed_params)) then
+       call neko_log%message("Particles: restored from the checkpoint")
+    else
+       write(log_buf, '(A,I0)') "Global seeded particles: ", &
+            this%particles%n_global
+       call neko_log%message(log_buf)
+    end if
     if (this%periodic_bc%periodic_enabled) then
        write(log_buf, '(A,I0)') "Periodic wrap directions: ", &
             this%periodic_bc%n_periodic_dirs
@@ -865,7 +1172,9 @@ contains
     end if
     write(log_buf, '(A,I0)') "Local particles on rank 0 at init: ", &
          this%particles%n
-    if (pe_rank .eq. 0) call neko_log%message(log_buf)
+    if (pe_rank .eq. 0 .and. .not. allocated(this%seed_params)) then
+       call neko_log%message(log_buf)
+    end if
     call neko_log%end_section()
   end subroutine log_status
 

@@ -160,6 +160,8 @@ module hdf5_file
      procedure :: read_dataset => hdf5_file_read_dataset
      procedure :: write_attribute => hdf5_file_write_attribute
      procedure :: read_attribute => hdf5_file_read_attribute
+     !> Shrink the last dimension of a dataset in the active group.
+     procedure :: truncate_dataset => hdf5_file_truncate_dataset
   end type hdf5_file_t
 
   !> Where the data in a checkpoint file sits and how it maps onto the
@@ -769,6 +771,11 @@ contains
     call h5gopen_f(file_id, "Payloads", payloads_id, ierr)
 
     do i = 1, chkp%payload_count()
+       chkp%payloads(i)%ptr%loaded = .false.
+       if (chkp%payloads(i)%ptr%is_optional) then
+          if (.not. hdf5_checkpoint_group_exists(payloads_id, &
+               chkp%payloads(i)%ptr%name)) cycle
+       end if
        call hdf5_checkpoint_open_group(payloads_id, &
             chkp%payloads(i)%ptr%name, .false., payload_id)
 
@@ -798,11 +805,40 @@ contains
        end do
 
        call h5gclose_f(payload_id, ierr)
+       chkp%payloads(i)%ptr%loaded = .true.
     end do
 
     call h5gclose_f(payloads_id, ierr)
 
   end subroutine hdf5_checkpoint_read_payloads
+
+  !> Check whether a nested group path exists.
+  !! @param root_id HDF5 group from which the path is resolved.
+  !! @param path Slash-separated relative group path.
+  !! @return Whether every group along `path` exists.
+  function hdf5_checkpoint_group_exists(root_id, path) result(exists)
+    integer(hid_t), intent(in) :: root_id
+    character(len=*), intent(in) :: path
+    logical :: exists
+    integer :: pos, last, next, path_len, ierr
+
+    ! Intermediate groups are checked one at a time, since h5lexists_f fails
+    ! rather than returning false when a parent group is missing.
+    path_len = len_trim(path)
+    pos = 0
+    do
+       next = index(path(pos + 1:path_len), "/")
+       if (next .eq. 0) then
+          last = path_len
+       else
+          last = pos + next - 1
+       end if
+       call h5lexists_f(root_id, path(1:last), exists, ierr)
+       if (.not. exists .or. last .eq. path_len) return
+       pos = last + 1
+    end do
+
+  end function hdf5_checkpoint_group_exists
 
   !> Open a nested group path, optionally creating missing groups.
   !! @param root_id HDF5 group from which the path is resolved.
@@ -1132,6 +1168,11 @@ contains
     integer :: ierr
     logical :: stored_dp
 
+    if (array%resizable) then
+       call hdf5_checkpoint_write_resizable_array(group_id, plist_id, array)
+       return
+    end if
+
     ! Arrays registered through `add_array_dp` keep double precision in the
     ! file whatever `rp` is, so that the time history survives a restart into
     ! a build of the other precision.
@@ -1196,6 +1237,11 @@ contains
             "' is missing")
     end if
 
+    if (array%resizable) then
+       call hdf5_checkpoint_read_resizable_array(group_id, plist_id, array)
+       return
+    end if
+
     call h5dopen_f(group_id, trim(array%name), dset_id, ierr)
     call h5dget_space_f(dset_id, filespace, ierr)
     call h5sget_simple_extent_dims_f(filespace, dataset_dims, &
@@ -1251,6 +1297,111 @@ contains
     end if
 
   end subroutine hdf5_checkpoint_read_array
+
+  !> Write a resizable array, concatenating the local buffers of all ranks
+  !! in rank order.
+  !! @param group_id Open HDF5 payload group.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param array Resizable array descriptor to write.
+  subroutine hdf5_checkpoint_write_resizable_array(group_id, plist_id, array)
+    integer(hid_t), intent(in) :: group_id, plist_id
+    type(checkpoint_array_t), intent(in) :: array
+    integer(hid_t) :: dset_id, filespace, memspace
+    integer(hsize_t), dimension(1) :: ddim, dcount, doffset
+    integer(kind=i8) :: n_local, offset, n_global
+    real(kind=dp) :: dummy(1)
+    integer :: ierr
+
+    n_local = 0_i8
+    if (allocated(array%buf)) n_local = int(size(array%buf), i8)
+    offset = 0_i8
+    call MPI_Exscan(n_local, offset, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, ierr)
+    if (pe_rank .eq. 0) offset = 0_i8
+    call MPI_Allreduce(n_local, n_global, 1, MPI_INTEGER8, MPI_SUM, &
+         NEKO_COMM, ierr)
+
+    ddim(1) = int(n_global, hsize_t)
+    dcount(1) = int(n_local, hsize_t)
+    doffset(1) = int(offset, hsize_t)
+
+    call h5screate_simple_f(1, ddim, filespace, ierr)
+    call h5screate_simple_f(1, max(dcount, 1_hsize_t), memspace, ierr)
+    call h5dcreate_f(group_id, trim(array%name), H5T_NATIVE_DOUBLE, &
+         filespace, dset_id, ierr)
+
+    if (n_local .eq. 0_i8) then
+       call h5sselect_none_f(filespace, ierr)
+       call h5sselect_none_f(memspace, ierr)
+       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, dummy, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    else
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            doffset, dcount, ierr)
+       call h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, array%buf, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    end if
+
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+
+  end subroutine hdf5_checkpoint_write_resizable_array
+
+  !> Read a resizable array, distributing its entries evenly over the ranks.
+  !! @param group_id Open HDF5 payload group.
+  !! @param plist_id Collective dataset transfer property list.
+  !! @param array Resizable array descriptor to populate.
+  subroutine hdf5_checkpoint_read_resizable_array(group_id, plist_id, array)
+    integer(hid_t), intent(in) :: group_id, plist_id
+    type(checkpoint_array_t), intent(inout) :: array
+    integer(hid_t) :: dset_id, filespace, memspace
+    integer(hsize_t), dimension(1) :: dcount, doffset
+    integer(hsize_t), dimension(1) :: dataset_dims, dataset_maxdims
+    integer(kind=i8) :: n_global, n_local, offset, remainder
+    real(kind=dp) :: dummy(1)
+    integer :: ierr
+
+    call h5dopen_f(group_id, trim(array%name), dset_id, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
+    call h5sget_simple_extent_dims_f(filespace, dataset_dims, &
+         dataset_maxdims, ierr)
+
+    n_global = int(dataset_dims(1), i8)
+    n_local = n_global / int(pe_size, i8)
+    remainder = mod(n_global, int(pe_size, i8))
+    offset = int(pe_rank, i8) * n_local + min(int(pe_rank, i8), remainder)
+    if (int(pe_rank, i8) .lt. remainder) n_local = n_local + 1_i8
+
+    array%global_count = n_global
+    array%offset = offset
+    if (allocated(array%buf)) deallocate(array%buf)
+    allocate(array%buf(n_local))
+
+    dcount(1) = int(n_local, hsize_t)
+    doffset(1) = int(offset, hsize_t)
+    call h5screate_simple_f(1, max(dcount, 1_hsize_t), memspace, ierr)
+
+    if (n_local .eq. 0_i8) then
+       call h5sselect_none_f(filespace, ierr)
+       call h5sselect_none_f(memspace, ierr)
+       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, dummy, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    else
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            doffset, dcount, ierr)
+       call h5dread_f(dset_id, H5T_NATIVE_DOUBLE, array%buf, dcount, ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = plist_id)
+    end if
+
+    call h5dclose_f(dset_id, ierr)
+    call h5sclose_f(filespace, ierr)
+    call h5sclose_f(memspace, ierr)
+
+  end subroutine hdf5_checkpoint_read_resizable_array
 
   !> Determine mesh, fields, and histories represented by a data object.
   !! @param data Data object to inspect.
@@ -2457,6 +2608,41 @@ contains
 
   end subroutine hdf5_file_read_rp_attribute
 
+  !> Shrink the last dimension of a dataset in the active group, discarding
+  !! the entries past @a extent. Datasets that are absent or already short
+  !! enough are left unchanged.
+  !! @param name Dataset name.
+  !! @param extent New size of the last dimension.
+  subroutine hdf5_file_truncate_dataset(this, name, extent)
+    class(hdf5_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    integer(kind=i8), intent(in) :: extent
+    integer(hid_t) :: dset_id, filespace
+    integer(hsize_t) :: dims(4), maxdims(4)
+    integer :: dset_rank, ierr
+    logical :: exists
+
+    call h5lexists_f(this%active_group_id, trim(name), exists, ierr)
+    if (.not. exists) return
+
+    call h5dopen_f(this%active_group_id, trim(name), dset_id, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
+    call h5sget_simple_extent_ndims_f(filespace, dset_rank, ierr)
+    call h5sget_simple_extent_dims_f(filespace, dims(1:dset_rank), &
+         maxdims(1:dset_rank), ierr)
+    call h5sclose_f(filespace, ierr)
+
+    if (dims(dset_rank) .gt. int(extent, hsize_t)) then
+       dims(dset_rank) = int(extent, hsize_t)
+       call h5dset_extent_f(dset_id, dims(1:dset_rank), ierr)
+       if (ierr .lt. 0) then
+          call neko_error("Could not truncate HDF5 dataset: " // trim(name))
+       end if
+    end if
+    call h5dclose_f(dset_id, ierr)
+
+  end subroutine hdf5_file_truncate_dataset
+
 #else
 
   !> Open a HDF5 file in a given mode
@@ -2601,6 +2787,13 @@ contains
     logical, intent(inout) :: attr_exists
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_read_rp_attribute
+
+  subroutine hdf5_file_truncate_dataset(this, name, extent)
+    class(hdf5_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    integer(kind=i8), intent(in) :: extent
+    call neko_error('Neko needs to be built with HDF5 support')
+  end subroutine hdf5_file_truncate_dataset
 
 #endif
 
