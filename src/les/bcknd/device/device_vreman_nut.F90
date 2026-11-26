@@ -72,7 +72,7 @@ module device_vreman_nut
        real(c_rp) :: c, eps
      end subroutine hip_vreman_nut_compute_aniso
 
-     subroutine hip_vreman_stability(a11_d, a12_d, a13_d, &
+     subroutine hip_vreman_buoyancy(a11_d, a12_d, a13_d, &
           a21_d, a22_d, a23_d, &
           a31_d, a32_d, a33_d, &
           gdT_d, nut_d, mult_d, &

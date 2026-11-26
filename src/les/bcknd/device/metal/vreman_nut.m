@@ -119,7 +119,7 @@ void metal_vreman_nut_compute_aniso(void *a11, void *a12, void *a13,
     }, (NSUInteger) n_r);
 }
 
-void metal_vreman_stability(void *a11, void *a12, void *a13,
+void metal_vreman_buoyancy(void *a11, void *a12, void *a13,
                             void *a21, void *a22, void *a23,
                             void *a31, void *a32, void *a33,
                             void *gdT, void *nut, void *mult,
