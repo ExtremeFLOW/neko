@@ -302,9 +302,20 @@ contains
 
     ! Restart the time state and BDF coefficients
     call chkp%set_time_state(C%time)
-    do i = 1, size(C%time%dtlag)
-       call C%fluid%ext_bdf%set_coeffs(real(C%time%dtlag, kind=rp))
-    end do
+
+    ! The extrapolated RHS history (abx1, abx2, ...) is stored multiplied by
+    ! the mass matrix of the mesh and order it was written on, so it is not
+    ! valid after interpolation onto another discretisation. The fluid and
+    ! scalar restarts zero it, and the BDF/EXT order ramps up from first
+    ! order as in a fresh start, so the history is not used until rebuilt.
+    if (chkp%is_interpolated(C%fluid%Xh)) then
+       call neko_log%message('Interpolated checkpoint, time integration ' // &
+            'restarts at first order')
+    else
+       do i = 1, size(C%time%dtlag)
+          call C%fluid%ext_bdf%set_coeffs(real(C%time%dtlag, kind=rp))
+       end do
+    end if
 
     ! Restart the fluid and scalars
     call C%fluid%restart(chkp)
