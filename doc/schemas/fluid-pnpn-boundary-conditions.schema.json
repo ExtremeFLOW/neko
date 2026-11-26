@@ -590,6 +590,37 @@
             {
               "type": "object",
               "required": [
+                "kappa"
+              ],
+              "properties": {
+                "model": {
+                  "const": "reichardt"
+                },
+                "kappa": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "C": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "B1": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                },
+                "B2": {
+                  "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+                }
+              },
+              "additionalProperties": true
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "$ref": "#/$defs/wallModelBase"
+            },
+            {
+              "type": "object",
+              "required": [
                 "z0"
               ],
               "properties": {

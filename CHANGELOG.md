@@ -11,6 +11,17 @@
 - PR#2891 `csv_file_t%header` is now a deferred-length allocatable, which
   stays unallocated until the header is set. Code reading it directly must
   check `allocated()` first.
+- PR#2897 The fluid `init` takes only the fluid section of the case file,
+  `case.fluid`, instead of the whole case file, plus `case.numerics` as a
+  separate `numerics_params` argument and `case.output_boundary` as the
+  logical `output_boundary`. The fluid and scalar schemes no longer keep a
+  copy of their parameters, so `fluid%params` and `scalar%params` are
+  removed. Their `set_initial_condition` and the scalars'
+  `set_initial_conditions` instead take the parameters as the first argument
+  after `this`.
+  logical `output_boundary`. Accordingly, `fluid%params` is now a copy of
+  `case.fluid`, so keys must be looked up relative to it, e.g.
+  `initial_condition` rather than `case.fluid.initial_condition`.
 
 ## Develop
 
@@ -30,6 +41,11 @@
 - Added an `anisotropic` option to the Vreman model, which uses the
   direction-dependent filter widths of Vreman (2004), eq. (32), instead of a
   single isotropic `Delta`.
+- Added the `reichardt` wall model, based on Reichardt's law of the wall,
+  which blends the viscous sublayer, buffer layer and logarithmic region in a
+  single formula. Available for the CPU, CUDA, HIP, OpenCL and Metal backends.
+  Besides the required `kappa`, the constants `C`, `B1` and `B2` of the law can
+  be set in the case file and default to their original values.
 - Reduced statistics memory usage by storing work/gradients in the scratch
   registry and folding product computations into the update routines.
 - Fixed an out-of-bounds read in the gather-scatter setup. The loop grouping
