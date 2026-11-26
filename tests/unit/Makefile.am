@@ -54,6 +54,7 @@ SUBDIRS = tuple\
 	  map_1d\
 	  runtime_stats\
 	  geo_compression\
+	  duprat\
 	  restart_consistency\
 	  crystal_router\
 	  reichardt\
@@ -115,6 +116,7 @@ TESTS = device/device_test\
 	map_1d/map_1d_test\
 	runtime_stats/runtime_stats_test\
 	geo_compression/geo_compression_test\
+	duprat/duprat_test\
 	restart_consistency/restart_consistency_test\
 	crystal_router/crystal_router_test\
 	reichardt/reichardt_test\
@@ -233,6 +235,7 @@ EXTRA_DIST = \
 	checkpoint_payload/test_checkpoint_payload.pf\
 	crystal_router/test_crystal_router_parallel.pf\
 	crystal_router/crystal_router_test\
+	duprat/test_duprat.pf\
 	fixtures/mesh_fixture.f90\
 	reichardt/test_reichardt.pf\
 	templates/serial/test_serial.pf

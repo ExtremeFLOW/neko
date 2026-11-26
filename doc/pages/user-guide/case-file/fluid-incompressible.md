@@ -388,7 +388,11 @@ A more detailed description of each boundary condition is provided below.
   ```
 
 * `shear_stress`. Non-penetration condition combined with a set shear stress
-   vector. Only works with axis-aligned boundaries. The stress value is
+   vector. Requires `full_stress_formulation` to be enabled. The wall-normal
+   velocity is removed along the resolved normal at each boundary node (see
+   [mixed boundary-condition resolution](@ref mixed-bc-resolution)), so the
+   condition is not restricted to axis-aligned boundaries and also applies to
+   inclined and curved walls. The stress value is
    specified by the `value` keyword, which should be an array of 3 reals. It is
    the responsibility of the user to set the vector in the direction parallel
    to the boundary.
@@ -401,12 +405,71 @@ A more detailed description of each boundary condition is provided below.
   ```
 
 * `wall_model`. A shear stress condition where the values are computed by a wall
-   model. Meant to be used for wall-modelled large-eddy simulation. Only works
-   with axis-aligned boundaries. The model is selected using the `model`
+   model. Meant to be used for wall-modelled large-eddy simulation. As for
+   `shear_stress`, `full_stress_formulation` must be enabled, and the condition
+   also applies to inclined and curved walls: the wall models use the velocity
+   component parallel to the wall at each node and apply the stress in that
+   direction. The model is selected using the `model`
    keyword. Additional configuration depends on the model selected.
 
    * The `spalding`model requires specifying `kappa` and `B`, which are the
      log-law constants. This model is suitable for smooth walls.
+
+   * The `duprat` model of Duprat et al. (DOI: `10.1063/1.3529358`) accounts
+     for the wall-tangential pressure gradient. It uses the extended velocity
+     scale \f$ u_{\tau p} = \sqrt{u_\tau^2 + u_p^2} \f$ with the pressure
+     velocity \f$ u_p = |(\nu / \rho)\, \partial p / \partial s|^{1/3} \f$
+     and a mixing-length eddy viscosity that depends on
+     \f$ \alpha = u_\tau^2 / u_{\tau p}^2 \f$. The velocity profile is
+     obtained by integrating the thin-boundary-layer equation across the wall
+     layer. Under an adverse gradient, the wall shear stress changes sign when
+     the sampled velocity is smaller than the velocity the gradient alone
+     produces at the sampling point (\f$ \alpha = 0 \f$, the separation
+     point). The near-wall flow is then reversed and the stress points along
+     the sampled velocity, as given by the \f$ \mathrm{sign}(\tau_w) \f$
+     term of the model. It requires specifying `kappa`, and accepts the
+     optional constants `beta` and `A`, which default to the calibrated values
+     `0.78` and `17`.
+     The pressure gradient \f$ \partial p / \partial s \f$, taken along the
+     local flow direction and positive for an adverse gradient, is set with
+     the optional `pressure_gradient` object:
+     - `"type": "constant"` prescribes it with `value` (default `0`). Without
+       `pressure_gradient`, the gradient is zero and the model reduces to its
+       equilibrium form.
+     - `"type": "local"` evaluates it at every wall node from the pressure
+       field of the latest time step. The pressure gradient is averaged
+       across element boundaries, sampled at the same points as the velocity
+       (see `sampling` below) and filtered in time with an exponential moving
+       average, \f$ \mathbf{G}_{filt}^{n} = (1 - \epsilon)
+       \mathbf{G}_{filt}^{n-1} + \epsilon \nabla p^{n} \f$ with
+       \f$ \epsilon = 1 - e^{-\Delta t / T} \f$. The filtered gradient is
+       then projected on the direction of the current sampled wall-parallel
+       velocity, which gives \f$ \partial p / \partial s \f$. Filtering the
+       vector before the projection keeps the gradient where the flow
+       direction changes often, as in separated regions. The filter time
+       constant \f$ T \f$ is given by the required `filter_time`, where `0`
+       disables the filtering. The optional `start_time` (default `0`) delays
+       the use of the local gradient; before, the gradient is zero.
+       The filtered gradient starts from zero, so that it enters gradually
+       over about one `filter_time`. It is not stored in checkpoints and
+       restarts from zero after a restart.
+
+     Note that in flows driven by a body force, such as a channel with a
+     prescribed flow rate, the mean pressure gradient is not part of the
+     pressure field. The \f$ \partial p / \partial s \f$ used by the model
+     and \f$ \alpha \f$ at the wall nodes are stored in the fields `duprat_dpds`
+     and `duprat_alpha` in the field registry, and can be written with the
+     `field_writer` simulation component.
+     ```json
+     {
+       "type": "wall_model",
+       "model": "duprat",
+       "kappa": 0.41,
+       "pressure_gradient": { "type": "local", "filter_time": 1.0 },
+       "sampling": { "type": "gll", "value": 3 },
+       "zone_indices": [3, 4]
+     }
+     ```
 
    * The `cai_sagaut_model_ii` model is a smooth-wall explicit algebraic wall
      model defined as Model-II of Cai and Sagaut (DOI: `10.1063/5.0048563`). It
@@ -1879,7 +1942,7 @@ concisely directly in the table.
 | `blasius.freestream_velocity`                      | Free-stream velocity in the Blasius profile.                                                      | Vector of 3 reals                                           | -             |
 | `blasius.approximation`                            | Numerical approximation of the Blasius profile.                                                   | `linear`, `quadratic`, `cubic`, `quartic`, `sin`, `tanh`    | -             |
 | `shear_stress.value`                               | The shear stress vector value for `sh` boundaries                                                 | Vector of 3 reals                                           | `[0, 0, 0]`   |
-| `wall_modelling.type`                              | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`, `reichardt`                    | -             |
+| `wall_modelling.type`                              | The wall model type for `wm` boundaries. See documentation for additional config parameters.      | `rough_log_law`, `spalding`, `reichardt`, `duprat`          | -             |
 | `source_terms`                                     | Array of JSON objects, defining additional source terms.                                          | See list of source terms above                              | -             |
 | `boundary_types`                                   | Boundary types/conditions labels.                                                                 | Array of strings                                            | -             |
 | `velocity_solver.type`                             | Linear solver for the momentum equation.                                                          | `cg`, `pipecg`, `bicgstab`, `coupled_bicgstab`, `coupled_cg`, `cacg`, `gmres` | -             |

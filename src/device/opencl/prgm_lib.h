@@ -157,6 +157,9 @@ extern void *wall_model_program;
 /** Device rough log-law wall model kernels */
 extern void *rough_log_law_program;
 
+/** Device Duprat wall model kernels */
+extern void *duprat_program;
+
 /** Device Spalding wall model kernels */
 extern void *spalding_program;
 
