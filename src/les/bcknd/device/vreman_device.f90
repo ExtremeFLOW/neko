@@ -122,8 +122,9 @@ contains
     call dudxyz(a32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
     call dudxyz(a33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    ! The gradients are summed (not averaged) over shared nodes, see the
-    ! comment in vreman_cpu.
+    ! Note: the gradients are summed (not averaged) over shared nodes. The
+    ! eddy viscosity is multiplied by mult below, and final GS + mult then
+    ! averages the element wise values
     call coef%gs_h%op(a11, GS_OP_ADD)
     call coef%gs_h%op(a12, GS_OP_ADD)
     call coef%gs_h%op(a13, GS_OP_ADD)
