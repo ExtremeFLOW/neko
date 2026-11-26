@@ -13,6 +13,7 @@ test-suite.log
 !device_math/device_math_test
 !gather_scatter/gather_scatter_test
 !jobctrl/jobctrl_test
+!krylov/krylov_test
 !log/log_test
 !bc/bc_test
 !bc_projector/bc_projector_test
@@ -52,7 +53,7 @@ field/field_suite
 global_interpolation/global_interpolation_suite
 hex/hex_test
 htable/htable_test
-krylov/krylov_test
+krylov/krylov_suite
 mathops/mathops_test
 point/point_test
 quad/quad_test

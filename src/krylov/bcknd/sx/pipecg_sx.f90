@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2025, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -264,6 +264,13 @@ contains
        end do
 
     end do
+
+    ! At max_iter, rnorm is still the residual from before the last
+    ! update, which x includes
+    if (iter .gt. max_iter) then
+       rtr = glsc3(this%r, coef%mult, this%r, n)
+       rnorm = sqrt(rtr)*norm_fac
+    end if
     call this%monitor_stop()
     ksp_results%res_final = rnorm
     ksp_results%iter = iter

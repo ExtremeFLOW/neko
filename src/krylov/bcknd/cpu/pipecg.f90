@@ -353,6 +353,7 @@ contains
          end if
       end do
 
+      ! Add the updates not yet added to x, held in slots 1 to p_cur - 1
       if ( p_cur .ne. 1) then
          !$omp parallel do private(k, j, p_prev, x_plus)
          do i = 0, n-1, NEKO_BLK_SIZE
@@ -362,7 +363,7 @@ contains
                   x_plus(k) = 0.0_rp
                end do
                p_prev = PIPECG_P_SPACE+1
-               do j = 1, p_cur
+               do j = 1, p_cur - 1
                   !$omp simd
                   do k = 1, NEKO_BLK_SIZE
                      p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
@@ -380,7 +381,7 @@ contains
                   x_plus(k) = 0.0_rp
                end do
                p_prev = PIPECG_P_SPACE+1
-               do j = 1, p_cur
+               do j = 1, p_cur - 1
                   do k = 1, n - i
                      p(i+k) = beta(j) * p(i+k) + u(i+k,p_prev)
                      x_plus(k) = x_plus(k) + alpha(j) * p(i+k)
@@ -394,6 +395,13 @@ contains
             end if
          end do
          !$omp end parallel do
+      end if
+
+      ! At max_iter, rnorm is still the residual from before the last
+      ! update, which x includes
+      if (iter .gt. max_iter) then
+         rtr = glsc3(r, coef%mult, r, n)
+         rnorm = sqrt(rtr)*norm_fac
       end if
       call this%monitor_stop()
       ksp_results%res_final = rnorm
