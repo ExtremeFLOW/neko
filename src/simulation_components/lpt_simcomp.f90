@@ -73,6 +73,7 @@ contains
     this%preprocess_controller = this%compute_controller
     call this%lpt%init(json, case)
     this%lpt%output_controller = this%output_controller
+    call this%lpt%write_initial_output(case%time)
     this%name = this%lpt%name
   end subroutine lpt_simcomp_init_from_json
 

@@ -35,7 +35,7 @@ module lpt_output
   use num_types, only : rp, dp, i8
   use utils, only : filename_split, filename_suffix, neko_error, &
        neko_warning
-  use logger, only : neko_log, LOG_SIZE
+  use logger, only : neko_log
   use file, only : file_t
   use hdf5_file, only : hdf5_file_t
   use matrix, only : matrix_t
@@ -129,7 +129,7 @@ contains
     real(kind=dp), intent(in) :: t_restart
     character(len=1024) :: path
     character(len=80) :: suffix
-    character(len=LOG_SIZE) :: log_buf
+    character(len=16) :: n_str
     integer(kind=i8) :: n_rows
     integer :: n_snaps, idx, last_idx
 
@@ -180,9 +180,9 @@ contains
     this%snapshots_in_file = n_snaps
     this%hdf5_output_count = n_snaps
 
-    write(log_buf, '(A,A,A,I0,A)') "lpt output: continuing ", trim(path), &
-         " after ", n_snaps, " snapshots"
-    call neko_log%message(log_buf)
+    write(n_str, '(I0)') n_snaps
+    call neko_log%message("lpt output: continuing " // trim(path) // &
+         " after " // trim(n_str) // " snapshots")
   end subroutine lpt_output_resume
 
   !> Count the records of an output file up to a given time. Records are

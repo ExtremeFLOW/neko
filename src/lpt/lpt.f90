@@ -139,6 +139,7 @@ module lpt
      procedure, pass(this) :: preprocess => lpt_preprocess
      procedure, pass(this) :: compute => lpt_compute
      procedure, pass(this) :: restart => lpt_restart
+     procedure, pass(this) :: write_initial_output => lpt_write_initial_output
      procedure, pass(this) :: pack_checkpoint => lpt_pack_checkpoint
      procedure, private, pass(this) :: register_checkpoint
      procedure, private, pass(this) :: seed_particles
@@ -316,11 +317,9 @@ contains
     call this%output%init(output_path, this%inertia, snapshots_per_file, &
          defer_open = restarting)
 
-    ! Output at the initialisation. On restart the restored particles
-    ! continue the previous trajectory, and seeded ones are written in
-    ! `lpt_restart` at the restart time.
+    ! The snapshot at initialisation is written by `write_initial_output`,
+    ! once `output_controller` is set up.
     this%output_enabled = .true.
-    if (.not. restarting) call this%write_output(case%time)
 
     call this%log_status()
   end subroutine lpt_init_from_json
@@ -1110,6 +1109,24 @@ contains
     end if
 
   end subroutine lpt_restart
+
+  !> Write the snapshot of the seeded particles at initialisation and
+  !! register it with `output_controller` as the execution at the start time,
+  !! so that the controller does not write another one at the first step.
+  !! Call it once `output_controller` is set up. Does nothing on restart,
+  !! where `lpt_restart` continues the output of the previous run.
+  !! @param time Initial time.
+  subroutine lpt_write_initial_output(this, time)
+    class(lpt_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    ! The configuration is only kept while a restart is pending.
+    if (allocated(this%seed_params)) return
+    if (.not. this%output_enabled) return
+
+    call this%write_output(time)
+    call this%output_controller%register_execution(time)
+  end subroutine lpt_write_initial_output
 
   !> Pack the particle state of the owning LPT instance.
   subroutine lpt_checkpoint_hook_prepare_write(this)
