@@ -87,6 +87,9 @@ module les_model
      procedure, pass(this) :: free_base => les_model_free_base
      !> Compute the LES length-scale
      procedure, pass(this) :: compute_delta => les_model_compute_delta
+     !> Compute the anisotropic LES filter-width tensor
+     procedure, pass(this) :: compute_delta_tensor => &
+          les_model_compute_delta_tensor
      !> The common constructor.
      procedure(les_model_init), pass(this), deferred :: init
      !> Destructor.
@@ -385,5 +388,94 @@ contains
       end if
     end associate
   end subroutine les_model_compute_delta
+
+  !> Compute the anisotropic LES filter-width tensor
+  !! G_{ab} = \sum_m d_{m,a} d_{m,b}, where d_m is the
+  !! physical grid-step vector along the m-th local (r, s, t) direction.
+  !! For a cartesian axis-aligned element G = diag(dx^2, dy^2, dz^2), so
+  !! that the Vreman tensor beta = A G A^T reduce to Vreman's
+  !! beta_{ij} = \Delta_m^2 \partial_m u_i \partia_m u_j .
+  !! @param g11, g12, g13, g22, g23, g33 Components of the symmetric tensor.
+  subroutine les_model_compute_delta_tensor(this, g11, g12, g13, &
+       g22, g23, g33)
+    class(les_model_t), intent(inout) :: this
+    type(field_t), intent(inout) :: g11, g12, g13, g22, g23, g33
+    integer :: e, i, j, k, lx, ly, lz
+    integer :: im, ip, jm, jp, km, kp
+    real(kind=rp) :: dr(3), ds(3), dt(3)
+
+    lx = this%coef%Xh%lx
+    ly = this%coef%Xh%ly
+    lz = this%coef%Xh%lz
+
+    do e = 1, this%coef%msh%nelv
+       if (this%delta_type .eq. "elementwise_max") then
+          call step(dr, lx/2, 1, 1, lx/2 + 1, 1, 1, e, 1)
+          call step(ds, 1, ly/2, 1, 1, ly/2 + 1, 1, e, 1)
+          call step(dt, 1, 1, lz/2, 1, 1, lz/2 + 1, e, 1)
+       else if (this%delta_type .eq. "elementwise_average") then
+          call step(dr, 1, 1, 1, lx, 1, 1, e, lx - 1)
+          call step(ds, 1, 1, 1, 1, ly, 1, e, ly - 1)
+          call step(dt, 1, 1, 1, 1, 1, lz, e, lz - 1)
+       else if (this%delta_type .ne. "pointwise") then
+          call neko_type_error("delta_type for LES model", &
+               this%delta_type, DELTA_KNOWN_TYPES)
+       end if
+
+       do k = 1, lz
+          km = max(1, k-1)
+          kp = min(lz, k+1)
+          do j = 1, ly
+             jm = max(1, j-1)
+             jp = min(ly, j+1)
+             do i = 1, lx
+                im = max(1, i-1)
+                ip = min(lx, i+1)
+                if (this%delta_type .eq. "pointwise") then
+                   call step(dr, im, j, k, ip, j, k, e, ip - im)
+                   call step(ds, i, jm, k, i, jp, k, e, jp - jm)
+                   call step(dt, i, j, km, i, j, kp, e, kp - km)
+                end if
+                g11%x(i,j,k,e) = dr(1)*dr(1) + ds(1)*ds(1) + dt(1)*dt(1)
+                g12%x(i,j,k,e) = dr(1)*dr(2) + ds(1)*ds(2) + dt(1)*dt(2)
+                g13%x(i,j,k,e) = dr(1)*dr(3) + ds(1)*ds(3) + dt(1)*dt(3)
+                g22%x(i,j,k,e) = dr(2)*dr(2) + ds(2)*ds(2) + dt(2)*dt(2)
+                g23%x(i,j,k,e) = dr(2)*dr(3) + ds(2)*ds(3) + dt(2)*dt(3)
+                g33%x(i,j,k,e) = dr(3)*dr(3) + ds(3)*ds(3) + dt(3)*dt(3)
+             end do
+          end do
+       end do
+    end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_memcpy(g11%x, g11%x_d, g11%dof%size(), HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(g12%x, g12%x_d, g12%dof%size(), HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(g13%x, g13%x_d, g13%dof%size(), HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(g22%x, g22%x_d, g22%dof%size(), HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(g23%x, g23%x_d, g23%dof%size(), HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(g33%x, g33%x_d, g33%dof%size(), HOST_TO_DEVICE, &
+            sync = .true.)
+    end if
+
+  contains
+
+    !> Step vector from GLL point (i1,j1,k1) to (i2,j2,k2) divided by n.
+    subroutine step(d, i1, j1, k1, i2, j2, k2, el, n)
+      real(kind=rp), intent(out) :: d(3)
+      integer, intent(in) :: i1, j1, k1, i2, j2, k2, el, n
+      d(1) = (this%coef%dof%x%x(i2,j2,k2,el) &
+           - this%coef%dof%x%x(i1,j1,k1,el)) / real(n, rp)
+      d(2) = (this%coef%dof%y%x(i2,j2,k2,el) &
+           - this%coef%dof%y%x(i1,j1,k1,el)) / real(n, rp)
+      d(3) = (this%coef%dof%z%x(i2,j2,k2,el) &
+           - this%coef%dof%z%x(i1,j1,k1,el)) / real(n, rp)
+    end subroutine step
+
+  end subroutine les_model_compute_delta_tensor
 
 end module les_model

@@ -90,7 +90,7 @@ kernel void deardorff_nut_compute_kernel(device float *TKE [[ buffer(0) ]],
   }
   const float TKE_r = TKE[i];
 
-  const float N2 = (dTdx_r * g1 + dTdy_r * g2 + dTdz_r * g3) / T0;
+  const float N2 = - (dTdx_r * g1 + dTdy_r * g2 + dTdz_r * g3) / T0;
   float l;
   if (N2 > 0.0f) {
     l = 0.76f * sqrt(TKE_r / N2);
@@ -116,9 +116,7 @@ kernel void deardorff_nut_compute_kernel(device float *TKE [[ buffer(0) ]],
   const float shear = nut_r * (s11 * a11_r + s12 * a12_r + s13 * a13_r
                                + s12 * a21_r + s22 * a22_r + s23 * a23_r
                                + s13 * a31_r + s23 * a32_r + s33 * a33_r);
-  const float buoyancy = - (dTdx_r * g1 +
-                            dTdy_r * g2 +
-                            dTdz_r * g3) * temperature_alphat_r / T0;
+  const float buoyancy = N2 * temperature_alphat_r;
   const float dissipation = - (0.19f + 0.74f * l / delta_r)
     * sqrt(TKE_r * TKE_r * TKE_r) / l;
 

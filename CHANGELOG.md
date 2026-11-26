@@ -25,6 +25,21 @@
 
 ## Develop
 
+- Fixed the Richardson number of the Vreman buoyancy correction at element
+  boundaries. The temperature gradient (g . grad T) is now also
+  averaged over the elements sharing a node.
+- The Richardson number of the Vreman buoyancy correction is now the one of
+  Lilly (1962), `Ri = N^2 / (2 S_ij S_ij)`, with the full resolved strain rate
+  instead of the vertical shear only. With the vertical shear, the correction
+  factor `sqrt(1 - Ri / Ri_c)` for `Ri < 0` grew without bound wherever the
+  shear vanished, which could make convective simulations unstable. Results
+  with `buoyancy_correction` change.
+- The scalar scheme now warns when `alphat.nut_dependency` is false and
+  `alphat.alphat_field` is empty, and stops with a clearer error when the field
+  is not in the registry.
+- Added an `anisotropic` option to the Vreman model, which uses the
+  direction-dependent filter widths of Vreman (2004), eq. (32), instead of a
+  single isotropic `Delta`.
 - Added the `reichardt` wall model, based on Reichardt's law of the wall,
   which blends the viscous sublayer, buffer layer and logarithmic region in a
   single formula. Available for the CPU, CUDA, HIP, OpenCL and Metal backends.
