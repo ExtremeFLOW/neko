@@ -105,6 +105,22 @@ def test_allows_user_extension_properties(tmp_path):
     assert result.returncode == 0, result.stdout + result.stderr
 
 
+def test_allows_custom_fluid_scheme(tmp_path):
+    with (EXAMPLES_DIR / "tgv" / "tgv.case").open(encoding="utf-8") as handle:
+        data = json5.load(handle)
+    data["case"]["fluid"]["scheme"] = "custom_fluid_scheme"
+
+    case_file = tmp_path / "custom_fluid_scheme.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
 def test_allows_custom_scalar_pnpn_boundary_condition(tmp_path):
     with (EXAMPLES_DIR / "scalar_mms" / "scalar_mms.case").open(
         encoding="utf-8"
@@ -408,6 +424,12 @@ def test_all_builtin_scalar_pnpn_bc_types_have_schemas():
 @pytest.mark.parametrize(
     ("factory", "schema", "property_name", "extra_runtime_types"),
     [
+        (
+            "src/fluid/fluid_base_fctry.f90",
+            "doc/schemas/fluid.schema.json",
+            "scheme",
+            set(),
+        ),
         (
             "src/wall_models/wall_model_fctry.f90",
             "doc/schemas/fluid-pnpn-boundary-conditions.schema.json",

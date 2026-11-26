@@ -497,11 +497,7 @@
       "properties": {
         "variable_material_properties": false,
         "scheme": {
-          "type": "string",
-          "enum": [
-            "pnpn",
-            "compressible"
-          ]
+          "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
         },
         "name": {
           "$ref": "urn:neko:schema:common#/$defs/nonEmptyString"
