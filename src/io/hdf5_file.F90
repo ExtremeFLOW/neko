@@ -160,6 +160,8 @@ module hdf5_file
      procedure :: read_dataset => hdf5_file_read_dataset
      procedure :: write_attribute => hdf5_file_write_attribute
      procedure :: read_attribute => hdf5_file_read_attribute
+     !> Shrink the last dimension of a dataset in the active group.
+     procedure :: truncate_dataset => hdf5_file_truncate_dataset
   end type hdf5_file_t
 
   !> Where the data in a checkpoint file sits and how it maps onto the
@@ -2606,6 +2608,41 @@ contains
 
   end subroutine hdf5_file_read_rp_attribute
 
+  !> Shrink the last dimension of a dataset in the active group, discarding
+  !! the entries past @a extent. Datasets that are absent or already short
+  !! enough are left unchanged.
+  !! @param name Dataset name.
+  !! @param extent New size of the last dimension.
+  subroutine hdf5_file_truncate_dataset(this, name, extent)
+    class(hdf5_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    integer(kind=i8), intent(in) :: extent
+    integer(hid_t) :: dset_id, filespace
+    integer(hsize_t) :: dims(4), maxdims(4)
+    integer :: dset_rank, ierr
+    logical :: exists
+
+    call h5lexists_f(this%active_group_id, trim(name), exists, ierr)
+    if (.not. exists) return
+
+    call h5dopen_f(this%active_group_id, trim(name), dset_id, ierr)
+    call h5dget_space_f(dset_id, filespace, ierr)
+    call h5sget_simple_extent_ndims_f(filespace, dset_rank, ierr)
+    call h5sget_simple_extent_dims_f(filespace, dims(1:dset_rank), &
+         maxdims(1:dset_rank), ierr)
+    call h5sclose_f(filespace, ierr)
+
+    if (dims(dset_rank) .gt. int(extent, hsize_t)) then
+       dims(dset_rank) = int(extent, hsize_t)
+       call h5dset_extent_f(dset_id, dims(1:dset_rank), ierr)
+       if (ierr .lt. 0) then
+          call neko_error("Could not truncate HDF5 dataset: " // trim(name))
+       end if
+    end if
+    call h5dclose_f(dset_id, ierr)
+
+  end subroutine hdf5_file_truncate_dataset
+
 #else
 
   !> Open a HDF5 file in a given mode
@@ -2750,6 +2787,13 @@ contains
     logical, intent(inout) :: attr_exists
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine hdf5_file_read_rp_attribute
+
+  subroutine hdf5_file_truncate_dataset(this, name, extent)
+    class(hdf5_file_t), intent(inout) :: this
+    character(len=*), intent(in) :: name
+    integer(kind=i8), intent(in) :: extent
+    call neko_error('Neko needs to be built with HDF5 support')
+  end subroutine hdf5_file_truncate_dataset
 
 #endif
 

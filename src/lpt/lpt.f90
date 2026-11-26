@@ -130,6 +130,9 @@ module lpt
      !> Serialised LPT configuration kept on restart, where seeding is
      !! deferred until it is known whether the checkpoint holds particles.
      character(len=:), allocatable :: seed_params
+     !> Offset added to the solver time step, which starts over at a
+     !! restart, so that the LPT step count continues across restarts.
+     integer :: tstep_offset = 0
    contains
      procedure, pass(this) :: init => lpt_init_from_json
      procedure, pass(this) :: free => lpt_free
@@ -308,7 +311,10 @@ contains
     end if
     output_path = case%output_directory // trim(output_filename) // "." // &
          trim(output_format)
-    call this%output%init(output_path, this%inertia, snapshots_per_file)
+    ! On restart the output files are opened in `lpt_restart`, which
+    ! continues those of the previous run.
+    call this%output%init(output_path, this%inertia, snapshots_per_file, &
+         defer_open = restarting)
 
     ! Output at the initialisation. On restart the restored particles
     ! continue the previous trajectory, and seeded ones are written in
@@ -751,7 +757,7 @@ contains
     dt_local = time%t - this%lpt_time%t
     if (abs(dt_local) .le. epsilon(1.0_rp)) then
        this%lpt_time%t = time%t
-       this%lpt_time%tstep = time%tstep
+       this%lpt_time%tstep = time%tstep + this%tstep_offset
        this%lpt_time%dt = 0.0_rp
        return
     end if
@@ -764,7 +770,7 @@ contains
     this%lpt_time%tlag(1) = this%lpt_time%t
     this%lpt_time%dt = dt_local
     this%lpt_time%t = time%t
-    this%lpt_time%tstep = time%tstep
+    this%lpt_time%tstep = time%tstep + this%tstep_offset
   end subroutine sync_time_controller
 
   !> Advance a three-component state with variable-step Adams-Bashforth.
@@ -844,7 +850,7 @@ contains
     end if
     allocate(local_data(n_data, n_local))
     do i = 1, n_local
-       local_data(1,i) = real(time%tstep, rp)
+       local_data(1,i) = real(time%tstep + this%tstep_offset, rp)
        local_data(2,i) = time%t
        local_data(3,i) = real(this%particles%ids(i), rp)
        local_data(4,i) = this%particles%x%x(i)
@@ -899,6 +905,7 @@ contains
     if (allocated(this%chkp_vectors)) deallocate(this%chkp_vectors)
     if (allocated(this%chkp_arrays)) deallocate(this%chkp_arrays)
     this%chkp_state = 0.0_dp
+    this%tstep_offset = 0
     if (allocated(this%seed_params)) deallocate(this%seed_params)
   end subroutine lpt_free
 
@@ -1046,7 +1053,10 @@ contains
        this%history_len = 0
        call this%sync_time_controller(time)
        call this%update_current_rhs()
-       if (this%output_enabled) call this%write_output(time)
+       if (this%output_enabled) then
+          call this%output%open_new()
+          call this%write_output(time)
+       end if
        call this%output_controller%set_counter(time)
        return
     end if
@@ -1082,6 +1092,7 @@ contains
     this%lpt_time_initialized = this%chkp_state(1) .gt. 0.5_dp
     this%history_len = min(nint(this%chkp_state(2)), this%lag_len)
     this%lpt_time%tstep = nint(this%chkp_state(3))
+    this%tstep_offset = this%lpt_time%tstep - time%tstep
     this%lpt_time%t = this%chkp_state(4)
     this%lpt_time%dt = this%chkp_state(5)
     this%lpt_time%tlag = this%chkp_state(6:15)
@@ -1090,6 +1101,7 @@ contains
     ! Migrate the particles to their owners and refresh the current RHS.
     call this%update_current_rhs()
     call this%output_controller%set_counter(time)
+    if (this%output_enabled) call this%output%resume(time%t)
 
     if (this%log) then
        write(log_buf, '(A,A,A,I0,A)') "lpt '", trim(this%name), &
