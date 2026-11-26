@@ -60,7 +60,7 @@ contains
   !! treatment.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
-  !! @param g The gravity vector, pointing upwards (reversed at init).
+  !! @param g The gravity vector.
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
        if_corr, scalar_name, ri_c, ref_temp, g)
     logical, intent(in) :: if_ext, if_corr
