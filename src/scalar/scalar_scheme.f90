@@ -131,6 +131,8 @@ module scalar_scheme
           user_material_properties => null()
      !> Freeze the scheme, i.e. do nothing in step()
      logical :: freeze = .false.
+     !> Whether to stop the run when a solve does not converge.
+     logical :: strict_convergence = .false.
      !> Whether spectral vanishing viscosity is enabled.
      logical :: svv_enabled = .false.
      !> Spectral vanishing viscosity data.
@@ -368,6 +370,10 @@ contains
 
     ! Set the freeze flag
     call json_get_or_default(params, 'freeze', this%freeze, .false.)
+
+    ! Strict convergence for the scalar solver
+    call json_get_or_default(params, 'strict_convergence', &
+         this%strict_convergence, .false.)
 
     call neko_log%section('Scalar')
     call json_get(params, 'solver.type', solver_type)

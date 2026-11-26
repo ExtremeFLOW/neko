@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2025, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -210,7 +210,8 @@ contains
 
     do i = 1, size(this%scalar_fields)
        if (this%scalar_fields(i)%scalar%freeze) cycle
-       call scalar_step_info(time, ksp_results(i))
+       call scalar_step_info(time, ksp_results(i), &
+            this%scalar_fields(i)%scalar%strict_convergence)
     end do
   end subroutine scalars_step
 

@@ -163,6 +163,17 @@ Should be provided as an object under the `solver` keyword. For available
 configuration options, see the corresponding documentation for the fliud. A
 standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 
+As for the fluid, the solver can be configured with strict convergence
+criteria, by setting the `strict_convergence` keyword of the scalar to `true`.
+If the solver does not converge to the specified tolerance within the specified
+number of iterations, the simulation will then be terminated, rather than only
+reporting it in the log. Unlike the fluid, a scalar has no
+`allow_stabilization` keyword, so a strict scalar terminates the simulation at
+its first solve that does not converge, including at the start of the run. The
+keyword belongs to each scalar, so with several scalars under `case.scalars` it
+is set for each of them separately. The `case.fluid.strict_convergence` keyword
+does not apply to the scalars.
+
 ## Full parameter table
 
 | Name                           | Description                                                           | Admissible values                           | Default value |
@@ -190,3 +201,4 @@ standard choice would be `"type": "cg"` and `"preconditioner": "jacobi"`.
 | `solver.space_size`            | Krylov space size of `gmres` for the scalar equation.                 | Positive integer                            | 30            |
 | `solver.projection_space_size` | Projection space size for the scalar equation.                        | Positive integer                            | 0             |
 | `solver.projection_hold_steps` | Holding steps of the projection for the scalar equation.              | Positive integer                            | 5             |
+| `strict_convergence`           | Whether to enforce strict convergence in the linear solver.           | `true` or `false`                           | `false`       |
