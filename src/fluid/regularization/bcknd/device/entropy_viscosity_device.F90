@@ -94,6 +94,16 @@ module entropy_viscosity_device
        type(c_ptr), value :: reg_coeff_d, temp_field_d, mult_field_d
        integer(c_int) :: n
      end subroutine hip_entropy_visc_smooth_divide
+
+     subroutine hip_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+          max_wave_speed_d, c_avisc_low, n) &
+          bind(c, name = 'hip_entropy_visc_fraction')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: fraction_d, reg_coeff_d, h_d, max_wave_speed_d
+       real(c_rp) :: c_avisc_low
+       integer(c_int) :: n
+     end subroutine hip_entropy_visc_fraction
   end interface
 
 #elif HAVE_CUDA
@@ -395,11 +405,14 @@ contains
     real(kind=rp), intent(in) :: c_avisc_low
     integer, intent(in) :: n
 
-#ifdef HAVE_CUDA
+#if HAVE_HIP
+    call hip_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+         max_wave_speed_d, c_avisc_low, n)
+#elif HAVE_CUDA
     call cuda_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
          max_wave_speed_d, c_avisc_low, n)
 #else
-    call neko_error('Euler IDP entropy-viscosity blending requires CUDA')
+    call neko_error('Euler IDP entropy-viscosity blending requires CUDA or HIP')
 #endif
   end subroutine entropy_viscosity_fraction_device
 

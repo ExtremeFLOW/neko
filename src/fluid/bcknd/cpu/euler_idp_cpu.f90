@@ -1672,6 +1672,13 @@ contains
     logical :: refresh_
 
     call profiler_start_region('Euler IDP boundary')
+    if (density_bcs%size() .eq. 0 .and. velocity_bcs%size() .eq. 0 .and. &
+         pressure_bcs%size() .eq. 0) then
+       call euler_idp_cpu_primitives(this, rho, m_x, m_y, m_z, energy, &
+            gamma, internal_energy_floor, label)
+       call profiler_end_region('Euler IDP boundary')
+       return
+    end if
     refresh_ = .false.
     if (present(refresh)) refresh_ = refresh
     if (refresh_) then

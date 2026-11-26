@@ -440,7 +440,7 @@ contains
     real(kind=rp), intent(in) :: upper_bound
     real(kind=rp) :: coefficient_a, coefficient_b, coefficient_c
     real(kind=rp) :: scaled_a, scaled_b, scaled_c, coefficient_scale
-    real(kind=rp) :: discriminant, square_root, q
+    real(kind=rp) :: discriminant, square_root, q, guarded_floor
     real(kind=rp) :: first_root, second_root, root
     real(kind=rp) :: density_limit, linear_tolerance, discriminant_tolerance
     real(kind=rp) :: lower, upper, midpoint
@@ -470,6 +470,9 @@ contains
        return
     end if
     upper = dt_limit
+    ! The caller forms the candidate again, possibly with different rounding.
+    guarded_floor = internal_energy_floor + 16.0_rp * epsilon(1.0_rp) * &
+         max(abs(state(5)), dt_limit * abs(residual(5)))
 
     ! For U(t) = U - t R, multiply the internal-energy constraint by rho(t):
     !   a*t**2 + b*t + c >= 0.
@@ -546,7 +549,7 @@ contains
             (1.0_rp - 64.0_rp * epsilon(1.0_rp)))
        trial = state - dt_limit * residual
        if (euler_idp_state_is_admissible(trial, &
-            internal_energy_floor)) return
+            guarded_floor)) return
     end if
 
     ! Degenerate or numerically ambiguous polynomials retain a robust fallback.
@@ -555,7 +558,7 @@ contains
        midpoint = 0.5_rp * (lower + upper)
        trial = state - midpoint * residual
        if (euler_idp_state_is_admissible(trial, &
-            internal_energy_floor)) then
+            guarded_floor)) then
           lower = midpoint
        else
           upper = midpoint

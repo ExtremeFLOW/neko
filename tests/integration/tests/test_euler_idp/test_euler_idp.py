@@ -216,6 +216,7 @@ def _parse_summary(log_path):
         "EULER_IDP_RESULT": None,
         "EULER_IDP_ERROR": None,
         "EULER_IDP_DRIFT": None,
+        "EULER_IDP_TEMPERATURE_ERROR": None,
         "EULER_IDP_LIMITER": None,
         "EULER_IDP_LIMITER_STATS": None,
         "EULER_IDP_LIMITER_COUNTS": None,
@@ -244,6 +245,7 @@ def _parse_summary(log_path):
         "stage_count": int(result[4]),
         "finite": result[5] == "T",
         "errors": np.asarray(tags["EULER_IDP_ERROR"], dtype=float),
+        "temperature_error": float(tags["EULER_IDP_TEMPERATURE_ERROR"][0]),
         "drifts": np.asarray(tags["EULER_IDP_DRIFT"], dtype=float),
         "limiter": np.asarray(tags["EULER_IDP_LIMITER"], dtype=float),
         "limiter_stats": np.asarray(
@@ -539,6 +541,21 @@ def test_idp_free_stream(
     )
 
 
+@pytest.mark.parametrize("periodic", (True, False))
+def test_idp_low_pressure_free_stream(
+    launcher_script, log_file, euler_idp_runtime, periodic
+):
+    """An admissible tiny pressure survives both periodic and symmetry boundaries."""
+    summary = _run_case(
+        launcher_script, log_file, euler_idp_runtime, "low_pressure_free_stream",
+        polynomial_order=3, steps=2, timestep=2.0e-4, mpi_ranks=1,
+        mesh=None if periodic else euler_idp_runtime["bounded_x_mesh"],
+        boundary_conditions=None if periodic else _primitive_boundary_conditions("symmetry"),
+        case_label="periodic" if periodic else "symmetry",
+    )
+    assert summary["errors"][4] <= 2.0e-12 * _tolerances()["roundoff"]
+
+
 @pytest.mark.parametrize("time_order", (1, 3))
 def test_idp_smooth_transport(
     launcher_script, log_file, euler_idp_runtime, time_order
@@ -561,6 +578,7 @@ def test_idp_smooth_transport(
                 time_order=time_order,
             )
             summary = runs[polynomial_order]
+            assert summary["temperature_error"] <= tolerance["roundoff"]
             assert np.min(summary["state"][[0, 2]]) > 0.0
             assert np.min(summary["state"][[1, 3]]) >= NEAR_VACUUM_FLOOR
             assert np.max(summary["bounds"]) <= tolerance["bounds"]

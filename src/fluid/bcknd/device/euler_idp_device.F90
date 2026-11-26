@@ -16,7 +16,7 @@
 ! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 ! AND ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED.
 !
-!> CUDA implementation of the Euler GLL-IDP solver.
+!> CUDA and HIP implementation of the Euler GLL-IDP solver.
 module euler_idp_device
   use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
@@ -40,7 +40,7 @@ module euler_idp_device
        EULER_IDP_DIAGNOSTICS_FULL, &
        euler_idp_backend_t, euler_idp_diagnostics_t, &
        euler_idp_state_observation_t
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
   use euler_idp_device_kernels
 #endif
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
@@ -196,8 +196,8 @@ contains
     integer :: a(4), b(4), component, direction, edge, ierr, n
     integer :: diagnostic_partial_size
 
-#ifndef HAVE_CUDA
-    call neko_error('Euler IDP device backend currently requires CUDA')
+#if !defined(HAVE_CUDA) && !defined(HAVE_HIP)
+    call neko_error('Euler IDP device backend currently requires CUDA or HIP')
 #else
     if (.not. this%initialized) then
        call neko_error('Euler IDP device object is not initialised')
@@ -532,9 +532,9 @@ contains
     character(len=*), intent(in) :: label
     integer :: n
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     n = rho%size()
-    call cuda_euler_idp_primitives(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+    call gpu_euler_idp_primitives(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          energy%x_d, this%u%x_d, this%v%x_d, this%w%x_d, this%p%x_d, &
          this%sound_speed%x_d, this%internal_energy%x_d, this%work_1%x_d, &
          gamma, internal_energy_floor, n)
@@ -544,7 +544,7 @@ contains
             ' has invalid density or internal energy on the device')
     end if
 #else
-    call neko_error('Euler IDP device primitives require CUDA')
+    call neko_error('Euler IDP device primitives require CUDA or HIP')
 #endif
   end subroutine euler_idp_device_primitives
 
@@ -559,7 +559,7 @@ contains
     real(kind=rp) :: min_wave_speed
     integer :: has_user, n, n_edges
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     n = rho%size(); n_edges = this%graph%n_edges
     has_user = 0
     graph_wave_speed_d = rho%x_d
@@ -567,7 +567,7 @@ contains
        has_user = 1
        graph_wave_speed_d = graph_wave_speed%x_d
     end if
-    call cuda_euler_idp_graph_viscosity(rho%x_d, m_x%x_d, m_y%x_d, &
+    call gpu_euler_idp_graph_viscosity(rho%x_d, m_x%x_d, m_y%x_d, &
          m_z%x_d, energy%x_d, graph_wave_speed_d, has_user, &
          this%edge_left_d, this%edge_right_d, this%edge_coefficient_d, &
          this%edge_viscosity_d, this%viscosity_sum%x_d, this%edge_work_d, &
@@ -580,7 +580,7 @@ contains
        call neko_error('Euler IDP graph wave speed must be finite and nonnegative')
     end if
     call gs%op(this%viscosity_sum, GS_OP_ADD)
-    call cuda_euler_idp_graph_rate(this%viscosity_sum%x_d, &
+    call gpu_euler_idp_graph_rate(this%viscosity_sum%x_d, &
          this%graph%mass%x_d, this%work_1%x_d, n)
     this%max_graph_rate = device_glmax(this%work_1%x_d, n)
     if (this%max_graph_rate .gt. 0.0_rp) then
@@ -589,7 +589,7 @@ contains
        this%maximum_graph_timestep = huge(1.0_rp)
     end if
 #else
-    call neko_error('Euler IDP graph viscosity requires CUDA')
+    call neko_error('Euler IDP graph viscosity requires CUDA or HIP')
 #endif
   end subroutine euler_idp_device_update_graph_viscosity
 
@@ -630,8 +630,8 @@ contains
     integer :: affine, check_base, component, enforce_energy, enforce_entropy
     integer :: has_entropy, low_only, n, n_edges, periodic, scalar_mode
 
-#ifndef HAVE_CUDA
-    call neko_error('Euler IDP Forward Euler update requires CUDA')
+#if !defined(HAVE_CUDA) && !defined(HAVE_HIP)
+    call neko_error('Euler IDP Forward Euler update requires CUDA or HIP')
 #else
     call diagnostics%reset()
     diagnostics%stage = stage
@@ -643,7 +643,7 @@ contains
     scalar_mode = merge(1, 0, present(graph_wave_speed) .and. &
          .not. this%limit_internal_energy .and. .not. this%limit_entropy)
 
-    call cuda_euler_idp_low_residual(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+    call gpu_euler_idp_low_residual(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          energy%x_d, this%diagonal_coefficient_d, this%edge_left_d, &
          this%edge_right_d, this%edge_coefficient_d, &
          this%edge_viscosity_d, this%low_candidate(1)%x_d, &
@@ -653,13 +653,13 @@ contains
     do component = 1, EULER_IDP_NCOMP
        call gs%op(this%low_candidate(component), GS_OP_ADD)
     end do
-    call cuda_euler_idp_scale_residual(this%low_candidate(1)%x_d, &
+    call gpu_euler_idp_scale_residual(this%low_candidate(1)%x_d, &
          this%low_candidate(2)%x_d, this%low_candidate(3)%x_d, &
          this%low_candidate(4)%x_d, this%low_candidate(5)%x_d, &
          coef%Binv_d, n)
 
     affine = merge(1, 0, this%graph%affine)
-    call cuda_euler_idp_reconstruct(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+    call gpu_euler_idp_reconstruct(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          energy%x_d, this%diagonal_coefficient_d, this%edge_left_d, &
          this%edge_right_d, this%edge_coefficient_d, &
          this%local_residual(1)%x_d, this%local_residual(2)%x_d, &
@@ -686,7 +686,7 @@ contains
     end if
 
     if (this%limit_internal_energy) then
-       call cuda_euler_idp_floor_timestep(rho%x_d, m_x%x_d, m_y%x_d, &
+       call gpu_euler_idp_floor_timestep(rho%x_d, m_x%x_d, m_y%x_d, &
             m_z%x_d, energy%x_d, this%low_candidate(1)%x_d, &
             this%low_candidate(2)%x_d, this%low_candidate(3)%x_d, &
             this%low_candidate(4)%x_d, this%low_candidate(5)%x_d, &
@@ -706,7 +706,7 @@ contains
             ', maximum dt: ', maximum_floor_timestep
        call neko_error(trim(message))
     end if
-    call cuda_euler_idp_low_update(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+    call gpu_euler_idp_low_update(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          energy%x_d, this%low_candidate(1)%x_d, &
          this%low_candidate(2)%x_d, this%low_candidate(3)%x_d, &
          this%low_candidate(4)%x_d, this%low_candidate(5)%x_d, dt, &
@@ -724,7 +724,7 @@ contains
     if (present(entropy_viscosity_fraction)) then
        entropy_fraction_d = entropy_viscosity_fraction%x_d
     end if
-    call cuda_euler_idp_blend(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+    call gpu_euler_idp_blend(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          energy%x_d, this%edge_left_d, this%edge_right_d, &
          this%edge_viscosity_d, entropy_fraction_d, this%correction_flux_d, &
          dt, has_entropy, low_only, scalar_mode, n_edges)
@@ -742,7 +742,7 @@ contains
     enforce_entropy = merge(1, 0, this%limit_entropy)
     check_base = merge(1, 0, &
          this%diagnostics_level .ne. EULER_IDP_DIAGNOSTICS_OFF)
-    call cuda_euler_idp_limiter(this%low_candidate(1)%x_d, &
+    call gpu_euler_idp_limiter(this%low_candidate(1)%x_d, &
          this%low_candidate(2)%x_d, this%low_candidate(3)%x_d, &
          this%low_candidate(4)%x_d, this%low_candidate(5)%x_d, &
          this%density_lower_bound%x_d, this%density_upper_bound%x_d, &
@@ -763,7 +763,7 @@ contains
        call euler_idp_device_check_limiter_status(this)
     end if
 
-    call cuda_euler_idp_incidence(this%edge_left_d, this%edge_right_d, &
+    call gpu_euler_idp_incidence(this%edge_left_d, this%edge_right_d, &
          this%correction_flux_d, this%low_candidate(1)%x_d, &
          this%low_candidate(2)%x_d, this%low_candidate(3)%x_d, &
          this%low_candidate(4)%x_d, this%low_candidate(5)%x_d, &
@@ -777,7 +777,7 @@ contains
     do component = 1, EULER_IDP_NCOMP
        call gs%op(this%local_residual(component), GS_OP_ADD)
     end do
-    call cuda_euler_idp_correction_update(this%low_candidate(1)%x_d, &
+    call gpu_euler_idp_correction_update(this%low_candidate(1)%x_d, &
          this%low_candidate(2)%x_d, this%low_candidate(3)%x_d, &
          this%low_candidate(4)%x_d, this%low_candidate(5)%x_d, &
          this%local_residual(1)%x_d, this%local_residual(2)%x_d, &
@@ -801,10 +801,10 @@ contains
     real(kind=rp) :: limiter_tolerance
     integer :: ierr, n, n_edges
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     n = this%low_candidate(1)%size()
     n_edges = this%graph%n_edges
-    call cuda_euler_idp_full_diagnostics(rho%x_d, m_x%x_d, m_y%x_d, &
+    call gpu_euler_idp_full_diagnostics(rho%x_d, m_x%x_d, m_y%x_d, &
          m_z%x_d, energy%x_d, gamma, entropy_fraction_d, has_entropy, &
          this%edge_work_d, this%edge_limited_d, &
          this%edge_density_limited_d, this%edge_energy_limited_d, &
@@ -878,9 +878,9 @@ contains
     real(kind=rp) :: local_invalid, global_invalid, tolerance
     integer :: ierr, n_edges
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     n_edges = this%graph%n_edges
-    call cuda_euler_idp_limiter_status(this%edge_work_d, &
+    call gpu_euler_idp_limiter_status(this%edge_work_d, &
          this%diagnostic_summary_d, n_edges)
     call device_memcpy(this%diagnostic_summary, &
          this%diagnostic_summary_d, EULER_IDP_DEVICE_LIMITER_STATUS_SIZE, &
@@ -912,10 +912,10 @@ contains
     real(kind=rp) :: local_minimum(4), global_minimum(4)
     integer :: ierr, limit_entropy, n
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     n = this%low_candidate(1)%size()
     limit_entropy = merge(1, 0, this%limit_entropy)
-    call cuda_euler_idp_validation_summary(this%low_candidate(1)%x_d, &
+    call gpu_euler_idp_validation_summary(this%low_candidate(1)%x_d, &
          this%low_candidate(2)%x_d, this%low_candidate(3)%x_d, &
          this%low_candidate(4)%x_d, this%low_candidate(5)%x_d, &
          this%density_lower_bound%x_d, this%density_upper_bound%x_d, &
@@ -947,9 +947,9 @@ contains
     real(kind=rp) :: local_maximum, global_maximum
     integer :: ierr, n
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     n = this%low_candidate(1)%size()
-    call cuda_euler_idp_observation_summary( &
+    call gpu_euler_idp_observation_summary( &
          this%low_candidate(1)%x_d, this%internal_energy%x_d, &
          this%p%x_d, this%u%x_d, this%v%x_d, this%w%x_d, &
          this%sound_speed%x_d, this%diagnostic_summary_d, n)
@@ -977,18 +977,18 @@ contains
     real(kind=rp), intent(in) :: gamma
     integer :: limit_entropy, n, n_edges, relax
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     n = rho%size(); n_edges = this%graph%n_edges
     relax = merge(1, 0, this%relax_density_bounds)
     limit_entropy = merge(1, 0, this%limit_entropy)
-    call cuda_euler_idp_bounds_init(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+    call gpu_euler_idp_bounds_init(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          energy%x_d, this%density_lower_bound%x_d, &
          this%density_upper_bound%x_d, this%entropy_lower_bound%x_d, &
          this%work_1%x_d, gamma, limit_entropy, n)
     if (this%limit_entropy) then
        call device_copy(this%sound_speed%x_d, this%entropy_lower_bound%x_d, n)
     end if
-    call cuda_euler_idp_bounds_edges(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
+    call gpu_euler_idp_bounds_edges(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          this%edge_left_d, this%edge_right_d, &
          this%edge_coefficient_d, this%edge_viscosity_d, &
          this%second_difference_weight_left_d, &
@@ -1001,13 +1001,13 @@ contains
     if (this%limit_entropy) call gs%op(this%entropy_lower_bound, GS_OP_MIN)
     if (this%relax_density_bounds) then
        call gs%op(this%work_1, GS_OP_ADD)
-       call cuda_euler_idp_relax_edges(this%edge_left_d, this%edge_right_d, &
+       call gpu_euler_idp_relax_edges(this%edge_left_d, this%edge_right_d, &
             this%edge_direction_d, this%graph%directional_degree(1)%x_d, &
             this%graph%directional_degree(2)%x_d, &
             this%graph%directional_degree(3)%x_d, this%work_1%x_d, &
             this%work_2%x_d, n, n_edges)
        call gs%op(this%work_2, GS_OP_ADD)
-       call cuda_euler_idp_relax_finalize(this%density_lower_bound%x_d, &
+       call gpu_euler_idp_relax_finalize(this%density_lower_bound%x_d, &
             this%density_upper_bound%x_d, this%work_2%x_d, &
             this%density_bound_relaxation_factor, &
             this%density_relaxation_mass, this%domain_volume, &
@@ -1016,11 +1016,11 @@ contains
     if (this%limit_entropy .and. this%relax_entropy_bounds) then
        call device_copy(this%work_1%x_d, &
             this%entropy_lower_bound%x_d, n)
-       call cuda_euler_idp_entropy_relax_edges(rho%x_d, m_x%x_d, &
+       call gpu_euler_idp_entropy_relax_edges(rho%x_d, m_x%x_d, &
             m_y%x_d, m_z%x_d, energy%x_d, this%edge_left_d, &
             this%edge_right_d, this%work_1%x_d, gamma, n_edges)
        call gs%op(this%work_1, GS_OP_MAX)
-       call cuda_euler_idp_entropy_relax_finalize( &
+       call gpu_euler_idp_entropy_relax_finalize( &
             this%entropy_lower_bound%x_d, this%work_1%x_d, &
             this%entropy_bound_relaxation_factor, &
             this%density_relaxation_mass, this%domain_volume, &
@@ -1035,7 +1035,7 @@ contains
     real(kind=rp) :: scale, violation
     real(kind=rp) :: summary(EULER_IDP_DEVICE_VALIDATION_SIZE)
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     call euler_idp_device_reduce_validation(this, gamma, summary)
     violation = max(summary(1), summary(2))
     scale = max(1.0_rp, summary(8))
@@ -1065,9 +1065,15 @@ contains
     logical :: refresh_
     integer :: i, n
 
-#ifndef HAVE_CUDA
-    call neko_error('Euler IDP boundary conditions require CUDA')
+#if !defined(HAVE_CUDA) && !defined(HAVE_HIP)
+    call neko_error('Euler IDP boundary conditions require CUDA or HIP')
 #else
+    if (density_bcs%size() .eq. 0 .and. velocity_bcs%size() .eq. 0 .and. &
+         pressure_bcs%size() .eq. 0) then
+       call euler_idp_device_primitives(this, rho, m_x, m_y, m_z, energy, &
+            gamma, internal_energy_floor, label)
+       return
+    end if
     refresh_ = .false.
     if (present(refresh)) refresh_ = refresh
     if (refresh_) then
@@ -1088,7 +1094,7 @@ contains
     else
        call density_bcs%apply(rho, strong = .true.)
     end if
-    call cuda_euler_idp_update_uvw(this%u%x_d, this%v%x_d, this%w%x_d, &
+    call gpu_euler_idp_update_uvw(this%u%x_d, this%v%x_d, this%w%x_d, &
          m_x%x_d, m_y%x_d, m_z%x_d, rho%x_d, n)
     if (present(time)) then
        call velocity_bcs%apply(this%u, this%v, this%w, time = time, &
@@ -1096,7 +1102,7 @@ contains
     else
        call velocity_bcs%apply(this%u, this%v, this%w, strong = .true.)
     end if
-    call cuda_euler_idp_update_momentum_pressure(m_x%x_d, m_y%x_d, &
+    call gpu_euler_idp_update_momentum_pressure(m_x%x_d, m_y%x_d, &
          m_z%x_d, this%p%x_d, this%internal_energy%x_d, this%u%x_d, &
          this%v%x_d, this%w%x_d, energy%x_d, rho%x_d, gamma, n)
     if (present(time)) then
@@ -1104,7 +1110,7 @@ contains
     else
        call pressure_bcs%apply(this%p, strong = .true.)
     end if
-    call cuda_euler_idp_update_energy(energy%x_d, this%p%x_d, &
+    call gpu_euler_idp_update_energy(energy%x_d, this%p%x_d, &
          this%internal_energy%x_d, gamma, internal_energy_floor, n)
     call euler_idp_device_primitives(this, rho, m_x, m_y, m_z, energy, &
          gamma, internal_energy_floor, label)
@@ -1137,7 +1143,7 @@ contains
     type(euler_idp_state_observation_t), intent(out) :: observation
     type(field_t), intent(in), optional :: graph_wave_speed
 
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     if (.not. primitives_valid) then
        call euler_idp_device_primitives(this, this%low_candidate(1), &
             this%low_candidate(2), this%low_candidate(3), &
@@ -1154,7 +1160,7 @@ contains
     observation%max_graph_wave_speed = this%max_graph_wave_speed
     observation%max_graph_rate = this%max_graph_rate
 #else
-    call neko_error('Euler IDP candidate observation requires CUDA')
+    call neko_error('Euler IDP candidate observation requires CUDA or HIP')
 #endif
   end subroutine euler_idp_device_observe_candidate
 
@@ -1168,7 +1174,7 @@ contains
     real(kind=rp) :: summary(EULER_IDP_DEVICE_VALIDATION_SIZE)
 
     if (this%diagnostics_level .eq. EULER_IDP_DIAGNOSTICS_OFF) return
-#ifdef HAVE_CUDA
+#if defined(HAVE_CUDA) || defined(HAVE_HIP)
     call euler_idp_device_reduce_validation(this, gamma, summary)
     diagnostics%max_density_lower_violation = summary(1)
     diagnostics%max_density_upper_violation = summary(2)
@@ -1195,7 +1201,7 @@ contains
     diagnostics%min_pressure = summary(6)
     diagnostics%min_specific_entropy = summary(7)
 #else
-    call neko_error('Euler IDP candidate validation requires CUDA')
+    call neko_error('Euler IDP candidate validation requires CUDA or HIP')
 #endif
   end subroutine euler_idp_device_validate_candidate
 

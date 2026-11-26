@@ -140,6 +140,30 @@ __global__ void entropy_visc_clamp_to_low_order_kernel(T * __restrict__ reg_coef
 }
 
 /**
+ * Kernel for converting entropy viscosity into a bounded blending fraction.
+ */
+template<typename T>
+__global__ void entropy_visc_fraction_kernel(T * __restrict__ fraction,
+                                             const T * __restrict__ reg_coeff,
+                                             const T * __restrict__ h,
+                                             const T * __restrict__ max_wave_speed,
+                                             const T c_avisc_low,
+                                             const int n) {
+  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  const int str = blockDim.x * gridDim.x;
+
+  for (int i = idx; i < n; i += str) {
+    const T low_order_visc = c_avisc_low * h[i] * max_wave_speed[i];
+    if (low_order_visc > T(0)) {
+      fraction[i] = min(T(1), max(T(0), reg_coeff[i] / low_order_visc));
+    }
+    else {
+      fraction[i] = T(0);
+    }
+  }
+}
+
+/**
  * Kernel for dividing by multiplicity (smoothing)
  */
 template<typename T>

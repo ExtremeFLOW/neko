@@ -85,6 +85,12 @@ contains
           v%x(i, 1, 1, 1) = -0.2_rp
           w%x(i, 1, 1, 1) = 0.1_rp
           p%x(i, 1, 1, 1) = 1.0_rp
+       case ('low_pressure_free_stream')
+          rho%x(i,1,1,1) = 1.0_rp
+          u%x(i,1,1,1) = 0.0_rp
+          v%x(i,1,1,1) = 0.0_rp
+          w%x(i,1,1,1) = 0.0_rp
+          p%x(i,1,1,1) = 8.0e-13_rp
        case ('smooth_transport')
           rho%x(i, 1, 1, 1) = 1.0_rp + &
                0.2_rp * sin(2.0_rp * pi * (x + y))
@@ -428,11 +434,11 @@ contains
   subroutine finalize(time)
     type(time_state_t), intent(in) :: time
     type(coef_t), pointer :: coef
-    type(field_t), pointer :: rho, m_x, m_y, m_z, energy
+    type(field_t), pointer :: rho, m_x, m_y, m_z, energy, temperature
     real(kind=rp), allocatable :: work(:)
     real(kind=rp) :: state(5), exact(5), final_integrals(5)
     real(kind=rp) :: errors(5), drifts(5)
-    real(kind=rp) :: minimum_density, minimum_internal_energy
+    real(kind=rp) :: minimum_density, minimum_internal_energy, temperature_error
     integer :: component, i, n
 
     coef => neko_user_access%case%fluid%c_Xh
@@ -440,6 +446,8 @@ contains
     m_x => neko_registry%get_field('m_x')
     m_y => neko_registry%get_field('m_y')
     m_z => neko_registry%get_field('m_z')
+    temperature => neko_registry%get_field('temperature')
+    call temperature%copy_from(DEVICE_TO_HOST, sync = .false.)
     energy => neko_registry%get_field('E')
     call rho%copy_from(DEVICE_TO_HOST, sync = .false.)
     call m_x%copy_from(DEVICE_TO_HOST, sync = .false.)
@@ -466,9 +474,14 @@ contains
             m_z%x(i, 1, 1, 1)**2) / rho%x(i, 1, 1, 1)
     end do
     minimum_internal_energy = glmin(work, n)
+    do i = 1, n
+       work(i) = abs(temperature%x(i,1,1,1) - work(i) / rho%x(i,1,1,1))
+    end do
+    temperature_error = glmax(work, n)
 
     errors = 0.0_rp
     if (trim(problem) .eq. 'free_stream' .or. &
+         trim(problem) .eq. 'low_pressure_free_stream' .or. &
          trim(problem) .eq. 'smooth_transport') then
        do component = 1, 5
           do i = 1, n
@@ -491,6 +504,7 @@ contains
             trim(problem), polynomial_order, pe_size, time%tstep, &
             stage_count, all_stages_finite
        write(*, '(A,5(1X,ES25.16E3))') 'EULER_IDP_ERROR', errors
+       write(*, '(A,1X,ES25.16E3)') 'EULER_IDP_TEMPERATURE_ERROR', temperature_error
        write(*, '(A,5(1X,ES25.16E3))') 'EULER_IDP_DRIFT', drifts
        write(*, '(A,3(1X,ES25.16E3))') 'EULER_IDP_LIMITER', &
             minimum_limiter, maximum_limited_fraction, maximum_graph_cfl
@@ -530,6 +544,10 @@ contains
     if (trim(problem) .eq. 'free_stream') then
        density = 1.0_rp
        velocity = [0.7_rp, -0.2_rp, 0.1_rp]
+    else if (trim(problem) .eq. 'low_pressure_free_stream') then
+       density = 1.0_rp
+       velocity = 0.0_rp
+       pressure = 8.0e-13_rp
     else
        density = 1.0_rp + 0.2_rp * sin(2.0_rp * pi * &
             (x + y - 2.0_rp * time))

@@ -538,10 +538,15 @@ contains
 
     call this%euler_idp_solver%copy_primitives(this%u, this%v, this%w, &
          this%p)
-    do concurrent (i = 1:n)
-       this%temperature%x(i,1,1,1) = this%p%x(i,1,1,1) / &
-            (this%rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
-    end do
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call compressible_ops_device_update_temperature( &
+            this%temperature%x_d, this%p%x_d, this%rho%x_d, this%gamma, n)
+    else
+       do concurrent (i = 1:n)
+          this%temperature%x(i,1,1,1) = this%p%x(i,1,1,1) / &
+               (this%rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
+       end do
+    end if
     select type (reg => this%regularization)
     type is (entropy_viscosity_t)
        call reg%update_lag()

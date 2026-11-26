@@ -261,8 +261,10 @@ contains
     !GCC$ ivdep
     !$omp parallel do simd private(roundoff_guard)
     do i = 1, n
-       ! Ensure pressure is positive
-       p(i) = max(p(i), 1.0e-12_rp)
+       if (.not. enforce_internal_energy_floor .or. &
+            p(i) * inv_gamma_m1 .le. internal_energy_floor_) then
+          p(i) = max(p(i), 1.0e-12_rp)
+       end if
        if (enforce_internal_energy_floor .and. &
             p(i) * inv_gamma_m1 .le. internal_energy_floor_) then
           roundoff_guard = 32.0_rp * epsilon(1.0_rp) * &

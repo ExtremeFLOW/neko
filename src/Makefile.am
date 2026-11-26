@@ -548,6 +548,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip\
 	fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip\
 	fluid/bcknd/device/hip/compressible_ops_update.hip\
+	fluid/bcknd/device/hip/euler_idp.hip\
 	fluid/regularization/bcknd/device/hip/entropy_viscosity.hip\
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
@@ -982,6 +983,7 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
+	fluid/bcknd/device/euler_idp_kernel.h\
     ale/bcknd/device/cuda/ale_kinematics_kernel.h\
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
