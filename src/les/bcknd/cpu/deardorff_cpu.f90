@@ -157,9 +157,9 @@ contains
           TKE%x(i,1,1,1) = NEKO_EPS
        end if
 
-       N2 = (dTdx%x(i,1,1,1) * g(1) + &
-            dTdy%x(i,1,1,1) * g(2) + &
-            dTdz%x(i,1,1,1) * g(3)) / T0
+       N2 = - (dTdx%x(i,1,1,1) * g(1) + &
+               dTdy%x(i,1,1,1) * g(2) + &
+               dTdz%x(i,1,1,1) * g(3)) / T0
        if (N2 .gt. 0.0_rp) then
           l = 0.76_rp * sqrt(TKE%x(i,1,1,1) / N2)
           l = min(l, delta%x(i,1,1,1))
@@ -194,9 +194,7 @@ contains
             + s33*a33%x(i,1,1,1))
 
        ! Buoyancy term
-       buoyancy = -(g(1) * dTdx%x(i,1,1,1) + &
-            g(2) * dTdy%x(i,1,1,1) + &
-            g(3) * dTdz%x(i,1,1,1)) / T0 * temperature_alphat%x(i,1,1,1)
+       buoyancy = N2 * temperature_alphat%x(i,1,1,1)
 
        dissipation = -(0.19_rp + 0.74_rp * l/ delta%x(i,1,1,1)) &
             * sqrt(TKE%x(i,1,1,1)*TKE%x(i,1,1,1)*TKE%x(i,1,1,1)) &

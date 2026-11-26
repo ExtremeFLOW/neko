@@ -94,7 +94,7 @@ __global__ void deardorff_nut_compute(T *__restrict__ TKE,
     }
     const T TKE_r = TKE[i];
 
-    N2 = (dTdx_r * g1 + dTdy_r * g2 + dTdz_r * g3) / T0;
+    N2 = - (dTdx_r * g1 + dTdy_r * g2 + dTdz_r * g3) / T0;
     if (N2 > 0.0) {
       l = 0.76 * sqrt(TKE_r / N2);
       l = min(l, delta_r);
@@ -117,9 +117,7 @@ __global__ void deardorff_nut_compute(T *__restrict__ TKE,
     shear = nut[i] * (s11*a11_r + s12*a12_r + s13*a13_r
                     + s12*a21_r + s22*a22_r + s23*a23_r
                     + s13*a31_r + s23*a32_r + s33*a33_r);
-    buoyancy = - (dTdx_r * g1 + 
-                  dTdy_r * g2 + 
-                  dTdz_r * g3) * temperature_alphat[i] / T0;
+    buoyancy = N2 * temperature_alphat[i];
     dissipation = - (0.19 + 0.74 * l/delta_r) * sqrt(TKE_r*TKE_r*TKE_r) / l;
 
     TKE_source[i] = shear + buoyancy + dissipation;

@@ -167,10 +167,10 @@ kernel void vreman_nut_compute_aniso_kernel(
 /*
  * Richardson-number correction of Lilly (1962), Ri = N^2 / |S|^2, for the
  * Vreman model. Gradients are gather-scatter sums, scaled by mult.
- * gdT is the interface-averaged g . grad(T), g pointing upwards
- * (reversed from the case-file input at init).
+ * gdT is the interface-averaged -g*grad(T), with g pointing downwards
+ * (hence the minus sign), so Ri is single-valued.
  */
-kernel void vreman_stability_kernel(
+kernel void vreman_buoyancy_kernel(
                                       device const float *a11 [[ buffer(0) ]],
                                       device const float *a12 [[ buffer(1) ]],
                                       device const float *a13 [[ buffer(2) ]],
@@ -192,7 +192,7 @@ kernel void vreman_stability_kernel(
 
   const int i = (int) idx;
   const float m = mult[i];
-  const float N2 = gdT[i] / ref_temp;
+  const float N2 = - gdT[i] / ref_temp;
 
   // |S|^2 = 2 S_ij S_ij of the averaged gradient (sums, hence m*m)
   const float s12 = a12[i] + a21[i];

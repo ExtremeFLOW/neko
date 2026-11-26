@@ -794,15 +794,10 @@ keywords:
       isotropic `les_delta` only for elements with straight, parallel edges.
     - `buoyancy_correction`: Whether or not to apply the stability correction
       of Lilly (1962) to the eddy viscosity, `nut * sqrt(1 - Ri / Ri_c)` for
-      `Ri <= Ri_c` and (almost) zero above, with the local Richardson number
+      `Ri <= Ri_c` and zero above, with the local Richardson number
       `Ri = N^2 / |S|^2`. Here `N^2` is the squared Brunt-Vaisala frequency and
       `|S|^2 = 2 S_ij S_ij` the squared magnitude of the resolved strain rate,
       both averaged over the elements sharing a node. Defaults to `false`.
-      Note that `|S|^2` contains all strain components, not only the vertical
-      shear `(du/dz)^2 + (dv/dz)^2` used by Huusko et al. (2025), so the
-      correction is weaker in stable and milder in unstable stratification.
-      With the vertical shear, the enhancement for `Ri < 0` is unbounded where
-      the shear vanishes, which can make the simulation unstable.
       - `true`: Add a buoyancy correction according to the following parameters:
         - `scalar_field`: Name of the scalar field based on which the buoyancy
           effect is computed.
@@ -810,8 +805,7 @@ keywords:
         - `reference_temperature`: The reference temperature for computation of
           the Richardson number.
         - `g`: The gravity vector, pointing in the direction of gravity, e.g.
-          `[0, 0, -9.81]` (the model reverses it internally, as the Deardorff
-          model does).
+          `[0, 0, -9.81]`.
       - `false`: Compute the standard Vreman eddy viscosity.
     - With `buoyancy_correction`, the scalar eddy diffusivity then follows from the (corrected) eddy viscosity
       through a constant turbulent Prandtl number, i.e. `"alphat":
@@ -829,7 +823,7 @@ keywords:
     - `c_k`: The model constant, defaults to 0.1.
     - `T0`: The reference temperature.
     - `g`: The gravity vector, pointing in the direction of gravity, e.g.
-      `[0, 0, -9.81]` (the model reverses it internally).
+      `[0, 0, -9.81]`.
     - `temperature_field`: The field name of the temperature field,
       defaults to `temperature`.
     - `TKE_field`: The field name of the turbulent kinetic energy (TKE) field,

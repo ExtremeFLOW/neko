@@ -60,7 +60,7 @@ contains
   !! treatment.
   !! @param ri_c Critical Richardson number.
   !! @param ref_temp Reference temperature for Richardson number.
-  !! @param g The gravity vector, pointing upwards (reversed at init).
+  !! @param g The gravity vector.
   !! @param if_aniso Whether to use the anisotropic filter-width tensor.
   !! @param g11, g12, g13, g22, g23, g33 The filter-width tensor.
   subroutine vreman_compute_cpu(if_ext, t, tstep, coef, nut, delta, c, &
@@ -228,9 +228,9 @@ contains
           do i = 1, coef%Xh%lxyz
              m = coef%mult(i,1,1,e)
 
-             ! Squared Brunt-Vaisala frequency, positive for stable
-             ! stratification since g points upwards here.
-             N2 = dTdx%x(i,1,1,e) / ref_temp
+             ! Squared Brunt-Vaisala frequency, the minus is necessary
+             ! because g is negative in the input.
+             N2 = - dTdx%x(i,1,1,e) / ref_temp
 
              ! Element-local eddy viscosity: the summed gradients times
              ! mult give the element value, see above

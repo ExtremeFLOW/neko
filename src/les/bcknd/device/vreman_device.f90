@@ -43,7 +43,7 @@ module vreman_device
   use device, only : glb_cmd_event
   use device_math, only : device_col2, device_cmult2, device_add2s2
   use device_vreman_nut, only : device_vreman_nut_compute, &
-       device_vreman_nut_compute_aniso, device_vreman_stability
+       device_vreman_nut_compute_aniso, device_vreman_buoyancy
 
   implicit none
   private
@@ -173,7 +173,7 @@ contains
        call coef%gs_h%op(dTdx, GS_OP_ADD)
        call device_col2(dTdx%x_d, coef%mult_d, dTdx%size())
 
-       call device_vreman_stability(a11%x_d, a12%x_d, a13%x_d, &
+       call device_vreman_buoyancy(a11%x_d, a12%x_d, a13%x_d, &
             a21%x_d, a22%x_d, a23%x_d, &
             a31%x_d, a32%x_d, a33%x_d, &
             dTdx%x_d, nut%x_d, coef%mult_d, &

@@ -131,7 +131,7 @@ void metal_vreman_stability(void *a11, void *a12, void *a13,
   const real eps_r = *eps;
   const int n_r = *n;
 
-  neko_metal_dispatch_1d(neko_metal_pipeline(@"vreman_stability_kernel"),
+  neko_metal_dispatch_1d(neko_metal_pipeline(@"vreman_buoyancy_kernel"),
     ^(id<MTLComputeCommandEncoder> enc) {
       [enc setBuffer:(__bridge id<MTLBuffer>) a11 offset:0 atIndex:0];
       [enc setBuffer:(__bridge id<MTLBuffer>) a12 offset:0 atIndex:1];

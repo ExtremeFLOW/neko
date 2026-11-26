@@ -90,7 +90,7 @@ __kernel void deardorff_nut_compute_kernel(__global real * __restrict__ TKE,
     }
     const real TKE_r = TKE[i];
 
-    const real N2 = (dTdx_r * g1 + dTdy_r * g2 + dTdz_r * g3) / T0;
+    const real N2 = - (dTdx_r * g1 + dTdy_r * g2 + dTdz_r * g3) / T0;
     real l;
     if (N2 > zero) {
       l = (real) 0.76 * sqrt(TKE_r / N2);
@@ -116,9 +116,7 @@ __kernel void deardorff_nut_compute_kernel(__global real * __restrict__ TKE,
     const real shear = nut_r * (s11 * a11_r + s12 * a12_r + s13 * a13_r
                                 + s12 * a21_r + s22 * a22_r + s23 * a23_r
                                 + s13 * a31_r + s23 * a32_r + s33 * a33_r);
-    const real buoyancy = - (dTdx_r * g1 +
-                             dTdy_r * g2 +
-                             dTdz_r * g3) * temperature_alphat_r / T0;
+    const real buoyancy = N2 * temperature_alphat_r;
     const real dissipation = - ((real) 0.19 + (real) 0.74 * l / delta_r)
       * sqrt(TKE_r * TKE_r * TKE_r) / l;
 

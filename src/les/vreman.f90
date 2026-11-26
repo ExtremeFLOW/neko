@@ -182,9 +182,7 @@ contains
     this%if_corr = if_corr
     this%ri_c = ri_c
     this%ref_temp = ref_temp
-    ! Reversed so that g points upwards inside the model, as in the
-    ! Deardorff model; the case file gives g in the direction of gravity.
-    this%g = -g
+    this%g = g
     this%scalar_name = scalar_name
 
     this%if_aniso = .false.

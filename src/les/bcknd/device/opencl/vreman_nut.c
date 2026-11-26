@@ -148,7 +148,7 @@ void opencl_vreman_nut_compute_aniso(void *a11, void *a12, void *a13,
  * Fortran wrapper for the OpenCL Vreman stability kernel
  * @note @a gdT is the interface-averaged g . grad(T), g pointing upwards.
  */
-void opencl_vreman_stability(void *a11, void *a12, void *a13,
+void opencl_vreman_buoyancy(void *a11, void *a12, void *a13,
                              void *a21, void *a22, void *a23,
                              void *a31, void *a32, void *a33,
                              void *gdT, void *nut, void *mult,
@@ -160,7 +160,7 @@ void opencl_vreman_stability(void *a11, void *a12, void *a13,
   }
 
   cl_kernel kernel = clCreateKernel(vreman_nut_program,
-                                    "vreman_stability_kernel", &err);
+                                    "vreman_buoyancy_kernel", &err);
   CL_CHECK(err);
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &a11));
