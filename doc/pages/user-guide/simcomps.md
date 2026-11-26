@@ -724,7 +724,7 @@ keywords:
   - `vreman`: The Vreman model. Configured by the following additional keywords:
     - `c`: The model constant, defaults to 0.07, which corresponds to the
       Smagorinsky constant 0.17 through `c = 2.5 c_s^2` (Vreman 2004).
-    - `buoyancy_correction`: Whether or not to apply the stability correction
+    - `buoyancy_correction`: Whether or not to apply the buoyancy correction
       of Lilly (1962) to the eddy viscosity, `nut * sqrt(1 - Ri / Ri_c)` for
       `Ri <= Ri_c` and (almost) zero above, with the local Richardson number
       `Ri = N^2 / |S|^2`. Here `N^2` is the squared Brunt-Vaisala frequency and
