@@ -54,7 +54,6 @@ module lpt_output
      integer :: snapshots_per_file = 0
      integer :: snapshots_in_file = 0
      integer :: output_file_index = 1
-     integer :: hdf5_output_count = 0
      integer :: n_data = 0
    contains
      procedure, pass(this) :: init => lpt_output_init
@@ -178,7 +177,6 @@ contains
        call this%output_file%init(path, overwrite = .false.)
     end if
     this%snapshots_in_file = n_snaps
-    this%hdf5_output_count = n_snaps
 
     write(n_str, '(I0)') n_snaps
     call neko_log%message("lpt output: continuing " // trim(path) // &
@@ -431,8 +429,6 @@ contains
     class default
        call neko_error("lpt internal error: expected hdf5_file_t")
     end select
-
-    this%hdf5_output_count = 0
   end subroutine lpt_output_init_hdf5
 
   !> Write one trajectory snapshot.
@@ -499,7 +495,8 @@ contains
     type is (hdf5_file_t)
        call ft%open("w")
        call ft%set_active_group("lpt")
-       out_int = this%hdf5_output_count + 1
+       ! Called before the snapshot is counted in `snapshots_in_file`.
+       out_int = this%snapshots_in_file + 1
        call ft%write_attribute("NSteps", out_int)
        call ft%write_dataset(tsteps)
        call ft%write_dataset(t)
@@ -515,7 +512,6 @@ contains
        call neko_error("lpt internal error: expected hdf5_file_t")
     end select
 
-    this%hdf5_output_count = this%hdf5_output_count + 1
     call tsteps%free()
     call t%free()
     call ids%free()
@@ -600,7 +596,6 @@ contains
     this%snapshots_per_file = 0
     this%snapshots_in_file = 0
     this%output_file_index = 0
-    this%hdf5_output_count = 0
     this%n_data = 0
   end subroutine lpt_output_free
 
