@@ -726,7 +726,7 @@ keywords:
       Smagorinsky constant 0.17 through `c = 2.5 c_s^2` (Vreman 2004).
     - `buoyancy_correction`: Whether or not to apply the buoyancy correction
       of Lilly (1962) to the eddy viscosity, `nut * sqrt(1 - Ri / Ri_c)` for
-      `Ri <= Ri_c` and (almost) zero above, with the local Richardson number
+      `Ri <= Ri_c` and zero above, with the local Richardson number
       `Ri = N^2 / |S|^2`. Here `N^2` is the squared Brunt-Vaisala frequency and
       `|S|^2 = 2 S_ij S_ij` the squared magnitude of the resolved strain rate,
       both averaged over the elements sharing a node. Defaults to `false`.
