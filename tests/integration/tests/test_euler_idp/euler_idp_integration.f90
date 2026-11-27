@@ -63,7 +63,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
     type(field_t), pointer :: rho, u, v, w, p
-    real(kind=rp) :: x, y
+    real(kind=rp) :: x, y, outflow_pressure
     integer :: i
 
     if (trim(scheme_name) .ne. 'fluid') return
@@ -74,6 +74,9 @@ contains
     w => fields%get_by_name('w')
     p => fields%get_by_name('p')
 
+    ! Resolve thermal energy above the O(1) kinetic energy in the moving gas.
+    outflow_pressure = max(1.0e-12_rp, 32.0_rp * epsilon(1.0_rp), &
+         (gamma_ref - 1.0_rp) * energy_floor)
     do i = 1, rho%size()
        x = rho%dof%x%x(i, 1, 1, 1)
        y = rho%dof%y%x(i, 1, 1, 1)
@@ -134,24 +137,20 @@ contains
           u%x(i, 1, 1, 1) = 0.6_rp
           v%x(i, 1, 1, 1) = -0.4_rp
           w%x(i, 1, 1, 1) = 0.2_rp
-          p%x(i, 1, 1, 1) = max(1.0e-12_rp, &
-               (gamma_ref - 1.0_rp) * energy_floor)
+          p%x(i, 1, 1, 1) = outflow_pressure
        case ('boundary_outflow_floor')
           rho%x(i, 1, 1, 1) = 1.25_rp
           u%x(i, 1, 1, 1) = 0.6_rp
           v%x(i, 1, 1, 1) = -0.4_rp
           w%x(i, 1, 1, 1) = 0.2_rp
-          p%x(i, 1, 1, 1) = &
-               2.0_rp * (gamma_ref - 1.0_rp) * energy_floor
+          p%x(i, 1, 1, 1) = 2.0_rp * outflow_pressure
        case ('boundary_mixed')
           rho%x(i, 1, 1, 1) = 1.25_rp + 0.15_rp * (1.0_rp - x)
           u%x(i, 1, 1, 1) = 0.6_rp + 0.2_rp * (1.0_rp - x)
           v%x(i, 1, 1, 1) = 0.0_rp
           w%x(i, 1, 1, 1) = 0.2_rp - 0.1_rp * (1.0_rp - x)
-          p%x(i, 1, 1, 1) = max(1.0e-12_rp, &
-               (gamma_ref - 1.0_rp) * energy_floor) + &
-               (1.0_rp - max(1.0e-12_rp, &
-               (gamma_ref - 1.0_rp) * energy_floor)) * (1.0_rp - x)
+          p%x(i, 1, 1, 1) = outflow_pressure + &
+               (1.0_rp - outflow_pressure) * (1.0_rp - x)
        case default
           call neko_error('Unknown Euler IDP integration-test problem')
        end select

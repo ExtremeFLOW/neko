@@ -209,6 +209,9 @@ def _case(
             },
         },
     }
+    if conftest.RP == "sp":
+        idp = case_data["case"]["numerics"]["euler_idp"]
+        idp["correction_tolerance"] = float(8 * np.finfo(np.float32).eps)
     if boundary_conditions is not None:
         case_data["case"]["fluid"]["boundary_conditions"] = (
             boundary_conditions
@@ -462,6 +465,11 @@ def _assert_rank_invariant(runs, keys):
         if key == "limiter_stats":
             relative_tolerance = tolerance["stat_rtol"]
             absolute_tolerance = tolerance["stat_atol"]
+        # Field roundoff accumulates over the Runge-Kutta stages.
+        if conftest.RP == "sp" and key == "errors":
+            absolute_tolerance += runs[1]["stage_count"] * np.finfo(np.float32).eps
+        if conftest.RP == "sp" and key == "limiter":
+            absolute_tolerance = np.sqrt(np.finfo(np.float32).eps)
         np.testing.assert_allclose(
             runs[1][key],
             runs[2][key],
@@ -476,6 +484,8 @@ def test_idp_diagnostics_levels(
     launcher_script, log_file, euler_idp_runtime, time_order
 ):
     """Diagnostics modes preserve the solution and expose only requested data."""
+    dtype = np.float32 if conftest.RP == "sp" else np.float64
+    sentinel = float(np.finfo(dtype).max)
     for diagnostics_level in ("off", "safety", "full"):
         for mpi_ranks in _rank_sequence():
             summary = _run_case(
@@ -494,9 +504,9 @@ def test_idp_diagnostics_levels(
             )
             assert np.min(summary["state"][[2, 3]]) > 0.0
             if diagnostics_level == "off":
-                assert summary["state"][0] > 1.0e100
+                assert summary["state"][0] == sentinel
             else:
-                assert 0.0 < summary["state"][0] < 1.0e100
+                assert 0.0 < summary["state"][0] < sentinel
             if diagnostics_level == "full":
                 assert summary["limiter"][1] > 0.0
             else:

@@ -1055,7 +1055,7 @@ __global__ void update_energy_kernel(T *energy, T *p, const T *kin, T gamma,
        i += blockDim.x*gridDim.x) {
     if (p[i]*inv <= floor) {
       p[i] = rmax(p[i], T(1e-12));
-      if (p[i]*inv <= floor) {
+      if (p[i]*inv <= floor + real_epsilon<T>()*fabs(kin[i])) {
         const T guard = T(32)*real_epsilon<T>()*
           rmax(T(1), rmax(fabs(kin[i]), floor));
         p[i] = (gamma - T(1))*(floor + guard);
