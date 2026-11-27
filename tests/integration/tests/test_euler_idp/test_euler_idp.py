@@ -223,6 +223,7 @@ def _parse_summary(log_path):
     """Parse the rank-zero summary emitted by the user file."""
     tags = {
         "EULER_IDP_RESULT": None,
+        "EULER_IDP_INITIAL_INTEGRALS": None,
         "EULER_IDP_ERROR": None,
         "EULER_IDP_DRIFT": None,
         "EULER_IDP_TEMPERATURE_ERROR": None,
@@ -253,6 +254,7 @@ def _parse_summary(log_path):
         "steps": int(result[3]),
         "stage_count": int(result[4]),
         "finite": result[5] == "T",
+        "initial_integrals": np.asarray(tags["EULER_IDP_INITIAL_INTEGRALS"], dtype=float),
         "errors": np.asarray(tags["EULER_IDP_ERROR"], dtype=float),
         "temperature_error": float(tags["EULER_IDP_TEMPERATURE_ERROR"][0]),
         "drifts": np.asarray(tags["EULER_IDP_DRIFT"], dtype=float),
@@ -465,14 +467,16 @@ def _assert_rank_invariant(runs, keys):
         if key == "limiter_stats":
             relative_tolerance = tolerance["stat_rtol"]
             absolute_tolerance = tolerance["stat_atol"]
-        # Field roundoff accumulates over the Runge-Kutta stages.
+        scale = 1.0
         if conftest.RP == "sp" and key == "errors":
+            # On the unit box the initial integrals are the mean conserved fields.
+            scale = np.maximum(1.0, np.abs(runs[1]["initial_integrals"]))
             absolute_tolerance += runs[1]["stage_count"] * np.finfo(np.float32).eps
         if conftest.RP == "sp" and key == "limiter":
             absolute_tolerance = np.sqrt(np.finfo(np.float32).eps)
         np.testing.assert_allclose(
-            runs[1][key],
-            runs[2][key],
+            runs[1][key] / scale,
+            runs[2][key] / scale,
             rtol=relative_tolerance,
             atol=absolute_tolerance,
             err_msg=f"1-rank and 2-rank {key} diagnostics differ",

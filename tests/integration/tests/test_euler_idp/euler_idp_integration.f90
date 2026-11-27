@@ -503,6 +503,8 @@ contains
        write(*, '(A,1X,A,4(1X,I0),1X,L1)') 'EULER_IDP_RESULT', &
             trim(problem), polynomial_order, pe_size, time%tstep, &
             stage_count, all_stages_finite
+       write(*, '(A,5(1X,ES25.16E3))') 'EULER_IDP_INITIAL_INTEGRALS', &
+            initial_integrals
        write(*, '(A,5(1X,ES25.16E3))') 'EULER_IDP_ERROR', errors
        write(*, '(A,1X,ES25.16E3)') 'EULER_IDP_TEMPERATURE_ERROR', &
             temperature_error
