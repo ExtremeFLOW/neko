@@ -249,7 +249,7 @@ contains
 
   !> Direct incidence assembly must equal the limiter's convex endpoint form.
   @test(npes=[1])
-  subroutine test_direct_correction_matches_convex_form(this)
+  subroutine test_direct_and_convex_correction(this)
     class(test_euler_gll_graph), intent(inout) :: this
     type(mesh_t) :: msh
     type(space_t) :: Xh
@@ -299,12 +299,12 @@ contains
 
     deallocate(edge_flux)
     call free_warped_hex_fixture(graph, coef, gs, dof, Xh, msh)
-  end subroutine test_direct_correction_matches_convex_form
+  end subroutine test_direct_and_convex_correction
 
   !> The geometry-aware graph second difference must annihilate affine data
   !! despite the nonuniform spacing of the GLL nodes.
   @test(npes=[1])
-  subroutine test_gll_second_difference_annihilates_affine(this)
+  subroutine test_affine_gll_second_difference(this)
     class(test_euler_gll_graph), intent(inout) :: this
     type(mesh_t) :: msh
     type(space_t) :: Xh
@@ -343,7 +343,7 @@ contains
     @assertEqual(0.0_rp, difference, tolerance=tolerance)
 
     call free_warped_hex_fixture(graph, coef, gs, dof, Xh, msh)
-  end subroutine test_gll_second_difference_annihilates_affine
+  end subroutine test_affine_gll_second_difference
 
   !> The CPU backend must apply the three SSPRK convex combinations to every
   !! conserved component without altering the saved start-of-step state.

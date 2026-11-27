@@ -553,6 +553,7 @@ contains
     type(slip_t) :: boundary
     integer, parameter :: n = 2
     real(kind=rp) :: x(n), y(n), z(n)
+    real(kind=rp), parameter :: tolerance = 4.0_rp * epsilon(1.0_rp)
     real(kind=rp) :: inv_sqrt_two
     real(kind=rp) :: normal_velocity
 
@@ -571,12 +572,12 @@ contains
     z = [3.0_rp, 6.0_rp]
     call boundary%apply_vector(x, y, z, n, strong = .true.)
 
-    @assertEqual(1.0_rp, x(1), tolerance = 1.0e-12_rp)
-    @assertEqual(-1.0_rp, y(1), tolerance = 1.0e-12_rp)
+    @assertEqual(1.0_rp, x(1), tolerance=tolerance)
+    @assertEqual(-1.0_rp, y(1), tolerance=tolerance)
     @assertEqual(3.0_rp, z(1), tolerance = 1.0e-12_rp)
     normal_velocity = x(1) * boundary%nx%x(1) + &
          y(1) * boundary%ny%x(1) + z(1) * boundary%nz%x(1)
-    @assertEqual(0.0_rp, normal_velocity, tolerance = 1.0e-12_rp)
+    @assertEqual(0.0_rp, normal_velocity, tolerance=tolerance)
     @assertEqual(4.0_rp, x(2), tolerance = 1.0e-12_rp)
     @assertEqual(5.0_rp, y(2), tolerance = 1.0e-12_rp)
     @assertEqual(6.0_rp, z(2), tolerance = 1.0e-12_rp)
