@@ -130,6 +130,7 @@ pytest = "*"
 numpy = "*"
 json5 = "*"
 findent = "*"
+json5 = "*"
 
 [feature.python.pypi-dependencies]
 flinter = "==0.4.0"

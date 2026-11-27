@@ -1,0 +1,55 @@
+USEMPI=YES
+ifneq ("$(wildcard @PFUNIT_DIR@/include/PFUNIT.mk)", "")
+include @PFUNIT_DIR@/include/PFUNIT.mk
+endif
+FFLAGS += $(PFUNIT_EXTRA_FFLAGS) @NEKO_PKG_FCFLAGS@ -I@top_builddir@/src
+FC = @FC@
+
+# Depend on the library so the test objects follow any change to Neko.
+NEKO_LIB := $(wildcard @top_builddir@/src/libneko.la)
+
+%.o : %.F90 $(NEKO_LIB)
+	$(FC) -c $(FFLAGS) $<
+
+# Compile private copies of the shared fixtures, so that their module files
+# land in this directory regardless of which suite was built first.
+mesh_fixture.o : ../fixtures/mesh_fixture.f90 $(NEKO_LIB)
+	$(FC) -c $(FFLAGS) -o mesh_fixture.o $<
+mesh_fixture.mod : mesh_fixture.o
+
+error_redirection.o : ../fixtures/error_redirection.f90 $(NEKO_LIB)
+	$(FC) -c $(FFLAGS) -o error_redirection.o $<
+error_redirection.mod : error_redirection.o
+
+
+check: map_1d_suite
+
+# Regenerate this Makefile from Makefile.in via config.status
+# whenever it changes.
+SUBDIR := $(patsubst $(abspath @top_builddir@)/%,%,$(CURDIR))
+
+Makefile: Makefile.in @top_builddir@/config.status
+	cd @top_builddir@ && $(SHELL) ./config.status $(SUBDIR)/Makefile
+
+map_1d_suite_TESTS := test_map_1d.pf
+map_1d_suite_OTHER_LIBRARIES = mesh_fixture.o error_redirection.o \
+    -L@top_builddir@/src/.libs -lneko @LDFLAGS@ @LIBS@
+# Redirect errors and warnings to pFUnit exceptions before the tests run.
+map_1d_suite_EXTRA_USE := error_redirection
+map_1d_suite_EXTRA_INITIALIZE := redirect_errors
+$(eval $(call make_pfunit_test,map_1d_suite))
+map_1d_suite.inc: Makefile
+map_1d_suite_driver.o: error_redirection.o
+test_map_1d.o: mesh_fixture.o error_redirection.o
+map_1d_suite: mesh_fixture.o error_redirection.o
+
+distclean:
+clean:
+	$(RM) *.o *.mod *.a *.inc *.F90 map_1d_suite
+
+
+
+all:
+html:
+install:
+distdir:

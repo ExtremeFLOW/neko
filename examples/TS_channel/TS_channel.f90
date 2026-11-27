@@ -42,6 +42,7 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
     integer :: i, j, i_y
+    integer :: file_unit
     real(kind=rp) :: uvw(3)
 
     real(kind=dp), dimension(num_rows, num_columns) :: data_mode_cheb_2D
@@ -59,11 +60,15 @@ contains
     type(map_1d_t) :: map_1d
     type(gs_t) :: gs_h
     type(coef_t) :: coef
-    type (field_t), pointer :: u, v, w
+    type (field_t), pointer :: u, v, w, p
 
     u => fields%items(1)%ptr
     v => fields%items(2)%ptr
     w => fields%items(3)%ptr
+    p => fields%items(4)%ptr
+
+    ! Initialize pressure field to zero
+    call field_rzero(p)
 
     !Init these only for the initial condition...
     call gs_h%init(u%dof)
@@ -76,17 +81,17 @@ contains
     allocate(TS2D_GLL(num_ygll, num_columns-1))
     allocate(TS3D_GLL(num_ygll, num_columns-1))
     ! data reading
-    open(unit = 10, file = 'TSwave_cheb_2D.bin', form = 'unformatted', &
-         access = 'stream')
-    read(10) data_mode_cheb_2D
-    close(10)
+    open(newunit = file_unit, file = 'TSwave_cheb_2D.bin', &
+         form = 'unformatted', access = 'stream')
+    read(file_unit) data_mode_cheb_2D
+    close(file_unit)
     y_GLC = data_mode_cheb_2D(:,1)
     TS2D_GLC = data_mode_cheb_2D(:,2:num_columns)
 
-    open(unit = 10, file = 'TSwave_cheb_3D.bin', form = 'unformatted', &
-         access = 'stream')
-    read(10) data_mode_cheb_3D
-    close(10)
+    open(newunit = file_unit, file = 'TSwave_cheb_3D.bin', &
+         form = 'unformatted', access = 'stream')
+    read(file_unit) data_mode_cheb_3D
+    close(file_unit)
     TS3D_GLC = data_mode_cheb_3D(:,2:num_columns)
 
     ! alternative of point zone
@@ -98,8 +103,8 @@ contains
     end do
 
     do i = 1, u%dof%size()
-       if (.not. in_array(u%dof%y(i,1,1,1), y_GLL)) then
-          y_GLL(i_y) = u%dof%y(i,1,1,1)
+       if (.not. in_array(u%dof%y%x(i,1,1,1), y_GLL)) then
+          y_GLL(i_y) = u%dof%y%x(i,1,1,1)
           i_y = i_y +1
        end if
     end do
@@ -112,23 +117,29 @@ contains
     end do
 
     do i = 1, u%dof%size()
-       ur_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,1))
-       ui_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,2))
-       vr_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,3))
-       vi_2D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS2D_GLL(:,4))
-       ur_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,1))
-       ui_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,2))
-       vr_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,3))
-       vi_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,4))
-       wr_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,5))
-       wi_3D = pick_pt(u%dof%y(i,1,1,1), y_GLL, TS3D_GLL(:,6))
-       uvw = channel_ic(u%dof%x(i,1,1,1), u%dof%y(i,1,1,1), u%dof%z(i,1,1,1), &
+       ur_2D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS2D_GLL(:,1))
+       ui_2D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS2D_GLL(:,2))
+       vr_2D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS2D_GLL(:,3))
+       vi_2D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS2D_GLL(:,4))
+       ur_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,1))
+       ui_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,2))
+       vr_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,3))
+       vi_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,4))
+       wr_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,5))
+       wi_3D = pick_pt(u%dof%y%x(i,1,1,1), y_GLL, TS3D_GLL(:,6))
+       uvw = channel_ic(u%dof%x%x(i,1,1,1), u%dof%y%x(i,1,1,1), u%dof%z%x(i,1,1,1), &
             ur_2D, ui_2D, vr_2D, vi_2D, &
             ur_3D, ui_3D, vr_3D, vi_3D, wr_3D, wi_3D)
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
 
   end subroutine initial_conditions
 

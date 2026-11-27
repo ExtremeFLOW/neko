@@ -32,6 +32,7 @@
 !
 !> Contains the `vector_series_t` type.
 module vector_series
+  use num_types, only : rp
   use vector, only : vector_t
   implicit none
   private
@@ -43,6 +44,8 @@ module vector_series
      type(vector_t), pointer :: v => null()
      type(vector_t), allocatable :: lv(:)
      integer, private :: len = 0
+     !> Number of lag entries containing valid history.
+     integer, private :: n_filled = 0
    contains
      !> Constructor.
      procedure, pass(this) :: init => vector_series_init
@@ -50,8 +53,12 @@ module vector_series
      procedure, pass(this) :: free => vector_series_free
      procedure, pass(this) :: update => vector_series_update
      procedure, pass(this) :: set => vector_series_set
+     !> Reset the series to contain no valid history.
+     procedure, pass(this) :: reset => vector_series_reset
      !> Return the size of the vector series.
      procedure, pass(this) :: size => vector_series_size
+     !> Return the number of lag entries containing valid history.
+     procedure, pass(this) :: filled_size => vector_series_filled_size
   end type vector_series_t
 
   !> A wrapper for a pointer to a `vector_series_t`.
@@ -74,6 +81,7 @@ contains
 
     this%v => v
     this%len = len
+    this%n_filled = 0
 
     allocate(this%lv(len))
 
@@ -103,6 +111,9 @@ contains
        deallocate(this%lv)
     end if
 
+    this%len = 0
+    this%n_filled = 0
+
   end subroutine vector_series_free
 
   !> Return the size of the vector series
@@ -111,6 +122,14 @@ contains
     integer :: len
     len = this%len
   end function vector_series_size
+
+  !> Return the number of lag entries containing valid history.
+  function vector_series_filled_size(this) result(n_filled)
+    class(vector_series_t), intent(in) :: this
+    integer :: n_filled
+
+    n_filled = this%n_filled
+  end function vector_series_filled_size
 
   !> Update a vector series (evict oldest entry)
   subroutine vector_series_update(this)
@@ -122,6 +141,7 @@ contains
     end do
 
     this%lv(1) = this%v
+    this%n_filled = min(this%n_filled + 1, this%len)
 
   end subroutine vector_series_update
 
@@ -135,6 +155,20 @@ contains
        this%lv(i) = g
     end do
 
+    this%n_filled = this%len
+
   end subroutine vector_series_set
+
+  !> Reset the series to contain no valid history.
+  subroutine vector_series_reset(this)
+    class(vector_series_t), intent(inout) :: this
+    integer :: i
+
+    do i = 1, this%len
+       this%lv(i) = 0.0_rp
+    end do
+
+    this%n_filled = 0
+  end subroutine vector_series_reset
 
 end module vector_series

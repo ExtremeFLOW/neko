@@ -20,8 +20,7 @@ contains
   subroutine user_ic(scheme_name, fields)
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
-    type(field_t), pointer :: u, v, w, s
-    type(field_t), pointer :: p
+    type(field_t), pointer :: u, v, w, s, p
     type(dofmap_t), pointer :: dof
     integer :: i
     real(kind=rp) :: x, y, z
@@ -56,14 +55,18 @@ contains
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
+
+       ! Initialize pressure field to zero
+       call field_rzero(p)
 
        do i = 1, u%dof%size()
           u%x(i,1,1,1) = u_geo
           v%x(i,1,1,1) = 0.0_rp
           w%x(i,1,1,1) = 0.0_rp
-          x = u%dof%x(i,1,1,1)
-          y = u%dof%y(i,1,1,1)
-          z = u%dof%z(i,1,1,1)
+          x = u%dof%x%x(i,1,1,1)
+          y = u%dof%y%x(i,1,1,1)
+          z = u%dof%z%x(i,1,1,1)
           if (z .le. 50) then ! Small perturbation to help get turbulence started
              u%x(i,1,1,1) = u%x(i,1,1,1) + eps*(sin(alpha*x)*sin(beta*y)) &
                   + eps*(sin(gamma*x)*sin(delta*y))
@@ -73,11 +76,17 @@ contains
                   - eps*(gamma * cos(gamma*x)*sin(delta*y))
           endif
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     else !scalars
        s => fields%get(scheme_name)
        if (scheme_name .eq. 'temperature') then
           do i = 1, s%dof%size()
-             z = s%dof%z(i,1,1,1)
+             z = s%dof%z%x(i,1,1,1)
              if (z .le. z1) then
                 s%x(i,1,1,1) = theta0
              elseif (z .le. z2) then
@@ -88,7 +97,7 @@ contains
           end do
        elseif (scheme_name .eq. 'TKE') then
           do i = 1, s%dof%size()
-             z = s%dof%z(i,1,1,1)
+             z = s%dof%z%x(i,1,1,1)
              if (z .le. ze) then
                 s%x(i,1,1,1) = 0.4_rp * (1 - z/ze)*(1 - z/ze)*(1 - z/ze)
              else
@@ -96,6 +105,10 @@ contains
              endif
           end do
        endif
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call s%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     endif
   end subroutine user_ic
 
@@ -115,7 +128,7 @@ contains
     fringe%x(:,1,1,1) = 0.0_rp
 
     do i = 1, fringe%size()
-       z = fringe%dof%z(i,1,1,1)
+       z = fringe%dof%z%x(i,1,1,1)
 
        if (z .gt. zmin_spng) then
           fringe%x(i,1,1,1) = stp_fun( (z - zmin_spng)/delta_spng )

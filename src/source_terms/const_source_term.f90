@@ -101,7 +101,7 @@ contains
     class(const_source_term_t), intent(inout) :: this
     class(field_list_t), intent(in), target :: fields
     real(kind=rp), intent(in) :: values(:)
-    type(coef_t) :: coef
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
 

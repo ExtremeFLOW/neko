@@ -32,7 +32,7 @@
 !
 !> Defines an output for a fluid
 module fluid_output
-  use num_types, only : rp
+  use num_types, only : dp
   use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
   use fluid_scheme_base, only : fluid_scheme_base_t
@@ -182,18 +182,10 @@ contains
   !> Sample a fluid solution at time @a t
   subroutine fluid_output_sample(this, t)
     class(fluid_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
     if (NEKO_BCKND_DEVICE .eq. 1) then
-
-       associate(fields => this%fluid%items)
-         do i = 1, size(fields)
-            call device_memcpy(fields(i)%ptr%x, fields(i)%ptr%x_d, &
-                 fields(i)%ptr%dof%size(), DEVICE_TO_HOST, &
-                 sync = (i .eq. size(fields))) ! Sync on the last field
-         end do
-       end associate
-
+       call this%fluid%copy_from(DEVICE_TO_HOST, .true.)
     end if
 
     select type (ft => this%file_%file_type)
@@ -206,12 +198,9 @@ contains
        if (ft%write_mesh) then
           if (NEKO_BCKND_DEVICE .eq. 1) then
              associate(mesh => this%fluid%items(2)%ptr%dof)
-               call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
-                    DEVICE_TO_HOST, sync = .false.)
-               call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
-                    DEVICE_TO_HOST, sync = .false.)
-               call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
-                    DEVICE_TO_HOST, sync = .true.)
+               call mesh%x%copy_from(DEVICE_TO_HOST, sync = .false.)
+               call mesh%y%copy_from(DEVICE_TO_HOST, sync = .false.)
+               call mesh%z%copy_from(DEVICE_TO_HOST, sync = .true.)
              end associate
           end if
        end if

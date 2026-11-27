@@ -33,7 +33,7 @@
 !> NEKTON map file
 !! @details This module is used to read/write NEKTON vertex mapping data
 module map_file
-  use num_types, only : rp
+  use num_types, only : dp
   use generic_file, only : generic_file_t
   use utils, only : neko_error
   use comm
@@ -89,7 +89,7 @@ contains
   subroutine map_file_write(this, data, t)
     class(map_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     call neko_error("Not implemented yet!")
   end subroutine map_file_write
 

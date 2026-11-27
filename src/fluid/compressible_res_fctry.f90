@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,9 +34,12 @@
 submodule (compressible_residual) compressible_res_fctry
   use neko_config, only : NEKO_BCKND_DEVICE
   use compressible_res_cpu, only : compressible_res_cpu_t, &
-       compressible_res_cpu_gamma
+       compressible_res_cpu_gamma, compressible_res_cpu_add_physical_flux, &
+       compressible_res_cpu_add_physical_stress
   use compressible_res_device, only : compressible_res_device_t, &
-       compressible_res_device_gamma
+       compressible_res_device_gamma, &
+       compressible_res_device_add_physical_flux, &
+       compressible_res_device_add_physical_stress
   implicit none
 
 contains
@@ -71,5 +74,24 @@ contains
     end if
 
   end subroutine compressible_rhs_factory
+
+  !> Select whether the physical Navier-Stokes fluxes are evaluated.
+  !! @details Only forwards the decision to the module state of the active
+  !! compute backend.
+  !! @param add_flux Whether to add the viscous and heat fluxes.
+  !! @param add_stress Whether to add the viscous stress.
+  module subroutine compressible_rhs_set_physical_flux(add_flux, add_stress)
+    logical, intent(in) :: add_flux
+    logical, intent(in) :: add_stress
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       compressible_res_device_add_physical_flux = add_flux
+       compressible_res_device_add_physical_stress = add_stress
+    else
+       compressible_res_cpu_add_physical_flux = add_flux
+       compressible_res_cpu_add_physical_stress = add_stress
+    end if
+
+  end subroutine compressible_rhs_set_physical_flux
 
 end submodule compressible_res_fctry

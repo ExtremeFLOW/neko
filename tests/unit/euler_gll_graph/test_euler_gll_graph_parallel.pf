@@ -96,9 +96,9 @@ contains
     call graph%init(coef, gs)
     @assertFalse(graph%affine)
 
-    flux_x = 1.0_rp + dof%x + dof%x * dof%y + 0.1_rp * dof%z**2
-    flux_y = dof%y**2 - 0.3_rp * dof%x * dof%z
-    flux_z = dof%z + 0.2_rp * dof%x * dof%y
+    flux_x = 1.0_rp + dof%x%x + dof%x%x * dof%y%x + 0.1_rp * dof%z%x**2
+    flux_y = dof%y%x**2 - 0.3_rp * dof%x%x * dof%z%x
+    flux_z = dof%z%x + 0.2_rp * dof%x%x * dof%y%x
     call graph%local_flux_divergence(low, flux_x, flux_y, flux_z)
     call graph%high_order_flux_divergence(high, flux_x, flux_y, flux_z, coef)
 
@@ -156,7 +156,7 @@ contains
     call graph%init(coef, gs)
 
     flux_x = 0.0_rp
-    flux_y = dof%x * dof%y**3
+    flux_y = dof%x%x * dof%y%x**3
     flux_z = 0.0_rp
     call graph%local_flux_divergence(low, flux_x, flux_y, flux_z)
     call graph%high_order_flux_divergence(high, flux_x, flux_y, flux_z, coef)
@@ -210,11 +210,11 @@ contains
     call graph%init(coef, gs)
     do component = 1, ncomponents
        flux_x(component,:,:,:,:) = real(component, rp) * &
-            (1.0_rp + dof%x + dof%y * dof%z)
+            (1.0_rp + dof%x%x + dof%y%x * dof%z%x)
        flux_y(component,:,:,:,:) = real(component + 1, rp) * &
-            (dof%y**2 - 0.2_rp * dof%x * dof%z)
+            (dof%y%x**2 - 0.2_rp * dof%x%x * dof%z%x)
        flux_z(component,:,:,:,:) = real(component + 2, rp) * &
-            (dof%z**3 + 0.3_rp * dof%x * dof%y)
+            (dof%z%x**3 + 0.3_rp * dof%x%x * dof%y%x)
     end do
 
     allocate(vector_edge_flux(ncomponents, graph%n_edges))
@@ -263,7 +263,7 @@ contains
     do edge = 1, graph%n_edges
        edge_flux(edge) = 0.01_rp * sin(real(7 * edge, rp))
     end do
-    base = 1.0_rp + 0.1_rp * dof%x - 0.2_rp * dof%y + 0.3_rp * dof%z
+    base = 1.0_rp + 0.1_rp * dof%x%x - 0.2_rp * dof%y%x + 0.3_rp * dof%z%x
 
     call graph%incidence(incidence, edge_flux)
     direct = base + incidence / graph%mass%x
@@ -311,8 +311,8 @@ contains
 
     call build_affine_hex_fixture(msh, Xh, dof, gs, coef)
     call graph%init(coef, gs)
-    profile = 1.0_rp + 0.3_rp * dof%x - 0.2_rp * dof%y + &
-         0.4_rp * dof%z
+    profile = 1.0_rp + 0.3_rp * dof%x%x - 0.2_rp * dof%y%x + &
+         0.4_rp * dof%z%x
     second_difference = 0.0_rp
     do edge = 1, graph%n_edges
        associate(a => graph%left(:,edge), b => graph%right(:,edge))
@@ -364,7 +364,7 @@ contains
        write(name, '(A,I0)') 'ssprk_state_', component
        call state(component)%init(dof, trim(name))
        saved(component,:,:,:,:) = real(component, rp) + &
-            0.1_rp * dof%x - 0.2_rp * dof%y + 0.3_rp * dof%z
+            0.1_rp * dof%x%x - 0.2_rp * dof%y%x + 0.3_rp * dof%z%x
        state(component)%x = saved(component,:,:,:,:)
     end do
 
@@ -377,7 +377,7 @@ contains
 
     do component = 1, 5
        candidate(component,:,:,:,:) = -real(component, rp) + &
-            0.4_rp * dof%x + 0.2_rp * dof%y - 0.1_rp * dof%z
+            0.4_rp * dof%x%x + 0.2_rp * dof%y%x - 0.1_rp * dof%z%x
        backend%low_candidate(component)%x = candidate(component,:,:,:,:)
     end do
     call backend%combine_stage(state(1), state(2), state(3), state(4), &
@@ -388,7 +388,7 @@ contains
 
     do component = 1, 5
        candidate(component,:,:,:,:) = 2.0_rp * real(component, rp) - &
-            0.3_rp * dof%x + 0.5_rp * dof%y + 0.2_rp * dof%z
+            0.3_rp * dof%x%x + 0.5_rp * dof%y%x + 0.2_rp * dof%z%x
        backend%low_candidate(component)%x = candidate(component,:,:,:,:)
     end do
     call backend%combine_stage(state(1), state(2), state(3), state(4), &
@@ -401,7 +401,7 @@ contains
 
     do component = 1, 5
        candidate(component,:,:,:,:) = -0.5_rp * real(component, rp) + &
-            0.7_rp * dof%x - 0.4_rp * dof%y + 0.6_rp * dof%z
+            0.7_rp * dof%x%x - 0.4_rp * dof%y%x + 0.6_rp * dof%z%x
        backend%low_candidate(component)%x = candidate(component,:,:,:,:)
     end do
     call backend%combine_stage(state(1), state(2), state(3), state(4), &

@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -452,6 +452,14 @@ module cuda_math
        real(c_rp) :: ninf
        integer(c_int) :: n
      end function cuda_glmax
+
+     real(c_rp) function cuda_glamax(a_d, n, strm) &
+          bind(c, name = 'cuda_glamax')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: n
+     end function cuda_glamax
 
      real(c_rp) function cuda_glmin(a_d, pinf, n, strm) &
           bind(c, name = 'cuda_glmin')

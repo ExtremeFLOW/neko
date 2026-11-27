@@ -18,23 +18,33 @@ contains
     real(kind=rp) :: cone_radius, mux, muy, x, y, r, theta
 
     type(dofmap_t), pointer :: dof
-    type (field_t), pointer :: u, v, w, s
+    type (field_t), pointer :: u, v, w, s, p
 
     dof => fields%dof(1)
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
+
+       ! Initialize pressure field to zero
+       call field_rzero(p)
 
        do i = 1, u%dof%size()
-          x = u%dof%x(i,1,1,1)
-          y = u%dof%y(i,1,1,1)
+          x = u%dof%x%x(i,1,1,1)
+          y = u%dof%y%x(i,1,1,1)
 
           ! Angular velocity is pi, giving a full rotation in 2 sec
           u%x(i,1,1,1) = -y*pi
           v%x(i,1,1,1) = x*pi
           w%x(i,1,1,1) = 0
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+          call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     else
        s => fields%get("s")
        ! Center of the cone
@@ -44,8 +54,8 @@ contains
        cone_radius = 0.5
 
        do i = 1, s%dof%size()
-          x = dof%x(i,1,1,1) - mux
-          y = dof%y(i,1,1,1) - muy
+          x = dof%x%x(i,1,1,1) - mux
+          y = dof%y%x(i,1,1,1) - muy
 
           r = sqrt(x**2 + y**2)
           theta = atan2(y, x)
@@ -57,6 +67,10 @@ contains
              s%x(i,1,1,1) = 1.0 - r / cone_radius
           end if
        end do
+
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call s%copy_from(HOST_TO_DEVICE, sync=.true.)
+       end if
     end if
 
   end subroutine initial_conditions

@@ -46,13 +46,13 @@ module vtkhdf_file
   use comm, only : pe_rank, pe_size, NEKO_COMM
   use device, only : DEVICE_TO_HOST, HOST_TO_DEVICE
   use mpi_f08, only : MPI_INFO_NULL, MPI_Allreduce, MPI_Allgather, &
-       MPI_IN_PLACE, MPI_INTEGER, MPI_SUM, MPI_MAX, MPI_Comm_size, MPI_Exscan, &
-       MPI_Barrier, MPI_Bcast, MPI_LOGICAL
+       MPI_IN_PLACE, MPI_INTEGER8, MPI_SUM, MPI_MAX, MPI_Comm_size, &
+       MPI_Exscan, MPI_Barrier, MPI_Bcast, MPI_LOGICAL
   use vtk, only : vtk_ordering
+  use hdf5_session, only : hdf5_session_init, hdf5_session_finalize
 #ifdef HAVE_HDF5
   use hdf5, only : &
        hid_t, hsize_t, size_t, &
-       h5open_f, h5close_f, &
        h5fcreate_f, h5fopen_f, h5fclose_f, h5fflush_f, h5fget_obj_count_f, &
        H5F_OBJ_ALL_F, H5F_SCOPE_GLOBAL_F, &
        h5gcreate_f, h5gopen_f, h5gclose_f, &
@@ -65,14 +65,14 @@ module vtkhdf_file
        h5sselect_hyperslab_f, h5sselect_all_f, h5sget_simple_extent_dims_f, &
        h5dget_space_f, h5dset_extent_f, &
        h5pcreate_f, h5pclose_f, h5pset_fapl_mpio_f, h5pset_dxpl_mpio_f, &
-       h5pget_virtual_count_f, h5pget_virtual_filename_f, &
+       h5pget_virtual_count_f, h5pget_virtual_filename_f, h5pget_layout_f, &
        h5lexists_f, h5ldelete_f, &
        H5P_FILE_ACCESS_F, H5P_DATASET_XFER_F, H5P_DATASET_CREATE_F, &
        H5F_ACC_TRUNC_F, H5F_ACC_RDWR_F, H5F_ACC_RDONLY_F, h5pset_chunk_f, &
        H5T_STD_U8LE, H5T_NATIVE_INTEGER, H5T_FORTRAN_S1, H5T_STR_NULLTERM_F, &
        h5kind_to_type, H5_REAL_KIND, H5_INTEGER_KIND, h5pset_virtual_f, &
        H5S_SCALAR_F, H5S_SELECT_SET_F, H5FD_MPIO_COLLECTIVE_F, h5p_default_f, &
-       H5S_UNLIMITED_F
+       H5S_UNLIMITED_F, H5D_VIRTUAL_F
 #endif
   implicit none
   private
@@ -165,7 +165,7 @@ contains
   subroutine vtkhdf_file_write(this, data, t)
     class(vtkhdf_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(mesh_t), pointer :: msh
     type(dofmap_t), pointer :: dof
     type(field_list_t) :: fields
@@ -176,9 +176,6 @@ contains
     integer(size_t) :: type_len
     integer :: lx, ly, lz
     integer :: local_points, local_cells, local_conn
-    integer :: total_points, total_cells, total_conn
-    integer :: point_offset
-    integer :: max_local_points
     integer, allocatable :: part_points(:), part_cells(:), part_conns(:)
     character(len=1024) :: fname
     character(len=16) :: type_str
@@ -233,7 +230,7 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    call h5open_f(ierr)
+    call hdf5_session_init()
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
@@ -314,7 +311,7 @@ contains
     end block
     call h5fflush_f(file_id, H5F_SCOPE_GLOBAL_F, ierr)
     call h5fclose_f(file_id, ierr)
-    call h5close_f(ierr)
+    call hdf5_session_finalize()
 
     call fields%free()
 
@@ -339,25 +336,25 @@ contains
     logical, intent(in) :: amr
     integer, intent(in) :: counter
     logical, intent(in) :: subdivide
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     integer(kind=1) :: VTK_cell_type
     integer :: ierr, i, ii, jj, kk, el, local_idx
     integer :: lx, ly, lz, npts_per_cell, nodes_per_cell, cells_per_element
     integer :: local_points, local_cells, local_conn
-    integer :: total_points, total_cells, total_conn
-    integer :: point_offset, max_local_points
-    integer :: total_offsets, cell_offset, conn_offset, offsets_offset
-    integer :: max_local_cells, max_local_conn
+    integer(kind=i8) :: total_points, total_cells, total_conn
+    integer(kind=i8) :: point_offset, max_local_points
+    integer(kind=i8) :: total_offsets, cell_offset, conn_offset, offsets_offset
+    integer(kind=i8) :: max_local_cells, max_local_conn
     integer(hid_t) :: xf_id, dset_id, dcpl_id, grp_id, attr_id
     integer(hid_t) :: filespace, memspace, H5T_NEKO_DOUBLE
     integer(hsize_t), dimension(1) :: dcount, vdims, maxdims, doffset, chunkdims
     integer(hsize_t), dimension(2) :: dcount2, vdims2, maxdims2, doffset2
     integer(kind=i8) :: i8_value
     logical :: exists
-    integer, dimension(3) :: component_sizes
-    integer, dimension(3) :: component_offsets
-    integer, dimension(3) :: component_max_sizes
+    integer(kind=i8), dimension(3) :: component_sizes
+    integer(kind=i8), dimension(3) :: component_offsets
+    integer(kind=i8), dimension(3) :: component_max_sizes
 
     lx = dof%Xh%lx
     ly = dof%Xh%ly
@@ -384,19 +381,28 @@ contains
     ! --- Build the number of cells and the connectivity
     local_points = dof%size()
     local_cells = msh%nelv * cells_per_element
+
+    ! Connectivity and Offsets hold part-local values, stored as default
+    ! integers, so unlike the global totals these must fit one on each rank.
+    if (int(local_cells, i8) * int(nodes_per_cell, i8) .gt. &
+         int(huge(local_conn), i8)) then
+       call neko_error('VTKHDF: connectivity of a rank exceeds the range ' // &
+            'of a default integer')
+    end if
     local_conn = local_cells * nodes_per_cell
 
     total_points = dof%global_size()
-    total_cells = msh%glb_nelv * cells_per_element
-    total_conn = total_cells * nodes_per_cell
+    total_cells = int(msh%glb_nelv, i8) * int(cells_per_element, i8)
+    total_conn = total_cells * int(nodes_per_cell, i8)
 
-    component_sizes = [local_points, local_cells, local_conn]
-    component_offsets = 0
-    component_max_sizes = 0
+    component_sizes = [int(local_points, i8), int(local_cells, i8), &
+         int(local_conn, i8)]
+    component_offsets = 0_i8
+    component_max_sizes = 0_i8
 
-    call MPI_Exscan(component_sizes, component_offsets, 3, MPI_INTEGER, &
+    call MPI_Exscan(component_sizes, component_offsets, 3, MPI_INTEGER8, &
          MPI_SUM, NEKO_COMM, ierr)
-    call MPI_Allreduce(component_sizes, component_max_sizes, 3, MPI_INTEGER, &
+    call MPI_Allreduce(component_sizes, component_max_sizes, 3, MPI_INTEGER8, &
          MPI_MAX, NEKO_COMM, ierr)
 
     point_offset = component_offsets(1)
@@ -453,7 +459,8 @@ contains
 
        vdims2 = [3_hsize_t, int(total_points, hsize_t)]
        maxdims2 = [3_hsize_t, H5S_UNLIMITED_F]
-       chunkdims(1) = int(max(1, min(max_local_points, total_points)), hsize_t)
+       chunkdims(1) = vtkhdf_chunk_extent(max_local_points, total_points, &
+            3 * storage_size(1.0_dp) / 8)
        dcount2 = [3_hsize_t, int(local_points, hsize_t)]
        doffset2 = [0_hsize_t, int(point_offset, hsize_t)]
        H5T_NEKO_DOUBLE = h5kind_to_type(dp, H5_REAL_KIND)
@@ -478,9 +485,9 @@ contains
               real(kind=dp) :: x, y, z
               idx = nonlinear_index(local_idx, lx, ly, lz)
 
-              x = real(dof%x(idx(1), idx(2), idx(3), idx(4)), dp)
-              y = real(dof%y(idx(1), idx(2), idx(3), idx(4)), dp)
-              z = real(dof%z(idx(1), idx(2), idx(3), idx(4)), dp)
+              x = real(dof%x%x(idx(1), idx(2), idx(3), idx(4)), dp)
+              y = real(dof%y%x(idx(1), idx(2), idx(3), idx(4)), dp)
+              z = real(dof%z%x(idx(1), idx(2), idx(3), idx(4)), dp)
 
               coords(1, local_idx) = x
               coords(2, local_idx) = y
@@ -505,7 +512,8 @@ contains
 
     vdims = int(total_conn, hsize_t)
     maxdims = H5S_UNLIMITED_F
-    chunkdims = int(max(1, min(max_local_conn, total_conn)), hsize_t)
+    chunkdims = vtkhdf_chunk_extent(max_local_conn, total_conn, &
+         storage_size(local_conn) / 8)
     dcount = int(local_conn, hsize_t)
     doffset = int(conn_offset, hsize_t)
 
@@ -542,7 +550,8 @@ contains
 
     vdims = int(total_offsets, hsize_t)
     maxdims = H5S_UNLIMITED_F
-    chunkdims = int(max(1, min(max_local_cells + 1, total_offsets)), hsize_t)
+    chunkdims = vtkhdf_chunk_extent(max_local_cells + 1_i8, total_offsets, &
+         storage_size(local_conn) / 8)
     dcount = int(local_cells + 1, hsize_t)
     doffset = int(offsets_offset, hsize_t)
 
@@ -580,7 +589,8 @@ contains
 
     vdims = int(total_cells, hsize_t)
     maxdims = H5S_UNLIMITED_F
-    chunkdims = int(max(1, min(max_local_cells, total_cells)), hsize_t)
+    chunkdims = vtkhdf_chunk_extent(max_local_cells, total_cells, &
+         storage_size(VTK_cell_type) / 8)
     dcount = int(local_cells, hsize_t)
     doffset = int(cell_offset, hsize_t)
 
@@ -656,7 +666,7 @@ contains
   subroutine vtkhdf_write_steps(vtkhdf_grp, counter, t)
     integer(hid_t), intent(in) :: vtkhdf_grp
     integer, intent(in) :: counter
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
 
     integer(hid_t) :: xf_id, H5T_NEKO_DOUBLE
     integer :: ierr
@@ -718,7 +728,7 @@ contains
     call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
          step_offset, step_count, ierr)
 
-    time_value(1) = real(t, kind=dp)
+    time_value(1) = t
     call h5dwrite_f(dset_id, H5T_NEKO_DOUBLE, time_value, step_count, ierr, &
          file_space_id = filespace, mem_space_id = memspace, xfer_prp = xf_id)
 
@@ -767,10 +777,10 @@ contains
     integer, intent(in) :: precision
     integer, intent(in) :: counter
     character(len=*), intent(in) :: fname
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
-    integer(kind=i8) :: time_offset
-    integer :: local_points, point_offset, total_points
+    integer(kind=i8) :: time_offset, point_offset, total_points
+    integer :: local_points
     integer(hid_t) :: precision_hdf
     integer :: ierr, i, j
     integer :: n_fields
@@ -802,9 +812,7 @@ contains
     ! Compute local/global point counts and MPI offsets
     local_points = fields%item_size(1)
     total_points = fields%items(1)%ptr%dof%global_size()
-    point_offset = 0
-    call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
+    point_offset = vtkhdf_rank_offset(local_points)
 
     ! Sync all the fields
     do i = 1, n_fields
@@ -844,7 +852,23 @@ contains
        call h5pset_fapl_mpio_f(ext_plist_id, mpi_comm, mpi_info, ierr)
        call h5fcreate_f(trim(ext_fname), H5F_ACC_TRUNC_F, write_target, ierr, &
             access_prp = ext_plist_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot create step file: ' // &
+               trim(ext_fname))
+       end if
        call h5pclose_f(ext_plist_id, ierr)
+
+       ! Readers find the step files through the VDS printf pattern and
+       ! probe the next index themselves. Flush now so the superblock is on
+       ! disk before any field data: an interrupted write then leaves a
+       ! valid file without datasets, which readers skip, rather than a
+       ! headerless file that breaks every read through the VDS (bar the
+       ! brief window before this flush completes).
+       call h5fflush_f(write_target, H5F_SCOPE_GLOBAL_F, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot flush step file: ' // &
+               trim(ext_fname))
+       end if
 
     else
        ! Non-temporal: write directly into the main file's PointData group
@@ -922,7 +946,7 @@ contains
 
     if (present(t)) then
 
-       ! Temporal: set up per-timestep external file as write target
+       ! Temporal: record where this step's PointData starts
        call h5gopen_f(vtkhdf_grp, "Steps", step_grp_id, ierr)
        time_offset = int(counter, kind=i8) * int(total_points, kind=i8)
 
@@ -940,15 +964,18 @@ contains
        call h5gclose_f(grp_id, ierr)
        call h5gclose_f(step_grp_id, ierr)
 
-       ! ===== Create or extend VDS in main file =====
-       call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
+       ! ===== Create the VDS in the main file on the first write =====
+       ! The VDS extent is never extended on later steps: with the %b
+       ! pattern and an unlimited dimension, HDF5 derives the extent from
+       ! the step files present when a reader asks for it. Extending it
+       ! explicitly made HDF5 open every existing step file at each write.
+       if (counter .eq. 0) then
+          call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
 
-       do i = 1, fields_written
-          field_name = name_list(i)
-          is_vector = vector_list(i)
+          do i = 1, fields_written
+             field_name = name_list(i)
+             is_vector = vector_list(i)
 
-          if (counter .eq. 0) then
-             ! First write: create VDS with pattern-based mapping
              call h5pcreate_f(H5P_DATASET_CREATE_F, dcpl_id, ierr)
              precision_hdf = h5kind_to_type(precision, H5_REAL_KIND)
 
@@ -1004,67 +1031,11 @@ contains
 
              call h5pclose_f(dcpl_id, ierr)
              call h5dclose_f(dset_id, ierr)
+          end do
 
-          else
-             ! Subsequent write: extend VDS to include new timestep
-             call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
-
-             if (is_vector) then
-                pd_dims2 = [3_hsize_t, &
-                     int(counter + 1, hsize_t) * int(total_points, hsize_t)]
-                call h5dset_extent_f(dset_id, pd_dims2, ierr)
-             else
-                pd_dims1 = int(counter + 1, hsize_t) * int(total_points, hsize_t)
-                call h5dset_extent_f(dset_id, pd_dims1, ierr)
-             end if
-
-             call h5dclose_f(dset_id, ierr)
-          end if
-       end do
-
-       call h5gclose_f(pointdata_grp, ierr)
-    end if
-
-    ! ------------------------------------------------------------------------ !
-    ! Add attributes to the PointData
-
-    do i = 1, fields_written
-       field_name = name_list(i)
-       is_vector = vector_list(i)
-       pd_dims1 = 1_hsize_t
-
-       call h5gopen_f(vtkhdf_grp, "PointData", pointdata_grp, ierr)
-       call h5dopen_f(pointdata_grp, trim(field_name), dset_id, ierr)
-
-       call h5aexists_f(dset_id, "Attribute", exists, ierr)
-       if (exists) then
-          call h5dclose_f(dset_id, ierr)
           call h5gclose_f(pointdata_grp, ierr)
-          cycle
        end if
-
-       ! Write the attribute what this PointData represents
-       call h5screate_f(H5S_SCALAR_F, filespace, ierr)
-
-       call h5tcopy_f(H5T_FORTRAN_S1, H5T_NEKO_STRING, ierr)
-       call h5tset_size_f(H5T_NEKO_STRING, int(6, size_t), ierr)
-       call h5tset_strpad_f(H5T_NEKO_STRING, H5T_STR_NULLTERM_F, ierr)
-
-       call h5acreate_f(dset_id, "Attribute", H5T_NEKO_STRING, filespace, &
-            attr_id, ierr)
-       if (is_vector) then
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Vector"], pd_dims1, ierr)
-       else
-          call h5awrite_f(attr_id, H5T_NEKO_STRING, ["Scalar"], pd_dims1, ierr)
-       end if
-
-       call h5aclose_f(attr_id, ierr)
-       call h5tclose_f(H5T_NEKO_STRING, ierr)
-       call h5sclose_f(filespace, ierr)
-       call h5dclose_f(dset_id, ierr)
-       call h5gclose_f(pointdata_grp, ierr)
-
-    end do
+    end if
 
     ! ------------------------------------------------------------------------ !
     ! Cleanup before returning
@@ -1076,6 +1047,37 @@ contains
 
   ! -------------------------------------------------------------------------- !
   ! Helper functions and routines
+
+  !> Offset of this rank's entries in a dataset decomposed by rank.
+  !! @param n_local Number of entries on this rank
+  function vtkhdf_rank_offset(n_local) result(offset)
+    integer, intent(in) :: n_local
+    integer(kind=i8) :: offset, n_local_i8
+    integer :: ierr
+
+    n_local_i8 = int(n_local, i8)
+    offset = 0_i8
+    call MPI_Exscan(n_local_i8, offset, 1, MPI_INTEGER8, MPI_SUM, NEKO_COMM, &
+         ierr)
+  end function vtkhdf_rank_offset
+
+  !> Chunk extent along the rank-decomposed dimension of a dataset.
+  !! @details The extent is the largest local block, limited by the size of
+  !! the dataset and by HDF5, which refuses to create a dataset with a chunk of
+  !! 2^32 bytes or more.
+  !! @param max_local Largest number of entries on any rank
+  !! @param total Number of entries in the dataset
+  !! @param entry_bytes Size of one entry in the file, in bytes
+  pure function vtkhdf_chunk_extent(max_local, total, entry_bytes) &
+       result(extent)
+    integer(kind=i8), intent(in) :: max_local, total
+    integer, intent(in) :: entry_bytes
+    integer(hsize_t) :: extent
+    integer(kind=i8), parameter :: max_chunk_bytes = 4294967295_i8
+
+    extent = int(max(1_i8, min(max_local, total, &
+         max_chunk_bytes / int(entry_bytes, i8))), hsize_t)
+  end function vtkhdf_chunk_extent
 
   !> Build local connectivity for VTK cells from a spectral element
   !! tensor-product grid. For linear types (12, 9) subdivides each spectral
@@ -1268,11 +1270,11 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp), dimension(n_local), intent(in) :: x
     integer, intent(in), optional :: precision
-    integer, intent(in), optional :: n_total, offset
+    integer(kind=i8), intent(in), optional :: n_total, offset
 
     integer(hsize_t), dimension(1) :: dims, dcount, doffset
     integer(hid_t) :: xf_id, dset_id, filespace, memspace, precision_hdf
-    integer :: i, ierr, precision_local, n_tot, off
+    integer :: i, ierr, precision_local
 
     ! Setup data sizes, offsets and precision
     dcount = int(n_local, hsize_t)
@@ -1280,17 +1282,15 @@ contains
     if (present(n_total)) then
        dims = int(n_total, hsize_t)
     else
-       call MPI_Allreduce(n_local, n_tot, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       dims = int(n_tot, hsize_t)
+       dims = int(n_local, hsize_t)
+       call MPI_Allreduce(MPI_IN_PLACE, dims(1), 1, MPI_INTEGER8, MPI_SUM, &
+            NEKO_COMM, ierr)
     end if
 
     if (present(offset)) then
        doffset = int(offset, hsize_t)
     else
-       call MPI_Exscan(n_local, off, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       doffset = int(off, hsize_t)
+       doffset = int(vtkhdf_rank_offset(n_local), hsize_t)
     end if
 
     if (present(precision)) then
@@ -1392,11 +1392,11 @@ contains
     character(len=*), intent(in) :: name
     real(kind=rp), dimension(n_local), intent(in) :: u, v, w
     integer, intent(in), optional :: precision
-    integer, intent(in), optional :: n_total, offset
+    integer(kind=i8), intent(in), optional :: n_total, offset
 
     integer(hsize_t), dimension(2) :: dims, dcount, doffset
     integer(hid_t) :: xf_id, dset_id, filespace, memspace, precision_hdf
-    integer :: i, ierr, precision_local, n_tot, off
+    integer :: i, ierr, precision_local
 
     ! Setup data sizes, offsets and precision
     dcount = [3_hsize_t, int(n_local, hsize_t)]
@@ -1404,17 +1404,15 @@ contains
     if (present(n_total)) then
        dims = [3_hsize_t, int(n_total, hsize_t)]
     else
-       call MPI_Allreduce(n_local, n_tot, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       dims = [3_hsize_t, int(n_tot, hsize_t)]
+       dims = [3_hsize_t, int(n_local, hsize_t)]
+       call MPI_Allreduce(MPI_IN_PLACE, dims(2), 1, MPI_INTEGER8, MPI_SUM, &
+            NEKO_COMM, ierr)
     end if
 
     if (present(offset)) then
        doffset = [0_hsize_t, int(offset, hsize_t)]
     else
-       call MPI_Exscan(n_local, off, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
-            ierr)
-       doffset = [0_hsize_t, int(off, hsize_t)]
+       doffset = [0_hsize_t, int(vtkhdf_rank_offset(n_local), hsize_t)]
     end if
 
     if (present(precision)) then
@@ -1436,7 +1434,43 @@ contains
     call h5dcreate_f(hdf_root, trim(name), precision_hdf, filespace, dset_id, &
          ierr)
 
-    if (precision_local .eq. sp) then
+    if (precision_local .eq. rp) then
+       ! Perform direct write for each component separately to avoid extra
+       ! memory allocation: the n_local values of one component go into one
+       ! row of the file hyperslab, so the memory space is 1D
+       call h5sclose_f(memspace, ierr)
+       call h5screate_simple_f(1, dcount(2:2), memspace, ierr)
+
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            [0_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
+       call h5dwrite_f(dset_id, precision_hdf, u, dcount(2:2), ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot write vector field: ' // &
+               trim(name))
+       end if
+
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            [1_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
+       call h5dwrite_f(dset_id, precision_hdf, v, dcount(2:2), ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot write vector field: ' // &
+               trim(name))
+       end if
+
+       call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
+            [2_hsize_t, doffset(2)], [1_hsize_t, dcount(2)], ierr)
+       call h5dwrite_f(dset_id, precision_hdf, w, dcount(2:2), ierr, &
+            file_space_id = filespace, mem_space_id = memspace, &
+            xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot write vector field: ' // &
+               trim(name))
+       end if
+    else if (precision_local .eq. sp) then
        block
          real(kind=sp), allocatable :: f(:,:)
 
@@ -1518,7 +1552,7 @@ contains
     mpi_info = MPI_INFO_NULL%mpi_val
     mpi_comm = NEKO_COMM%mpi_val
 
-    call h5open_f(ierr)
+    call hdf5_session_init()
     call h5pcreate_f(H5P_FILE_ACCESS_F, plist_id, ierr)
     call h5pset_fapl_mpio_f(plist_id, mpi_comm, mpi_info, ierr)
 
@@ -1555,7 +1589,7 @@ contains
     call h5gclose_f(vtkhdf_grp, ierr)
     call h5fclose_f(file_id, ierr)
     call h5pclose_f(plist_id, ierr)
-    call h5close_f(ierr)
+    call hdf5_session_finalize()
 
     call fields%free()
 
@@ -1568,8 +1602,14 @@ contains
   !! - u/v/w -> Velocity component 1/2/3
   !!
   !! If the dataset is a Virtual Dataset (VDS), HDF5 does not support parallel
-  !! reads on VDS. We detect this by checking h5pget_virtual_count and read
+  !! reads on VDS. We detect this from the dataset's storage layout and read
   !! directly from the external source file instead.
+  !!
+  !! A temporal file whose PointData is not virtual holds every step in one
+  !! dataset. The rows of step @a counter then start at
+  !! Steps/PointDataOffsets/<dataset>(@a counter). As in the VTKHDF
+  !! specification, a dataset without such offsets starts at the geometry
+  !! offset of the step, Steps/PointOffsets(@a counter).
   subroutine vtkhdf_read_field(vtkhdf_grp, fname, counter, fld)
     integer(hid_t), intent(in) :: vtkhdf_grp
     character(len=*), intent(in) :: fname
@@ -1577,26 +1617,29 @@ contains
     type(field_t), intent(inout) :: fld
 
     character(len=:), allocatable :: field_name
-    integer :: ierr, local_points, total_points, point_offset, component
+    integer :: ierr, local_points, component
+    integer(kind=i8) :: point_offset
     integer(hid_t) :: pointdata_grp, dset_id, filespace, memspace, xf_id
     integer(hid_t) :: dcpl_id, ext_file_id, ext_plist_id, attr_id
+    integer(hid_t) :: offsets_id, offsets_space, step_space
     integer(hid_t) :: H5T_NEKO_REAL
     integer(hsize_t), dimension(1) :: dcount1, doffset1
     integer(hsize_t), dimension(2) :: dcount2, doffset2
 
     integer(size_t) :: vds_count
+    integer(kind=i8) :: step_offset
     character(len=128) :: dset_name
     character(len=1024) :: vds_src_file, ext_fname, main_path, main_name, main_suffix
-    logical :: exists, is_vds
+    logical :: exists, is_vds, is_temporal
     real(kind=rp), allocatable :: vec_component(:,:)
-    integer :: mpi_info, mpi_comm, pct_pos, nsteps
+    integer :: mpi_info, mpi_comm, pct_pos, nsteps, layout
     character(len=256) :: error_message
 
     field_name = trim(fld%name)
 
     ! Validate counter against file's NSteps if temporal data exists
-    call h5lexists_f(vtkhdf_grp, "Steps", exists, ierr)
-    if (exists) then
+    call h5lexists_f(vtkhdf_grp, "Steps", is_temporal, ierr)
+    if (is_temporal) then
        call h5aopen_by_name_f(vtkhdf_grp, "Steps", "NSteps", attr_id, ierr)
        call h5aread_f(attr_id, H5T_NATIVE_INTEGER, nsteps, [1_hsize_t], ierr)
        call h5aclose_f(attr_id, ierr)
@@ -1612,10 +1655,7 @@ contains
     mpi_comm = NEKO_COMM%mpi_val
 
     local_points = fld%dof%size()
-    total_points = fld%dof%global_size()
-    point_offset = 0
-    call MPI_Exscan(local_points, point_offset, 1, MPI_INTEGER, &
-         MPI_SUM, NEKO_COMM, ierr)
+    point_offset = vtkhdf_rank_offset(local_points)
 
     H5T_NEKO_REAL = h5kind_to_type(rp, H5_REAL_KIND)
 
@@ -1652,13 +1692,26 @@ contains
        call neko_error('VTKHDF PointData field not found: ' // trim(dset_name))
     end if
 
-    ! Open the dataset and check if it's a VDS
+    ! Open the dataset and check if it's a VDS. Only a virtual layout may be
+    ! queried for its mappings; h5pget_virtual_count_f fails on any other.
     call h5dopen_f(pointdata_grp, trim(dset_name), dset_id, ierr)
     call h5dget_create_plist_f(dset_id, dcpl_id, ierr)
-    call h5pget_virtual_count_f(dcpl_id, vds_count, ierr)
-    is_vds = (vds_count .gt. 0_size_t)
+    call h5pget_layout_f(dcpl_id, layout, ierr)
+    if (ierr .ne. 0) then
+       call neko_error('VTKHDF: Cannot get the storage layout of: ' // &
+            trim(dset_name))
+    end if
+    is_vds = (layout .eq. H5D_VIRTUAL_F)
 
+    vds_count = 0_size_t
+    step_offset = 0_i8
     if (is_vds) then
+       call h5pget_virtual_count_f(dcpl_id, vds_count, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot get the VDS mappings of: ' // &
+               trim(dset_name))
+       end if
+
        call filename_split(fname, main_path, main_name, main_suffix)
 
        ! Query mapping 0 to detect whether this is a printf-style pattern VDS
@@ -1666,6 +1719,10 @@ contains
        ! placeholder) or a multi-mapping VDS where each timestep has its own
        ! literal source file.
        call h5pget_virtual_filename_f(dcpl_id, 0_size_t, vds_src_file, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot get the VDS source file of: ' // &
+               trim(dset_name))
+       end if
        pct_pos = index(vds_src_file, '%b')
 
        if (pct_pos .gt. 0) then
@@ -1697,6 +1754,10 @@ contains
           end if
           call h5pget_virtual_filename_f(dcpl_id, int(counter, size_t), &
                vds_src_file, ierr)
+          if (ierr .ne. 0) then
+             call neko_error('VTKHDF: Cannot get the VDS source file of: ' // &
+                  trim(dset_name))
+          end if
           if (vds_src_file(1:1) .eq. '/') then
              ext_fname = trim(vds_src_file)
           else
@@ -1720,11 +1781,54 @@ contains
 
        ! Open the dataset from the external file
        call h5dopen_f(ext_file_id, trim(dset_name), dset_id, ierr)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: PointData field ' // trim(dset_name) // &
+               ' not found in VDS source file: ' // trim(ext_fname))
+       end if
 
        call h5pclose_f(ext_plist_id, ierr)
     else
        call h5pclose_f(dcpl_id, ierr)
        ext_file_id = -1
+
+       ! Inline temporal data: find where the rows of this step start,
+       ! falling back to the geometry offset without data offsets
+       if (is_temporal) then
+          call h5lexists_f(vtkhdf_grp, "Steps/PointDataOffsets", exists, ierr)
+          if (exists) then
+             call h5lexists_f(vtkhdf_grp, "Steps/PointDataOffsets/" // &
+                  trim(dset_name), exists, ierr)
+          end if
+          if (exists) then
+             call h5dopen_f(vtkhdf_grp, "Steps/PointDataOffsets/" // &
+                  trim(dset_name), offsets_id, ierr)
+          else
+             call h5lexists_f(vtkhdf_grp, "Steps/PointOffsets", exists, ierr)
+             if (.not. exists) then
+                call neko_error('VTKHDF: Neither Steps/PointDataOffsets/' // &
+                     trim(dset_name) // ' nor Steps/PointOffsets found ' // &
+                     'in temporal file: ' // &
+                     trim(fname))
+             end if
+             call h5dopen_f(vtkhdf_grp, "Steps/PointOffsets", offsets_id, ierr)
+          end if
+          call h5dget_space_f(offsets_id, offsets_space, ierr)
+          call h5sselect_hyperslab_f(offsets_space, H5S_SELECT_SET_F, &
+               [int(counter, hsize_t)], [1_hsize_t], ierr)
+          call h5screate_simple_f(1, [1_hsize_t], step_space, ierr)
+          call h5dread_f(offsets_id, h5kind_to_type(i8, H5_INTEGER_KIND), &
+               step_offset, [1_hsize_t], ierr, &
+               file_space_id = offsets_space, mem_space_id = step_space)
+          if (ierr .ne. 0) then
+             write(error_message, '(A,A,A,I0)') &
+                  'VTKHDF: Cannot read the step offset of ', &
+                  trim(dset_name), ' at step ', counter
+             call neko_error(trim(error_message))
+          end if
+          call h5sclose_f(step_space, ierr)
+          call h5sclose_f(offsets_space, ierr)
+          call h5dclose_f(offsets_id, ierr)
+       end if
     end if
 
     ! Now read from the dataset (either original or from external file)
@@ -1735,7 +1839,8 @@ contains
     if (trim(dset_name) .eq. 'Velocity' .and. component .ge. 0) then
        ! Velocity is stored as (3, n_points), read one component
        dcount2 = [1_hsize_t, int(local_points, hsize_t)]
-       doffset2 = [int(component, hsize_t), int(point_offset, hsize_t)]
+       doffset2 = [int(component, hsize_t), &
+            int(point_offset, hsize_t) + int(step_offset, hsize_t)]
 
        call h5screate_simple_f(2, dcount2, memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -1745,12 +1850,16 @@ contains
        call h5dread_f(dset_id, H5T_NEKO_REAL, vec_component, dcount2, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot read PointData field: ' // &
+               trim(dset_name))
+       end if
        fld%x = reshape(vec_component, shape(fld%x))
        deallocate(vec_component)
     else
        ! Scalar field: 1D array
        dcount1 = int(local_points, hsize_t)
-       doffset1 = int(point_offset, hsize_t)
+       doffset1 = int(point_offset, hsize_t) + int(step_offset, hsize_t)
 
        call h5screate_simple_f(1, dcount1, memspace, ierr)
        call h5sselect_hyperslab_f(filespace, H5S_SELECT_SET_F, &
@@ -1759,6 +1868,10 @@ contains
        call h5dread_f(dset_id, H5T_NEKO_REAL, fld%x(1,1,1,1), dcount1, ierr, &
             file_space_id = filespace, mem_space_id = memspace, &
             xfer_prp = xf_id)
+       if (ierr .ne. 0) then
+          call neko_error('VTKHDF: Cannot read PointData field: ' // &
+               trim(dset_name))
+       end if
     end if
 
     call h5sclose_f(memspace, ierr)
@@ -1782,7 +1895,7 @@ contains
   subroutine vtkhdf_file_write(this, data, t)
     class(vtkhdf_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     call neko_error('Neko needs to be built with HDF5 support')
   end subroutine vtkhdf_file_write
 

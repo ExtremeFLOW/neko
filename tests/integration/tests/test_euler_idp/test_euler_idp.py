@@ -178,8 +178,6 @@ def _case(
             "numerics": {
                 "time_order": time_order,
                 "polynomial_order": polynomial_order,
-                "c_avisc_low": 0.5,
-                "c_avisc_entropy": 1.0,
                 "euler_idp": {
                     "enabled": True,
                     "low_order_only": False,
@@ -195,7 +193,15 @@ def _case(
                     "diagnostics_interval": 1,
                 },
             },
+            "simulation_components": [{
+                "type": "artificial_viscosity_model",
+                "model": "entropy_viscosity",
+            }],
             "fluid": {
+                "viscous_regularization": {
+                    "type": "artificial_viscosity",
+                    "reg_coeff_name": "entropy_viscosity",
+                },
                 "scheme": "compressible",
                 "gamma": gamma,
                 "initial_condition": {"type": "user"},
@@ -289,6 +295,7 @@ def _run_case(
     entropy_bound_relaxation_factor=1.0,
     case_label=None,
     record_parity=True,
+    viscosity_model=True,
 ):
     """Write, run, and parse one generated Euler IDP case."""
     case_data = _case(
@@ -308,6 +315,8 @@ def _run_case(
         relax_entropy_bounds,
         entropy_bound_relaxation_factor,
     )
+    if not viscosity_model:
+        del case_data["case"]["simulation_components"]
     label = case_label or problem
     suffix = (
         f"{label}_p{polynomial_order}_r{time_order}_n{mpi_ranks}"
@@ -774,6 +783,17 @@ def test_idp_near_vacuum_evolution(
             "correction",
         ),
     )
+
+
+def test_idp_requires_entropy_viscosity_model(
+    launcher_script, log_file, euler_idp_runtime
+):
+    with pytest.raises(AssertionError, match="Euler IDP requires an entropy_viscosity model"):
+        _run_case(
+            launcher_script, log_file, euler_idp_runtime, "free_stream",
+            polynomial_order=2, steps=1, timestep=1.0e-4,
+            viscosity_model=False, case_label="missing_entropy_viscosity",
+        )
 
 
 @pytest.mark.parametrize("time_order", (1, 3))

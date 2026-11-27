@@ -35,6 +35,7 @@
 */
 
 #include <math/bcknd/device/hip/math_kernel.h>
+#include <math/bcknd/device/hip/wave.h>
 
 /**
  * Kernel for update of p
@@ -92,8 +93,8 @@ __global__ void fusedcg_part2_kernel(T * __restrict__ a,
   const int idx = blockIdx.x * blockDim.x + threadIdx.x;
   const int str = blockDim.x * gridDim.x;
 
-  const unsigned int lane = threadIdx.x % warpSize;
-  const unsigned int wid = threadIdx.x / warpSize;
+  const unsigned int lane = threadIdx.x % NEKO_WAVE_SIZE;
+  const unsigned int wid = threadIdx.x / NEKO_WAVE_SIZE;
   
   __shared__ T buf[64];
   T tmp = 0.0;
@@ -110,7 +111,7 @@ __global__ void fusedcg_part2_kernel(T * __restrict__ a,
   }
   __syncthreads();
   
-  tmp = (threadIdx.x < blockDim.x / warpSize) ? buf[lane] : 0;
+  tmp = (threadIdx.x < blockDim.x / NEKO_WAVE_SIZE) ? buf[lane] : 0;
   if (wid == 0) {
     tmp = reduce_warp<T>(tmp);
   }

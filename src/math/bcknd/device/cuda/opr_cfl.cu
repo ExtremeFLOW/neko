@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2022-2025, The Neko Authors
+ Copyright (c) 2022-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -73,7 +73,7 @@ extern "C" {
   /**
    * Fortran wrapper for device cuda CFL
    */
-  real cuda_cfl(real *dt, void *u, void *v, void *w,
+  double cuda_cfl(double *dt, void *u, void *v, void *w,
                 void *drdx, void *dsdx, void *dtdx,
                 void *drdy, void *dsdy, void *dtdy,
                 void *drdz, void *dsdz, void *dtdz,
@@ -84,24 +84,24 @@ extern "C" {
     const dim3 nblcks((*nel), 1, 1);
     const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
 
-    cuda_buffer_reserve(&cfl_buf, (*nel) * sizeof(real));
-    real *cfl_d = (real *) cfl_buf.dev;
+    cuda_buffer_reserve(&cfl_buf, (*nel) * sizeof(double));
+    double *cfl_d = (double *) cfl_buf.dev;
 #ifdef HAVE_NVSHMEM
-    cuda_buffer_reserve(&cfl_red_buf, sizeof(real));
-    real *cfl_red_d = (real *) cfl_red_buf.dev;
+    cuda_buffer_reserve(&cfl_red_buf, sizeof(double));
+    double *cfl_red_d = (double *) cfl_red_buf.dev;
 #endif
 
-#define CASE(LX)                                                                \
-    case LX:                                                                    \
-      cfl_kernel<real, LX, 1024>                                                \
-        <<<nblcks, nthrds, 0, stream>>>                                         \
-        (*dt, (real *) u, (real *) v, (real *) w,                               \
-         (real *) drdx, (real *) dsdx, (real *) dtdx,                           \
-         (real *) drdy, (real *) dsdy, (real *) dtdy,                           \
-         (real *) drdz, (real *) dsdz, (real *) dtdz,                           \
-         (real *) dr_inv, (real *) ds_inv, (real *) dt_inv,                     \
-         (real *) jacinv, (real *) cfl_d);                                      \
-      CUDA_CHECK(cudaGetLastError());                                           \
+#define CASE(LX)                                                              \
+    case LX:                                                                  \
+      cfl_kernel<double, real, LX, 1024>                                      \
+        <<<nblcks, nthrds, 0, stream>>>                                       \
+        (*dt, (real *) u, (real *) v, (real *) w,                   \
+         (real *) drdx, (real *) dsdx, (real *) dtdx,                         \
+         (real *) drdy, (real *) dsdy, (real *) dtdy,                         \
+         (real *) drdz, (real *) dsdz, (real *) dtdz,                         \
+         (real *) dr_inv, (real *) ds_inv, (real *) dt_inv,                   \
+         (real *) jacinv, (double *) cfl_d);                                  \
+      CUDA_CHECK(cudaGetLastError());                                         \
       break
 
     switch(*lx) {
@@ -121,37 +121,30 @@ extern "C" {
       }
     }
 
-    cfl_reduce_kernel<real><<<1, 1024, 0, stream>>> ((real *) cfl_d, (*nel));
+    cfl_reduce_kernel<double><<<1, 1024, 0, stream>>> ((double *) cfl_d, (*nel));
     CUDA_CHECK(cudaGetLastError());
 
-    real cfl;
+    double cfl;
 #ifdef HAVE_NCCL
-    device_nccl_allreduce(cfl_d, cfl_d, 1, sizeof(real),
+    device_nccl_allreduce(cfl_d, cfl_d, 1, sizeof(double),
                           DEVICE_NCCL_MAX, stream);
-    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
+    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(double),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #elif HAVE_NVSHMEM
-    CUDA_CHECK(cudaMemcpyAsync(cfl_red_d, cfl_d, sizeof(real),
+    CUDA_CHECK(cudaMemcpyAsync(cfl_red_d, cfl_d, sizeof(double),
                                cudaMemcpyDeviceToDevice, stream));
-    if (sizeof(real) == sizeof(float)) {
-      nvshmemx_float_max_reduce_on_stream(NVSHMEM_TEAM_WORLD,
-                                          (float *) cfl_red_d,
-                                          (float *) cfl_red_d, 1, stream);
-    }
-    else if (sizeof(real) == sizeof(double)) {
-      nvshmemx_double_max_reduce_on_stream(NVSHMEM_TEAM_WORLD,
-                                           (double *) cfl_red_d,
-                                           (double *) cfl_red_d, 1, stream);
-    }
-    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_red_d, sizeof(real),
+    nvshmemx_double_max_reduce_on_stream(NVSHMEM_TEAM_WORLD,
+                                          (double *) cfl_red_d,
+                                          (double *) cfl_red_d, 1, stream);
+    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_red_d, sizeof(double),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #elif HAVE_DEVICE_MPI
     cudaStreamSynchronize(stream);
-    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(real), DEVICE_MPI_MAX);
+    device_mpi_allreduce(cfl_d, &cfl, 1, sizeof(double), DEVICE_MPI_MAX);
 #else
-    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(real),
+    CUDA_CHECK(cudaMemcpyAsync(&cfl, cfl_d, sizeof(double),
                                cudaMemcpyDeviceToHost, stream));
     cudaStreamSynchronize(stream);
 #endif

@@ -50,6 +50,8 @@
 
 #import <Metal/Metal.h>
 #import <Foundation/Foundation.h>
+#include <IOKit/IOKitLib.h>
+#include <device/metal/check.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -105,6 +107,28 @@ id<MTLLibrary> neko_metal_library(void)
     return _neko_mtl_library;
 }
 
+/**
+ * Create a compute pipeline state, see check.h.
+ */
+id<MTLComputePipelineState> neko_metal_new_pipeline(id<MTLFunction> fn,
+                                                    NSUInteger max_threads,
+                                                    NSError **error)
+{
+    if (max_threads == 0) {
+        return [_mtl_device newComputePipelineStateWithFunction:fn
+                                                          error:error];
+    }
+
+    MTLComputePipelineDescriptor *desc = [MTLComputePipelineDescriptor new];
+    desc.computeFunction = fn;
+    desc.maxTotalThreadsPerThreadgroup = max_threads;
+    return [_mtl_device
+               newComputePipelineStateWithDescriptor:desc
+                                             options:MTLPipelineOptionNone
+                                          reflection:nil
+                                               error:error];
+}
+
 /*
  * Init / finalize
  */
@@ -156,6 +180,62 @@ int metal_device_count(void)
 {
     /* On macOS with Apple Silicon there is exactly one GPU. */
     return (_mtl_device != nil) ? 1 : (MTLCreateSystemDefaultDevice() ? 1 : 0);
+}
+
+/**
+ * Number of GPU cores of the current device, or 0 if unknown.
+ *
+ * MTLDevice does not expose the core count.  On Apple Silicon the
+ * value is published by the GPU driver in the I/O Registry as the
+ * \c gpu-core-count property of the \c AGXAccelerator service, which
+ * is what the system profiler reports.  This is not a documented API,
+ * so any failure along the way yields 0 rather than an error.
+ */
+int metal_device_mp_count(void)
+{
+    int count = 0;
+    CFMutableDictionaryRef match = IOServiceMatching("AGXAccelerator");
+    if (match == NULL)
+        return 0;
+
+    io_iterator_t it = IO_OBJECT_NULL;
+    /* IOServiceGetMatchingServices consumes 'match' */
+    if (IOServiceGetMatchingServices(kIOMainPortDefault, match, &it)
+        != KERN_SUCCESS)
+        return 0;
+
+    io_object_t svc;
+    while (count == 0 && (svc = IOIteratorNext(it)) != IO_OBJECT_NULL) {
+        CFTypeRef prop = IORegistryEntryCreateCFProperty(
+            svc, CFSTR("gpu-core-count"), kCFAllocatorDefault, 0);
+        if (prop != NULL) {
+            if (CFGetTypeID(prop) == CFNumberGetTypeID())
+                CFNumberGetValue((CFNumberRef) prop, kCFNumberIntType, &count);
+            CFRelease(prop);
+        }
+        IOObjectRelease(svc);
+    }
+    IOObjectRelease(it);
+
+    return count > 0 ? count : 0;
+}
+
+/**
+ * Memory available to the current device in bytes, or 0 if unknown.
+ *
+ * Apple GPUs share memory with the host, so there is no "total device
+ * memory".  recommendedMaxWorkingSetSize is Apple's documented upper
+ * bound on what a process should keep resident on the GPU (a fraction
+ * of system RAM on Apple Silicon, roughly the VRAM on discrete GPUs),
+ * which is the quantity a sizing heuristic wants.
+ */
+size_t metal_device_total_mem(void)
+{
+    id<MTLDevice> dev = _mtl_device ? _mtl_device
+                                    : MTLCreateSystemDefaultDevice();
+    if (!dev)
+        return 0;
+    return (size_t) [dev recommendedMaxWorkingSetSize];
 }
 
 /*
@@ -333,6 +413,7 @@ int metal_device_sync(void)
         id<MTLCommandBuffer> cb = [_mtl_glb_queue commandBuffer];
         [cb commit];
         [cb waitUntilCompleted];
+        METAL_CHECK_CB(cb);
     }
     return 0;
 }
@@ -347,6 +428,7 @@ int metal_stream_sync(void *queue)
         id<MTLCommandBuffer> cb = [q commandBuffer];
         [cb commit];
         [cb waitUntilCompleted];
+        METAL_CHECK_CB(cb);
     }
     return 0;
 }

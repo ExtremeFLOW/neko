@@ -25,7 +25,7 @@
           "oneOf": [
             {
               "type": "integer",
-              "minimum": 3
+              "minimum": 1
             },
             {
               "$ref": "urn:neko:schema:common#/$defs/constRef"
@@ -44,18 +44,11 @@
         "oifs_target_cfl": {
           "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
         },
-        "c_avisc_low": {
-          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+        "compress_geometric_factors": {
+          "type": "boolean"
         },
-        "c_avisc_entropy": {
-          "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
-        },
-        "entropy_pair_type": {
-          "type": "string",
-          "enum": [
-            "euler",
-            "user"
-          ]
+        "compress_geometric_factors_tolerance": {
+          "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
         },
         "euler_idp": {
           "type": "object",
@@ -95,6 +88,12 @@
             "diagnostics_interval": {
               "type": "integer",
               "minimum": 1
+            },
+            "relax_entropy_bounds": {
+              "type": "boolean"
+            },
+            "entropy_bound_relaxation_factor": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
             }
           },
           "additionalProperties": false

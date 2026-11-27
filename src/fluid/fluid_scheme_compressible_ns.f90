@@ -38,26 +38,23 @@ module fluid_scheme_compressible_ns
   use field_series, only : field_series_t
   use bdf_time_scheme, only : bdf_time_scheme_t
   use time_scheme_controller, only : time_scheme_controller_t
-  use math, only : col2
-  use device_math, only : device_col2
   use field, only : field_t
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t, &
        fluid_scheme_compressible_validate, &
        fluid_scheme_compressible_compute_cfl
   use euler_idp, only : euler_idp_t, EULER_IDP_DIAGNOSTICS_FULL
   use scratch_registry, only : neko_scratch_registry
-  use gs_ops, only : GS_OP_ADD, GS_OP_MIN, GS_OP_MAX
+  use gs_ops, only : GS_OP_MIN, GS_OP_MAX
   use gather_scatter, only : gs_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use profiler, only : profiler_start_region, profiler_end_region
-  use user_intf, only : user_t, user_entropy_pair_intf, &
-       dummy_user_entropy_pair
+  use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use coefs, only : coef_t
   use compressible_residual, only : compressible_rhs_t, compressible_rhs_factory
   use neko_config, only : NEKO_BCKND_DEVICE
@@ -75,7 +72,10 @@ module fluid_scheme_compressible_ns
        compressible_ops_device_update_e, &
        compressible_ops_device_update_temperature
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
-  use regularization, only : regularization_t, regularization_factory
+  use viscous_regularization, only : viscous_regularization_t, &
+       viscous_regularization_factory
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       coupled_vector_bc_projector_t
   implicit none
   private
 
@@ -83,18 +83,22 @@ module fluid_scheme_compressible_ns
        :: fluid_scheme_compressible_ns_t
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
-     type(field_t) :: h
      type(euler_idp_t) :: euler_idp_solver
-     real(kind=rp) :: c_avisc_low
+     type(field_t) :: idp_entropy_fraction
+     type(field_t), pointer :: idp_wave_speed => null()
+     integer :: idp_viscosity_step = -1
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
      class(ax_t), allocatable :: Ax_stress
      class(compressible_rhs_t), allocatable :: compressible_rhs
      type(runge_kutta_time_scheme_t) :: rk_scheme
 
-     class(regularization_t), allocatable :: regularization
+     class(viscous_regularization_t), allocatable :: viscous_regularization
+     logical :: if_viscous_regularization
 
-     ! List of boundary conditions for velocity
+     !> Boundary conditions projector for velocity constraints.
+     type(coupled_vector_bc_projector_t):: bcs_vel_projector
+     !> List of boundary conditions for density.
      type(bc_list_t) :: bcs_density
 
    contains
@@ -108,8 +112,8 @@ module fluid_scheme_compressible_ns
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_ns_setup_bcs
-     procedure, pass(this) :: compute_h
-     procedure, pass(this), private :: setup_regularization
+     procedure, pass(this), private :: setup_viscous_regularization
+     procedure, pass(this) :: prepare_idp_graph
      procedure, pass(this), private :: log_euler_idp_diagnostics => &
           fluid_scheme_compressible_ns_log_euler_idp_diagnostics
   end type fluid_scheme_compressible_ns_t
@@ -182,11 +186,11 @@ contains
   !> Return the graph CFL in Euler-IDP mode and the legacy CFL otherwise.
   function fluid_scheme_compressible_ns_compute_cfl(this, dt) result(cfl)
     class(fluid_scheme_compressible_ns_t), intent(in) :: this
-    real(kind=rp), intent(in) :: dt
-    real(kind=rp) :: cfl
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: cfl
 
     if (this%euler_idp%enabled) then
-       cfl = this%euler_idp_solver%cfl(dt)
+       cfl = this%euler_idp_solver%cfl(real(dt, rp))
     else
        cfl = fluid_scheme_compressible_compute_cfl(this, dt)
     end if
@@ -196,24 +200,28 @@ contains
   !! @param this The fluid scheme object
   !! @param msh Mesh data structure
   !! @param lx Polynomial order in x-direction
-  !! @param params JSON configuration parameters
+  !! @param params The fluid parameters, i.e. `case.fluid`
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`
   !! @param user User-defined parameters and functions
   !! @param chkp Checkpoint to write to
-  subroutine fluid_scheme_compressible_ns_init(this, msh, lx, params, user, &
-       chkp)
+  !! @param output_boundary Not supported by this scheme, ignored
+  subroutine fluid_scheme_compressible_ns_init(this, msh, lx, params, &
+       numerics_params, user, chkp, output_boundary)
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
     type(user_t), target, intent(in) :: user
     type(chkp_t), target, intent(inout) :: chkp
+    logical, intent(in) :: output_boundary
     character(len=12), parameter :: scheme = 'compressible'
     integer :: rk_order
 
     call this%free()
 
     ! Initialize base class
-    call this%scheme_init(msh, lx, params, scheme, user)
+    call this%scheme_init(msh, lx, params, numerics_params, scheme, user)
 
     call compressible_rhs_factory(this%compressible_rhs, this%gamma)
 
@@ -225,13 +233,13 @@ contains
       call this%dm_y%init(dm_Xh, 'dm_y')
       call this%dm_z%init(dm_Xh, 'dm_z')
       call this%dE%init(dm_Xh, 'dE')
-      call this%h%init(dm_Xh, 'h')
 
     end associate
 
-    call json_get_or_default(params, 'case.numerics.time_order', rk_order, 4)
+    call json_get_or_default(numerics_params, 'time_order', rk_order, 4)
 
     if (this%euler_idp%enabled) then
+       call this%idp_entropy_fraction%init(this%dm_Xh, "idp_entropy_fraction")
        call this%euler_idp_solver%init(this%dm_Xh, this%c_Xh, this%gs_Xh, &
             this%euler_idp, rk_order)
     end if
@@ -263,14 +271,19 @@ contains
     end if
 
     ! Initialize the diffusion operators
-    call ax_helm_factory(this%Ax, full_formulation = .false.)
-    call ax_helm_factory(this%Ax_stress, full_formulation = .true.)
+    if (this%c_Xh%geo_compression) then
+       call ax_helm_allocator(this%Ax, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%Ax, type_name = "standard")
+    end if
+    call ax_helm_allocator(this%Ax_stress, type_name = "full")
 
-    ! Compute h
-    call this%compute_h()
+    ! Initialize the velocity BC projector. The coupled projector builds the
+    ! local bases required by non-axis aligned mixed velocity conditions.
+    call this%bcs_vel_projector%init(this%c_Xh)
 
-    ! Initialize regularization.
-    call this%setup_regularization(params, user)
+    ! Initialize viscous regularization
+    call this%setup_viscous_regularization(params)
 
     ! Initialize Runge-Kutta scheme
     call this%rk_scheme%init(rk_order)
@@ -289,15 +302,17 @@ contains
     class(bc_t), pointer :: bc
     integer :: i
 
-    call this%scheme_free()
-
     if (allocated(this%Ax)) then
+       call this%Ax%free()
        deallocate(this%Ax)
     end if
 
     if (allocated(this%Ax_stress)) then
+       call this%Ax_stress%free()
        deallocate(this%Ax_stress)
     end if
+
+    call this%scheme_free()
 
     if (allocated(this%compressible_rhs)) then
        deallocate(this%compressible_rhs)
@@ -308,12 +323,15 @@ contains
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
-    call this%h%free()
+    call this%idp_entropy_fraction%free()
+    nullify(this%idp_wave_speed)
+    this%idp_viscosity_step = -1
     call this%euler_idp_solver%free()
+    call this%rk_scheme%free()
 
-    if (allocated(this%regularization)) then
-       call this%regularization%free()
-       deallocate(this%regularization)
+    if (allocated(this%viscous_regularization)) then
+       call this%viscous_regularization%free()
+       deallocate(this%viscous_regularization)
     end if
 
     do i = 1, this%bcs_density%size()
@@ -324,6 +342,7 @@ contains
        end if
     end do
     call this%bcs_density%free()
+    call this%bcs_vel_projector%free()
 
   end subroutine fluid_scheme_compressible_ns_free
 
@@ -333,7 +352,6 @@ contains
   !> @param ext_bdf Time integration controller
   !> @param dt_controller Timestep size controller
   subroutine fluid_scheme_compressible_ns_step(this, time, dt_controller)
-    use entropy_viscosity, only : entropy_viscosity_t
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
@@ -343,7 +361,6 @@ contains
     integer :: n
     integer :: i
     class(bc_t), pointer :: b
-    logical :: user_entropy_pair
 
     if (this%euler_idp%enabled) then
        call fluid_scheme_compressible_ns_step_idp(this, time)
@@ -351,7 +368,6 @@ contains
     end if
 
     n = this%dm_Xh%size()
-    user_entropy_pair = .false.
     call neko_scratch_registry%request_field(temp, temp_indices(1), .false.)
     b => null()
 
@@ -360,18 +376,18 @@ contains
          m_x=> this%m_x, m_y => this%m_y, m_z => this%m_z, &
          Xh => this%Xh, msh => this%msh, Ax => this%Ax, &
          c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
-         E => this%E, rho => this%rho, mu => this%mu, &
+         E => this%E, rho => this%rho, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
          drho => this%drho, dm_x => this%dm_x, dm_y => this%dm_y, &
          dm_z => this%dm_z, dE => this%dE, &
-         compressible_rhs => this%compressible_rhs, h => this%h, &
+         compressible_rhs => this%compressible_rhs, &
          t => time%t, tstep => time%tstep, dt => time%dt, &
-         c_avisc_low => this%c_avisc_low, rk_scheme => this%rk_scheme)
+         rk_scheme => this%rk_scheme)
 
-      ! Compute artificial viscosity. A user entropy callback is evaluated
-      ! here so that state changes made by another user callback after the
-      ! previous fluid step are reflected in both entropy and entropy flux.
-      call this%regularization%compute(time, time%tstep, time%dt)
+      !> Update artificial viscosity
+      if (allocated(this%viscous_regularization)) then
+         call this%viscous_regularization%update(this%artificial_visc)
+      end if
 
       ! Refresh user-specified physical viscosity/conductivity before RHS.
       call this%update_material_properties(time)
@@ -379,8 +395,8 @@ contains
       ! Execute RHS step with artificial viscosity field
       call compressible_rhs%step(rho, m_x, m_y, m_z, E, &
            p, u, v, w, this%Ax, &
-           this%Ax_stress, c_Xh, gs_Xh, h, this%artificial_visc, this%mu, &
-           this%kappa, this%bcs_vel, time, rk_scheme, dt)
+           this%Ax_stress, c_Xh, gs_Xh, this%artificial_visc, this%mu, &
+           this%kappa, this%bcs_vel, time, rk_scheme, real(dt, kind=rp))
 
       !> Apply density boundary conditions
       call this%bcs_density%apply(rho, time)
@@ -438,23 +454,6 @@ contains
          !$omp end parallel do simd
       end if
 
-      !> Update the entropy lag series before evaluating the new state. A user
-      !> pair is evaluated again here to prepare S and its flux for the next
-      !> step; the pre-step evaluation above remains necessary when user code
-      !> projects the conserved state between fluid steps.
-      if (allocated(this%regularization)) then
-         select type (reg => this%regularization)
-         type is (entropy_viscosity_t)
-            call reg%update_lag()
-            if (reg%use_user_entropy_pair) then
-               call reg%evaluate_user_entropy_pair(time)
-               user_entropy_pair = .true.
-            end if
-         end select
-      end if
-
-      if (.not. user_entropy_pair) call this%compute_entropy()
-
       !> Update maximum wave speed for CFL computation
       call this%compute_max_wave_speed()
 
@@ -483,58 +482,24 @@ contains
 
   !> Advance one invariant-domain-preserving limited Euler step.
   subroutine fluid_scheme_compressible_ns_step_idp(this, time)
-    use entropy_viscosity, only : entropy_viscosity_t
-    use entropy_viscosity_device, only : entropy_viscosity_fraction_device
     class(fluid_scheme_compressible_ns_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
-    type(field_t), pointer :: entropy_fraction
     class(bc_t), pointer :: b
-    real(kind=rp) :: low_order_viscosity
-    integer :: i, n, temp_indices(1)
-    logical :: user_entropy_pair
+    integer :: i, n
 
     call profiler_start_region('Fluid Euler IDP', 1)
-    user_entropy_pair = .false.
-    call this%regularization%compute(time, time%tstep, time%dt)
+    if (this%idp_viscosity_step /= time%tstep) then
+       call neko_error('Euler IDP requires an entropy_viscosity model ' // &
+            'updating the configured regularization field every step')
+    end if
+    call this%viscous_regularization%update(this%artificial_visc)
     n = this%dm_Xh%size()
-    call neko_scratch_registry%request_field(entropy_fraction, &
-         temp_indices(1), .false.)
-    select type (reg => this%regularization)
-    type is (entropy_viscosity_t)
-       if (NEKO_BCKND_DEVICE .eq. 1) then
-          call entropy_viscosity_fraction_device(entropy_fraction%x_d, &
-               this%artificial_visc%x_d, reg%h%x_d, &
-               reg%max_wave_speed%x_d, reg%c_avisc_low, n)
-       else
-          do i = 1, n
-             low_order_viscosity = reg%low_order_viscosity(i)
-             if (low_order_viscosity .gt. tiny(1.0_rp)) then
-                entropy_fraction%x(i,1,1,1) = min(1.0_rp, max(0.0_rp, &
-                     this%artificial_visc%x(i,1,1,1) / &
-                     low_order_viscosity))
-             else
-                entropy_fraction%x(i,1,1,1) = 0.0_rp
-             end if
-          end do
-       end if
-       if (reg%use_user_entropy_pair) then
-          call this%euler_idp_solver%advance(this%rho, this%m_x, this%m_y, &
-               this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_density, &
-               this%bcs_vel, this%bcs_prs, this%gamma, &
-               time%dt, time, this%euler_idp_diagnostics, &
-               entropy_fraction, reg%entropy_wave_speed)
-       else
-          call this%euler_idp_solver%advance(this%rho, this%m_x, this%m_y, &
-               this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_density, &
-               this%bcs_vel, this%bcs_prs, this%gamma, &
-               time%dt, time, this%euler_idp_diagnostics, &
-               entropy_fraction)
-       end if
-    class default
-       call neko_error('Euler IDP requires entropy viscosity regularization')
-    end select
+    call this%euler_idp_solver%advance(this%rho, this%m_x, this%m_y, &
+         this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_density, &
+         this%bcs_vel, this%bcs_prs, this%gamma, real(time%dt, rp), time, &
+         this%euler_idp_diagnostics, this%idp_entropy_fraction, &
+         this%idp_wave_speed)
     call this%log_euler_idp_diagnostics(time)
-    call neko_scratch_registry%relinquish_field(temp_indices)
 
     call this%euler_idp_solver%copy_primitives(this%u, this%v, this%w, &
          this%p)
@@ -547,33 +512,8 @@ contains
                (this%rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
        end do
     end if
-    select type (reg => this%regularization)
-    type is (entropy_viscosity_t)
-       call reg%update_lag()
-       if (reg%use_user_entropy_pair) then
-          call reg%evaluate_user_entropy_pair(time)
-          user_entropy_pair = .true.
-       end if
-    class default
-       call neko_error('Euler IDP requires entropy viscosity regularization')
-    end select
-    if (.not. user_entropy_pair) call this%compute_entropy()
     call this%compute_max_wave_speed()
-    select type (reg => this%regularization)
-    type is (entropy_viscosity_t)
-       if (reg%use_user_entropy_pair) then
-          call this%euler_idp_solver%prepare(this%rho, this%m_x, this%m_y, &
-               this%m_z, this%E, this%gs_Xh, this%bcs_density, &
-               this%bcs_vel, this%bcs_prs, this%gamma, time, &
-               reg%entropy_wave_speed)
-       else
-          call this%euler_idp_solver%prepare(this%rho, this%m_x, this%m_y, &
-               this%m_z, this%E, this%gs_Xh, this%bcs_density, &
-               this%bcs_vel, this%bcs_prs, this%gamma, time)
-       end if
-    class default
-       call neko_error('Euler IDP requires entropy viscosity regularization')
-    end select
+    if (.not. associated(this%idp_wave_speed)) call this%prepare_idp_graph(time)
     do i = 1, this%bcs_vel%size()
        b => this%bcs_vel%get(i)
        b%updated = .false.
@@ -589,6 +529,16 @@ contains
     nullify(b)
     call profiler_end_region('Fluid Euler IDP', 1)
   end subroutine fluid_scheme_compressible_ns_step_idp
+
+  !> Prepare the graph CFL using the wave speeds for the updated state.
+  subroutine prepare_idp_graph(this, time)
+    class(fluid_scheme_compressible_ns_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    call this%euler_idp_solver%prepare(this%rho, this%m_x, this%m_y, &
+         this%m_z, this%E, this%gs_Xh, this%bcs_density, this%bcs_vel, &
+         this%bcs_prs, this%gamma, time, this%idp_wave_speed)
+  end subroutine prepare_idp_graph
 
   !> Log limiter activity for each stage of one completed IDP timestep.
   subroutine fluid_scheme_compressible_ns_log_euler_idp_diagnostics(this, &
@@ -705,10 +655,10 @@ contains
     character(len=LOG_SIZE) :: log_buf
 
     ! Process boundary conditions
-    if (params%valid_path('case.fluid.boundary_conditions')) then
-       call params%info('case.fluid.boundary_conditions', n_children = n_bcs)
+    if (params%valid_path('boundary_conditions')) then
+       call params%info('boundary_conditions', n_children = n_bcs)
        call params%get_core(core)
-       call params%get('case.fluid.boundary_conditions', bc_object, found)
+       call params%get('boundary_conditions', bc_object, found)
 
        !
        ! Velocity bcs
@@ -738,6 +688,7 @@ contains
 
           ! Add to appropriate lists
           if (associated(bc_i)) then
+             call this%bcs_vel_projector%mark(bc_i)
              call this%bcs_vel%append(bc_i)
           end if
        end do
@@ -792,78 +743,9 @@ contains
        call this%bcs_density%init()
 
     end if
+
+    call this%bcs_vel_projector%finalize(rebuild_mask = .true.)
   end subroutine fluid_scheme_compressible_ns_setup_bcs
-
-  !> Copied from les_model_compute_delta in les_model.f90
-  !> TODO: move to a separate module
-  !> Compute characteristic mesh size h
-  !> @param this The fluid scheme object
-  subroutine compute_h(this)
-    class(fluid_scheme_compressible_ns_t), intent(inout) :: this
-    integer :: lx, ly, lz
-
-    lx = this%c_Xh%Xh%lx
-    ly = this%c_Xh%Xh%ly
-    lz = this%c_Xh%Xh%lz
-    call compute_h_cpu(this%h%x, this%c_Xh%dof%x, this%c_Xh%dof%y, &
-         this%c_Xh%dof%z, lx, ly, lz, this%c_Xh%msh%nelv)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%h%x, this%h%x_d, this%h%dof%size(),&
-            HOST_TO_DEVICE, sync = .false.)
-       call this%gs_Xh%op(this%h, GS_OP_ADD)
-       call device_col2(this%h%x_d, this%c_Xh%mult_d, this%h%dof%size())
-    else
-       call this%gs_Xh%op(this%h, GS_OP_ADD)
-       call col2(this%h%x, this%c_Xh%mult, this%h%dof%size())
-    end if
-
-  end subroutine compute_h
-
-  subroutine compute_h_cpu(h, x, y, z, lx, ly, lz, nelv)
-    integer, intent(in) :: lx, ly, lz, nelv
-    real(kind=rp), intent(out) :: h(lx, ly, lz, nelv)
-    real(kind=rp), intent(in) :: x(lx, ly, lz, nelv)
-    real(kind=rp), intent(in) :: y(lx, ly, lz, nelv)
-    real(kind=rp), intent(in) :: z(lx, ly, lz, nelv)
-    integer :: e, i, j, k
-    integer :: im, ip, jm, jp, km, kp
-    real(kind=rp) :: di, dj, dk
-
-    !$omp parallel do private(i, j, k, im, ip, jm, jp, km, kp, di, dj, dk)
-    do e = 1, nelv
-       do k = 1, lz
-          km = max(1, k - 1)
-          kp = min(lz, k + 1)
-          do j = 1, ly
-             jm = max(1, j - 1)
-             jp = min(ly, j + 1)
-             do i = 1, lx
-                im = max(1, i - 1)
-                ip = min(lx, i + 1)
-
-                di = (x(ip, j, k, e) - x(im, j, k, e))**2 &
-                     + (y(ip, j, k, e) - y(im, j, k, e))**2 &
-                     + (z(ip, j, k, e) - z(im, j, k, e))**2
-
-                dj = (x(i, jp, k, e) - x(i, jm, k, e))**2 &
-                     + (y(i, jp, k, e) - y(i, jm, k, e))**2 &
-                     + (z(i, jp, k, e) - z(i, jm, k, e))**2
-
-                dk = (x(i, j, kp, e) - x(i, j, km, e))**2 &
-                     + (y(i, j, kp, e) - y(i, j, km, e))**2 &
-                     + (z(i, j, kp, e) - z(i, j, km, e))**2
-
-                di = sqrt(di) / (ip - im)
-                dj = sqrt(dj) / (jp - jm)
-                dk = sqrt(dk) / (kp - km)
-                h(i,j,k,e) = (di * dj * dk)**(1.0_rp / 3.0_rp)
-             end do
-          end do
-       end do
-    end do
-    !$omp end parallel do
-  end subroutine compute_h_cpu
 
   !> Restart the simulation from saved state
   !! @param this The fluid scheme object
@@ -874,63 +756,38 @@ contains
     type(chkp_t), intent(inout) :: chkp
   end subroutine fluid_scheme_compressible_ns_restart
 
-  subroutine setup_regularization(this, params, user)
-    use entropy_viscosity, only : entropy_viscosity_t, &
-         entropy_viscosity_set_fields, &
-         entropy_viscosity_set_user_entropy_pair
+  subroutine setup_viscous_regularization(this, params)
     class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
     type(json_file), intent(inout) :: params
-    type(user_t), intent(in) :: user
     type(json_file) :: reg_json
-    type(json_core) :: json_core_inst
-    type(json_value), pointer :: reg_params
-    character(len=:), allocatable :: buffer
-    real(kind=rp) :: c_avisc_entropy_val
-    character(len=:), allocatable :: regularization_type, entropy_pair_type
-    procedure(user_entropy_pair_intf), pointer :: dummy_entropy_pair_ptr
+    logical :: found
+    character(len=:), allocatable :: viscous_regularization_type
 
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', &
-         this%c_avisc_low, 0.5_rp)
-    call json_get_or_default(params, 'case.numerics.c_avisc_entropy', &
-         c_avisc_entropy_val, 1.0_rp)
-    call json_get_or_default(params, 'case.numerics.entropy_pair_type', &
-         entropy_pair_type, 'euler')
-
-    dummy_entropy_pair_ptr => dummy_user_entropy_pair
-    if (trim(entropy_pair_type) .eq. 'user' .and. &
-         associated(user%entropy_pair, dummy_entropy_pair_ptr)) then
-       call neko_error('entropy_pair_type is user, but user%entropy_pair ' // &
-            'is not provided')
+    found = .false.
+    if (params%valid_path('viscous_regularization')) then
+       call json_get(params, 'viscous_regularization', &
+            reg_json)
+       found = .true.
     end if
 
-    call json_core_inst%initialize()
-    call json_core_inst%create_object(reg_params, '')
-    call json_core_inst%add(reg_params, 'c_avisc_entropy', c_avisc_entropy_val)
-    call json_core_inst%add(reg_params, 'c_avisc_low', this%c_avisc_low)
-    call json_core_inst%add(reg_params, 'entropy_pair_type', entropy_pair_type)
-    call json_core_inst%print_to_string(reg_params, buffer)
-    call json_core_inst%destroy(reg_params)
+    if (.not. found) then
+       ! No viscous_regularization specified, so we skip setup
+       this%if_viscous_regularization = .false.
+       return
+    else
+       this%if_viscous_regularization = .true.
+    end if
 
-    call reg_json%initialize()
-    call reg_json%load_from_string(buffer)
-
-    regularization_type = 'entropy_viscosity'
-
-    call regularization_factory(this%regularization, regularization_type, &
-         reg_json, this%c_Xh, this%dm_Xh, this%artificial_visc)
-
-    select type (reg => this%regularization)
-    type is (entropy_viscosity_t)
-       call entropy_viscosity_set_fields(reg, this%S, this%u, this%v, this%w, &
-            this%h, this%max_wave_speed, this%msh, this%Xh, this%gs_Xh)
-       if (trim(entropy_pair_type) .eq. 'user') then
-          call entropy_viscosity_set_user_entropy_pair(reg, &
-               user%entropy_pair)
-       end if
-    end select
+    call json_get(reg_json, 'type', viscous_regularization_type)
+    call viscous_regularization_factory(this%viscous_regularization, &
+         viscous_regularization_type, &
+         reg_json, this%c_Xh, this%dm_Xh)
 
     call reg_json%destroy()
 
-  end subroutine setup_regularization
+    if (allocated(viscous_regularization_type)) &
+         deallocate(viscous_regularization_type)
+
+  end subroutine setup_viscous_regularization
 
 end module fluid_scheme_compressible_ns

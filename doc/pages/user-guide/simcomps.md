@@ -40,8 +40,12 @@ in Neko. The list will be updated as new simcomps are added.
 - Probing of fields at selected points \ref simcomp_probes
 - Output of registered fields to a file \ref simcomp_field_writer
 - Computation of forces and torque on a surface \ref simcomp_force_torque
+- Computation of the wall shear stress on labelled zones \ref
+  simcomp_wall_shear_stress
 - Boundary operations on labelled zones \ref simcomp_boundary_operation
 - Total vector flux through labelled zones \ref simcomp_boundary_flux
+- Sampling of fields on labelled boundary zones to CSV or HDF5 \ref
+  simcomp_boundary_data_writer
 - Lagrangian particle tracking \ref simcomp_lagrangian_particles
 - Computation of subgrid-scale (SGS) eddy viscosity via a SGS model \ref
   simcomp_les_model
@@ -61,6 +65,8 @@ in Neko. The list will be updated as new simcomps are added.
 - Streaming of data for in-situ field manipulation \ref simcomp_data_streamer
 - Sub-sampling of fields by changing polynomial order and masking by point
   zones \ref simcomp_field_subsampler
+- Computation of the viscous coefficient in artificial viscosity method (AVM)
+  via a particular model \ref simcomp_avm
 
 ## Controlling execution and file output
 Each simulation component is, by default, executed once per time step to perform
@@ -69,12 +75,17 @@ associated computations and output. However, this can be modified by using the
 `output_control` and `output_value` for the output to disk. The parameters
 for the `_control` values are the same as for the fluid and checkpointing.
 Additionally, one can set `output_control` to `global` and `never`. The former
-will sync the `output_` parameter to that of the fluid. Choosing `never` will
-suppress output all together. If no parameters for the `output_` parameters are
+will sync the `output_` parameter to that of the fluid. For most components,
+choosing `never` suppresses output altogether. If no `output_` parameters are
 provided, they are set to be the same as for `compute_`. In order to simplify
 the configuration, the `compute_control` can be set to `fluid_output` to sync
 the computation to the fluid output. All `_value` keywords can also be strings
 pointing to an entry under `constants.scalars`.
+
+The [probes component](@ref simcomp_probes_sampling_output) writes every
+computed sample immediately. Its `output_` parameters control HDF5 file
+rotation and do not suppress samples or control CSV output. Use
+`compute_control: "never"` to disable probe sampling.
 
 For simcomps that compute 3D fields, the output can be either added to the main
 `.fld` file, containing velocity and pressure, or saved to a separate file. For
@@ -155,7 +166,7 @@ the divergence.  By default, registers the result in `divergence`.
  }
  ~~~~~~~~~~~~~~~
 
-### gradient {#simcomp_gradient}
+#### gradient {#simcomp_gradient}
 Computes the gradient of a field.
 The field to derivate is controlled by the `field` keyword. The simcomp will, by
 default, register the computed components of the gradients in the registry as
@@ -170,7 +181,7 @@ value in the brackets corresponds to the choice of the user keyword.
  }
  ~~~~~~~~~~~~~~~
 
-### weak_gradient {#simcomp_weak_gradient}
+#### weak_gradient {#simcomp_weak_gradient}
 Computes the weak gradient of a field. The weak gradient is value of the
 gradient multiplied by the local value of the mass matrix. This is how a
 gradient term appears in the weak formulation of the governing equations. The
@@ -259,6 +270,52 @@ Optional fields for this simcomp are:
 }
 ~~~~~~~~~~~~~~~
 
+### boundary_data_writer {#simcomp_boundary_data_writer}
+Samples registered fields at the boundary points of one or more labelled zones and writes them to a CSV or HDF5 file. Unlike \ref simcomp_field_writer, which writes whole volume fields, this simcomp writes only the points on the selected zones, together with their coordinates and, optionally, the surface quadrature weight `area` and the unit normals. It works for both static and moving (e.g. ALE) simulations.
+
+The simcomp only samples fields that are already in the registry. To write a derived quantity, add the simcomp that produces it first and then list its registered field names here. For example, use \ref simcomp_gradient or \ref simcomp_derivative for spatial derivatives, or \ref simcomp_wall_shear_stress for the wall shear stress.
+
+Mandatory fields for this simcomp are:
+- `zone_indices`: the labelled boundary zones to include.
+- `fields`: the registered field names to sample, one column each.
+- `output_filename`: the output file, ending in `.csv`, `.h5` or `.hdf5`.
+
+Optional fields for this simcomp are:
+- `output_normals`: if `true`, include the unit normal components `n_x`, `n_y` and `n_z`. The normals point out of the wall into the fluid. Default `true`.
+- `output_area`: if `true`, include the surface quadrature weight `area`. Default `true`.
+- `append_output`: HDF5 only. Selects between appending samples into shared datasets and writing each sample into its own `Step_i` subgroup, exactly as for \ref simcomp_probes. Default `true`.
+- `start_time`: only write samples after this time. Default `0.0`.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "boundary_data_writer",
+  "name": "wall_data",
+  "zone_indices": [7],
+  "fields": ["p", "u", "v", "w", "tau_mag"],
+  "output_filename": "wall_data.csv",
+  "output_normals": true,
+  "output_area": true,
+  "output_control": "tsteps",
+  "output_value": 50
+}
+~~~~~~~~~~~~~~~
+
+@note Each boundary quadrature point is written once per facet, so points shared between facets appear more than once. This is intended: `area` is the per-facet quadrature weight.
+
+#### Output files
+
+The geometry (coordinates, plus the optional normals and `area`) is written differently for a static and a moving mesh, so that it is stored only where it is actually needed.
+
+On a **static mesh**, the geometry is constant and is written once to a companion file, while the main file holds only `time` and the sampled fields:
+- CSV: geometry in `<name>_mesh.csv` (columns `x, y, z`, then `n_x, n_y, n_z` if `output_normals`, then `area` if `output_area`); data in `<name>.csv` (columns `time` then the sampled fields).
+- HDF5: geometry in the `coordinates` dataset; the samples are appended under the `boundary_data` group.
+
+On a **moving mesh (ALE)**, the geometry changes every step, so it is written inline as leading columns of every sample; in addition, the initial (undeformed) geometry is written once as a reference:
+- CSV: `<name>.csv` has columns `time, x, y, z, [n_x, n_y, n_z,] [area]`, then the sampled fields; the initial geometry is in `<name>_initial_mesh.csv`.
+- HDF5: the per-sample geometry is written with each sample under the `boundary_data` group, and the initial geometry is in the `initial_coordinates` dataset.
+
+@attention The `mesh` / `initial_mesh` CSV rows correspond one-to-one, in order, with the points of each time block of the data file.
+
 ### probes {#simcomp_probes}
 Probes selected solution fields at a list of points. This list of points can be
 generated in a variety of ways, but the most common is to use the `csv` type.
@@ -282,6 +339,56 @@ Optional arguments:
 
 It is also possible to set a `start_time` before which the probes will not be
 executed (same behavior as the statistics).
+
+#### Sampling and output {#simcomp_probes_sampling_output}
+
+Use `compute_control` and `compute_value` to set the probe sampling schedule.
+Every computed sample is written to disk immediately, after `start_time` has
+been reached. Probes do not buffer samples for a later output event. If
+`compute_control` is omitted, probes compute and write following `compute_control`,
+even if `output_control` is specified.
+
+The output format determines the meaning of `output_control` and
+`output_value`:
+
+- **CSV:** Every computed sample is appended to the same file. The
+  `output_` parameters do not filter samples or rotate files. In particular,
+  `output_control: "never"` still writes every computed sample.
+- **HDF5:** Every computed sample is written to the current file. The
+  `output_` parameters set the schedule for closing that file and opening
+  the next numbered file. At a sampling step when an output event is due,
+  the current sample is written before the file is rotated.
+  `output_control: "never"` is the default behaviour and disables rotation, keeping all samples in one
+  file for the run. Omitting the output schedule, or setting it to the same
+  control mode and value as the compute schedule, also keeps one file for
+  the run.
+
+To disable probe sampling and sample output in either format, set
+`compute_control: "never"`. The output file and probe coordinates are still
+initialised.
+
+For example, the following configuration requests a compute interval of 10
+time steps and an HDF5 file rotation interval of 100 time steps:
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "probes",
+  "fields": ["u", "v", "w", "p"],
+  "output_file": "probes.hdf5",
+  "compute_control": "tsteps",
+  "compute_value": 10,
+  "output_control": "tsteps",
+  "output_value": 100,
+  "points": [
+    {"type": "points", "coordinates": [0.25, 0.25, 0.25]}
+  ]
+}
+~~~~~~~~~~~~~~~
+
+Changing `output_file` to `probes.csv` writes the same samples every 10 time
+steps to one CSV file; the output schedule has no effect on those samples.
+
+The `output_control` is meant to be used for fault-tolerance, to avoid losing all probes on node failure, since HDF5 files might be unrecoverable if not closed properly. THe default is, however, to simply use one file per run.
 
 #### Supported types
 
@@ -426,6 +533,9 @@ output, where each new sample is appended directly under the `probes` group:
 ~~~~~~~~~~~~~~~
 
 Note that here the sample time is stored as a dedicated variable.
+With `append_output=true`, the HDF5 file stays open until the simulation ends.
+Each sample is written when it is produced.
+
 ### field_writer {#simcomp_field_writer}
 Outputs registered 3D fields to a file. Requires a list of field names
 in the `fields` keyword. Primarily to be used for outputting new fields defined
@@ -618,6 +728,44 @@ When an object undergoes translational or rotational movement, it is often neces
 
 @note **Restarting Simulations:** When restarting an ALE simulation, the code automatically calculates the correct current position of the torque center at the restart time. Therefore, if the intended torque calculation point remains the same, the `center` array in the JSON file should **not** be modified between restarts. If you wish to calculate torque around a *new* point upon restart, the `center` array must specify the coordinates of that new point in the **original, undeformed mesh** (at \f$ t=0 \f$), not its current spatial location.
 
+### wall_shear_stress {#simcomp_wall_shear_stress}
+Computes the wall shear stress on one or more labelled boundary zones and registers the result in the field registry. With \f$ \hat{n} \f$ the unit normal pointing out of the fluid domain and \f$ S \f$ the strain rate tensor, the computed quantity is the tangential part of the traction that the fluid exerts on the wall, \f$ \tau = -2 \mu S \cdot \hat{n} + 2 \mu (\hat{n}^T S \hat{n}) \hat{n} \f$. The pressure contribution is purely wall normal and so drops out of the tangential projection. The results are registered as `<computed_field>_x`, `_y`, `_z` and `_mag`, which are zero away from the marked zones.
+
+This simcomp does not write any output of its own. To get the fields onto disk, add a \ref simcomp_field_writer listing the field names to write them to an fld file, or a \ref simcomp_boundary_data_writer to sample them on the boundary and write CSV or HDF5.
+
+@attention For a moving mesh (ALE) simulation: A \ref simcomp_field_writer with an `output_filename` writes to a separate fld series that (as for now) stores the mesh only in its first file, so later files would show the registered stresses on the initial geometry. For an ALE case, either use a \ref simcomp_field_writer **without** an `output_filename`, so the fields are appended to the main fluid output (which re-writes the deformed mesh every step), or use a \ref simcomp_boundary_data_writer, which writes the current wall geometry alongside every sample. On a static mesh this distinction does not matter and either `field_writer` form is fine.
+
+Mandatory fields for this simcomp are:
+- `zone_indices`: the labelled boundary zones to include.
+
+Optional fields for this simcomp are:
+- `computed_field`: base name of the registered fields. Default `"tau"`.
+- `fluid_name`: used to build the default viscosity field name. Default
+  `"fluid"`.
+- `viscosity_field`: the registered field used as \f$ \mu \f$. Default
+  `<fluid_name>_mu_tot`.
+- `components`: which of the four fields to register, given as a list of `"x"`,
+  `"y"`, `"z"` and `"mag"`, or as `"all"` (default). This only controls what is
+  stored, to save memory; the full traction vector is always computed.
+
+~~~~~~~~~~~~~~~{.json}
+{
+  "type": "wall_shear_stress",
+  "name": "wss",
+  "zone_indices": [7],
+  "computed_field": "tau",
+  "components": ["x", "y", "mag"],
+  "compute_control": "tsteps",
+  "compute_value": 10
+}
+~~~~~~~~~~~~~~~
+
+@note `<computed_field>_mag` is always the magnitude of the full traction vector, regardless of which components are registered.
+
+@attention When several zones are given to a single simcomp, they are computed into the same fields. To keep two walls apart, use one simcomp per wall with a different `computed_field` for each.
+
+@note For ALE simulations the wall normals are re-gathered at every time step to account for the moving mesh. If the ALE module is not enabled, they are gathered once during initialization.
+
 ### les_model {#simcomp_les_model}
 Computes a subgrid eddy viscosity field using an SGS model. **Note*:* The simcomp
 *only* computes the eddy viscosity field. You have to select the corresponding
@@ -676,15 +824,15 @@ keywords:
     the maximum spacing of the GLL nodes within the element. The `les_delta`
   field is added to the registry and written to the .fld files.
 - `nut_field`: The name of the SGS eddy viscosity field added to the registry.
-  Defaults to `nut`. This allows to have two different SGS models active, saved
-  to different fields. For example, one for the scalar and one to the fluid.
-- `extrapolation`: Whether or not extrapolate the velocity to
+  Defaults to `nut`. This allows two different SGS models to be active and saved
+  to different fields, for example one for the scalar and one for the fluid.
+- `extrapolation`: Whether or not to extrapolate the velocity to
   compute the eddy viscosity.
-  - `true`: extrapolate the velocity as the same order as
+  - `true`: extrapolate the velocity to the same order as
   the time scheme.
-  - `false`: the default option, disable the extrapolation.
+  - `false`: the default option, disables extrapolation.
   In this case, the estimation of the eddy viscosity is of first order, while
-  circumvent the risk of unstable extrapolation.
+  circumventing the risk of unstable extrapolation.
 
  ~~~~~~~~~~~~~~~{.json}
  {
@@ -724,10 +872,10 @@ keywords:
  direction(s) via the `avg_direction`, which can be `x`, `y`, `z`, `xy`, `xz` or
   `yz`. Averaging across two directions will lead to the average being saved as
   a .csv, whereas a 2D .fld file will be produced when averaging across only one
-  axis. The filename is controlled  by the `output_filename` keyword and default to
-  `user_stats`. We encourage reading the [statistics guide](@ref
-  statistics-guide) for further details regarding how statistics are computed in
-  Neko.
+  axis. The base filename is controlled by the `output_filename` keyword and
+  defaults to `user_stats`. The run and per-run counters follow the convention
+  in the [statistics guide](@ref statistics-guide). We encourage reading that
+  guide for further details regarding how statistics are computed in Neko.
 
   Keep in mind that simcomps execute before `user%compute`, so if you update
   some custom averaged field in that routine, it will not affect the average
@@ -843,5 +991,41 @@ keywords used by the latter can also be specified, with the exception of
    "polynomial_order": 3,
    "compute_control": "tsteps",
    "compute_value": 10
+ }
+ ~~~~~~~~~~~~~~~
+
+### artificial_viscosity_model {#simcomp_avm}
+Computes an artificial viscosity field using a particular model. **Note:** The simcomp
+*only* computes the artificial viscosity field. You have to select the 
+corresponding `reg_coeff_name` in the compressible fluid solver's
+`viscous_regularization` JSON object to actually enable artificial viscosity;
+see @ref case-file_viscous-regularization. The simcomp is controlled by the
+following keywords:
+
+- `model`: Selects the artificial viscosity model. Currently available models are:
+  - `entropy_viscosity`: An entropy-based viscosity aimed at shock capturing;
+    see Guermond et al. (https://doi.org/10.1016/j.jcp.2010.11.043).
+    - `c_avisc_low`: Coefficient for low-order artificial viscosity, defaults
+    to 0.5
+    - `c_avisc_entropy`: Coefficient for entropy-based artificial viscosity,
+    defaults to 1.0
+    - `entropy_pair_type` defaults to `euler`. On the CPU, `user` selects the
+      entropy density, flux and wave speed supplied by `user%entropy_pair`.
+
+  With `case.numerics.euler_idp.enabled`, run this component every step and
+  select its field in `case.fluid.viscous_regularization.reg_coeff_name`.
+  The Mach 800 jet example shows both settings.
+
+- `field_name`: The name of the artificial viscosity field added to the registry.
+  Defaults to the model name.
+  It must match the `reg_coeff_name` selected by the consuming regularization
+  object.
+
+ ~~~~~~~~~~~~~~~{.json}
+ {
+   "type": "artificial_viscosity_model",
+   "name": "artificial_viscosity_model",
+   "model": "entropy_viscosity",
+   "field_name": "entropy_viscosity"
  }
  ~~~~~~~~~~~~~~~

@@ -43,6 +43,8 @@ submodule (krylov) krylov_fctry
   use fusedcg_device, only : fusedcg_device_t
   use fusedcg_cpld_device, only : fusedcg_cpld_device_t
   use bicgstab, only : bicgstab_t
+  use bicgstab_cpld, only : bicgstab_cpld_t
+  use bicgstab_device, only : bicgstab_device_t
   use gmres, only : gmres_t
   use cheby, only : cheby_t
   use cheby_device, only : cheby_device_t
@@ -51,11 +53,12 @@ submodule (krylov) krylov_fctry
   use num_Types, only : rp
   use precon, only : pc_t
   use utils, only : neko_type_error, neko_type_registration_error
+  use json_utils, only : json_get
   use neko_config, only : NEKO_BCKND_SX, NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: KSP_KNOWN_TYPES(9) = [character(len=20) :: &
+  character(len=20) :: KSP_KNOWN_TYPES(10) = [character(len=20) :: &
        "cg", &
        "pipecg", &
        "fused_cg", &
@@ -63,6 +66,7 @@ submodule (krylov) krylov_fctry
        "gmres", &
        "cheby", &
        "bicgstab", &
+       "coupled_bicgstab", &
        "fused_coupled_cg", &
        "coupled_cg"]
 
@@ -76,7 +80,7 @@ contains
   !! @param abstol The absolute tolerance, optional.
   !! @param M The preconditioner, optional.
   !! @param monitor Enable/disable residual history, optional.
-  module subroutine krylov_solver_factory(object, n, type_name, &
+  module subroutine krylov_solver_factory_components(object, n, type_name, &
        max_iter, abstol, M, monitor)
     class(ksp_t), allocatable, intent(inout) :: object
     integer, intent(in), value :: n
@@ -90,7 +94,27 @@ contains
 
     call object%init(n, max_iter, M = M, abs_tol = abstol, monitor = monitor)
 
-  end subroutine krylov_solver_factory
+  end subroutine krylov_solver_factory_components
+
+  !> Factory for Krylov solvers from a JSON solver block. Both creates and
+  !! initializes the object.
+  !! @param object The object to be allocated.
+  !! @param n Size of the vectors the solver operates on.
+  !! @param json The solver block, with the solver type under `type`.
+  !! @param M The preconditioner, optional.
+  module subroutine krylov_solver_factory_json(object, n, json, M)
+    class(ksp_t), allocatable, intent(inout) :: object
+    integer, intent(in), value :: n
+    type(json_file), intent(inout) :: json
+    class(pc_t), optional, intent(in), target :: M
+    character(len=:), allocatable :: type_name
+
+    call json_get(json, 'type', type_name)
+    call krylov_solver_allocator(object, type_name)
+
+    call object%init_from_json(n, json, M = M)
+
+  end subroutine krylov_solver_factory_json
 
   !> Krylov solver allocator.
   !! @param object The object to be allocated.
@@ -174,7 +198,18 @@ contains
        end if
 
     case ('bicgstab')
-       allocate(bicgstab_t::object)
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          allocate(bicgstab_device_t::object)
+       else
+          allocate(bicgstab_t::object)
+       end if
+
+    case ('coupled_bicgstab')
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call neko_error('Coupled BiCGStab is not supported on devices')
+       else
+          allocate(bicgstab_cpld_t::object)
+       end if
 
     case default
        do i = 1, krylov_registry_size

@@ -96,13 +96,13 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine scalar_rhs_maker_ext_hip(fs_lag_d, fs_laglag_d, fs_d, rho, &
+     subroutine scalar_rhs_maker_ext_hip(fs_lag_d, fs_laglag_d, fs_d, &
           ext1, ext2, ext3, n) &
           bind(c, name = 'scalar_rhs_maker_ext_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d
-       real(c_rp) :: rho, ext1, ext2, ext3
+       real(c_rp) :: ext1, ext2, ext3
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_ext_hip
   end interface
@@ -125,13 +125,13 @@ module rhs_maker_device
 
   interface
      subroutine scalar_rhs_maker_bdf_hip(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n) &
+          rho_cp_d, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'scalar_rhs_maker_bdf_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
-       type(c_ptr), value :: fs_d, s_d, B_d
-       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
+       type(c_ptr), value :: fs_d, s_d, B_d, rho_cp_d
+       reaL(c_rp) :: dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_hip
   end interface
@@ -149,13 +149,12 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine scalar_rhs_maker_oifs_hip(phi_s_d, bf_s_d, rho, dt, n) &
+     subroutine scalar_rhs_maker_oifs_hip(phi_s_d, bf_s_d, rho_cp_d, dt, n) &
           bind(c, name = 'scalar_rhs_maker_oifs_hip')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: bf_s_d
-       type(c_ptr), value :: phi_s_d
-       reaL(c_rp) :: rho, dt
+       type(c_ptr), value :: bf_s_d, phi_s_d, rho_cp_d
+       reaL(c_rp) :: dt
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_hip
   end interface
@@ -190,13 +189,13 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine scalar_rhs_maker_ext_cuda(fs_lag_d, fs_laglag_d, fs_d, rho, &
+     subroutine scalar_rhs_maker_ext_cuda(fs_lag_d, fs_laglag_d, fs_d, &
           ext1, ext2, ext3, n) &
           bind(c, name = 'scalar_rhs_maker_ext_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d
-       real(c_rp) :: rho, ext1, ext2, ext3
+       real(c_rp) :: ext1, ext2, ext3
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_ext_cuda
   end interface
@@ -219,13 +218,13 @@ module rhs_maker_device
 
   interface
      subroutine scalar_rhs_maker_bdf_cuda(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n) &
+          rho_cp_d, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'scalar_rhs_maker_bdf_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
-       type(c_ptr), value :: fs_d, s_d, B_d
-       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
+       type(c_ptr), value :: fs_d, s_d, B_d, rho_cp_d
+       reaL(c_rp) :: dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_cuda
   end interface
@@ -243,13 +242,12 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho, dt, n) &
+     subroutine scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho_cp_d, dt, n) &
           bind(c, name = 'scalar_rhs_maker_oifs_cuda')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: bf_s_d
-       type(c_ptr), value :: phi_s_d
-       reaL(c_rp) :: rho, dt
+       type(c_ptr), value :: bf_s_d, phi_s_d, rho_cp_d
+       reaL(c_rp) :: dt
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_cuda
   end interface
@@ -284,13 +282,13 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine scalar_rhs_maker_ext_opencl(fs_lag_d, fs_laglag_d, fs_d, rho, &
+     subroutine scalar_rhs_maker_ext_opencl(fs_lag_d, fs_laglag_d, fs_d, &
           ext1, ext2, ext3, n) &
           bind(c, name = 'scalar_rhs_maker_ext_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d
-       real(c_rp) :: rho, ext1, ext2, ext3
+       real(c_rp) :: ext1, ext2, ext3
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_ext_opencl
   end interface
@@ -311,13 +309,13 @@ module rhs_maker_device
 
   interface
      subroutine scalar_rhs_maker_bdf_opencl(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n) &
+          rho_cp_d, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'scalar_rhs_maker_bdf_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
-       type(c_ptr), value :: fs_d, s_d, B_d
-       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
+       type(c_ptr), value :: fs_d, s_d, B_d, rho_cp_d
+       reaL(c_rp) :: dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_opencl
   end interface
@@ -335,13 +333,12 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine scalar_rhs_maker_oifs_opencl(phi_s_d, bf_s_d, rho, dt, n) &
+     subroutine scalar_rhs_maker_oifs_opencl(phi_s_d, bf_s_d, rho_cp_d, dt, n) &
           bind(c, name = 'scalar_rhs_maker_oifs_opencl')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: bf_s_d
-       type(c_ptr), value :: phi_s_d
-       reaL(c_rp) :: rho, dt
+       type(c_ptr), value :: bf_s_d, phi_s_d, rho_cp_d
+       reaL(c_rp) :: dt
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_opencl
   end interface
@@ -361,10 +358,10 @@ module rhs_maker_device
 
   interface
      subroutine rhs_maker_ext_metal(abx1_d, aby1_d, abz1_d, &
-                                     abx2_d, aby2_d, abz2_d, &
-                                     bfx_d, bfy_d, bfz_d, &
-                                     rho, ab1, ab2, ab3, n) &
-                                     bind(c, name = 'rhs_maker_ext_metal')
+          abx2_d, aby2_d, abz2_d, &
+          bfx_d, bfy_d, bfz_d, &
+          rho, ab1, ab2, ab3, n) &
+          bind(c, name = 'rhs_maker_ext_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: abx1_d, aby1_d, abz1_d
@@ -376,13 +373,13 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine scalar_rhs_maker_ext_metal(fs_lag_d, fs_laglag_d, fs_d, rho, &
+     subroutine scalar_rhs_maker_ext_metal(fs_lag_d, fs_laglag_d, fs_d, &
           ext1, ext2, ext3, n) &
           bind(c, name = 'scalar_rhs_maker_ext_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: fs_lag_d, fs_laglag_d, fs_d
-       real(c_rp) :: rho, ext1, ext2, ext3
+       real(c_rp) :: ext1, ext2, ext3
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_ext_metal
   end interface
@@ -403,13 +400,13 @@ module rhs_maker_device
 
   interface
      subroutine scalar_rhs_maker_bdf_metal(s_lag_d, s_laglag_d, fs_d, s_d, B_d, &
-          rho, dt, bd2, bd3, bd4, nbd, n) &
+          rho_cp_d, dt, bd2, bd3, bd4, nbd, n) &
           bind(c, name = 'scalar_rhs_maker_bdf_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
        type(c_ptr), value :: s_lag_d, s_laglag_d
-       type(c_ptr), value :: fs_d, s_d, B_d
-       reaL(c_rp) :: rho, dt, bd2, bd3, bd4
+       type(c_ptr), value :: fs_d, s_d, B_d, rho_cp_d
+       reaL(c_rp) :: dt, bd2, bd3, bd4
        integer(c_int) :: nbd, n
      end subroutine scalar_rhs_maker_bdf_metal
   end interface
@@ -427,13 +424,12 @@ module rhs_maker_device
   end interface
 
   interface
-     subroutine scalar_rhs_maker_oifs_metal(phi_s_d, bf_s_d, rho, dt, n) &
+     subroutine scalar_rhs_maker_oifs_metal(phi_s_d, bf_s_d, rho_cp_d, dt, n) &
           bind(c, name = 'scalar_rhs_maker_oifs_metal')
        use, intrinsic :: iso_c_binding
        import c_rp
-       type(c_ptr), value :: bf_s_d
-       type(c_ptr), value :: phi_s_d
-       reaL(c_rp) :: rho, dt
+       type(c_ptr), value :: bf_s_d, phi_s_d, rho_cp_d
+       reaL(c_rp) :: dt
        integer(c_int) :: n
      end subroutine scalar_rhs_maker_oifs_metal
   end interface
@@ -510,11 +506,10 @@ contains
 
   end subroutine rhs_maker_ext_device
 
-  subroutine scalar_rhs_maker_ext_device(fs_lag, fs_laglag, fs, &
-       rho, ext_coeffs, n)
+  subroutine scalar_rhs_maker_ext_device(fs_lag, fs_laglag, fs, ext_coeffs, n)
     type(field_t), intent(inout) :: fs_lag
     type(field_t), intent(inout) :: fs_laglag
-    real(kind=rp), intent(in) :: rho, ext_coeffs(4)
+    real(kind=rp), intent(in) :: ext_coeffs(4)
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: fs(n)
     type(c_ptr) :: fs_d
@@ -522,16 +517,16 @@ contains
     fs_d = device_get_ptr(fs)
 
 #ifdef HAVE_HIP
-    call scalar_rhs_maker_ext_hip(fs_lag%x_d, fs_laglag%x_d, fs_d, rho, &
+    call scalar_rhs_maker_ext_hip(fs_lag%x_d, fs_laglag%x_d, fs_d, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_CUDA
-    call scalar_rhs_maker_ext_cuda(fs_lag%x_d, fs_laglag%x_d, fs_d, rho, &
+    call scalar_rhs_maker_ext_cuda(fs_lag%x_d, fs_laglag%x_d, fs_d, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_OPENCL
-    call scalar_rhs_maker_ext_opencl(fs_lag%x_d, fs_laglag%x_d, fs_d, rho, &
+    call scalar_rhs_maker_ext_opencl(fs_lag%x_d, fs_laglag%x_d, fs_d, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #elif HAVE_METAL
-    call scalar_rhs_maker_ext_metal(fs_lag%x_d, fs_laglag%x_d, fs_d, rho, &
+    call scalar_rhs_maker_ext_metal(fs_lag%x_d, fs_laglag%x_d, fs_d, &
          ext_coeffs(1), ext_coeffs(2), ext_coeffs(3), n)
 #endif
 
@@ -583,14 +578,14 @@ contains
 
   end subroutine rhs_maker_bdf_device
 
-  subroutine scalar_rhs_maker_bdf_device(s_lag, fs, s, B, rho, dt, &
+  subroutine scalar_rhs_maker_bdf_device(s_lag, fs, s, B, rho_cp, dt, &
        bd, nbd, n)
     integer, intent(in) :: n, nbd
-    type(field_t), intent(in) :: s
+    type(field_t), intent(in) :: s, rho_cp
     type(field_series_t), intent(in) :: s_lag
     real(kind=rp), intent(inout) :: fs(n)
     real(kind=rp), intent(in) :: B(n)
-    real(kind=rp), intent(in) :: dt, rho, bd(4)
+    real(kind=rp), intent(in) :: dt, bd(4)
     type(c_ptr) :: fs_d, B_d
 
     fs_d = device_get_ptr(fs)
@@ -598,19 +593,19 @@ contains
 
 #ifdef HAVE_HIP
     call scalar_rhs_maker_bdf_hip(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
-         fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
+         fs_d, s%x_d, B_d, rho_cp%x_d, dt, bd(2), bd(3), bd(4), &
          nbd, n)
 #elif HAVE_CUDA
     call scalar_rhs_maker_bdf_cuda(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
-         fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
+         fs_d, s%x_d, B_d, rho_cp%x_d, dt, bd(2), bd(3), bd(4), &
          nbd, n)
 #elif HAVE_OPENCL
     call scalar_rhs_maker_bdf_opencl(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
-         fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
+         fs_d, s%x_d, B_d, rho_cp%x_d, dt, bd(2), bd(3), bd(4), &
          nbd, n)
 #elif HAVE_METAL
     call scalar_rhs_maker_bdf_metal(s_lag%lf(1)%x_d, s_lag%lf(2)%x_d, &
-         fs_d, s%x_d, B_d, rho, dt, bd(2), bd(3), bd(4), &
+         fs_d, s%x_d, B_d, rho_cp%x_d, dt, bd(2), bd(3), bd(4), &
          nbd, n)
 #endif
 
@@ -648,8 +643,9 @@ contains
 
   end subroutine rhs_maker_oifs_device
 
-  subroutine scalar_rhs_maker_oifs_device(phi_s,bf_s, rho, dt, n)
-    real(kind=rp), intent(in) :: rho, dt
+  subroutine scalar_rhs_maker_oifs_device(phi_s, bf_s, rho_cp, dt, n)
+    type(field_t), intent(in) :: rho_cp
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: n
     real(kind=rp), intent(inout) :: bf_s(n)
     real(kind=rp), intent(inout) :: phi_s(n)
@@ -659,13 +655,13 @@ contains
     bf_s_d = device_get_ptr(bf_s)
 
 #ifdef HAVE_HIP
-    call scalar_rhs_maker_oifs_hip(phi_s_d, bf_s_d, rho, dt, n)
+    call scalar_rhs_maker_oifs_hip(phi_s_d, bf_s_d, rho_cp%x_d, dt, n)
 #elif HAVE_CUDA
-    call scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho, dt, n)
+    call scalar_rhs_maker_oifs_cuda(phi_s_d, bf_s_d, rho_cp%x_d, dt, n)
 #elif HAVE_OPENCL
-    call scalar_rhs_maker_oifs_opencl(phi_s_d, bf_s_d, rho, dt, n)
+    call scalar_rhs_maker_oifs_opencl(phi_s_d, bf_s_d, rho_cp%x_d, dt, n)
 #elif HAVE_METAL
-    call scalar_rhs_maker_oifs_metal(phi_s_d, bf_s_d, rho, dt, n)
+    call scalar_rhs_maker_oifs_metal(phi_s_d, bf_s_d, rho_cp%x_d, dt, n)
 #endif
 
   end subroutine scalar_rhs_maker_oifs_device

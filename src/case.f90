@@ -33,8 +33,6 @@
 !> Defines a simulation case
 module case
   use num_types, only : rp, sp, dp
-  use fluid_pnpn, only : fluid_pnpn_t
-  use fluid_scheme_incompressible, only : fluid_scheme_incompressible_t
   use fluid_scheme_base, only: fluid_scheme_base_t, fluid_scheme_base_factory
   use fluid_output, only : fluid_output_t
   use chkp_output, only : chkp_output_t
@@ -42,12 +40,9 @@ module case
   use parmetis, only : parmetis_partmeshkway
   use redist, only : redist_mesh
   use output_controller, only : output_controller_t
-  use flow_ic, only : set_flow_ic
-  use scalar_ic, only : set_scalar_ic
   use file, only : file_t
   use utils, only : neko_error, mkdir, filename_split, NEKO_FNAME_LEN
   use mesh, only : mesh_t
-  use math, only : NEKO_EPS
   use checkpoint, only: chkp_t
   use time_scheme_controller, only : time_scheme_controller_t
   use logger, only : neko_log, NEKO_LOG_QUIET
@@ -149,16 +144,17 @@ contains
     type(file_t) :: msh_file, bdry_file, part_file
     type(mesh_fld_t) :: msh_part, parts
     logical :: found, logical_val, load_balance
-    logical :: temperature_found = .false.
+    logical :: write_at_start, output_boundary
     integer :: integer_val, var_type
     real(kind=rp) :: real_val
+    real(kind=dp) :: double_val
     real(kind=rp), allocatable :: real_vals(:)
     type(vector_t), pointer :: vec
     character(len=:), allocatable :: string_val, name, file_format
     character(len=NEKO_FNAME_LEN) :: lb_file, lb_name, lb_path, lb_ext
     integer :: output_dir_len
     integer :: precision, layout
-    type(json_file) :: scalar_params, numerics_params
+    type(json_file) :: fluid_params, scalar_params, numerics_params
     type(json_file) :: json_subdict
     integer :: n_scalars, i
     logical :: tmp_feature
@@ -298,11 +294,15 @@ contains
 
     call json_get_or_lookup(this%params, 'case.numerics.polynomial_order', lx)
     lx = lx + 1 ! add 1 to get number of gll points
+    call json_get(this%params, 'case.fluid', fluid_params)
+    call json_get(this%params, 'case.numerics', numerics_params)
+    call json_get_or_default(this%params, 'case.output_boundary', &
+         output_boundary, .false.)
     ! Set time lags in chkp
     call this%chkp%init()
-    this%chkp%tlag => this%time%tlag
-    this%chkp%dtlag => this%time%dtlag
-    call this%fluid%init(this%msh, lx, this%params, this%user, this%chkp)
+    call this%chkp%add_time_state(this%time)
+    call this%fluid%init(this%msh, lx, fluid_params, numerics_params, &
+         this%user, this%chkp, output_boundary)
 
 
     !
@@ -329,7 +329,6 @@ contains
 
     if (scalar) then
        allocate(this%scalars)
-       call json_get(this%params, 'case.numerics', numerics_params)
        if (this%params%valid_path('case.scalar')) then
           ! For backward compatibility
           call json_get(this%params, 'case.scalar', scalar_params)
@@ -350,127 +349,18 @@ contains
     !
     ! Setup initial conditions
     !
-    call json_get(this%params, 'case.fluid.initial_condition.type', &
-         string_val)
-    call json_get(this%params, 'case.fluid.initial_condition', &
-         json_subdict)
-
-    call neko_log%section("Fluid initial condition ")
-
-    if (this%params%valid_path('case.restart_file')) then
-       call neko_log%message("Restart file specified, " // &
-            "initial conditions ignored")
-    else if (trim(string_val) .ne. 'user') then
-       call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
-            this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, string_val, &
-            json_subdict)
-    else
-       call json_get(this%params, 'case.fluid.scheme', string_val)
-       if (trim(string_val) .eq. 'compressible') then
-          call set_flow_ic(this%fluid%rho, &
-               this%fluid%u, this%fluid%v, this%fluid%w, this%fluid%p, &
-               this%fluid%c_Xh, this%fluid%gs_Xh, &
-               this%user%initial_conditions, this%fluid%name)
-       else
-          call set_flow_ic(this%fluid%u, this%fluid%v, this%fluid%w, &
-               this%fluid%p, this%fluid%c_Xh, this%fluid%gs_Xh, &
-               this%user%initial_conditions, this%fluid%name)
-       end if
-    end if
-
-    call neko_log%end_section()
+    call this%fluid%set_initial_condition(fluid_params, this%user, &
+         this%params%valid_path('case.restart_file'))
 
     if (scalar) then
-       call neko_log%section("Scalar initial condition ")
-
-       if (this%params%valid_path('case.restart_file')) then
-          call neko_log%message("Restart file specified, " // &
-               "initial conditions ignored")
-       else if (this%params%valid_path('case.scalar')) then
-          ! For backward compatibility with single scalar
-          call json_get(this%params, 'case.scalar.initial_condition.type', &
-               string_val)
-          call json_get(this%params, &
-               'case.scalar.initial_condition', json_subdict)
-
-          if (trim(string_val) .ne. 'user') then
-             if (trim(this%scalars%scalar_fields(1)%scalar%name) .eq. &
-                  'temperature') then
-                call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%s, &
-                     this%scalars%scalar_fields(1)%scalar%c_Xh, &
-                     this%scalars%scalar_fields(1)%scalar%gs_Xh, &
-                     string_val, json_subdict, 0)
-             else
-                call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%s, &
-                     this%scalars%scalar_fields(1)%scalar%c_Xh, &
-                     this%scalars%scalar_fields(1)%scalar%gs_Xh, &
-                     string_val, json_subdict, 1)
-             end if
-          else
-             call set_scalar_ic(this%scalars%scalar_fields(1)%scalar%name, &
-                  this%scalars%scalar_fields(1)%scalar%s, &
-                  this%scalars%scalar_fields(1)%scalar%c_Xh, &
-                  this%scalars%scalar_fields(1)%scalar%gs_Xh, &
-                  this%user%initial_conditions)
-          end if
-
+       if (this%params%valid_path('case.scalar')) then
+          call this%scalars%set_initial_conditions(scalar_params, this%user, &
+               this%params%valid_path('case.restart_file'))
        else
-          ! Handle multiple scalars
-          do i = 1, n_scalars
-             call json_extract_item(this%params, 'case.scalars', i, &
-                  scalar_params)
-             call json_get(scalar_params, 'initial_condition.type', string_val)
-             call json_get(scalar_params, 'initial_condition', &
-                  json_subdict)
-
-             if (trim(string_val) .ne. 'user') then
-                if (trim(this%scalars%scalar_fields(i)%scalar%name) .eq. &
-                     'temperature') then
-                   call set_scalar_ic( &
-                        this%scalars%scalar_fields(i)%scalar%s, &
-                        this%scalars%scalar_fields(i)%scalar%c_Xh, &
-                        this%scalars%scalar_fields(i)%scalar%gs_Xh, &
-                        string_val, json_subdict, 0)
-                   temperature_found = .true.
-                else
-                   if (temperature_found) then
-                      ! If temperature is found, other scalars start
-                      ! from index 1
-                      call set_scalar_ic( &
-                           this%scalars%scalar_fields(i)%scalar%s, &
-                           this%scalars%scalar_fields(i)%scalar%c_Xh, &
-                           this%scalars%scalar_fields(i)%scalar%gs_Xh, &
-                           string_val, json_subdict, i - 1)
-                   else
-                      ! If temperature is not found, other scalars
-                      ! start from index 0
-                      call set_scalar_ic( &
-                           this%scalars%scalar_fields(i)%scalar%s, &
-                           this%scalars%scalar_fields(i)%scalar%c_Xh, &
-                           this%scalars%scalar_fields(i)%scalar%gs_Xh, &
-                           string_val, json_subdict, i)
-                   end if
-                end if
-             else
-                call set_scalar_ic(this%scalars%scalar_fields(i)%scalar%name,&
-                     this%scalars%scalar_fields(i)%scalar%s, &
-                     this%scalars%scalar_fields(i)%scalar%c_Xh, &
-                     this%scalars%scalar_fields(i)%scalar%gs_Xh, &
-                     this%user%initial_conditions)
-             end if
-          end do
+          call this%scalars%set_initial_conditions(json_subdict, this%user, &
+               this%params%valid_path('case.restart_file'))
        end if
-
-       call neko_log%end_section()
     end if
-
-    ! Add initial conditions to BDF scheme (if present)
-    select type (f => this%fluid)
-    type is (fluid_pnpn_t)
-       call f%ulag%set(f%u)
-       call f%vlag%set(f%v)
-       call f%wlag%set(f%w)
-    end select
 
     !
     ! Validate that the case is properly setup for time-stepping
@@ -544,7 +434,12 @@ contains
          tmp_feature, .false.)
     if (tmp_feature) logical_val = .true.
 
-    call this%output_controller%init(this%time%end_time)
+    ! Whether the initial state of the simulation is written.
+    call json_get_or_default(this%params, 'case.output_at_start', &
+         write_at_start, .true.)
+
+    call this%output_controller%init(this%time%end_time, &
+         time_start = this%time%start_time, write_at_start = write_at_start)
     if (scalar) then
        call this%f_out%init(precision, this%fluid, this%scalars, name = name, &
             path = trim(this%output_directory), &
@@ -566,19 +461,20 @@ contains
     if (trim(string_val) .eq. 'org') then
        ! yes, it should be real_val below for type compatibility
        call json_get_or_lookup(this%params, 'case.nsamples', integer_val)
-       real_val = real(integer_val, kind=rp)
-       call this%output_controller%add(this%f_out, real_val, 'nsamples')
+       double_val = real(integer_val, kind=dp)
+       call this%output_controller%add(this%f_out, double_val, 'nsamples')
     else if (trim(string_val) .eq. 'never') then
-       call this%output_controller%add(this%f_out, 0.0_rp, 'never')
+       call this%output_controller%add(this%f_out, 0.0_dp, 'never')
     else if (trim(string_val) .eq. 'tsteps' .or. &
          trim(string_val) .eq. 'nsamples') then
        call json_get_or_lookup(this%params, 'case.fluid.output_value', &
             integer_val)
-       real_val = real(integer_val, kind=rp)
-       call this%output_controller%add(this%f_out, real_val, string_val)
+       double_val = real(integer_val, kind=dp)
+       call this%output_controller%add(this%f_out, double_val, string_val)
     else if (trim(string_val) .eq. 'simulationtime') then
-       call json_get_or_lookup(this%params, 'case.fluid.output_value', real_val)
-       call this%output_controller%add(this%f_out, real_val, string_val)
+       call json_get_or_lookup(this%params, 'case.fluid.output_value', &
+            double_val)
+       call this%output_controller%add(this%f_out, double_val, string_val)
     else
        call neko_log%error('Unknown output control type for the fluid: ' // &
             trim(string_val))
@@ -601,16 +497,18 @@ contains
             trim(string_val) .eq. 'nsamples') then
           call json_get_or_lookup(this%params, 'case.checkpoint_value', &
                integer_val)
-          real_val = real(integer_val, kind=rp)
+          double_val = real(integer_val, kind=dp)
        else if (trim(string_val) .eq. 'simulationtime') then
           call json_get_or_lookup(this%params, 'case.checkpoint_value', &
-               real_val)
+               double_val)
        else if (trim(string_val) .eq. 'never') then
-          real_val = 0.0_rp
+          double_val = 0.0_rp
        end if
 
-       call this%output_controller%add(this%chkp_out, real_val, string_val, &
-            NEKO_EPS)
+       ! A checkpoint of the initial condition is of no use, so the first
+       ! point of the schedule is skipped.
+       call this%output_controller%add(this%chkp_out, double_val, string_val, &
+            write_at_start = .false.)
     end if
 
     !

@@ -2,6 +2,7 @@
 !
 module user
   use neko
+  use device, only : HOST_TO_DEVICE
   implicit none
 
 contains
@@ -30,8 +31,8 @@ contains
 
     tolerance = 100.0_rp * epsilon(1.0_rp)
     do i = 1, rho%size()
-       x = rho%dof%x(i,1,1,1)
-       y = rho%dof%y(i,1,1,1)
+       x = rho%dof%x%x(i,1,1,1)
+       y = rho%dof%y%x(i,1,1,1)
        rho%x(i,1,1,1) = 0.1_rp * gamma
        u%x(i,1,1,1) = 0.0_rp
        v%x(i,1,1,1) = 0.0_rp
@@ -43,6 +44,7 @@ contains
           v%x(i,1,1,1) = 800.0_rp
        end if
     end do
+    call fields%copy_from(HOST_TO_DEVICE, sync = .true.)
   end subroutine initial_conditions
 
 end module user

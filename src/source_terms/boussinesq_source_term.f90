@@ -138,7 +138,7 @@ contains
     real(kind=rp), intent(in) :: ref_value
     real(kind=rp), intent(in) :: g(3)
     real(kind=rp), intent(in) :: beta
-    type(coef_t) :: coef
+    type(coef_t), intent(in), target :: coef
     real(kind=rp), intent(in) :: start_time
     real(kind=rp), intent(in) :: end_time
 

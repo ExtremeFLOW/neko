@@ -65,7 +65,6 @@ static id<MTLLibrary> get_coef_metal_library(void) {
  */
 static id<MTLComputePipelineState>
 get_coef_pipeline(const char *name) {
-  id<MTLDevice> device = neko_metal_device();
   id<MTLLibrary> lib = get_coef_metal_library();
   NSString *nsName = [NSString stringWithUTF8String:name];
   id<MTLFunction> func = [lib newFunctionWithName:nsName];
@@ -75,7 +74,7 @@ get_coef_pipeline(const char *name) {
   }
   NSError *error = nil;
   id<MTLComputePipelineState> pso =
-    [device newComputePipelineStateWithFunction:func error:&error];
+    neko_metal_new_pipeline(func, NEKO_METAL_MAX_THREADS, &error);
   METAL_CHECK(error);
   return pso;
 }
@@ -141,6 +140,7 @@ void metal_coef_generate_geo(void *G11, void *G12, void *G13,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**
@@ -204,6 +204,7 @@ void metal_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
     [enc endEncoding];
     [cmdBuf commit];
     [cmdBuf waitUntilCompleted];
+    METAL_CHECK_CB(cmdBuf);
   }
 
   /* --- drst kernel (flat, not LX-specific) --- */
@@ -251,6 +252,7 @@ void metal_coef_generate_dxyzdrst(void *drdx, void *drdy, void *drdz,
     [enc endEncoding];
     [cmdBuf commit];
     [cmdBuf waitUntilCompleted];
+    METAL_CHECK_CB(cmdBuf);
   }
 }
 
@@ -291,6 +293,7 @@ void metal_coef_generate_mass(void *B, void *Binv, void *jac, void *w3,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }
 
 /**
@@ -350,4 +353,5 @@ void metal_coef_generate_area_and_normal(void *area, void *nx, void *ny,
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }

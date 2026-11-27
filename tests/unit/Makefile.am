@@ -15,10 +15,13 @@ SUBDIRS = tuple\
 	  global_interpolation\
 	  mean_field\
 	  gather_scatter\
+	  ax\
 	  krylov\
 	  bc\
+	  fluid_pnpn_bc\
 	  signal\
 	  jobctrl\
+	  log\
 	  device\
 	  data_types\
 	  device_math\
@@ -27,8 +30,11 @@ SUBDIRS = tuple\
 	  octree\
 	  vector\
 	  matrix\
+	  tensor3\
+	  tensor4\
 	  case_file_utils\
 	  registry\
+	  errors\
 	  scratch_registry\
 	  fast3d\
 	  time_scheme\
@@ -37,12 +43,22 @@ SUBDIRS = tuple\
 	  euler_idp_limiter\
 	  euler_gll_graph\
 	  time_based_controller\
+	  time_step_controller\
 	  json_utils\
 	  utils\
 	  expression\
 	  point_interpolation\
 	  templates/parallel\
+	  bc_projector\
 	  boundary_operation\
+	  checkpoint_payload\
+	  wall_sampling\
+	  map_1d\
+	  runtime_stats\
+	  geo_compression\
+	  restart_consistency\
+	  crystal_router\
+	  reichardt\
 	  templates/serial
 
 TESTS = device/device_test\
@@ -64,18 +80,24 @@ TESTS = device/device_test\
 	global_interpolation/global_interpolation_test\
 	mean_field/mean_field_test\
 	gather_scatter/gather_scatter_test\
+	ax/ax_test\
 	krylov/krylov_test\
 	bc/bc_test\
+	fluid_pnpn_bc/fluid_pnpn_bc_test\
 	signal/signal_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	device_math/device_math_test\
 	mathops/mathops_test\
 	device_mathops/device_mathops_test\
 	octree/octree_test\
 	vector/vector_test\
 	matrix/matrix_test\
+	tensor3/tensor3_test\
+	tensor4/tensor4_test\
 	case_file_utils/case_file_utils_test\
 	registry/registry_test\
+	errors/errors_test\
 	scratch_registry/scratch_registry_test\
 	fast3d/fast3d_test\
 	time_scheme/time_scheme_test\
@@ -84,12 +106,22 @@ TESTS = device/device_test\
 	euler_idp_limiter/euler_idp_limiter_test\
 	euler_gll_graph/euler_gll_graph_test\
 	time_based_controller/time_based_controller_test\
+	time_step_controller/time_step_controller_test\
 	json_utils/json_utils_test\
 	utils/read_duration_test\
 	expression/expression_test\
 	point_interpolation/point_interpolation_test\
 	templates/parallel/parallel_test\
+	bc_projector/bc_projector_test\
 	boundary_operation/boundary_operation_test\
+	checkpoint_payload/checkpoint_payload_test\
+	wall_sampling/wall_sampling_test\
+	map_1d/map_1d_test\
+	runtime_stats/runtime_stats_test\
+	geo_compression/geo_compression_test\
+	restart_consistency/restart_consistency_test\
+	crystal_router/crystal_router_test\
+	reichardt/reichardt_test\
 	templates/serial/serial_test
 
 # Note we need to list .pf and runner scripts manually
@@ -97,16 +129,20 @@ EXTRA_DIST = \
 	mesh/test_mesh_parallel.pf\
 	quad/test_quad.pf\
 	gather_scatter/test_gather_scatter_parallel.pf\
+	ax/test_ax_factory.pf\
 	krylov/test_krylov.pf\
 	hex/test_hex.pf\
 	tet/test_tet.pf\
 	tri/test_tri.pf\
 	bc/test_bc.pf\
+	bc/bc_test\
+	fluid_pnpn_bc/test_fluid_pnpn_bc.pf\
 	tuple/test_tuple.pf\
 	point/test_point.pf\
 	signal/test_signal.pf\
 	space/test_space_test.pf\
 	jobctrl/test_jobctrl_parallel.pf\
+	log/test_log_parallel.pf\
 	dofmap/test_dofmap_parallel.pf\
 	field/test_field_parallel.pf\
 	global_interpolation/test_glob_interp_par.pf\
@@ -141,6 +177,7 @@ EXTRA_DIST = \
 	gather_scatter/gather_scatter_test\
 	dofmap/dofmap_test\
 	jobctrl/jobctrl_test\
+	log/log_test\
 	math/math_test\
 	field/field_test\
 	global_interpolation/global_interpolation_test\
@@ -149,11 +186,16 @@ EXTRA_DIST = \
 	octree/test_octree.pf\
 	vector/test_vector_parallel.pf\
 	matrix/test_matrix_parallel.pf\
+	tensor3/test_tensor3_parallel.pf\
+	tensor4/test_tensor4_parallel.pf\
 	case_file_utils/test_case_file_utils.pf\
 	registry/test_registry.pf\
 	registry/test_field_registry.pf\
 	registry/test_vector_registry.pf\
 	registry/test_matrix_registry.pf\
+	errors/test_errors.pf\
+	fixtures/error_redirection.f90\
+	fixtures/mesh_fixture.f90\
 	scratch_registry/test_scratch_registry.pf\
 	scratch_registry/test_field_scratch_registry.pf\
 	scratch_registry/test_vector_scratch_registry.pf\
@@ -174,17 +216,41 @@ EXTRA_DIST = \
 	utils/test_read_duration.pf\
 	expression/test_expression.pf\
 	time_based_controller/test_time_based_controller.pf\
+	time_step_controller/test_time_step_controller.pf\
 	point_interpolation/test_point_interpolation_parallel.pf\
+	bc_projector/bc_projector_test\
 	point_interpolation/point_interpolation_test\
+	bc_projector/test_bc_projector.pf\
+	bc_projector/test_coupled_bc_projector.pf\
 	boundary_operation/test_boundary_operation.pf\
+	wall_sampling/test_base.pf\
+	wall_sampling/test_gll.pf\
+	wall_sampling/test_distance.pf\
+	wall_sampling/wall_sampling_test\
+	map_1d/test_map_1d.pf\
+	map_1d/map_1d_test\
+	runtime_stats/test_runtime_stats.pf\
+	runtime_stats/runtime_stats_test\
+	geo_compression/test_geo_compression_parallel.pf\
+	geo_compression/geo_compression_test\
+	restart_consistency/test_restart_consistency.pf\
+	restart_consistency/restart_consistency_test\
 	templates/parallel/test_parallel.pf\
 	templates/parallel/parallel_test\
+	checkpoint_payload/test_checkpoint_payload.pf\
+	crystal_router/test_crystal_router_parallel.pf\
+	crystal_router/crystal_router_test\
+	fixtures/mesh_fixture.f90\
+	reichardt/test_reichardt.pf\
 	templates/serial/test_serial.pf
 
 if ENABLE_HDF5
-SUBDIRS += vtkhdf
-TESTS += vtkhdf/vtkhdf_test
-EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf
+SUBDIRS += vtkhdf restart_consistency_hdf5
+TESTS += vtkhdf/vtkhdf_test \
+	restart_consistency_hdf5/restart_consistency_hdf5_test
+EXTRA_DIST += vtkhdf/vtkhdf_parallel.pf \
+	restart_consistency_hdf5/test_restart_consistency_hdf5.pf \
+	restart_consistency_hdf5/restart_consistency_hdf5_test
 endif
 
 UNIT_TEST_MAKEFILES = Makefile $(SUBDIRS:%=%/Makefile)

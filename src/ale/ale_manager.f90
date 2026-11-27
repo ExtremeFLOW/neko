@@ -38,19 +38,15 @@ module ale_manager
   use field, only : field_t
   use coefs, only : coef_t
   use space, only : space_t
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
   use krylov, only : ksp_t, ksp_monitor_t, krylov_solver_factory
-  use precon, only : pc_t, precon_allocator, precon_destroy
+  use precon, only : pc_t, precon_factory
   use bc_list, only : bc_list_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use zero_dirichlet, only : zero_dirichlet_t
   use gather_scatter, only : gs_t, GS_OP_ADD
   use dofmap, only : dofmap_t
-  use jacobi, only : jacobi_t
-  use hsmg, only : hsmg_t
-  use phmg, only : phmg_t
-  use device_jacobi, only : device_jacobi_t
-  use sx_jacobi, only : sx_jacobi_t
   use profiler, only : profiler_start_region, profiler_end_region
   use file, only : file_t
   use logger, only : neko_log, LOG_SIZE
@@ -80,6 +76,8 @@ module ale_manager
   use device_math, only : device_glmin, device_copy
   use field_math, only : field_rzero, field_add2, &
        field_cmult
+  use scalar_bc_projector, only : scalar_bc_projector_t
+
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST, device_sync
   use operators, only : rotate_cyc
   use fld_file_output, only : fld_file_output_t
@@ -157,6 +155,7 @@ module ale_manager
      procedure, pass(this) :: solve_base_mesh_displacement
      procedure, pass(this) :: advance_mesh
      procedure, pass(this) :: update_mesh_velocity
+     procedure, pass(this) :: set_initial_mesh_velocity
      procedure, pass(this) :: set_pivot_restart
      procedure, pass(this) :: sync_chkp
      procedure, pass(this) :: request_tracker
@@ -175,19 +174,24 @@ contains
 
   !> Initialize ALE Manager
   !> Sets up solver, registers fields, solves for base shape, etc.
-  subroutine ale_manager_init(this, coef, json, user, chkp)
+  !! @param coef The coefficients.
+  !! @param json The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  !! @param user Type with user-defined procedures.
+  !! @param chkp Checkpoint for restarts.
+  subroutine ale_manager_init(this, coef, json, numerics_params, user, chkp)
     class(ale_manager_t), intent(inout), target :: this
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), target, intent(inout) :: coef
     type(json_file), intent(inout) :: json
+    type(json_file), intent(inout) :: numerics_params
     type(user_t), intent(in) :: user
     type(chkp_t), intent(inout) :: chkp
     type(json_file) :: body_sub, bc_subdict
-    type(json_file) :: precon_params
-    type(time_state_t) :: t_init
+    type(json_file) :: precon_params, solver_params
     integer, allocatable :: zone_indices(:)
     integer :: time_order
     integer :: n_moving_zones
-    integer :: z, tmp_int, ksp_max_iter
+    integer :: z, tmp_int
     integer, allocatable :: moving_zone_ids(:)
     integer :: i, j, k, n_bcs, n, n_bodies
     real(kind=rp), allocatable :: tmp_vec(:)
@@ -203,17 +207,20 @@ contains
     logical :: found_zone
     logical :: has_user_rigid_kin, has_user_mesh_vel
     logical :: has_builtin_osc, has_builtin_rot, is_rot_active
-    logical :: res_monitor, import_base_shapes
+    logical :: import_base_shapes
 
-    if (json%valid_path('case.fluid.ale')) then
-       call json_get(json, 'case.fluid.ale.enabled', this%active)
+    if (json%valid_path('ale')) then
+       call json_get(json, 'ale.enabled', this%active)
     end if
-    call json_get_or_default(json, 'case.numerics.oifs', oifs, .false.)
+    call json_get_or_default(numerics_params, 'oifs', oifs, .false.)
 
     if (.not. this%active) then
        neko_ale => null()
        return
     else if (this%active) then
+       ! force all elements as deformed when mesh changes.
+       call coef%msh%all_deformed()
+
        if (NEKO_BCKND_DEVICE .eq. 1) then
           if ((.not. (NEKO_BCKND_HIP .eq. 1)) .and. &
                (.not. (NEKO_BCKND_CUDA .eq. 1))) then
@@ -223,14 +230,6 @@ contains
        end if
        if (oifs) then
           call neko_error("ALE not currently supported with OIFS.")
-       end if
-       if (json%valid_path('case.checkpoint_format')) then
-          call json_get(json, 'case.checkpoint_format', tmp_str)
-          if (trim(tmp_str) /= 'chkp') then
-             call neko_error("ALE is not supported with the '" // &
-                  trim(tmp_str) // &
-                  "' checkpoint format. Please use 'chkp'.")
-          end if
        end if
        neko_ale => this
     end if
@@ -256,9 +255,9 @@ contains
     call this%y_ref%init(coef%dof, "y_ref")
     call this%z_ref%init(coef%dof, "z_ref")
 
-    call copy(this%x_ref%x, coef%dof%x, n)
-    call copy(this%y_ref%x, coef%dof%y, n)
-    call copy(this%z_ref%x, coef%dof%z, n)
+    call copy(this%x_ref%x, coef%dof%x%x, n)
+    call copy(this%y_ref%x, coef%dof%y%x, n)
+    call copy(this%z_ref%x, coef%dof%z%x, n)
 
     ! Sync to device
     if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -280,7 +279,7 @@ contains
 
     ! Enable B history (Blag, Blaglag)
     call coef%enable_B_history()
-    call json_get(json, 'case.numerics.time_order', time_order)
+    call json_get(numerics_params, 'time_order', time_order)
 
     ! Stuff for zone_id checks
     n_moving_zones = 0
@@ -296,17 +295,17 @@ contains
     this%wm_z => neko_registry%get_field('wm_z')
 
     call get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-         precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes)
+         precon_params, abstol, import_base_shapes, solver_params)
 
     ! Mark BCs
     call this%bc_moving%init_from_components(coef)
     call this%bc_fixed%init_from_components(coef)
 
-    if (json%valid_path('case.fluid.boundary_conditions')) then
-       call json%info('case.fluid.boundary_conditions', n_children = n_bcs)
+    if (json%valid_path('boundary_conditions')) then
+       call json%info('boundary_conditions', n_children = n_bcs)
 
        do i = 1, n_bcs
-          call json_extract_item(json, 'case.fluid.boundary_conditions', &
+          call json_extract_item(json, 'boundary_conditions', &
                i, bc_subdict)
 
           if (allocated(bc_type)) deallocate(bc_type)
@@ -345,8 +344,8 @@ contains
     call this%bc_list%append(this%bc_fixed)
 
     ! Mesh Stiffness
-    if (json%valid_path('case.fluid.ale.solver.mesh_stiffness.type')) then
-       call json%get('case.fluid.ale.solver.mesh_stiffness.type', tmp_str)
+    if (json%valid_path('ale.solver.mesh_stiffness.type')) then
+       call json%get('ale.solver.mesh_stiffness.type', tmp_str)
        this%config%stiffness_type = tmp_str
        if (.not. (trim(tmp_str) .eq. 'built-in')) then
           call neko_error("ALE: stiffness_type must be 'built-in'")
@@ -365,8 +364,8 @@ contains
     call neko_log%message(' ')
 
     ! Bodies
-    if (json%valid_path('case.fluid.ale.bodies')) then
-       call json%info('case.fluid.ale.bodies', n_children = n_bodies)
+    if (json%valid_path('ale.bodies')) then
+       call json%info('ale.bodies', n_children = n_bodies)
        this%config%nbodies = n_bodies
        allocate(this%config%bodies(n_bodies))
        allocate(this%ale_pivot(n_bodies))
@@ -392,7 +391,7 @@ contains
        end do
 
        do i = 1, n_bodies
-          call json_extract_item(json, 'case.fluid.ale.bodies', i, body_sub)
+          call json_extract_item(json, 'ale.bodies', i, body_sub)
           this%config%bodies(i)%id = i
 
           if (body_sub%valid_path('name')) then
@@ -400,7 +399,7 @@ contains
              this%config%bodies(i)%name = tmp_str
           else
              write(this%config%bodies(i)%name, '(A,I0)') 'body_', i
-          endif
+          end if
 
           if (body_sub%valid_path('zone_indices')) then
              call json_get(body_sub, 'zone_indices', zone_indices)
@@ -409,7 +408,7 @@ contains
              call neko_error("ALE: body " // &
                   trim(this%config%bodies(i)%name) // &
                   " must have 'zone_indices'")
-          endif
+          end if
 
           ! Oscillation
           this%config%bodies(i)%osc_amp = 0.0_rp
@@ -805,17 +804,7 @@ contains
 
     ! Find the smooth blending function for mesh displacement.
     call this%solve_base_mesh_displacement(coef, json, import_base_shapes, &
-         abstol, ksp_solver, ksp_max_iter, &
-         precon_type, precon_params, res_monitor)
-
-    ! If we are restarting, we skip this. It will be handled
-    ! properly by chkp file.
-    if (.not. json%valid_path('case.restart_file')) then
-       t_init%t = 0.0_rp
-       t_init%tstep = 0
-       t_init%dt = 0.0_rp
-       call this%update_mesh_velocity(coef, t_init)
-    end if
+         solver_params, precon_type, precon_params)
 
     call this%wm_x_lag%init(this%wm_x, 2)
     call this%wm_y_lag%init(this%wm_y, 2)
@@ -830,7 +819,7 @@ contains
     if (allocated(tmp_vec)) deallocate(tmp_vec)
 
     ! Performing mesh_preview.
-    call this%mesh_preview(coef, json)
+    call this%mesh_preview(coef, json, numerics_params)
 
     ! Register checkpoint fields
     call this%register_checkpoint_fields(coef, chkp)
@@ -843,8 +832,7 @@ contains
   !> It finds a smooth blending function for mesh deformation.
   !> For body i: phi_i = 1 on body i zones, phi_i = 0 on all other boundaries.
   subroutine solve_base_mesh_displacement(this, coef, json, &
-       import_base_shapes, abstol, ksp_solver, ksp_max_iter, precon_type, &
-       precon_params, res_monitor)
+       import_base_shapes, solver_params, precon_type, precon_params)
     class(ale_manager_t), intent(inout), target :: this
     class(ax_t), allocatable :: Ax
     class(ksp_t), allocatable :: ksp
@@ -852,10 +840,8 @@ contains
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: json
     logical, intent(in) :: import_base_shapes
-    real(kind=rp), intent(in) :: abstol
-    logical, intent(in) :: res_monitor
-    character(len=*), intent(in) :: ksp_solver, precon_type
-    integer, intent(in) :: ksp_max_iter
+    type(json_file), intent(inout) :: solver_params
+    character(len=*), intent(in) :: precon_type
     type(json_file), intent(inout) :: precon_params
     type(file_t) :: phi_file
     type(field_t), pointer :: phi_ptr => null()
@@ -871,8 +857,8 @@ contains
     real(kind=rp), allocatable :: h2_restore(:, :, :, :)
     type(zero_dirichlet_t) :: bc_active_body
     type(zero_dirichlet_t) :: bc_inactive_body
-    type(bc_list_t) :: bcloc
-    type(bc_list_t) :: bcloc_zeros_only
+    type(scalar_bc_projector_t) :: bc_projector
+    type(scalar_bc_projector_t) :: bc_projector_zeros_only
     type(json_file) :: body_sub
     character(len=256) :: phi_fname
     character(len=:), allocatable :: tmp_str
@@ -889,7 +875,7 @@ contains
 
        do body_idx = 1, this%config%nbodies
 
-          call json_extract_item(json, 'case.fluid.ale.bodies', &
+          call json_extract_item(json, 'ale.bodies', &
                body_idx, body_sub)
 
           call json_get(body_sub, 'base_shape_import_file', tmp_str)
@@ -913,11 +899,10 @@ contains
     call neko_log%message("Starting base mesh motion solve ...")
     n = coef%dof%size()
 
-    call ax_helm_factory(Ax, full_formulation = .false.)
-    call krylov_solver_factory(ksp, n, ksp_solver, &
-         ksp_max_iter, abstol, monitor = res_monitor)
-    call ale_precon_factory(pc, ksp, coef, coef%dof, &
-         coef%gs_h, this%bc_list, precon_type, precon_params)
+    call ax_helm_allocator(Ax, type_name = "standard")
+    call krylov_solver_factory(ksp, n, solver_params)
+    call ale_precon_factory(pc, ksp, coef, this%bc_list, precon_type, &
+         precon_params)
 
     ! Save original h1/h2
     h1_restore = coef%h1
@@ -1018,15 +1003,13 @@ contains
           call bc_inactive_body%finalize()
 
           ! The Full list for the solver (Freeze everything to 0 correction)
-          call bcloc%init()
-          call bcloc%append(this%bc_fixed)
-          call bcloc%append(bc_active_body)
-          call bcloc%append(bc_inactive_body)
+          call bc_projector%mark(this%bc_fixed)
+          call bc_projector%mark(bc_active_body)
+          call bc_projector%mark(bc_inactive_body)
 
           ! The "Zeros Only" list for the field (Reset other boundaries)
-          call bcloc_zeros_only%init()
-          call bcloc_zeros_only%append(this%bc_fixed)
-          call bcloc_zeros_only%append(bc_inactive_body)
+          call bc_projector_zeros_only%mark(this%bc_fixed)
+          call bc_projector_zeros_only%mark(bc_inactive_body)
 
           call field_rzero(this%base_shapes(body_idx))
           this%base_shapes(body_idx)%x = 0.0_rp
@@ -1052,7 +1035,7 @@ contains
           ! Apply Zeros to others.
           ! This ensures fixed walls and other bodies are 0.0,
           ! even if they share grid with a moving wall.
-          call bcloc_zeros_only%apply_scalar(this%base_shapes(body_idx)%x, n)
+          call bc_projector_zeros_only%apply(this%base_shapes(body_idx)%x, n)
 
           ! Compute RHS: RHS = -A * Phi_lifted.
           ! The following is motivated by implementation in Nek5000.
@@ -1062,14 +1045,14 @@ contains
 
           ! Here we use the FULL list to apply zero Dirichlet BC
           ! on all boundaries.
-          call bcloc%apply_scalar(rhs_field%x, n)
+          call bc_projector%apply(rhs_field%x, n)
           call coef%gs_h%op(rhs_field, GS_OP_ADD)
 
           ! Solve
           call field_rzero(corr_field)
           call pc%update()
           monitor(1) = ksp%solve(Ax, corr_field, &
-               rhs_field%x, n, coef, bcloc, coef%gs_h)
+               rhs_field%x, n, coef, bc_projector, coef%gs_h)
 
           ! phi = phi_lifted + phi_corr
           call field_add2(this%base_shapes(body_idx), corr_field, n)
@@ -1091,8 +1074,8 @@ contains
 
           call bc_active_body%free()
           call bc_inactive_body%free()
-          call bcloc%free()
-          call bcloc_zeros_only%free()
+          call bc_projector%free()
+          call bc_projector_zeros_only%free()
 
           ! We let the host to also have the base_shapes so in
           ! user_ale_mesh_vel
@@ -1151,13 +1134,16 @@ contains
 
     if (allocated(h1_restore)) deallocate(h1_restore)
     if (allocated(h2_restore)) deallocate(h2_restore)
-    if (allocated(Ax)) deallocate(Ax)
+    if (allocated(Ax)) then
+       call Ax%free()
+       deallocate(Ax)
+    end if
     if (allocated(ksp)) then
        call ksp%free()
        deallocate(ksp)
     end if
     if (allocated(pc)) then
-       call precon_destroy(pc)
+       call pc%free()
        deallocate(pc)
     end if
 
@@ -1231,6 +1217,21 @@ contains
     call profiler_end_region('ALE add mesh velocity')
 
   end subroutine update_mesh_velocity
+
+  !> Set the mesh velocity at t = 0. Not called on a restart, where the
+  !! mesh velocity is read from the checkpoint.
+  !! @param coef The coefficients.
+  subroutine set_initial_mesh_velocity(this, coef)
+    class(ale_manager_t), intent(inout) :: this
+    type(coef_t), intent(in) :: coef
+    type(time_state_t) :: t_init
+
+    t_init%t = 0.0_rp
+    t_init%tstep = 0
+    t_init%dt = 0.0_rp
+    call this%update_mesh_velocity(coef, t_init)
+
+  end subroutine set_initial_mesh_velocity
 
   !> Main routine to advance the mesh in time
   subroutine advance_mesh(this, coef, time, nadv)
@@ -1345,9 +1346,9 @@ contains
     case ('built-in')
 
        do concurrent (i = 1:n)
-          x = coef%dof%x(i, 1, 1, 1)
-          y = coef%dof%y(i, 1, 1, 1)
-          z = coef%dof%z(i, 1, 1, 1)
+          x = coef%dof%x%x(i, 1, 1, 1)
+          y = coef%dof%y%x(i, 1, 1, 1)
+          z = coef%dof%z%x(i, 1, 1, 1)
 
           max_added_stiff = 0.0_rp
 
@@ -1513,28 +1514,15 @@ contains
   end subroutine ale_manager_free
 
   !> Factory for ALE Preconditioner
-  subroutine ale_precon_factory(pc, ksp, coef, dof, gs, bclst, pctype, params)
+  subroutine ale_precon_factory(pc, ksp, coef, bclst, pctype, json)
     class(pc_t), allocatable, target, intent(inout) :: pc
     class(ksp_t), target, intent(inout) :: ksp
     type(coef_t), target, intent(in) :: coef
-    type(dofmap_t), target, intent(in) :: dof
-    type(gs_t), target, intent(inout) :: gs
     type(bc_list_t), target, intent(inout) :: bclst
     character(len=*), intent(in) :: pctype
-    type(json_file), intent(inout) :: params
-    call precon_allocator(pc, pctype)
-    select type (pcp => pc)
-    type is (jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (sx_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (device_jacobi_t)
-       call pcp%init(coef, dof, gs)
-    type is (hsmg_t)
-       call pcp%init(coef, bclst, params)
-    type is (phmg_t)
-       call pcp%init(coef, bclst, params)
-    end select
+    type(json_file), intent(inout) :: json
+
+    call precon_factory(pc, pctype, coef, bclst, json)
     call ksp%set_pc(pc)
   end subroutine ale_precon_factory
 
@@ -1650,28 +1638,19 @@ contains
        call this%wm_y%copy_from(HOST_TO_DEVICE, sync = .false.)
        call this%wm_z%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-       call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
-       call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
+       call this%wm_x_lag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call this%wm_x_lag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-       call this%wm_y_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
-       call this%wm_y_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
+       call this%wm_y_lag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call this%wm_y_lag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-       call this%wm_z_lag%lf(1)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
-       call this%wm_z_lag%lf(2)%copy_from(HOST_TO_DEVICE, &
-            sync = .false.)
+       call this%wm_z_lag%lf(1)%copy_from(HOST_TO_DEVICE, sync = .false.)
+       call this%wm_z_lag%lf(2)%copy_from(HOST_TO_DEVICE, sync = .false.)
 
-       if (c_associated(coef%dof%x_d)) then
-          call device_memcpy(coef%dof%x, coef%dof%x_d, &
-               size(coef%dof%x), HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(coef%dof%y, coef%dof%y_d, &
-               size(coef%dof%y), HOST_TO_DEVICE, sync = .false.)
-          call device_memcpy(coef%dof%z, coef%dof%z_d, &
-               size(coef%dof%z), HOST_TO_DEVICE, sync = .false.)
+       if (c_associated(coef%dof%x%x_d)) then
+          call coef%dof%x%copy_from(HOST_TO_DEVICE, sync = .false.)
+          call coef%dof%y%copy_from(HOST_TO_DEVICE, sync = .false.)
+          call coef%dof%z%copy_from(HOST_TO_DEVICE, sync = .false.)
        end if
 
        if (c_associated(coef%Blag_d)) then
@@ -1789,10 +1768,14 @@ contains
   end subroutine append_unique_int
 
   !> Performs a preview of the mesh motion to verify quality/topology
-  subroutine mesh_preview(this, coef, json)
+  !! @param coef The coefficients.
+  !! @param json The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  subroutine mesh_preview(this, coef, json, numerics_params)
     class(ale_manager_t), intent(inout) :: this
     type(coef_t), intent(inout) :: coef
     type(json_file), intent(inout) :: json
+    type(json_file), intent(inout) :: numerics_params
     type(fld_file_output_t) :: fout
     type(field_t) :: dummy_field
     type(time_state_t) :: t_state
@@ -1810,28 +1793,28 @@ contains
 
     mesh_preview_active = .false.
 
-    if (json%valid_path('case.fluid.ale.mesh_preview.enabled')) then
-       call json%get('case.fluid.ale.mesh_preview.enabled', &
+    if (json%valid_path('ale.mesh_preview.enabled')) then
+       call json%get('ale.mesh_preview.enabled', &
             mesh_preview_active)
     end if
 
     if (.not. mesh_preview_active) return
 
-    call json_get_or_default(json, 'case.fluid.ale.mesh_preview.start_time', &
+    call json_get_or_default(json, 'ale.mesh_preview.start_time', &
          t_start, 0.0_rp)
-    call json_get(json, 'case.fluid.ale.mesh_preview.end_time', &
+    call json_get(json, 'ale.mesh_preview.end_time', &
          t_end)
-    call json_get(json, 'case.fluid.ale.mesh_preview.dt', &
+    call json_get(json, 'ale.mesh_preview.dt', &
          dt)
     call json_get(json, &
-         'case.fluid.ale.mesh_preview.output_freq', &
+         'ale.mesh_preview.output_freq', &
          output_freq)
 
     call neko_log%section("ALE Mesh Preview")
     call neko_log%message("Executing mesh motion preview...")
 
     n_steps = int((t_end - t_start) / dt)
-    call json_get(json, 'case.numerics.time_order', nadv_sim)
+    call json_get(numerics_params, 'time_order', nadv_sim)
 
     write(log_buf, '(A, ES23.15)') '  Start Time : ', t_start
     call neko_log%message(log_buf)
@@ -1954,11 +1937,11 @@ contains
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(mesh => coef%dof)
-         call device_memcpy(mesh%x, mesh%x_d, mesh%size(), &
+         call device_memcpy(mesh%x%x, mesh%x%x_d, mesh%size(), &
               DEVICE_TO_HOST, sync = .false.)
-         call device_memcpy(mesh%y, mesh%y_d, mesh%size(), &
+         call device_memcpy(mesh%y%x, mesh%y%x_d, mesh%size(), &
               DEVICE_TO_HOST, sync = .false.)
-         call device_memcpy(mesh%z, mesh%z_d, mesh%size(), &
+         call device_memcpy(mesh%z%x, mesh%z%x_d, mesh%size(), &
               DEVICE_TO_HOST, sync = .false.)
        end associate
     end if
@@ -2088,7 +2071,7 @@ contains
           idx = i
        end if
 
-       R = this%body_rot_matrices(:,:,idx)
+       R = this%body_rot_matrices(:, :, idx)
 
        ! Angles
        yaw_deg = atan2(R(2,1), R(1,1)) * rad_to_deg
@@ -2207,16 +2190,15 @@ contains
   end subroutine ghost_tracker_coord_step
 
   subroutine get_ale_solver_params_json(this, json, ksp_solver, precon_type, &
-       precon_params, abstol, ksp_max_iter, res_monitor, import_base_shapes)
+       precon_params, abstol, import_base_shapes, solver_params)
     class(ale_manager_t), intent(inout) :: this
     type(json_file), intent(inout) :: json
     character(len=:), allocatable, intent(inout) :: ksp_solver
     character(len=:), allocatable, intent(inout) :: precon_type
     type(json_file), intent(inout) :: precon_params
     real(kind=rp), intent(out) :: abstol
-    integer, intent(out) :: ksp_max_iter
-    logical, intent(out) :: res_monitor
     logical, intent(out) :: import_base_shapes
+    type(json_file), intent(inout) :: solver_params
     logical :: tmp_logical
     character(len=:), allocatable :: tmp_str
 
@@ -2224,39 +2206,37 @@ contains
     if (allocated(precon_type)) deallocate(precon_type)
 
     call json_get_or_default(json, &
-         'case.fluid.ale.solver.import_base_shape', &
+         'ale.solver.import_base_shape', &
          import_base_shapes, .false.)
 
-    call json_get_or_default(json, 'case.fluid.ale.solver.type', &
+    call json_get_or_default(json, 'ale.solver.type', &
          ksp_solver, 'cg')
 
     call json_get_or_default(json, &
-         'case.fluid.ale.solver.preconditioner.type', precon_type, 'jacobi')
+         'ale.solver.preconditioner.type', precon_type, 'jacobi')
 
-    if (json%valid_path('case.fluid.ale.solver.preconditioner')) then
-       call json_get(json, 'case.fluid.ale.solver.preconditioner', &
+    if (json%valid_path('ale.solver.preconditioner')) then
+       call json_get(json, 'ale.solver.preconditioner', &
             precon_params)
     end if
 
     call json_get_or_default(json, &
-         'case.fluid.ale.solver.absolute_tolerance', abstol, 1.0e-10_rp)
-    call json_get_or_default(json, 'case.fluid.ale.solver.monitor', &
-         res_monitor, .false.)
-    call json_get_or_default(json, 'case.fluid.ale.solver.max_iterations', &
-         ksp_max_iter, 10000)
+         'ale.solver.absolute_tolerance', abstol, 1.0e-10_rp)
 
-    if (json%valid_path('case.fluid.ale.solver.output_base_shape')) then
-       call json%get('case.fluid.ale.solver.output_base_shape', tmp_logical)
+    call json_get(json, 'ale.solver', solver_params)
+
+    if (json%valid_path('ale.solver.output_base_shape')) then
+       call json%get('ale.solver.output_base_shape', tmp_logical)
        this%config%if_output_phi = tmp_logical
     end if
-    if (json%valid_path('case.fluid.ale.solver.output_stiffness')) then
-       call json%get('case.fluid.ale.solver.output_stiffness', tmp_logical)
+    if (json%valid_path('ale.solver.output_stiffness')) then
+       call json%get('ale.solver.output_stiffness', tmp_logical)
        this%config%if_output_stiffness = tmp_logical
     end if
 
     ! Mesh Stiffness
-    if (json%valid_path('case.fluid.ale.solver.mesh_stiffness.type')) then
-       call json%get('case.fluid.ale.solver.mesh_stiffness.type', tmp_str)
+    if (json%valid_path('ale.solver.mesh_stiffness.type')) then
+       call json%get('ale.solver.mesh_stiffness.type', tmp_str)
        this%config%stiffness_type = tmp_str
        if (.not. (trim(tmp_str) .eq. 'built-in')) then
           call neko_error("ALE: stiffness_type must be 'built-in'")
@@ -2265,26 +2245,41 @@ contains
   end subroutine get_ale_solver_params_json
 
   ! Register ALE fields for checkpointing.
+  !! @param coef Coefficients containing the mesh-dependent arrays.
+  !! @param checkpoint Checkpoint in which to register the ALE payload.
   subroutine register_checkpoint_fields(this, coef, checkpoint)
     class(ale_manager_t), intent(inout), target :: this
-    type(coef_t), intent(inout) :: coef
+    type(coef_t), target, intent(inout) :: coef
     type(chkp_t), intent(inout) :: checkpoint
-    integer :: i
+    type(checkpoint_payload_t), pointer :: payload
 
     if (.not. this%active) return
 
-    ! Add checkpoint data for ALE.
-    call checkpoint%add_ale(coef%dof%x, coef%dof%y, &
-         coef%dof%z, coef%dof%x_d, coef%dof%y_d, &
-         coef%dof%z_d, &
-         coef%Blag, coef%Blaglag, coef%Blag_d, coef%Blaglag_d, &
-         this%wm_x, this%wm_y, this%wm_z, &
-         this%wm_x_lag, this%wm_y_lag, &
-         this%wm_z_lag, &
-         this%global_pivot_pos, &
-         this%global_pivot_vel_lag, &
-         this%global_basis_pos, &
-         this%global_basis_vel_lag)
+    payload => checkpoint%add_payload("ale")
+    call payload%add_field(this%wm_x)
+    call payload%add_field(this%wm_y)
+    call payload%add_field(this%wm_z)
+    call payload%add_series(this%wm_x_lag)
+    call payload%add_series(this%wm_y_lag)
+    call payload%add_series(this%wm_z_lag)
+    call payload%add_mesh_array("mesh_x", coef%dof%x%x, coef%msh, coef%Xh, &
+         coef%dof%x%x_d)
+    call payload%add_mesh_array("mesh_y", coef%dof%y%x, coef%msh, coef%Xh, &
+         coef%dof%y%x_d)
+    call payload%add_mesh_array("mesh_z", coef%dof%z%x, coef%msh, coef%Xh, &
+         coef%dof%z%x_d)
+    call payload%add_mesh_array("B_lag", coef%Blag, coef%msh, coef%Xh, &
+         coef%Blag_d)
+    call payload%add_mesh_array("B_laglag", coef%Blaglag, coef%msh, &
+         coef%Xh, coef%Blaglag_d)
+    call payload%add_array("pivot_position", this%global_pivot_pos, &
+         replicated = .true.)
+    call payload%add_array("pivot_velocity_lag", &
+         this%global_pivot_vel_lag, replicated = .true.)
+    call payload%add_array("basis_position", this%global_basis_pos, &
+         replicated = .true.)
+    call payload%add_array("basis_velocity_lag", &
+         this%global_basis_vel_lag, replicated = .true.)
 
   end subroutine register_checkpoint_fields
 end module ale_manager

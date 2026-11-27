@@ -61,16 +61,22 @@ def test_user_stats(launcher_script, request, log_file, tmp_path):
         result.returncode == 0
     ), f"neko process failed with exit code {result.returncode}"
 
-    stats_file = tmp_path / "user_stats.csv"
+    stats_file = tmp_path / "user_stats0.csv"
     assert stats_file.exists(), (
         f"user_stats output was not written to {tmp_path}"
     )
 
     csv = np.genfromtxt(stats_file, delimiter=",")
-    mean = np.mean(csv[12:25, 2])
-    error = (mean - 0.5) / 0.5
+    # One sample only: the average over an interval of zero length at the
+    # start of the run is not written.
+    assert np.all(csv[:, 0] == csv[-1, 0]), (
+        f"Expected a single sample in {stats_file}, got times {csv[:, 0]}"
+    )
+    mean = np.mean(csv[:, 2])
+    error = abs(mean - 0.5) / 0.5
 
+    # The scalar is filled with random numbers, so the tolerance has to cover
+    # the sampling noise of the average rather than a round-off error.
     assert (
-         error < 1e-4
+         error < 5e-3
     ), f"Error exceeded tolerance: {error}"
-

@@ -63,7 +63,7 @@ contains
     lsmoothing = 0.1_rp ! length scale of smoothing at the edges
 
     do i = 1, bc%msk(0)
-       x = u%dof%x(bc%msk(i), 1, 1, 1)
+       x = u%dof%x%x(bc%msk(i), 1, 1, 1)
        u%x(bc%msk(i), 1, 1, 1) = &
             step( x/lsmoothing ) * step( (1._rp - x)/lsmoothing )
 

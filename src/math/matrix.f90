@@ -62,6 +62,8 @@ module matrix
      procedure, pass(m) :: get_nrows => matrix_nrows
      !> Returns the number of columns in the matrix.
      procedure, pass(m) :: get_ncols => matrix_ncols
+     !> Return dimensions of the matrix
+     procedure, pass(m) :: get_dims => matrix_dims
      !> Assignment \f$ m = w \f$
      procedure, pass(m) :: matrix_assign_matrix
      !> Assignment \f$ m = s \f$.
@@ -184,6 +186,13 @@ contains
     integer :: nc
     nc = m%ncols
   end function matrix_ncols
+
+  !> Returns the dimensions of the matrix.
+  pure function matrix_dims(m) result(dims)
+    class(matrix_t), intent(in) :: m
+    integer :: dims(2)
+    dims = [m%nrows, m%ncols]
+  end function matrix_dims
 
   !> Assignment \f$ m = w \f$
   subroutine matrix_assign_matrix(m, w)

@@ -17,4 +17,10 @@ fi
 
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 
+# add_unit_test.py needs Python 3.7 or newer.
+if ! python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3, 7) else 1)' 2>/dev/null; then
+    echo "error: python3 must be version 3.7 or newer" >&2
+    exit 1
+fi
+
 exec python3 "${script_dir}/add_unit_test.py" create-suite "$@"

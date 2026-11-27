@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -198,8 +198,9 @@ extern "C" {
   void hip_masked_atomic_reduction(void *a, void *b, void *mask,
                                    int *n, int *m, hipStream_t strm) {
 
-    const dim3 nthrds(1024, 1, 1);
-    const dim3 nblcks(((*m)+1024 - 1)/ 1024, 1, 1);
+    const dim3 nthrds(MASKED_ATOMIC_RED_BLOCK, 1, 1);
+    const dim3 nblcks(((*m) + MASKED_ATOMIC_RED_BLOCK - 1) /
+                      MASKED_ATOMIC_RED_BLOCK, 1, 1);
 
     hipLaunchKernelGGL(HIP_KERNEL_NAME(masked_atomic_reduction_kernel<real>),
                        nblcks, nthrds, 0, strm, (real *) a,
@@ -1099,6 +1100,37 @@ extern "C" {
     }
 
     hip_global_reduce_min(((real *) redbuf.host),
+                          (real *) redbuf.dev, 1, stream);
+
+    return ((real *) redbuf.host)[0];
+  }
+
+  /**
+   * Fortran wrapper glamax
+   * Take the maximum absolute value of a vector of length n
+   */
+  real hip_glamax(void *a, int *n, hipStream_t stream) {
+    const dim3 nthrds(1024, 1, 1);
+    const dim3 nblcks(((*n)+1024 - 1)/ 1024, 1, 1);
+    const int nb = ((*n) + 1024 - 1)/ 1024;
+    const real zero = 0.0;
+
+    hip_redbuf_check_alloc(nb);
+    if( *n > 0) {
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(glamax_kernel<real>),
+                         nblcks, nthrds, 0, stream,
+                         (real *) a, (real *) redbuf.dev, *n);
+      HIP_CHECK(hipGetLastError());
+      hipLaunchKernelGGL(HIP_KERNEL_NAME(reduce_max_kernel<real>),
+                         1, 1024, 0, stream, (real *) redbuf.dev, zero, nb);
+      HIP_CHECK(hipGetLastError());
+    }
+    else {
+      int nel = (int) (redbuf.size / sizeof(real));
+      hip_rzero(redbuf.dev, &nel, stream);
+    }
+
+    hip_global_reduce_max(((real *) redbuf.host),
                           (real *) redbuf.dev, 1, stream);
 
     return ((real *) redbuf.host)[0];

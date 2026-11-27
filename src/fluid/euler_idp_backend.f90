@@ -31,7 +31,7 @@
 !> Backend contract and common data for the Euler GLL-IDP solver.
 module euler_idp_backend
   use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -295,9 +295,10 @@ contains
 
   !> Return the physical time of a Forward Euler evaluation. The incoming
   !! time is Neko's end-of-step time.
-  pure real(kind=rp) function euler_idp_stage_time(time, dt, order, stage) &
+  pure real(kind=dp) function euler_idp_stage_time(time, dt, order, stage) &
        result(value)
-    real(kind=rp), intent(in) :: time, dt
+    real(kind=dp), intent(in) :: time
+    real(kind=rp), intent(in) :: dt
     integer, intent(in) :: order, stage
 
     value = time - dt

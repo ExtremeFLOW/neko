@@ -207,7 +207,7 @@
           "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": true
     },
     "scalarFieldSourceTerm": {
       "type": "object",

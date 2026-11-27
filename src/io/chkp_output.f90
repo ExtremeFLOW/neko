@@ -1,4 +1,4 @@
-! Copyright (c) 2021-2023, The Neko Authors
+! Copyright (c) 2021-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 module chkp_output
   use checkpoint, only : chkp_t
   use output, only : output_t
-  use num_types, only : rp
+  use num_types, only : dp
   implicit none
   private
 
@@ -48,6 +48,13 @@ module chkp_output
 
 contains
 
+  !> Constructor.
+  !! @param chkp The checkpoint to write.
+  !! @param name Optional base name of the files, `fluid` by default.
+  !! @param path Optional path to the write folder, with or without a
+  !! trailing slash.
+  !! @param fmt Optional file format, `hdf5` for HDF5 files.
+  !! @param overwrite Optional, whether each write overwrites the same file.
   subroutine chkp_output_init(this, chkp, name, path, fmt, overwrite)
     class(chkp_output_t), intent(inout) :: this
     type(chkp_t), intent(in), target :: chkp
@@ -57,6 +64,7 @@ contains
     logical, intent(in), optional :: overwrite
     character(len=1024) :: fname
     character(len=10) :: suffix
+    integer :: path_len
 
     suffix = '.chkp'
     if (present(fmt)) then
@@ -67,7 +75,16 @@ contains
 
     fname = 'fluid'
     if (present(name)) fname = trim(name)
-    if (present(path)) fname = trim(path) // trim(fname)
+    if (present(path)) then
+       path_len = len_trim(path)
+       if (path_len .gt. 0) then
+          if (path(path_len:path_len) .eq. '/') then
+             fname = trim(path) // trim(fname)
+          else
+             fname = trim(path) // '/' // trim(fname)
+          end if
+       end if
+    end if
     fname = trim(fname) // trim(suffix)
 
     call this%init_base(fname, overwrite = overwrite)
@@ -85,7 +102,7 @@ contains
   !> Sample a checkpoint at time @a t
   subroutine chkp_output_sample(this, t)
     class(chkp_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
 
     call this%chkp%sync_host()
     call this%file_%write(this%chkp, t)

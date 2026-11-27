@@ -34,7 +34,7 @@
 !! expressions
 module expression_dirichlet_vector
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
   use coefs, only : coef_t
   use expression, only : expression_t, expression_check_finite, NEKO_EXPR_LEN
   use expression_dirichlet, only : expression_mask_coords
@@ -132,6 +132,7 @@ contains
 
     call this%free()
     call this%init_base(coef)
+    this%bc_type = BC_DIRICHLET
 
     if (len_trim(str_x) .eq. 0 .or. len_trim(str_y) .eq. 0 .or. &
          len_trim(str_z) .eq. 0) then
@@ -186,20 +187,11 @@ contains
   !> Finalize.
   !! @details Tabulates the coordinates of the points of the mask and
   !! evaluates whichever of the three expressions do not depend on time.
-  !! @param[in] only_facets Whether to only mark the facets of the mask.
-  subroutine expression_dirichlet_vector_finalize(this, only_facets)
+  subroutine expression_dirichlet_vector_finalize(this)
     class(expression_dirichlet_vector_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    logical :: only_facets_
     integer :: m
 
-    if (present(only_facets)) then
-       only_facets_ = only_facets
-    else
-       only_facets_ = .false.
-    end if
-
-    call this%finalize_base(only_facets_)
+    call this%finalize_base()
 
     m = this%msk(0)
     if (m .eq. 0) return

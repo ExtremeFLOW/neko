@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -40,33 +40,35 @@ module fluid_scheme_compressible
   use bc, only : bc_t
   use fluid_scheme_base, only : fluid_scheme_base_t
   use json_module, only : json_file
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use mesh, only : mesh_t
   use scratch_registry, only : neko_scratch_registry
   use space, only : GLL
   use euler_idp, only : euler_idp_config_t, euler_idp_diagnostics_t
   use user_intf, only : user_t, user_material_properties_intf, &
        dummy_user_material_properties
-  use json_utils, only : json_get_or_default, json_get_or_lookup_or_default
+  use json_utils, only : json_get_or_default, json_get_or_lookup, &
+       json_get_or_lookup_or_default
   use mpi_f08
   use operators, only : cfl_compressible
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use compressible_ops_cpu, only : &
        compressible_ops_cpu_compute_max_wave_speed, &
-       compressible_ops_cpu_compute_entropy, &
        compressible_ops_cpu_conserved_to_primitive, EULER_STATE_OK
   use compressible_ops_device, only : &
        compressible_ops_device_compute_max_wave_speed, &
-       compressible_ops_device_compute_entropy, &
        compressible_ops_device_update_temperature
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX
   use time_state, only : time_state_t
   use logger, only : neko_log, LOG_SIZE
-  use math, only : glsum
+  use math, only : glsum, glamax
+  use device_math, only : device_glamax
+  use compressible_residual, only : compressible_rhs_set_physical_flux
   use num_types, only : i8
   use comm, only : NEKO_COMM, pe_rank
   use utils, only : neko_error
   use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
+  use flow_ic, only : set_flow_ic_user_compressible
   implicit none
   private
 
@@ -83,7 +85,6 @@ module fluid_scheme_compressible
      type(field_t), pointer :: E => null() !< Total energy
      type(field_t), pointer :: temperature => null() !< Temperature field
      type(field_t), pointer :: max_wave_speed => null() !< Maximum wave speed field
-     type(field_t), pointer :: S => null() !< Entropy field
      type(field_t), pointer :: artificial_visc => null() !< Artificial viscosity field (without physical)
      type(field_t), pointer :: kappa => null() !< Thermal conductivity
 
@@ -93,6 +94,18 @@ module fluid_scheme_compressible
      type(euler_idp_config_t) :: euler_idp
      !> Diagnostics produced by the Euler IDP path
      type(euler_idp_diagnostics_t) :: euler_idp_diagnostics
+     !> Largest magnitude of the dynamic viscosity over the domain.
+     real(kind=rp) :: mu_amax = 0.0_rp
+     !> Largest magnitude of the thermal conductivity over the domain.
+     real(kind=rp) :: kappa_amax = 0.0_rp
+
+     !> Whether the physical viscous and heat fluxes are evaluated.
+     logical :: add_physical_flux = .false.
+     !> Whether the physical viscous stress is evaluated.
+     logical :: add_physical_stress = .false.
+     !> Whether a user routine re-evaluates the material properties every
+     !! time-step, in which case the switches above have to be refreshed.
+     logical :: variable_material_properties = .false.
 
      !> Global number of GLL points for the fluid (not unique)
      integer(kind=i8) :: glb_n_points
@@ -107,6 +120,9 @@ module fluid_scheme_compressible
 
      !> Validate that all components are properly allocated
      procedure, pass(this) :: validate => fluid_scheme_compressible_validate
+     !> Set the initial condition with the user routine
+     procedure, pass(this) :: set_user_initial_condition => &
+          fluid_scheme_compressible_set_user_initial_condition
      !> Compute the CFL number
      procedure, pass(this) :: compute_cfl &
           => fluid_scheme_compressible_compute_cfl
@@ -116,9 +132,9 @@ module fluid_scheme_compressible
      !> Update variable material properties
      procedure, pass(this) :: update_material_properties => &
           fluid_scheme_compressible_update_material_properties
-     !> Compute entropy field
-     procedure, pass(this) :: compute_entropy => &
-          fluid_scheme_compressible_compute_entropy
+     !> Refresh the physical-flux switches from the material properties
+     procedure, pass(this) :: update_physical_flux => &
+          fluid_scheme_compressible_update_physical_flux
      !> Compute maximum wave speed
      procedure, pass(this) :: compute_max_wave_speed => &
           fluid_scheme_compressible_compute_max_wave_speed
@@ -133,16 +149,21 @@ contains
   !> @param this The compressible fluid scheme object
   !> @param msh Mesh data structure
   !> @param lx Polynomial order in x-direction
-  !> @param params JSON configuration parameters
+  !> @param params The fluid parameters, i.e. `case.fluid`
+  !> @param numerics_params The numerical parameters, i.e. `case.numerics`
   !> @param scheme Name of the numerical scheme
   !> @param user User-defined parameters and functions
-  subroutine fluid_scheme_compressible_init(this, msh, lx, params, scheme, user)
+  subroutine fluid_scheme_compressible_init(this, msh, lx, params, &
+       numerics_params, scheme, user)
     class(fluid_scheme_compressible_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
-    character(len=*), intent(in) :: scheme
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
+    character(len=*), intent(in) :: scheme
     type(user_t), target, intent(in) :: user
+    logical :: compress_geo
+    real(kind=rp) :: compress_tol
 
     !
     ! SEM simulation fundamentals
@@ -165,11 +186,8 @@ contains
     ! Assign Dofmap to scratch registry
     call neko_scratch_registry%set_dofmap(this%dm_Xh)
 
-    ! Case parameters
-    this%params => params
-
     ! Assign a name
-    call json_get_or_default(params, 'case.fluid.name', this%name, "fluid")
+    call json_get_or_default(params, 'name', this%name, "fluid")
 
     ! Material properties will be set up via set_material_properties
     call neko_registry%add_field(this%dm_Xh, this%name // "_rho")
@@ -200,11 +218,6 @@ contains
     call neko_registry%add_field(this%dm_Xh, "max_wave_speed")
     this%max_wave_speed => neko_registry%get_field("max_wave_speed")
     call this%max_wave_speed%init(this%dm_Xh, "max_wave_speed")
-
-    ! Assign entropy field
-    call neko_registry%add_field(this%dm_Xh, "S")
-    this%S => neko_registry%get_field("S")
-    call this%S%init(this%dm_Xh, "S")
 
     ! Assign artificial viscosity field (without physical viscosity)
     call neko_registry%add_field(this%dm_Xh, "artificial_visc")
@@ -239,10 +252,10 @@ contains
     call this%set_material_properties(params, user)
 
     ! Compressible parameters
-    call json_get_or_default(params, 'case.fluid.gamma', this%gamma, 1.4_rp)
+    call json_get_or_default(params, 'gamma', this%gamma, 1.4_rp)
 
-    call this%euler_idp%init(params)
-    call fluid_scheme_compressible_validate_idp_setup(this, params, user)
+    call this%euler_idp%init(numerics_params)
+    call fluid_scheme_compressible_validate_idp_setup(this, params, numerics_params, user)
 
     ! Calculate global points for logging
     this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
@@ -251,7 +264,21 @@ contains
     !
     ! Log solver information
     !
-    call this%log_solver_info(params, scheme, lx)
+    call this%log_solver_info(numerics_params, scheme, lx)
+
+    ! Compressed geometric factors, read by the standard Helmholtz operator
+    call json_get_or_default(numerics_params, &
+         'compress_geometric_factors', compress_geo, .false.)
+    if (compress_geo) then
+       if (numerics_params%valid_path( &
+            'compress_geometric_factors_tolerance')) then
+          call json_get_or_lookup(numerics_params, &
+               'compress_geometric_factors_tolerance', compress_tol)
+          call this%c_Xh%enable_geo_compression(compress_tol)
+       else
+          call this%c_Xh%enable_geo_compression()
+       end if
+    end if
   end subroutine fluid_scheme_compressible_init
 
   !> Free allocated memory and cleanup resources
@@ -308,10 +335,6 @@ contains
        call this%max_wave_speed%free()
     end if
 
-    if (associated(this%S)) then
-       call this%S%free()
-    end if
-
     if (associated(this%f_x)) then
        call this%f_x%free()
        deallocate(this%f_x)
@@ -337,7 +360,6 @@ contains
     nullify(this%E)
     nullify(this%temperature)
     nullify(this%max_wave_speed)
-    nullify(this%S)
 
     nullify(this%u)
     nullify(this%v)
@@ -367,6 +389,8 @@ contains
     call neko_scratch_registry%request_field(temp, temp_indices(1), .false.)
 
     if (this%euler_idp%enabled) then
+       call this%rho%copy_from(DEVICE_TO_HOST, sync = .false.)
+       call this%p%copy_from(DEVICE_TO_HOST, sync = .true.)
        do i = 1, n
           if (.not. ieee_is_finite(this%rho%x(i,1,1,1)) .or. &
                this%rho%x(i,1,1,1) .le. 0.0_rp) then
@@ -442,11 +466,22 @@ contains
        deallocate(rho_primitive, sound_speed, internal_energy, state_status)
     end if
 
-    !> Compute initial entropy and maximum wave speed from initial conditions
-    call this%compute_entropy()
+    !> Compute maximum wave speed from initial conditions
     call this%compute_max_wave_speed()
 
   end subroutine fluid_scheme_compressible_validate
+
+  !> Set the initial condition of the density, velocity and pressure with the
+  !! user routine.
+  !! @param user Type with user-defined procedures.
+  subroutine fluid_scheme_compressible_set_user_initial_condition(this, user)
+    class(fluid_scheme_compressible_t), intent(inout) :: this
+    type(user_t), intent(in) :: user
+
+    call set_flow_ic_user_compressible(this%rho, this%u, this%v, this%w, &
+         this%p, this%c_Xh, this%gs_Xh, user%initial_conditions, this%name)
+
+  end subroutine fluid_scheme_compressible_set_user_initial_condition
 
   !> Compute CFL number
   !> @param this The compressible fluid scheme object
@@ -454,8 +489,8 @@ contains
   !> @return Computed CFL number
   function fluid_scheme_compressible_compute_cfl(this, dt) result(c)
     class(fluid_scheme_compressible_t), intent(in) :: this
-    real(kind=rp), intent(in) :: dt
-    real(kind=rp) :: c
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: c
     integer :: n
 
     associate(u => this%u, v => this%v, w => this%w, p => this%p, &
@@ -482,7 +517,6 @@ contains
     type(user_t), target, intent(in) :: user
     procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     type(time_state_t) :: dummy_time_state
-    character(len=LOG_SIZE) :: log_buf
     real(kind=rp) :: const_mu, const_kappa
 
     dummy_mp_ptr => dummy_user_material_properties
@@ -500,23 +534,23 @@ contains
 
     if (.not. associated(user%material_properties, dummy_mp_ptr)) then
        this%user_material_properties => user%material_properties
+       this%variable_material_properties = .true.
        call user%material_properties(this%name, this%material_properties, &
             dummy_time_state)
     else
+       this%variable_material_properties = .false.
        this%user_material_properties => dummy_user_material_properties
-       call json_get_or_lookup_or_default(params, 'case.fluid.mu', const_mu, &
+       call json_get_or_lookup_or_default(params, 'mu', const_mu, &
             0.0_rp)
-       call json_get_or_lookup_or_default(params, 'case.fluid.kappa', &
+       call json_get_or_lookup_or_default(params, 'kappa', &
             const_kappa, 0.0_rp)
 
        call field_cfill(this%mu, const_mu)
        call field_cfill(this%kappa, const_kappa)
-
-       write(log_buf, '(A,ES13.6)') 'mu         :', const_mu
-       call neko_log%message(log_buf)
-       write(log_buf, '(A,ES13.6)') 'kappa      :', const_kappa
-       call neko_log%message(log_buf)
     end if
+
+    ! Reported by log_solver_info, once the Fluid section is open.
+    call this%update_physical_flux()
 
   end subroutine fluid_scheme_compressible_set_material_properties
 
@@ -528,29 +562,56 @@ contains
     class(fluid_scheme_compressible_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
+    if (.not. this%variable_material_properties) return
+
     call this%user_material_properties(this%name, this%material_properties, &
          time)
 
+    call this%update_physical_flux()
+
   end subroutine fluid_scheme_compressible_update_material_properties
 
-  !> Compute entropy field S = 1/(gamma-1) * rho * (log(p) - gamma * log(rho))
+  !> Refresh the physical-flux switches from the current material properties.
+  !> @details Decides whether the physical Navier-Stokes viscous and heat
+  !> fluxes have to be evaluated at all, by testing \f$ \max_i |\mu_i| \f$
+  !> and \f$ \max_i |\kappa_i| \f$ against zero.
+  !>
+  !> On a device backend the reduction runs as a kernel over the device
+  !> resident arrays. Inspecting the host mirrors `mu%x` and `kappa%x`
+  !> instead would be wrong as well as slow: `field_cfill`, and the
+  !> `device_math` routines a user file calls, only write `%x_d`, so the
+  !> host copies stay at their initial zero and the solver would silently
+  !> degrade to Euler.
+  !>
+  !> The reduction is global, so all ranks agree on the branch taken even
+  !> when the viscosity is non-zero on only some of them.
   !> @param this The compressible fluid scheme object
-  subroutine fluid_scheme_compressible_compute_entropy(this)
+  subroutine fluid_scheme_compressible_update_physical_flux(this)
     class(fluid_scheme_compressible_t), intent(inout) :: this
+    real(kind=rp) :: mu_amax, kappa_amax
     integer :: n
 
-    n = this%S%dof%size()
+    n = this%dm_Xh%size()
 
-    !> TODO: Add support for SX
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call compressible_ops_device_compute_entropy(this%S, this%p, this%rho, &
-            this%gamma, n)
+       mu_amax = device_glamax(this%mu%x_d, n)
+       kappa_amax = device_glamax(this%kappa%x_d, n)
     else
-       call compressible_ops_cpu_compute_entropy(this%S%x, this%p%x, &
-            this%rho%x, this%gamma, n)
+       mu_amax = glamax(this%mu%x, n)
+       kappa_amax = glamax(this%kappa%x, n)
     end if
 
-  end subroutine fluid_scheme_compressible_compute_entropy
+    this%mu_amax = mu_amax
+    this%kappa_amax = kappa_amax
+
+    this%add_physical_stress = (mu_amax .ne. 0.0_rp)
+    this%add_physical_flux = this%add_physical_stress .or. &
+         (kappa_amax .ne. 0.0_rp)
+
+    call compressible_rhs_set_physical_flux(this%add_physical_flux, &
+         this%add_physical_stress)
+
+  end subroutine fluid_scheme_compressible_update_physical_flux
 
   !> Compute maximum wave speed for compressible flows
   !> @param this The compressible fluid scheme object
@@ -574,17 +635,17 @@ contains
 
   !> Log comprehensive solver information
   !> @param this The compressible fluid scheme object
-  !> @param params JSON configuration parameters
+  !> @param numerics_params The numerical parameters, i.e. `case.numerics`
   !> @param scheme Name of the numerical scheme
   !> @param lx Polynomial order in x-direction
-  subroutine fluid_scheme_compressible_log_solver_info(this, params, scheme, lx)
+  subroutine fluid_scheme_compressible_log_solver_info(this, numerics_params, &
+       scheme, lx)
     class(fluid_scheme_compressible_t), intent(inout) :: this
-    type(json_file), intent(inout) :: params
+    type(json_file), intent(inout) :: numerics_params
     character(len=*), intent(in) :: scheme
     integer, intent(in) :: lx
     character(len=LOG_SIZE) :: log_buf
     logical :: logical_val
-    real(kind=rp) :: real_val
     integer :: integer_val
 
     call neko_log%section('Fluid')
@@ -613,13 +674,7 @@ contains
     write(log_buf, '(A,ES13.6)') 'gamma      :', this%gamma
     call neko_log%message(log_buf)
 
-    ! Compressible-specific parameters
-    call json_get_or_default(params, 'case.numerics.c_avisc_low', real_val, &
-         0.5_rp)
-    write(log_buf, '(A,ES13.6)') 'c_avisc_low:', real_val
-    call neko_log%message(log_buf)
-
-    call json_get_or_default(params, 'case.numerics.time_order', integer_val, 4)
+    call json_get_or_default(numerics_params, 'time_order', integer_val, 4)
     write(log_buf, '(A, I0)') 'RK order   : ', integer_val
     call neko_log%message(log_buf)
     if (this%euler_idp%enabled) then
@@ -630,14 +685,44 @@ contains
        end if
        call neko_log%message(log_buf)
     end if
+
+    call json_get_or_default(numerics_params, &
+         'compress_geometric_factors', logical_val, .false.)
+    write(log_buf, '(A, L1)') 'Compress G : ', logical_val
+    call neko_log%message(log_buf)
+
+    ! Physical viscosity and conductivity. For user-defined properties the
+    ! fields need not be uniform, so report the largest magnitude found.
+    if (this%variable_material_properties) then
+       write(log_buf, '(A,ES13.6,A)') 'mu         :', this%mu_amax, &
+            ' (user, max)'
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6,A)') 'kappa      :', this%kappa_amax, &
+            ' (user, max)'
+       call neko_log%message(log_buf)
+    else
+       write(log_buf, '(A,ES13.6)') 'mu         :', this%mu_amax
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES13.6)') 'kappa      :', this%kappa_amax
+       call neko_log%message(log_buf)
+    end if
+
+    if (this%add_physical_flux) then
+       write(log_buf, '(A, A)') 'NS fluxes  : ', 'enabled'
+    else
+       write(log_buf, '(A, A)') 'NS fluxes  : ', &
+            'disabled (mu = kappa = 0, Euler)'
+    end if
+    call neko_log%message(log_buf)
+
     call neko_log%end_section()
 
   end subroutine fluid_scheme_compressible_log_solver_info
 
   !> Validate the restrictions of the opt-in Euler IDP path.
-  subroutine fluid_scheme_compressible_validate_idp_setup(this, params, user)
+  subroutine fluid_scheme_compressible_validate_idp_setup(this, params, numerics_params, user)
     class(fluid_scheme_compressible_t), intent(inout) :: this
-    type(json_file), intent(inout) :: params
+    type(json_file), intent(inout) :: params, numerics_params
     type(user_t), intent(in) :: user
     procedure(user_material_properties_intf), pointer :: dummy_mp_ptr
     character(len=LOG_SIZE) :: message
@@ -655,17 +740,17 @@ contains
        call neko_error('Euler IDP does not support the SX backend')
     end if
 
-    call json_get_or_default(params, 'case.numerics.time_order', &
+    call json_get_or_default(numerics_params, 'time_order', &
          time_order, 4)
     if (time_order .ne. 1 .and. time_order .ne. 3) then
        call neko_error('Euler IDP requires time_order 1 or 3')
     end if
-    call json_get_or_default(params, 'case.numerics.dealias', &
+    call json_get_or_default(numerics_params, 'dealias', &
          dealias, .false.)
     if (dealias) then
        call neko_error('Euler IDP does not support dealiasing')
     end if
-    call json_get_or_default(params, 'case.numerics.oifs', oifs, .false.)
+    call json_get_or_default(numerics_params, 'oifs', oifs, .false.)
     if (oifs) then
        call neko_error('Euler IDP does not support OIFS')
     end if
@@ -674,19 +759,19 @@ contains
     end if
 
     cyclic = .false.
-    if (params%valid_path('case.fluid.cyclic')) then
-       call json_get_or_default(params, 'case.fluid.cyclic', cyclic, .false.)
+    if (params%valid_path('cyclic')) then
+       call json_get_or_default(params, 'cyclic', cyclic, .false.)
     end if
     if (cyclic .or. this%c_Xh%cyclic) then
        call neko_error('Euler IDP does not support rotational periodicity')
     end if
-    if (params%valid_path('case.fluid.source_terms')) then
+    if (params%valid_path('source_terms')) then
        call neko_error('Euler IDP does not support fluid source terms')
     end if
 
     ale_enabled = .false.
-    if (params%valid_path('case.fluid.ale.enabled')) then
-       call json_get_or_default(params, 'case.fluid.ale.enabled', &
+    if (params%valid_path('ale.enabled')) then
+       call json_get_or_default(params, 'ale.enabled', &
             ale_enabled, .false.)
     end if
     if (ale_enabled) then

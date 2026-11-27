@@ -1,0 +1,56 @@
+module test_geo_compression_parallel
+  use pfunit
+  use num_types, only : rp, dp
+  use math, only : NEKO_EPS
+  use pfunit_comm_utils, only : comm_init_test, comm_free_test
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
+  use neko_mpi_types, only : neko_mpi_types_init, neko_mpi_types_free
+  use point, only : point_t
+  use mesh, only : mesh_t
+  use space, only : space_t, GLL
+  use dofmap, only : dofmap_t
+  use gather_scatter, only : gs_t
+  use coefs, only : coef_t
+  use ax_product, only : ax_t, ax_helm_allocator
+  use ax_helm_cpu, only : ax_helm_cpu_t
+  use ax_helm_compr_cpu, only : ax_helm_compr_cpu_t
+  implicit none
+
+  @TestCase
+  type, extends(MPITestCase) :: geo_compression_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type geo_compression_case
+
+contains
+
+  subroutine setUp(this)
+    class(geo_compression_case), intent(inout) :: this
+    call comm_init_test(this%getMpiCommunicator())
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+    call neko_mpi_types_init()
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(geo_compression_case), intent(inout) :: this
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+    call neko_mpi_types_free()
+    call comm_free_test()
+  end subroutine tearDown
+
+  !> Placeholder that checks the suite is wired into the build. It is
+  !! replaced by the geometric factor compression tests once it compiles.
+  @test(npes=[1])
+  subroutine test_geo_compression_dummy(this)
+    class(geo_compression_case), intent(inout) :: this
+
+    @assertTrue(.true.)
+  end subroutine test_geo_compression_dummy
+
+end module test_geo_compression_parallel

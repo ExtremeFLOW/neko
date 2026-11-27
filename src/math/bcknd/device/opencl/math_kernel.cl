@@ -1,7 +1,7 @@
 #ifndef __MATH_MATH_KERNEL_CL__
 #define __MATH_MATH_KERNEL_CL__
 /*
- Copyright (c) 2021-2025, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -880,6 +880,32 @@ __kernel void glmax_kernel(__global const real* __restrict__ a,
   real tmp = a[0];
 
   for (int i = idx; i < n; i += str) { tmp = max(tmp, a[i]); }
+  buf[get_local_id(0)] = tmp;
+  barrier(CLK_LOCAL_MEM_FENCE);
+
+  int i = (get_local_size(0)) >> 1;
+  while (i != 0) {
+    if (get_local_id(0) < i) {
+      buf[get_local_id(0)] = max(buf[get_local_id(0)], buf[get_local_id(0) + i]);
+    }
+    barrier(CLK_LOCAL_MEM_FENCE);
+    i = i >> 1;
+  }
+
+  if (get_local_id(0) == 0) { buf_h[get_group_id(0)] = buf[0]; }
+}
+
+__kernel void glamax_kernel(__global const real* __restrict__ a,
+                            __global real* __restrict__ buf_h,
+                            const int n) {
+
+  const int idx = get_global_id(0);
+  const int str = get_global_size(0);
+
+  __local real buf[256];
+  real tmp = 0.0;
+
+  for (int i = idx; i < n; i += str) { tmp = max(tmp, fabs(a[i])); }
   buf[get_local_id(0)] = tmp;
   barrier(CLK_LOCAL_MEM_FENCE);
 

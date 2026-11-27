@@ -45,6 +45,7 @@ doc/html
 examples/*/*.nek5000
 examples/*/*0.f0*
 *.chkp
+examples/*/*.h5
 *.lst
 *.metallib
 neko_metallib.c
@@ -70,12 +71,15 @@ share/man/man1
 # Ignore temporary files
 *~
 *.swp
+**.1
 linter-report.txt
 
 # Explicitly ignore binaries to avoid confusion
 neko
 makeneko
 rea2nbin
+gmsh2nmsh
+checkneko
 genmeshbox
 prepart
 average_field_in_space
@@ -87,6 +91,8 @@ libneko*.so
 
 # ! But unignore directories with the same name as binaries
 !contrib/rea2nbin
+!contrib/gmsh2nmsh
+!contrib/checkneko
 !contrib/genmeshbox
 !contrib/prepart
 !contrib/average_field_in_space

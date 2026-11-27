@@ -37,7 +37,7 @@ module jobctrl
        signal_set_timeout, signal_trap_cpulimit
   use utils, only : neko_error, read_duration
   use mpi_f08, only : MPI_Bcast, MPI_LOGICAL, MPI_WTIME
-  use comm, only : NEKO_COMM
+  use comm, only : NEKO_COMM, NEKO_GLOBAL_COMM
   use logger, only : neko_log, LOG_SIZE, NEKO_LOG_QUIET
   implicit none
   private
@@ -104,8 +104,8 @@ contains
        call neko_log%message(log_buf, NEKO_LOG_QUIET)
     end if
 
-    ! Let rank zero decide if we should stop
-    call MPI_Bcast(jstop, 1, MPI_LOGICAL, 0, NEKO_COMM, ierr)
+    ! Let global rank zero decide if all simulations should stop
+    call MPI_Bcast(jstop, 1, MPI_LOGICAL, 0, NEKO_GLOBAL_COMM, ierr)
 
   end function jobctrl_time_limit
 

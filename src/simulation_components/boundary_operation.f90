@@ -32,7 +32,7 @@
 !
 !> Implements `boundary_operation_t`.
 module boundary_operation
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use json_module, only : json_file
   use simulation_component, only : simulation_component_t
   use registry, only : neko_registry
@@ -51,6 +51,8 @@ module boundary_operation
        vector_glsum, vector_glmin, vector_glmax, &
        vector_face_masked_gather_copy_0
   use time_based_controller, only : time_based_controller_t
+  use comm, only : NEKO_COMM
+  use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_SUM
   implicit none
   private
 
@@ -174,7 +176,7 @@ contains
     character(len=:), allocatable :: csv_header
     character(len=LOG_SIZE) :: log_buf
     integer :: i
-    integer :: n_pts
+    integer :: n_pts, glb_n_pts, ierr
 
     this%name = name
     this%log = log
@@ -228,13 +230,15 @@ contains
     end do
     call this%bc%finalize()
 
-    n_pts = this%bc%msk(0)
+    n_pts = this%bc%facet_node_msk(0)
+    call MPI_Allreduce(n_pts, glb_n_pts, 1, MPI_INTEGER, MPI_SUM, NEKO_COMM, &
+         ierr)
     if (n_pts .gt. 0) then
        call this%areas%init(n_pts)
        call this%surface_values%init(n_pts)
        call vector_face_masked_gather_copy_0(this%areas, this%coef%area, &
-            this%bc%msk, this%bc%facet, this%coef%Xh%lx, this%coef%Xh%ly, &
-            this%coef%Xh%lz, n_pts)
+            this%bc%facet_node_msk, this%bc%facet, this%coef%Xh%lx, &
+            this%coef%Xh%ly, this%coef%Xh%lz, n_pts)
     end if
 
     if (present(output_filename)) then
@@ -260,8 +264,7 @@ contains
     end do
     write(log_buf, '(A,*(I0,:,", "))') "Zone indices: ", this%zone_indices
     call neko_log%message(log_buf)
-    write(log_buf, '(A,I0)') "Marked boundary quadrature points: ", &
-         this%bc%msk(0)
+    write(log_buf, '(A,I0)') "Marked boundary quadrature points: ", glb_n_pts
     call neko_log%message(log_buf)
     call neko_log%end_section()
   end subroutine boundary_operation_init_common
@@ -336,11 +339,11 @@ contains
     class(case_t), intent(inout), target :: case
     integer, intent(in) :: order
     character(len=*), intent(in) :: preprocess_control
-    real(kind=rp), intent(in) :: preprocess_value
+    real(kind=dp), intent(in) :: preprocess_value
     character(len=*), intent(in) :: compute_control
-    real(kind=rp), intent(in) :: compute_value
+    real(kind=dp), intent(in) :: compute_value
     character(len=*), intent(in) :: output_control
-    real(kind=rp), intent(in) :: output_value
+    real(kind=dp), intent(in) :: output_value
     integer, intent(in) :: zone_indices(:)
     character(len=*), intent(in) :: field_name
     character(len=*), intent(in) :: operations(:)
@@ -398,7 +401,7 @@ contains
     character(len=:), allocatable :: section_title, header_line, value_line
     integer :: output_col
 
-    n_pts = this%bc%msk(0)
+    n_pts = this%bc%facet_node_msk(0)
 
     this%integral = 0.0_rp
     this%average = 0.0_rp
@@ -407,7 +410,7 @@ contains
     area = 0.0_rp
 
     call vector_masked_gather_copy_0(this%surface_values, &
-         this%field%x, this%bc%msk, this%field%size(), n_pts)
+         this%field%x, this%bc%facet_node_msk, this%field%size(), n_pts)
 
     if (this%compute_integral .or. this%compute_average) then
        this%integral = vector_glsc2(this%surface_values, this%areas, n_pts)
@@ -484,7 +487,7 @@ contains
              output_col = output_col + 1
           end do
           call this%csv_output%write(this%csv_row)
-          call this%output_controller%register_execution()
+          call this%output_controller%register_execution(time)
        end if
     end if
   end subroutine boundary_operation_compute

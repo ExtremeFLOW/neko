@@ -45,9 +45,9 @@ contains
           ! Get idx of point and its coords and store in contigous xyz array
           msk_idx = bc%msk(i)
           ! We want to recycle the flow from 10 units upstream
-          xyz%x(1,i) = coef%dof%x(msk_idx,1,1,1) + 10.0
-          xyz%x(2,i) = coef%dof%y(msk_idx,1,1,1)
-          xyz%x(3,i) = coef%dof%z(msk_idx,1,1,1)
+          xyz%x(1,i) = coef%dof%x%x(msk_idx,1,1,1) + 10.0
+          xyz%x(2,i) = coef%dof%y%x(msk_idx,1,1,1)
+          xyz%x(3,i) = coef%dof%z%x(msk_idx,1,1,1)
           B%x(i) = coef%B(msk_idx,1,1,1)
        end do
        vol = glsum(B%x,n_pts)
@@ -159,12 +159,21 @@ contains
     w => fields%get_by_name("w")
     p => fields%get_by_name("p")
 
+    ! Initialize pressure field to zero
+    call field_rzero(p)
+
     do i = 1, u%dof%size()
-       uvw = channel_ic(u%dof%x(i,1,1,1),u%dof%y(i,1,1,1),u%dof%z(i,1,1,1))
+       uvw = channel_ic(u%dof%x%x(i,1,1,1),u%dof%y%x(i,1,1,1),u%dof%z%x(i,1,1,1))
        u%x(i,1,1,1) = uvw(1)
        v%x(i,1,1,1) = uvw(2)
        w%x(i,1,1,1) = uvw(3)
     end do
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call u%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call v%copy_from(HOST_TO_DEVICE, sync=.false.)
+       call w%copy_from(HOST_TO_DEVICE, sync=.true.)
+    end if
   end subroutine user_ic
 
   ! Kind of brute force with rather large initial disturbances

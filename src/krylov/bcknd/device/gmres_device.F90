@@ -34,13 +34,16 @@
 module gmres_device
   use neko_config, only : NEKO_BCKND_OPENCL, NEKO_BCKND_METAL
   use krylov, only : ksp_t, ksp_monitor_t
+  use gmres, only : GMRES_SPACE_SIZE
   use precon, only : pc_t
   use ax_product, only : ax_t
   use num_types, only : rp, c_rp
   use field, only : field_t
   use coefs, only : coef_t
   use gather_scatter, only : gs_t, GS_OP_ADD
-  use bc_list, only : bc_list_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       vector_bc_projector_components
   use device_identity, only : device_ident_t
   use math, only : rone, rzero, abscmp
   use device_math, only : device_rzero, device_copy, device_glsc3, &
@@ -49,8 +52,11 @@ module gmres_device
        device_sub2
   use device, only : device_map, device_alloc, device_memcpy, HOST_TO_DEVICE, &
        device_event_create, device_unmap, device_free, device_event_destroy, &
-       device_get_ptr, device_event_sync
+       device_get_ptr
   use utils, only : neko_error
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_lookup_or_default
+  use logger, only : neko_log, LOG_SIZE
   use comm, only : NEKO_COMM, pe_size, MPI_REAL_PRECISION
   use mpi_f08, only : MPI_IN_PLACE, MPI_SUM, MPI_Allreduce
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_loc, &
@@ -60,7 +66,7 @@ module gmres_device
 
   !> Standard preconditioned generalized minimal residual method
   type, public, extends(ksp_t) :: gmres_device_t
-     integer :: m_restart = 30
+     integer :: m_restart = GMRES_SPACE_SIZE
      real(kind=rp), allocatable :: w(:)
      real(kind=rp), allocatable :: c(:)
      real(kind=rp), allocatable :: r(:)
@@ -81,6 +87,7 @@ module gmres_device
      type(c_ptr) :: gs_event = C_NULL_PTR
    contains
      procedure, pass(this) :: init => gmres_device_init
+     procedure, pass(this) :: init_from_json => gmres_device_init_from_json
      procedure, pass(this) :: free => gmres_device_free
      procedure, pass(this) :: solve => gmres_device_solve
      procedure, pass(this) :: solve_coupled => gmres_device_solve_coupled
@@ -223,6 +230,28 @@ contains
 
   end subroutine gmres_device_init
 
+  !> Initialise a standard GMRES solver from a JSON solver block. Reads
+  !! `space_size` (default `GMRES_SPACE_SIZE`), then the keys of
+  !! the base type.
+  subroutine gmres_device_init_from_json(this, n, json, M)
+    class(gmres_device_t), target, intent(inout) :: this
+    integer, intent(in) :: n
+    type(json_file), intent(inout) :: json
+    class(pc_t), optional, intent(in), target :: M
+    character(len=LOG_SIZE) :: log_buf
+
+    call json_get_or_lookup_or_default(json, 'space_size', &
+         this%m_restart, GMRES_SPACE_SIZE)
+    if (this%m_restart .lt. 1) then
+       call neko_error('GMRES space_size must be at least 1')
+    end if
+    write(log_buf, '(A,I0)') 'GMRES space: ', this%m_restart
+    call neko_log%message(log_buf)
+
+    call this%ksp_init_from_json(n, json, M = M)
+
+  end subroutine gmres_device_init_from_json
+
   !> Deallocate a standard GMRES solver
   subroutine gmres_device_free(this)
     class(gmres_device_t), intent(inout) :: this
@@ -316,15 +345,15 @@ contains
   end subroutine gmres_device_free
 
   !> Standard GMRES solve
-  function gmres_device_solve(this, Ax, x, f, n, coef, blst, gs_h, niter) &
-       result(ksp_results)
+  function gmres_device_solve(this, Ax, x, f, n, coef, bc_projector, gs_h, &
+       niter) result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(in) :: f
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blst
+    class(scalar_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t) :: ksp_results
     integer, optional, intent(in) :: niter
@@ -376,8 +405,7 @@ contains
             call device_copy(r_d, f_d, n)
             call Ax%compute(w, x%x, coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-            call device_event_sync(this%gs_event)
-            call blst%apply_scalar(w, n)
+            call bc_projector%apply(w, n)
             call device_sub2(r_d, w_d, n)
          end if
 
@@ -398,8 +426,7 @@ contains
 
             call Ax%compute(w, z(1,j), coef, x%msh, x%Xh)
             call gs_h%op(w, n, GS_OP_ADD, this%gs_event)
-            call device_event_sync(this%gs_event)
-            call blst%apply_scalar(w, n)
+            call bc_projector%apply(w, n)
 
             if (NEKO_BCKND_OPENCL .eq. 1 .or. NEKO_BCKND_METAL .eq. 1) then
                do i = 1, j
@@ -488,7 +515,7 @@ contains
 
   !> Standard GMRES coupled solve
   function gmres_device_solve_coupled(this, Ax, x, y, z, fx, fy, fz, &
-       n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
+       n, coef, bc_projector, gs_h, niter) result(ksp_results)
     class(gmres_device_t), intent(inout) :: this
     class(ax_t), intent(in) :: Ax
     type(field_t), intent(inout) :: x
@@ -499,16 +526,16 @@ contains
     real(kind=rp), dimension(n), intent(in) :: fy
     real(kind=rp), dimension(n), intent(in) :: fz
     type(coef_t), intent(inout) :: coef
-    type(bc_list_t), intent(inout) :: blstx
-    type(bc_list_t), intent(inout) :: blsty
-    type(bc_list_t), intent(inout) :: blstz
+    class(vector_bc_projector_t), intent(inout) :: bc_projector
     type(gs_t), intent(inout) :: gs_h
     type(ksp_monitor_t), dimension(3) :: ksp_results
     integer, optional, intent(in) :: niter
+    type(scalar_bc_projector_t), pointer :: bc_x, bc_y, bc_z
 
-    ksp_results(1) = this%solve(Ax, x, fx, n, coef, blstx, gs_h, niter)
-    ksp_results(2) = this%solve(Ax, y, fy, n, coef, blsty, gs_h, niter)
-    ksp_results(3) = this%solve(Ax, z, fz, n, coef, blstz, gs_h, niter)
+    call vector_bc_projector_components(bc_projector, bc_x, bc_y, bc_z)
+    ksp_results(1) = this%solve(Ax, x, fx, n, coef, bc_x, gs_h, niter)
+    ksp_results(2) = this%solve(Ax, y, fy, n, coef, bc_y, gs_h, niter)
+    ksp_results(3) = this%solve(Ax, z, fz, n, coef, bc_z, gs_h, niter)
 
   end function gmres_device_solve_coupled
 

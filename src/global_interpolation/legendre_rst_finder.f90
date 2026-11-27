@@ -245,9 +245,12 @@ contains
     real(kind=rp) :: dt_legendre(this%Xh%lx, 1)
     real(kind=rp) :: jac(3,3)
     real(kind=xp) :: rst_d(3), jacinv(3,3)
+    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: x_hat
+    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: y_hat
+    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: z_hat
     integer :: conv_pts
     logical :: converged
-    integer :: i, j, e, iter, lx
+    integer :: i, j, e, iter, lx, ih
 
 
 
@@ -293,32 +296,40 @@ contains
                   + rst(3,i)*dt_legendre(j, 1)
           end do
           e = (el_list(i))*this%Xh%lxyz + 1
+
+          ! Pull the element data to a static array instead of a slice
+          do ih = 0, lx*lx*lx - 1
+             x_hat(ih + 1) = this%x_hat%x(e + ih)
+             y_hat(ih + 1) = this%y_hat%x(e + ih)
+             z_hat(ih + 1) = this%z_hat%x(e + ih)
+          end do
+
           ! Compute the current xyz value
-          call tnsr3d_el_cpu(resx(i), 1, this%x_hat%x(e), lx, &
+          call tnsr3d_el_cpu(resx(i), 1, x_hat, lx, &
                r_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(resy(i), 1, this%y_hat%x(e), lx, &
+          call tnsr3d_el_cpu(resy(i), 1, y_hat, lx, &
                r_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(resz(i), 1, this%z_hat%x(e), lx, &
+          call tnsr3d_el_cpu(resz(i), 1, z_hat, lx, &
                r_legendre, s_legendre, t_legendre)
           ! This should in principle be merged into some larger kernel
           ! Compute the jacobian
-          call tnsr3d_el_cpu(jac(1,1), 1, this%x_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(1,1), 1, x_hat, lx, &
                dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(1,2), 1, this%y_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(1,2), 1, y_hat, lx, &
                dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(1,3), 1, this%z_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(1,3), 1, z_hat, lx, &
                dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,1), 1, this%x_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(2,1), 1, x_hat, lx, &
                r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,2), 1, this%y_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(2,2), 1, y_hat, lx, &
                r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,3), 1, this%z_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(2,3), 1, z_hat, lx, &
                r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(3,1), 1, this%x_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(3,1), 1, x_hat, lx, &
                r_legendre, s_legendre, dt_legendre)
-          call tnsr3d_el_cpu(jac(3,2), 1, this%y_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(3,2), 1, y_hat, lx, &
                r_legendre, s_legendre, dt_legendre)
-          call tnsr3d_el_cpu(jac(3,3), 1, this%z_hat%x(e), lx, &
+          call tnsr3d_el_cpu(jac(3,3), 1, z_hat, lx, &
                r_legendre, s_legendre, dt_legendre)
           resx(i) = pt_x(i) - resx(i)
           resy(i) = pt_y(i) - resy(i)

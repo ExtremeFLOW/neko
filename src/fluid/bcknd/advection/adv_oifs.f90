@@ -33,11 +33,11 @@
 !> Subroutines to add advection terms to the RHS of a transport equation.
 module adv_oifs
   use advection, only : advection_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use space, only : space_t, GL
   use field, only : field_t
   use coefs, only : coef_t
-  use math, only : copy, rzero
+  use math, only : copy, rzero, addcol3s2
   use operators, only : runge_kutta, set_convect_rst
   use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_SX, NEKO_BCKND_XSMM
   use interpolation, only : interpolator_t
@@ -59,7 +59,7 @@ module adv_oifs
   !! https://dl.acm.org/doi/abs/10.1007/BF01063118
   type, public, extends(advection_t) :: adv_oifs_t
      !> Number of RK4 sub-steps
-     integer :: ntaubd
+     integer :: ntaubd = 0
      !> Coeffs of the higher-order space
      type(coef_t) :: coef_GL
      !> Coeffs of the original space in the simulation
@@ -75,9 +75,9 @@ module adv_oifs
      !> The lagged velocity and scalar fields
      type(field_series_t), pointer :: ulag, vlag, wlag, slag => null()
      !> The times corresponding to the lagged fields
-     real(kind=rp), pointer :: ctlag(:) => null()
+     real(kind=dp), pointer :: ctlag(:) => null()
      !> The time-steps corresponding to the lagged fields
-     real(kind=rp), pointer :: dctlag(:) => null()
+     real(kind=dp), pointer :: dctlag(:) => null()
      !> The time scheme controller for the oifs scheme
      type(time_scheme_controller_t), pointer :: oifs_scheme => null()
      !> The current convecting field in GL space and rst format
@@ -85,9 +85,12 @@ module adv_oifs
      !> The convecting field series in GL space and rst format
      type(field_series_t) :: convr_GL, convs_GL, convt_GL
      !> The time interpolated convecting field used in Runge_Kutta method
-     type(field_t), pointer :: cr_k1, cs_k1, ct_k1
-     type(field_t), pointer :: cr_k23, cs_k23, ct_k23
-     type(field_t), pointer :: cr_k4, cs_k4, ct_k4
+     type(field_t), pointer :: cr_k1 => null(), cs_k1 => null(), &
+          ct_k1 => null()
+     type(field_t), pointer :: cr_k23 => null(), cs_k23 => null(), &
+          ct_k23 => null()
+     type(field_t), pointer :: cr_k4 => null(), cs_k4 => null(), &
+          ct_k4 => null()
      !> The field_list containing the time interpolated convecting field
      type(field_list_t) :: conv_k1, conv_k23, conv_k4
      !> The convecting velocity field in GL space
@@ -106,6 +109,8 @@ module adv_oifs
      procedure, pass(this) :: init => adv_oifs_init
      !> setting characteristic convecting field
      procedure, pass(this) :: set_conv_velocity_fst
+     !> Rebuild the convecting field series after a restart
+     procedure, pass(this) :: restart => adv_oifs_restart
      !> Destructor
      procedure, pass(this) :: free => adv_oifs_free
      !> add the advection term for ALE, i.e. \f$(u - w_m) \cdot \nabla s \f$, to
@@ -131,17 +136,19 @@ contains
   subroutine adv_oifs_init(this, lxd, coef, ctarget, ulag, vlag, wlag, &
        dtlag, tlag, time_scheme, slag)
     implicit none
-    class(adv_oifs_t) :: this
+    class(adv_oifs_t), intent(inout) :: this
     integer, intent(in) :: lxd
     type(coef_t), target :: coef
     real(kind=rp), intent(in) :: ctarget
     type(field_series_t), target, intent(in) :: ulag, vlag, wlag
-    real(kind=rp), target, intent(in) :: dtlag(10)
-    real(kind=rp), target, intent(in) :: tlag(10)
+    real(kind=dp), target, intent(in) :: dtlag(10)
+    real(kind=dp), target, intent(in) :: tlag(10)
     type(time_scheme_controller_t), target, intent(in) :: time_scheme
     type(field_series_t), target, optional :: slag
     integer :: nel, n_GL, n, idx, idy, idz
     real(kind=rp) :: max_cfl_rk4
+
+    call this%free()
 
     ! stability limit for RK4 including safety factor
     max_cfl_rk4 = 2.0
@@ -279,65 +286,47 @@ contains
   subroutine adv_oifs_free(this)
     class(adv_oifs_t), intent(inout) :: this
 
-    call this%coef_GL%free()
-
-    nullify(this%coef_GLL)
-
-    call this%GLL_to_GL%free()
-
-    call this%Xh_GL%free()
-
-    nullify(this%Xh_GLL)
-
-    call this%dtime%free()
-
-    call this%cr_GL%free()
-    call this%cs_GL%free()
-    call this%ct_GL%free()
-
-    call this%convr_GL%free()
-    call this%convs_GL%free()
-    call this%convt_GL%free()
-
     call this%conv_k1%free()
     call this%conv_k23%free()
     call this%conv_k4%free()
 
     if (associated(this%cr_k1)) then
+       call this%cr_k1%free()
        deallocate(this%cr_k1)
     end if
     if (associated(this%cs_k1)) then
+       call this%cs_k1%free()
        deallocate(this%cs_k1)
     end if
     if (associated(this%ct_k1)) then
+       call this%ct_k1%free()
        deallocate(this%ct_k1)
     end if
     if (associated(this%cr_k23)) then
+       call this%cr_k23%free()
        deallocate(this%cr_k23)
     end if
     if (associated(this%cs_k23)) then
+       call this%cs_k23%free()
        deallocate(this%cs_k23)
     end if
     if (associated(this%ct_k23)) then
+       call this%ct_k23%free()
        deallocate(this%ct_k23)
     end if
     if (associated(this%cr_k4)) then
+       call this%cr_k4%free()
        deallocate(this%cr_k4)
     end if
     if (associated(this%cs_k4)) then
+       call this%cs_k4%free()
        deallocate(this%cs_k4)
     end if
     if (associated(this%ct_k4)) then
+       call this%ct_k4%free()
        deallocate(this%ct_k4)
     end if
 
-    nullify(this%ulag)
-    nullify(this%vlag)
-    nullify(this%wlag)
-    nullify(this%slag)
-    nullify(this%ctlag)
-    nullify(this%dctlag)
-    nullify(this%oifs_scheme)
     nullify(this%cr_k1)
     nullify(this%cs_k1)
     nullify(this%ct_k1)
@@ -347,6 +336,14 @@ contains
     nullify(this%cr_k4)
     nullify(this%cs_k4)
     nullify(this%ct_k4)
+
+    call this%convr_GL%free()
+    call this%convs_GL%free()
+    call this%convt_GL%free()
+
+    call this%cr_GL%free()
+    call this%cs_GL%free()
+    call this%ct_GL%free()
 
     if (allocated(this%cx)) then
        if (NEKO_BCKND_DEVICE .eq. 1) then
@@ -366,6 +363,23 @@ contains
        end if
        deallocate(this%cz)
     end if
+
+    call this%dtime%free()
+    call this%GLL_to_GL%free()
+    call this%coef_GL%free()
+    call this%Xh_GL%free()
+
+    nullify(this%coef_GLL)
+    nullify(this%Xh_GLL)
+    nullify(this%ulag)
+    nullify(this%vlag)
+    nullify(this%wlag)
+    nullify(this%slag)
+    nullify(this%ctlag)
+    nullify(this%dctlag)
+    nullify(this%oifs_scheme)
+
+    this%ntaubd = 0
 
   end subroutine adv_oifs_free
 
@@ -400,6 +414,21 @@ contains
 
   end subroutine set_conv_velocity_fst
 
+  !> Rebuild the convecting field series after a restart.
+  !! @details `convr_GL`, `convs_GL` and `convt_GL` are not stored in the
+  !! checkpoint. They are recomputed from the restored lagged velocities,
+  !! first `lf(2)` and then `lf(1)`. The next call to `compute` or
+  !! `compute_scalar` adds the current velocity, as in a run without restart.
+  subroutine adv_oifs_restart(this)
+    class(adv_oifs_t), intent(inout) :: this
+
+    call this%set_conv_velocity_fst(this%ulag%lf(2), this%vlag%lf(2), &
+         this%wlag%lf(2))
+    call this%set_conv_velocity_fst(this%ulag%lf(1), this%vlag%lf(1), &
+         this%wlag%lf(1))
+
+  end subroutine adv_oifs_restart
+
 
   !> Add the advection term for the fluid, i.e. \f$u \cdot \nabla u \f$, to
   !! the RHS using the OIFS method.
@@ -422,8 +451,8 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
-    real(kind=rp) :: tau, tau1, th, dtau
-    integer :: i, ilag, itau, nel, n_GL
+    real(kind=dp) :: tau, tau1, th, dtau
+    integer :: ilag, itau, nel, n_GL
 
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
@@ -474,32 +503,19 @@ contains
             end if
          else
             if (ilag .eq. 1) then
-               do i = 1, n
-                  fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(2) &
-                       * vx%x(i,1,1,1) * coef%B(i,1,1,1)
-                  fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(2) &
-                       * vy%x(i,1,1,1) * coef%B(i,1,1,1)
-                  fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(2) &
-                       * vz%x(i,1,1,1) * coef%B(i,1,1,1)
-               end do
+               call addcol3s2(fx%x, vx%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(2), n)
+               call addcol3s2(fy%x, vy%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(2), n)
+               call addcol3s2(fz%x, vz%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(2), n)
             else
-               do i = 1, n
-                  fx%x(i,1,1,1) = fx%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
-                       * ulag%lf(ilag-1)%x(i,1,1,1) &
-                       * coef%B(i,1,1,1)
-                  fy%x(i,1,1,1) = fy%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
-                       * vlag%lf(ilag-1)%x(i,1,1,1) &
-                       * coef%B(i,1,1,1)
-                  fz%x(i,1,1,1) = fz%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
-                       * wlag%lf(ilag-1)%x(i,1,1,1) &
-                       * coef%B(i,1,1,1)
-               end do
+               call addcol3s2(fx%x, ulag%lf(ilag-1)%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
+               call addcol3s2(fy%x, vlag%lf(ilag-1)%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
+               call addcol3s2(fz%x, wlag%lf(ilag-1)%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
             end if
          end if
          dtau = dctlag(ilag)/real(ntaubd)
@@ -553,8 +569,9 @@ contains
     type(coef_t), intent(in) :: coef
     integer, intent(in) :: n
     real(kind=rp), intent(in), optional :: dt
-    real(kind=rp) :: tau, tau1, th, dtau
-    integer :: i, ilag, itau, nel, n_GL
+
+    real(kind=dp) :: tau, tau1, th, dtau
+    integer :: ilag, itau, nel, n_GL
     nel = coef%msh%nelv
     n_GL = nel * this%Xh_GL%lxyz
 
@@ -592,17 +609,11 @@ contains
             end if
          else
             if (ilag .eq. 1) then
-               do i = 1, n
-                  fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(2) &
-                       * s%x(i,1,1,1) * coef%B(i,1,1,1)
-               end do
+               call addcol3s2(fs%x, s%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(2), n)
             else
-               do i = 1, n
-                  fs%x(i,1,1,1) = fs%x(i,1,1,1) + &
-                       oifs_scheme%diffusion_coeffs%x(ilag+1) &
-                       * slag%lf(ilag-1)%x(i,1,1,1) * coef%B(i,1,1,1)
-               end do
+               call addcol3s2(fs%x, slag%lf(ilag-1)%x, coef%B, &
+                    oifs_scheme%diffusion_coeffs%x(ilag+1), n)
             end if
          end if
          dtau = dctlag(ilag)/real(ntaubd)

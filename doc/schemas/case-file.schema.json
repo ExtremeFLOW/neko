@@ -15,7 +15,7 @@
       "$ref": "#/$defs/case"
     }
   },
-  "additionalProperties": false,
+  "additionalProperties": true,
   "$defs": {
     "constantEntry": {
       "type": "object",
@@ -122,6 +122,9 @@
           "pattern": "^(?:[0-9]+(?:\\.[0-9]+)?|[0-9]+:[0-5]?[0-9](?:\\.[0-9]+)?|[0-9]+:[0-5]?[0-9]:[0-5]?[0-9](?:\\.[0-9]+)?|[0-9]+-(?:[01]?[0-9]|2[0-3]):[0-5]?[0-9]:[0-5]?[0-9](?:\\.[0-9]+)?)$"
         },
         "output_at_end": {
+          "type": "boolean"
+        },
+        "output_at_start": {
           "type": "boolean"
         },
         "nsamples": {
@@ -232,6 +235,33 @@
             "properties": {
               "checkpoint_value": {
                 "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "fluid": {
+                "properties": {
+                  "scheme": {"const": "pnpn"}
+                },
+                "required": ["scheme"]
+              }
+            },
+            "required": ["fluid"]
+          },
+          "then": {
+            "properties": {
+              "numerics": {
+                "properties": {
+                  "polynomial_order": {
+                    "oneOf": [
+                      {"type": "integer", "minimum": 3},
+                      {"$ref": "urn:neko:schema:common#/$defs/constRef"}
+                    ]
+                  }
+                }
               }
             }
           }

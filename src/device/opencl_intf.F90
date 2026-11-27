@@ -94,6 +94,8 @@ module opencl_intf
 
   !> Enum device info
   enum, bind(c)
+    enumerator :: CL_DEVICE_MAX_COMPUTE_UNITS = int(Z'1002')
+    enumerator :: CL_DEVICE_GLOBAL_MEM_SIZE = int(Z'101F')
     enumerator :: CL_DEVICE_NAME = 4139
   end enum
 
@@ -499,6 +501,42 @@ contains
     opencl_device_count = num_devices
 
   end function opencl_device_count
+
+  !> Return the number of compute units of the current device
+  !! (CL_DEVICE_MAX_COMPUTE_UNITS), or 0 if the query fails.
+  !! @note This is SMs on NVIDIA and CUs on AMD, but EUs/Xe-cores on
+  !! Intel GPUs and logical cores on CPU devices.
+  integer function opencl_device_mp_count()
+    integer(c_int32_t), target :: count
+    integer(c_size_t), target :: ret_size
+
+    count = 0
+    if (clGetDeviceInfo(glb_device_id, CL_DEVICE_MAX_COMPUTE_UNITS, &
+         int(c_sizeof(count), c_size_t), c_loc(count), &
+         c_loc(ret_size)) .ne. CL_SUCCESS) then
+       count = 0
+    end if
+
+    opencl_device_mp_count = int(count)
+
+  end function opencl_device_mp_count
+
+  !> Return the global memory size of the current device in bytes
+  !! (CL_DEVICE_GLOBAL_MEM_SIZE), or 0 if the query fails.
+  integer(kind=i8) function opencl_device_total_mem()
+    integer(c_int64_t), target :: mem_size
+    integer(c_size_t), target :: ret_size
+
+    mem_size = 0
+    if (clGetDeviceInfo(glb_device_id, CL_DEVICE_GLOBAL_MEM_SIZE, &
+         int(c_sizeof(mem_size), c_size_t), c_loc(mem_size), &
+         c_loc(ret_size)) .ne. CL_SUCCESS) then
+       mem_size = 0
+    end if
+
+    opencl_device_total_mem = int(mem_size, i8)
+
+  end function opencl_device_total_mem
 #endif
 
 end module opencl_intf

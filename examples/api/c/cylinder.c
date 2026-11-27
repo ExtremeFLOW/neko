@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
   /* neko_solve(&neko_case); */
 
   /* To manually step forward in time, call neko_step() */
-  while (neko_case_time(&neko_case) < neko_case_end_time(&neko_case)) {
+  while (!neko_case_is_done(&neko_case)) {
     neko_step(&neko_case);
   }
 

@@ -2,29 +2,29 @@
 subroutine set_bc(bc_, msh)
   use neko
   implicit none
-  
+
   type(mesh_t), intent(in) :: msh
   type(dirichlet_t), intent(inout) :: bc_
   integer :: i
 
   do i = 1, msh%nelv
      if (msh%facet_neigh(1, i) .eq. 0) then
-       call bc_%mark_facet(1, i) 
+        call bc_%mark_facet(1, i)
      end if
      if (msh%facet_neigh(2, i) .eq. 0) then
-       call bc_%mark_facet(2, i) 
+        call bc_%mark_facet(2, i)
      end if
      if (msh%facet_neigh(3, i) .eq. 0) then
-       call bc_%mark_facet(3, i) 
+        call bc_%mark_facet(3, i)
      end if
      if (msh%facet_neigh(4, i) .eq. 0) then
-       call bc_%mark_facet(4, i) 
+        call bc_%mark_facet(4, i)
      end if
      if (msh%facet_neigh(5, i) .eq. 0) then
-       call bc_%mark_facet(5, i) 
+        call bc_%mark_facet(5, i)
      end if
      if (msh%facet_neigh(6, i) .eq. 0) then
-       call bc_%mark_facet(6, i) 
+        call bc_%mark_facet(6, i)
      end if
   enddo
 end subroutine set_bc
@@ -34,7 +34,7 @@ subroutine set_f(f, c, dm, n, gs_h)
   use neko
   implicit none
 
-  integer,  intent(inout) :: n  
+  integer, intent(inout) :: n
   real(kind=rp), intent(inout), dimension(n) :: f
   real(kind=rp), intent(inout), dimension(n) :: c
   type(dofmap_t), intent(in) :: dm
@@ -45,9 +45,9 @@ subroutine set_f(f, c, dm, n, gs_h)
 
   do i = 1, n
      idx = nonlinear_index(i, dm%Xh%lx, dm%Xh%ly, dm%Xh%lz)
-     dx = dm%x(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
-     dy = dm%y(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
-     dz = dm%z(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
+     dx = dm%x%x(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
+     dy = dm%y%x(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
+     dz = dm%z%x(idx(1), idx(2), idx(3), idx(4)) - 4.0d0
      f(i) = 500d0*exp(-(dx**arg + dy**arg + dz**arg)/arg)
   end do
   call gs_h%op(f, n, GS_OP_ADD)

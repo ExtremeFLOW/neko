@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ contains
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
-       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_labeled_zone(zone_indices(i))
     end do
 
     write(buf, '("density_bc_",I0)') zone_indices(1)
@@ -134,7 +134,7 @@ contains
     call object%init(coef, json)
 
     do i = 1, size(zone_indices)
-       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_labeled_zone(zone_indices(i))
     end do
 
     write(buf, '("pressure_bc_",I0)') zone_indices(1)
@@ -177,10 +177,14 @@ contains
     call json_get(json, "type", type)
 
     select case (trim(type))
-    case ("slip")
-       allocate(slip_t::object)
     case ("symmetry")
        allocate(symmetry_t::object)
+    case ("slip")
+       if (scheme%euler_idp%enabled) then
+          allocate(slip_t::object)
+       else
+          allocate(symmetry_t::object)
+       end if
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
     case ("velocity_value")
@@ -196,7 +200,7 @@ contains
     call json_get_or_lookup(json, "zone_indices", zone_indices)
     call object%init(coef, json)
     do i = 1, size(zone_indices)
-       call object%mark_zone(coef%msh%labeled_zones(zone_indices(i)))
+       call object%mark_labeled_zone(zone_indices(i))
     end do
 
     write(buf, '("velocity_bc_",I0)') zone_indices(1)

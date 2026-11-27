@@ -766,11 +766,11 @@ end subroutine test_floor_timestep_sweep_matches_bisection
 @test
 subroutine test_ssprk_stage_times()
   use pfunit
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use euler_idp, only : euler_idp_stage_time
   implicit none
 
-  real(kind=rp), parameter :: time = 2.0_rp
+  real(kind=dp), parameter :: time = 2.0_dp
   real(kind=rp), parameter :: dt = 0.2_rp
   real(kind=rp), parameter :: tolerance = 16.0_rp * epsilon(1.0_rp)
   real(kind=rp) :: actual

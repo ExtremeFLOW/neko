@@ -4,6 +4,7 @@
 ! density = 1.4, velocity = (3, 0, 0), and pressure = 1.
 module user
   use neko
+  use device, only : HOST_TO_DEVICE
   implicit none
 
 contains
@@ -34,6 +35,7 @@ contains
        w%x(i,1,1,1) = 0.0_rp
        p%x(i,1,1,1) = 1.0_rp
     end do
+    call fields%copy_from(HOST_TO_DEVICE, sync = .true.)
   end subroutine initial_conditions
 
 end module user

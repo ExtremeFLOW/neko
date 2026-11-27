@@ -16,18 +16,54 @@ In this page we use the following convention for a field
 
 The temporal average of a field \f$u\f$ is the approximation of the integral
 
-$$
+\f[
 \langle u \rangle_t = \int_{T_0}^{T_N} u dt
-$$
+\f]
 
 In Neko, this is computed as
 
-$$
+\f[
 \langle u \rangle_t = \sum_{i=0}^N u_i \Delta t_i
-$$
+\f]
 where \f$ u_0 \f$ is the fields value at \f$ T_0 \f$ and \f$ N \f$ is the 
 number of time steps needed to reach 
 \f$ T_N \f$, \f$ T_N = T_0 + \sum_{i=0}^N \Delta t_i \f$.
+
+## Output filenames and restarts {#statistics-output-filenames}
+
+All statistics components use the same output filename convention. This
+includes `fluid_stats`, `scalar_stats`, `fluid_sgs_stats`,
+`scalar_sgs_stats`, and `user_stats`.
+
+Let `name` be the default output stem or the value of `output_filename`. Let
+`R` be the index of the first statistics output in the current run, counting
+outputs from before a restart, and let `K` be the zero-based output index
+within the current run. The filenames are:
+
+- `nameR0.fKKKKK` for `.fld` output, where `KKKKK` is padded to five digits;
+- `nameR.csv` for `.csv` output.
+
+The initial run uses `R = 0`. On restart, `R` continues from the outputs in
+the preceding run, while `K` is reset to zero. For example, if three
+`fluid_stats` files were written before a restart, the names are:
+
+```
+fluid_stats00.f00000
+fluid_stats00.f00001
+fluid_stats00.f00002
+```
+
+The restarted run then begins with:
+
+```
+fluid_stats30.f00000
+fluid_stats30.f00001
+```
+
+For `.csv` output, the corresponding files are `fluid_stats0.csv` before the
+restart and `fluid_stats3.csv` after it. A custom value such as
+`"output_filename": "my_stats"` only replaces the `fluid_stats` stem; the
+same run and per-run counters are still applied.
 
 # Fluid Statistics {#fluid-statistics}
 
@@ -47,18 +83,20 @@ Statistics are enabled in the case file as a simcomp with the added argument
 | `avg_direction`   | Directions to compute spatial average.                                                                                | x,y,z,xy,xz,yz       | No spatial average                       |
 | `set_of_stats`    | What set of stats to compute.                                                                                         | basic, full          | full                                     |
 | `compute_value`   | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int | - (recommended every 50 timesteps or so) |
-| `output_filename` | User-specified filename to store output in.                                                                           | filename             | fluid_statsX*                            |
+| `output_filename` | User-specified base filename for the output.                                                                           | filename             | `fluid_stats`                            |
 
-\*The name of the written statistics file will by default be 
-`fluid_statsX0.f0000X,..., fluid_statsX0.f0000Y` where X is the number of the
-first outputted statistic of the current run.
+The run and per-run counters are appended according to
+@ref statistics-output-filenames.
 
-In addition, one can specify the usual controls for the output, which then 
-outputs the averages computes from the last time the statistics were written
-to file. For example, if one wants to compute only the basic statistics and
-sample the fields every 4 time steps and compute and output batches every 20
-time units and have an initial transient of 60 time units the following would
-work:
+In addition, one can specify the usual controls for the output, which then
+outputs the averages computes from the last time the statistics were written to
+file. A sample or an output controlled by `simulationtime` or `nsamples` is
+taken at the first time step that reaches the scheduled time. To have the time
+step fitted so that the scheduled times are reached exactly, adjust `dt` to the
+flow with `variable_timestep` and set `exact_output_time`. For example, if one
+ wants to compute only the basic statistics and sample the fields every 4 time
+steps and compute and output batches every 20 time units and have an initial
+transient of 60 time units the following would work:
 
 ~~~~~~~~~~~~~~~{.json}
 "simulation_components":
@@ -94,8 +132,8 @@ For 1D statistics a CSV file is outputted. The first column is the time at
 which the statistics are collected, the second column the spatial coordinate,
 and the rest of the data is stored in the order below. In this case all
 statistics are kept in the same order as in 3D. The name for these files are
-`fluid_statsX.csv,..., fluid_statsX.csv` where X is the number of the first
-outputted statistic of the current run.
+`fluid_statsR.csv`, using the run index described in
+@ref statistics-output-filenames.
 
 The statistics fields created by this simcomp are accessible from the 
 neko registry and retrievable under the following naming convention:
@@ -160,16 +198,16 @@ stats and in s40 for the full set of statistics.
 | -      | \f$ \langle w \rangle \f$ (only if 2D and `full`)                            | s40 (only if 2D, empty if 3D)      |
 
 where \f$e11,e22...\f$ is computed as:
-$$
+\f[
 \begin{aligned}
-e11 &= \left(\frac{\partial u}{\partial x}\right)^2 + \left(\frac{\partial u}{\partial y}\right)^2 + \left(\frac{\partial u}{\partial z}\right)^2 \\\\
-e22 &= \left(\frac{\partial v}{\partial x}\right)^2 + \left(\frac{\partial v}{\partial y}\right)^2 + \left(\frac{\partial v}{\partial z}\right)^2 \\\\
-e33 &= \left(\frac{\partial w}{\partial x}\right)^2 + \left(\frac{\partial w}{\partial y}\right)^2 + \left(\frac{\partial w}{\partial z}\right)^2 \\\\
-e12 &= \frac{\partial u}{\partial x}  \frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial v}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial v}{\partial z} \\\\
-e13 &= \frac{\partial u}{\partial x}  \frac{\partial w}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial w}{\partial z} \\\\
-e23 &= \frac{\partial v}{\partial x}  \frac{\partial w}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial w}{\partial z} \\\\
+e11 &= \left(\frac{\partial u}{\partial x}\right)^2 + \left(\frac{\partial u}{\partial y}\right)^2 + \left(\frac{\partial u}{\partial z}\right)^2 \\
+e22 &= \left(\frac{\partial v}{\partial x}\right)^2 + \left(\frac{\partial v}{\partial y}\right)^2 + \left(\frac{\partial v}{\partial z}\right)^2 \\
+e33 &= \left(\frac{\partial w}{\partial x}\right)^2 + \left(\frac{\partial w}{\partial y}\right)^2 + \left(\frac{\partial w}{\partial z}\right)^2 \\
+e12 &= \frac{\partial u}{\partial x}  \frac{\partial v}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial v}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial v}{\partial z} \\
+e13 &= \frac{\partial u}{\partial x}  \frac{\partial w}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial w}{\partial z} \\
+e23 &= \frac{\partial v}{\partial x}  \frac{\partial w}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial w}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial w}{\partial z} \\
 \end{aligned}
-$$
+\f]
 
 
 # Postprocessing
@@ -217,16 +255,13 @@ field to be averaged, which will be appended to the default prefix of the
 | `avg_direction`   | Directions to compute spatial average.                                                                                | x,y,z,xy,xz,yz       | No spatial average                       |
 | `set_of_stats`    | What set of stats to compute.                                                                                         | basic, full          | full                                     |
 | `compute_value`   | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int | - (recommended every 50 timesteps or so) |
-| `output_filename` | User-specified filename to store output in.                                                                           | filename             | `scalar_statsX*`                         |
+| `output_filename` | User-specified base filename for the output.                                                                           | filename             | `scalar_stats_{field}`                   |
 
 
-
-\*The name of the written statistics file will by default be
-`scalar_statsX0.f0000X,..., scalar_statsX0.f0000Y` where X is the number of
-the first outputted statistic of the current run. If `field` is specified,
-it will be appended to the default filename as `scalar_stats_{field}X0.f0000X`.
-Otherwise, you can specify an independent `output_filename` for each scalar you
-compute statistics for.
+The scalar field name is part of the default output stem. The run and per-run
+counters are appended according to @ref statistics-output-filenames. An
+independent `output_filename` can be specified for each scalar statistics
+component.
 
 In addition, one can specify the usual controls for the output, in the same
 manner as for fluid statistics. For example, if one wants to compute only the
@@ -304,14 +339,14 @@ the basic set and `s38` for the full set.
 | -      | \f$ \langle  ws   \rangle \f$   (only if 2D and `full`)                        | s38                                |
 
 where \f$e_{ss}, e_{us}, e_{vs}, e_{ws}\f$ are computed as:
-$$
+\f[
 \begin{aligned}
-e_{ss} &= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\\\
-e_{us} &= \frac{\partial u}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\\\
-e_{vs} &= \frac{\partial v}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\\\
-e_{ws} &= \frac{\partial w}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\\\
+e_{ss} &= \left(\frac{\partial s}{\partial x}\right)^2 + \left(\frac{\partial s}{\partial y}\right)^2 + \left(\frac{\partial s}{\partial z}\right)^2 \\
+e_{us} &= \frac{\partial u}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial u}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial u}{\partial z}\frac{\partial s}{\partial z} \\
+e_{vs} &= \frac{\partial v}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial v}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial v}{\partial z}\frac{\partial s}{\partial z} \\
+e_{ws} &= \frac{\partial w}{\partial x}  \frac{\partial s}{\partial x} + \frac{\partial w}{\partial y}\frac{\partial s}{\partial y}+ \frac{\partial w}{\partial z}\frac{\partial s}{\partial z} \\
 \end{aligned}
-$$
+\f]
 
 # Fluid Subgrid-Scale (SGS) Statistics {#fluid-sgs-statistics}
 In the fluid SGS statistics in Neko, subgrid-scale (SGS) contribution to the
@@ -329,9 +364,10 @@ viscosity field:
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
-| `output_filename`        | User-specified filename to store output in.                       | filename  |  fluid_sgs_statsX*        |
+| `output_filename`        | User-specified base filename for the output.                       | filename  | `fluid_sgs_stats`         |
 
-\*The name of the written statistics file will by default be `fluid_sgs_statsX0.f0000X,..., fluid_sgs_statsX0.f0000Y` where X is the number of the first outputted statistic of the current run.
+The run and per-run counters are appended according to
+@ref statistics-output-filenames.
 
 In addition, one can specify the usual controls for the output, in the same manner as for fluid statistics. For example, if one wants to compute only the basic statistics and sample the fields every 4 time steps and compute and output batches every 20 time units and have an initial transient of 60 time units the following would work:
 
@@ -382,11 +418,10 @@ latter is a JSON sub-dictionary:
 | `start_time`        | Time at which to start gathering statistics.                        | Positive real     | 0             |
 | `avg_direction`        | Directions to compute spatial average.                         | x,y,z,xy,xz,yz  |  No spatial average           |
 | `compute_value` | Interval, in timesteps or simulationtime, depending on compute\_control, for sampling the flow fields for statistics. | Positive real or int  | Not set (but recommended with every 50 timesteps or so)  |
-| `output_filename`        | User-specified filename to store output in.                       | filename  |  scalar_sgs_statsX*        |
+| `output_filename`        | User-specified base filename for the output.                       | filename  | `scalar_sgs_stats_{field}` |
 
-\*The name of the written statistics file will by default be
-`scalar_sgs_statsX0.f0000X,..., scalar_sgs_statsX0.f0000Y` where X is the
-number of the first outputted statistic of the current run.
+The scalar field name is part of the default output stem. The run and per-run
+counters are appended according to @ref statistics-output-filenames.
 
 In addition, one can specify the usual controls for the output, in the same
 manner as for fluid statistics. For example, if one wants to compute only the
@@ -452,20 +487,13 @@ the eddy viscosity field divided by the chosen turbulent Prandtl number:
 # Note to users {#note-to-users}
 
 The general recommendation is to always use weighted averages to analyse the
-statistics. When using an arithmetic average, it is important to keep in mind
-the following two characteristics of the `stats0` files:
+statistics.
 
-1. If one computes statistics from time 0 (`"start_time": 0.0`), the first
-   sample will be zero-filled (both for scalar and fluid
-   statistics). This issue has been discussed more in detail in
-   [#2378](https://github.com/ExtremeFLOW/neko/issues/2378).
-
-2. When `"end_time"` is an exact multiple of `"output_value"` (e.g.
-   `"end_time": 1000.0`, `"output_value": 100.0`), the resulting `.csv` file
-   has the last timestep repeated twice, with the second one having zeros
-   everywhere (both for fluid and scalar statistics).
-   This is the intended behaviour of `output_at_end` - please see
-   [the case file documentation](https://neko.cfd/docs/develop/dd/d33/case-file.html).
-   This issue has been discussed more in detail in
-   [#2278](https://github.com/ExtremeFLOW/neko/issues/2278).
-
+Every sample in the `stats0` files covers the interval between two writes.
+The first covers only from `start_time` to the first scheduled output after
+it, and nothing is written at `start_time` itself, where the average would be
+empty ([#2378](https://github.com/ExtremeFLOW/neko/issues/2378)). The write
+forced at the end of a run is skipped when the last time step has written a
+sample already, so a run whose `"end_time"` is a multiple of its
+`"output_value"` ends with one sample rather than a zero filled duplicate of
+it ([#2278](https://github.com/ExtremeFLOW/neko/issues/2278)).

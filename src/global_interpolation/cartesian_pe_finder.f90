@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2023, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@ module cartesian_pe_finder
   use mpi_f08, only: MPI_MAX, MPI_Allreduce, MPI_COMM, MPI_Comm_rank, &
        MPI_Comm_size, MPI_Wtime, MPI_INTEGER, MPI_INTEGER8, &
        MPI_MIN, MPI_SUM, MPI_Irecv, MPI_Isend, &
-       MPI_Exscan, MPI_Request, MPI_Status, &
+       MPI_Exscan, MPI_Request, MPI_Status, MPI_Wait, &
        MPI_Alltoall, MPI_IN_PLACE, MPI_Barrier
   implicit none
   private

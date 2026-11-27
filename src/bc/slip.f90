@@ -40,6 +40,7 @@ module slip
   use json_module, only : json_file
   use time_state, only : time_state_t
   use utils, only : neko_error
+  use bc, only : BC_MIXED_CONSTRAINS_NORMAL
   use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
   use gather_scatter, only : GS_OP_ADD
   use device_math, only : device_col3, device_addcol3, device_subcol3, &
@@ -74,20 +75,15 @@ contains
 
     ! Slip is a mixed condition: normal velocity is prescribed, whereas
     ! tangential velocity is unconstrained.
-    this%strong = .false.
+    this%bc_type = BC_MIXED_CONSTRAINS_NORMAL
   end subroutine slip_init
 
   !> Finalize the mask and construct unit normals.
-  subroutine slip_finalize(this, only_facets)
+  subroutine slip_finalize(this)
     class(slip_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
     integer :: m
 
-    if (present(only_facets)) then
-       call this%facet_normal_t%finalize(only_facets)
-    else
-       call this%facet_normal_t%finalize()
-    end if
+    call this%facet_normal_t%finalize()
     call slip_normalize_normals(this)
 
     m = this%unique_mask(0)

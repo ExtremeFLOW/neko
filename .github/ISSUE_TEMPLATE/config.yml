@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions and discussions
+    url: https://github.com/ExtremeFLOW/neko/discussions
+    about: Ask usage questions or discuss ideas with the Neko community.
+  - name: Documentation
+    url: https://neko.cfd
+    about: User guide, developer guide and API documentation.

@@ -48,6 +48,15 @@ module gs_device_shmem
   implicit none
   private
 
+  !> Whether NVSHMEM was built into this Neko (--with-nvshmem). Lets callers
+  !! (e.g. the gs comm. autotuner) skip the backend rather than exchanging
+  !! nothing on builds without it.
+#if defined(HAVE_CUDA) && defined(HAVE_NVSHMEM)
+  logical, parameter, public :: GS_DEVICE_SHMEM_AVAIL = .true.
+#else
+  logical, parameter, public :: GS_DEVICE_SHMEM_AVAIL = .false.
+#endif
+
   !> Buffers for non-blocking communication and packing/unpacking
   type, private :: gs_device_shmem_buf_t
      integer, allocatable :: ndofs(:) !< Number of dofs
@@ -382,6 +391,11 @@ contains
 
     this%iter = 0
     this%vec_supported = .true.
+    ! The vector slabs are part of the symmetric/registered allocation
+    ! made above, which every rank has to take part in, so they cannot
+    ! be deferred to the first fused exchange: a rank with no shared
+    ! dofs never reaches it. See gs_comm_t%vec_ready.
+    this%vec_ready = .true.
 
   end subroutine gs_device_shmem_init
 

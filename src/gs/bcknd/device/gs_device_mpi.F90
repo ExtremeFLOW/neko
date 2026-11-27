@@ -40,7 +40,7 @@ module gs_device_mpi
   use device, only : device_memcpy, device_alloc, device_event_create, &
        device_event_destroy, device_stream_create_with_priority, device_sync, &
        device_stream_wait_event, device_get_ptr, device_event_record, &
-       device_stream_destroy, device_free, device_memset, &
+       device_stream_destroy, device_free, device_memset, device_event_sync, &
        STRM_HIGH_PRIO, HOST_TO_DEVICE
   use utils, only : neko_error
   use, intrinsic :: iso_c_binding, only : c_sizeof, c_int32_t, &
@@ -59,6 +59,7 @@ module gs_device_mpi
      type(c_ptr) :: dof_d = C_NULL_PTR !< Dof mapping for pack/unpack
    contains
      procedure, pass(this) :: init => gs_device_mpi_buf_init
+     procedure, pass(this) :: init_vec => gs_device_mpi_buf_init_vec
      procedure, pass(this) :: free => gs_device_mpi_buf_free
   end type gs_device_mpi_buf_t
 
@@ -77,6 +78,7 @@ module gs_device_mpi
      procedure, pass(this) :: nbsend => gs_device_mpi_nbsend
      procedure, pass(this) :: nbrecv => gs_device_mpi_nbrecv
      procedure, pass(this) :: nbwait => gs_device_mpi_nbwait
+     procedure, pass(this) :: init_vec => gs_device_mpi_init_vec
      procedure, pass(this) :: nbsend_vec => gs_device_mpi_nbsend_vec
      procedure, pass(this) :: nbrecv_vec => gs_device_mpi_nbrecv_vec
      procedure, pass(this) :: nbwait_vec => gs_device_mpi_nbwait_vec
@@ -267,11 +269,6 @@ contains
     call device_alloc(this%buf_d, sz)
     call device_memset(this%buf_d, 0, sz, sync = .true.)
 
-    ! Fused vector buffer, sized for up to GS_VEC_NC components.
-    sz = c_sizeof(rp_dummy) * GS_VEC_NC * total
-    call device_alloc(this%buf_v_d, sz)
-    call device_memset(this%buf_v_d, 0, sz, sync = .true.)
-
     sz = c_sizeof(i4_dummy) * total
     call device_alloc(this%dof_d, sz)
 
@@ -314,6 +311,19 @@ contains
     call doftable%free()
 
   end subroutine gs_device_mpi_buf_init
+
+  !> Allocate this buffer's fused vector slab, sized for up to GS_VEC_NC
+  !! components. Deferred to the first fused exchange, see gs_comm_t.
+  subroutine gs_device_mpi_buf_init_vec(this)
+    class(gs_device_mpi_buf_t), intent(inout) :: this
+    integer(c_size_t) :: sz
+    real(c_rp) :: rp_dummy
+
+    sz = c_sizeof(rp_dummy) * GS_VEC_NC * this%total
+    call device_alloc(this%buf_v_d, sz)
+    call device_memset(this%buf_v_d, 0, sz, sync = .true.)
+
+  end subroutine gs_device_mpi_buf_init_vec
 
   subroutine gs_device_mpi_buf_free(this)
     class(gs_device_mpi_buf_t), intent(inout) :: this
@@ -361,8 +371,21 @@ contains
     this%nb_strtgy = 0
 
     this%vec_supported = .true.
+    this%vec_ready = .false.
 
   end subroutine gs_device_mpi_init
+
+  !> Allocate the fused vector send and receive slabs in device memory,
+  !! sized for GS_VEC_NC components. Deferred to the first fused exchange,
+  !! see gs_comm_t. The peer lists, dof maps and streams built in init are
+  !! shared with the scalar exchange, so this stays rank local.
+  subroutine gs_device_mpi_init_vec(this)
+    class(gs_device_mpi_t), intent(inout) :: this
+
+    call this%send_buf%init_vec()
+    call this%recv_buf%init_vec()
+
+  end subroutine gs_device_mpi_init_vec
 
   !> Deallocate MPI based communication method
   subroutine gs_device_mpi_free(this)
@@ -371,6 +394,7 @@ contains
 
     call this%send_buf%free()
     call this%recv_buf%free()
+    this%vec_ready = .false.
 
     call this%free_order()
     call this%free_dofs()
@@ -469,12 +493,23 @@ contains
   end subroutine gs_device_mpi_nbsend
 
   !> Post non-blocking receive operations
+  !! @note With per-peer unpacking (strategy bit 2) the previous op unpacks
+  !! each slot of the receive buffer on its own stream, and nothing on the
+  !! host waits for that afterwards: the caller need not sync after the op.
+  !! Each slot's unpack event is therefore waited on before the slot is
+  !! posted again, so that MPI cannot overwrite data that is still to be
+  !! read. The wait is normally on an event that has already completed.
   subroutine gs_device_mpi_nbrecv(this, tag)
     class(gs_device_mpi_t), intent(inout) :: this
     integer, intent(in) :: tag
     integer :: i
 
     do i = 1, size(this%recv_pe)
+#if defined(HAVE_HIP) || defined(HAVE_CUDA)
+       if (iand(this%nb_strtgy, 2) .ne. 0) then
+          call device_event_sync(this%event(i))
+       end if
+#endif
        call device_mpi_irecv(this%recv_buf%buf_d, rp*this%recv_buf%offset(i), &
             rp*this%recv_buf%ndofs(i), this%recv_pe(i), tag, &
             this%recv_buf%reqs, i)

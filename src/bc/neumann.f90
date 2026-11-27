@@ -33,7 +33,7 @@
 !> Defines a Neumann boundary condition.
 module neumann
   use num_types, only : rp
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_NEUMANN
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
   use utils, only : neko_error, nonlinear_index
   use coefs, only : coef_t
@@ -108,7 +108,6 @@ contains
     logical :: found
 
     call this%init_base(coef)
-    this%strong = .false.
 
     ! Try to read array from json
     call json%get("flux", this%init_flux_, found)
@@ -127,6 +126,7 @@ contains
     end if
 
     allocate(this%flux(size(this%init_flux_)))
+    this%bc_type = BC_NEUMANN
   end subroutine neumann_init
 
   !> Constructor from components, using a flux array for vector components.
@@ -145,6 +145,7 @@ contains
             " vector.")
     end if
     allocate(this%flux(size(this%init_flux_)))
+    this%bc_type = BC_NEUMANN
   end subroutine neumann_init_from_components_array
 
   !> Constructor from components, using an signle flux.
@@ -159,6 +160,7 @@ contains
     allocate(this%init_flux_(1))
     this%init_flux_(1) = flux
     allocate(this%flux(size(this%init_flux_)))
+    this%bc_type = BC_NEUMANN
   end subroutine neumann_init_from_components_single
 
   !> Boundary condition apply for a generic Neumann condition
@@ -172,6 +174,7 @@ contains
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
+    real(kind=rp) :: area
     logical :: strong_
 
     if (present(strong)) then
@@ -180,28 +183,25 @@ contains
        strong_ = .true.
     end if
 
-    m = this%msk(0)
+    m = this%facet_node_msk(0)
     if (.not. strong_) then
        !$omp do
-       do i = 1,m
-          k = this%msk(i)
+       do i = 1, m
+          k = this%facet_node_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
+          area = 0.0_rp
           select case (facet)
           case (1,2)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
+             area = this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
+             area = this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
+             area = this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
+          !$omp atomic
+          x(k) = x(k) + this%flux(1)%x(i) * area
        end do
        !$omp end do
     end if
@@ -220,6 +220,7 @@ contains
     integer :: i, m, k, facet
     ! Store non-linear index
     integer :: idx(4)
+    real(kind=rp) :: area
     logical :: strong_
 
     if (present(strong)) then
@@ -228,48 +229,31 @@ contains
        strong_ = .true.
     end if
 
-    m = this%msk(0)
+    m = this%facet_node_msk(0)
     if (.not. strong_) then
-       !$omp parallel do private(k, facet, idx)
+       !$omp do
        do i = 1, m
-          k = this%msk(i)
+          k = this%facet_node_msk(i)
           facet = this%facet(i)
           idx = nonlinear_index(k, this%coef%Xh%lx, this%coef%Xh%lx, &
                this%coef%Xh%lx)
+          area = 0.0_rp
           select case (facet)
           case (1,2)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
-             y(k) = y(k) + &
-                  this%flux(2)%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
-             z(k) = z(k) + &
-                  this%flux(3)%x(i) * &
-                  this%coef%area(idx(2), idx(3), facet, idx(4))
+             area = this%coef%area(idx(2), idx(3), facet, idx(4))
           case (3,4)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
-             y(k) = y(k) + &
-                  this%flux(2)%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
-             z(k) = z(k) + &
-                  this%flux(3)%x(i) * &
-                  this%coef%area(idx(1), idx(3), facet, idx(4))
+             area = this%coef%area(idx(1), idx(3), facet, idx(4))
           case (5,6)
-             x(k) = x(k) + &
-                  this%flux(1)%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
-             y(k) = y(k) + &
-                  this%flux(2)%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
-             z(k) = z(k) + &
-                  this%flux(3)%x(i) * &
-                  this%coef%area(idx(1), idx(2), facet, idx(4))
+             area = this%coef%area(idx(1), idx(2), facet, idx(4))
           end select
+          !$omp atomic
+          x(k) = x(k) + this%flux(1)%x(i) * area
+          !$omp atomic
+          y(k) = y(k) + this%flux(2)%x(i) * area
+          !$omp atomic
+          z(k) = z(k) + this%flux(3)%x(i) * area
        end do
-       !$omp end parallel do
+       !$omp end do
     end if
   end subroutine neumann_apply_vector
 
@@ -289,11 +273,12 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
+    if (.not. this%uniform_0 .and. this%facet_node_msk(0) .gt. 0 .and. &
          .not. strong_) then
-       call device_neumann_apply_scalar(this%msk_d, this%facet_d, x_d, &
+       call device_neumann_apply_scalar(this%facet_node_msk_d, &
+            this%facet_d, x_d, &
             this%flux(1)%x_d, this%coef%area_d, this%coef%Xh%lx, &
-            size(this%msk), strm)
+            size(this%facet_node_msk), strm)
     end if
   end subroutine neumann_apply_scalar_dev
 
@@ -316,13 +301,13 @@ contains
        strong_ = .true.
     end if
 
-    if (.not. this%uniform_0 .and. this%msk(0) .gt. 0 .and. &
+    if (.not. this%uniform_0 .and. this%facet_node_msk(0) .gt. 0 .and. &
          .not. strong_) then
-       call device_neumann_apply_vector(this%msk_d, this%facet_d, &
+       call device_neumann_apply_vector(this%facet_node_msk_d, this%facet_d, &
             x_d, y_d, z_d, &
             this%flux(1)%x_d, this%flux(2)%x_d, this%flux(3)%x_d, &
             this%coef%area_d, this%coef%Xh%lx, &
-            size(this%msk), strm)
+            size(this%facet_node_msk), strm)
     end if
 
   end subroutine neumann_apply_vector_dev
@@ -348,28 +333,21 @@ contains
   end subroutine neumann_free
 
   !> Finalize by setting the flux.
-  subroutine neumann_finalize(this, only_facets)
+  subroutine neumann_finalize(this)
     class(neumann_t), target, intent(inout) :: this
-    logical, optional, intent(in) :: only_facets
-    integer :: i, j
+    integer :: i
 
-    if (present(only_facets)) then
-       if (.not. only_facets) then
-          call neko_error("For neumann_t, only_facets has to be true.")
-       end if
-    end if
-
-    call this%finalize_base(.true.)
+    call this%finalize_base()
 
     ! Allocate flux vectors and assign to initial constant values
     do i = 1, size(this%init_flux_)
-       call this%flux(i)%init(this%msk(0))
+       call this%flux(i)%init(this%facet_node_msk(0))
        this%flux(i) = this%init_flux_(i)
     end do
 
     this%uniform_0 = .true.
 
-    do i = 1, 3
+    do i = 1, size(this%init_flux_)
        this%uniform_0 = abscmp(this%init_flux_(i), 0.0_rp) .and. this%uniform_0
     end do
   end subroutine neumann_finalize

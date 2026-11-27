@@ -404,12 +404,12 @@ contains
        associate(a => this%left(:,edge), b => this%right(:,edge))
          direction = this%direction(edge)
          edge_length = sqrt( &
-              (coef%dof%x(b(1),b(2),b(3),b(4)) - &
-               coef%dof%x(a(1),a(2),a(3),a(4)))**2 + &
-              (coef%dof%y(b(1),b(2),b(3),b(4)) - &
-               coef%dof%y(a(1),a(2),a(3),a(4)))**2 + &
-              (coef%dof%z(b(1),b(2),b(3),b(4)) - &
-               coef%dof%z(a(1),a(2),a(3),a(4)))**2)
+              (coef%dof%x%x(b(1),b(2),b(3),b(4)) - &
+               coef%dof%x%x(a(1),a(2),a(3),a(4)))**2 + &
+              (coef%dof%y%x(b(1),b(2),b(3),b(4)) - &
+               coef%dof%y%x(a(1),a(2),a(3),a(4)))**2 + &
+              (coef%dof%z%x(b(1),b(2),b(3),b(4)) - &
+               coef%dof%z%x(a(1),a(2),a(3),a(4)))**2)
          if (edge_length .le. tiny(1.0_rp)) then
             call neko_error('Euler GLL graph contains coincident neighbours')
          end if
@@ -450,12 +450,12 @@ contains
        associate(a => this%left(:,edge), b => this%right(:,edge))
          direction = this%direction(edge)
          edge_length = sqrt( &
-              (coef%dof%x(b(1),b(2),b(3),b(4)) - &
-               coef%dof%x(a(1),a(2),a(3),a(4)))**2 + &
-              (coef%dof%y(b(1),b(2),b(3),b(4)) - &
-               coef%dof%y(a(1),a(2),a(3),a(4)))**2 + &
-              (coef%dof%z(b(1),b(2),b(3),b(4)) - &
-               coef%dof%z(a(1),a(2),a(3),a(4)))**2)
+              (coef%dof%x%x(b(1),b(2),b(3),b(4)) - &
+               coef%dof%x%x(a(1),a(2),a(3),a(4)))**2 + &
+              (coef%dof%y%x(b(1),b(2),b(3),b(4)) - &
+               coef%dof%y%x(a(1),a(2),a(3),a(4)))**2 + &
+              (coef%dof%z%x(b(1),b(2),b(3),b(4)) - &
+               coef%dof%z%x(a(1),a(2),a(3),a(4)))**2)
 
          backward_distance = 2.0_rp * &
               backward_spacing(direction)%x(a(1),a(2),a(3),a(4)) / &

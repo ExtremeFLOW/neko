@@ -40,6 +40,7 @@ module wale_device
   use operators, only : dudxyz
   use coefs, only : coef_t
   use gs_ops, only : GS_OP_ADD
+  use device, only : glb_cmd_event
   use device_math, only : device_col2
   use device_wale_nut, only : device_wale_nut_compute
   implicit none
@@ -106,15 +107,12 @@ contains
     call dudxyz(g32%x_d, w%x_d, coef%drdy_d, coef%dsdy_d, coef%dtdy_d, coef)
     call dudxyz(g33%x_d, w%x_d, coef%drdz_d, coef%dsdz_d, coef%dtdz_d, coef)
 
-    call coef%gs_h%op(g11, GS_OP_ADD)
-    call coef%gs_h%op(g12, GS_OP_ADD)
-    call coef%gs_h%op(g13, GS_OP_ADD)
-    call coef%gs_h%op(g21, GS_OP_ADD)
-    call coef%gs_h%op(g22, GS_OP_ADD)
-    call coef%gs_h%op(g23, GS_OP_ADD)
-    call coef%gs_h%op(g31, GS_OP_ADD)
-    call coef%gs_h%op(g32, GS_OP_ADD)
-    call coef%gs_h%op(g33, GS_OP_ADD)
+    call coef%gs_h%op(g11%x, g12%x, g13%x, g11%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
+    call coef%gs_h%op(g21%x, g22%x, g23%x, g21%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
+    call coef%gs_h%op(g31%x, g32%x, g33%x, g31%dof%size(), GS_OP_ADD, &
+         glb_cmd_event)
 
     call device_wale_nut_compute(g11%x_d, g12%x_d, g13%x_d, &
          g21%x_d, g22%x_d, g23%x_d, &
@@ -122,7 +120,7 @@ contains
          delta%x_d, nut%x_d, coef%mult_d, &
          c, NEKO_EPS, g11%dof%size())
 
-    call coef%gs_h%op(nut, GS_OP_ADD)
+    call coef%gs_h%op(nut, GS_OP_ADD, glb_cmd_event)
     call device_col2(nut%x_d, coef%mult_d, nut%dof%size())
 
     call neko_scratch_registry%relinquish_field(temp_indices)

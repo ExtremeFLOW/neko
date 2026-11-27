@@ -6,7 +6,7 @@
 ! harness for the density transport and limiter, not an unforced Euler flow.
 module user
   use neko
-  use entropy_viscosity, only : entropy_viscosity_t
+  use device, only : HOST_TO_DEVICE
   use fluid_scheme_compressible_ns, only : fluid_scheme_compressible_ns_t
   implicit none
 
@@ -46,8 +46,8 @@ contains
     p => fields%get_by_name('p')
 
     do i = 1, rho%size()
-       x = rho%dof%x(i, 1, 1, 1)
-       y = rho%dof%y(i, 1, 1, 1)
+       x = rho%dof%x%x(i, 1, 1, 1)
+       y = rho%dof%y%x(i, 1, 1, 1)
        rho_value = kpp_initial_density(x, y)
        rho%x(i, 1, 1, 1) = rho_value
        u%x(i, 1, 1, 1) = sin(rho_value) / rho_value
@@ -55,6 +55,7 @@ contains
        w%x(i, 1, 1, 1) = 0.0_rp
        p%x(i, 1, 1, 1) = pressure_ref
     end do
+    call fields%copy_from(HOST_TO_DEVICE, sync = .true.)
   end subroutine initial_conditions
 
   !> Store the initial density mass after Neko forms conserved variables.
@@ -106,19 +107,11 @@ contains
           fluid%p%x(i, 1, 1, 1) = pressure_ref
           fluid%temperature%x(i, 1, 1, 1) = pressure_ref / &
                (rho_value * (gamma_ref - 1.0_rp))
-          fluid%S%x(i, 1, 1, 1) = 0.5_rp * rho_value**2
        end do
 
        call fluid%compute_max_wave_speed()
-       select type (reg => fluid%regularization)
-       type is (entropy_viscosity_t)
-          call reg%evaluate_user_entropy_pair(time)
-          call fluid%euler_idp_cpu%update_graph_viscosity(rho, m_x, m_y, &
-               m_z, energy, fluid%gs_Xh, gamma_ref, &
-               reg%entropy_wave_speed)
-       class default
-          call neko_error('KPP requires entropy viscosity regularization')
-       end select
+       call fluid%euler_idp_solver%invalidate()
+       call fluid%prepare_idp_graph(time)
        minimum_limiter = min(minimum_limiter, &
             fluid%euler_idp_diagnostics%min_limiter)
        maximum_limited_fraction = max(maximum_limited_fraction, &
@@ -190,11 +183,11 @@ contains
     write(output_unit, '(A)') 'x,y,rho,rho_initial'
     do e = 1, rho%dof%msh%nelv
        do k = 1, rho%dof%Xh%lz
-          if (abs(rho%dof%z(1, 1, k, e)) .gt. 1.0e-12_rp) cycle
+          if (abs(rho%dof%z%x(1, 1, k, e)) .gt. 1.0e-12_rp) cycle
           do j = 1, rho%dof%Xh%ly
              do i = 1, rho%dof%Xh%lx
-                x = rho%dof%x(i, j, k, e)
-                y = rho%dof%y(i, j, k, e)
+                x = rho%dof%x%x(i, j, k, e)
+                y = rho%dof%y%x(i, j, k, e)
                 write(output_unit, '(4(ES25.16E3,:,","))') x, y, &
                      rho%x(i, j, k, e), kpp_initial_density(x, y)
              end do

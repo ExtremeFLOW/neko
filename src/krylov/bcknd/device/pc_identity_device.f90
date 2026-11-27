@@ -35,6 +35,9 @@ module device_identity
   use device, only : device_get_ptr
   use device_math, only : device_copy
   use precon, only : pc_t
+  use coefs, only : coef_t
+  use bc_list, only : bc_list_t
+  use json_module, only : json_file
   use num_types, only : rp
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
@@ -43,11 +46,21 @@ module device_identity
   !> Defines a canonical Krylov preconditioner for accelerators
   type, public, extends(pc_t) :: device_ident_t
    contains
+     procedure, pass(this) :: init => device_ident_init
      procedure, pass(this) :: solve => device_ident_solve
      procedure, pass(this) :: update => device_ident_update
+     procedure, pass(this) :: free => device_ident_free
   end type device_ident_t
 
 contains
+
+  !> Mandatory init routine (NOP)
+  subroutine device_ident_init(this, coef, bclst, json)
+    class(device_ident_t), intent(inout), target :: this
+    type(coef_t), intent(in), target :: coef
+    type(bc_list_t), intent(inout), target :: bclst
+    type(json_file), intent(inout) :: json
+  end subroutine device_ident_init
 
   !> The (default) naive preconditioner \f$ I z = r \f$
   subroutine device_ident_solve(this, z, r, n)
@@ -68,5 +81,10 @@ contains
   subroutine device_ident_update(this)
     class(device_ident_t), intent(inout) :: this
   end subroutine device_ident_update
+
+  !> Mandatory free routine (NOP)
+  subroutine device_ident_free(this)
+    class(device_ident_t), intent(inout) :: this
+  end subroutine device_ident_free
 
 end module device_identity

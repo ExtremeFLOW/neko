@@ -75,8 +75,8 @@ contains
     p => fields%get_by_name('p')
 
     do i = 1, rho%size()
-       x = rho%dof%x(i, 1, 1, 1)
-       y = rho%dof%y(i, 1, 1, 1)
+       x = rho%dof%x%x(i, 1, 1, 1)
+       y = rho%dof%y%x(i, 1, 1, 1)
 
        select case (trim(problem))
        case ('free_stream')
@@ -156,6 +156,7 @@ contains
           call neko_error('Unknown Euler IDP integration-test problem')
        end select
     end do
+    call fields%copy_from(HOST_TO_DEVICE, sync = .true.)
   end subroutine initial_conditions
 
   !> Save the five initial global conserved integrals.
@@ -240,8 +241,8 @@ contains
        local_errors = 0.0_rp
        local_minimum = huge(1.0_rp)
        do i = 1, n
-          x = rho%dof%x(i, 1, 1, 1)
-          y = rho%dof%y(i, 1, 1, 1)
+          x = rho%dof%x%x(i, 1, 1, 1)
+          y = rho%dof%y%x(i, 1, 1, 1)
           call expected_boundary_state(x, y, expected_density, &
                expected_velocity, expected_pressure, expected_energy, &
                is_boundary)
@@ -488,8 +489,8 @@ contains
              state = [rho%x(i, 1, 1, 1), m_x%x(i, 1, 1, 1), &
                   m_y%x(i, 1, 1, 1), m_z%x(i, 1, 1, 1), &
                   energy%x(i, 1, 1, 1)]
-             call exact_state(rho%dof%x(i, 1, 1, 1), &
-                  rho%dof%y(i, 1, 1, 1), time%t, exact)
+             call exact_state(rho%dof%x%x(i, 1, 1, 1), &
+                  rho%dof%y%x(i, 1, 1, 1), real(time%t, rp), exact)
              work(i) = abs(state(component) - exact(component))
           end do
           errors(component) = glmax(work, n)

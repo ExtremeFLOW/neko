@@ -33,7 +33,7 @@ module euler_idp
   use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
   use json_module, only : json_file
   use json_utils, only : json_get_or_default
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use field, only : field_t
   use dofmap, only : dofmap_t
   use coefs, only : coef_t
@@ -93,7 +93,7 @@ module euler_idp
   !> Boundary metadata kept separately from graph topology.
   type, public :: euler_idp_boundary_t
      logical :: valid = .false.
-     real(kind=rp) :: time = -huge(1.0_rp)
+     real(kind=dp) :: time = -huge(1.0_dp)
   end type euler_idp_boundary_t
 
   !> Backend-independent Euler GLL-IDP lifecycle and stage cache.
@@ -124,7 +124,7 @@ contains
   subroutine euler_idp_config_init(this, params)
     class(euler_idp_config_t), intent(inout) :: this
     type(json_file), intent(inout) :: params
-    character(len=*), parameter :: root = 'case.numerics.euler_idp.'
+    character(len=*), parameter :: root = 'euler_idp.'
     character(len=:), allocatable :: diagnostics_level
 
     this%enabled = .false.
@@ -140,7 +140,7 @@ contains
     this%diagnostics_level = EULER_IDP_DIAGNOSTICS_FULL
     this%diagnostics_interval = 1
 
-    if (.not. params%valid_path('case.numerics.euler_idp')) return
+    if (.not. params%valid_path('euler_idp')) return
 
     call json_get_or_default(params, root // 'enabled', this%enabled, .false.)
     call json_get_or_default(params, root // 'low_order_only', &
@@ -567,11 +567,11 @@ contains
 
   !> Compare boundary times with a tolerance scaled to the physical time.
   pure logical function euler_idp_same_time(left, right) result(same)
-    real(kind=rp), intent(in) :: left, right
-    real(kind=rp) :: scale
+    real(kind=dp), intent(in) :: left, right
+    real(kind=dp) :: scale
 
-    scale = max(1.0_rp, abs(left), abs(right))
-    same = abs(left - right) .le. 64.0_rp * epsilon(1.0_rp) * scale
+    scale = max(1.0_dp, abs(left), abs(right))
+    same = abs(left - right) .le. 64.0_dp * epsilon(1.0_dp) * scale
   end function euler_idp_same_time
 
 end module euler_idp

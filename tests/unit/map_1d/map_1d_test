@@ -1,0 +1,6 @@
+#!/bin/sh
+if which mpirun >/dev/null; then
+    mpirun -np 2 ./map_1d/map_1d_suite
+else
+    mpiexec -np 2 ./map_1d/map_1d_suite
+fi

@@ -88,7 +88,9 @@ def test_cylinder(launcher_script, request, tmp_path):
     with open(case_file_p1, "r") as f:
         case = json.load(f)
 
-    case["case"]["restart_file"] = "fluid00001.chkp"
+    # The checkpoints are written at t = 0.05 and t = 0.1, the initial
+    # state is not one of them, so the first file is the t = 0.05 one.
+    case["case"]["restart_file"] = "fluid00000.chkp"
 
     case_file = join("tests", "test_demo", test_name + ".case")
     with open(case_file, "w") as f:

@@ -35,7 +35,7 @@
 #include <metal_stdlib>
 using namespace metal;
 
-kernel void symmetry_apply_vector_kernel(
+kernel void symmetry_aligned_apply_vector_kernel(
         device const int *xmsk[[ buffer(0) ]],
         device const int *ymsk[[ buffer(1) ]],
         device const int *zmsk[[ buffer(2) ]],

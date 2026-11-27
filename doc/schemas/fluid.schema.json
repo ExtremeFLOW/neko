@@ -46,7 +46,7 @@
               "const": "user"
             }
           },
-          "additionalProperties": false
+          "additionalProperties": true
         },
         {
           "type": "object",
@@ -206,7 +206,7 @@
           "type": "object",
           "required": ["type", "zone_indices"],
           "properties": {
-            "type": {"enum": ["no_slip", "symmetry", "outflow", "normal_outflow"]},
+            "type": {"enum": ["no_slip", "slip", "symmetry", "outflow", "normal_outflow"]},
             "zone_indices": {"$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"},
             "name": {"$ref": "urn:neko:schema:common#/$defs/nonEmptyString"}
           },
@@ -239,6 +239,10 @@
               "exclusiveMinimum": 0
             },
             "max_iterations": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "space_size": {
               "type": "integer",
               "minimum": 1
             },
@@ -534,6 +538,9 @@
         },
         "advection": {
           "type": "boolean"
+        },
+        "svv": {
+          "$ref": "urn:neko:schema:common#/$defs/svv"
         },
         "schwarz_iterations": {
           "$ref": "urn:neko:schema:common#/$defs/nonNegativeIntegerOrRef"

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2021-2023, The Neko Authors
+ Copyright (c) 2021-2026, The Neko Authors
  All rights reserved.
 
  Redistribution and use in source and binary forms, with or without
@@ -83,7 +83,8 @@ extern "C" {
 
 
 #define CASE_KSTEP(LX)                                                          \
-    set_convect_rst_kernel_kstep<real, LX> <<<nblcks, nthrds_kstep, 0, stream>>> \
+    set_convect_rst_kernel_kstep<real, LX>                                      \
+    <<<nblcks, nthrds_kstep, 0, stream>>>                                       \
       ((real *) cr, (real *) cs, (real *) ct,                                   \
        (real *) cx, (real *) cy, (real *) cz,                                   \
        (real *) drdx, (real *) dsdx, (real *) dtdx,                             \
@@ -95,7 +96,7 @@ extern "C" {
 #define CASE(LX)                                                                \
     case LX:                                                                    \
       if(autotune[LX] == 0 ) {                                                  \
-        autotune[LX]=tune_set_convect_rst<LX>(cr, cs, ct,                        \
+        autotune[LX]=tune_set_convect_rst<LX>(cr, cs, ct,                       \
                                      cx, cy, cz,                                \
                                      drdx, dsdx, dtdx,                          \
                                      drdy, dsdy, dtdy,                          \
@@ -160,13 +161,13 @@ int tune_set_convect_rst(void *cr, void *cs, void *ct,
   if(env_value) {
     if( !strcmp(env_value,"1D") ) {
       CASE_1D(LX);
-      sprintf(neko_log_buf,"Set by env : 1 (1D)");
+      sprintf(neko_log_buf,"Set by env   : 1 (1D)");
       log_message(neko_log_buf);
       log_end_section();
       return 1;
     } else if( !strcmp(env_value,"KSTEP") ) {
       CASE_KSTEP(LX);
-      sprintf(neko_log_buf,"Set by env : 2 (KSTEP)");
+      sprintf(neko_log_buf,"Set by env   : 2 (KSTEP)");
       log_message(neko_log_buf);
       log_end_section();
       return 2;
@@ -205,7 +206,7 @@ int tune_set_convect_rst(void *cr, void *cs, void *ct,
     retval = 2;
   }
 
-  sprintf(neko_log_buf, "Chose      : %d (%s)", retval,
+  sprintf(neko_log_buf, "Chose        : %d (%s)", retval,
           (retval > 1 ? "KSTEP" : "1D"));
   log_message(neko_log_buf);
   log_end_section();

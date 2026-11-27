@@ -29,16 +29,18 @@ contains
     character(len=*), intent(in) :: scheme_name
     type(field_list_t), intent(inout) :: fields
 
-    type (field_t), pointer :: u, v, w, s
+    type (field_t), pointer :: u, v, w, p, s
 
     if (scheme_name .eq. 'fluid') then
        u => fields%get("u")
        v => fields%get("v")
        w => fields%get("w")
+       p => fields%get("p")
 
        call field_cfill(u, U0 + U1 * cos(omega * 0.0_rp))
        call field_cfill(v, V0 + V1 * cos(omega * 0.0_rp + phi))
        call field_cfill(w, W0 + W1 * cos(omega * 0.0_rp + psi))
+       call field_cfill(p, 0.0_rp)
     else
        s => fields%get("s")
        call field_cfill(s, S0 + S1 * sin(omega * 0.0_rp + xi))
@@ -56,9 +58,13 @@ contains
     w => neko_registry%get_field("w")
     s => neko_registry%get_field("s")
 
-    call field_cfill(u, U0 + U1 * cos(omega * time%t))
-    call field_cfill(v, V0 + V1 * cos(omega * time%t + phi))
-    call field_cfill(w, W0 + W1 * cos(omega * time%t + psi))
-    call field_cfill(s, S0 + S1 * sin(omega * time%t + xi))
+    block
+      real(kind=rp) :: t
+      t = real(time%t, kind=rp) ! cast time from dp to rp for field_cfill
+      call field_cfill(u, U0 + U1 * cos(omega * t))
+      call field_cfill(v, V0 + V1 * cos(omega * t + phi))
+      call field_cfill(w, W0 + W1 * cos(omega * t + psi))
+      call field_cfill(s, S0 + S1 * sin(omega * t + xi))
+    end block
   end subroutine compute
 end module user

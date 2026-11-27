@@ -1,4 +1,4 @@
-! Copyright (c) 2025, The Neko Authors
+! Copyright (c) 2025-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -433,6 +433,14 @@ module metal_math
        real(c_rp) :: ninf
        integer(c_int) :: n
      end function metal_glmax
+
+     real(c_rp) function metal_glamax(a_d, n, strm) &
+          bind(c, name = 'metal_glamax')
+       use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+       import c_rp
+       type(c_ptr), value :: a_d, strm
+       integer(c_int) :: n
+     end function metal_glamax
 
      real(c_rp) function metal_glmin(a_d, pinf, n, strm) &
           bind(c, name = 'metal_glmin')

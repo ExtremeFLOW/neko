@@ -1,0 +1,211 @@
+module test_reichardt
+  use pfunit
+  use device, only : device_init, device_finalize
+  use neko_config, only : NEKO_BCKND_DEVICE
+  use num_types, only : rp
+  use math, only : NEKO_EPS
+  use reichardt_cpu, only : reichardt_compute_cpu
+  implicit none
+
+  @TestCase
+  type, extends(TestCase) :: test_reichardt_case
+   contains
+     procedure :: setUp
+     procedure :: tearDown
+  end type test_reichardt_case
+
+  ! Reference friction velocities, computed independently by solving
+  ! u = u_tau u+(h u_tau / nu) with SciPy's brentq, polished in extended
+  ! precision. Default constants kappa = 0.41, C = 7.8, B1 = 11, B2 = 3.
+  real(kind=rp), parameter :: UTAU_LOG = 7.05953285104828354e-02_rp
+  real(kind=rp), parameter :: UTAU_BUFFER = 5.57578550014589738e-02_rp
+  real(kind=rp), parameter :: UTAU_VISCOUS = 3.15610366741824119e-02_rp
+  real(kind=rp), parameter :: UTAU_OUTER = 5.10289570176366628e-02_rp
+  ! kappa = 0.40, C = 7, B1 = 10, B2 = 2.5, u = 1, h = 0.05, nu = 1e-4
+  real(kind=rp), parameter :: UTAU_CUSTOM = 7.30542442806037529e-02_rp
+
+contains
+
+  subroutine setUp(this)
+    class(test_reichardt_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_init
+    end if
+  end subroutine setUp
+
+  subroutine tearDown(this)
+    class(test_reichardt_case), intent(inout) :: this
+
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call device_finalize
+    end if
+  end subroutine tearDown
+
+  !> Relative tolerance of the comparisons, adapted to the working precision
+  pure function tol() result(t)
+    real(kind=rp) :: t
+    t = max(1.0e-8_rp, 1.0e3_rp * NEKO_EPS)
+  end function tol
+
+  !> Verify the wall shear stress on a flat wall against reference values in
+  !! the viscous sublayer, the buffer layer and the logarithmic region.
+  @test
+  subroutine test_flat_wall_reference_values(this)
+    class(test_reichardt_case), intent(inout) :: this
+    integer, parameter :: n = 4
+    real(kind=rp), dimension(n) :: u, v, w, n_x, n_y, n_z, nu, rho, h
+    real(kind=rp), dimension(n) :: tau_x, tau_y, tau_z, utau_ref
+    integer :: i
+
+    ! Velocity along x, wall normal along y
+    u = [1.0_rp, 0.5_rp, 0.02_rp, 1.2_rp]
+    h = [0.05_rp, 0.02_rp, 0.002_rp, 0.3_rp]
+    nu = [1.0e-4_rp, 1.0e-4_rp, 1.0e-4_rp, 1.0e-5_rp]
+    utau_ref = [UTAU_LOG, UTAU_BUFFER, UTAU_VISCOUS, UTAU_OUTER]
+    v = 0.0_rp
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    rho = 1.0_rp
+    tau_x = 0.0_rp
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+
+    call reichardt_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, &
+         tau_x, tau_y, tau_z, n, 0.41_rp, 7.8_rp, 11.0_rp, 3.0_rp, 1)
+
+    do i = 1, n
+       ! The stress opposes the flow
+       @assertEqual(-utau_ref(i)**2, tau_x(i), tolerance = tol() * utau_ref(i)**2)
+       @assertEqual(0.0_rp, tau_y(i))
+       @assertEqual(0.0_rp, tau_z(i))
+    end do
+  end subroutine test_flat_wall_reference_values
+
+  !> Verify that the constants kappa, C, B1 and B2 passed to the kernel are
+  !! used.
+  @test
+  subroutine test_custom_constants(this)
+    class(test_reichardt_case), intent(inout) :: this
+    real(kind=rp), dimension(1) :: u, v, w, n_x, n_y, n_z, nu, rho, h
+    real(kind=rp), dimension(1) :: tau_x, tau_y, tau_z
+
+    u = 1.0_rp
+    v = 0.0_rp
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.0_rp
+    h = 0.05_rp
+    tau_x = 0.0_rp
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+
+    call reichardt_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, &
+         tau_x, tau_y, tau_z, 1, 0.40_rp, 7.0_rp, 10.0_rp, 2.5_rp, 1)
+
+    @assertEqual(-UTAU_CUSTOM**2, tau_x(1), tolerance = tol() * UTAU_CUSTOM**2)
+  end subroutine test_custom_constants
+
+  !> Verify the direction and the density scaling of the stress for an
+  !! inclined wall and a velocity with a wall-normal component.
+  @test
+  subroutine test_inclined_wall_and_density(this)
+    class(test_reichardt_case), intent(inout) :: this
+    real(kind=rp), dimension(1) :: u, v, w, n_x, n_y, n_z, nu, rho, h
+    real(kind=rp), dimension(1) :: tau_x, tau_y, tau_z
+    real(kind=rp) :: ref(3), scale, tau_n
+
+    ! Wall normal (0.6, 0.8, 0), velocity (1, 0.3, 0.4). The wall-parallel
+    ! part is (0.496, -0.372, 0.4); the reference stress, -rho u_tau^2 times
+    ! its direction, was computed independently for rho = 1.2.
+    u = 1.0_rp
+    v = 0.3_rp
+    w = 0.4_rp
+    n_x = 0.6_rp
+    n_y = 0.8_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.2_rp
+    h = 0.05_rp
+    tau_x = 0.0_rp
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+    ref = [-2.48067403578927387e-03_rp, 1.86050552684195562e-03_rp, &
+         -2.00054357724941453e-03_rp]
+    scale = maxval(abs(ref))
+
+    call reichardt_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, &
+         tau_x, tau_y, tau_z, 1, 0.41_rp, 7.8_rp, 11.0_rp, 3.0_rp, 1)
+
+    @assertEqual(ref(1), tau_x(1), tolerance = tol() * scale)
+    @assertEqual(ref(2), tau_y(1), tolerance = tol() * scale)
+    @assertEqual(ref(3), tau_z(1), tolerance = tol() * scale)
+    ! The stress is parallel to the wall
+    tau_n = tau_x(1) * n_x(1) + tau_y(1) * n_y(1) + tau_z(1) * n_z(1)
+    @assertEqual(0.0_rp, tau_n, tolerance = tol() * scale)
+  end subroutine test_inclined_wall_and_density
+
+  !> Verify that a vanishing wall-parallel velocity gives zero stress, also
+  !! when the velocity is purely wall-normal.
+  @test
+  subroutine test_no_parallel_velocity(this)
+    class(test_reichardt_case), intent(inout) :: this
+    real(kind=rp), dimension(2) :: u, v, w, n_x, n_y, n_z, nu, rho, h
+    real(kind=rp), dimension(2) :: tau_x, tau_y, tau_z
+
+    u = 0.0_rp
+    v = [0.0_rp, 0.7_rp]
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.0_rp
+    h = 0.05_rp
+    tau_x = 1.0_rp
+    tau_y = 1.0_rp
+    tau_z = 1.0_rp
+
+    call reichardt_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, &
+         tau_x, tau_y, tau_z, 2, 0.41_rp, 7.8_rp, 11.0_rp, 3.0_rp, 1)
+
+    @assertEqual(0.0_rp, tau_x)
+    @assertEqual(0.0_rp, tau_y)
+    @assertEqual(0.0_rp, tau_z)
+  end subroutine test_no_parallel_velocity
+
+  !> Verify that after the first time step the previous stress is only an
+  !! initial guess, and the result does not depend on it.
+  @test
+  subroutine test_previous_stress_as_guess(this)
+    class(test_reichardt_case), intent(inout) :: this
+    real(kind=rp), dimension(2) :: u, v, w, n_x, n_y, n_z, nu, rho, h
+    real(kind=rp), dimension(2) :: tau_x, tau_y, tau_z
+
+    u = 1.0_rp
+    v = 0.0_rp
+    w = 0.0_rp
+    n_x = 0.0_rp
+    n_y = 1.0_rp
+    n_z = 0.0_rp
+    nu = 1.0e-4_rp
+    rho = 1.0_rp
+    h = 0.05_rp
+    ! Guesses far below and far above the solution
+    tau_x = [-1.0e-5_rp, -1.0e-1_rp]
+    tau_y = 0.0_rp
+    tau_z = 0.0_rp
+
+    call reichardt_compute_cpu(u, v, w, n_x, n_y, n_z, nu, rho, h, &
+         tau_x, tau_y, tau_z, 2, 0.41_rp, 7.8_rp, 11.0_rp, 3.0_rp, 5)
+
+    @assertEqual(-UTAU_LOG**2, tau_x(1), tolerance = tol() * UTAU_LOG**2)
+    @assertEqual(-UTAU_LOG**2, tau_x(2), tolerance = tol() * UTAU_LOG**2)
+  end subroutine test_previous_stress_as_guess
+
+end module test_reichardt

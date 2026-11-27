@@ -1,4 +1,4 @@
-! Copyright (c) 2022-2025, The Neko Authors
+! Copyright (c) 2022-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,12 +32,10 @@
 !
 !> Modular version of the Classic Nek5000 Pn/Pn formulation for fluids
 module fluid_pnpn
-  use, intrinsic :: iso_fortran_env, only : error_unit
   use coefs, only : coef_t
-  use symmetry, only : symmetry_t
   use registry, only : neko_registry
   use logger, only : neko_log, LOG_SIZE
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use krylov, only : ksp_monitor_t
   use pnpn_residual, only : pnpn_prs_res_t, pnpn_vel_res_t, &
        pnpn_prs_res_factory, pnpn_vel_res_factory, &
@@ -52,32 +50,41 @@ module fluid_pnpn
   use fluid_aux, only : fluid_step_info
   use projection, only : projection_t
   use projection_vel, only : projection_vel_t
-  use device, only : device_memcpy, HOST_TO_DEVICE, device_event_sync, &
-       glb_cmd_event
+  use device, only : device_memcpy, HOST_TO_DEVICE, glb_cmd_event
   use advection, only : advection_t, advection_factory
+  use adv_oifs, only : adv_oifs_t
   use profiler, only : profiler_start_region, profiler_end_region
   use json_module, only : json_file, json_core, json_value
   use json_utils, only : json_get, json_get_or_default, json_extract_item, &
        json_get_or_lookup, json_get_or_lookup_or_default
-  use ax_product, only : ax_t, ax_helm_factory
+  use ax_product, only : ax_t, ax_helm_allocator
+  use ax_helm_svv, only : ax_helm_svv_t
+  use ax_helm_svv_full, only : ax_helm_svv_full_t
   use field, only : field_t
   use dirichlet, only : dirichlet_t
   use shear_stress, only : shear_stress_t
   use wall_model_bc, only : wall_model_bc_t
   use facet_normal, only : facet_normal_t
+  use non_normal_aligned, only : non_normal_aligned_t
   use non_normal, only : non_normal_t
+  use symmetry_aligned, only : symmetry_aligned_t
+  use symmetry, only : symmetry_t
   use checkpoint, only : chkp_t
+  use checkpoint_payload, only : checkpoint_payload_t
   use mesh, only : mesh_t
   use user_intf, only : user_t
   use time_step_controller, only : time_step_controller_t
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
   use mathops, only : opadd2cm, opcolv
-  use bc_list, only : bc_list_t
   use zero_dirichlet, only : zero_dirichlet_t
-  use utils, only : neko_error, neko_type_error
+  use utils, only : neko_error, neko_type_error, NEKO_TYPENAME_LEN
   use field_math, only : field_add2, field_copy
-  use bc, only : bc_t
+  use bc, only : bc_t, BC_DIRICHLET
+  use mixed_bc, only : mixed_bc_t
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t, &
+       segregated_vector_bc_projector_t, coupled_vector_bc_projector_t
   use file, only : file_t
   use operators, only : ortho, rotate_cyc
   use opr_device, only : device_ortho
@@ -134,27 +141,10 @@ module fluid_pnpn
      !> Surface term in pressure rhs. Masks symmetry bcs.
      type(facet_normal_t) :: bc_sym_surface
 
-     !
-     ! Boundary conditions and  lists for residuals and solution increments
-     !
-
-     !> A dummy bc for marking strong velocity bcs. Used for vel_res.
-     type(zero_dirichlet_t) :: bc_vel_res
-     !> A dummy bc for marking strong velocity bcs. Used for du.
-     type(zero_dirichlet_t) :: bc_du
-     !> A dummy bc for marking strong velocity bcs. Used for dv.
-     type(zero_dirichlet_t) :: bc_dv
-     !> A dummy bc for marking strong velocity bcs. Used for dw.
-     type(zero_dirichlet_t) :: bc_dw
-     !> A dummy bc for marking strong pressure bcs. Used for dp.
-     type(zero_dirichlet_t) :: bc_dp
-
-     !> Lists for holding the corresponding dummy bc, e.g. bclst_du holds bc_du
-     type(bc_list_t) :: bclst_vel_res
-     type(bc_list_t) :: bclst_du
-     type(bc_list_t) :: bclst_dv
-     type(bc_list_t) :: bclst_dw
-     type(bc_list_t) :: bclst_dp
+     !> Boundary conditions projector for velocity constraints.
+     class(vector_bc_projector_t), allocatable :: bcs_vel_projector
+     !> Boundary conditions projector for pressure constraints.
+     type(scalar_bc_projector_t) :: bcs_prs_projector
 
 
      ! Checker for wether we have a strong pressure bc. If not, the pressure
@@ -206,8 +196,22 @@ module fluid_pnpn
      procedure, pass(this) :: free => fluid_pnpn_free
      !> Perform a single time-step of the scheme.
      procedure, pass(this) :: step => fluid_pnpn_step
+     !> Assemble the explicit part of the right-hand side.
+     procedure, pass(this) :: assemble_rhs => fluid_pnpn_assemble_rhs
+     !> Recompute geometry-dependent quantities after the mesh has moved.
+     procedure, pass(this) :: recompute_metrics => &
+          fluid_pnpn_recompute_metrics
+     !> Shift the velocity history by one time step.
+     procedure, pass(this) :: update_velocity_lags => &
+          fluid_pnpn_update_velocity_lags
+     !> Solve for the pressure and velocity.
+     procedure, pass(this) :: solve => fluid_pnpn_solve
      !> Restart from a previous solution.
      procedure, pass(this) :: restart => fluid_pnpn_restart
+     !> Set the initial condition, the lagged velocity fields and the ALE
+     !! mesh velocity.
+     procedure, pass(this) :: set_initial_condition => &
+          fluid_pnpn_set_initial_condition
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs => fluid_pnpn_setup_bcs
      !> Write a field with boundary condition specifications.
@@ -216,11 +220,29 @@ module fluid_pnpn
   end type fluid_pnpn_t
 
   interface
+     !> Split a boundary condition entry of the case file into a velocity
+     !! part and a pressure part.
+     !! @param[inout] json The boundary condition entry.
+     !! @param[inout] velocity_json The velocity part, valid if `has_velocity`.
+     !! @param[inout] pressure_json The pressure part, valid if `has_pressure`.
+     !! @param[out] has_velocity Whether the entry defines a velocity condition.
+     !! @param[out] has_pressure Whether the entry defines a pressure condition.
+     module subroutine fluid_pnpn_bc_split(json, velocity_json, &
+          pressure_json, has_velocity, has_pressure)
+       type(json_file), intent(inout) :: json
+       type(json_file), intent(inout) :: velocity_json
+       type(json_file), intent(inout) :: pressure_json
+       logical, intent(out) :: has_velocity
+       logical, intent(out) :: has_pressure
+     end subroutine fluid_pnpn_bc_split
+  end interface
+
+  interface
      !> Boundary condition factory for pressure.
      !! @details Will mark a mesh zone for the bc and finalize.
      !! @param[inout] object The object to be allocated.
-     !! @param[in] scheme The `scalar_pnpn` scheme.
-     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] scheme The `fluid_pnpn` scheme.
+     !! @param[inout] json The pressure part of the boundary condition entry.
      !! @param[in] coef SEM coefficients.
      !! @param[in] user The user interface.
      module subroutine pressure_bc_factory(object, scheme, json, coef, user)
@@ -228,7 +250,7 @@ module fluid_pnpn
        type(fluid_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
-       type(user_t), intent(in) :: user
+       type(user_t), target, intent(in) :: user
      end subroutine pressure_bc_factory
   end interface
 
@@ -236,43 +258,141 @@ module fluid_pnpn
      !> Boundary condition factory for velocity
      !! @details Will mark a mesh zone for the bc and finalize.
      !! @param[inout] object The object to be allocated.
-     !! @param[in] scheme The `scalar_pnpn` scheme.
-     !! @param[inout] json JSON object for initializing the bc.
+     !! @param[in] scheme The `fluid_pnpn` scheme.
+     !! @param[inout] json The velocity part of the boundary condition entry.
      !! @param[in] coef SEM coefficients.
      !! @param[in] user The user interface.
      module subroutine velocity_bc_factory(object, scheme, json, coef, user)
        class(bc_t), pointer, intent(inout) :: object
-       type(fluid_pnpn_t), intent(inout) :: scheme
+       type(fluid_pnpn_t), intent(in) :: scheme
        type(json_file), intent(inout) :: json
        type(coef_t), target, intent(in) :: coef
-       type(user_t), intent(in) :: user
+       type(user_t), target, intent(in) :: user
      end subroutine velocity_bc_factory
   end interface
 
+  interface
+     !> Velocity boundary condition allocator.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] full_stress_formulation Whether the scheme uses the full
+     !! viscous stress formulation.
+     module subroutine fluid_pnpn_velocity_bc_allocator(object, type_name, &
+          full_stress_formulation)
+       class(bc_t), pointer, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+       logical, intent(in) :: full_stress_formulation
+     end subroutine fluid_pnpn_velocity_bc_allocator
+  end interface
+
+  interface
+     !> Pressure boundary condition allocator.
+     !! @param[inout] object The object to be allocated.
+     !! @param[in] type_name The name of the boundary condition type.
+     module subroutine fluid_pnpn_pressure_bc_allocator(object, type_name)
+       class(bc_t), pointer, intent(inout) :: object
+       character(len=*), intent(in) :: type_name
+     end subroutine fluid_pnpn_pressure_bc_allocator
+  end interface
+
+  !
+  ! Machinery for injecting user-defined types
+  !
+
+  !> Interface for a fluid Pn/Pn boundary condition allocator.
+  !! Implemented in user modules, it should allocate `obj` to the custom user
+  !! type.
+  abstract interface
+     subroutine fluid_pnpn_bc_allocate(obj)
+       import bc_t
+       class(bc_t), pointer, intent(inout) :: obj
+     end subroutine fluid_pnpn_bc_allocate
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom velocity
+     !! boundary condition types.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] allocator The allocator for the custom user type.
+     module subroutine register_fluid_pnpn_velocity_bc(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(fluid_pnpn_bc_allocate), pointer, intent(in) :: allocator
+     end subroutine register_fluid_pnpn_velocity_bc
+  end interface
+
+  interface
+     !> Called in user modules to add an allocator for custom pressure
+     !! boundary condition types.
+     !! @param[in] type_name The name of the boundary condition type.
+     !! @param[in] allocator The allocator for the custom user type.
+     module subroutine register_fluid_pnpn_pressure_bc(type_name, allocator)
+       character(len=*), intent(in) :: type_name
+       procedure(fluid_pnpn_bc_allocate), pointer, intent(in) :: allocator
+     end subroutine register_fluid_pnpn_pressure_bc
+  end interface
+
+  !> A name-allocator pair for user-defined fluid Pn/Pn boundary conditions.
+  type fluid_pnpn_bc_allocator_entry
+     character(len=NEKO_TYPENAME_LEN) :: type_name
+     procedure(fluid_pnpn_bc_allocate), pointer, nopass :: allocator => null()
+  end type fluid_pnpn_bc_allocator_entry
+
+  !> Registry of user-defined velocity boundary condition allocators.
+  type(fluid_pnpn_bc_allocator_entry), allocatable, private :: &
+       fluid_pnpn_velocity_bc_registry(:)
+
+  !> The size of `fluid_pnpn_velocity_bc_registry`.
+  integer, private :: fluid_pnpn_velocity_bc_registry_size = 0
+
+  !> Registry of user-defined pressure boundary condition allocators.
+  type(fluid_pnpn_bc_allocator_entry), allocatable, private :: &
+       fluid_pnpn_pressure_bc_registry(:)
+
+  !> The size of `fluid_pnpn_pressure_bc_registry`.
+  integer, private :: fluid_pnpn_pressure_bc_registry_size = 0
+
+  public :: fluid_pnpn_bc_split, fluid_pnpn_bc_allocate, &
+       fluid_pnpn_velocity_bc_allocator, fluid_pnpn_pressure_bc_allocator, &
+       register_fluid_pnpn_velocity_bc, register_fluid_pnpn_pressure_bc
+
 contains
 
-  subroutine fluid_pnpn_init(this, msh, lx, params, user, chkp)
+  !> Initialize the Pn/Pn fluid scheme
+  !! @param msh The mesh.
+  !! @param lx The number of GLL points in each direction.
+  !! @param params The fluid parameters, i.e. `case.fluid`.
+  !! @param numerics_params The numerical parameters, i.e. `case.numerics`.
+  !! @param user Type with user-defined procedures.
+  !! @param chkp Checkpoint for restarts.
+  !! @param output_boundary Whether to write the boundary condition markers
+  !! to file.
+  subroutine fluid_pnpn_init(this, msh, lx, params, numerics_params, user, &
+       chkp, output_boundary)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
     type(json_file), target, intent(inout) :: params
+    type(json_file), target, intent(inout) :: numerics_params
     type(user_t), target, intent(in) :: user
     type(chkp_t), target, intent(inout) :: chkp
+    logical, intent(in) :: output_boundary
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     integer :: i
     class(bc_t), pointer :: bc_i, vel_bc
     real(kind=rp) :: abs_tol
     character(len=LOG_SIZE) :: log_buf
-    integer :: ierr, integer_val, solver_maxiter
+    integer :: ierr, integer_val
     character(len=:), allocatable :: solver_type, precon_type
-    logical :: monitor, found
     logical :: advection
-    type(json_file) :: numerics_params, precon_params
+    type(json_file) :: precon_params, solver_params
+    type(checkpoint_payload_t), pointer :: payload
+    real(kind=dp), pointer :: tlag(:), dtlag(:)
 
     call this%free()
 
     ! Initialize base class
-    call this%init_base(msh, lx, params, scheme, user, .true.)
+    call this%init_base(msh, lx, params, numerics_params, scheme, user, &
+         .true., output_boundary)
 
     ! Add pressure field to the registry. For this scheme it is in the same
     ! Xh as the velocity
@@ -283,52 +403,60 @@ contains
     ! Select governing equations via associated residual and Ax types
     !
 
-    call json_get_or_lookup(params, 'case.numerics.time_order', integer_val)
+    call json_get_or_lookup(numerics_params, 'time_order', integer_val)
     allocate(this%ext_bdf)
     call this%ext_bdf%init(integer_val)
 
-    call json_get_or_default(params, "case.fluid.full_stress_formulation", &
+    call json_get_or_default(params, "full_stress_formulation", &
          this%full_stress_formulation, .false.)
 
-    call json_get_or_default(params, "case.fluid.cyclic", this%c_Xh%cyclic, &
+    call json_get_or_default(params, "cyclic", this%c_Xh%cyclic, &
          .false.)
     call this%c_Xh%generate_cyclic_bc()
 
-    if (this%full_stress_formulation) then
-       ! Setup backend dependent Ax routines
-       call ax_helm_factory(this%Ax_vel, full_formulation = .true.)
+    ! Setup backend dependent Ax routines for the velocity
+    call fluid_pnpn_ax_vel_factory(this)
 
+    if (this%full_stress_formulation) then
        ! Setup backend dependent prs residual routines
        call pnpn_prs_res_stress_factory(this%prs_res)
 
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_stress_factory(this%vel_res)
-    else
-       ! Setup backend dependent Ax routines
-       call ax_helm_factory(this%Ax_vel, full_formulation = .false.)
 
+       ! Allocate coupled projector for velocity boundary conditions
+       allocate(coupled_vector_bc_projector_t :: this%bcs_vel_projector)
+    else
        ! Setup backend dependent prs residual routines
        call pnpn_prs_res_factory(this%prs_res)
 
        ! Setup backend dependent vel residual routines
        call pnpn_vel_res_factory(this%vel_res)
+
+       ! Allocate segregated projector for velocity boundary conditions
+       allocate(segregated_vector_bc_projector_t :: this%bcs_vel_projector)
     end if
 
+    ! Initialize the velocity bc projector
+    call this%bcs_vel_projector%init(this%c_Xh)
 
-
-    if (params%valid_path('case.fluid.nut_field')) then
+    if (params%valid_path('nut_field')) then
        if (.not. this%full_stress_formulation) then
           call neko_error("You need to set full_stress_formulation to " // &
                "true for the fluid to have a spatially varying " // &
                "viscocity field.")
        end if
-       call json_get(params, 'case.fluid.nut_field', this%nut_field_name)
+       call json_get(params, 'nut_field', this%nut_field_name)
     else
        this%nut_field_name = ""
     end if
 
     ! Setup Ax for the pressure
-    call ax_helm_factory(this%Ax_prs, full_formulation = .false.)
+    if (this%c_Xh%geo_compression) then
+       call ax_helm_allocator(this%Ax_prs, type_name = "standard_compr")
+    else
+       call ax_helm_allocator(this%Ax_prs, type_name = "standard")
+    end if
 
 
     ! Setup backend dependent summation of AB/BDF
@@ -367,15 +495,14 @@ contains
     call this%dw%init(this%dm_Xh, 'dw')
     call this%dp%init(this%dm_Xh, 'dp')
     ! Initialize ALE
-    call this%ale%init(this%c_Xh, params, user, chkp)
+    call this%ale%init(this%c_Xh, params, numerics_params, user, chkp)
 
     call neko_log%section("Fluid boundary conditions")
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
 
     ! Check if we need to output boundaries
-    call json_get_or_default(params, 'case.output_boundary', found, .false.)
-    if (found) call this%write_boundary_conditions()
+    if (output_boundary) call this%write_boundary_conditions()
     call neko_log%end_section()
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
@@ -388,61 +515,64 @@ contains
 
 
     ! Determine the time-interpolation scheme
-    call json_get_or_default(params, 'case.numerics.oifs', this%oifs, .false.)
-    if (params%valid_path('case.fluid.flow_rate_force')) then
+    call json_get_or_default(numerics_params, 'oifs', this%oifs, .false.)
+    if (params%valid_path('flow_rate_force')) then
        call this%vol_flow%init(this%dm_Xh, params)
     end if
 
     ! Setup pressure solver
     call neko_log%section("Pressure solver")
 
-    call json_get_or_lookup_or_default(params, &
-         'case.fluid.pressure_solver.max_iterations', &
-         solver_maxiter, 800)
-    call json_get(params, 'case.fluid.pressure_solver.type', solver_type)
-    call json_get(params, 'case.fluid.pressure_solver.preconditioner.type', &
+    call json_get(params, 'pressure_solver', solver_params)
+    call json_get(params, 'pressure_solver.type', solver_type)
+    call json_get(params, 'pressure_solver.preconditioner.type', &
          precon_type)
     call json_get(params, &
-         'case.fluid.pressure_solver.preconditioner', precon_params)
+         'pressure_solver.preconditioner', precon_params)
     call json_get_or_lookup(params, &
-         'case.fluid.pressure_solver.absolute_tolerance', &
+         'pressure_solver.absolute_tolerance', &
          abs_tol)
-    call json_get_or_default(params, 'case.fluid.pressure_solver.monitor', &
-         monitor, .false.)
     call neko_log%message('Type       : ('// trim(solver_type) // &
          ', ' // trim(precon_type) // ')')
     write(log_buf, '(A,ES13.6)') 'Abs tol    :', abs_tol
     call neko_log%message(log_buf)
 
-    call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), &
-         solver_type, solver_maxiter, abs_tol, monitor)
+    call this%solver_factory(this%ksp_prs, this%dm_Xh%size(), solver_params)
     call this%precon_factory_(this%pc_prs, this%ksp_prs, &
-         this%c_Xh, this%dm_Xh, this%gs_Xh, this%bcs_prs, &
+         this%c_Xh, this%bcs_prs, &
          precon_type, precon_params)
     call neko_log%end_section()
 
     ! Initialize the advection factory
-    call json_get_or_default(params, 'case.fluid.advection', advection, .true.)
-    call json_get(params, 'case.numerics', numerics_params)
+    call json_get_or_default(params, 'advection', advection, .true.)
+    ! OIFS integrates the advection term. With advection disabled, fall back to
+    ! the standard BDF history assembly.
+    this%oifs = this%oifs .and. advection
+    call chkp%get_time_history(tlag, dtlag)
     call advection_factory(this%adv, numerics_params, this%c_Xh, &
          this%ulag, this%vlag, this%wlag, &
-         chkp%dtlag, chkp%tlag, this%ext_bdf, &
+         dtlag, tlag, this%ext_bdf, &
          .not. advection)
     ! Should be in init_base maybe?
     this%chkp => chkp
-    ! This is probably scheme specific
-    call this%chkp%add_fluid(this%u, this%v, this%w, this%p)
-
-    this%chkp%abx1 => this%abx1
-    this%chkp%abx2 => this%abx2
-    this%chkp%aby1 => this%aby1
-    this%chkp%aby2 => this%aby2
-    this%chkp%abz1 => this%abz1
-    this%chkp%abz2 => this%abz2
-    call this%chkp%add_lag(this%ulag, this%vlag, this%wlag)
+    ! Register the scheme state for checkpointing.
+    payload => this%chkp%add_payload("fluid")
+    call payload%add_field(this%u)
+    call payload%add_field(this%v)
+    call payload%add_field(this%w)
+    call payload%add_field(this%p)
+    call payload%add_field(this%abx1)
+    call payload%add_field(this%abx2)
+    call payload%add_field(this%aby1)
+    call payload%add_field(this%aby2)
+    call payload%add_field(this%abz1)
+    call payload%add_field(this%abz2)
+    call payload%add_series(this%ulag)
+    call payload%add_series(this%vlag)
+    call payload%add_series(this%wlag)
 
     !> Set the number of schwarz iterations to perform each time step.
-    call json_get_or_default(params, 'case.fluid.schwarz_iterations', &
+    call json_get_or_default(params, 'schwarz_iterations', &
          this%schwarz_iterations, 0)
 
     call neko_log%end_section()
@@ -451,14 +581,53 @@ contains
 
   end subroutine fluid_pnpn_init
 
+  !> Allocate and configure the Helmholtz matrix-vector product for the
+  !! velocity, `this%Ax_vel`.
+  subroutine fluid_pnpn_ax_vel_factory(this)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+
+    if (this%full_stress_formulation) then
+       if (this%svv_enabled) then
+          if (this%svv%formulation .eq. "factorized") then
+             call ax_helm_allocator(this%Ax_vel, &
+                  type_name = "full_factorized_svv")
+          else
+             call ax_helm_allocator(this%Ax_vel, &
+                  type_name = "full_one_sided_svv")
+          end if
+          select type (operator => this%Ax_vel)
+          class is (ax_helm_svv_full_t)
+             operator%svv => this%svv
+          end select
+       else
+          call ax_helm_allocator(this%Ax_vel, type_name = "full")
+       end if
+    else
+       if (this%svv_enabled) then
+          if (this%svv%formulation .eq. "factorized") then
+             call ax_helm_allocator(this%Ax_vel, type_name = "factorized_svv")
+          else
+             call ax_helm_allocator(this%Ax_vel, type_name = "one_sided_svv")
+          end if
+          select type (operator => this%Ax_vel)
+          class is (ax_helm_svv_t)
+             operator%svv => this%svv
+          end select
+       else if (this%c_Xh%geo_compression) then
+          call ax_helm_allocator(this%Ax_vel, &
+               type_name = "standard_compr")
+       else
+          call ax_helm_allocator(this%Ax_vel, type_name = "standard")
+       end if
+    end if
+
+  end subroutine fluid_pnpn_ax_vel_factory
+
   subroutine fluid_pnpn_restart(this, chkp)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(chkp_t), intent(inout) :: chkp
-    real(kind=rp) :: dtlag(10), tlag(10)
     integer :: i, j, n
-
-    dtlag = chkp%dtlag
-    tlag = chkp%tlag
+    class(bc_t), pointer :: bc_i
 
     n = this%u%dof%size()
     if (allocated(chkp%previous_mesh%elements) .or. &
@@ -562,10 +731,69 @@ contains
        call this%bc_sym_surface%recompute_normals()
     end if
 
+    ! Restore velocity bcs that need it (overset mostly)
+    do i = 1, this%bcs_vel%size()
+       bc_i => this%bcs_vel%get(i)
+       call bc_i%restart(this%u, this%v, this%w, &
+            this%ulag, this%vlag, this%wlag)
+    end do
+
+    ! Restore pressure bcs that need it (overset mostly)
+    do i = 1, this%bcs_prs%size()
+       bc_i => this%bcs_prs%get(i)
+       call bc_i%restart(this%p)
+    end do
+
+    nullify(bc_i)
+
+    ! The OIFS convecting field series is not in the checkpoint, rebuild it
+    ! from the restored velocity lags.
+    select type (adv => this%adv)
+    type is (adv_oifs_t)
+       call adv%restart()
+    end select
+
   end subroutine fluid_pnpn_restart
+
+  !> Set the initial condition of the velocity and pressure, copy the initial
+  !! velocity to the lagged velocity fields, and set the initial ALE mesh
+  !! velocity.
+  !! @param params The fluid parameters, i.e. `case.fluid`.
+  !! @param user Type with user-defined procedures.
+  !! @param is_restart Whether the case is restarting from a checkpoint.
+  subroutine fluid_pnpn_set_initial_condition(this, params, user, is_restart)
+    class(fluid_pnpn_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(user_t), intent(in) :: user
+    logical, intent(in) :: is_restart
+
+    ! Set before the IC
+    if (.not. is_restart) then
+       call this%ale%set_initial_mesh_velocity(this%c_Xh)
+    end if
+
+    call this%set_initial_condition_base(params, user, is_restart)
+
+    if (.not. is_restart) then
+       call this%ulag%set(this%u)
+       call this%vlag%set(this%v)
+       call this%wlag%set(this%w)
+    end if
+
+  end subroutine fluid_pnpn_set_initial_condition
 
   subroutine fluid_pnpn_free(this)
     class(fluid_pnpn_t), intent(inout) :: this
+
+    if (allocated(this%Ax_vel)) then
+       call this%Ax_vel%free()
+       deallocate(this%Ax_vel)
+    end if
+
+    if (allocated(this%Ax_prs)) then
+       call this%Ax_prs%free()
+       deallocate(this%Ax_prs)
+    end if
 
     !Deallocate velocity and pressure fields
     call this%scheme_free()
@@ -575,19 +803,13 @@ contains
        deallocate(this%ext_bdf)
     end if
 
-    call this%bc_vel_res%free()
-    call this%bc_du%free()
-    call this%bc_dv%free()
-    call this%bc_dw%free()
-    call this%bc_dp%free()
-
     call this%bc_prs_surface%free()
     call this%bc_sym_surface%free()
-    call this%bclst_vel_res%free()
-    call this%bclst_du%free()
-    call this%bclst_dv%free()
-    call this%bclst_dw%free()
-    call this%bclst_dp%free()
+    if (allocated(this%bcs_vel_projector)) then
+       call this%bcs_vel_projector%free()
+       deallocate(this%bcs_vel_projector)
+    end if
+    call this%bcs_prs_projector%free()
     call this%proj_prs%free()
     call this%proj_vel%free()
 
@@ -618,14 +840,6 @@ contains
     if (allocated(this%adv)) then
        call this%adv%free()
        deallocate(this%adv)
-    end if
-
-    if (allocated(this%Ax_vel)) then
-       deallocate(this%Ax_vel)
-    end if
-
-    if (allocated(this%Ax_prs)) then
-       deallocate(this%Ax_prs)
     end if
 
     if (allocated(this%prs_res)) then
@@ -670,48 +884,63 @@ contains
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(time_state_t), intent(in) :: time
     type(time_step_controller_t), intent(in) :: dt_controller
-    ! number of degrees of freedom
-    integer :: n
-    ! Solver results monitors (pressure + 3 velocity)
-    type(ksp_monitor_t) :: ksp_results(4)
-    integer :: iter
-
-    type(file_t) :: dump_file
-    class(bc_t), pointer :: bc_i
-    type(non_normal_t), pointer :: bc_j
 
     if (this%freeze) return
 
+    call profiler_start_region('Fluid', 1)
+
+    call this%assemble_rhs(time)
+
+    if (this%ale%active) then
+       ! Advance Mesh (Moves points, updates B history, updates wm_lags)
+       call this%ale%advance_mesh(this%c_Xh, time, this%ext_bdf%nadv)
+       call this%recompute_metrics()
+    end if
+
+    call this%update_velocity_lags()
+
+    call this%solve(time, dt_controller, this%proj_prs, this%proj_vel)
+
+    ! Update mesh velocities for ALE
+    ! We update them here (end of step) for the next step.
+    if (this%ale%active) then
+       call this%ale%update_mesh_velocity(this%c_Xh, time)
+    end if
+
+    call profiler_end_region('Fluid', 1)
+  end subroutine fluid_pnpn_step
+
+  !> Assemble the explicit part of the right-hand side and extrapolate the
+  !! velocity.
+  !! @param time The time state.
+  subroutine fluid_pnpn_assemble_rhs(this, time)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    ! number of degrees of freedom
+    integer :: n
+
     n = this%dm_Xh%size()
 
-    call profiler_start_region('Fluid', 1)
-    associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+    associate(u => this%u, v => this%v, w => this%w, &
          u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
-         du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
-         u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
-         p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
          Xh => this%Xh, &
-         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, &
          ulag => this%ulag, vlag => this%vlag, wlag => this%wlag, &
-         msh => this%msh, prs_res => this%prs_res, &
-         source_term => this%source_term, vel_res => this%vel_res, &
          sumab => this%sumab, makeoifs => this%makeoifs, &
          makeabf => this%makeabf, makebdf => this%makebdf, &
-         vel_projection_dim => this%vel_projection_dim, &
-         pr_projection_dim => this%pr_projection_dim, &
          oifs => this%oifs, &
-         rho => this%rho, mu_tot => this%mu_tot, &
+         rho => this%rho, &
          f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
-         t => time%t, tstep => time%tstep, dt => time%dt, &
-         ext_bdf => this%ext_bdf, event => glb_cmd_event, &
+         dt => time%dt, &
+         ext_bdf => this%ext_bdf, &
          ale => this%ale)
 
       ! Extrapolate the velocity if it's not done in nut_field estimation
       call sumab%compute_fluid(u_e, v_e, w_e, u, v, w, &
            ulag, vlag, wlag, ext_bdf%advection_coeffs%x, ext_bdf%nadv)
 
-      ! Compute the source terms
-      call this%source_term%compute(time)
+      ! Compute the source terms that are extrapolated in time below
+      call this%source_term%compute(time, extrapolate = .true.)
 
       ! Add Neumann bc contributions to the RHS
       call this%bcs_vel%apply_vector(f_x%x, f_y%x, f_z%x, &
@@ -734,7 +963,7 @@ contains
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
               this%advx, this%advy, this%advz, &
-              Xh, this%c_Xh, dm_Xh%size(), dt)
+              Xh, this%c_Xh, dm_Xh%size(), real(dt, kind=rp))
 
          ! At this point the RHS contains the sum of the advection operator and
          ! additional source terms, evaluated using the velocity field from the
@@ -746,10 +975,11 @@ contains
               f_x%x, f_y%x, f_z%x, &
               rho%x(1,1,1,1), ext_bdf%advection_coeffs%x, n)
 
-         ! Now, the source terms from the previous time step are added to the RHS.
+         ! Now, the source terms from the previous time step are added to the
+         ! RHS.
          call makeoifs%compute_fluid(this%advx%x, this%advy%x, this%advz%x, &
               f_x%x, f_y%x, f_z%x, &
-              rho%x(1,1,1,1), dt, n)
+              rho%x(1,1,1,1), real(dt, kind=rp), n)
       else
          ! Add the advection operators to the right-hand-side.
          call this%adv%compute(u, v, w, &
@@ -771,33 +1001,89 @@ contains
          ! For a normal simulation (no moving mesh), Blag and Blaglag
          ! are just the initial B matrix, filled at initialization.
          call makebdf%compute_fluid(ulag, vlag, wlag, f_x%x, f_y%x, f_z%x, &
-              u, v, w, c_Xh%B, c_Xh%Blag, c_Xh%Blaglag, rho%x(1,1,1,1), dt, &
+              u, v, w, c_Xh%B, c_Xh%Blag, c_Xh%Blaglag, rho%x(1,1,1,1), &
+              real(dt, kind=rp), &
               ext_bdf%diffusion_coeffs%x, ext_bdf%ndiff, n)
 
       end if
 
-      if (this%ale%active) then
-         ! Advance Mesh (Moves points, updates B history, updates wm_lags)
-         call this%ale%advance_mesh(c_Xh, time, ext_bdf%nadv)
+      ! Source terms that must not be extrapolated in time are added as
+      ! computed, weighted by the mass matrix and the density like the
+      ! extrapolated terms above.
+      call this%source_term%compute(time, extrapolate = .false., scale = rho)
 
-         call profiler_start_region('ALE recompute metrics')
-         ! Update Metrics
-         call c_Xh%recompute_metrics()
-         ! Update the metrics used by the adv operator for delaiasing (coef_GL)
-         ! Maps the updated coef_GLL to coef_GL.
-         call this%adv%recompute_metrics(c_Xh, .true.)
+    end associate
+  end subroutine fluid_pnpn_assemble_rhs
 
-         call this%bc_prs_surface%recompute_normals()
-         call this%bc_sym_surface%recompute_normals()
-         call profiler_end_region('ALE recompute metrics')
-      end if
+  !> Recompute geometry-dependent quantities after the mesh has moved.
+  subroutine fluid_pnpn_recompute_metrics(this)
+    class(fluid_pnpn_t), target, intent(inout) :: this
 
-      call ulag%update()
-      call vlag%update()
-      call wlag%update()
+    call profiler_start_region('ALE recompute metrics')
+    ! Update Metrics
+    call this%c_Xh%recompute_metrics()
+    ! Update the metrics used by the adv operator for delaiasing (coef_GL)
+    ! Maps the updated coef_GLL to coef_GL.
+    call this%adv%recompute_metrics(this%c_Xh, .true.)
+
+    call this%bc_prs_surface%recompute_normals()
+    call this%bc_sym_surface%recompute_normals()
+    call profiler_end_region('ALE recompute metrics')
+  end subroutine fluid_pnpn_recompute_metrics
+
+  !> Shift the velocity history by one time step. Called once per step,
+  !! after the right-hand side is assembled and before the velocity is
+  !! overwritten.
+  subroutine fluid_pnpn_update_velocity_lags(this)
+    class(fluid_pnpn_t), intent(inout) :: this
+
+    call this%ulag%update()
+    call this%vlag%update()
+    call this%wlag%update()
+  end subroutine fluid_pnpn_update_velocity_lags
+
+  !> Solve for the pressure and velocity, given an assembled right-hand side.
+  !! @param time The time state.
+  !! @param dt_controller timestep controller
+  !! @param proj_prs Projection space for the pressure solve.
+  !! @param proj_vel Projection space for the velocity solve.
+  !! @note A solve is done without projection when its projection space is
+  !! not passed.
+  subroutine fluid_pnpn_solve(this, time, dt_controller, proj_prs, proj_vel)
+    class(fluid_pnpn_t), target, intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    type(time_step_controller_t), intent(in) :: dt_controller
+    type(projection_t), intent(inout), optional :: proj_prs
+    type(projection_vel_t), intent(inout), optional :: proj_vel
+    ! number of degrees of freedom
+    integer :: n
+    ! Solver results monitors (pressure + 3 velocity)
+    type(ksp_monitor_t) :: ksp_results(4)
+    integer :: iter
+
+    n = this%dm_Xh%size()
+
+    associate(u => this%u, v => this%v, w => this%w, p => this%p, &
+         u_e => this%u_e, v_e => this%v_e, w_e => this%w_e, &
+         du => this%du, dv => this%dv, dw => this%dw, dp => this%dp, &
+         u_res => this%u_res, v_res => this%v_res, w_res => this%w_res, &
+         p_res => this%p_res, Ax_vel => this%Ax_vel, Ax_prs => this%Ax_prs, &
+         Xh => this%Xh, &
+         c_Xh => this%c_Xh, dm_Xh => this%dm_Xh, gs_Xh => this%gs_Xh, &
+         msh => this%msh, prs_res => this%prs_res, &
+         vel_res => this%vel_res, &
+         rho => this%rho, mu_tot => this%mu_tot, &
+         f_x => this%f_x, f_y => this%f_y, f_z => this%f_z, &
+         tstep => time%tstep, dt => time%dt, &
+         ext_bdf => this%ext_bdf, event => glb_cmd_event)
 
       ! Update material properties if necessary
       call this%update_material_properties(time)
+
+      ! Update the SVV coefficient if necessary
+      if (this%svv_enabled) then
+         call this%svv%update(rho, tstep)
+      end if
 
       do iter = 1, 1 + this%schwarz_iterations
 
@@ -812,7 +1098,7 @@ contains
               f_x, f_y, f_z, &
               c_Xh, gs_Xh, &
               this%bc_prs_surface, this%bc_sym_surface,&
-              Ax_prs, ext_bdf%diffusion_coeffs%x(1), dt, &
+              Ax_prs, ext_bdf%diffusion_coeffs%x(1), real(dt, kind=rp), &
               mu_tot, rho, event)
 
 
@@ -824,20 +1110,19 @@ contains
          end if
 
          call gs_Xh%op(p_res, GS_OP_ADD, event)
-         call device_event_sync(event)
 
          ! Set the residual to zero at strong pressure boundaries.
-         call this%bclst_dp%apply_scalar(p_res%x, p%dof%size(), time)
+         call this%bcs_prs_projector%apply(p_res%x, p%dof%size())
 
 
          call profiler_end_region('Pressure_residual', 18)
 
          ! Do projections only on the actual solutions of the tstep
          ! not intermediate solutions from the subiterations.
-         if (iter .eq. 1) then
-            call this%proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, dt_controller, &
-                 Ax = Ax_prs, gs_h = gs_Xh, bclst = this%bclst_dp, &
-                 string = 'Pressure')
+         if (iter .eq. 1 .and. present(proj_prs)) then
+            call proj_prs%pre_solving(p_res%x, tstep, c_Xh, n, &
+                 dt_controller, Ax = Ax_prs, gs_h = gs_Xh, &
+                 bclst = this%bcs_prs_projector, string = 'Pressure')
          end if
 
          call this%pc_prs%update()
@@ -847,15 +1132,15 @@ contains
          ! Solve for the pressure increment.
          ksp_results(1) = &
               this%ksp_prs%solve(Ax_prs, dp, p_res%x, n, c_Xh, &
-              this%bclst_dp, gs_Xh)
+              this%bcs_prs_projector, gs_Xh)
          ksp_results(1)%name = 'Pressure'
 
 
          call profiler_end_region('Pressure_solve', 3)
 
-         if (iter .eq. 1) then
-            call this%proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
-                 this%bclst_dp, gs_Xh, n, tstep, dt_controller)
+         if (iter .eq. 1 .and. present(proj_prs)) then
+            call proj_prs%post_solving(dp%x, Ax_prs, c_Xh, &
+                 this%bcs_prs_projector, gs_Xh, n, tstep, dt_controller)
          end if
 
          ! Update the pressure with the increment. Demean if necessary.
@@ -874,22 +1159,22 @@ contains
               f_x, f_y, f_z, &
               c_Xh, msh, Xh, &
               mu_tot, rho, ext_bdf%diffusion_coeffs%x(1), &
-              dt, dm_Xh%size())
+              real(dt, kind=rp), dm_Xh%size())
 
          call rotate_cyc(u_res, v_res, w_res, 1, c_Xh)
          call gs_Xh%op(u_res%x, v_res%x, w_res%x, dm_Xh%size(), &
               GS_OP_ADD, event)
-         call device_event_sync(event)
          call rotate_cyc(u_res, v_res, w_res, 0, c_Xh)
 
          ! Set residual to zero at strong velocity boundaries.
-         call this%bclst_vel_res%apply(u_res, v_res, w_res, time)
+         call this%bcs_vel_projector%apply(u_res%x, v_res%x, w_res%x, &
+              dm_Xh%size())
 
 
          call profiler_end_region('Velocity_residual', 19)
 
-         if (iter .eq. 1) then
-            call this%proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
+         if (iter .eq. 1 .and. present(proj_vel)) then
+            call proj_vel%pre_solving(u_res%x, v_res%x, w_res%x, &
                  tstep, c_Xh, n, dt_controller, 'Velocity')
          end if
 
@@ -898,7 +1183,7 @@ contains
          call profiler_start_region("Velocity_solve", 4)
          ksp_results(2:4) = this%ksp_vel%solve_coupled(Ax_vel, du, dv, dw, &
               u_res%x, v_res%x, w_res%x, n, c_Xh, &
-              this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, &
+              this%bcs_vel_projector, gs_Xh, &
               this%ksp_vel%max_iter)
          call profiler_end_region("Velocity_solve", 4)
          if (this%full_stress_formulation) then
@@ -909,9 +1194,9 @@ contains
             ksp_results(4)%name = 'Z-Velocity'
          end if
 
-         if (iter .eq. 1) then
-            call this%proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
-                 this%bclst_du, this%bclst_dv, this%bclst_dw, gs_Xh, n, tstep, &
+         if (iter .eq. 1 .and. present(proj_vel)) then
+            call proj_vel%post_solving(du%x, dv%x, dw%x, Ax_vel, c_Xh, &
+                 this%bcs_vel_projector, gs_Xh, n, tstep, &
                  dt_controller)
          end if
 
@@ -932,77 +1217,57 @@ contains
          ! Horrible mu hack?!
          call this%vol_flow%adjust( u, v, w, p, u_res, v_res, w_res, p_res, &
               c_Xh, gs_Xh, ext_bdf, rho%x(1,1,1,1), mu_tot, &
-              dt, time, this%bclst_dp, this%bclst_du, this%bclst_dv, &
-              this%bclst_dw, this%bclst_vel_res, Ax_vel, Ax_prs, this%ksp_prs, &
+              real(dt, kind=rp), time, this%bcs_prs_projector, &
+              this%bcs_vel_projector, Ax_vel, Ax_prs, this%ksp_prs, &
               this%ksp_vel, this%pc_prs, this%pc_vel, this%ksp_prs%max_iter, &
               this%ksp_vel%max_iter)
       end if
 
-      ! Update mesh velocities for ALE
-      ! We update them here (end of step) for the next step.
-      ! Returns if .not. ale.
-      call this%ale%update_mesh_velocity(c_Xh, time)
-
     end associate
+  end subroutine fluid_pnpn_solve
 
-    nullify(bc_i, bc_j)
-
-    call profiler_end_region('Fluid', 1)
-  end subroutine fluid_pnpn_step
-
-  !> Sets up the boundary condition for the scheme.
+  !> Sets up the boundary conditions for the scheme.
+  !! @details Each entry of `case.fluid.boundary_conditions` is split into a
+  !! velocity part and a pressure part by `fluid_pnpn_bc_split`. The parts are
+  !! passed to `velocity_bc_factory` and `pressure_bc_factory`, and the
+  !! resulting objects are appended to `bcs_vel` and `bcs_prs` and marked in
+  !! the residual projectors. The `facet_type` array of the mesh, used by the
+  !! FDM preconditioner, is set to 1 on the zones of an entry with a Dirichlet
+  !! pressure condition and to 2 otherwise.
   !! @param user The user interface.
+  !! @param params The case file parameters.
   subroutine fluid_pnpn_setup_bcs(this, user, params)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(user_t), target, intent(in) :: user
     type(json_file), intent(inout) :: params
-    integer :: i, n_bcs, zone_index, j, zone_size, global_zone_size, ierr
+    integer :: i, n_bcs, j, k, l, zone_size, global_zone_size, ierr
+    integer :: facet_value
     class(bc_t), pointer :: bc_i
     type(json_core) :: core
     type(json_value), pointer :: bc_object
-    type(json_file) :: bc_subdict
-    logical :: ale_active_local, any_moving_wall, moving_
+    type(json_file) :: bc_subdict, velocity_subdict, pressure_subdict
+    logical :: moving_, has_velocity, has_pressure, pressure_dirichlet
     logical :: found
     ! Monitor which boundary zones have been marked
     logical, allocatable :: marked_zones(:)
     integer, allocatable :: zone_indices(:)
-
-    ! For ALE, we set a flag while reading the BCs
+    character(len=256) :: error_msg
     character(len=:), allocatable :: bc_type_str
+
     this%ale%has_moving_boundary = .false.
-    any_moving_wall = .false.
-    ale_active_local = .false.
-    call json_get_or_default(params, &
-         'case.fluid.ale.enabled', &
-         ale_active_local, .false.)
-
-    ! Lists for the residuals and solution increments
-    call this%bclst_vel_res%init()
-    call this%bclst_du%init()
-    call this%bclst_dv%init()
-    call this%bclst_dw%init()
-    call this%bclst_dp%init()
-
-    call this%bc_vel_res%init_from_components(this%c_Xh)
-    call this%bc_du%init_from_components(this%c_Xh)
-    call this%bc_dv%init_from_components(this%c_Xh)
-    call this%bc_dw%init_from_components(this%c_Xh)
-    call this%bc_dp%init_from_components(this%c_Xh)
 
     ! Special PnPn boundary conditions for pressure
     call this%bc_prs_surface%init_from_components(this%c_Xh)
     call this%bc_sym_surface%init_from_components(this%c_Xh)
 
     ! Populate bcs_vel and bcs_prs based on the case file
-    if (params%valid_path('case.fluid.boundary_conditions')) then
-       call params%info('case.fluid.boundary_conditions', n_children = n_bcs)
+    if (params%valid_path('boundary_conditions')) then
+       call params%info('boundary_conditions', n_children = n_bcs)
        call params%get_core(core)
-       call params%get('case.fluid.boundary_conditions', bc_object, found)
+       call params%get('boundary_conditions', bc_object, found)
 
-       !
-       ! Velocity bcs
-       !
        call this%bcs_vel%init(n_bcs)
+       call this%bcs_prs%init(n_bcs)
 
        allocate(marked_zones(size(this%msh%labeled_zones)))
        marked_zones = .false.
@@ -1013,16 +1278,6 @@ contains
 
           call json_get_or_lookup(bc_subdict, "zone_indices", zone_indices)
 
-          ! Set the ALE flag to true if there is any moving no_slip wall
-          call json_get(bc_subdict, "type", bc_type_str)
-          moving_ = .false.
-          if (trim(bc_type_str) .eq. "no_slip") then
-             call json_get_or_default(bc_subdict, "moving", moving_, .false.)
-          end if
-          if (moving_) then
-             this%ale%has_moving_boundary = .true.
-          end if
-
           ! Check that we are not trying to assing a bc to zone, for which one
           ! has already been assigned and that the zone has more than 0 size
           ! in the mesh.
@@ -1032,96 +1287,167 @@ contains
                   MPI_INTEGER, MPI_MAX, NEKO_COMM, ierr)
 
              if (global_zone_size .eq. 0) then
-                write(error_unit, '(A, A, I0, A, A, I0, A)') "*** ERROR ***: ",&
+                write(error_msg, '(A, I0, A, A, I0, A)') &
                      "Zone index ", zone_indices(j), &
                      " is invalid as this zone has 0 size, meaning it ", &
                      "is not in the mesh. Check fluid boundary condition ", &
                      i, "."
-                error stop
+                call neko_error(error_msg)
              end if
 
              if (marked_zones(zone_indices(j))) then
-                write(error_unit, '(A, A, I0, A, A, A, A)') "*** ERROR ***: ", &
+                write(error_msg, '(A, I0, A, A, A, A)') &
                      "Zone with index ", zone_indices(j), &
                      " has already been assigned a boundary condition. ", &
                      "Please check your boundary_conditions entry for the ", &
                      "fluid and make sure that each zone index appears only ", &
                      "in a single boundary condition."
-                error stop
+                call neko_error(error_msg)
              else
                 marked_zones(zone_indices(j)) = .true.
              end if
           end do
 
-          bc_i => null()
-          call velocity_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
+          call fluid_pnpn_bc_split(bc_subdict, velocity_subdict, &
+               pressure_subdict, has_velocity, has_pressure)
 
-          ! Not all bcs require an allocation for velocity in particular,
-          ! so we check.
+          !
+          ! Velocity
+          !
+          bc_i => null()
+          if (has_velocity) then
+             ! Set the ALE flag to true if there is any moving no_slip wall
+             call json_get(velocity_subdict, "type", bc_type_str)
+             if (trim(bc_type_str) .eq. "no_slip") then
+                call json_get_or_default(velocity_subdict, "moving", moving_, &
+                     .false.)
+                if (moving_) this%ale%has_moving_boundary = .true.
+             end if
+
+             call velocity_bc_factory(bc_i, this, velocity_subdict, &
+                  this%c_Xh, user)
+          end if
+
+          ! A homogeneous Neumann condition for velocity does not create an
+          ! object, so we check.
           if (associated(bc_i)) then
 
-             ! We need to treat mixed bcs separately because they are by
-             ! convention marked weak and currently contain nested
-             ! bcs, some of which are strong.
              select type (bc_i)
-             type is (symmetry_t)
-                ! Symmetry has 3 internal bcs, but only one actually contains
-                ! markings.
-                ! Symmetry's apply_scalar doesn't do anything, so we need to mark
-                ! individual nested bcs to the du,dv,dw, whereas the vel_res can
-                ! just get symmetry as a whole, because on this list we call
-                ! apply_vector.
-                ! Additionally we have to mark the special surface bc for p.
-                call this%bclst_vel_res%append(bc_i)
-                call this%bc_du%mark_facets(bc_i%bc_x%marked_facet)
-                call this%bc_dv%mark_facets(bc_i%bc_y%marked_facet)
-                call this%bc_dw%mark_facets(bc_i%bc_z%marked_facet)
-
+             type is (symmetry_aligned_t)
+                ! In this case we need to tell the segregated projector where
+                ! we have the dirichlet dofs component-wise. This is stored
+                ! in the nested bcs. Of course, we rely on axis-alignment of
+                ! the geometry.
+                call this%bcs_vel_projector%mark(bc_i%bc_x, component = 'x')
+                call this%bcs_vel_projector%mark(bc_i%bc_y, component = 'y')
+                call this%bcs_vel_projector%mark(bc_i%bc_z, component = 'z')
                 call this%bcs_vel%append(bc_i)
-
                 call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
+             type is (symmetry_t)
+                ! In this case we add the bc itself to the projector, which
+                ! should be coupled.
+                if (.not. this%full_stress_formulation) then
+                   call neko_error("The symmetry boundary condition " // &
+                        "requires the full stress formulation to be enabled.")
+                end if
+                call this%bcs_vel_projector%mark(bc_i)
+                call this%bcs_vel%append(bc_i)
+                call this%bc_sym_surface%mark_facets(bc_i%marked_facet)
+             type is (non_normal_aligned_t)
+                ! The situation is the same as symmetry.
+                call this%bcs_vel_projector%mark(bc_i%bc_x, component = 'x')
+                call this%bcs_vel_projector%mark(bc_i%bc_y, component = 'y')
+                call this%bcs_vel_projector%mark(bc_i%bc_z, component = 'z')
+                call this%bcs_vel%append(bc_i)
              type is (non_normal_t)
-                ! This is a bc for the residuals and increments, not the
-                ! velocity itself. So, don't append to bcs_vel
-                call this%bclst_vel_res%append(bc_i)
-                call this%bc_du%mark_facets(bc_i%bc_x%marked_facet)
-                call this%bc_dv%mark_facets(bc_i%bc_y%marked_facet)
-                call this%bc_dw%mark_facets(bc_i%bc_z%marked_facet)
+                call this%bcs_vel_projector%mark(bc_i)
+                call this%bcs_vel%append(bc_i)
              type is (shear_stress_t)
-                ! Same as symmetry
-                call this%bclst_vel_res%append(bc_i%symmetry)
-                call this%bclst_du%append(bc_i%symmetry%bc_x)
-                call this%bclst_dv%append(bc_i%symmetry%bc_y)
-                call this%bclst_dw%append(bc_i%symmetry%bc_z)
-
+                if (.not. this%full_stress_formulation) then
+                   call neko_error("The shear_stress boundary condition " // &
+                        "requires the full stress formulation to be enabled.")
+                end if
+                call this%bcs_vel_projector%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              type is (wall_model_bc_t)
-                ! Same as symmetry
-                call this%bclst_vel_res%append(bc_i%symmetry)
-                call this%bclst_du%append(bc_i%symmetry%bc_x)
-                call this%bclst_dv%append(bc_i%symmetry%bc_y)
-                call this%bclst_dw%append(bc_i%symmetry%bc_z)
-
+                if (.not. this%full_stress_formulation) then
+                   call neko_error("The wall_model boundary condition " // &
+                        "requires the full stress formulation to be enabled.")
+                end if
+                call this%bcs_vel_projector%mark(bc_i)
+                call this%bcs_vel%append(bc_i)
+             class is (mixed_bc_t)
+                ! User-defined mixed conditions, resolved by the coupled
+                ! projector.
+                if (.not. this%full_stress_formulation) then
+                   call neko_error("The " // trim(bc_i%name) // &
+                        " boundary condition is a mixed condition and " // &
+                        "requires the full stress formulation to be enabled.")
+                end if
+                call this%bcs_vel_projector%mark(bc_i)
                 call this%bcs_vel%append(bc_i)
              class default
 
-                ! For the default case we use our dummy zero_dirichlet bcs to
-                ! mark the same faces as in ordinary velocity dirichlet
-                ! conditions.
-                ! Additionally we mark the special PnPn pressure  bc.
-                if (bc_i%strong) then
-                   call this%bc_vel_res%mark_facets(bc_i%marked_facet)
-                   call this%bc_du%mark_facets(bc_i%marked_facet)
-                   call this%bc_dv%mark_facets(bc_i%marked_facet)
-                   call this%bc_dw%mark_facets(bc_i%marked_facet)
-
-                   call this%bc_prs_surface%mark_facets(bc_i%marked_facet)
+                ! Additionally we mark the special PnPn pressure bc.
+                if (bc_i%bc_type .eq. BC_DIRICHLET) then
+                   call this%bc_prs_surface%mark_labeled_zones( &
+                        bc_i%zone_indices)
+                   if (this%full_stress_formulation) then
+                      call this%bcs_vel_projector%mark(bc_i)
+                   else
+                      call this%bcs_vel_projector%mark(bc_i, component = 'x')
+                      call this%bcs_vel_projector%mark(bc_i, component = 'y')
+                      call this%bcs_vel_projector%mark(bc_i, component = 'z')
+                   end if
                 end if
 
                 call this%bcs_vel%append(bc_i)
              end select
           end if
+
+          !
+          ! Pressure
+          !
+          bc_i => null()
+          pressure_dirichlet = .false.
+          if (has_pressure) then
+             call pressure_bc_factory(bc_i, this, pressure_subdict, &
+                  this%c_Xh, user)
+          end if
+
+          ! The natural pressure condition does not create an object, so we
+          ! check.
+          if (associated(bc_i)) then
+             call this%bcs_prs%append(bc_i)
+
+             ! Mark strong pressure bcs in the projector to force zero change.
+             if (bc_i%bc_type .eq. BC_DIRICHLET) then
+                call this%bcs_prs_projector%mark(bc_i)
+                pressure_dirichlet = .true.
+             end if
+          end if
+
+          ! Mark the facets of the zones for the FDM preconditioner: 1 where
+          ! the pressure is strongly imposed, 2 otherwise.
+          if (pressure_dirichlet) then
+             facet_value = 1
+          else
+             facet_value = 2
+          end if
+
+          do j = 1, size(zone_indices)
+             do k = 1, this%msh%nelv
+                do l = 1, 2 * this%msh%gdim
+                   if (this%msh%facet_type(l, k) .eq. -zone_indices(j)) then
+                      this%msh%facet_type(l, k) = facet_value
+                   end if
+                end do
+             end do
+          end do
        end do
+
+       call velocity_subdict%destroy()
+       call pressure_subdict%destroy()
 
        if (this%ale%active .and. (.not. this%ale%has_moving_boundary)) then
           call neko_error("Case file error: ALE is active, " // &
@@ -1133,35 +1459,10 @@ contains
        do i = 1, size(this%msh%labeled_zones)
           if ((this%msh%labeled_zones(i)%size .gt. 0) .and. &
                (.not. marked_zones(i))) then
-             write(error_unit, '(A, A, I0)') "*** ERROR ***: ", &
+             write(error_msg, '(A, I0)') &
                   "No fluid boundary condition assigned to zone ", i
-             error stop
+             call neko_error(error_msg)
           end if
-       end do
-
-       !
-       ! Pressure bcs
-       !
-       call this%bcs_prs%init(n_bcs)
-
-       do i = 1, n_bcs
-          ! Create a new json containing just the subdict for this bc
-          call json_extract_item(core, bc_object, i, bc_subdict)
-          bc_i => null()
-          call pressure_bc_factory(bc_i, this, bc_subdict, this%c_Xh, user)
-
-          ! Not all bcs require an allocation for pressure in particular,
-          ! so we check.
-          if (associated(bc_i)) then
-             call this%bcs_prs%append(bc_i)
-
-             ! Mark strong bcs in the dummy dp bc to force zero change.
-             if (bc_i%strong) then
-                call this%bc_dp%mark_facets(bc_i%marked_facet)
-             end if
-
-          end if
-
        end do
     else
        ! Check that there are no labeled zones, i.e. all are periodic.
@@ -1180,24 +1481,12 @@ contains
 
     call this%bc_prs_surface%finalize()
     call this%bc_sym_surface%finalize()
-
-    call this%bc_vel_res%finalize()
-    call this%bc_du%finalize()
-    call this%bc_dv%finalize()
-    call this%bc_dw%finalize()
-    call this%bc_dp%finalize()
-
-    call this%bclst_vel_res%append(this%bc_vel_res)
-    call this%bclst_du%append(this%bc_du)
-    call this%bclst_dv%append(this%bc_dv)
-    call this%bclst_dw%append(this%bc_dw)
-    call this%bclst_dp%append(this%bc_dp)
+    call this%bcs_vel_projector%finalize(rebuild_mask = .true.)
 
     ! If we have no strong pressure bcs, we will demean the pressure
-    this%prs_dirichlet = .not. this%bclst_dp%is_empty()
+    this%prs_dirichlet = this%bcs_prs_projector%dof_mask%is_set()
     call MPI_Allreduce(MPI_IN_PLACE, this%prs_dirichlet, 1, &
          MPI_LOGICAL, MPI_LOR, NEKO_COMM)
-
 
     if (allocated(marked_zones)) then
        deallocate(marked_zones)
@@ -1305,6 +1594,12 @@ contains
           call bdry_mask%free()
        type is (inflow_t)
           call bdry_mask%init_from_components(this%c_Xh, 2.0_rp)
+          call bdry_mask%mark_facets(bci%marked_facet)
+          call bdry_mask%finalize()
+          call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())
+          call bdry_mask%free()
+       type is (symmetry_aligned_t)
+          call bdry_mask%init_from_components(this%c_Xh, 4.0_rp)
           call bdry_mask%mark_facets(bci%marked_facet)
           call bdry_mask%finalize()
           call bdry_mask%apply_scalar(bdry_field%x, this%dm_Xh%size())

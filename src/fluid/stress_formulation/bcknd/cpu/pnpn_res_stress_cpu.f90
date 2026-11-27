@@ -11,7 +11,7 @@ module pnpn_res_stress_cpu
   use mesh, only : mesh_t
   use num_types, only : rp
   use space, only : space_t
-  use math, only : rzero, vdot3, cmult, sub2, col2, copy, invers2, cmult2
+  use math, only : rzero, col2, copy, invers2, cmult2
   use, intrinsic :: iso_c_binding, only : c_ptr
   implicit none
   private
@@ -50,12 +50,13 @@ contains
     type(field_t), intent(in) :: rho
     type(c_ptr), intent(inout) :: event
     real(kind=rp) :: dtbd
-    integer :: n, nelv, lxyz
-    integer :: i, e
+    real(kind=rp) :: w1, w2, w3
+    integer :: n
+    integer :: i
     ! Work arrays
-    type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2, work3
+    type(field_t), pointer :: ta1, ta2, ta3, wa1, wa2, wa3, work1, work2
     type(field_t), pointer :: s11, s22, s33, s12, s13, s23
-    integer :: temp_indices(15)
+    integer :: temp_indices(14)
 
     ! Work arrays
     call neko_scratch_registry%request_field(ta1, temp_indices(1), .false.)
@@ -66,19 +67,16 @@ contains
     call neko_scratch_registry%request_field(wa3, temp_indices(6), .false.)
     call neko_scratch_registry%request_field(work1, temp_indices(7), .false.)
     call neko_scratch_registry%request_field(work2, temp_indices(8), .false.)
-    call neko_scratch_registry%request_field(work3, temp_indices(9), .false.)
 
     ! Stress tensor
-    call neko_scratch_registry%request_field(s11, temp_indices(10), .false.)
-    call neko_scratch_registry%request_field(s22, temp_indices(11), .false.)
-    call neko_scratch_registry%request_field(s33, temp_indices(12), .false.)
-    call neko_scratch_registry%request_field(s12, temp_indices(13), .false.)
-    call neko_scratch_registry%request_field(s13, temp_indices(14), .false.)
-    call neko_scratch_registry%request_field(s23, temp_indices(15), .false.)
+    call neko_scratch_registry%request_field(s11, temp_indices(9), .false.)
+    call neko_scratch_registry%request_field(s22, temp_indices(10), .false.)
+    call neko_scratch_registry%request_field(s33, temp_indices(11), .false.)
+    call neko_scratch_registry%request_field(s12, temp_indices(12), .false.)
+    call neko_scratch_registry%request_field(s13, temp_indices(13), .false.)
+    call neko_scratch_registry%request_field(s23, temp_indices(14), .false.)
 
     n = c_Xh%dof%size()
-    lxyz = c_Xh%Xh%lxyz
-    nelv = c_Xh%msh%nelv
 
     call invers2(c_Xh%h1, rho%x, n)
     call rzero(c_Xh%h2, n)
@@ -98,59 +96,60 @@ contains
          u_e%x, v_e%x, w_e%x, c_Xh)
 
 
-    ! Gradient of viscosity * 2
+    ! Gradient of viscosity
     call dudxyz(ta1%x, mu%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
     call dudxyz(ta2%x, mu%x, c_Xh%drdy, c_Xh%dsdy, c_Xh%dtdy, c_Xh)
     call dudxyz(ta3%x, mu%x, c_Xh%drdz, c_Xh%dsdz, c_Xh%dtdz, c_Xh)
 
-    call cmult(ta1%x, 2.0_rp, n)
-    call cmult(ta2%x, 2.0_rp, n)
-    call cmult(ta3%x, 2.0_rp, n)
-
-    ! S^T grad \mu
-    do e = 1, nelv
-       call vdot3(work1%x(:, :, :, e), &
-            ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
-            s11%x(:, :, :, e), s12%x(:, :, :, e), s13%x(:, :, :, e), &
-            lxyz)
-
-       call vdot3 (work2%x(:, :, :, e), &
-            ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
-            s12%x(:, :, :, e), s22%x(:, :, :, e), s23%x(:, :, :, e), &
-            lxyz)
-
-       call vdot3 (work3%x(:, :, :, e), &
-            ta1%x(:, :, :, e), ta2%x(:, :, :, e), ta3%x(:, :, :, e), &
-            s13%x(:, :, :, e), s23%x(:, :, :, e), s33%x(:, :, :, e), &
-            lxyz)
-    end do
-
     ! Subtract the two terms of the viscous stress to get
-    ! \nabla x \nabla u - S^T \nabla \mu
-    ! The sign is consitent with the fact that we subtract the term
-    ! below.
-    call sub2(wa1%x, work1%x, n)
-    call sub2(wa2%x, work2%x, n)
-    call sub2(wa3%x, work3%x, n)
+    ! \nabla x \nabla u - S^T \nabla \mu, and form
+    ! ta = f / rho - (wa / rho) * B from it. The sign is consistent with
+    ! the fact that we subtract the term below.
+    !
+    ! This mirrors prs_stress_res_part1 on the device backends: the whole
+    ! block is a single pass rather than a chain of cmult/vdot3/sub2 calls.
+    ! wa1..wa3 are dead from here until cdtp overwrites them below, so the
+    ! viscous stress is kept in registers instead of being written back.
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do private(i, w1, w2, w3)
+    do i = 1, n
+       w1 = wa1%x(i,1,1,1) - 2.0_rp * (ta1%x(i,1,1,1) * s11%x(i,1,1,1) &
+            + ta2%x(i,1,1,1) * s12%x(i,1,1,1) &
+            + ta3%x(i,1,1,1) * s13%x(i,1,1,1))
+       w2 = wa2%x(i,1,1,1) - 2.0_rp * (ta1%x(i,1,1,1) * s12%x(i,1,1,1) &
+            + ta2%x(i,1,1,1) * s22%x(i,1,1,1) &
+            + ta3%x(i,1,1,1) * s23%x(i,1,1,1))
+       w3 = wa3%x(i,1,1,1) - 2.0_rp * (ta1%x(i,1,1,1) * s13%x(i,1,1,1) &
+            + ta2%x(i,1,1,1) * s23%x(i,1,1,1) &
+            + ta3%x(i,1,1,1) * s33%x(i,1,1,1))
 
-    do concurrent (i = 1:n)
        ta1%x(i,1,1,1) = f_x%x(i,1,1,1) / rho%x(i,1,1,1) &
-            - ((wa1%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
+            - ((w1 / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
        ta2%x(i,1,1,1) = f_y%x(i,1,1,1) / rho%x(i,1,1,1) &
-            - ((wa2%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
+            - ((w2 / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
        ta3%x(i,1,1,1) = f_z%x(i,1,1,1) / rho%x(i,1,1,1) &
-            - ((wa3%x(i,1,1,1) / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
+            - ((w3 / rho%x(i,1,1,1)) * c_Xh%B(i,1,1,1))
     end do
+    !$omp end parallel do
 
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 1, c_Xh)
     call gs_Xh%op(ta1%x, ta2%x, ta3%x, n, GS_OP_ADD)
     call rotate_cyc(ta1%x, ta2%x, ta3%x, 0, c_Xh)
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
     do i = 1, n
        ta1%x(i,1,1,1) = ta1%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta2%x(i,1,1,1) = ta2%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
        ta3%x(i,1,1,1) = ta3%x(i,1,1,1) * c_Xh%Binv(i,1,1,1)
     end do
+    !$omp end parallel do
 
     ! Compute the components of the divergence of the rhs
     call cdtp(wa1%x, ta1%x, c_Xh%drdx, c_Xh%dsdx, c_Xh%dtdx, c_Xh)
@@ -160,37 +159,63 @@ contains
     ! The laplacian of the pressure
     call Ax%compute(p_res%x, p%x, c_Xh, p%msh, p%Xh)
 
+    !$omp parallel private (i)
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp do
     do i = 1, n
        p_res%x(i,1,1,1) = (-p_res%x(i,1,1,1)) &
             + wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1)
     end do
+    !$omp end do
 
     !
     ! Surface velocity terms
     !
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp do
     do i = 1, n
        wa1%x(i,1,1,1) = 0.0_rp
        wa2%x(i,1,1,1) = 0.0_rp
        wa3%x(i,1,1,1) = 0.0_rp
     end do
+    !$omp end do
+    !$omp end parallel
 
     call bc_sym_surface%apply_surfvec(wa1%x, wa2%x, wa3%x, ta1%x, ta2%x, ta3%x,&
          n)
 
     dtbd = bd / dt
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
     do i = 1, n
        ta1%x(i,1,1,1) = 0.0_rp
        ta2%x(i,1,1,1) = 0.0_rp
        ta3%x(i,1,1,1) = 0.0_rp
     end do
+    !$omp end parallel do
 
     call bc_prs_surface%apply_surfvec(ta1%x, ta2%x, ta3%x, u%x, v%x, w%x, n)
 
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
     do i = 1, n
        p_res%x(i,1,1,1) = p_res%x(i,1,1,1) &
             - (dtbd * (ta1%x(i,1,1,1) + ta2%x(i,1,1,1) + ta3%x(i,1,1,1)))&
             - (wa1%x(i,1,1,1) + wa2%x(i,1,1,1) + wa3%x(i,1,1,1))
     end do
+    !$omp end parallel do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
@@ -230,11 +255,17 @@ contains
     call opgrad(ta1%x, ta2%x, ta3%x, p%x, c_Xh)
 
     ! Sum all the terms
+    !OCL NORECURRENCE, NOVREC, NOALIAS
+    !DIR$ CONCURRENT
+    !DIR$ IVDEP
+    !GCC$ ivdep
+    !$omp parallel do
     do i = 1, n
        u_res%x(i,1,1,1) = (-u_res%x(i,1,1,1)) - ta1%x(i,1,1,1) + f_x%x(i,1,1,1)
        v_res%x(i,1,1,1) = (-v_res%x(i,1,1,1)) - ta2%x(i,1,1,1) + f_y%x(i,1,1,1)
        w_res%x(i,1,1,1) = (-w_res%x(i,1,1,1)) - ta3%x(i,1,1,1) + f_z%x(i,1,1,1)
     end do
+    !$omp end parallel do
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 

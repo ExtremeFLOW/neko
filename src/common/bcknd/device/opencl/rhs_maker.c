@@ -126,8 +126,7 @@ void rhs_maker_ext_opencl(void *abx1, void *aby1, void *abz1,
 }
 
 void scalar_rhs_maker_ext_opencl(void *fs_lag, void *fs_laglag, void *fs,
-                                 real *rho, real *ext1, real *ext2,
-                                 real *ext3, int *n) {
+                                 real *ext1, real *ext2, real *ext3, int *n) {
   cl_int err;
 
   if (rhs_maker_program == NULL)
@@ -139,11 +138,10 @@ void scalar_rhs_maker_ext_opencl(void *fs_lag, void *fs_laglag, void *fs,
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &fs_lag));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &fs_laglag));
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &fs));
-  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), rho));
-  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(real), ext1));
-  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), ext2));
-  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(real), ext3));
-  CL_CHECK(clSetKernelArg(kernel, 7, sizeof(int), n));
+  CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), ext1));
+  CL_CHECK(clSetKernelArg(kernel, 4, sizeof(real), ext2));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), ext3));
+  CL_CHECK(clSetKernelArg(kernel, 6, sizeof(int), n));
 
   const int nb = ((*n) + 256 - 1) / 256;
   const size_t global_item_size = 256 * nb;
@@ -203,7 +201,7 @@ void rhs_maker_bdf_opencl(void *ulag1, void *ulag2, void *vlag1,
 }
 
 void scalar_rhs_maker_bdf_opencl(void *s_lag, void *s_laglag, void *fs,
-                                 void *s, void *B, real *rho, real *dt,
+                                 void *s, void *B, void *rho_cp, real *dt,
                                  real *bd2, real *bd3, real *bd4,
                                  int *nbd, int *n) {
   cl_int err;
@@ -219,7 +217,7 @@ void scalar_rhs_maker_bdf_opencl(void *s_lag, void *s_laglag, void *fs,
   CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &fs));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *) &s));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *) &B));
-  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(real), rho));
+  CL_CHECK(clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *) &rho_cp));
   CL_CHECK(clSetKernelArg(kernel, 6, sizeof(real), dt));
   CL_CHECK(clSetKernelArg(kernel, 7, sizeof(real), bd2));
   CL_CHECK(clSetKernelArg(kernel, 8, sizeof(real), bd3));
@@ -271,7 +269,7 @@ void rhs_maker_oifs_opencl(void *phi_x, void *phi_y, void *phi_z,
 }
 
 void scalar_rhs_maker_oifs_opencl(void *phi_s, void *bf_s,
-                                 real *rho, real *dt, int *n) {
+                                 void *rho_cp, real *dt, int *n) {
   cl_int err;
 
   if (rhs_maker_program == NULL)
@@ -282,7 +280,7 @@ void scalar_rhs_maker_oifs_opencl(void *phi_s, void *bf_s,
 
   CL_CHECK(clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *) &phi_s));
   CL_CHECK(clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *) &bf_s));
-  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(real), rho));
+  CL_CHECK(clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *) &rho_cp));
   CL_CHECK(clSetKernelArg(kernel, 3, sizeof(real), dt));
   CL_CHECK(clSetKernelArg(kernel, 4, sizeof(int), n));
 

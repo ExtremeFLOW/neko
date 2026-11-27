@@ -34,7 +34,6 @@
 
 module scalars
   use num_types, only : rp
-  use scalar_pnpn, only : scalar_pnpn_t
   use scalar_scheme, only : scalar_scheme_wrapper_t
   use scalar_aux, only : scalar_step_info
   use mesh, only : mesh_t
@@ -42,7 +41,7 @@ module scalars
   use gather_scatter, only : gs_t
   use time_scheme_controller, only : time_scheme_controller_t
   use time_step_controller, only : time_step_controller_t
-  use json_module, only : json_file
+  use json_module, only : json_file, json_array
   use json_utils, only : json_get, json_get_or_default, json_extract_item
   use field, only : field_t
   use field_list, only : field_list_t
@@ -54,6 +53,7 @@ module scalars
   use utils, only : neko_error
   use coefs, only : coef_t
   use time_state, only : time_state_t
+  use profiler, only : profiler_start_region, profiler_end_region
   implicit none
   private
 
@@ -72,12 +72,12 @@ module scalars
      procedure :: step => scalars_step
      !> Restart from checkpoint data
      procedure :: restart => scalars_restart
+     !> Set initial conditions for all scalar fields
+     procedure :: set_initial_conditions => scalars_set_initial_conditions
      !> Check if the configuration is valid
      procedure :: validate => scalars_validate
      !> Clean up all resources
      procedure :: free => scalars_free
-     !> Register scalar lag fields with checkpoint
-     procedure, private :: register_lags_with_checkpoint
   end type scalars_t
 
 contains
@@ -153,17 +153,6 @@ contains
        call this%scalar_fields(i)%init(msh, coef, gs, json_subdict, &
             numerics_params, user, chkp, ulag, vlag, wlag, time_scheme, rho)
     end do
-
-    ! Register all scalar lag fields with checkpoint using scalable approach
-    if (n_scalars > 1) then
-       call this%register_lags_with_checkpoint(chkp)
-    else
-       ! For single scalar, use legacy interface
-       select type (scalar => this%scalar_fields(1)%scalar)
-       type is (scalar_pnpn_t)
-          call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
-       end select
-    end if
   end subroutine scalars_init
 
   subroutine scalars_init_single(this, msh, coef, gs, params, numerics_params, &
@@ -191,12 +180,6 @@ contains
     ! Initialize it directly with the params
     call this%scalar_fields(1)%init(msh, coef, gs, params, numerics_params, &
          user, chkp, ulag, vlag, wlag, time_scheme, rho)
-
-    ! Register single scalar with checkpoint
-    select type (scalar => this%scalar_fields(1)%scalar)
-    type is (scalar_pnpn_t)
-       call chkp%add_scalar(scalar%s, scalar%slag, scalar%abx1, scalar%abx2)
-    end select
   end subroutine scalars_init_single
 
   !> Perform a time step for all scalar fields
@@ -211,12 +194,15 @@ contains
 
     all_frozen = .true.
 
-    ! Iterate through all scalar fields
+    ! Iterate through all scalar fields, in one fixed-id region like the
+    ! fluid's, so all scalars are profiled together as well as one by one
+    call profiler_start_region('Scalar', 2)
     do i = 1, size(this%scalar_fields)
        all_frozen = all_frozen .and. this%scalar_fields(i)%scalar%freeze
        call this%scalar_fields(i)%scalar%step(time, ext_bdf, dt_controller, &
             ksp_results(i))
     end do
+    call profiler_end_region('Scalar', 2)
 
     if (.not. all_frozen) then
        call ksp_results(i)%print_header()
@@ -240,7 +226,55 @@ contains
     end do
   end subroutine scalars_restart
 
-  !> Check if the configuration is valid
+  !> Set initial conditions for all scalar fields.
+  !! @param params The scalar parameters passed to `init`, i.e. either the
+  !! `case.scalars` array or the single `case.scalar` object.
+  !! @param user Type with user-defined procedures.
+  !! @param is_restart Whether the case is restarting from a checkpoint.
+  subroutine scalars_set_initial_conditions(this, params, user, is_restart)
+    class(scalars_t), intent(inout) :: this
+    type(json_file), intent(inout) :: params
+    type(user_t), intent(in) :: user
+    logical, intent(in) :: is_restart
+    integer :: i, running_scalar_index, scalar_index, var_type
+    type(json_file) :: json_subdict
+
+    call neko_log%section("Scalar initial condition ")
+
+    if (is_restart) then
+       call neko_log%message("Restart file specified, " // &
+            "initial conditions ignored")
+    else
+       ! The parameters are an array for `case.scalars` and a single
+       ! object for `case.scalar`.
+       call params%info('', var_type = var_type)
+
+       running_scalar_index = 0
+       do i = 1, size(this%scalar_fields)
+          if (trim(this%scalar_fields(i)%scalar%name) .eq. 'temperature') then
+             scalar_index = 0
+          else
+             running_scalar_index = running_scalar_index + 1
+             scalar_index = running_scalar_index
+          end if
+
+          if (var_type .eq. json_array) then
+             call json_extract_item(params, "", i, json_subdict)
+             call this%scalar_fields(i)%scalar%set_initial_condition( &
+                  json_subdict, user, scalar_index)
+          else
+             call this%scalar_fields(i)%scalar%set_initial_condition( &
+                  params, user, scalar_index)
+          end if
+       end do
+       call json_subdict%destroy()
+    end if
+
+    call neko_log%end_section()
+
+  end subroutine scalars_set_initial_conditions
+
+  !> Check if the configuration is valid.
   subroutine scalars_validate(this)
     class(scalars_t), intent(inout) :: this
     integer :: i
@@ -270,42 +304,5 @@ contains
        deallocate(this%shared_ksp)
     end if
   end subroutine scalars_free
-
-  !> Register scalar lag fields with checkpoint
-  subroutine register_lags_with_checkpoint(this, chkp)
-    class(scalars_t), intent(inout) :: this
-    type(chkp_t), intent(inout) :: chkp
-    integer :: i, n_scalars
-
-    n_scalars = size(this%scalar_fields)
-
-    ! Allocate ABX field arrays and lag field list in checkpoint
-    allocate(chkp%scalar_abx1(n_scalars))
-    allocate(chkp%scalar_abx2(n_scalars))
-    call chkp%scalar_lags%init(n_scalars)
-
-    ! Add all scalar lag fields to the checkpoint list and populate ABX fields
-    do i = 1, n_scalars
-       call chkp%scalar_lags%append(this%scalar_fields(i)%scalar%slag)
-
-       ! Cast to scalar_pnpn_t to access ABX fields
-       select type (scalar_field => this%scalar_fields(i)%scalar)
-       type is (scalar_pnpn_t)
-          call associate_scalar_abx_fields(chkp, i, scalar_field)
-       end select
-    end do
-
-  end subroutine register_lags_with_checkpoint
-
-  !> Helper subroutine to associate ABX field pointers with proper TARGET
-  !! attribute
-  subroutine associate_scalar_abx_fields(chkp, index, scalar_field)
-    type(chkp_t), intent(inout) :: chkp
-    integer, intent(in) :: index
-    type(scalar_pnpn_t), target, intent(in) :: scalar_field
-
-    chkp%scalar_abx1(index)%ptr => scalar_field%abx1
-    chkp%scalar_abx2(index)%ptr => scalar_field%abx2
-  end subroutine associate_scalar_abx_fields
 
 end module scalars

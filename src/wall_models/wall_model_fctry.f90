@@ -34,6 +34,7 @@
 submodule (wall_model) wall_model_fctry
   use spalding, only : spalding_t
   use cai_sagaut_model_ii, only : cai_sagaut_model_ii_t
+  use reichardt, only : reichardt_t
   use rough_log_law, only : rough_log_law_t
   use most, only : most_t
   use richardson, only : richardson_t
@@ -42,9 +43,10 @@ submodule (wall_model) wall_model_fctry
   implicit none
 
   ! List of all possible types created by the factory routine
-  character(len=20) :: WALLM_KNOWN_TYPES(5) = [character(len=20) :: &
+  character(len=20) :: WALLM_KNOWN_TYPES(6) = [character(len=20) :: &
        "spalding", &
        "cai_sagaut_model_ii", &
+       "reichardt", &
        "rough_log_law", &
        "most", &
        "richardson"]
@@ -57,7 +59,6 @@ contains
   !! @param coef SEM coefficients.
   !! @param msk The boundary mask.
   !! @param facet The boundary facets.
-  !! @param h_index The off-wall index of the sampling cell.
   !! @param json A dictionary with parameters.
   module subroutine wall_model_factory(object, scheme_name, coef, msk, facet, &
        json)
@@ -68,16 +69,13 @@ contains
     integer, intent(in) :: facet(:)
     type(json_file), intent(inout) :: json
     character(len=:), allocatable :: type_name
-    character(len=:), allocatable :: type_string
-    integer :: h_index
 
     call json_get(json, "model", type_name)
-    call json_get(json, "h_index", h_index)
 
     call wall_model_allocator(object, type_name)
 
-    ! Initialize
-    call object%init(scheme_name, coef, msk, facet, h_index, json)
+    call object%partial_init(coef, scheme_name, json)
+    call object%finalize(msk, facet)
 
   end subroutine wall_model_factory
 
@@ -99,6 +97,8 @@ contains
        allocate(spalding_t::object)
     case ("cai_sagaut_model_ii")
        allocate(cai_sagaut_model_ii_t::object)
+    case ("reichardt")
+       allocate(reichardt_t::object)
     case ("rough_log_law")
        allocate(rough_log_law_t::object)
     case ("most")

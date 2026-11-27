@@ -34,7 +34,7 @@
 !! @details This module is used to read/write binary NEKTION mesh data
 module re2_file
   use generic_file, only : generic_file_t
-  use num_types, only : rp, i8, sp, dp
+  use num_types, only : i8, sp, dp
   use map_file, only : map_file_t
   use mesh, only : mesh_t
   use point, only : point_t
@@ -155,7 +155,7 @@ contains
          MPI_MODE_RDONLY, MPI_INFO_NULL, fh, ierr)
 
     if (ierr .ne. 0) then
-       call neko_log%error("Can't open binary NEKTON file ")
+       call neko_error("Can't open binary NEKTON file ")
     end if
     dist = linear_dist_t(nelv, pe_rank, pe_size, NEKO_COMM)
 
@@ -221,13 +221,14 @@ contains
   subroutine re2_file_write(this, data, t)
     class(re2_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
     type(re2v1_xy_t), allocatable :: re2_data_xy(:)
     type(re2v1_xyz_t), allocatable :: re2_data_xyz(:)
     type(mesh_t), pointer :: msh
     character(len=5), parameter :: RE2_HDR_VER = '#v001'
     character(len=54), parameter :: RE2_HDR_STR = 'RE2 exported by NEKO'
     integer :: i, j, ierr, nelgv
+    integer :: file_unit
     type(MPI_Status) :: status
     type(MPI_File) :: fh
     integer (kind=MPI_OFFSET_KIND) :: mpi_offset
@@ -254,10 +255,14 @@ contains
          this%get_fname())
 
     if (pe_rank .eq. 0) then
-       open(unit=9,file=trim(this%get_fname()), status='new', iostat=ierr)
-       write(9, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
+       open(newunit = file_unit, file = trim(this%get_fname()), &
+            status = 'new', iostat = ierr)
+       if (ierr .ne. 0) then
+          call neko_error("Cannot create new file " // trim(this%get_fname()))
+       end if
+       write(file_unit, '(a5,i9,i3,i9,a54)') RE2_HDR_VER, nelgv, msh%gdim,&
             nelgv, RE2_HDR_STR
-       close(9)
+       close(file_unit)
     end if
 
     call MPI_Barrier(NEKO_COMM, ierr)

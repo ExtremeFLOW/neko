@@ -65,7 +65,6 @@ module lpt
   use device, only : DEVICE_TO_HOST
   use profiler, only : profiler_start_region, profiler_end_region
   use scratch_registry, only : neko_scratch_registry
-  use host_array, only : host_array_t
   implicit none
   private
 
@@ -281,7 +280,7 @@ contains
     real(kind=rp), allocatable :: vels(:)
     real(kind=rp), allocatable :: diams(:)
     real(kind=rp), allocatable :: densities(:)
-    type(host_array_t), pointer :: x, y, z, u, v, w
+    real(kind=rp), pointer, dimension(:) :: x, y, z, u, v, w
     integer :: n_particles, ind(6)
 
     if (pe_rank .eq. 0) then
@@ -321,14 +320,14 @@ contains
           call neko_scratch_registry%request(u, ind(4), n_particles, .false.)
           call neko_scratch_registry%request(v, ind(5), n_particles, .false.)
           call neko_scratch_registry%request(w, ind(6), n_particles, .false.)
-          x%x = coords(1::3)
-          y%x = coords(2::3)
-          z%x = coords(3::3)
-          u%x = vels(1::3)
-          v%x = vels(2::3)
-          w%x = vels(3::3)
-          call this%particles%init(x%x, y%x, z%x, this%time_order, u%x, v%x, &
-               w%x, diams, densities)
+          x = coords(1::3)
+          y = coords(2::3)
+          z = coords(3::3)
+          u = vels(1::3)
+          v = vels(2::3)
+          w = vels(3::3)
+          call this%particles%init(x, y, z, this%time_order, u, v, &
+               w, diams, densities)
           deallocate(coords)
           deallocate(vels)
           deallocate(diams)
@@ -353,7 +352,7 @@ contains
     character(len=:), allocatable :: points_file
     type(file_t) :: file_in
     type(matrix_t) :: mat_in
-    type(host_array_t), pointer :: x, y, z, u, v, w
+    real(kind=rp), pointer, dimension(:) :: x, y, z, u, v, w
     real(kind=rp), allocatable :: diams(:)
     real(kind=rp), allocatable :: densities(:)
     integer :: n_particles, ind_basic(3), ind_inertia(6)
@@ -381,16 +380,16 @@ contains
                .false.)
           call neko_scratch_registry%request(w, ind_inertia(6), n_particles, &
                .false.)
-          x%x = mat_in%x(:, 1)
-          y%x = mat_in%x(:, 2)
-          z%x = mat_in%x(:, 3)
-          u%x = mat_in%x(:, 4)
-          v%x = mat_in%x(:, 5)
-          w%x = mat_in%x(:, 6)
+          x = mat_in%x(:, 1)
+          y = mat_in%x(:, 2)
+          z = mat_in%x(:, 3)
+          u = mat_in%x(:, 4)
+          v = mat_in%x(:, 5)
+          w = mat_in%x(:, 6)
           diams = mat_in%x(:, 7)
           densities = mat_in%x(:, 8)
-          call this%particles%init(x%x, y%x, z%x, this%time_order, u%x, v%x, &
-               w%x, diams, densities)
+          call this%particles%init(x, y, z, this%time_order, u, v, &
+               w, diams, densities)
           deallocate(diams)
           deallocate(densities)
           call neko_scratch_registry%relinquish(ind_inertia)
@@ -398,16 +397,13 @@ contains
           call mat_in%init(ft%count_lines(), 3)
           call ft%read(mat_in)
           n_particles = mat_in%get_nrows()
-          call neko_scratch_registry%request_host_array(x, ind_basic(1), &
-               n_particles, .false.)
-          call neko_scratch_registry%request_host_array(y, ind_basic(2), &
-               n_particles, .false.)
-          call neko_scratch_registry%request_host_array(z, ind_basic(3), &
-               n_particles, .false.)
-          x%x = mat_in%x(:, 1)
-          y%x = mat_in%x(:, 2)
-          z%x = mat_in%x(:, 3)
-          call this%particles%init(x%x, y%x, z%x, this%time_order)
+          call neko_scratch_registry%request(x, ind_basic(1), n_particles, .false.)
+          call neko_scratch_registry%request(y, ind_basic(2), n_particles, .false.)
+          call neko_scratch_registry%request(z, ind_basic(3), n_particles, .false.)
+          x = mat_in%x(:, 1)
+          y = mat_in%x(:, 2)
+          z = mat_in%x(:, 3)
+          call this%particles%init(x, y, z, this%time_order)
           call neko_scratch_registry%relinquish(ind_basic)
        end if
     class default
@@ -666,7 +662,7 @@ contains
     if (this%output_enabled) then
        if (this%output_controller%check(time)) then
           call this%write_output(time)
-          call this%output_controller%register_execution()
+          call this%output_controller%register_execution(time)
        end if
     end if
   end subroutine lpt_compute

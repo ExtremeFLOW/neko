@@ -34,12 +34,15 @@
 module coefs
   use gather_scatter, only : gs_t
   use gs_ops, only : GS_OP_ADD
-  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_OPENCL
-  use num_types, only : rp
+  use neko_config, only : NEKO_BCKND_DEVICE, NEKO_BCKND_OPENCL, &
+       NEKO_BCKND_SX, NEKO_BCKND_XSMM
+  use num_types, only : rp, sp, dp
   use dofmap, only : dofmap_t
   use space, only : space_t
   use math, only : rone, invcol1, addcol3, subcol3, copy, &
-       chsign, rzero, invers2, glsum, NEKO_EPS
+       chsign, rzero, invers2, glsum, glmax, NEKO_EPS, NEKO_EPS_SP, &
+       eig_sym2, eig_sym3
+  use logger, only : neko_log, LOG_SIZE
   use mesh, only : mesh_t
   use device_math, only : device_rone, device_invcol1, &
        device_glsum, device_copy
@@ -58,6 +61,76 @@ module coefs
   implicit none
   private
 
+  !> Largest metric condition number for which single precision *arithmetic*
+  !! on the geometric factors \f$ G_{ij} \f$ is considered safe, i.e. an
+  !! \a rp = \a sp build.
+  !!
+  !! The hard limit is \f$ 1/\epsilon_{sp} \approx 1.7\times 10^{7} \f$, past
+  !! which the smallest eigendirection of the metric is lost in the quadratic
+  !! form and the element operator can lose positive definiteness. This keeps
+  !! three orders of margin, which accepts isotropic, graded and channel
+  !! interior meshes and rejects wall resolved ones; at the threshold itself
+  !! the element operator already carries a relative error of order
+  !! \f$ \epsilon_{sp}\kappa(G) \sim 10^{-3} \f$.
+  !!
+  !! This threshold is about definiteness margin and is used only for the
+  !! warning in coef_metric_condition(). Whether reduced precision is
+  !! *accurate* enough on a given mesh is a separate question, answered by
+  !! NEKO_METRIC_PERTURB_MAX and metric_sp_safe.
+  real(kind=rp), public, parameter :: NEKO_METRIC_COND_SP = 1.0e4_rp
+
+  !> Largest predicted relative perturbation of the element Helmholtz
+  !! operator, in its own energy norm, for which single precision geometric
+  !! factors are considered safe.
+  !!
+  !! The two metric condition numbers do not compete for a single threshold:
+  !! they are multiplied by different unit roundoffs. Rounding
+  !! \f$ G_{ij} \f$ for *storage* is a componentwise relative perturbation,
+  !! and once the diagonal scaling in \f$ G = \Delta C \Delta \f$ cancels it
+  !! contributes \f$ \epsilon_{store}\kappa(C) \f$ -- element skew only.
+  !! *Accumulating* \f$ D^T G D \f$ loses the smallest eigendirection of the
+  !! metric and contributes \f$ \epsilon_{accum}\kappa(G) \f$ -- aspect ratio
+  !! squared. So the estimate is additive,
+  !!
+  !! \f[ \delta \approx \epsilon_{store}\kappa(C)
+  !!                  + \epsilon_{accum}\kappa(G), \f]
+  !!
+  !! which needs no test on the build: an all double build is limited by
+  !! neither term until \f$ \kappa(G) \sim 10^{13} \f$, a double build
+  !! holding \f$ G_{ij} \f$ in single is limited by skew, and an
+  !! \a rp = \a sp build is limited by aspect ratio, as it should be.
+  !!
+  !! At \f$ 10^{-5} \f$ the storage term alone admits \f$ \kappa(C) \f$ up to
+  !! about 84, i.e. element edges down to roughly \f$ 12^\circ \f$ apart,
+  !! which is every mesh that is not close to degenerate. A well resolved
+  !! double precision run whose discretisation error is smaller than this may
+  !! want it tighter; coef_metric_condition() logs the estimate itself every
+  !! run, so the value on a given mesh can be read rather than guessed, and
+  !! reports when it is exceeded.
+  !!
+  !! @note The storage term is a genuine bound. The accumulation term is a
+  !! bound up to a modest \f$ O(l_x) \f$ constant -- measured about 4 at
+  !! \f$ l_x = 6 \f$ -- so leave margin.
+  real(kind=rp), public, parameter :: NEKO_METRIC_PERTURB_MAX = 1.0e-5_rp
+
+  !> Retain every coefficient. The default, and the only scope that supports
+  !! recompute_metrics(), generate_cyclic_bc(), get_area(), get_normal() and
+  !! any consumer of jac, jacinv, Binv or the derivative arrays.
+  integer, public, parameter :: COEF_FULL = 0
+  !> Retain only what applying a discrete operator needs: \f$ G_{ij} \f$,
+  !! h1, h2, B and mult.
+  !!
+  !! The derivative arrays, jac and jacinv are scratch for \f$ G_{ij} \f$ and
+  !! B, and Binv, area and the facet normals are never read by an operator, so
+  !! all of them are released once the metrics are built. The work feeding only
+  !! those is skipped as well: the facet metrics, the gather-scatter behind
+  !! Binv, the volume reduction and the metric conditioning diagnostic.
+  !!
+  !! Intended for multigrid levels, which read nothing else -- see hsmg_init()
+  !! and phmg_init(). The geometry cannot be rebuilt without the derivative
+  !! arrays, so this scope is incompatible with a moving mesh.
+  integer, public, parameter :: COEF_OPERATOR = 1
+
   !> Coefficients defined on a given (mesh, \f$ X_h \f$) tuple.
   !! Arrays use indices (i,j,k,e): element e, local coordinate (i,j,k).
   type, public :: coef_t
@@ -74,20 +147,57 @@ module coefs
      !> Geometric factors \f$ G_{23} \f$
      real(kind=rp), allocatable :: G23(:,:,:,:)
 
+     !> Largest condition number of the metric tensor over the mesh, global
+     !! across ranks. Zero until coef_metric_condition() has been called.
+     !! Governs single precision arithmetic, see NEKO_METRIC_COND_SP.
+     real(kind=rp) :: metric_cond = 0.0_rp
+     !> Largest condition number of the Jacobi scaled metric tensor
+     !! \f$ C_{ij} = G_{ij}/\sqrt{G_{ii}G_{jj}} \f$ over the mesh, global
+     !! across ranks. Zero until coef_metric_condition() has been called.
+     !! Unlike metric_cond this is independent of the element aspect ratio,
+     !! and it is the term that governs single precision *storage*; it enters
+     !! metric_perturb weighted by the storage roundoff.
+     real(kind=rp) :: metric_scaled_cond = 0.0_rp
+     !> Quadrature points whose metric tensor is not positive definite, i.e.
+     !! degenerate or inverted elements. Global across ranks.
+     integer :: metric_degenerate = 0
+     !> Predicted relative perturbation of the element Helmholtz operator, in
+     !! its own energy norm, from holding \f$ G_{ij} \f$ in single precision
+     !! and accumulating in \a rp, i.e.
+     !! \f$ \epsilon_{sp}\kappa(C) + \epsilon_{rp}\kappa(G) \f$. Zero until
+     !! coef_metric_condition() has been called. See NEKO_METRIC_PERTURB_MAX.
+     real(kind=rp) :: metric_perturb = 0.0_rp
+     !> Whether single precision geometric factors are safe on this mesh,
+     !! i.e. metric_perturb <= NEKO_METRIC_PERTURB_MAX and no degenerate
+     !! points. Because metric_perturb carries the accumulation term as well
+     !! as the storage term, this is correct on an \a rp = \a sp build as
+     !! well as on a double precision build holding \f$ G_{ij} \f$ in single.
+     !! A reduced precision storage path should gate on this flag and report
+     !! its own decision. coef_metric_condition() logs the flag every run
+     !! beside the two condition numbers and the estimate that produce it, and
+     !! warns separately -- on definiteness grounds -- when a single precision
+     !! build trips NEKO_METRIC_COND_SP.
+     logical :: metric_sp_safe = .false.
      !> Compressed geometric factors \f$ G_{11} \f$
-     real(kind=rp), allocatable :: G11_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G11_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{22} \f$
-     real(kind=rp), allocatable :: G22_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G22_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{33} \f$
-     real(kind=rp), allocatable :: G33_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G33_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{12} \f$
-     real(kind=rp), allocatable :: G12_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G12_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{13} \f$
-     real(kind=rp), allocatable :: G13_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G13_compr(:,:,:,:)
      !> Compressed geometric factors \f$ G_{23} \f$
-     real(kind=rp), allocatable :: G23_compressed(:,:,:,:)
+     real(kind=rp), allocatable :: G23_compr(:,:,:,:)
      !> Compressed geometric factors lookup indices
      integer, allocatable :: compression_inds(:)
+     !> Whether the compressed geometric factors are kept in step with the
+     !! geometry, see enable_geo_compression().
+     logical :: geo_compression = .false.
+     !> Relative tolerance under which two elements share their compressed
+     !! geometric factors.
+     real(kind=rp) :: geo_compression_tol = 0.0_rp
 
      real(kind=rp), allocatable :: mult(:,:,:,:) !< Multiplicity
      !> generate mapping data between element and reference element
@@ -126,9 +236,13 @@ module coefs
      !! True if geometric metrics have been initialized
      logical, private :: coef_metrics_initialized = .false.
 
+     !> Which coefficients this instance retains, COEF_FULL or COEF_OPERATOR.
+     !! Anything not retained is deallocated at the end of init.
+     integer :: scope = COEF_FULL
+
      !> Pointers to main fields
 
-     real(kind=rp) :: volume
+     real(kind=rp) :: volume = 0.0_rp
 
      type(space_t), pointer :: Xh => null()
      type(mesh_t), pointer :: msh => null()
@@ -145,6 +259,13 @@ module coefs
      type(c_ptr) :: G12_d = C_NULL_PTR
      type(c_ptr) :: G13_d = C_NULL_PTR
      type(c_ptr) :: G23_d = C_NULL_PTR
+     type(c_ptr) :: G11_compr_d = C_NULL_PTR
+     type(c_ptr) :: G22_compr_d = C_NULL_PTR
+     type(c_ptr) :: G33_compr_d = C_NULL_PTR
+     type(c_ptr) :: G12_compr_d = C_NULL_PTR
+     type(c_ptr) :: G13_compr_d = C_NULL_PTR
+     type(c_ptr) :: G23_compr_d = C_NULL_PTR
+     type(c_ptr) :: compression_inds_d = C_NULL_PTR
      type(c_ptr) :: dxdr_d = C_NULL_PTR
      type(c_ptr) :: dydr_d = C_NULL_PTR
      type(c_ptr) :: dzdr_d = C_NULL_PTR
@@ -180,7 +301,8 @@ module coefs
      type(c_ptr) :: R11_d = C_NULL_PTR
      type(c_ptr) :: R12_d = C_NULL_PTR
 
-
+     !> Version of the current geometry. Incremented by recompute_metrics.
+     integer :: metrics_version = 0
 
    contains
      procedure, private, pass(this) :: init_empty => coef_init_empty
@@ -188,8 +310,12 @@ module coefs
      procedure, pass(this) :: free => coef_free
      procedure, pass(this) :: get_normal => coef_get_normal
      procedure, pass(this) :: get_area => coef_get_area
+     procedure, pass(this) :: require_facets => coef_require_facets
      procedure, pass(this) :: generate_cyclic_bc => coef_generate_cyclic_bc
      procedure, pass(this) :: recompute_metrics => coef_recompute_metrics
+     procedure, pass(this) :: metric_condition => coef_metric_condition
+     procedure, pass(this) :: enable_geo_compression => &
+          coef_enable_geo_compression
      procedure, pass(this) :: enable_B_history => coef_enable_lagged_mass
      procedure, pass(this) :: update_B_history => coef_update_lagged_mass
      generic :: init => init_empty, init_all
@@ -244,11 +370,26 @@ contains
   end subroutine coef_init_empty
 
   !> Initialize coefficients
-  subroutine coef_init_all(this, gs_h)
+  !! @param gs_h Gather-scatter handle carrying the dofmap to build on.
+  !! @param scope Which coefficients to retain, COEF_FULL (default) or
+  !! COEF_OPERATOR. See the scope parameters for what each one keeps.
+  subroutine coef_init_all(this, gs_h, scope)
     class(coef_t), intent(inout), target :: this
     type(gs_t), intent(inout), target :: gs_h
+    integer, intent(in), optional :: scope
     integer :: n, m, ncyc
+
     call this%free()
+
+    ! After free(), so that it survives into the initialized state
+    if (present(scope)) then
+       if (scope .ne. COEF_FULL .and. scope .ne. COEF_OPERATOR) then
+          call neko_error('Unknown coefficient scope')
+       end if
+       this%scope = scope
+    end if
+
+    call neko_log%section('Coefficients')
 
     this%msh => gs_h%dofmap%msh
     this%Xh => gs_h%dofmap%Xh
@@ -293,10 +434,12 @@ contains
     allocate(this%jac(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%jacinv(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
 
-    allocate(this%area(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
-    allocate(this%nx(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
-    allocate(this%ny(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
-    allocate(this%nz(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
+    if (this%scope .eq. COEF_FULL) then
+       allocate(this%area(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
+       allocate(this%nx(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
+       allocate(this%ny(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
+       allocate(this%nz(this%Xh%lx, this%Xh%ly, 6, this%msh%nelv))
+    end if
 
     allocate(this%B(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
     allocate(this%Binv(this%Xh%lx, this%Xh%ly, this%Xh%lz, this%msh%nelv))
@@ -360,12 +503,14 @@ contains
        this%Blag_d = this%B_d
        this%Blaglag_d = this%B_d
 
-       m = this%Xh%lx * this%Xh%ly * 6 * this%msh%nelv
+       if (this%scope .eq. COEF_FULL) then
+          m = this%Xh%lx * this%Xh%ly * 6 * this%msh%nelv
 
-       call device_map(this%area, this%area_d, m)
-       call device_map(this%nx, this%nx_d, m)
-       call device_map(this%ny, this%ny_d, m)
-       call device_map(this%nz, this%nz_d, m)
+          call device_map(this%area, this%area_d, m)
+          call device_map(this%nx, this%nx_d, m)
+          call device_map(this%ny, this%ny_d, m)
+          call device_map(this%nz, this%nz_d, m)
+       end if
 
     end if
 
@@ -373,9 +518,14 @@ contains
 
     call coef_generate_geo(this)
 
-    ! call coef_generate_geo_compressed(this)
+    ! Both are dead weight under COEF_OPERATOR: nothing reads the facet
+    ! metrics, and the conditioning diagnostic is two per-point eigenvalue
+    ! solves plus three reductions spent on something no one consumes yet.
+    if (this%scope .eq. COEF_FULL) then
+       call coef_metric_condition(this)
 
-    call coef_generate_area_and_normal(this)
+       call coef_generate_area_and_normal(this)
+    end if
 
     call coef_generate_mass(this)
 
@@ -442,6 +592,11 @@ contains
        end if
 
     end if
+
+    call coef_release_scratch(this)
+
+    call neko_log%end_section()
+
   end subroutine coef_init_all
 
   !> Deallocate coefficients
@@ -478,33 +633,9 @@ contains
        deallocate(this%G23)
     end if
 
-    if (allocated(this%G11_compressed)) then
-       deallocate(this%G11_compressed)
-    end if
-
-    if (allocated(this%compression_inds)) then
-       deallocate(this%compression_inds)
-    end if
-
-    if (allocated(this%G22_compressed)) then
-       deallocate(this%G22_compressed)
-    end if
-
-    if (allocated(this%G33_compressed)) then
-       deallocate(this%G33_compressed)
-    end if
-
-    if (allocated(this%G12_compressed)) then
-       deallocate(this%G12_compressed)
-    end if
-
-    if (allocated(this%G13_compressed)) then
-       deallocate(this%G13_compressed)
-    end if
-
-    if (allocated(this%G23_compressed)) then
-       deallocate(this%G23_compressed)
-    end if
+    call coef_free_geo_compr(this)
+    this%geo_compression = .false.
+    this%geo_compression_tol = 0.0_rp
 
     if (allocated(this%mult)) then
        if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%mult, this%mult_d)
@@ -708,7 +839,154 @@ contains
     nullify(this%dof)
     nullify(this%gs_h)
 
+    this%coef_metrics_initialized = .false.
+    this%scope = COEF_FULL
+
   end subroutine coef_free
+
+  !> Release the coefficients that COEF_OPERATOR does not retain
+  !!
+  !! The derivative arrays, the Jacobian and its inverse are scratch for
+  !! \f$ G_{ij} \f$ and B, and are dead once those exist. Binv, the facet
+  !! areas and the normals are never read when applying an operator. Called
+  !! at the end of init; a no-op under COEF_FULL.
+  !!
+  !! @note area and the normals are not allocated at all under COEF_OPERATOR.
+  !! They are listed here so the set of released coefficients is stated in
+  !! one place.
+  subroutine coef_release_scratch(this)
+    class(coef_t), intent(inout), target :: this
+
+    if (this%scope .eq. COEF_FULL) return
+
+    if (allocated(this%dxdr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxdr, this%dxdr_d)
+       deallocate(this%dxdr)
+    end if
+
+    if (allocated(this%dxds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxds, this%dxds_d)
+       deallocate(this%dxds)
+    end if
+
+    if (allocated(this%dxdt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dxdt, this%dxdt_d)
+       deallocate(this%dxdt)
+    end if
+
+    if (allocated(this%dydr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dydr, this%dydr_d)
+       deallocate(this%dydr)
+    end if
+
+    if (allocated(this%dyds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dyds, this%dyds_d)
+       deallocate(this%dyds)
+    end if
+
+    if (allocated(this%dydt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dydt, this%dydt_d)
+       deallocate(this%dydt)
+    end if
+
+    if (allocated(this%dzdr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzdr, this%dzdr_d)
+       deallocate(this%dzdr)
+    end if
+
+    if (allocated(this%dzds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzds, this%dzds_d)
+       deallocate(this%dzds)
+    end if
+
+    if (allocated(this%dzdt)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dzdt, this%dzdt_d)
+       deallocate(this%dzdt)
+    end if
+
+    if (allocated(this%drdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdx, this%drdx_d)
+       deallocate(this%drdx)
+    end if
+
+    if (allocated(this%drdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdy, this%drdy_d)
+       deallocate(this%drdy)
+    end if
+
+    if (allocated(this%drdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%drdz, this%drdz_d)
+       deallocate(this%drdz)
+    end if
+
+    if (allocated(this%dsdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdx, this%dsdx_d)
+       deallocate(this%dsdx)
+    end if
+
+    if (allocated(this%dsdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdy, this%dsdy_d)
+       deallocate(this%dsdy)
+    end if
+
+    if (allocated(this%dsdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dsdz, this%dsdz_d)
+       deallocate(this%dsdz)
+    end if
+
+    if (allocated(this%dtdx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdx, this%dtdx_d)
+       deallocate(this%dtdx)
+    end if
+
+    if (allocated(this%dtdy)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdy, this%dtdy_d)
+       deallocate(this%dtdy)
+    end if
+
+    if (allocated(this%dtdz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%dtdz, this%dtdz_d)
+       deallocate(this%dtdz)
+    end if
+
+    if (allocated(this%jac)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%jac, this%jac_d)
+       deallocate(this%jac)
+    end if
+
+    if (allocated(this%jacinv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(this%jacinv, this%jacinv_d)
+       end if
+       deallocate(this%jacinv)
+    end if
+
+    if (allocated(this%Binv)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%Binv, this%Binv_d)
+       deallocate(this%Binv)
+    end if
+
+    if (allocated(this%area)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%area, this%area_d)
+       deallocate(this%area)
+    end if
+
+    if (allocated(this%nx)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%nx, this%nx_d)
+       deallocate(this%nx)
+    end if
+
+    if (allocated(this%ny)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%ny, this%ny_d)
+       deallocate(this%ny)
+    end if
+
+    if (allocated(this%nz)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) call device_unmap(this%nz, this%nz_d)
+       deallocate(this%nz)
+    end if
+
+  end subroutine coef_release_scratch
 
   subroutine coef_generate_dxyzdrst(c)
     type(coef_t), intent(inout) :: c
@@ -725,7 +1003,7 @@ contains
          dxds => c%dxds, dyds => c%dyds, dzds => c%dzds, &
          dxdt => c%dxdt, dydt => c%dydt, dzdt => c%dzdt, &
          dx => c%Xh%dx, dy => c%Xh%dy, dz => c%Xh%dz, &
-         x => c%dof%x, y => c%dof%y, z => c%dof%z, &
+         x => c%dof%x%x, y => c%dof%y%x, z => c%dof%z%x, &
          lx => c%Xh%lx, ly => c%Xh%ly, lz => c%Xh%lz, &
          dyt => c%Xh%dyt, dzt => c%Xh%dzt, &
          jacinv => c%jacinv, jac => c%jac)
@@ -736,7 +1014,7 @@ contains
               c%dsdx_d, c%dsdy_d, c%dsdz_d, c%dtdx_d, c%dtdy_d, c%dtdz_d, &
               c%dxdr_d, c%dydr_d, c%dzdr_d, c%dxds_d, c%dyds_d, c%dzds_d, &
               c%dxdt_d, c%dydt_d, c%dzdt_d, c%Xh%dx_d, c%Xh%dy_d, c%Xh%dz_d, &
-              c%dof%x_d, c%dof%y_d, c%dof%z_d, c%jacinv_d, c%jac_d, &
+              c%dof%x%x_d, c%dof%y%x_d, c%dof%z%x_d, c%jacinv_d, c%jac_d, &
               c%Xh%lx, c%msh%nelv)
 
          ! copy to host only at initialization.
@@ -1028,14 +1306,343 @@ contains
 
   end subroutine coef_generate_geo
 
+  !> Compute the metric tensor condition numbers over the mesh
+  !!
+  !! The stored geometric factors are \f$ G = w_3 J M \f$, where \f$ M \f$ is
+  !! the metric matrix at a quadrature point. Both \f$ w_3 \f$ and the Jacobian
+  !! are scalar multipliers, so \f$ \kappa(G) = \kappa(M) \f$ and the condition
+  !! number of the stored \f$ G_{ij} \f$ is a pure property of the element
+  !! geometry.
+  !!
+  !! Two numbers are computed, because reduced precision *arithmetic* and
+  !! reduced precision *storage* are limited by different properties of the
+  !! element.
+  !!
+  !! metric_cond is \f$ \kappa(G) \f$ and it governs the arithmetic. Applying
+  !! \f$ D^T G D \f$ in precision \f$ \epsilon \f$ accumulates a quadratic
+  !! form whose smallest eigendirection contributes a term of relative size
+  !! \f$ 1/\kappa(G) \f$, which is lost once
+  !! \f$ \kappa(G) \gtrsim 1/\epsilon \f$: about \f$ 1.7\times 10^{7} \f$ in
+  !! single precision against \f$ 9\times 10^{15} \f$ in double. Below that
+  !! the error grows as \f$ \epsilon\kappa(G) \f$; past it the local operator
+  !! can turn indefinite and a Krylov solve breaks down rather than
+  !! degrading. \f$ \kappa(G) \f$ grows as the square of the element aspect
+  !! ratio, so a wall resolved boundary layer can approach the single
+  !! precision limit while remaining ten orders clear of the double precision
+  !! one. The single precision warning below is keyed on it.
+  !!
+  !! metric_scaled_cond is \f$ \kappa(C) \f$ for the Jacobi scaled metric
+  !! \f$ C_{ij} = G_{ij}/\sqrt{G_{ii}G_{jj}} \f$, the matrix of cosines
+  !! between the contravariant basis vectors, and it governs storage.
+  !! Rounding \f$ G_{ij} \f$ to a lower precision is a componentwise
+  !! *relative* perturbation, so writing \f$ G = \Delta C \Delta \f$ with
+  !! \f$ \Delta = \mathrm{diag}(\sqrt{G_{ii}}) \f$ the diagonal scaling
+  !! passes through the rounding unchanged and cancels in every quadratic
+  !! form. What remains bounds the relative perturbation of the element
+  !! operator in its own energy norm by \f$ \epsilon\kappa(C) \f$,
+  !! independent of the aspect ratio, of \f$ \kappa(G) \f$, of h and of the
+  !! polynomial order: element stretching is invisible to storage rounding
+  !! and only skew matters. Definiteness survives while
+  !! \f$ \lambda_{min}(C) > 3\epsilon \f$, which in two dimensions means
+  !! element edges more than about \f$ 0.02^\circ \f$ from parallel, so for
+  !! storage this is a degenerate element test rather than an aspect ratio
+  !! limit.
+  !!
+  !! The two combine *additively* rather than as a pair of thresholds,
+  !! because they are multiplied by different unit roundoffs -- that of the
+  !! precision \f$ G_{ij} \f$ is held in, and that of the precision the
+  !! contraction accumulates in. metric_perturb reports
+  !! \f$ \epsilon_{sp}\kappa(C) + \epsilon_{rp}\kappa(G) \f$, the predicted
+  !! relative perturbation of the element operator were the factors held in
+  !! single precision, and metric_sp_safe thresholds that against
+  !! NEKO_METRIC_PERTURB_MAX. Gating on \f$ \kappa(G) \f$ alone is
+  !! conservative by the square of the aspect ratio on a double precision
+  !! build; gating on \f$ \kappa(C) \f$ alone would call an \a rp = \a sp
+  !! build safe on a wall resolved mesh, which it is not.
+  !!
+  !! @note On device builds the host copy of \f$ G_{ij} \f$ is only refreshed
+  !! at initialization, so this refreshes it itself when called later. It is
+  !! not called from recompute_metrics(); a moving mesh that deforms
+  !! significantly should invoke it explicitly.
+  subroutine coef_metric_condition(this)
+    class(coef_t), intent(inout) :: this
+    real(kind=dp) :: e1, e2, e3, scal
+    real(kind=dp) :: c1, c2, c3, c12, c13, c23
+    real(kind=rp) :: kmax, kcmax, tmp(1)
+    integer :: i, j, k, e, n, ndeg, ndeg_glb, ierr
+    character(len=LOG_SIZE) :: log_buf
+
+    n = this%dof%size()
+
+    ! Post-initialization the host copy is stale on device builds
+    if (NEKO_BCKND_DEVICE .eq. 1 .and. this%coef_metrics_initialized) then
+       call device_memcpy(this%G11, this%G11_d, n, DEVICE_TO_HOST, &
+            sync = .false.)
+       call device_memcpy(this%G22, this%G22_d, n, DEVICE_TO_HOST, &
+            sync = .false.)
+       call device_memcpy(this%G33, this%G33_d, n, DEVICE_TO_HOST, &
+            sync = .false.)
+       call device_memcpy(this%G12, this%G12_d, n, DEVICE_TO_HOST, &
+            sync = .false.)
+       call device_memcpy(this%G13, this%G13_d, n, DEVICE_TO_HOST, &
+            sync = .false.)
+       call device_memcpy(this%G23, this%G23_d, n, DEVICE_TO_HOST, &
+            sync = .true.)
+    end if
+
+    kmax = 0.0_rp
+    kcmax = 0.0_rp
+    ndeg = 0
+
+    do e = 1, this%msh%nelv
+       do k = 1, this%Xh%lz
+          do j = 1, this%Xh%ly
+             do i = 1, this%Xh%lx
+
+                ! Scale out the magnitude before the eigenvalue solve; the
+                ! condition number is invariant under it and w3*J spans a
+                ! wide range within an element
+                scal = max(abs(real(this%G11(i,j,k,e), dp)), &
+                     abs(real(this%G22(i,j,k,e), dp)))
+                scal = max(scal, abs(real(this%G33(i,j,k,e), dp)))
+                scal = max(scal, abs(real(this%G12(i,j,k,e), dp)))
+                scal = max(scal, abs(real(this%G13(i,j,k,e), dp)))
+                scal = max(scal, abs(real(this%G23(i,j,k,e), dp)))
+
+                if (scal .le. 0.0_dp) then
+                   ndeg = ndeg + 1
+                   cycle
+                end if
+
+                if (this%msh%gdim .eq. 2) then
+                   call eig_sym2(real(this%G11(i,j,k,e), dp) / scal, &
+                        real(this%G22(i,j,k,e), dp) / scal, &
+                        real(this%G12(i,j,k,e), dp) / scal, e1, e3)
+                else
+                   call eig_sym3(real(this%G11(i,j,k,e), dp) / scal, &
+                        real(this%G22(i,j,k,e), dp) / scal, &
+                        real(this%G33(i,j,k,e), dp) / scal, &
+                        real(this%G12(i,j,k,e), dp) / scal, &
+                        real(this%G13(i,j,k,e), dp) / scal, &
+                        real(this%G23(i,j,k,e), dp) / scal, e1, e2, e3)
+                end if
+
+                if (e3 .le. 0.0_dp) then
+                   ndeg = ndeg + 1
+                else
+                   kmax = max(kmax, real(e1 / e3, rp))
+
+                   ! Jacobi scale the metric: C_ij = G_ij/sqrt(G_ii G_jj).
+                   ! kappa(C) is what bounds the effect of rounding G to a
+                   ! lower precision, and unlike kappa(G) it is independent
+                   ! of the element aspect ratio. The point is positive
+                   ! definite here, so the diagonal is strictly positive and
+                   ! the square roots are safe. An orthogonal element gives
+                   ! the identity, which eig_sym3 returns exactly through
+                   ! its isotropic branch.
+                   c12 = real(this%G12(i,j,k,e), dp) &
+                        / sqrt(real(this%G11(i,j,k,e), dp) &
+                        * real(this%G22(i,j,k,e), dp))
+
+                   if (this%msh%gdim .eq. 2) then
+                      call eig_sym2(1.0_dp, 1.0_dp, c12, c1, c3)
+                   else
+                      c13 = real(this%G13(i,j,k,e), dp) &
+                           / sqrt(real(this%G11(i,j,k,e), dp) &
+                           * real(this%G33(i,j,k,e), dp))
+                      c23 = real(this%G23(i,j,k,e), dp) &
+                           / sqrt(real(this%G22(i,j,k,e), dp) &
+                           * real(this%G33(i,j,k,e), dp))
+                      call eig_sym3(1.0_dp, 1.0_dp, 1.0_dp, &
+                           c12, c13, c23, c1, c2, c3)
+                   end if
+
+                   if (c3 .gt. 0.0_dp) then
+                      kcmax = max(kcmax, real(c1 / c3, rp))
+                   else
+                      ! C is a positive diagonal congruence of a metric
+                      ! already found definite, so this is unreachable
+                      ! analytically. Fail safe rather than underreport.
+                      kcmax = huge(0.0_rp)
+                   end if
+                end if
+
+             end do
+          end do
+       end do
+    end do
+
+    tmp(1) = kmax
+    this%metric_cond = glmax(tmp, 1)
+
+    tmp(1) = kcmax
+    this%metric_scaled_cond = glmax(tmp, 1)
+
+    call MPI_Allreduce(ndeg, ndeg_glb, 1, MPI_INTEGER, MPI_SUM, &
+         NEKO_COMM, ierr)
+    this%metric_degenerate = ndeg_glb
+
+    ! The two condition numbers enter through different unit roundoffs, so
+    ! the estimate is additive: storage rounding of G contributes
+    ! eps_sp*kappa(C) and accumulation in rp contributes eps_rp*kappa(G).
+    ! On a double build the second term all but vanishes and skew decides; on
+    ! an rp = sp build it dominates and aspect ratio decides. No test on the
+    ! build is needed, which is the point of writing it this way.
+    this%metric_perturb = real(NEKO_EPS_SP, rp) * this%metric_scaled_cond &
+         + NEKO_EPS * this%metric_cond
+
+    this%metric_sp_safe = (this%metric_degenerate .eq. 0) .and. &
+         (this%metric_perturb .le. NEKO_METRIC_PERTURB_MAX)
+
+    write(log_buf, '(A,ES12.5)') 'Metric condition : ', this%metric_cond
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES12.5)') 'Metric skew cond : ', &
+         this%metric_scaled_cond
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,ES12.5)') 'Metric perturb   : ', this%metric_perturb
+    call neko_log%message(log_buf)
+    write(log_buf, '(A,L1)') 'Metric fp32 safe : ', this%metric_sp_safe
+    call neko_log%message(log_buf)
+
+    ! Three independent questions, reported independently: can the solve
+    ! break down, how far wrong is the operator, and is the mesh valid at
+    ! all. They are not grades of one thing, so none suppresses another -- a
+    ! wall resolved boundary layer in a single precision build trips the
+    ! first two at once, and both are worth saying, because the definiteness
+    ! limit is a possibility while the perturbation is a certainty.
+
+    ! Past the arithmetic limit the local operator can lose positive
+    ! definiteness and a Krylov solve can break down rather than degrade,
+    ! which is only reachable when rp is sp. Reported rather than fatal: the
+    ! threshold keeps three orders of margin below 1/eps_sp, so crossing it
+    ! makes breakdown possible, not certain, and the run may well be fine.
+    if (rp .eq. sp .and. this%metric_cond .gt. NEKO_METRIC_COND_SP) then
+       write(log_buf, '(A,ES12.5)') &
+            'Metric too ill conditioned for single precision, limit ', &
+            NEKO_METRIC_COND_SP
+       call neko_log%warning(log_buf)
+       call neko_log%message('Geometric factors may lose positive ' // &
+            'definiteness, consider a double precision build')
+    end if
+
+    ! How much the single precision factors actually perturb the operator,
+    ! regardless of whether the definiteness limit above was also crossed.
+    ! On a single precision build that error is being incurred now, so it
+    ! warrants a warning; on a double precision build it describes a storage
+    ! path that may not be in use, so it is recorded without one. Which of
+    ! the two terms dominates is the actionable part: skew is a meshing
+    ! problem, aspect ratio is a precision problem, and they have different
+    ! remedies.
+    if (this%metric_perturb .gt. NEKO_METRIC_PERTURB_MAX) then
+       if (rp .eq. sp) then
+          write(log_buf, '(A,ES12.5,A,ES12.5)') &
+               'Single precision metric error ', this%metric_perturb, &
+               ', tolerance ', NEKO_METRIC_PERTURB_MAX
+          call neko_log%warning(log_buf)
+       else
+          call neko_log%message('Single precision storage of the ' // &
+               'geometric factors would exceed the error tolerance')
+       end if
+
+       if (real(NEKO_EPS_SP, rp) * this%metric_scaled_cond .ge. &
+            NEKO_EPS * this%metric_cond) then
+          call neko_log%message('Dominated by element skew')
+       else
+          call neko_log%message('Dominated by element aspect ratio')
+       end if
+    end if
+
+    ! A metric that is not positive definite is a degenerate or inverted
+    ! element, which is a mesh problem in any precision. Reported rather than
+    ! fatal, since this is a diagnostic and the rest of the setup may still
+    ! want to run
+    if (this%metric_degenerate .gt. 0) then
+       write(log_buf, '(A,I0)') &
+            'Non positive definite metric at points: ', this%metric_degenerate
+       call neko_log%error(log_buf)
+    end if
+
+  end subroutine coef_metric_condition
+
+  !> Enable compressed geometric factors.
+  !! @details Builds processor-local compressed copies of the geometric
+  !! factors, see coef_generate_geo_compr(), for the operators that read
+  !! them, e.g. ax_helm_compr_cpu_t, and rebuilds them with the geometry
+  !! in recompute_metrics(). The copies are read by the CPU, SX and device
+  !! backends, so nothing is built on the XSMM backend. Collective.
+  !! Like the other diagnostics, the statistics are only logged under
+  !! COEF_FULL, not for the operator-only coefficients of multigrid levels.
+  !! @param tol Tolerance on the difference of the geometric factors, summed
+  !! over the element, under which two elements share them, defaults to 1e-7.
+  subroutine coef_enable_geo_compression(this, tol)
+    class(coef_t), intent(inout) :: this
+    real(kind=rp), intent(in), optional :: tol
+
+    if (.not. this%coef_metrics_initialized) then
+       call neko_error('Geometric factors must be generated before they ' // &
+            'are compressed')
+    end if
+
+    if (present(tol)) then
+       if (tol .lt. 0.0_rp) then
+          call neko_error('Geometric factor compression tolerance must ' // &
+               'be non-negative')
+       end if
+    end if
+
+    if (NEKO_BCKND_XSMM .eq. 1) then
+       if (this%scope .eq. COEF_FULL) then
+          call neko_log%section('Compressed G')
+          call neko_log%message('Not built for the XSMM backend')
+          call neko_log%end_section()
+       end if
+       return
+    end if
+
+    this%geo_compression_tol = 1.0E-7_rp
+    if (present(tol)) then
+       this%geo_compression_tol = tol
+    end if
+
+    this%geo_compression = .true.
+    call coef_generate_geo_compr(this, this%scope .eq. COEF_FULL)
+
+  end subroutine coef_enable_geo_compression
+
   !> Compute processor-local compressed versions of mappings Gij
+  !! @details Elements whose geometric factors agree share one copy of them
+  !! in Gij_compr, and compression_inds maps each element to its copy. An
+  !! element agrees with the first element of a copy when the absolute
+  !! differences of their factors, summed over the quadrature points with the
+  !! off-diagonal factors counted twice, are at most geo_compression_tol.
+  !! Each element is compared with every copy found before it.
+  !! @param verbose Whether to log global statistics, which is collective.
   !! @note This could be faster with various tweaks
-  subroutine coef_generate_geo_compressed(c)
+  subroutine coef_generate_geo_compr(c, verbose)
     type(coef_t), intent(inout) :: c
-    integer :: e, m, i, lxyz, m_max
+    logical, intent(in) :: verbose
+    integer :: e, m, i, lxyz, m_max, ierr, n
     integer, allocatable :: c_inds_rev(:) ! reverse compression indices map
-    real(kind=rp) :: ctol = 1.0E-7_rp
-    real(kind=rp) :: diff = 0.0_rp
+    integer :: stats(2), glb_stats(2)
+    real(kind=rp) :: ctol, diff
+    character(len=LOG_SIZE) :: log_buf
+
+    call coef_free_geo_compr(c)
+
+    ! On a device backend the host factors are only current after
+    ! initialization, while recompute_metrics() updates the device ones
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       n = c%dof%size()
+       call device_memcpy(c%G11, c%G11_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G22, c%G22_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G33, c%G33_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G12, c%G12_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G13, c%G13_d, n, DEVICE_TO_HOST, sync = .false.)
+       call device_memcpy(c%G23, c%G23_d, n, DEVICE_TO_HOST, sync = .true.)
+    end if
+
+    ctol = c%geo_compression_tol
+    diff = 0.0_rp
 
     ! First step, allocate full-size lookup structure for entire mesh
     allocate(c%compression_inds(c%msh%nelv))
@@ -1043,10 +1650,13 @@ contains
 
     ! Second step, loop over all elements, compute compression mapping
     ! First entry must be itself to get started
-    m_max = 1
-    c%compression_inds(1) = 1
-    c_inds_rev = 0
-    c_inds_rev(1) = 1
+    m_max = 0
+    if (c%msh%nelv .gt. 0) then
+       m_max = 1
+       c%compression_inds(1) = 1
+       c_inds_rev = 0
+       c_inds_rev(1) = 1
+    end if
 
     ! Loop over elements, but skip first
     lxyz = c%Xh%lx * c%Xh%ly * c%Xh%lz
@@ -1058,11 +1668,11 @@ contains
           do i = 1, lxyz
              ! diff += abs( \| G(i,:,:,e) - G(i,:,:,reverse(m)) \|_l1 )
              diff = diff + abs(c%G11(i,1,1,e) - c%G11(i,1,1,c_inds_rev(m))) &
-                         + 2.0*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
-                         + 2.0*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
-                         + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
-                         + 2.0*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
-                         + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
+                  + 2.0_rp*abs(c%G12(i,1,1,e) - c%G12(i,1,1,c_inds_rev(m))) &
+                  + 2.0_rp*abs(c%G13(i,1,1,e) - c%G13(i,1,1,c_inds_rev(m))) &
+                  + abs(c%G22(i,1,1,e) - c%G22(i,1,1,c_inds_rev(m))) &
+                  + 2.0_rp*abs(c%G23(i,1,1,e) - c%G23(i,1,1,c_inds_rev(m))) &
+                  + abs(c%G33(i,1,1,e) - c%G33(i,1,1,c_inds_rev(m)))
           end do
 
           ! match is found; mapping(e) is redundant
@@ -1072,39 +1682,132 @@ contains
           end if
        end do
 
-       ! never found a match
-       if ( diff .gt. ctol ) then
+       ! never found a match, written so that a NaN never matches either
+       if (.not. (diff .le. ctol)) then
           m_max = m_max + 1
           c%compression_inds(e) = m_max
           c_inds_rev(m_max) = e
        end if
     end do
 
-    write(*,*)
-    write(*,*) '------Mapping Compression-----'
-    write(*,*) 'Compressed from ', c%msh%nelv, ' to ', m_max
-
-    ! Third step, allocate and fill Gij_compressed objects
-    allocate(c%G11_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G22_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G33_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G12_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G13_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
-    allocate(c%G23_compressed(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    ! Third step, allocate and fill Gij_compr objects
+    allocate(c%G11_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G22_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G33_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G12_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G13_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
+    allocate(c%G23_compr(c%Xh%lx, c%Xh%ly, c%Xh%lz, m_max))
     do m = 1, m_max
        do i = 1, lxyz
-          c%G11_compressed(i,1,1,m) = c%G11(i,1,1,c_inds_rev(m))
-          c%G22_compressed(i,1,1,m) = c%G22(i,1,1,c_inds_rev(m))
-          c%G33_compressed(i,1,1,m) = c%G33(i,1,1,c_inds_rev(m))
-          c%G12_compressed(i,1,1,m) = c%G12(i,1,1,c_inds_rev(m))
-          c%G13_compressed(i,1,1,m) = c%G13(i,1,1,c_inds_rev(m))
-          c%G23_compressed(i,1,1,m) = c%G23(i,1,1,c_inds_rev(m))
+          c%G11_compr(i,1,1,m) = c%G11(i,1,1,c_inds_rev(m))
+          c%G22_compr(i,1,1,m) = c%G22(i,1,1,c_inds_rev(m))
+          c%G33_compr(i,1,1,m) = c%G33(i,1,1,c_inds_rev(m))
+          c%G12_compr(i,1,1,m) = c%G12(i,1,1,c_inds_rev(m))
+          c%G13_compr(i,1,1,m) = c%G13(i,1,1,c_inds_rev(m))
+          c%G23_compr(i,1,1,m) = c%G23(i,1,1,c_inds_rev(m))
        end do
     end do
 
     deallocate(c_inds_rev)
 
-  end subroutine coef_generate_geo_compressed
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       n = lxyz * m_max
+       call device_map(c%G11_compr, c%G11_compr_d, n)
+       call device_map(c%G22_compr, c%G22_compr_d, n)
+       call device_map(c%G33_compr, c%G33_compr_d, n)
+       call device_map(c%G12_compr, c%G12_compr_d, n)
+       call device_map(c%G13_compr, c%G13_compr_d, n)
+       call device_map(c%G23_compr, c%G23_compr_d, n)
+       call device_map(c%compression_inds, c%compression_inds_d, c%msh%nelv)
+       call device_memcpy(c%G11_compr, c%G11_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G22_compr, c%G22_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G33_compr, c%G33_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G12_compr, c%G12_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G13_compr, c%G13_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%G23_compr, c%G23_compr_d, n, HOST_TO_DEVICE, &
+            sync = .false.)
+       call device_memcpy(c%compression_inds, c%compression_inds_d, &
+            c%msh%nelv, HOST_TO_DEVICE, sync = .true.)
+    end if
+
+    if (verbose) then
+       stats(1) = c%msh%nelv
+       stats(2) = m_max
+       call MPI_Allreduce(stats, glb_stats, 2, MPI_INTEGER, MPI_SUM, &
+            NEKO_COMM, ierr)
+
+       call neko_log%section('Compressed G')
+       write(log_buf, '(A,I0)') 'Copies     : ', glb_stats(2)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,I0)') 'Elements   : ', glb_stats(1)
+       call neko_log%message(log_buf)
+       write(log_buf, '(A,ES12.5)') 'Tolerance  : ', ctol
+       call neko_log%message(log_buf)
+       call neko_log%end_section()
+    end if
+
+  end subroutine coef_generate_geo_compr
+
+  !> Release the compressed geometric factors.
+  subroutine coef_free_geo_compr(c)
+    type(coef_t), intent(inout) :: c
+
+    if (allocated(c%compression_inds)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%compression_inds, c%compression_inds_d)
+       end if
+       deallocate(c%compression_inds)
+    end if
+
+    if (allocated(c%G11_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G11_compr, c%G11_compr_d)
+       end if
+       deallocate(c%G11_compr)
+    end if
+
+    if (allocated(c%G22_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G22_compr, c%G22_compr_d)
+       end if
+       deallocate(c%G22_compr)
+    end if
+
+    if (allocated(c%G33_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G33_compr, c%G33_compr_d)
+       end if
+       deallocate(c%G33_compr)
+    end if
+
+    if (allocated(c%G12_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G12_compr, c%G12_compr_d)
+       end if
+       deallocate(c%G12_compr)
+    end if
+
+    if (allocated(c%G13_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G13_compr, c%G13_compr_d)
+       end if
+       deallocate(c%G13_compr)
+    end if
+
+    if (allocated(c%G23_compr)) then
+       if (NEKO_BCKND_DEVICE .eq. 1) then
+          call device_unmap(c%G23_compr, c%G23_compr_d)
+       end if
+       deallocate(c%G23_compr)
+    end if
+
+
+  end subroutine coef_free_geo_compr
 
   !> Generate mass matrix B for the given mesh and space
   !! @note This is also a stapleholder, we need to go through the coef class properly.
@@ -1120,17 +1823,37 @@ contains
             lxyz, c%msh%nelv)
        ! copy to host only at initialization.
        if (.not. c%coef_metrics_initialized) then
-          call device_memcpy(c%B, c%B_d, ntot, DEVICE_TO_HOST, sync = .false.)
+          ! Under COEF_OPERATOR the Binv transfer below is skipped, so this
+          ! becomes the last one of the routine and has to synchronise.
+          call device_memcpy(c%B, c%B_d, ntot, DEVICE_TO_HOST, &
+               sync = (c%scope .eq. COEF_OPERATOR))
        end if
     else
-       do concurrent (e = 1:c%msh%nelv)
+       !$omp parallel do private(e, i)
+       do e = 1, c%msh%nelv
           ! Here we need to handle things differently for axis symmetric elements
-          do concurrent (i = 1:lxyz)
+          do i = 1, lxyz
              c%B(i,1,1,e) = c%jac(i,1,1,e) * c%Xh%w3(i,1,1)
              c%Binv(i,1,1,e) = c%B(i,1,1,e)
           end do
        end do
+       !$omp end parallel do
     end if
+
+    !>  @todo cleanup once we have device math in place
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       c%volume = device_glsum(c%B_d, ntot)
+    else
+       c%volume = glsum(c%B, ntot)
+    end if
+
+    if (c%volume .le. 0.0_rp) then
+       call neko_error('Mesh has non-positive volume')
+    end if
+
+    ! Neither Binv nor the volume is read when only applying an operator,
+    ! and assembling Binv costs a gather-scatter round on top of that.
+    if (c%scope .ne. COEF_FULL) return
 
     call c%gs_h%op(c%Binv, ntot, GS_OP_ADD)
 
@@ -1145,15 +1868,33 @@ contains
        call invcol1(c%Binv, ntot)
     end if
 
-    !>  @todo cleanup once we have device math in place
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       c%volume = device_glsum(c%B_d, ntot)
-    else
-       c%volume = glsum(c%B, ntot)
-    end if
 
   end subroutine coef_generate_mass
 
+  !> Abort unless this coef holds the facet areas and normals
+  !!
+  !! For consumers of the facet metrics to call once at setup, so that being
+  !! handed a COEF_OPERATOR coef fails at construction with a message naming
+  !! the consumer, rather than dereferencing a released array mid solve.
+  !! get_area() and get_normal() are pure and cannot report it themselves,
+  !! and some consumers read nx, ny and nz directly and never go through
+  !! them at all.
+  !! @param who Name of the consumer, used in the error message.
+  subroutine coef_require_facets(this, who)
+    class(coef_t), intent(in) :: this
+    character(len=*), intent(in) :: who
+
+    if (this%scope .ne. COEF_FULL) then
+       call neko_error(who // ' needs the facet areas and normals, which ' // &
+            'a COEF_OPERATOR coef does not build')
+    end if
+
+  end subroutine coef_require_facets
+
+  !> Facet normal at a point
+  !!
+  !! @note Pure, so it cannot reject a coef_t that lacks the normals.
+  !! Consumers assert that themselves at setup, see coef_require_facets().
   pure function coef_get_normal(this, i, j, k, e, facet) result(normal)
     class(coef_t), intent(in) :: this
     integer, intent(in) :: i, j, k, e, facet
@@ -1175,6 +1916,9 @@ contains
     end select
   end function coef_get_normal
 
+  !> Facet area at a point
+  !!
+  !! @note Pure, see the note on coef_get_normal().
   pure function coef_get_area(this, i, j, k, e, facet) result(area)
     class(coef_t), intent(in) :: this
     integer, intent(in) :: i, j, k, e, facet
@@ -1376,6 +2120,12 @@ contains
 
     if (.not. this%cyclic) return
 
+    ! Builds the rotation matrices from get_normal()
+    if (this%scope .ne. COEF_FULL) then
+       call neko_error('Cyclic boundaries need the facet normals, ' // &
+            'which COEF_OPERATOR does not build')
+    end if
+
     np = this%msh%periodic%size
     call MPI_Allreduce(np, np_glb, 1, &
          MPI_INTEGER, MPI_SUM, NEKO_COMM, ierr)
@@ -1402,8 +2152,8 @@ contains
                    un = this%get_normal(i, j, k, pe, pf)
                    len = sqrt(un(1) * un(1) + un(2) * un(2))
                    if (len .gt. NEKO_EPS) then
-                      d = this%dof%y(i, j, k, pe) * un(1) &
-                           - this%dof%x(i, j, k, pe) * un(2)
+                      d = this%dof%y%x(i, j, k, pe) * un(1) &
+                           - this%dof%x%x(i, j, k, pe) * un(2)
 
                       this%cyc_msk(nc) = linear_index(i, j, k, pe, lx, ly, lz)
                       this%R11(nc) = un(1) / len * sign(1.0_rp, d)
@@ -1441,13 +2191,22 @@ contains
   subroutine coef_recompute_metrics(this)
     class(coef_t), intent(inout) :: this
 
+    if (this%scope .ne. COEF_FULL) then
+       call neko_error('Rebuilding the geometry needs the derivative ' // &
+            'arrays, which COEF_OPERATOR releases')
+    end if
+
     call coef_generate_dxyzdrst(this)
     call coef_generate_geo(this)
+    if (this%geo_compression) then
+       call coef_generate_geo_compr(this, .false.)
+    end if
     call coef_generate_area_and_normal(this)
     call coef_generate_mass(this)
     if (this%cyclic) then
        call coef_generate_cyclic_bc(this)
     end if
+    this%metrics_version = this%metrics_version + 1
   end subroutine coef_recompute_metrics
 
 

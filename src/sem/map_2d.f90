@@ -210,6 +210,12 @@ contains
        deallocate(this%el_idx_2d)
     end if
 
+    call this%u%free()
+    call this%old_u%free()
+    call this%avg_u%free()
+    call this%el_heights%free()
+    call this%map_1d%free()
+
     nullify(this%msh)
     nullify(this%dof)
     nullify(this%coef)
@@ -245,16 +251,16 @@ contains
     allocate(fld_data2D%idx(this%nelv_2d))
 
     if (this%dir .eq. 1) then
-       x_ptr => this%dof%z
-       y_ptr => this%dof%y
+       x_ptr => this%dof%z%x
+       y_ptr => this%dof%y%x
     end if
     if (this%dir .eq. 2) then
-       x_ptr => this%dof%x
-       y_ptr => this%dof%z
+       x_ptr => this%dof%x%x
+       y_ptr => this%dof%z%x
     end if
     if (this%dir .eq. 3) then
-       x_ptr => this%dof%x
-       y_ptr => this%dof%y
+       x_ptr => this%dof%x%x
+       y_ptr => this%dof%y%x
     end if
     do j = 1, this%nelv_2d
        fld_data2d%idx(j) = this%el_idx_2d(j)
@@ -321,16 +327,16 @@ contains
     allocate(fld_data2D%idx(n_2d))
 
     if (this%dir .eq. 1) then
-       x_ptr => this%dof%z
-       y_ptr => this%dof%y
+       x_ptr => this%dof%z%x
+       y_ptr => this%dof%y%x
     end if
     if (this%dir .eq. 2) then
-       x_ptr => this%dof%x
-       y_ptr => this%dof%z
+       x_ptr => this%dof%x%x
+       y_ptr => this%dof%z%x
     end if
     if (this%dir .eq. 3) then
-       x_ptr => this%dof%x
-       y_ptr => this%dof%y
+       x_ptr => this%dof%x%x
+       y_ptr => this%dof%y%x
     end if
     do j = 1, n_2d
        fld_data2d%idx(j) = this%idx_2d(j)

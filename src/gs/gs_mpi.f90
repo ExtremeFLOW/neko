@@ -74,6 +74,7 @@ module gs_mpi
      procedure, pass(this) :: nbsend => gs_nbsend_mpi
      procedure, pass(this) :: nbrecv => gs_nbrecv_mpi
      procedure, pass(this) :: nbwait => gs_nbwait_mpi
+     procedure, pass(this) :: init_vec => gs_mpi_init_vec
      procedure, pass(this) :: nbsend_vec => gs_nbsend_vec_mpi
      procedure, pass(this) :: nbrecv_vec => gs_nbrecv_vec_mpi
      procedure, pass(this) :: nbwait_vec => gs_nbwait_vec_mpi
@@ -117,12 +118,24 @@ contains
     end do
     allocate(this%recv_buf(max(1, recv_total)))
 
-    ! Fused vector exchange buffers, sized for GS_VEC_NC components.
-    allocate(this%send_buf_v(max(1, GS_VEC_NC*send_total)))
-    allocate(this%recv_buf_v(max(1, GS_VEC_NC*recv_total)))
     this%vec_supported = .true.
+    this%vec_ready = .false.
 
   end subroutine gs_mpi_init
+
+  !> Allocate the fused vector exchange buffers, sized for GS_VEC_NC
+  !! components. Deferred to the first fused exchange, see gs_comm_t.
+  subroutine gs_mpi_init_vec(this)
+    class(gs_mpi_t), intent(inout) :: this
+    integer :: send_total, recv_total
+
+    send_total = sum(this%send_len)
+    recv_total = sum(this%recv_len)
+
+    allocate(this%send_buf_v(max(1, GS_VEC_NC*send_total)))
+    allocate(this%recv_buf_v(max(1, GS_VEC_NC*recv_total)))
+
+  end subroutine gs_mpi_init_vec
 
   !> Deallocate MPI based communication method
   subroutine gs_mpi_free(this)
@@ -175,6 +188,7 @@ contains
     if (allocated(this%recv_buf_v)) then
        deallocate(this%recv_buf_v)
     end if
+    this%vec_ready = .false.
 
     call this%free_order()
     call this%free_dofs()

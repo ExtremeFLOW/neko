@@ -34,7 +34,7 @@
 !! @details This module is used to read NEKTON session data in ascii
 module rea_file
   use generic_file, only : generic_file_t
-  use num_types, only : rp, dp
+  use num_types, only : dp
   use mesh, only : mesh_t, NEKO_MSH_MAX_ZLBLS
   use point, only : point_t
   use map, only : map_t
@@ -444,15 +444,15 @@ contains
        call msh%finalize()
 
        call neko_log%message('Done')
-       close(file_unit)
     end if
+    close(file_unit)
 
   end subroutine rea_file_read
 
   subroutine rea_file_write(this, data, t)
     class(rea_file_t), intent(inout) :: this
     class(*), target, intent(in) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
   end subroutine rea_file_write
 
   subroutine rea_file_add_point(htp, p, idx)

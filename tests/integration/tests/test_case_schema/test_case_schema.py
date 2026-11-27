@@ -67,6 +67,28 @@ def test_rejects_known_ignored_properties(tmp_path, property_path):
     assert result.returncode != 0
 
 
+@pytest.mark.parametrize(
+    "property_name", ["c_avisc_low", "c_avisc_entropy"]
+)
+def test_rejects_legacy_artificial_viscosity_parameters(
+    tmp_path, property_name
+):
+    with (EXAMPLES_DIR / "tgv" / "tgv.case").open(encoding="utf-8") as handle:
+        data = json5.load(handle)
+
+    data["case"]["numerics"][property_name] = 0.5
+    case_file = tmp_path / "invalid.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+    assert property_name in result.stdout
+
+
 def test_allows_user_extension_properties(tmp_path):
     with (EXAMPLES_DIR / "tgv" / "tgv.case").open(encoding="utf-8") as handle:
         data = json5.load(handle)
@@ -81,6 +103,130 @@ def test_allows_user_extension_properties(tmp_path):
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_allows_custom_scalar_pnpn_boundary_condition(tmp_path):
+    with (EXAMPLES_DIR / "scalar_mms" / "scalar_mms.case").open(
+        encoding="utf-8"
+    ) as handle:
+        data = json5.load(handle)
+
+    boundary = data["case"]["scalar"]["boundary_conditions"][0]
+    boundary.clear()
+    boundary.update(
+        {
+            "type": "custom_scalar_bc",
+            "zone_indices": [1],
+            "custom_parameter": 2.0,
+        }
+    )
+
+    case_file = tmp_path / "custom_scalar_bc.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_rejects_custom_properties_for_builtin_scalar_bc(tmp_path):
+    with (EXAMPLES_DIR / "scalar_mms" / "scalar_mms.case").open(
+        encoding="utf-8"
+    ) as handle:
+        data = json5.load(handle)
+
+    boundary = data["case"]["scalar"]["boundary_conditions"][0]
+    boundary["custom_parameter"] = 2.0
+
+    case_file = tmp_path / "invalid_scalar_bc.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
+
+
+@pytest.mark.parametrize(
+    "example, property_path, value",
+    [
+        ("tgv/tgv.case",
+         ("case", "fluid", "initial_condition", "amplitude"), 1.0),
+        ("scalar_mms/scalar_mms.case",
+         ("case", "scalar", "initial_condition", "value"), 1.0),
+        ("scalar_mms/scalar_mms.case",
+         ("case", "scalar", "boundary_conditions", 0),
+         {"type": "user_dirichlet", "zone_indices": [1],
+          "custom_parameter": 2.0}),
+        ("scalar_mms/scalar_mms.case",
+         ("case", "scalar", "boundary_conditions", 1),
+         {"type": "user_neumann", "zone_indices": [2],
+          "custom_parameter": 2.0}),
+        ("cylinder/cylinder.case",
+         ("case", "fluid", "boundary_conditions", 0),
+         {"type": "user_velocity", "zone_indices": [1],
+          "profile": "parabolic"}),
+        ("tgv/tgv.case",
+         ("case", "fluid", "source_terms"),
+         [{"type": "user", "custom_parameter": 2.0}]),
+        ("tgv/tgv.case", ("postprocess",), {"tool": "custom"}),
+    ],
+    ids=[
+        "fluid_user_initial_condition",
+        "scalar_user_initial_condition",
+        "user_dirichlet",
+        "user_neumann",
+        "user_velocity",
+        "user_source_term",
+        "top_level_section",
+    ],
+)
+def test_allows_custom_keys_in_user_components(
+    tmp_path, example, property_path, value
+):
+    """User-defined components take parameters the user file defines, and
+    other tools may add sections next to the case."""
+    with (EXAMPLES_DIR / example).open(encoding="utf-8") as handle:
+        data = json5.load(handle)
+
+    target = data
+    for key in property_path[:-1]:
+        target = target[key]
+    target[property_path[-1]] = value
+
+    case_file = tmp_path / "custom.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_rejects_custom_keys_in_builtin_initial_condition(tmp_path):
+    with (EXAMPLES_DIR / "cylinder" / "cylinder.case").open(
+        encoding="utf-8"
+    ) as handle:
+        data = json5.load(handle)
+
+    data["case"]["fluid"]["initial_condition"]["custom_parameter"] = 2.0
+
+    case_file = tmp_path / "invalid_initial_condition.case"
+    case_file.write_text(json.dumps(data), encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(VALIDATOR), str(case_file)],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode != 0
 
 
 def test_rejects_real_encoding_for_integer_controller_value(tmp_path):
@@ -120,7 +266,8 @@ def test_rejects_integer_encoding_for_real_parameter(tmp_path):
 
 
 def test_rejects_integer_encoding_in_real_array(tmp_path):
-    with (EXAMPLES_DIR / "api" / "c" / "cylinder.case").open(
+    # The first boundary condition is a velocity_value, whose value is real
+    with (EXAMPLES_DIR / "cylinder" / "cylinder.case").open(
         encoding="utf-8"
     ) as handle:
         data = json5.load(handle)
@@ -175,6 +322,8 @@ def test_allows_dong_outflow_parameters(tmp_path, boundary_type):
 
     boundary = data["case"]["fluid"]["boundary_conditions"][1]
     boundary["type"] = boundary_type
+    if boundary_type == "normal_outflow+dong":
+        boundary["value"] = [1.0, 0.0, 0.0]
     boundary["delta"] = 0.01
     boundary["velocity_scale"] = 1.0
 
@@ -235,6 +384,25 @@ def test_all_builtin_simcomps_have_schemas():
     schema_types = set(re.findall(r"urn:neko:schema:simcomps:([^#]+)#", refs))
 
     assert schema_types == runtime_types
+
+
+def test_all_builtin_scalar_pnpn_bc_types_have_schemas():
+    runtime_types = factory_case_values(
+        REPO_ROOT / "src/scalar/scalar_pnpn_bc_fctry.f90"
+    )
+    with (REPO_ROOT / "doc/schemas/scalar.schema.json").open(
+        encoding="utf-8"
+    ) as handle:
+        schema = json.load(handle)
+    schema_types = collect_const_values(
+        schema["$defs"]["scalarBoundaryCondition"], "type"
+    )
+    custom_schema = schema["$defs"]["scalarBoundaryCondition"]["oneOf"][-1]
+    excluded_custom_types = set(
+        custom_schema["not"]["properties"]["type"]["enum"]
+    )
+
+    assert schema_types == runtime_types == excluded_custom_types
 
 
 @pytest.mark.parametrize(

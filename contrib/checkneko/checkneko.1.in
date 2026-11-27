@@ -1,0 +1,164 @@
+.\" Manual page for checkneko
+.TH CHECKNEKO 1 "@MAN_DATE@" "Neko @PACKAGE_VERSION@" "User Commands"
+.SH NAME
+checkneko \- check Neko case files
+.SH SYNOPSIS
+.B checkneko
+.RB [ \-h ]
+.RB [ \-d
+.IR dir ]
+.RB [ \-s
+.IR dir ]
+.I file ...
+.SH DESCRIPTION
+.B checkneko
+checks a Neko case file without running Neko, and finds mistakes that would
+otherwise only show once a simulation has started and read the mesh. It is
+part of the Neko contrib tools and is installed only when Neko has been
+configured with
+.BR --enable-contrib .
+It does not use MPI or the Neko library.
+.PP
+The case file is parsed with json-fortran, with the same settings as Neko,
+so comments starting with
+.BR / ,
+.B !
+or
+.B #
+and trailing commas are accepted exactly as Neko accepts them. It is then
+checked for the following:
+.IP \(bu 2
+It must be valid against the JSON schema of the case file, see
+.BR FILES .
+Unknown keys in objects that only allow known ones, missing
+keys, values of the wrong type and unknown values such as a misspelled
+boundary condition type are errors, with a suggestion for a misspelled name.
+As in Neko, a value read as a real must be written with a decimal point, and
+one read as an integer without.
+.IP \(bu 2
+A value that names a constant must name one in
+.BR case.constants ,
+of the kind Neko reads there: an integer, a real or an array of the right
+length.
+.IP \(bu 2
+The files the case reads must exist: the mesh, a restart file, field files of
+initial and boundary conditions, probe points and similar. As for Neko, file
+names that are not absolute are relative to the directory it runs in, which
+is the current directory unless
+.B \-d
+is given.
+.IP \(bu 2
+For an
+.B .nmsh
+mesh, the labeled zones of the mesh are read and the
+.B zone_indices
+of the boundary conditions of the fluid and the scalars are checked against
+them, as Neko does: every zone index must be in the mesh, no zone may have
+two boundary conditions, and every zone of the mesh must have one. The
+compressible solver only requires the zones to be in the mesh. The elements
+are not read, so this is quick also for large meshes.
+.IP \(bu 2
+Two scalars must not have the same name.
+.IP \(bu 2
+Point zones that values refer to must be defined in
+.BR case.point_zones .
+.PP
+Keys that appear twice in an object, of which Neko uses the first, and keys
+that are not known but close to a known one, e.g.
+.B output_checkpoint
+for
+.BR output_checkpoints ,
+give warnings.
+.PP
+A table lists the labeled zones with their number of facets and the types of
+the boundary conditions of the fluid and of each scalar on them, with the
+.B name
+of an entry in parentheses and
+.B \-
+where a field has none. A zone that a boundary condition refers to but the
+mesh does not have is listed with
+.B \-
+facets, and the facets are
+.BR ? " if the mesh was not read."
+The scalars are named as in Neko:
+.B s
+for a single one and
+.BR s_1 ", " s_2 ", ... for several, unless they have a"
+.BR name .
+.PP
+Each problem is then printed as
+.IB file : line :
+.BR error :
+or
+.BR warning :
+followed by the location in the case file, e.g.
+.BR case.fluid.boundary_conditions[2].zone_indices ,
+and a description. Entries of arrays are numbered from 1.
+.SH OPTIONS
+.TP
+.BI \-d " dir"
+The directory Neko will run in. File names in the case file that are not
+absolute are relative to it. The default is the current directory.
+.TP
+.BI \-s " dir"
+Read the schemas from
+.IR dir ,
+e.g.
+.B doc/schemas
+of the Neko source, instead of the installed ones, see
+.BR FILES .
+.TP
+.B \-h
+Print a summary of the options.
+.PP
+The options must come before the files. The value of an option can follow it
+directly, as in
+.BR \-d/scratch/run1 ,
+and
+.B \-\-
+ends the options.
+.SH EXIT STATUS
+0 if no errors were found, warnings do not count, and 1 if there were errors
+in any of the case files or the command line was invalid.
+.SH EXAMPLES
+.TP
+.B checkneko cylinder.case
+Check a case that will run in the current directory.
+.TP
+.B checkneko \-d /scratch/run1 cases/cylinder.case
+Check a case that will run in another directory.
+.SH FILES
+.TP
+.I prefix/share/neko/schemas
+The JSON schemas of the case file, from
+.B doc/schemas
+of the Neko source, read when
+.B checkneko
+starts and installed with it.
+.B checkneko
+finds them next to the
+.B bin
+directory it is installed in, also when it is run through a symbolic link.
+When it is run from the build directory of a Neko source tree, it uses
+.B doc/schemas
+of that tree instead. The directory in use is printed at start.
+.SH NOTES
+.B checkneko
+is built with the plain Fortran compiler
+.B FC
+and json-fortran. It can also be compiled on its own, for instance when Neko
+is cross-compiled for another architecture than the machine
+.B checkneko
+is to run on, see
+.B README.md
+in
+.BR contrib/checkneko .
+Such a copy is given the schemas with
+.BR \-s .
+.PP
+The checks cannot find everything that stops a run, for instance a user file
+that does not define a user boundary condition, or settings that are valid
+on their own but not supported together by a backend.
+.SH SEE ALSO
+.BR neko (1),
+.BR makeneko (1)

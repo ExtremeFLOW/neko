@@ -1,4 +1,4 @@
-! Copyright (c) 2020-2025, The Neko Authors
+! Copyright (c) 2020-2026, The Neko Authors
 ! All rights reserved.
 !
 ! Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 !
 !> Defines an output for a list of mean fields
 module mean_field_output
-  use num_types, only : rp
+  use num_types, only : dp, rp
   use field_list, only : field_list_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use fld_file_data, only : fld_file_data_t
@@ -54,7 +54,7 @@ module mean_field_output
      !> Pointers to the fields inside the mean_fields
      type(field_list_t) :: fields
      !> Time to start output
-     real(kind=rp) :: start_time = 0.0_rp
+     real(kind=dp) :: start_time = 0.0_dp
      !> Number of fields
      integer :: n_fields = 0
      !> Space averaging object for 2 homogeneous directions.
@@ -70,6 +70,9 @@ module mean_field_output
      procedure, pass(this) :: free => mean_field_output_free
      !> Sample, i.e. extract the values of the fields, average, and write.
      procedure, pass(this) :: sample => mean_field_output_sample
+     !> Puts the leading fields in the UVW, P and T slots.
+     procedure, pass(this) :: configure_file => &
+          mean_field_output_configure_file
   end type mean_field_output_t
 
 contains
@@ -92,7 +95,7 @@ contains
     character(len=*), intent(in) :: avg_dir
     character(len=*), intent(in), optional :: name
     character(len=*), intent(in), optional :: path
-    real(kind=rp), intent(in) :: start_time
+    real(kind=dp), intent(in) :: start_time
     character(len=1024) :: fname
     integer :: i
 
@@ -136,13 +139,6 @@ contains
     end if
 
     call this%init_base(fname)
-    select type (ft => this%file_%file_type)
-    type is (fld_file_t)
-       ft%skip_pressure = .false.
-       ft%skip_velocity = .false.
-       ft%skip_temperature = .false.
-    end select
-
     call this%fields%init(n_fields)
     this%n_fields = n_fields
     this%mean_fields => mean_fields
@@ -168,7 +164,7 @@ contains
   !> Sample the mean solution at time @a t and reset
   subroutine mean_field_output_sample(this, t)
     class(mean_field_output_t), intent(inout) :: this
-    real(kind=rp), intent(in) :: t
+    real(kind=dp), intent(in) :: t
     integer :: i
     type(fld_file_data_t) :: output_2d
     type(matrix_t) :: avg_output_1d
@@ -186,9 +182,11 @@ contains
             call this%map_1d%average_planes(avg_output_1d, &
                  this%fields)
             call this%file_%write(avg_output_1d, t)
+            call avg_output_1d%free()
          else if (this%output_dim .eq. 2) then
             call this%map_2d%average(output_2d, this%fields)
             call this%file_%write(output_2d, t)
+            call output_2d%free()
          else
             call this%file_%write(this%fields, t)
          end if
@@ -199,5 +197,19 @@ contains
     end associate
 
   end subroutine mean_field_output_sample
+
+  !> Puts the leading fields in the UVW, P and T slots
+  !! rather than the scalar block.
+  subroutine mean_field_output_configure_file(this)
+    class(mean_field_output_t), intent(inout) :: this
+
+    select type (ft => this%file_%file_type)
+    type is (fld_file_t)
+       ft%skip_pressure = .false.
+       ft%skip_velocity = .false.
+       ft%skip_temperature = .false.
+    end select
+
+  end subroutine mean_field_output_configure_file
 
 end module mean_field_output

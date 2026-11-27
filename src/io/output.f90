@@ -32,7 +32,7 @@
 !
 !> Defines an output
 module output
-  use num_types, only : rp
+  use num_types, only : dp
   use file, only : file_t
   implicit none
   private
@@ -45,6 +45,8 @@ module output
      procedure, pass(this) :: free_base => output_free_base
      procedure, pass(this) :: set_counter => output_set_counter
      procedure, pass(this) :: set_start_counter => output_set_start_counter
+     !> Applies settings to the file on (re)initialization.
+     procedure, pass(this) :: configure_file => output_configure_file
      procedure(output_sample), pass(this), deferred :: sample
      procedure(output_free), pass(this), deferred :: free
   end type output_t
@@ -58,9 +60,9 @@ module output
   abstract interface
      subroutine output_sample(this, t)
        import :: output_t
-       import rp
+       import dp
        class(output_t), intent(inout) :: this
-       real(kind=rp), intent(in) :: t
+       real(kind=dp), intent(in) :: t
      end subroutine output_sample
 
      subroutine output_free(this)
@@ -84,7 +86,15 @@ contains
     call this%file_%init(fname, precision = precision, layout = layout, &
          overwrite = overwrite)
 
+    ! file_%init allocates a new file_type, so settings have to be re-applied.
+    call this%configure_file()
+
   end subroutine output_init_base
+
+  !> Applies settings to the file (does nothing unless overridden).
+  subroutine output_configure_file(this)
+    class(output_t), intent(inout) :: this
+  end subroutine output_configure_file
 
   !> Update the output's file counter
   subroutine output_set_counter(this, n)

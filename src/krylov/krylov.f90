@@ -34,17 +34,21 @@
 module krylov
   use gather_scatter, only : gs_t, GS_OP_ADD
   use ax_product, only : ax_t
-  use num_types, only: rp, c_rp
+  use num_types, only : rp, c_rp
   use precon, only : pc_t
   use coefs, only : coef_t
   use mesh, only : mesh_t
   use field, only : field_t
-  use utils, only : neko_error, neko_warning
-  use bc_list, only : bc_list_t
+  use utils, only : neko_error, neko_warning, NEKO_TYPENAME_LEN
+  use scalar_bc_projector, only : scalar_bc_projector_t
+  use vector_bc_projector, only : vector_bc_projector_t
   use identity, only : ident_t
   use device_identity, only : device_ident_t
   use neko_config, only : NEKO_BCKND_DEVICE
   use logger, only : neko_log, LOG_SIZE
+  use json_module, only : json_file
+  use json_utils, only : json_get_or_default, json_get_or_lookup, &
+       json_get_or_lookup_or_default
   implicit none
   private
 
@@ -80,8 +84,13 @@ module krylov
    contains
      !> Constructor.
      procedure(ksp_init_intrf), deferred, pass(this) :: init
+     !> Constructor from a JSON solver block.
+     procedure, pass(this) :: init_from_json => krylov_init_from_json
      !> Base type constructor.
      procedure, pass(this) :: ksp_init => krylov_init
+     !> Base type constructor from a JSON solver block, for types that
+     !! override `init_from_json`.
+     procedure, pass(this) :: ksp_init_from_json => krylov_init_from_json
      !> Base type destructor.
      procedure, pass(this) :: ksp_free => krylov_free
      !> Set preconditioner.
@@ -129,13 +138,13 @@ module krylov
   !! @param f right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
-  !! @param blst list of  boundary conditions
+  !! @param bc_projector boundary constraint projector
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
-     function ksp_method(this, Ax, x, f, n, coef, blst, gs_h, niter) &
+     function ksp_method(this, Ax, x, f, n, coef, bc_projector, gs_h, niter) &
           result(ksp_results)
-       import :: bc_list_t
+       import :: scalar_bc_projector_t
        import :: field_t
        import :: ksp_t
        import :: coef_t
@@ -150,7 +159,7 @@ module krylov
        integer, intent(in) :: n
        real(kind=rp), dimension(n), intent(in) :: f
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(inout) :: blst
+       class(scalar_bc_projector_t), intent(inout) :: bc_projector
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t) :: ksp_results
@@ -167,13 +176,13 @@ module krylov
   !! @param fz right hand side
   !! @param n integer, size of vectors
   !! @param coef Coefficients
-  !! @param blst list of boundary conditions
+  !! @param bc_projector boundary constraint projector
   !! @param gs_h Gather-scatter handle
   !! @param niter iteration trip count
   abstract interface
      function ksp_method_coupled(this, Ax, x, y, z, fx, fy, fz, &
-          n, coef, blstx, blsty, blstz, gs_h, niter) result(ksp_results)
-       import :: bc_list_t
+          n, coef, bc_projector, gs_h, niter) result(ksp_results)
+       import :: vector_bc_projector_t
        import :: field_t
        import :: ksp_t
        import :: coef_t
@@ -192,9 +201,7 @@ module krylov
        real(kind=rp), dimension(n), intent(in) :: fy
        real(kind=rp), dimension(n), intent(in) :: fz
        type(coef_t), intent(inout) :: coef
-       type(bc_list_t), intent(inout) :: blstx
-       type(bc_list_t), intent(inout) :: blsty
-       type(bc_list_t), intent(inout) :: blstz
+       class(vector_bc_projector_t), intent(inout) :: bc_projector
        type(gs_t), intent(inout) :: gs_h
        integer, optional, intent(in) :: niter
        type(ksp_monitor_t), dimension(3) :: ksp_results
@@ -209,7 +216,9 @@ module krylov
      end subroutine ksp_t_free
   end interface
 
-  interface
+  !> Factory for Krylov solvers. Both creates and initializes the object,
+  !! either from its parameters or from a JSON solver block.
+  interface krylov_solver_factory
      !> Factory for Krylov solvers. Both creates and initializes the object.
      !! @param object The object to be allocated.
      !! @param n Size of the vectors the solver operates on.
@@ -218,7 +227,7 @@ module krylov
      !! @param abstol The absolute tolerance, optional.
      !! @param M The preconditioner, optional.
      !! @param monitor Enable/disable monitoring, optional.
-     module subroutine krylov_solver_factory(object, n, type_name, &
+     module subroutine krylov_solver_factory_components(object, n, type_name, &
           max_iter, abstol, M, monitor)
        class(ksp_t), allocatable, intent(inout) :: object
        integer, intent(in), value :: n
@@ -227,9 +236,21 @@ module krylov
        real(kind=rp), optional :: abstol
        class(pc_t), optional, intent(in), target :: M
        logical, optional, intent(in) :: monitor
-     end subroutine krylov_solver_factory
+     end subroutine krylov_solver_factory_components
 
-  end interface
+     !> Factory for Krylov solvers from a JSON solver block. Both creates and
+     !! initializes the object.
+     !! @param object The object to be allocated.
+     !! @param n Size of the vectors the solver operates on.
+     !! @param json The solver block, with the solver type under `type`.
+     !! @param M The preconditioner, optional.
+     module subroutine krylov_solver_factory_json(object, n, json, M)
+       class(ksp_t), allocatable, intent(inout) :: object
+       integer, intent(in), value :: n
+       type(json_file), intent(inout) :: json
+       class(pc_t), optional, intent(in), target :: M
+     end subroutine krylov_solver_factory_json
+  end interface krylov_solver_factory
 
   interface
      !> Krylov solver allocator.
@@ -265,7 +286,7 @@ module krylov
 
   !> A name-allocator pair for user-defined Krylov solver types.
   type krylov_allocator_entry
-     character(len=20) :: type_name
+     character(len=NEKO_TYPENAME_LEN) :: type_name
      procedure(krylov_allocate), pointer, nopass :: allocator
   end type krylov_allocator_entry
 
@@ -328,6 +349,31 @@ contains
     end if
 
   end subroutine krylov_init
+
+  !> Constructor from a JSON solver block. Reads `max_iterations` (default
+  !! `KSP_MAX_ITER`), `absolute_tolerance` and `monitor` (default false) and
+  !! calls the type's `init`. Types with keys of their own override this,
+  !! read them and then call `ksp_init_from_json`.
+  !! @param n Size of work arrays.
+  !! @param json The solver block.
+  !! @param M The preconditioner (optional).
+  subroutine krylov_init_from_json(this, n, json, M)
+    class(ksp_t), target, intent(inout) :: this
+    integer, intent(in) :: n
+    type(json_file), intent(inout) :: json
+    class(pc_t), optional, intent(in), target :: M
+    integer :: max_iter
+    real(kind=rp) :: abs_tol
+    logical :: monitor
+
+    call json_get_or_lookup_or_default(json, 'max_iterations', max_iter, &
+         KSP_MAX_ITER)
+    call json_get_or_lookup(json, 'absolute_tolerance', abs_tol)
+    call json_get_or_default(json, 'monitor', monitor, .false.)
+
+    call this%init(n, max_iter, M = M, abs_tol = abs_tol, monitor = monitor)
+
+  end subroutine krylov_init_from_json
 
   !> Deallocate a Krylov solver
   subroutine krylov_free(this)

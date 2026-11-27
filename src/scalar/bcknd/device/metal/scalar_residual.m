@@ -61,7 +61,6 @@ void scalar_residual_update_metal(void *s_res, void *f_s, int *n) {
     return;
 
   if (pso_scalar_residual == nil) {
-    id<MTLDevice> device = neko_metal_device();
     id<MTLLibrary> lib = neko_metal_library();
     id<MTLFunction> func =
       [lib newFunctionWithName:@"scalar_residual_update_kernel"];
@@ -72,7 +71,7 @@ void scalar_residual_update_metal(void *s_res, void *f_s, int *n) {
     }
     NSError *error = nil;
     pso_scalar_residual =
-      [device newComputePipelineStateWithFunction:func error:&error];
+      neko_metal_new_pipeline(func, NEKO_METAL_MAX_THREADS, &error);
     METAL_CHECK(error);
   }
 
@@ -95,4 +94,5 @@ void scalar_residual_update_metal(void *s_res, void *f_s, int *n) {
   [enc endEncoding];
   [cmdBuf commit];
   [cmdBuf waitUntilCompleted];
+  METAL_CHECK_CB(cmdBuf);
 }

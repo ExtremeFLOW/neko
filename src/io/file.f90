@@ -33,7 +33,7 @@
 !> Module for file I/O operations.
 module file
   use utils, only : neko_error, neko_warning, filename_suffix
-  use num_types, only : rp
+  use num_types, only : dp
   use generic_file, only : generic_file_t
   use nmsh_file, only : nmsh_file_t
   use chkp_file, only : chkp_file_t
@@ -101,9 +101,7 @@ contains
 
     call filename_suffix(fname, suffix)
 
-    if (allocated(this%file_type)) then
-       deallocate(this%file_type)
-    end if
+    call this%free()
 
     select case (trim(suffix))
     case ("rea")
@@ -160,6 +158,13 @@ contains
     class(file_t), intent(inout) :: this
 
     if (allocated(this%file_type)) then
+       ! Release resources owned by the backend before deallocating it.
+       select type (ft => this%file_type)
+       class is (fld_file_t)
+          call ft%set_mask()
+       class is (hdf5_file_t)
+          call ft%free()
+       end select
        deallocate(this%file_type)
     end if
 
@@ -170,7 +175,7 @@ contains
   subroutine file_write(this, data, t)
     class(file_t), intent(inout) :: this
     class(*), intent(inout) :: data
-    real(kind=rp), intent(in), optional :: t
+    real(kind=dp), intent(in), optional :: t
 
     call this%file_type%write(data, t = t)
 
