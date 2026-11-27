@@ -727,7 +727,7 @@ contains
 
     entropy_lower_bound = stage_entropy
     do edge = 1, size(left, 2)
-       associate(a => left(:,edge), b => right(:,edge))
+       associate(a => left(:, edge), b => right(:, edge))
          entropy_lower_bound(a(1),a(2),a(3),a(4)) = min( &
               entropy_lower_bound(a(1),a(2),a(3),a(4)), &
               stage_entropy(b(1),b(2),b(3),b(4)))

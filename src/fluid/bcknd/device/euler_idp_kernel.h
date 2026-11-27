@@ -1088,22 +1088,58 @@ void gpu_euler_idp_low_residual(void *rho,void *mx,void *my,void *mz,void *energ
 void gpu_euler_idp_scale_residual(void *r0,void *r1,void *r2,void *r3,void *r4,
   void *binv,int *n){idp_stream_t s=(idp_stream_t)glb_cmd_queue;scale_residual_kernel<real><<<blocks(*n),threads(),0,s>>>((real*)r0,(real*)r1,(real*)r2,(real*)r3,(real*)r4,(real*)binv,*n);idp_check_launch();}
 
-void gpu_euler_idp_reconstruct(void *rho,void *mx,void *my,void *mz,void *energy,
-  void *diag,void *left,void *right,void *coef,void *r0,void *r1,void *r2,
-  void *r3,void *r4,void *correction,void *error,void *B,void *jacinv,
-  void *drdx,void *drdy,void *drdz,void *dsdx,void *dsdy,void *dsdz,
-  void *dtdx,void *dtdy,void *dtdz,void *dx,void *dy,void *dz,void *wx,
-  void *wy,void *wz,real *gamma,int *lx,int *ly,int *lz,int *nelv,
-  int *edges_per_element,int *affine,int *n,int *nedge){idp_stream_t s=(idp_stream_t)glb_cmd_queue;
-  idp_zero(correction,sizeof(real)*5*(*nedge),s);idp_zero(error,sizeof(real)*5,s);
-  if(*affine){const int nx=(*nelv)*(*ly)*(*lz),ny=(*nelv)*(*lx)*(*lz),nz=(*nelv)*(*lx)*(*ly);
-    reconstruct_direction_kernel<real><<<blocks(nx),threads(),0,s>>>(0,(real*)rho,(real*)mx,(real*)my,(real*)mz,(real*)energy,(real*)coef,(real*)B,(real*)jacinv,(real*)drdx,(real*)drdy,(real*)drdz,(real*)dx,(real*)correction,(real*)error,*gamma,*lx,*ly,*lz,*edges_per_element,nx);
-    reconstruct_direction_kernel<real><<<blocks(ny),threads(),0,s>>>(1,(real*)rho,(real*)mx,(real*)my,(real*)mz,(real*)energy,(real*)coef,(real*)B,(real*)jacinv,(real*)dsdx,(real*)dsdy,(real*)dsdz,(real*)dy,(real*)correction,(real*)error,*gamma,*lx,*ly,*lz,*edges_per_element,ny);
-    if(*lz>1)reconstruct_direction_kernel<real><<<blocks(nz),threads(),0,s>>>(2,(real*)rho,(real*)mx,(real*)my,(real*)mz,(real*)energy,(real*)coef,(real*)B,(real*)jacinv,(real*)dtdx,(real*)dtdy,(real*)dtdz,(real*)dz,(real*)correction,(real*)error,*gamma,*lx,*ly,*lz,*edges_per_element,nz);
-  } else {correction_residual_init_kernel<real><<<blocks(*n),threads(),0,s>>>((real*)rho,(real*)mx,(real*)my,(real*)mz,(real*)energy,(real*)diag,(real*)drdx,(real*)drdy,(real*)drdz,(real*)dsdx,(real*)dsdy,(real*)dsdz,(real*)dtdx,(real*)dtdy,(real*)dtdz,(real*)dx,(real*)dy,(real*)dz,(real*)wx,(real*)wy,(real*)wz,(real*)r0,(real*)r1,(real*)r2,(real*)r3,(real*)r4,*gamma,*lx,*ly,*lz,*n);
-    correction_residual_edge_kernel<real><<<blocks(*nedge),threads(),0,s>>>((real*)rho,(real*)mx,(real*)my,(real*)mz,(real*)energy,(int*)left,(int*)right,(real*)coef,(real*)r0,(real*)r1,(real*)r2,(real*)r3,(real*)r4,*gamma,*nedge);
-    reconstruct_general_kernel<real><<<blocks(*nelv),threads(),0,s>>>((real*)r0,(real*)r1,(real*)r2,(real*)r3,(real*)r4,(real*)wx,(real*)wy,(real*)wz,(real*)correction,(real*)error,*lx,*ly,*lz,*edges_per_element,*nelv);}
-  idp_check_launch();}
+void gpu_euler_idp_reconstruct(
+    void *rho, void *mx, void *my, void *mz, void *energy, void *diag,
+    void *left, void *right, void *coef, void *const residual[5],
+    void *correction, void *error, void *B, void *jacinv, void *const dr[3],
+    void *const ds[3], void *const dt[3], void *const derivative[3],
+    void *const weight[3], real *gamma, int *lx, int *ly, int *lz, int *nelv,
+    int *edges_per_element, int *affine, int *n, int *nedge) {
+  idp_stream_t s = (idp_stream_t)glb_cmd_queue;
+  idp_zero(correction, sizeof(real) * 5 * (*nedge), s);
+  idp_zero(error, sizeof(real) * 5, s);
+  if (*affine) {
+    const int nx = (*nelv) * (*ly) * (*lz), ny = (*nelv) * (*lx) * (*lz),
+              nz = (*nelv) * (*lx) * (*ly);
+    reconstruct_direction_kernel<real><<<blocks(nx), threads(), 0, s>>>(
+        0, (real *)rho, (real *)mx, (real *)my, (real *)mz, (real *)energy,
+        (real *)coef, (real *)B, (real *)jacinv, (real *)dr[0], (real *)dr[1],
+        (real *)dr[2], (real *)derivative[0], (real *)correction, (real *)error,
+        *gamma, *lx, *ly, *lz, *edges_per_element, nx);
+    reconstruct_direction_kernel<real><<<blocks(ny), threads(), 0, s>>>(
+        1, (real *)rho, (real *)mx, (real *)my, (real *)mz, (real *)energy,
+        (real *)coef, (real *)B, (real *)jacinv, (real *)ds[0], (real *)ds[1],
+        (real *)ds[2], (real *)derivative[1], (real *)correction, (real *)error,
+        *gamma, *lx, *ly, *lz, *edges_per_element, ny);
+    if (*lz > 1)
+      reconstruct_direction_kernel<real><<<blocks(nz), threads(), 0, s>>>(
+          2, (real *)rho, (real *)mx, (real *)my, (real *)mz, (real *)energy,
+          (real *)coef, (real *)B, (real *)jacinv, (real *)dt[0], (real *)dt[1],
+          (real *)dt[2], (real *)derivative[2], (real *)correction,
+          (real *)error, *gamma, *lx, *ly, *lz, *edges_per_element, nz);
+  } else {
+    correction_residual_init_kernel<real><<<blocks(*n), threads(), 0, s>>>(
+        (real *)rho, (real *)mx, (real *)my, (real *)mz, (real *)energy,
+        (real *)diag, (real *)dr[0], (real *)dr[1], (real *)dr[2],
+        (real *)ds[0], (real *)ds[1], (real *)ds[2], (real *)dt[0],
+        (real *)dt[1], (real *)dt[2], (real *)derivative[0],
+        (real *)derivative[1], (real *)derivative[2], (real *)weight[0],
+        (real *)weight[1], (real *)weight[2], (real *)residual[0],
+        (real *)residual[1], (real *)residual[2], (real *)residual[3],
+        (real *)residual[4], *gamma, *lx, *ly, *lz, *n);
+    correction_residual_edge_kernel<real><<<blocks(*nedge), threads(), 0, s>>>(
+        (real *)rho, (real *)mx, (real *)my, (real *)mz, (real *)energy,
+        (int *)left, (int *)right, (real *)coef, (real *)residual[0],
+        (real *)residual[1], (real *)residual[2], (real *)residual[3],
+        (real *)residual[4], *gamma, *nedge);
+    reconstruct_general_kernel<real><<<blocks(*nelv), threads(), 0, s>>>(
+        (real *)residual[0], (real *)residual[1], (real *)residual[2],
+        (real *)residual[3], (real *)residual[4], (real *)weight[0],
+        (real *)weight[1], (real *)weight[2], (real *)correction, (real *)error,
+        *lx, *ly, *lz, *edges_per_element, *nelv);
+  }
+  idp_check_launch();
+}
 
 void gpu_euler_idp_floor_timestep(void *rho,void *mx,void *my,void *mz,
   void *energy,void *r0,void *r1,void *r2,void *r3,void *r4,void *limit,

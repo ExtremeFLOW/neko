@@ -255,7 +255,7 @@ contains
     call json_get_or_default(params, 'gamma', this%gamma, 1.4_rp)
 
     call this%euler_idp%init(numerics_params)
-    call fluid_scheme_compressible_validate_idp_setup(this, params, numerics_params, user)
+    call validate_idp_setup(this, params, numerics_params, user)
 
     ! Calculate global points for logging
     this%glb_n_points = int(this%msh%glb_nelv, i8)*int(this%Xh%lxyz, i8)
@@ -720,7 +720,7 @@ contains
   end subroutine fluid_scheme_compressible_log_solver_info
 
   !> Validate the restrictions of the opt-in Euler IDP path.
-  subroutine fluid_scheme_compressible_validate_idp_setup(this, params, numerics_params, user)
+  subroutine validate_idp_setup(this, params, numerics_params, user)
     class(fluid_scheme_compressible_t), intent(inout) :: this
     type(json_file), intent(inout) :: params, numerics_params
     type(user_t), intent(in) :: user
@@ -816,7 +816,7 @@ contains
             'Euler IDP requires every exterior facet to be periodic or labeled')
     end if
 
-  end subroutine fluid_scheme_compressible_validate_idp_setup
+  end subroutine validate_idp_setup
 
   !> Return whether a local mesh facet has periodic metadata.
   logical function fluid_scheme_compressible_is_periodic_facet(msh, facet, &

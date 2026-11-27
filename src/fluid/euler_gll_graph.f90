@@ -195,8 +195,8 @@ contains
              this%diagonal_coefficient(:,1,j,k,e) = &
                   this%diagonal_coefficient(:,1,j,k,e) - &
                   transverse_weight * metric_left
-             this%diagonal_coefficient(:,this%lx,j,k,e) = &
-                  this%diagonal_coefficient(:,this%lx,j,k,e) + &
+             this%diagonal_coefficient(:, this%lx,j,k,e) = &
+                  this%diagonal_coefficient(:, this%lx,j,k,e) + &
                   transverse_weight * metric_right
           end do
        end do
@@ -218,14 +218,14 @@ contains
              end do
              metric_left = [coef%dsdx(i,1,k,e), &
                   coef%dsdy(i,1,k,e), coef%dsdz(i,1,k,e)]
-             metric_right = [coef%dsdx(i,this%ly,k,e), &
-                  coef%dsdy(i,this%ly,k,e), &
-                  coef%dsdz(i,this%ly,k,e)]
+             metric_right = [coef%dsdx(i, this%ly,k,e), &
+                  coef%dsdy(i, this%ly,k,e), &
+                  coef%dsdz(i, this%ly,k,e)]
              this%diagonal_coefficient(:,i,1,k,e) = &
                   this%diagonal_coefficient(:,i,1,k,e) - &
                   transverse_weight * metric_left
-             this%diagonal_coefficient(:,i,this%ly,k,e) = &
-                  this%diagonal_coefficient(:,i,this%ly,k,e) + &
+             this%diagonal_coefficient(:,i, this%ly,k,e) = &
+                  this%diagonal_coefficient(:,i, this%ly,k,e) + &
                   transverse_weight * metric_right
           end do
        end do
@@ -249,14 +249,14 @@ contains
                 end do
                 metric_left = [coef%dtdx(i,j,1,e), &
                      coef%dtdy(i,j,1,e), coef%dtdz(i,j,1,e)]
-                metric_right = [coef%dtdx(i,j,this%lz,e), &
-                     coef%dtdy(i,j,this%lz,e), &
-                     coef%dtdz(i,j,this%lz,e)]
+                metric_right = [coef%dtdx(i,j, this%lz,e), &
+                     coef%dtdy(i,j, this%lz,e), &
+                     coef%dtdz(i,j, this%lz,e)]
                 this%diagonal_coefficient(:,i,j,1,e) = &
                      this%diagonal_coefficient(:,i,j,1,e) - &
                      transverse_weight * metric_left
-                this%diagonal_coefficient(:,i,j,this%lz,e) = &
-                     this%diagonal_coefficient(:,i,j,this%lz,e) + &
+                this%diagonal_coefficient(:,i,j, this%lz,e) = &
+                     this%diagonal_coefficient(:,i,j, this%lz,e) + &
                      transverse_weight * metric_right
              end do
           end do
@@ -273,13 +273,13 @@ contains
        this%reconstruction_work_1 = &
             this%diagonal_coefficient(direction,:,:,:,:)
        do edge = 1, this%n_edges
-          associate(a => this%left(:,edge), b => this%right(:,edge))
+          associate(a => this%left(:, edge), b => this%right(:, edge))
             this%reconstruction_work_1(a(1),a(2),a(3),a(4)) = &
                  this%reconstruction_work_1(a(1),a(2),a(3),a(4)) + &
-                 this%coefficient(direction,edge)
+                 this%coefficient(direction, edge)
             this%reconstruction_work_1(b(1),b(2),b(3),b(4)) = &
                  this%reconstruction_work_1(b(1),b(2),b(3),b(4)) - &
-                 this%coefficient(direction,edge)
+                 this%coefficient(direction, edge)
           end associate
        end do
        this%reconstruction_work_1 = -this%reconstruction_work_1
@@ -296,13 +296,13 @@ contains
        this%reconstruction_work_1 = &
             this%diagonal_coefficient(direction,:,:,:,:)
        do edge = 1, this%n_edges
-          associate(a => this%left(:,edge), b => this%right(:,edge))
+          associate(a => this%left(:, edge), b => this%right(:, edge))
             this%reconstruction_work_1(a(1),a(2),a(3),a(4)) = &
                  this%reconstruction_work_1(a(1),a(2),a(3),a(4)) + &
-                 this%coefficient(direction,edge)
+                 this%coefficient(direction, edge)
             this%reconstruction_work_1(b(1),b(2),b(3),b(4)) = &
                  this%reconstruction_work_1(b(1),b(2),b(3),b(4)) - &
-                 this%coefficient(direction,edge)
+                 this%coefficient(direction, edge)
           end associate
        end do
        local_error = max(local_error, &
@@ -322,7 +322,7 @@ contains
 
     do edge = 1, this%n_edges
        this%coefficient_norm(edge) = sqrt(sum( &
-            this%coefficient(:,edge) * this%coefficient(:,edge)))
+            this%coefficient(:, edge) * this%coefficient(:, edge)))
     end do
     if (any(this%coefficient_norm .le. tiny(1.0_rp))) then
        call neko_error('Euler GLL graph contains a zero-length coefficient')
@@ -355,7 +355,7 @@ contains
        this%directional_degree(direction)%x = 0.0_rp
     end do
     do edge = 1, this%n_edges
-       associate(a => this%left(:,edge), b => this%right(:,edge))
+       associate(a => this%left(:, edge), b => this%right(:, edge))
          direction = this%direction(edge)
          this%directional_degree(direction)%x(a(1),a(2),a(3),a(4)) = &
               this%directional_degree(direction)%x(a(1),a(2),a(3),a(4)) + &
@@ -401,7 +401,7 @@ contains
        forward_spacing(direction)%x = 0.0_rp
     end do
     do edge = 1, this%n_edges
-       associate(a => this%left(:,edge), b => this%right(:,edge))
+       associate(a => this%left(:, edge), b => this%right(:, edge))
          direction = this%direction(edge)
          edge_length = sqrt( &
               (coef%dof%x%x(b(1),b(2),b(3),b(4)) - &
@@ -447,7 +447,7 @@ contains
     end if
 
     do edge = 1, this%n_edges
-       associate(a => this%left(:,edge), b => this%right(:,edge))
+       associate(a => this%left(:, edge), b => this%right(:, edge))
          direction = this%direction(edge)
          edge_length = sqrt( &
               (coef%dof%x%x(b(1),b(2),b(3),b(4)) - &
@@ -575,8 +575,8 @@ contains
     end do
 
     do edge = 1, this%n_edges
-       associate(a => this%left(:,edge), b => this%right(:,edge), &
-            c => this%coefficient(:,edge))
+       associate(a => this%left(:, edge), b => this%right(:, edge), &
+            c => this%coefficient(:, edge))
          flux_left = c(1) * flux_x(a(1),a(2),a(3),a(4)) + &
               c(2) * flux_y(a(1),a(2),a(3),a(4)) + &
               c(3) * flux_z(a(1),a(2),a(3),a(4))
@@ -663,7 +663,7 @@ contains
     end if
     output = 0.0_rp
     do edge = 1, this%n_edges
-       associate(a => this%left(:,edge), b => this%right(:,edge))
+       associate(a => this%left(:, edge), b => this%right(:, edge))
          output(a(1),a(2),a(3),a(4)) = &
               output(a(1),a(2),a(3),a(4)) + edge_values(edge)
          output(b(1),b(2),b(3),b(4)) = &
@@ -690,7 +690,7 @@ contains
     real(kind=rp) :: line_sum, plane_sum, value
     real(kind=rp) :: weight_x, weight_y, weight_z
     real(kind=rp) :: weight_sum_x, weight_sum_y, weight_sum_z
-    real(kind=rp) :: line_sums(this%ly,this%lz)
+    real(kind=rp) :: line_sums(this%ly, this%lz)
     real(kind=rp) :: plane_sums(this%lz)
     integer :: edge, e, i, j, k
 
@@ -902,7 +902,7 @@ contains
              edge_first = edge + 1
              do i = 1, this%lx - 1
                 edge = edge + 1
-                associate(c => this%coefficient(:,edge))
+                associate(c => this%coefficient(:, edge))
                   line_residual(:,i) = line_residual(:,i) + &
                        c(1) * flux_x(:,i + 1,j,k,e) + &
                        c(2) * flux_y(:,i + 1,j,k,e) + &
@@ -914,16 +914,16 @@ contains
                 end associate
              end do
              edge_last = edge
-             associate(c_first => this%coefficient(:,edge_first), &
-                  c_last => this%coefficient(:,edge_last))
+             associate(c_first => this%coefficient(:, edge_first), &
+                  c_last => this%coefficient(:, edge_last))
                line_residual(:,1) = line_residual(:,1) - &
                     c_first(1) * flux_x(:,1,j,k,e) - &
                     c_first(2) * flux_y(:,1,j,k,e) - &
                     c_first(3) * flux_z(:,1,j,k,e)
-               line_residual(:,this%lx) = line_residual(:,this%lx) + &
-                    c_last(1) * flux_x(:,this%lx,j,k,e) + &
-                    c_last(2) * flux_y(:,this%lx,j,k,e) + &
-                    c_last(3) * flux_z(:,this%lx,j,k,e)
+               line_residual(:, this%lx) = line_residual(:, this%lx) + &
+                    c_last(1) * flux_x(:, this%lx,j,k,e) + &
+                    c_last(2) * flux_y(:, this%lx,j,k,e) + &
+                    c_last(3) * flux_z(:, this%lx,j,k,e)
              end associate
              line_scale = 0.0_rp
              do i = 1, this%lx
@@ -955,7 +955,7 @@ contains
              do i = 1, this%lx - 1
                 edge_write = edge_write + 1
                 cumulative = cumulative + line_residual(:,i)
-                edge_values(:,edge_write) = cumulative
+                edge_values(:, edge_write) = cumulative
              end do
           end do
        end do
@@ -971,7 +971,7 @@ contains
              edge_first = edge + 1
              do j = 1, this%ly - 1
                 edge = edge + 1
-                associate(c => this%coefficient(:,edge))
+                associate(c => this%coefficient(:, edge))
                   line_residual(:,j) = line_residual(:,j) + &
                        c(1) * flux_x(:,i,j + 1,k,e) + &
                        c(2) * flux_y(:,i,j + 1,k,e) + &
@@ -983,16 +983,16 @@ contains
                 end associate
              end do
              edge_last = edge
-             associate(c_first => this%coefficient(:,edge_first), &
-                  c_last => this%coefficient(:,edge_last))
+             associate(c_first => this%coefficient(:, edge_first), &
+                  c_last => this%coefficient(:, edge_last))
                line_residual(:,1) = line_residual(:,1) - &
                     c_first(1) * flux_x(:,i,1,k,e) - &
                     c_first(2) * flux_y(:,i,1,k,e) - &
                     c_first(3) * flux_z(:,i,1,k,e)
-               line_residual(:,this%ly) = line_residual(:,this%ly) + &
-                    c_last(1) * flux_x(:,i,this%ly,k,e) + &
-                    c_last(2) * flux_y(:,i,this%ly,k,e) + &
-                    c_last(3) * flux_z(:,i,this%ly,k,e)
+               line_residual(:, this%ly) = line_residual(:, this%ly) + &
+                    c_last(1) * flux_x(:,i, this%ly,k,e) + &
+                    c_last(2) * flux_y(:,i, this%ly,k,e) + &
+                    c_last(3) * flux_z(:,i, this%ly,k,e)
              end associate
              line_scale = 0.0_rp
              do j = 1, this%ly
@@ -1024,7 +1024,7 @@ contains
              do j = 1, this%ly - 1
                 edge_write = edge_write + 1
                 cumulative = cumulative + line_residual(:,j)
-                edge_values(:,edge_write) = cumulative
+                edge_values(:, edge_write) = cumulative
              end do
           end do
        end do
@@ -1042,7 +1042,7 @@ contains
                 edge_first = edge + 1
                 do k = 1, this%lz - 1
                    edge = edge + 1
-                   associate(c => this%coefficient(:,edge))
+                   associate(c => this%coefficient(:, edge))
                      line_residual(:,k) = line_residual(:,k) + &
                           c(1) * flux_x(:,i,j,k + 1,e) + &
                           c(2) * flux_y(:,i,j,k + 1,e) + &
@@ -1054,16 +1054,16 @@ contains
                    end associate
                 end do
                 edge_last = edge
-                associate(c_first => this%coefficient(:,edge_first), &
-                     c_last => this%coefficient(:,edge_last))
+                associate(c_first => this%coefficient(:, edge_first), &
+                     c_last => this%coefficient(:, edge_last))
                   line_residual(:,1) = line_residual(:,1) - &
                        c_first(1) * flux_x(:,i,j,1,e) - &
                        c_first(2) * flux_y(:,i,j,1,e) - &
                        c_first(3) * flux_z(:,i,j,1,e)
-                  line_residual(:,this%lz) = line_residual(:,this%lz) + &
-                       c_last(1) * flux_x(:,i,j,this%lz,e) + &
-                       c_last(2) * flux_y(:,i,j,this%lz,e) + &
-                       c_last(3) * flux_z(:,i,j,this%lz,e)
+                  line_residual(:, this%lz) = line_residual(:, this%lz) + &
+                       c_last(1) * flux_x(:,i,j, this%lz,e) + &
+                       c_last(2) * flux_y(:,i,j, this%lz,e) + &
+                       c_last(3) * flux_z(:,i,j, this%lz,e)
                 end associate
                 line_scale = 0.0_rp
                 do k = 1, this%lz
@@ -1096,7 +1096,7 @@ contains
                 do k = 1, this%lz - 1
                    edge_write = edge_write + 1
                    cumulative = cumulative + line_residual(:,k)
-                   edge_values(:,edge_write) = cumulative
+                   edge_values(:, edge_write) = cumulative
                 end do
              end do
           end do
@@ -1144,10 +1144,10 @@ contains
     integer, intent(in) :: edge, i1, j1, k1, i2, j2, k2, element, direction
     real(kind=rp), intent(in) :: coefficient(3)
 
-    this%left(:,edge) = [i1, j1, k1, element]
-    this%right(:,edge) = [i2, j2, k2, element]
+    this%left(:, edge) = [i1, j1, k1, element]
+    this%right(:, edge) = [i2, j2, k2, element]
     this%direction(edge) = direction
-    this%coefficient(:,edge) = coefficient
+    this%coefficient(:, edge) = coefficient
   end subroutine euler_gll_graph_set_edge
 
   !> Return whether the geometric mapping is affine on one element.
@@ -1187,9 +1187,9 @@ contains
     real(kind=rp), intent(in) :: tolerance
     real(kind=rp) :: reference, scale
 
-    reference = metric(1,1,1,element)
-    scale = max(1.0_rp, maxval(abs(metric(:,:,:,element))))
-    is_constant = maxval(abs(metric(:,:,:,element) - reference)) .le. &
+    reference = metric(1,1,1, element)
+    scale = max(1.0_rp, maxval(abs(metric(:,:,:, element))))
+    is_constant = maxval(abs(metric(:,:,:, element) - reference)) .le. &
          tolerance * scale
   end function euler_gll_graph_metric_is_constant
 

@@ -89,7 +89,8 @@ module entropy_viscosity
      class(fluid_scheme_compressible_ns_t), pointer :: idp_fluid => null()
      type(field_t), allocatable :: entropy_flux(:)
      type(field_t), pointer :: entropy_wave_speed => null()
-     procedure(user_entropy_pair_intf), nopass, pointer :: user_entropy_pair => null()
+     procedure(user_entropy_pair_intf), nopass, pointer :: &
+          user_entropy_pair => null()
      !> Entropy residual field.
      type(field_t) :: entropy_residual
      !> Entropy history used by the BDF residual.
@@ -183,27 +184,31 @@ contains
     call this%init_base(case%fluid%dm_Xh, case%fluid%c_Xh, trim(reg_coeff_name))
     select type (fluid => case%fluid)
     class is (fluid_scheme_compressible_ns_t)
-       if (fluid%euler_idp%enabled .and. allocated(fluid%viscous_regularization)) then
-          if (associated(this%reg_coeff, fluid%viscous_regularization%reg_coeff)) &
+       if (fluid%euler_idp%enabled .and. &
+            allocated(fluid%viscous_regularization)) then
+          if (associated(this%reg_coeff, &
+               fluid%viscous_regularization%reg_coeff)) &
                this%idp_fluid => fluid
        end if
     end select
 
-    call json_get_or_default(json, 'entropy_pair_type', entropy_pair_type, 'euler')
+    call json_get_or_default(json, 'entropy_pair_type', &
+         entropy_pair_type, 'euler')
     select case (entropy_pair_type)
     case ('user')
        if (NEKO_BCKND_DEVICE .eq. 1) &
-            call neko_error('User entropy pairs currently require the CPU backend')
+            call neko_error('User entropy pairs require the CPU backend')
        dummy_pair => dummy_user_entropy_pair
        if (associated(case%user%entropy_pair, dummy_pair)) &
-            call neko_error('entropy_pair_type is user, but user%entropy_pair is unset')
+            call neko_error('User entropy pair requested but unset')
        this%user_entropy_pair => case%user%entropy_pair
        allocate(this%entropy_flux(3), this%entropy_wave_speed)
        do i = 1, 3
           call this%entropy_flux(i)%init(this%dof, 'user_entropy_flux')
        end do
        call this%entropy_wave_speed%init(this%dof, 'user_entropy_wave_speed')
-       if (associated(this%idp_fluid)) this%idp_fluid%idp_wave_speed => this%entropy_wave_speed
+       if (associated(this%idp_fluid)) &
+            this%idp_fluid%idp_wave_speed => this%entropy_wave_speed
     case ('euler')
     case default
        call neko_error('Unknown entropy_pair_type: ' // entropy_pair_type)
@@ -271,7 +276,8 @@ contains
     integer :: i, n
     real(kind=rp) :: low
 
-    if (associated(this%user_entropy_pair)) call this%evaluate_user_entropy_pair(time)
+    if (associated(this%user_entropy_pair)) &
+         call this%evaluate_user_entropy_pair(time)
     call this%compute_residual(time%tstep, &
          real(time%dt, kind=rp), &
          real(time%dtlag, kind=rp))
@@ -282,13 +288,15 @@ contains
        n = this%dof%size()
        associate(fraction => this%idp_fluid%idp_entropy_fraction)
          if (NEKO_BCKND_DEVICE .eq. 1) then
-            call entropy_viscosity_fraction_device(fraction%x_d, this%reg_coeff%x_d, &
+            call entropy_viscosity_fraction_device(fraction%x_d, &
+                 this%reg_coeff%x_d, &
                  this%h%x_d, this%max_wave_speed%x_d, this%c_avisc_low, n)
          else
             do i = 1, n
                low = this%low_order_viscosity(i)
                if (low .gt. tiny(1.0_rp)) then
-                  fraction%x(i,1,1,1) = min(1.0_rp, max(0.0_rp, this%reg_coeff%x(i,1,1,1) / low))
+                  fraction%x(i,1,1,1) = min(1.0_rp, &
+                       max(0.0_rp, this%reg_coeff%x(i,1,1,1) / low))
                else
                   fraction%x(i,1,1,1) = 0.0_rp
                end if
@@ -467,7 +475,8 @@ contains
     ! artificial viscosity = min(entropy viscosity, low-order viscosity)
     if (associated(this%user_entropy_pair)) then
        call entropy_viscosity_clamp_to_low_order_cpu( &
-            this%reg_coeff%x, this%h%x, this%entropy_wave_speed%x, this%c_avisc_low, n)
+            this%reg_coeff%x, this%h%x, this%entropy_wave_speed%x, &
+            this%c_avisc_low, n)
     else if (NEKO_BCKND_DEVICE .eq. 1) then
        call entropy_viscosity_clamp_to_low_order_device( &
             this%reg_coeff%x_d, this%h%x_d, this%max_wave_speed%x_d, &
@@ -597,7 +606,8 @@ contains
 
     if (associated(this%user_entropy_pair)) then
        call this%evaluate_user_entropy_pair(time)
-       if (associated(this%idp_fluid)) call this%idp_fluid%prepare_idp_graph(time)
+       if (associated(this%idp_fluid)) &
+            call this%idp_fluid%prepare_idp_graph(time)
     else
        call this%compute_entropy()
     end if
@@ -615,7 +625,8 @@ contains
     call this%S_lag%update()
     if (associated(this%user_entropy_pair)) then
        call this%evaluate_user_entropy_pair(time)
-       if (associated(this%idp_fluid)) call this%idp_fluid%prepare_idp_graph(time)
+       if (associated(this%idp_fluid)) &
+            call this%idp_fluid%prepare_idp_graph(time)
     else
        call this%compute_entropy()
     end if
@@ -682,9 +693,11 @@ contains
     real(kind=rp) :: visc
 
     if (associated(this%user_entropy_pair)) then
-       visc = this%c_avisc_low * this%h%x(i,1,1,1) * this%entropy_wave_speed%x(i,1,1,1)
+       visc = this%c_avisc_low * this%h%x(i,1,1,1) * &
+            this%entropy_wave_speed%x(i,1,1,1)
     else
-       visc = this%c_avisc_low * this%h%x(i,1,1,1) * this%max_wave_speed%x(i,1,1,1)
+       visc = this%c_avisc_low * this%h%x(i,1,1,1) * &
+            this%max_wave_speed%x(i,1,1,1)
     end if
 
   end function entropy_viscosity_low_order

@@ -100,18 +100,16 @@ module euler_idp_device_kernels
      end subroutine gpu_euler_idp_scale_residual
 
      subroutine gpu_euler_idp_reconstruct(rho, mx, my, mz, energy, &
-          diagonal, left, right, coefficient, r0, r1, r2, r3, r4, &
-          correction, error, b, jacinv, drdx, drdy, drdz, dsdx, dsdy, dsdz, &
-          dtdx, dtdy, dtdz, dx, dy, dz, wx, wy, wz, gamma, lx, ly, lz, nelv, &
-          edges_per_element, affine, n, n_edges) &
+          diagonal, left, right, coefficient, residual, correction, error, &
+          b, jacinv, dr, ds, dt, derivative, weight, gamma, lx, ly, lz, &
+          nelv, edges_per_element, affine, n, n_edges) &
           bind(c, name = 'gpu_euler_idp_reconstruct')
        import c_ptr, c_int, c_rp
        type(c_ptr), value :: rho, mx, my, mz, energy, diagonal
-       type(c_ptr), value :: left, right, coefficient
-       type(c_ptr), value :: r0, r1, r2, r3, r4, correction, error
-       type(c_ptr), value :: b, jacinv, drdx, drdy, drdz
-       type(c_ptr), value :: dsdx, dsdy, dsdz, dtdx, dtdy, dtdz
-       type(c_ptr), value :: dx, dy, dz, wx, wy, wz
+       type(c_ptr), value :: left, right, coefficient, correction, error
+       type(c_ptr), value :: b, jacinv
+       type(c_ptr), intent(in) :: residual(5), dr(3), ds(3), dt(3)
+       type(c_ptr), intent(in) :: derivative(3), weight(3)
        real(c_rp) :: gamma
        integer(c_int) :: lx, ly, lz, nelv, edges_per_element
        integer(c_int) :: affine, n, n_edges

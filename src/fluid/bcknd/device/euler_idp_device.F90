@@ -41,7 +41,32 @@ module euler_idp_device
        euler_idp_backend_t, euler_idp_diagnostics_t, &
        euler_idp_state_observation_t
 #if defined(HAVE_CUDA) || defined(HAVE_HIP)
-  use euler_idp_device_kernels
+  use euler_idp_device_kernels, only : &
+       gpu_euler_idp_primitives, &
+       gpu_euler_idp_graph_viscosity, &
+       gpu_euler_idp_graph_rate, &
+       gpu_euler_idp_low_residual, &
+       gpu_euler_idp_scale_residual, &
+       gpu_euler_idp_reconstruct, &
+       gpu_euler_idp_floor_timestep, &
+       gpu_euler_idp_low_update, &
+       gpu_euler_idp_blend, &
+       gpu_euler_idp_limiter, &
+       gpu_euler_idp_incidence, &
+       gpu_euler_idp_correction_update, &
+       gpu_euler_idp_full_diagnostics, &
+       gpu_euler_idp_limiter_status, &
+       gpu_euler_idp_validation_summary, &
+       gpu_euler_idp_observation_summary, &
+       gpu_euler_idp_bounds_init, &
+       gpu_euler_idp_bounds_edges, &
+       gpu_euler_idp_relax_edges, &
+       gpu_euler_idp_relax_finalize, &
+       gpu_euler_idp_entropy_relax_edges, &
+       gpu_euler_idp_entropy_relax_finalize, &
+       gpu_euler_idp_update_uvw, &
+       gpu_euler_idp_update_momentum_pressure, &
+       gpu_euler_idp_update_energy
 #endif
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use logger, only : LOG_SIZE
@@ -271,8 +296,8 @@ contains
        this%diagnostic_partial = 0.0_rp
     end if
     do edge = 1, this%graph%n_edges
-       a = this%graph%left(:,edge)
-       b = this%graph%right(:,edge)
+       a = this%graph%left(:, edge)
+       b = this%graph%right(:, edge)
        this%edge_left(edge) = a(1) + this%graph%lx * ((a(2) - 1) + &
             this%graph%ly * ((a(3) - 1) + this%graph%lz * (a(4) - 1))) - 1
        this%edge_right(edge) = b(1) + this%graph%lx * ((b(2) - 1) + &
@@ -312,19 +337,19 @@ contains
 
     this%work_1%x = 0.0_rp
     do edge = 1, this%graph%n_edges
-       associate(left => this%graph%left(:,edge), &
-            right => this%graph%right(:,edge))
+       associate(left => this%graph%left(:, edge), &
+            right => this%graph%right(:, edge))
          direction = this%graph%direction(edge)
-         this%work_1%x(left(1),left(2),left(3),left(4)) = &
-              this%work_1%x(left(1),left(2),left(3),left(4)) + &
+         this%work_1%x(left(1), left(2), left(3), left(4)) = &
+              this%work_1%x(left(1), left(2), left(3), left(4)) + &
               1.0_rp / (real(this%graph%n_directions, rp) * &
               this%graph%directional_degree(direction)%x( &
-              left(1),left(2),left(3),left(4)))
-         this%work_1%x(right(1),right(2),right(3),right(4)) = &
-              this%work_1%x(right(1),right(2),right(3),right(4)) + &
+              left(1), left(2), left(3), left(4)))
+         this%work_1%x(right(1), right(2), right(3), right(4)) = &
+              this%work_1%x(right(1), right(2), right(3), right(4)) + &
               1.0_rp / (real(this%graph%n_directions, rp) * &
               this%graph%directional_degree(direction)%x( &
-              right(1),right(2),right(3),right(4)))
+              right(1), right(2), right(3), right(4)))
        end associate
     end do
     call device_memcpy(this%work_1%x, this%work_1%x_d, n, HOST_TO_DEVICE, &
@@ -577,7 +602,8 @@ contains
     if (.not. ieee_is_finite(min_wave_speed) .or. &
          .not. ieee_is_finite(this%max_graph_wave_speed) .or. &
          min_wave_speed .lt. 0.0_rp) then
-       call neko_error('Euler IDP graph wave speed must be finite and nonnegative')
+       call neko_error( &
+            'Euler IDP graph wave speed must be finite and nonnegative')
     end if
     call gs%op(this%viscosity_sum, GS_OP_ADD)
     call gpu_euler_idp_graph_rate(this%viscosity_sum%x_d, &
@@ -662,13 +688,13 @@ contains
     call gpu_euler_idp_reconstruct(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          energy%x_d, this%diagonal_coefficient_d, this%edge_left_d, &
          this%edge_right_d, this%edge_coefficient_d, &
-         this%local_residual(1)%x_d, this%local_residual(2)%x_d, &
-         this%local_residual(3)%x_d, this%local_residual(4)%x_d, &
-         this%local_residual(5)%x_d, this%correction_flux_d, &
-         this%directional_error_d, coef%B_d, coef%jacinv_d, coef%drdx_d, &
-         coef%drdy_d, coef%drdz_d, coef%dsdx_d, coef%dsdy_d, coef%dsdz_d, &
-         coef%dtdx_d, coef%dtdy_d, coef%dtdz_d, coef%Xh%dx_d, coef%Xh%dy_d, &
-         coef%Xh%dz_d, coef%Xh%wx_d, coef%Xh%wy_d, coef%Xh%wz_d, gamma, &
+         this%local_residual%x_d, this%correction_flux_d, &
+         this%directional_error_d, coef%B_d, coef%jacinv_d, &
+         [coef%drdx_d, coef%drdy_d, coef%drdz_d], &
+         [coef%dsdx_d, coef%dsdy_d, coef%dsdz_d], &
+         [coef%dtdx_d, coef%dtdy_d, coef%dtdz_d], &
+         [coef%Xh%dx_d, coef%Xh%dy_d, coef%Xh%dz_d], &
+         [coef%Xh%wx_d, coef%Xh%wy_d, coef%Xh%wz_d], gamma, &
          this%graph%lx, this%graph%ly, this%graph%lz, this%graph%nelv, &
          this%graph%edges_per_element, affine, n, n_edges)
 

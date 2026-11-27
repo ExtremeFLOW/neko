@@ -310,8 +310,8 @@ contains
 
     this%flux_x%x = 0.0_rp
     do edge = 1, this%graph%n_edges
-       associate(a => this%graph%left(:,edge), &
-            b => this%graph%right(:,edge))
+       associate(a => this%graph%left(:, edge), &
+            b => this%graph%right(:, edge))
          direction = this%graph%direction(edge)
          ! Give every tensor direction the same total nodal weight. This
          ! preserves one-dimensional states across replicated element nodes.
@@ -428,9 +428,9 @@ contains
     validate_bar_state = &
          this%diagnostics_level .eq. EULER_IDP_DIAGNOSTICS_FULL
     do edge = 1, this%graph%n_edges
-       associate(a => this%graph%left(:,edge), &
-            b => this%graph%right(:,edge), &
-            coefficient => this%graph%coefficient(:,edge))
+       associate(a => this%graph%left(:, edge), &
+            b => this%graph%right(:, edge), &
+            coefficient => this%graph%coefficient(:, edge))
          if (.not. present(graph_wave_speed) .or. validate_bar_state) then
             left_state = [rho%x(a(1),a(2),a(3),a(4)), &
                  m_x%x(a(1),a(2),a(3),a(4)), &
@@ -583,9 +583,9 @@ contains
           this%low_candidate(component)%x = 0.0_rp
        end if
        do edge = 1, this%graph%n_edges
-          associate(a => this%graph%left(:,edge), &
-               b => this%graph%right(:,edge), &
-               coefficient => this%graph%coefficient(:,edge))
+          associate(a => this%graph%left(:, edge), &
+               b => this%graph%right(:, edge), &
+               coefficient => this%graph%coefficient(:, edge))
             left_value = euler_idp_cpu_state_component(component, a, rho, &
                  m_x, m_y, m_z, energy)
             right_value = euler_idp_cpu_state_component(component, b, rho, &
@@ -702,9 +702,9 @@ contains
             this%graph%left, this%graph%right, this%entropy_lower_bound%x)
     end if
     do edge = 1, this%graph%n_edges
-       associate(a => this%graph%left(:,edge), &
-            b => this%graph%right(:,edge), &
-            coefficient => this%graph%coefficient(:,edge))
+       associate(a => this%graph%left(:, edge), &
+            b => this%graph%right(:, edge), &
+            coefficient => this%graph%coefficient(:, edge))
          left_density = rho%x(a(1),a(2),a(3),a(4))
          right_density = rho%x(b(1),b(2),b(3),b(4))
          left_mass_flux = coefficient(1) * m_x%x(a(1),a(2),a(3),a(4)) + &
@@ -773,8 +773,8 @@ contains
        end if
        tolerance = 256.0_rp * epsilon(1.0_rp)
        if (local_violation .gt. tolerance) then
-          call neko_error('Euler IDP low-order density is outside its local ' // &
-               'bar-state bounds')
+          call neko_error('Euler IDP low-order density is outside its ' // &
+               'local bar-state bounds')
        end if
 
        if (this%limit_entropy) then
@@ -793,8 +793,8 @@ contains
                   difference - entropy_tolerance)
           end do
           if (local_entropy_excess .gt. 0.0_rp) then
-             call neko_error('Euler IDP low-order state violates its local ' // &
-                  'minimum entropy bound')
+             call neko_error('Euler IDP low-order state violates its ' // &
+                  'local minimum entropy bound')
           end if
        end if
     end if
@@ -802,8 +802,8 @@ contains
     if (this%relax_density_bounds) then
        this%flux_y%x = 0.0_rp
        do edge = 1, this%graph%n_edges
-          associate(a => this%graph%left(:,edge), &
-               b => this%graph%right(:,edge))
+          associate(a => this%graph%left(:, edge), &
+               b => this%graph%right(:, edge))
             pair_average = 0.5_rp * ( &
                  this%flux_x%x(a(1),a(2),a(3),a(4)) + &
                  this%flux_x%x(b(1),b(2),b(3),b(4)))
@@ -851,8 +851,8 @@ contains
        ! exp(s) without ever forming that variable explicitly.
        this%flux_y%x = this%entropy_lower_bound%x
        do edge = 1, this%graph%n_edges
-          associate(a => this%graph%left(:,edge), &
-               b => this%graph%right(:,edge))
+          associate(a => this%graph%left(:, edge), &
+               b => this%graph%right(:, edge))
             state = 0.5_rp * [ &
                  rho%x(a(1),a(2),a(3),a(4)) + &
                  rho%x(b(1),b(2),b(3),b(4)), &
@@ -1097,8 +1097,8 @@ contains
     ! coordinate-neighbour graph.
     call profiler_start_region('Euler IDP reconstruction')
     do edge = 1, this%graph%n_edges
-       associate(a => this%graph%left(:,edge), &
-            b => this%graph%right(:,edge))
+       associate(a => this%graph%left(:, edge), &
+            b => this%graph%right(:, edge))
          state_difference(1) = rho%x(a(1),a(2),a(3),a(4)) - &
               rho%x(b(1),b(2),b(3),b(4))
          state_difference(2) = m_x%x(a(1),a(2),a(3),a(4)) - &
@@ -1115,8 +1115,8 @@ contains
        if (this%low_order_only) then
           high_order_fraction = 0.0_rp
        else if (present(entropy_viscosity_fraction)) then
-          associate(a => this%graph%left(:,edge), &
-               b => this%graph%right(:,edge))
+          associate(a => this%graph%left(:, edge), &
+               b => this%graph%right(:, edge))
             edge_fraction = min(1.0_rp, max(0.0_rp, &
                  entropy_viscosity_fraction%x(a(1),a(2),a(3),a(4)), &
                  entropy_viscosity_fraction%x(b(1),b(2),b(3),b(4))))
@@ -1127,11 +1127,11 @@ contains
        ! Complete the raw low-to-high correction with the low-order graph
        ! viscosity, then apply the entropy-viscosity blend to the complete
        ! conservative edge vector.
-       this%correction_flux(:,edge) = dt * high_order_fraction * &
-            (this%correction_flux(:,edge) + &
+       this%correction_flux(:, edge) = dt * high_order_fraction * &
+            (this%correction_flux(:, edge) + &
             this%edge_viscosity(edge) * state_difference)
        if (scalar_density_mode) then
-          this%correction_flux(2:EULER_IDP_NCOMP,edge) = 0.0_rp
+          this%correction_flux(2:EULER_IDP_NCOMP, edge) = 0.0_rp
        end if
     end do
 
@@ -1208,8 +1208,8 @@ contains
     check_base_constraints = &
          this%diagnostics_level .ne. EULER_IDP_DIAGNOSTICS_OFF
     do edge = 1, this%graph%n_edges
-       associate(a => this%graph%left(:,edge), &
-            b => this%graph%right(:,edge))
+       associate(a => this%graph%left(:, edge), &
+            b => this%graph%right(:, edge))
          direction = this%graph%direction(edge)
          do component = 1, EULER_IDP_NCOMP
             left_base(component) = this%low_candidate(component)%x( &
@@ -1219,12 +1219,12 @@ contains
          end do
          ! This is correction_flux / (mass * occurrence_weight), with the
          ! directional occurrence weight constructed during initialization.
-         left_correction = this%correction_flux(:,edge) * &
+         left_correction = this%correction_flux(:, edge) * &
               real(this%graph%n_directions, rp) * &
               this%graph%directional_degree(direction)%x( &
               a(1),a(2),a(3),a(4)) / &
               this%graph%mass%x(a(1),a(2),a(3),a(4))
-         right_correction = -this%correction_flux(:,edge) * &
+         right_correction = -this%correction_flux(:, edge) * &
               real(this%graph%n_directions, rp) * &
               this%graph%directional_degree(direction)%x( &
               b(1),b(2),b(3),b(4)) / &
@@ -1248,7 +1248,7 @@ contains
             density_limited = .false.
             energy_limited = .false.
             entropy_limited = .false.
-            this%correction_flux(:,edge) = 0.0_rp
+            this%correction_flux(:, edge) = 0.0_rp
             left_correction = 0.0_rp
             right_correction = 0.0_rp
          else
@@ -1305,8 +1305,8 @@ contains
           if (energy_limited) local_count(4) = local_count(4) + 1
           if (entropy_limited) local_count(5) = local_count(5) + 1
        end if
-       this%correction_flux(:,edge) = edge_limit * &
-            this%correction_flux(:,edge)
+       this%correction_flux(:, edge) = edge_limit * &
+            this%correction_flux(:, edge)
     end do
 
     if (this%diagnostics_level .eq. EULER_IDP_DIAGNOSTICS_FULL) then
@@ -1362,8 +1362,8 @@ contains
                maxval(abs(this%flux_y%x)))
           if (local_error .gt. 512.0_rp * epsilon(1.0_rp) * local_scale) then
              write(message, '(A,I0,A,I0,A,ES13.6)') &
-                  'Euler IDP low-order base differs across shared copies on ' // &
-                  'rank ', pe_rank, ', component ', component, ', error ', &
+                  'Euler IDP low-order base differs across shared copies ' // &
+                  'on rank ', pe_rank, ', component ', component, ', error ', &
                   local_error
              call neko_error(trim(message))
           end if
@@ -1373,8 +1373,8 @@ contains
           this%local_residual(component)%x = 0.0_rp
        end do
        do edge = 1, this%graph%n_edges
-          associate(a => this%graph%left(:,edge), &
-               b => this%graph%right(:,edge))
+          associate(a => this%graph%left(:, edge), &
+               b => this%graph%right(:, edge))
             direction = this%graph%direction(edge)
             left_weight = 1.0_rp / (real(this%graph%n_directions, rp) * &
                  this%graph%directional_degree(direction)%x( &
@@ -1391,13 +1391,13 @@ contains
                     this%local_residual(component)%x(a(1),a(2),a(3),a(4)) + &
                     left_weight * this%low_candidate(component)%x( &
                     a(1),a(2),a(3),a(4)) + &
-                    this%correction_flux(component,edge) / &
+                    this%correction_flux(component, edge) / &
                     this%graph%mass%x(a(1),a(2),a(3),a(4))
                this%local_residual(component)%x(b(1),b(2),b(3),b(4)) = &
                     this%local_residual(component)%x(b(1),b(2),b(3),b(4)) + &
                     right_weight * this%low_candidate(component)%x( &
                     b(1),b(2),b(3),b(4)) - &
-                    this%correction_flux(component,edge) / &
+                    this%correction_flux(component, edge) / &
                     this%graph%mass%x(b(1),b(2),b(3),b(4))
             end do
           end associate
@@ -1770,9 +1770,9 @@ contains
     end if
 
     do edge = 1, this%graph%n_edges
-       associate(a => this%graph%left(:,edge), &
-            b => this%graph%right(:,edge), &
-            coefficient => this%graph%coefficient(:,edge))
+       associate(a => this%graph%left(:, edge), &
+            b => this%graph%right(:, edge), &
+            coefficient => this%graph%coefficient(:, edge))
          coefficient_norm = sqrt(dot_product(coefficient, coefficient))
          if (coefficient_norm .le. tiny(1.0_rp)) cycle
          if (present(graph_wave_speed)) then
@@ -1923,15 +1923,15 @@ contains
 
     select case (component)
     case (1)
-       value = rho%x(index(1),index(2),index(3),index(4))
+       value = rho%x(index(1), index(2), index(3), index(4))
     case (2)
-       value = m_x%x(index(1),index(2),index(3),index(4))
+       value = m_x%x(index(1), index(2), index(3), index(4))
     case (3)
-       value = m_y%x(index(1),index(2),index(3),index(4))
+       value = m_y%x(index(1), index(2), index(3), index(4))
     case (4)
-       value = m_z%x(index(1),index(2),index(3),index(4))
+       value = m_z%x(index(1), index(2), index(3), index(4))
     case (5)
-       value = energy%x(index(1),index(2),index(3),index(4))
+       value = energy%x(index(1), index(2), index(3), index(4))
     end select
   end function euler_idp_cpu_state_component
 
@@ -1982,9 +1982,9 @@ contains
              normal = coef%get_normal(i, ly, k, e, 4)
              area = coef%get_area(i, ly, k, e, 4)
              boundary_flux = boundary_flux + area * &
-                  (this%flux_x%x(i,ly,k,e) * normal(1) + &
-                  this%flux_y%x(i,ly,k,e) * normal(2) + &
-                  this%flux_z%x(i,ly,k,e) * normal(3))
+                  (this%flux_x%x(i, ly,k,e) * normal(1) + &
+                  this%flux_y%x(i, ly,k,e) * normal(2) + &
+                  this%flux_z%x(i, ly,k,e) * normal(3))
           end do
        end do
        do j = 1, ly
@@ -1998,9 +1998,9 @@ contains
              normal = coef%get_normal(i, j, lz, e, 6)
              area = coef%get_area(i, j, lz, e, 6)
              boundary_flux = boundary_flux + area * &
-                  (this%flux_x%x(i,j,lz,e) * normal(1) + &
-                  this%flux_y%x(i,j,lz,e) * normal(2) + &
-                  this%flux_z%x(i,j,lz,e) * normal(3))
+                  (this%flux_x%x(i,j, lz,e) * normal(1) + &
+                  this%flux_y%x(i,j, lz,e) * normal(2) + &
+                  this%flux_z%x(i,j, lz,e) * normal(3))
           end do
        end do
        element_boundary_flux(component,e) = boundary_flux

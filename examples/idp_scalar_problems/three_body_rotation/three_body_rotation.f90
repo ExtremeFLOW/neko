@@ -206,7 +206,7 @@ contains
     write(filename, '(A,I0,A)') 'three_body_density_rank_', pe_rank, '.csv'
     open(newunit = output_unit, file = trim(filename), status = 'replace', &
          action = 'write')
-    write(output_unit, '(A)') 'x,y,rho,rho_exact'
+    write(output_unit, '(3(A,","),A)') 'x', 'y', 'rho', 'rho_exact'
     do e = 1, rho%dof%msh%nelv
        do k = 1, rho%dof%Xh%lz
           if (abs(rho%dof%z%x(1, 1, k, e)) .gt. 1.0e-12_rp) cycle

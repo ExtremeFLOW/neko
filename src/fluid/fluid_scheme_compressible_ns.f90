@@ -545,7 +545,7 @@ contains
        time)
     class(fluid_scheme_compressible_ns_t), intent(in) :: this
     type(time_state_t), intent(in) :: time
-    character(len=LOG_SIZE) :: log_buf
+    character(len=2*LOG_SIZE) :: log_buf
     integer :: nstages, stage
 
     if (this%euler_idp%diagnostics_level .ne. &
@@ -554,86 +554,61 @@ contains
     nstages = 1
     if (this%rk_scheme%order .eq. 3) nstages = 3
     do stage = 1, nstages
-       write(log_buf, '(A,I0,A,I0,A,ES10.3,A,ES10.3)') &
-            'IDP limiter: step=', time%tstep, ' stage=', stage, &
-            ' amin=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%min_limiter, &
-            ' frac=', this%euler_idp_solver%stage_diagnostics( &
-            stage)%limited_edge_fraction
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+       associate(diag => this%euler_idp_solver%stage_diagnostics(stage))
+         write(log_buf, '(A,I0,A,I0,A,ES10.3,A,ES10.3)') &
+            'IDP limiter: step = ', time%tstep, ' stage = ', stage, &
+            ' amin = ', diag%min_limiter, &
+            ' frac = ', diag%limited_edge_fraction
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
-       write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
-            'IDP state: rho_min=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%min_density, &
-            ' p_min=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%min_pressure, &
-            ' e_min=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%min_internal_energy
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+         write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
+            'IDP state: rho_min = ', diag%min_density, &
+            ' p_min = ', diag%min_pressure, &
+            ' e_min = ', diag%min_internal_energy
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
-       write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
-            'IDP graph: t=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%stage_time, &
-            ' wave=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%max_graph_wave_speed, &
-            ' rate=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%max_graph_rate
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+         write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
+            'IDP graph: t = ', diag%stage_time, &
+            ' wave = ', diag%max_graph_wave_speed, &
+            ' rate = ', diag%max_graph_rate
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
-       write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
-            'IDP timestep: nodal_wave=', &
-            this%euler_idp_solver%stage_diagnostics(stage)% &
-            max_nodal_wave_speed, ' graph_cfl=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%max_graph_cfl, &
-            ' dt_floor=', &
-            this%euler_idp_solver%stage_diagnostics(stage)%maximum_floor_timestep
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+         write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
+            'IDP timestep: nodal_wave = ', diag%max_nodal_wave_speed, &
+            ' graph_cfl = ', diag%max_graph_cfl, &
+            ' dt_floor = ', diag%maximum_floor_timestep
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
-       write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary pre:', &
-            ' rho=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            before_boundary%min_density, &
-            ' p=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            before_boundary%min_pressure, &
-            ' e=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            before_boundary%min_internal_energy
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+         write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary pre:', &
+            ' rho = ', diag%before_boundary%min_density, &
+            ' p = ', diag%before_boundary%min_pressure, &
+            ' e = ', diag%before_boundary%min_internal_energy
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
-       write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary pre:', &
-            ' nodal=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            before_boundary%max_nodal_wave_speed, &
-            ' graph=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            before_boundary%max_graph_wave_speed, &
-            ' rate=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            before_boundary%max_graph_rate
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+         write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary pre:', &
+            ' nodal = ', diag%before_boundary%max_nodal_wave_speed, &
+            ' graph = ', diag%before_boundary%max_graph_wave_speed, &
+            ' rate = ', diag%before_boundary%max_graph_rate
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
-       write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary post:', &
-            ' rho=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            after_boundary%min_density, &
-            ' p=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            after_boundary%min_pressure, &
-            ' e=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            after_boundary%min_internal_energy
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+         write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary post:', &
+            ' rho = ', diag%after_boundary%min_density, &
+            ' p = ', diag%after_boundary%min_pressure, &
+            ' e = ', diag%after_boundary%min_internal_energy
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
-       write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary post:', &
-            ' nodal=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            after_boundary%max_nodal_wave_speed, &
-            ' graph=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            after_boundary%max_graph_wave_speed, &
-            ' rate=', this%euler_idp_solver%stage_diagnostics(stage)% &
-            after_boundary%max_graph_rate
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+         write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary post:', &
+            ' nodal = ', diag%after_boundary%max_nodal_wave_speed, &
+            ' graph = ', diag%after_boundary%max_graph_wave_speed, &
+            ' rate = ', diag%after_boundary%max_graph_rate
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
 
-       write(log_buf, '(A,I0,A,I0,A,I0)') &
-            'IDP edges: rho=', &
-            this%euler_idp_solver%stage_diagnostics( &
-            stage)%density_limited_edges, ' energy=', &
-            this%euler_idp_solver%stage_diagnostics( &
-            stage)%internal_energy_limited_edges, ' entropy=', &
-            this%euler_idp_solver%stage_diagnostics( &
-            stage)%entropy_limited_edges
-       call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+         write(log_buf, '(A,I0,A,I0,A,I0)') &
+            'IDP edges: rho = ', diag%density_limited_edges, &
+            ' energy = ', diag%internal_energy_limited_edges, &
+            ' entropy = ', diag%entropy_limited_edges
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+       end associate
     end do
   end subroutine fluid_scheme_compressible_ns_log_euler_idp_diagnostics
 

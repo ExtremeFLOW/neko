@@ -505,7 +505,8 @@ contains
             trim(problem), polynomial_order, pe_size, time%tstep, &
             stage_count, all_stages_finite
        write(*, '(A,5(1X,ES25.16E3))') 'EULER_IDP_ERROR', errors
-       write(*, '(A,1X,ES25.16E3)') 'EULER_IDP_TEMPERATURE_ERROR', temperature_error
+       write(*, '(A,1X,ES25.16E3)') 'EULER_IDP_TEMPERATURE_ERROR', &
+            temperature_error
        write(*, '(A,5(1X,ES25.16E3))') 'EULER_IDP_DRIFT', drifts
        write(*, '(A,3(1X,ES25.16E3))') 'EULER_IDP_LIMITER', &
             minimum_limiter, maximum_limited_fraction, maximum_graph_cfl
