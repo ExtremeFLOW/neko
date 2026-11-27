@@ -282,6 +282,22 @@ contains
     call this%time%init(json_subdict)
 
     !
+    ! Get and process output directory
+    !
+    call json_get_or_default(this%params, 'case.output_directory',&
+         this%output_directory, '')
+
+    output_dir_len = len(trim(this%output_directory))
+    if (output_dir_len .gt. 0) then
+       if (this%output_directory(output_dir_len:output_dir_len) .ne. "/") then
+          this%output_directory = trim(this%output_directory)//"/"
+       end if
+       if (pe_rank .eq. 0) then
+          call mkdir(trim(this%output_directory))
+       end if
+    end if
+
+    !
     ! Initialize point_zones registry
     !
     call neko_point_zone_registry%init(this%params, this%msh)
@@ -302,7 +318,7 @@ contains
     call this%chkp%init()
     call this%chkp%add_time_state(this%time)
     call this%fluid%init(this%msh, lx, fluid_params, numerics_params, &
-         this%user, this%chkp, output_boundary)
+         this%user, this%chkp, output_boundary, this%output_directory)
 
 
     !
@@ -369,22 +385,6 @@ contains
 
     if (scalar) then
        call this%scalars%validate()
-    end if
-
-    !
-    ! Get and process output directory
-    !
-    call json_get_or_default(this%params, 'case.output_directory',&
-         this%output_directory, '')
-
-    output_dir_len = len(trim(this%output_directory))
-    if (output_dir_len .gt. 0) then
-       if (this%output_directory(output_dir_len:output_dir_len) .ne. "/") then
-          this%output_directory = trim(this%output_directory)//"/"
-       end if
-       if (pe_rank .eq. 0) then
-          call mkdir(trim(this%output_directory))
-       end if
     end if
 
     !

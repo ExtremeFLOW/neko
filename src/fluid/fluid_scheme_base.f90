@@ -215,10 +215,11 @@ module fluid_scheme_base
   !! @param user Type with user-defined procedures.
   !! @param chkp Checkpoint for restarts.
   !! @param output_boundary Whether to write the boundary condition markers
+  !! @param output_directory Output directory to write the boundary condition markers
   !! to file.
   abstract interface
      subroutine fluid_scheme_base_init_intrf(this, msh, lx, params, &
-          numerics_params, user, chkp, output_boundary)
+          numerics_params, user, chkp, output_boundary, output_directory)
        import fluid_scheme_base_t
        import json_file
        import mesh_t
@@ -233,6 +234,7 @@ module fluid_scheme_base
        type(user_t), target, intent(in) :: user
        type(chkp_t), target, intent(inout) :: chkp
        logical, intent(in) :: output_boundary
+       character(len=:), allocatable, intent(in) :: output_directory
      end subroutine fluid_scheme_base_init_intrf
   end interface
 

@@ -189,6 +189,9 @@ module fluid_pnpn
      !> Whether to use the full formulation of the viscous stress term
      logical :: full_stress_formulation = .false.
 
+     !> Output directory path
+     character(len=:), allocatable :: output_directory
+
    contains
      !> Constructor.
      procedure, pass(this) :: init => fluid_pnpn_init
@@ -365,9 +368,10 @@ contains
   !! @param user Type with user-defined procedures.
   !! @param chkp Checkpoint for restarts.
   !! @param output_boundary Whether to write the boundary condition markers
+  !! @param output_directory Directory to output boundary condition markers
   !! to file.
   subroutine fluid_pnpn_init(this, msh, lx, params, numerics_params, user, &
-       chkp, output_boundary)
+       chkp, output_boundary, output_directory)
     class(fluid_pnpn_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
     integer, intent(in) :: lx
@@ -376,6 +380,8 @@ contains
     type(user_t), target, intent(in) :: user
     type(chkp_t), target, intent(inout) :: chkp
     logical, intent(in) :: output_boundary
+    character(len=:), allocatable, intent(in) :: output_directory
+
     character(len=15), parameter :: scheme = 'Modular (Pn/Pn)'
     integer :: i
     class(bc_t), pointer :: bc_i, vel_bc
@@ -392,7 +398,7 @@ contains
 
     ! Initialize base class
     call this%init_base(msh, lx, params, numerics_params, scheme, user, &
-         .true., output_boundary)
+         .true., output_boundary, output_directory)
 
     ! Add pressure field to the registry. For this scheme it is in the same
     ! Xh as the velocity
@@ -498,11 +504,15 @@ contains
     call this%ale%init(this%c_Xh, params, numerics_params, user, chkp)
 
     call neko_log%section("Fluid boundary conditions")
+
     ! Set up boundary conditions
     call this%setup_bcs(user, params)
-
     ! Check if we need to output boundaries
-    if (output_boundary) call this%write_boundary_conditions()
+    if (output_boundary) then
+       this%output_directory = output_directory
+       ! Output boundary conditions
+       call this%write_boundary_conditions()
+    end if
     call neko_log%end_section()
 
     call this%proj_prs%init(this%dm_Xh%size(), this%pr_projection_dim, &
@@ -1638,7 +1648,7 @@ contains
     end do
 
 
-    call bdry_file%init('bdry.fld')
+    call bdry_file%init(trim(this%output_directory) // 'bdry.fld')
     call bdry_file%write(bdry_field)
 
     call neko_scratch_registry%relinquish_field(temp_index)

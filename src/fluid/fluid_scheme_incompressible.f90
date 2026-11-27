@@ -154,9 +154,9 @@ contains
   !! @param user Type with user-defined procedures.
   !! @param kspv_init Whether to initialize the velocity solver.
   !! @param output_boundary Whether the boundary condition markers are
-  !! written to file, used in the log.
+  !! @param output_directory Output directory to write the boundary condition markers
   subroutine fluid_scheme_init_base(this, msh, lx, params, numerics_params, &
-       scheme, user, kspv_init, output_boundary)
+       scheme, user, kspv_init, output_boundary, output_directory)
     implicit none
     class(fluid_scheme_incompressible_t), target, intent(inout) :: this
     type(mesh_t), target, intent(inout) :: msh
@@ -167,6 +167,7 @@ contains
     type(user_t), target, intent(in) :: user
     logical, intent(in) :: kspv_init
     logical, intent(in) :: output_boundary
+    character(len=:), allocatable, intent(in) :: output_directory
     type(dirichlet_t) :: bdry_mask
     character(len=LOG_SIZE) :: log_buf
     real(kind=rp), allocatable :: real_vec(:)
