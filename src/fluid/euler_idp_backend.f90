@@ -944,8 +944,11 @@ contains
        value_next = internal_energy_margin(trial, energy_floor)
        if (.not. ieee_is_finite(value_next) .or. &
             value_next .gt. value_tolerance) exit
+       if (value_next .ge. 0.0_rp) then
+          left = next_right
+          exit
+       end if
        right = next_right
-       if (abs(value_next) .le. value_tolerance) exit
        value_right = value_next
     end do
     limit = left
@@ -1004,8 +1007,11 @@ contains
        value_next = entropy_margin(trial, entropy_lower, gamma)
        if (.not. ieee_is_finite(value_next) .or. &
             value_next .gt. value_tolerance) exit
+       if (value_next .ge. 0.0_rp) then
+          left = next_right
+          exit
+       end if
        right = next_right
-       if (abs(value_next) .le. value_tolerance) exit
        value_right = value_next
     end do
     limit = left

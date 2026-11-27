@@ -280,8 +280,11 @@ __device__ void limit_energy(const T base[5], const T correction[5], T floor,
     for (int c=0;c<5;++c) trial[c]=base[c]+next*correction[c];
     vn=energy_margin(trial,floor);
     if (!isfinite(vn) || vn>tol) break;
+    if (vn >= T(0)) {
+      left = next;
+      break;
+    }
     right=next; vr=vn;
-    if (fabs(vn)<=tol) break;
   }
   limit=left;
 }
@@ -314,8 +317,11 @@ __device__ void limit_entropy(const T base[5], const T correction[5], T lower,
     for(int c=0;c<5;++c) trial[c]=base[c]+next*correction[c];
     vn=entropy_margin(trial,lower,gamma);
     if(!isfinite(vn)||vn>tol) break;
+    if (vn >= T(0)) {
+      left = next;
+      break;
+    }
     right=next; vr=vn;
-    if(fabs(vn)<=tol) break;
   }
   limit=left;
 }

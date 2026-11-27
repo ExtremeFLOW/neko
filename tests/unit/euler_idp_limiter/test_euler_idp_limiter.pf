@@ -1,4 +1,8 @@
 module test_euler_idp_limiter
+  use num_types, only : rp
+  implicit none
+  ! Match the bracket and residual tolerances of the Newton-secant solve.
+  real(kind=rp), parameter :: root_tolerance = 256.0_rp * epsilon(1.0_rp)
 contains
 
 @test
@@ -226,7 +230,7 @@ subroutine test_high_mach_entropy_roundoff()
        entropy_lower, 1.0e-12_rp)
   @assertTrue(admissible)
 
-  state(5) = state(5) - 1.0e-4_rp
+  state(5) = state(5) - max(1.0e-4_rp, spacing(state(5)))
   admissible = euler_idp_entropy_is_admissible(state, gamma, &
        entropy_lower, 1.0e-12_rp)
   @assertFalse(admissible)
@@ -351,7 +355,7 @@ subroutine test_entropy_endpoint_limit()
        entropy_lower, gamma, 1.0e-12_rp, limit, density_limited, &
        energy_limited, entropy_limited)
 
-  @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=1.0e-12_rp)
+  @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=root_tolerance)
   @assertFalse(density_limited)
   @assertFalse(energy_limited)
   @assertTrue(entropy_limited)
@@ -415,7 +419,7 @@ subroutine test_newton_secant_matches_bisection()
      end if
   end do
 
-  @assertEqual(lower, limit, tolerance=1.0e-12_rp)
+  @assertEqual(lower, limit, tolerance=root_tolerance)
   @assertFalse(density_limited)
   @assertFalse(energy_limited)
   @assertTrue(entropy_limited)
@@ -444,7 +448,7 @@ subroutine test_internal_energy_floor_limit()
        -100.0_rp, gamma, 2.0_rp, limit, density_limited, &
        energy_limited, entropy_limited)
 
-  @assertEqual(1.0_rp / 3.0_rp, limit, tolerance=1.0e-12_rp)
+  @assertEqual(1.0_rp / 3.0_rp, limit, tolerance=root_tolerance)
   @assertFalse(density_limited)
   @assertTrue(energy_limited)
   @assertTrue(entropy_limited)
@@ -500,7 +504,8 @@ subroutine test_endpoint_sweep_matches_bisection()
      end do
 
      @assertTrue(limit .ge. 0.0_rp .and. limit .le. 1.0_rp)
-     @assertEqual(lower, limit, tolerance=1.0e-10_rp)
+     ! The bisection predicate also includes the entropy roundoff allowance.
+     @assertEqual(lower, limit, tolerance=8.0_rp * root_tolerance)
      trial = base + limit * correction
      admissible = euler_idp_entropy_is_admissible(trial, gamma, &
           entropy_lower, 1.0e-12_rp)
@@ -529,7 +534,7 @@ subroutine test_symmetric_edge_entropy_limit()
        log(0.5_rp), log(0.5_rp), gamma, 1.0e-12_rp, limit, &
        density_limited, energy_limited, entropy_limited)
 
-  @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=1.0e-12_rp)
+  @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=root_tolerance)
   @assertTrue(entropy_limited)
 end subroutine test_symmetric_edge_entropy_limit
 
@@ -688,7 +693,7 @@ subroutine test_floor_timestep_linear_root()
        1.0_rp)
   trial = state - limit * residual
 
-  @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=1.0e-12_rp)
+  @assertEqual(2.0_rp / 3.0_rp, limit, tolerance=root_tolerance)
   @assertTrue(euler_idp_state_is_admissible(trial, 0.5_rp))
 end subroutine test_floor_timestep_linear_root
 
@@ -709,7 +714,7 @@ subroutine test_floor_timestep_quadratic_root()
        1.0_rp)
   trial = state - limit * residual
 
-  @assertEqual(expected, limit, tolerance=1.0e-12_rp)
+  @assertEqual(expected, limit, tolerance=root_tolerance)
   @assertTrue(euler_idp_state_is_admissible(trial, 0.5_rp))
 end subroutine test_floor_timestep_quadratic_root
 
@@ -758,7 +763,7 @@ subroutine test_floor_timestep_sweep_matches_bisection()
           internal_energy_floor)
 
      @assertTrue(actual .ge. 0.0_rp .and. actual .le. upper_bound)
-     @assertEqual(reference, actual, tolerance=1.0e-10_rp)
+     @assertEqual(reference, actual, tolerance=root_tolerance)
      @assertTrue(admissible)
   end do
 end subroutine test_floor_timestep_sweep_matches_bisection

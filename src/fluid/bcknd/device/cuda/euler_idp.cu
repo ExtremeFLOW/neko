@@ -21,6 +21,21 @@
 #include <cuda_runtime.h>
 #include <device/cuda/check.h>
 
+// Native double-precision atomic addition is available from sm_60.
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 600
+static __device__ __forceinline__ double atomicAdd(double *address, double value) {
+  auto *bits = reinterpret_cast<unsigned long long *>(address);
+  unsigned long long old = *bits;
+  unsigned long long expected;
+  do {
+    expected = old;
+    old = atomicCAS(bits, expected,
+                    __double_as_longlong(__longlong_as_double(expected) + value));
+  } while (old != expected);
+  return __longlong_as_double(old);
+}
+#endif
+
 using idp_stream_t = cudaStream_t;
 
 static inline void idp_zero(void *ptr, size_t bytes, idp_stream_t stream) {
