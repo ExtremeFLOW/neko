@@ -41,26 +41,15 @@
  * positions and stores the contact normals of each particle; then
  * lpt_wall_reflect_kernel applies them to the velocity and its history.
  * The statistics counters are 32-bit and accumulated per launch.
- *
- * The LPT_* macros are guarded so that this file also compiles as host
- * C++ for consistency tests.
  */
 
-#ifndef LPT_G
-#define LPT_G __global
-#define LPT_P
-#define LPT_INLINE inline
 inline real3 lw_v3(real a, real b, real c) { return (real3)(a, b, c); }
-#define LPT_V3(a, b, c) lw_v3((real) (a), (real) (b), (real) (c))
-#define LPT_ATOMIC_ADD(p, v) atomic_add((p), (v))
-#endif
 
 /*
  * Trajectory-based collision of particles with the high-order wall facets.
  * C-style port of lpt_wall_geometry.f90 and of the CUDA/HIP header
- * lpt/bcknd/device/lpt_wall_intersect.h, shared verbatim by the OpenCL and
- * Metal kernels (the two files differ only in the definitions of the
- * LPT_* macros above and in the kernel entry points below).
+ * lpt/bcknd/device/lpt_wall_intersect.h. The Metal kernel holds a separate
+ * copy of this code; keep the two in sync.
  *
  * The per-facet record layout and the statistics counters are those of
  * lpt_wall_intersect.h. Indices of facets and elements are 1-based.
@@ -105,51 +94,51 @@ inline real3 lw_v3(real a, real b, real c) { return (real3)(a, b, c); }
 #define LPT_HUGE ((real) 1.0e30)
 
 typedef struct {
-  LPT_G const real *xf;
-  LPT_G const real *fr;
-  LPT_G const int *fi;
-  LPT_G const real *zg;
-  LPT_G const int *el_ptr;
-  LPT_G const int *el_facets;
-  LPT_G const real *el_radius;
+  __global const real *xf;
+  __global const real *fr;
+  __global const int *fi;
+  __global const real *zg;
+  __global const int *el_ptr;
+  __global const int *el_facets;
+  __global const real *el_radius;
   int lx;
   int nelv;
 } lw_geom;
 
-LPT_INLINE real lw_max(real a, real b) { return a > b ? a : b; }
-LPT_INLINE real lw_min(real a, real b) { return a < b ? a : b; }
-LPT_INLINE real lw_clamp(real v, real lo, real hi) {
+inline real lw_max(real a, real b) { return a > b ? a : b; }
+inline real lw_min(real a, real b) { return a < b ? a : b; }
+inline real lw_clamp(real v, real lo, real hi) {
   return lw_max(lo, lw_min(hi, v));
 }
-LPT_INLINE real lw_dot(real3 a, real3 b) {
+inline real lw_dot(real3 a, real3 b) {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
-LPT_INLINE real lw_nrm(real3 a) { return sqrt(lw_dot(a, a)); }
-LPT_INLINE real3 lw_cross(real3 a, real3 b) {
-  return LPT_V3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z,
+inline real lw_nrm(real3 a) { return sqrt(lw_dot(a, a)); }
+inline real3 lw_cross(real3 a, real3 b) {
+  return lw_v3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z,
                 a.x * b.y - a.y * b.x);
 }
-LPT_INLINE real3 lw_scale(real s, real3 a) {
-  return LPT_V3(s * a.x, s * a.y, s * a.z);
+inline real3 lw_scale(real s, real3 a) {
+  return lw_v3(s * a.x, s * a.y, s * a.z);
 }
-LPT_INLINE real3 lw_add(real3 a, real3 b) {
-  return LPT_V3(a.x + b.x, a.y + b.y, a.z + b.z);
+inline real3 lw_add(real3 a, real3 b) {
+  return lw_v3(a.x + b.x, a.y + b.y, a.z + b.z);
 }
-LPT_INLINE real3 lw_sub(real3 a, real3 b) {
-  return LPT_V3(a.x - b.x, a.y - b.y, a.z - b.z);
+inline real3 lw_sub(real3 a, real3 b) {
+  return lw_v3(a.x - b.x, a.y - b.y, a.z - b.z);
 }
 
-LPT_INLINE real lw_fr(lw_geom g, int f, int off) {
+inline real lw_fr(lw_geom g, int f, int off) {
   return g.fr[LPT_NFR * (f - 1) + off];
 }
-LPT_INLINE real3 lw_fr3(lw_geom g, int f, int off) {
+inline real3 lw_fr3(lw_geom g, int f, int off) {
   const int i = LPT_NFR * (f - 1) + off;
-  return LPT_V3(g.fr[i], g.fr[i + 1], g.fr[i + 2]);
+  return lw_v3(g.fr[i], g.fr[i + 1], g.fr[i + 2]);
 }
 
 /* fd_weights_full; c[3 * j + k], j node, k derivative order */
-LPT_INLINE void lw_fd_weights(real xi, LPT_G const real *zg, int lx, int m,
-                              LPT_P real *c) {
+inline void lw_fd_weights(real xi, __global const real *zg, int lx, int m,
+                              real *c) {
   const int n = lx - 1;
   real c1 = 1.0;
   real c4 = zg[0] - xi;
@@ -177,19 +166,19 @@ LPT_INLINE void lw_fd_weights(real xi, LPT_G const real *zg, int lx, int m,
   }
 }
 
-LPT_INLINE real3 lw_node(lw_geom g, int f, int a, int b) {
+inline real3 lw_node(lw_geom g, int f, int a, int b) {
   const int i = 3 * ((a - 1) + g.lx * ((b - 1) + g.lx * (f - 1)));
-  return LPT_V3(g.xf[i], g.xf[i + 1], g.xf[i + 2]);
+  return lw_v3(g.xf[i], g.xf[i + 1], g.xf[i + 2]);
 }
 
 /* eval_local / eval_nodes */
-LPT_INLINE void lw_eval2(lw_geom g, int f, real s, real t, LPT_P real3 *x,
-                         LPT_P real3 *xs, LPT_P real3 *xt, LPT_P real3 *xss,
-                         LPT_P real3 *xst, LPT_P real3 *xtt) {
+inline void lw_eval2(lw_geom g, int f, real s, real t, real3 *x,
+                         real3 *xs, real3 *xt, real3 *xss,
+                         real3 *xst, real3 *xtt) {
   real cs[3 * LPT_WALL_MAX_LX], ct[3 * LPT_WALL_MAX_LX];
   lw_fd_weights(s, g.zg, g.lx, 2, cs);
   lw_fd_weights(t, g.zg, g.lx, 2, ct);
-  const real3 z = LPT_V3(0.0, 0.0, 0.0);
+  const real3 z = lw_v3(0.0, 0.0, 0.0);
   *x = z; *xs = z; *xt = z; *xss = z; *xst = z; *xtt = z;
   for (int b = 1; b <= g.lx; b++) {
     real3 a0 = z, a1 = z, a2 = z;
@@ -209,12 +198,12 @@ LPT_INLINE void lw_eval2(lw_geom g, int f, real s, real t, LPT_P real3 *x,
 }
 
 /* eval_first */
-LPT_INLINE void lw_eval1(lw_geom g, int f, real s, real t, LPT_P real3 *x,
-                         LPT_P real3 *xs, LPT_P real3 *xt) {
+inline void lw_eval1(lw_geom g, int f, real s, real t, real3 *x,
+                         real3 *xs, real3 *xt) {
   real cs[3 * LPT_WALL_MAX_LX], ct[3 * LPT_WALL_MAX_LX];
   lw_fd_weights(s, g.zg, g.lx, 1, cs);
   lw_fd_weights(t, g.zg, g.lx, 1, ct);
-  const real3 z = LPT_V3(0.0, 0.0, 0.0);
+  const real3 z = lw_v3(0.0, 0.0, 0.0);
   *x = z; *xs = z; *xt = z;
   for (int b = 1; b <= g.lx; b++) {
     real3 a0 = z, a1 = z;
@@ -230,9 +219,9 @@ LPT_INLINE void lw_eval1(lw_geom g, int f, real s, real t, LPT_P real3 *x,
 }
 
 /* surface_frame; returns 0 if the normal is degenerate */
-LPT_INLINE int lw_frame(lw_geom g, int f, real s, real t, LPT_P real3 *x,
-                        LPT_P real3 *xs, LPT_P real3 *xt, LPT_P real3 *n,
-                        int deriv, LPT_P real3 *ns, LPT_P real3 *nt) {
+inline int lw_frame(lw_geom g, int f, real s, real t, real3 *x,
+                        real3 *xs, real3 *xt, real3 *n,
+                        int deriv, real3 *ns, real3 *nt) {
   real3 xss, xst, xtt;
   if (deriv)
     lw_eval2(g, f, s, t, x, xs, xt, &xss, &xst, &xtt);
@@ -242,7 +231,7 @@ LPT_INLINE int lw_frame(lw_geom g, int f, real s, real t, LPT_P real3 *x,
   const real nlen = lw_nrm(nv);
   const real orient = lw_fr(g, f, LPT_FR_ORIENT);
   if (!(nlen > 0.0)) {
-    *n = LPT_V3(0.0, 0.0, 0.0); *ns = *n; *nt = *n;
+    *n = lw_v3(0.0, 0.0, 0.0); *ns = *n; *nt = *n;
     return 0;
   }
   const real3 nu = lw_scale(1.0 / nlen, nv);
@@ -253,25 +242,25 @@ LPT_INLINE int lw_frame(lw_geom g, int f, real s, real t, LPT_P real3 *x,
     *ns = lw_scale(orient / nlen, lw_sub(ds, lw_scale(lw_dot(nu, ds), nu)));
     *nt = lw_scale(orient / nlen, lw_sub(dt, lw_scale(lw_dot(nu, dt), nu)));
   } else {
-    *ns = LPT_V3(0.0, 0.0, 0.0); *nt = *ns;
+    *ns = lw_v3(0.0, 0.0, 0.0); *nt = *ns;
   }
   return 1;
 }
 
-LPT_INLINE real lw_angle(real3 u, real3 v) {
+inline real lw_angle(real3 u, real3 v) {
   return atan2(lw_nrm(lw_cross(u, v)), lw_dot(u, v));
 }
 
 /* patch_bounds, two passes over the samples */
-LPT_INLINE void lw_patch_bounds(lw_geom g, int f, LPT_P const real *box,
-                                LPT_P real3 *c, LPT_P real *r,
-                                LPT_P real3 *axis, LPT_P real *theta,
-                                LPT_P real *slab) {
+inline void lw_patch_bounds(lw_geom g, int f, const real *box,
+                                real3 *c, real *r,
+                                real3 *axis, real *theta,
+                                real *slab) {
   const int m = 2 * g.lx - 1 > 3 ? 2 * g.lx - 1 : 3;
   const real hs = (box[1] - box[0]) / (m - 1);
   const real ht = (box[3] - box[2]) / (m - 1);
   const real orient = lw_fr(g, f, LPT_FR_ORIENT);
-  real3 sx = LPT_V3(0.0, 0.0, 0.0), sn = sx, x, xs, xt;
+  real3 sx = lw_v3(0.0, 0.0, 0.0), sn = sx, x, xs, xt;
   real gs = 0.0, gt = 0.0;
   int degenerate = 0;
   for (int b = 1; b <= m; b++) {
@@ -299,7 +288,7 @@ LPT_INLINE void lw_patch_bounds(lw_geom g, int f, LPT_P const real *box,
         *r = lw_max(*r, lw_nrm(lw_sub(x, *c)));
       }
     *r = 1.01 * (*r + margin);
-    *axis = LPT_V3(0.0, 0.0, 1.0);
+    *axis = lw_v3(0.0, 0.0, 1.0);
     *theta = LPT_HUGE;
     slab[0] = -*r;
     slab[1] = *r;
@@ -312,7 +301,7 @@ LPT_INLINE void lw_patch_bounds(lw_geom g, int f, LPT_P const real *box,
   slab[1] = -LPT_HUGE;
   real3 prev_row[2 * LPT_WALL_MAX_LX + 1];
   for (int b = 1; b <= m; b++) {
-    real3 left = LPT_V3(0.0, 0.0, 0.0);
+    real3 left = lw_v3(0.0, 0.0, 0.0);
     for (int a = 1; a <= m; a++) {
       lw_eval1(g, f, box[0] + (a - 1) * hs, box[2] + (b - 1) * ht, &x, &xs,
                &xt);
@@ -336,8 +325,8 @@ LPT_INLINE void lw_patch_bounds(lw_geom g, int f, LPT_P const real *box,
 }
 
 /* segment_sphere_interval */
-LPT_INLINE int lw_seg_sphere(real3 x0, real3 dx, real3 c, real r,
-                             LPT_P real *a_in, LPT_P real *a_out) {
+inline int lw_seg_sphere(real3 x0, real3 dx, real3 c, real r,
+                             real *a_in, real *a_out) {
   *a_in = 0.0;
   *a_out = 0.0;
   const real3 w = lw_sub(x0, c);
@@ -356,18 +345,18 @@ LPT_INLINE int lw_seg_sphere(real3 x0, real3 dx, real3 c, real r,
   return *a_in <= *a_out;
 }
 
-LPT_INLINE int lw_at_bound(real s, real t, real al, LPT_P const real *lo,
-                           LPT_P const real *hi) {
+inline int lw_at_bound(real s, real t, real al, const real *lo,
+                           const real *hi) {
   return s <= lo[0] || t <= lo[1] || s >= hi[0] || t >= hi[1] ||
     al <= -0.5 || al >= 1.5;
 }
 
 /* newton_intersect */
-LPT_INLINE int lw_newton(lw_geom g, int f, real3 x0, real3 dx, real a,
-                         LPT_P const real *box, real s0, real t0,
-                         real alpha0, int exact, LPT_P real *s,
-                         LPT_P real *t, LPT_P real *alpha, LPT_P real3 *n,
-                         LPT_P int *iters) {
+inline int lw_newton(lw_geom g, int f, real3 x0, real3 dx, real a,
+                         const real *box, real s0, real t0,
+                         real alpha0, int exact, real *s,
+                         real *t, real *alpha, real3 *n,
+                         int *iters) {
   const real eps = LPT_EPS;
   const real ext = 0.5 * lw_max(box[1] - box[0], box[3] - box[2]);
   real lo[2], hi[2];
@@ -447,16 +436,16 @@ LPT_INLINE int lw_newton(lw_geom g, int f, real3 x0, real3 dx, real a,
 }
 
 
-LPT_INLINE void lw_edge_st(int k, real u, LPT_P real *s, LPT_P real *t) {
+inline void lw_edge_st(int k, real u, real *s, real *t) {
   if (k == 1) { *s = -1.0; *t = u; }
   else if (k == 2) { *s = 1.0; *t = u; }
   else if (k == 3) { *s = u; *t = -1.0; }
   else { *s = u; *t = 1.0; }
 }
 
-LPT_INLINE void lw_edge_point(lw_geom g, int f, int k, real u,
-                              LPT_P real3 *e, LPT_P real3 *ep,
-                              LPT_P real3 *epp) {
+inline void lw_edge_point(lw_geom g, int f, int k, real u,
+                              real3 *e, real3 *ep,
+                              real3 *epp) {
   real s, t;
   lw_edge_st(k, u, &s, &t);
   real3 xs, xt, xss, xst, xtt;
@@ -465,7 +454,7 @@ LPT_INLINE void lw_edge_point(lw_geom g, int f, int k, real u,
   else { *ep = xs; *epp = xss; }
 }
 
-LPT_INLINE real3 lw_edge_node(lw_geom g, int f, int k, int i) {
+inline real3 lw_edge_node(lw_geom g, int f, int k, int i) {
   if (k == 1) return lw_node(g, f, 1, i);
   if (k == 2) return lw_node(g, f, g.lx, i);
   if (k == 3) return lw_node(g, f, i, 1);
@@ -473,8 +462,8 @@ LPT_INLINE real3 lw_edge_node(lw_geom g, int f, int k, int i) {
 }
 
 /* segment_segment */
-LPT_INLINE void lw_seg_seg(real3 p0, real3 d0, real3 q0, real3 d1,
-                           LPT_P real *s, LPT_P real *t, LPT_P real *dist) {
+inline void lw_seg_seg(real3 p0, real3 d0, real3 q0, real3 d1,
+                           real *s, real *t, real *dist) {
   const real eps = LPT_EPS;
   const real3 w = lw_sub(p0, q0);
   const real a = lw_dot(d0, d0), b = lw_dot(d0, d1), c = lw_dot(d1, d1);
@@ -491,9 +480,9 @@ LPT_INLINE void lw_seg_seg(real3 p0, real3 d0, real3 q0, real3 d1,
 }
 
 /* rim_intersect, x0 facet-local */
-LPT_INLINE void lw_rim(lw_geom g, int f, real3 x0, real3 dx, real a,
-                       LPT_P real *alpha, LPT_P int *found,
-                       LPT_P real3 *nc, LPT_P uint *cnt) {
+inline void lw_rim(lw_geom g, int f, real3 x0, real3 dx, real a,
+                       real *alpha, int *found,
+                       real3 *nc, uint *cnt) {
   const real eps = LPT_EPS;
   const real xmax = lw_max(fabs(x0.x), lw_max(fabs(x0.y), fabs(x0.z)));
   const real tolf = 64.0 * eps * (lw_fr(g, f, LPT_FR_SCALE) + xmax);
@@ -527,7 +516,7 @@ LPT_INLINE void lw_rim(lw_geom g, int f, real3 x0, real3 dx, real a,
       continue;
 
     real dm = LPT_HUGE, al_close = 0.0, u_close = 0.0;
-    real3 ed = LPT_V3(0.0, 0.0, 0.0);
+    real3 ed = lw_v3(0.0, 0.0, 0.0);
     for (int i = 1; i <= g.lx - 1; i++) {
       const real3 p = lw_edge_node(g, f, k, i);
       const real3 q = lw_edge_node(g, f, k, i + 1);
@@ -550,7 +539,7 @@ LPT_INLINE void lw_rim(lw_geom g, int f, real3 x0, real3 dx, real a,
     int status = LPT_NEWTON_NOT_CONVERGED;
     int conv = 0;
     real al = 0.0, u = 0.0;
-    real3 rr = LPT_V3(0.0, 0.0, 0.0);
+    real3 rr = lw_v3(0.0, 0.0, 0.0);
     for (int attempt = 1; attempt <= 2; attempt++) {
       u = u_close;
       al = lw_clamp(attempt == 1 ? al_entry : al_close, -0.5, 1.5);
@@ -623,9 +612,9 @@ LPT_INLINE void lw_rim(lw_geom g, int f, real3 x0, real3 dx, real a,
 }
 
 /* accept_root */
-LPT_INLINE int lw_accept(real s, real t, real al, real3 n, real3 dx,
-                         real tol_st, real tol_al, LPT_P real *alpha,
-                         LPT_P int *found, LPT_P real3 *nc) {
+inline int lw_accept(real s, real t, real al, real3 n, real3 dx,
+                         real tol_st, real tol_al, real *alpha,
+                         int *found, real3 *nc) {
   const int ok = fabs(s) <= 1.0 + tol_st && fabs(t) <= 1.0 + tol_st &&
     al >= -tol_al && al <= 1.0 && lw_dot(dx, n) > 0.0;
   if (ok && lw_max(0.0, al) < *alpha) {
@@ -637,16 +626,16 @@ LPT_INLINE int lw_accept(real s, real t, real al, real3 n, real3 dx,
 }
 
 /* lpt_wall_facet_intersect, x0g in global coordinates */
-LPT_INLINE void lw_facet_intersect(lw_geom g, int f, real3 x0g, real3 dx,
+inline void lw_facet_intersect(lw_geom g, int f, real3 x0g, real3 dx,
                                    real a, real sg, real tg, int have_guess,
-                                   LPT_P real *alpha, LPT_P int *found,
-                                   LPT_P real3 *nc, LPT_P int *is_rim,
-                                   real tie, LPT_P uint *cnt) {
+                                   real *alpha, int *found,
+                                   real3 *nc, int *is_rim,
+                                   real tie, uint *cnt) {
   const real eps = LPT_EPS;
   const real half_pi = 1.5707963267948966;
   *found = 0;
   *is_rim = 0;
-  *nc = LPT_V3(0.0, 0.0, 0.0);
+  *nc = lw_v3(0.0, 0.0, 0.0);
   const real dxl = lw_nrm(dx);
   if (!(dxl > 0.0)) return;
   const real3 dxn = lw_scale(1.0 / dxl, dx);
@@ -666,7 +655,7 @@ LPT_INLINE void lw_facet_intersect(lw_geom g, int f, real3 x0g, real3 dx,
 
   real al_r = *alpha;
   int fd_r = 0;
-  real3 nc_r = LPT_V3(0.0, 0.0, 0.0);
+  real3 nc_r = lw_v3(0.0, 0.0, 0.0);
   if (a > 0.0) lw_rim(g, f, x0, dx, a, &al_r, &fd_r, &nc_r, cnt);
 
   real boxes[4 * LPT_PATCH_STACK];
@@ -779,8 +768,8 @@ LPT_INLINE void lw_facet_intersect(lw_geom g, int f, real3 x0g, real3 dx,
 }
 
 /* facet_st_from_rst */
-LPT_INLINE void lw_st_from_rst(int facet, real r, real s, real t,
-                               LPT_P real *sf, LPT_P real *tf) {
+inline void lw_st_from_rst(int facet, real r, real s, real t,
+                               real *sf, real *tf) {
   if (facet == 1 || facet == 2) { *sf = s; *tf = t; }
   else if (facet == 3 || facet == 4) { *sf = r; *tf = t; }
   else { *sf = r; *tf = s; }
@@ -789,10 +778,10 @@ LPT_INLINE void lw_st_from_rst(int facet, real r, real s, real t,
 }
 
 /* lpt_wall_collide: el is 1-based; returns the number of hits */
-LPT_INLINE int lw_collide(lw_geom g, int el, real3 p0, LPT_P real3 *p1,
-                          real a, real e_n, LPT_P real3 *normals,
+inline int lw_collide(lw_geom g, int el, real3 p0, real3 *p1,
+                          real a, real e_n, real3 *normals,
                           int has_rst, real r0, real r1, real r2,
-                          LPT_P uint *cnt) {
+                          uint *cnt) {
   const real eps = LPT_EPS;
   int n_hits = 0;
   if (el < 1 || el > g.nelv) return 0;
@@ -807,7 +796,7 @@ LPT_INLINE int lw_collide(lw_geom g, int el, real3 p0, LPT_P real3 *p1,
     real alpha = LPT_HUGE;
     int fbest = 0;
     int rim_best = 0;
-    real3 nbest = LPT_V3(0.0, 0.0, 0.0);
+    real3 nbest = lw_v3(0.0, 0.0, 0.0);
     const real qmax = lw_max(fabs(q0.x), lw_max(fabs(q0.y), fabs(q0.z)));
     const real a_tie = (128.0 * eps * (qmax + lw_nrm(dx)) + 1.0e-3 * a) /
       lw_nrm(dx);
@@ -857,7 +846,7 @@ LPT_INLINE int lw_collide(lw_geom g, int el, real3 p0, LPT_P real3 *p1,
 }
 
 /* v <- v - (1 + e_n)(v . n) n, on three global arrays at index p */
-LPT_INLINE void lw_reflect(LPT_G real *vx, LPT_G real *vy, LPT_G real *vz,
+inline void lw_reflect(__global real *vx, __global real *vy, __global real *vz,
                            int p, real nx, real ny, real nz, real e_n) {
   const real vn = (1.0 + e_n) * (vx[p] * nx + vy[p] * ny + vz[p] * nz);
   vx[p] -= vn * nx;
@@ -866,25 +855,25 @@ LPT_INLINE void lw_reflect(LPT_G real *vx, LPT_G real *vy, LPT_G real *vz,
 }
 
 /** Collision search; writes positions, hit counts and contact normals */
-__kernel void lpt_wall_collide_kernel(LPT_G const real *xf,
-                                      LPT_G const real *fr,
-                                      LPT_G const int *fi,
-                                      LPT_G const real *zg,
-                                      LPT_G const int *el_ptr,
-                                      LPT_G const int *el_facets,
-                                      LPT_G const real *el_radius,
-                                      LPT_G const int *el_list,
-                                      LPT_G const real *rst,
-                                      LPT_G const real *x_old,
-                                      LPT_G const real *y_old,
-                                      LPT_G const real *z_old,
-                                      LPT_G real *x,
-                                      LPT_G real *y,
-                                      LPT_G real *z,
-                                      LPT_G const real *d,
-                                      LPT_G int *hits,
-                                      LPT_G real *normals,
-                                      LPT_G uint *stats,
+__kernel void lpt_wall_collide_kernel(__global const real *xf,
+                                      __global const real *fr,
+                                      __global const int *fi,
+                                      __global const real *zg,
+                                      __global const int *el_ptr,
+                                      __global const int *el_facets,
+                                      __global const real *el_radius,
+                                      __global const int *el_list,
+                                      __global const real *rst,
+                                      __global const real *x_old,
+                                      __global const real *y_old,
+                                      __global const real *z_old,
+                                      __global real *x,
+                                      __global real *y,
+                                      __global real *z,
+                                      __global const real *d,
+                                      __global int *hits,
+                                      __global real *normals,
+                                      __global uint *stats,
                                       const int lx,
                                       const int nelv,
                                       const int n,
@@ -899,10 +888,10 @@ __kernel void lpt_wall_collide_kernel(LPT_G const real *xf,
     for (int i = 0; i < LPT_NSTATS; i++) cnt[i] = 0;
     hits[p] = 0;
     if (el_list[p] >= 0) {
-      real3 p1 = LPT_V3(x[p], y[p], z[p]);
+      real3 p1 = lw_v3(x[p], y[p], z[p]);
       real3 nrm[LPT_WALL_MAX_BOUNCES];
       const int nh = lw_collide(g, el_list[p] + 1,
-                                LPT_V3(x_old[p], y_old[p], z_old[p]), &p1,
+                                lw_v3(x_old[p], y_old[p], z_old[p]), &p1,
                                 0.5 * d[p], e_n, nrm, has_rst,
                                 has_rst ? rst[3 * p] : 0.0,
                                 has_rst ? rst[3 * p + 1] : 0.0,
@@ -919,32 +908,32 @@ __kernel void lpt_wall_collide_kernel(LPT_G const real *xf,
     }
     for (int i = 0; i < LPT_NSTATS; i++) {
       if (cnt[i] == 0) continue;
-      LPT_ATOMIC_ADD(&stats[i], cnt[i]);
+      atomic_add(&stats[i], cnt[i]);
     }
   }
 }
 
 /** Reflect the velocity, the step's velocity and acceleration, and their
     histories about the stored contact normals */
-__kernel void lpt_wall_reflect_kernel(LPT_G const int *hits,
-                                      LPT_G const real *normals,
-                                      LPT_G real *u, LPT_G real *v,
-                                      LPT_G real *w,
-                                      LPT_G real *u_old, LPT_G real *v_old,
-                                      LPT_G real *w_old,
-                                      LPT_G real *acc_x, LPT_G real *acc_y,
-                                      LPT_G real *acc_z,
-                                      LPT_G real *u_lag, LPT_G real *v_lag,
-                                      LPT_G real *w_lag,
-                                      LPT_G real *acc_xlag,
-                                      LPT_G real *acc_ylag,
-                                      LPT_G real *acc_zlag,
-                                      LPT_G real *u_laglag,
-                                      LPT_G real *v_laglag,
-                                      LPT_G real *w_laglag,
-                                      LPT_G real *acc_xlaglag,
-                                      LPT_G real *acc_ylaglag,
-                                      LPT_G real *acc_zlaglag,
+__kernel void lpt_wall_reflect_kernel(__global const int *hits,
+                                      __global const real *normals,
+                                      __global real *u, __global real *v,
+                                      __global real *w,
+                                      __global real *u_old, __global real *v_old,
+                                      __global real *w_old,
+                                      __global real *acc_x, __global real *acc_y,
+                                      __global real *acc_z,
+                                      __global real *u_lag, __global real *v_lag,
+                                      __global real *w_lag,
+                                      __global real *acc_xlag,
+                                      __global real *acc_ylag,
+                                      __global real *acc_zlag,
+                                      __global real *u_laglag,
+                                      __global real *v_laglag,
+                                      __global real *w_laglag,
+                                      __global real *acc_xlaglag,
+                                      __global real *acc_ylaglag,
+                                      __global real *acc_zlaglag,
                                       const int n,
                                       const int lag_len,
                                       const real e_n) {

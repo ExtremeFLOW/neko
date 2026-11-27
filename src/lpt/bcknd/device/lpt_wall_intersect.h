@@ -38,7 +38,6 @@
  * lpt_wall_geometry.f90 (see there for the formulation); every function
  * has the Fortran routine of the same name as its reference.
  *
- * Define LPT_DEV before inclusion to compile for the host (testing).
  * No dynamic memory is used; all work arrays have compile-time sizes, so
  * lx must not exceed LPT_WALL_MAX_LX.
  */
@@ -47,10 +46,6 @@
 #define __LPT_WALL_INTERSECT_H__
 
 #include <math.h>
-
-#ifndef LPT_DEV
-#define LPT_DEV __device__ inline
-#endif
 
 #define LPT_WALL_MAX_LX 16
 #define LPT_WALL_MAX_BOUNCES 8
@@ -88,12 +83,12 @@
 #define LPT_ST_REACH 1
 #define LPT_NSTATS 2
 
-template<typename T> LPT_DEV T lpt_eps();
-template<> LPT_DEV float lpt_eps<float>() { return 1.1920929e-7f; }
-template<> LPT_DEV double lpt_eps<double>() { return 2.220446049250313e-16; }
-template<typename T> LPT_DEV T lpt_huge();
-template<> LPT_DEV float lpt_huge<float>() { return 1.0e30f; }
-template<> LPT_DEV double lpt_huge<double>() { return 1.0e300; }
+template<typename T> __device__ inline T lpt_eps();
+template<> __device__ inline float lpt_eps<float>() { return 1.1920929e-7f; }
+template<> __device__ inline double lpt_eps<double>() { return 2.220446049250313e-16; }
+template<typename T> __device__ inline T lpt_huge();
+template<> __device__ inline float lpt_huge<float>() { return 1.0e30f; }
+template<> __device__ inline double lpt_huge<double>() { return 1.0e300; }
 
 template<typename T>
 struct lpt_v3 {
@@ -101,28 +96,28 @@ struct lpt_v3 {
 };
 
 template<typename T>
-LPT_DEV lpt_v3<T> mk3(T x, T y, T z) { lpt_v3<T> r; r.x = x; r.y = y; r.z = z; return r; }
+__device__ inline lpt_v3<T> mk3(T x, T y, T z) { lpt_v3<T> r; r.x = x; r.y = y; r.z = z; return r; }
 template<typename T>
-LPT_DEV lpt_v3<T> operator+(lpt_v3<T> a, lpt_v3<T> b) { return mk3(a.x + b.x, a.y + b.y, a.z + b.z); }
+__device__ inline lpt_v3<T> operator+(lpt_v3<T> a, lpt_v3<T> b) { return mk3(a.x + b.x, a.y + b.y, a.z + b.z); }
 template<typename T>
-LPT_DEV lpt_v3<T> operator-(lpt_v3<T> a, lpt_v3<T> b) { return mk3(a.x - b.x, a.y - b.y, a.z - b.z); }
+__device__ inline lpt_v3<T> operator-(lpt_v3<T> a, lpt_v3<T> b) { return mk3(a.x - b.x, a.y - b.y, a.z - b.z); }
 template<typename T>
-LPT_DEV lpt_v3<T> operator*(T s, lpt_v3<T> a) { return mk3(s * a.x, s * a.y, s * a.z); }
+__device__ inline lpt_v3<T> operator*(T s, lpt_v3<T> a) { return mk3(s * a.x, s * a.y, s * a.z); }
 template<typename T>
-LPT_DEV T dot3(lpt_v3<T> a, lpt_v3<T> b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
+__device__ inline T dot3(lpt_v3<T> a, lpt_v3<T> b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
 template<typename T>
-LPT_DEV T nrm3(lpt_v3<T> a) { return sqrt(dot3(a, a)); }
+__device__ inline T nrm3(lpt_v3<T> a) { return sqrt(dot3(a, a)); }
 template<typename T>
-LPT_DEV lpt_v3<T> cross3(lpt_v3<T> a, lpt_v3<T> b) {
+__device__ inline lpt_v3<T> cross3(lpt_v3<T> a, lpt_v3<T> b) {
   return mk3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z,
              a.x * b.y - a.y * b.x);
 }
 template<typename T>
-LPT_DEV T lpt_max(T a, T b) { return a > b ? a : b; }
+__device__ inline T lpt_max(T a, T b) { return a > b ? a : b; }
 template<typename T>
-LPT_DEV T lpt_min(T a, T b) { return a < b ? a : b; }
+__device__ inline T lpt_min(T a, T b) { return a < b ? a : b; }
 template<typename T>
-LPT_DEV T lpt_clamp(T v, T lo, T hi) { return lpt_max(lo, lpt_min(hi, v)); }
+__device__ inline T lpt_clamp(T v, T lo, T hi) { return lpt_max(lo, lpt_min(hi, v)); }
 
 /* Read-only geometry, packed by lpt_wall_geometry_t%to_device */
 template<typename T>
@@ -144,12 +139,12 @@ struct lpt_wall_cnt {
 };
 
 template<typename T>
-LPT_DEV const T *fr_of(const lpt_wall_geom<T> &g, int f) {
+__device__ inline const T *fr_of(const lpt_wall_geom<T> &g, int f) {
   return g.fr + (size_t) LPT_NFR * (f - 1);
 }
 
 template<typename T>
-LPT_DEV lpt_v3<T> fr3(const lpt_wall_geom<T> &g, int f, int off) {
+__device__ inline lpt_v3<T> fr3(const lpt_wall_geom<T> &g, int f, int off) {
   const T *r = fr_of(g, f);
   return mk3(r[off], r[off + 1], r[off + 2]);
 }
@@ -157,7 +152,7 @@ LPT_DEV lpt_v3<T> fr3(const lpt_wall_geom<T> &g, int f, int off) {
 /* Lagrange weights and derivatives up to order m at xi (Fornberg), as
    fd_weights_full; computed in double. c[j][k], j node, k derivative. */
 template<typename T>
-LPT_DEV void lpt_fd_weights(T xi_, const T *zg, int lx, int m,
+__device__ inline void lpt_fd_weights(T xi_, const T *zg, int lx, int m,
                             double c[LPT_WALL_MAX_LX][3]) {
   const double xi = (double) xi_;
   const int n = lx - 1;
@@ -186,7 +181,7 @@ LPT_DEV void lpt_fd_weights(T xi_, const T *zg, int lx, int m,
 }
 
 template<typename T>
-LPT_DEV lpt_v3<T> xf_node(const lpt_wall_geom<T> &g, int f, int a, int b) {
+__device__ inline lpt_v3<T> xf_node(const lpt_wall_geom<T> &g, int f, int a, int b) {
   /* a, b 1-based */
   const size_t i = 3 * ((size_t) (a - 1) + (size_t) g.lx *
                         ((size_t) (b - 1) + (size_t) g.lx * (f - 1)));
@@ -195,7 +190,7 @@ LPT_DEV lpt_v3<T> xf_node(const lpt_wall_geom<T> &g, int f, int a, int b) {
 
 /* eval_local / eval_nodes */
 template<typename T>
-LPT_DEV void lpt_eval2(const lpt_wall_geom<T> &g, int f, T s, T t,
+__device__ inline void lpt_eval2(const lpt_wall_geom<T> &g, int f, T s, T t,
                        lpt_v3<T> &x, lpt_v3<T> &xs, lpt_v3<T> &xt,
                        lpt_v3<T> &xss, lpt_v3<T> &xst, lpt_v3<T> &xtt) {
   double cs[LPT_WALL_MAX_LX][3], ct[LPT_WALL_MAX_LX][3];
@@ -222,7 +217,7 @@ LPT_DEV void lpt_eval2(const lpt_wall_geom<T> &g, int f, T s, T t,
 
 /* eval_first */
 template<typename T>
-LPT_DEV void lpt_eval1(const lpt_wall_geom<T> &g, int f, T s, T t,
+__device__ inline void lpt_eval1(const lpt_wall_geom<T> &g, int f, T s, T t,
                        lpt_v3<T> &x, lpt_v3<T> &xs, lpt_v3<T> &xt) {
   double cs[LPT_WALL_MAX_LX][3], ct[LPT_WALL_MAX_LX][3];
   lpt_fd_weights<T>(s, g.zg, g.lx, 1, cs);
@@ -244,7 +239,7 @@ LPT_DEV void lpt_eval1(const lpt_wall_geom<T> &g, int f, T s, T t,
 
 /* surface_frame */
 template<typename T>
-LPT_DEV bool lpt_frame(const lpt_wall_geom<T> &g, int f, T s, T t,
+__device__ inline bool lpt_frame(const lpt_wall_geom<T> &g, int f, T s, T t,
                        lpt_v3<T> &x, lpt_v3<T> &xs, lpt_v3<T> &xt,
                        lpt_v3<T> &n, bool deriv, lpt_v3<T> &ns,
                        lpt_v3<T> &nt) {
@@ -274,13 +269,13 @@ LPT_DEV bool lpt_frame(const lpt_wall_geom<T> &g, int f, T s, T t,
 }
 
 template<typename T>
-LPT_DEV T lpt_angle(lpt_v3<T> u, lpt_v3<T> v) {
+__device__ inline T lpt_angle(lpt_v3<T> u, lpt_v3<T> v) {
   return atan2(nrm3(cross3(u, v)), dot3(u, v));
 }
 
 /* patch_bounds, in two passes over the samples (no sample storage) */
 template<typename T>
-LPT_DEV void lpt_patch_bounds(const lpt_wall_geom<T> &g, int f,
+__device__ inline void lpt_patch_bounds(const lpt_wall_geom<T> &g, int f,
                               const T box[4], lpt_v3<T> &c, T &r,
                               lpt_v3<T> &axis, T &theta, T slab[2]) {
   const int m = lpt_max(3, 2 * g.lx - 1);
@@ -353,7 +348,7 @@ LPT_DEV void lpt_patch_bounds(const lpt_wall_geom<T> &g, int f,
 
 /* segment_sphere_interval */
 template<typename T>
-LPT_DEV bool lpt_seg_sphere(lpt_v3<T> x0, lpt_v3<T> dx, lpt_v3<T> c, T r,
+__device__ inline bool lpt_seg_sphere(lpt_v3<T> x0, lpt_v3<T> dx, lpt_v3<T> c, T r,
                             T &a_in, T &a_out) {
   a_in = 0; a_out = 0;
   const T qa = dot3(dx, dx);
@@ -372,14 +367,14 @@ LPT_DEV bool lpt_seg_sphere(lpt_v3<T> x0, lpt_v3<T> dx, lpt_v3<T> c, T r,
 }
 
 template<typename T>
-LPT_DEV bool lpt_at_bound(T s, T t, T al, const T lo[2], const T hi[2]) {
+__device__ inline bool lpt_at_bound(T s, T t, T al, const T lo[2], const T hi[2]) {
   return s <= lo[0] || t <= lo[1] || s >= hi[0] || t >= hi[1] ||
     al <= (T) -0.5 || al >= (T) 1.5;
 }
 
 /* newton_intersect */
 template<typename T>
-LPT_DEV int lpt_newton(const lpt_wall_geom<T> &g, int f, lpt_v3<T> x0,
+__device__ inline int lpt_newton(const lpt_wall_geom<T> &g, int f, lpt_v3<T> x0,
                        lpt_v3<T> dx, T a, const T box[4], T s0, T t0,
                        T alpha0, bool exact, T &s, T &t, T &alpha,
                        lpt_v3<T> &n, int &iters) {
@@ -458,7 +453,7 @@ LPT_DEV int lpt_newton(const lpt_wall_geom<T> &g, int f, lpt_v3<T> x0,
 }
 
 
-LPT_DEV void lpt_edge_st(int k, double u, double &s, double &t) {
+__device__ inline void lpt_edge_st(int k, double u, double &s, double &t) {
   switch (k) {
   case 1: s = -1; t = u; break;
   case 2: s = 1; t = u; break;
@@ -468,7 +463,7 @@ LPT_DEV void lpt_edge_st(int k, double u, double &s, double &t) {
 }
 
 template<typename T>
-LPT_DEV void lpt_edge_point(const lpt_wall_geom<T> &g, int f, int k, T u,
+__device__ inline void lpt_edge_point(const lpt_wall_geom<T> &g, int f, int k, T u,
                             lpt_v3<T> &e, lpt_v3<T> &ep, lpt_v3<T> &epp) {
   double s, t;
   lpt_edge_st(k, (double) u, s, t);
@@ -479,7 +474,7 @@ LPT_DEV void lpt_edge_point(const lpt_wall_geom<T> &g, int f, int k, T u,
 }
 
 template<typename T>
-LPT_DEV lpt_v3<T> lpt_edge_node(const lpt_wall_geom<T> &g, int f, int k,
+__device__ inline lpt_v3<T> lpt_edge_node(const lpt_wall_geom<T> &g, int f, int k,
                                 int i) {
   switch (k) {
   case 1: return xf_node(g, f, 1, i);
@@ -491,7 +486,7 @@ LPT_DEV lpt_v3<T> lpt_edge_node(const lpt_wall_geom<T> &g, int f, int k,
 
 /* segment_segment */
 template<typename T>
-LPT_DEV void lpt_seg_seg(lpt_v3<T> p0, lpt_v3<T> d0, lpt_v3<T> q0,
+__device__ inline void lpt_seg_seg(lpt_v3<T> p0, lpt_v3<T> d0, lpt_v3<T> q0,
                          lpt_v3<T> d1, T &s, T &t, T &dist) {
   const T eps = lpt_eps<T>();
   const lpt_v3<T> w = p0 - q0;
@@ -510,7 +505,7 @@ LPT_DEV void lpt_seg_seg(lpt_v3<T> p0, lpt_v3<T> d0, lpt_v3<T> q0,
 
 /* rim_intersect, x0 facet-local */
 template<typename T>
-LPT_DEV void lpt_rim(const lpt_wall_geom<T> &g, int f, lpt_v3<T> x0,
+__device__ inline void lpt_rim(const lpt_wall_geom<T> &g, int f, lpt_v3<T> x0,
                      lpt_v3<T> dx, T a, T &alpha, bool &found,
                      lpt_v3<T> &nc, lpt_wall_cnt &cnt) {
   const T eps = lpt_eps<T>();
@@ -640,7 +635,7 @@ LPT_DEV void lpt_rim(const lpt_wall_geom<T> &g, int f, lpt_v3<T> x0,
 
 /* Record a converged root, see accept_root in lpt_wall_facet_intersect */
 template<typename T>
-LPT_DEV bool lpt_accept(T s, T t, T al, lpt_v3<T> n, lpt_v3<T> dx,
+__device__ inline bool lpt_accept(T s, T t, T al, lpt_v3<T> n, lpt_v3<T> dx,
                         T tol_st, T tol_al, T &alpha, bool &found,
                         lpt_v3<T> &nc) {
   const bool ok = fabs(s) <= (T) 1 + tol_st && fabs(t) <= (T) 1 + tol_st &&
@@ -655,7 +650,7 @@ LPT_DEV bool lpt_accept(T s, T t, T al, lpt_v3<T> n, lpt_v3<T> dx,
 
 /* lpt_wall_facet_intersect, x0g in global coordinates */
 template<typename T>
-LPT_DEV void lpt_facet_intersect(const lpt_wall_geom<T> &g, int f,
+__device__ inline void lpt_facet_intersect(const lpt_wall_geom<T> &g, int f,
                                  lpt_v3<T> x0g, lpt_v3<T> dx, T a,
                                  T sg, T tg, bool have_guess, T &alpha,
                                  bool &found, lpt_v3<T> &nc, bool &is_rim,
@@ -791,7 +786,7 @@ LPT_DEV void lpt_facet_intersect(const lpt_wall_geom<T> &g, int f,
 
 /* facet_st_from_rst */
 template<typename T>
-LPT_DEV void lpt_st_from_rst(int facet, T r, T s, T t, T &sf, T &tf) {
+__device__ inline void lpt_st_from_rst(int facet, T r, T s, T t, T &sf, T &tf) {
   switch (facet) {
   case 1: case 2: sf = s; tf = t; break;
   case 3: case 4: sf = r; tf = t; break;
@@ -803,7 +798,7 @@ LPT_DEV void lpt_st_from_rst(int facet, T r, T s, T t, T &sf, T &tf) {
 
 /* lpt_wall_collide: el is 1-based; rst may be null */
 template<typename T>
-LPT_DEV int lpt_collide(const lpt_wall_geom<T> &g, int el, lpt_v3<T> p0,
+__device__ inline int lpt_collide(const lpt_wall_geom<T> &g, int el, lpt_v3<T> p0,
                         lpt_v3<T> &p1, T a, T e_n,
                         lpt_v3<T> normals[LPT_WALL_MAX_BOUNCES],
                         const T *rst, lpt_wall_cnt &cnt) {
@@ -872,7 +867,7 @@ LPT_DEV int lpt_collide(const lpt_wall_geom<T> &g, int el, lpt_v3<T> p0,
 
 /* v <- v - (1 + e_n)(v . n) n */
 template<typename T>
-LPT_DEV void lpt_reflect(T &vx, T &vy, T &vz, lpt_v3<T> n, T e_n) {
+__device__ inline void lpt_reflect(T &vx, T &vy, T &vz, lpt_v3<T> n, T e_n) {
   const T vn = ((T) 1 + e_n) * (vx * n.x + vy * n.y + vz * n.z);
   vx -= vn * n.x;
   vy -= vn * n.y;
@@ -881,7 +876,7 @@ LPT_DEV void lpt_reflect(T &vx, T &vy, T &vz, lpt_v3<T> n, T e_n) {
 
 /* Body of the per-particle kernel, shared by CUDA, HIP and host tests */
 template<typename T>
-LPT_DEV void lpt_wall_collide_particle(
+__device__ inline void lpt_wall_collide_particle(
     const lpt_wall_geom<T> &g, int p, const int *el_list, const T *rst,
     const T *x_old, const T *y_old, const T *z_old, T *x, T *y, T *z,
     const T *d, T *u, T *v, T *w, T *u_lag, T *v_lag, T *w_lag,
