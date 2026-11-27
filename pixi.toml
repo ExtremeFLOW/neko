@@ -6,21 +6,12 @@ platforms = ["osx-arm64", "osx-64", "linux-64"]
 version = "1.0.x"
 
 [activation.env]
-PREFIX = "$PIXI_PROJECT_ROOT/install"
-NEKO_EXEC = "$PIXI_PROJECT_ROOT/install/bin/neko"
-MAKENEKO_EXEC = "$PIXI_PROJECT_ROOT/install/bin/makeneko"
-GENMESHBOX_EXEC = "$PIXI_PROJECT_ROOT/install/bin/genmeshbox"
+PREFIX = "$PWD/install"
 PKG_CONFIG_PATH = "$PREFIX/lib/pkgconfig:$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 PATH = "$PREFIX/bin:$PATH"
 LD_LIBRARY_PATH = "$PREFIX/lib:$LD_LIBRARY_PATH"
 LIBRARY_PATH = "$PREFIX/lib:$LIBRARY_PATH"
 CPATH = "$PREFIX/include:$CPATH"
-
-[tasks.environment-check]
-cmd = ["bash", "contrib/check_neko_development_environment.sh"]
-
-[tasks.dev-neko-cpu]
-cmd = ["make", "dev"]
 
 [tasks.download-deps]
 cmd = [
@@ -64,12 +55,11 @@ cmd = [
   "bash",
   "-c",
   '''
-  set -e
   cd $PREFIX/deps
   tar xvf hdf5_1.14.6.tar.gz
   cd hdf5-hdf5_1.14.6
   cmake -B build -S . -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_C_COMPILER=mpicc -DCMAKE_CXX_COMPILER=mpicxx -DCMAKE_Fortran_COMPILER=mpifort -DHDF5_ENABLE_PARALLEL=ON -DHDF5_BUILD_FORTRAN=ON -DCMAKE_BUILD_TYPE=Release
-  cmake --build build/ --parallel 4
+  cmake --build build/ --parallel
   cmake --install build/
   ''',
 ]
@@ -127,8 +117,6 @@ lapack = "*"
 [feature.python.dependencies]
 python = "3.11.*"
 pytest = "*"
-numpy = "*"
-json5 = "*"
 findent = "*"
 json5 = "*"
 

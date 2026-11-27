@@ -2,13 +2,9 @@
 defines command line options.
 
 """
-import logging
 import os
-from pathlib import Path
-
 import pytest
-
-INTEGRATION_DIR = Path(__file__).resolve().parent
+import logging
 
 # The backend used to run Neko.
 BACKEND = "cpu"
@@ -34,7 +30,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--launcher-script",
         action="store",
-        default=str(INTEGRATION_DIR / "default_cpu_launcher.sh"),
+        default="./default_cpu_launcher.sh",  # default value
         help="Path to the launcher script for running neko."
     )
     parser.addoption(
@@ -96,3 +92,4 @@ def log_file(request):
     log_path = os.path.join("logs", f"{test_name}.log")
 
     return log_path
+
