@@ -55,19 +55,18 @@ module entropy_viscosity
   use gather_scatter, only : gs_t
   use gs_ops, only : GS_OP_ADD
   use neko_config, only : NEKO_BCKND_DEVICE
-  use device, only : device_memcpy, HOST_TO_DEVICE, DEVICE_TO_HOST
-  use device_math, only : device_col3, device_absval, device_glsum, device_col2
+  use device, only : device_memcpy, HOST_TO_DEVICE
+  use device_math, only : device_col3, device_absval, device_glsum, &
+       device_col2, device_add2, device_glmax
   use entropy_viscosity_cpu, only : entropy_viscosity_compute_residual_cpu, &
        entropy_viscosity_compute_viscosity_cpu, &
        entropy_viscosity_apply_element_max_cpu, &
-       entropy_viscosity_clamp_to_low_order_cpu, &
-       entropy_viscosity_smooth_divide_cpu
+       entropy_viscosity_clamp_to_low_order_cpu
   use entropy_viscosity_device, only : &
        entropy_viscosity_compute_residual_device, &
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
-       entropy_viscosity_clamp_to_low_order_device, &
-       entropy_viscosity_smooth_divide_device
+       entropy_viscosity_clamp_to_low_order_device
   use compressible_ops_cpu, only : compressible_ops_cpu_compute_entropy
   use compressible_ops_device, only : compressible_ops_device_compute_entropy
   use fluid_scheme_compressible, only : fluid_scheme_compressible_t
@@ -82,6 +81,8 @@ module entropy_viscosity
      real(kind=rp) :: c_avisc_low
      !> Ratio of specific heats.
      real(kind=rp) :: gamma
+     !> Global number of (non-unique) points, the divisor of the entropy mean.
+     real(kind=rp) :: n_points_glb
      !> Entropy residual field.
      type(field_t) :: entropy_residual
      !> Entropy history used by the BDF residual.
@@ -185,6 +186,10 @@ contains
     call this%h%init(this%dof, 'h')
     call this%compute_h()
 
+    ! The entropy mean divides by the number of points, which is constant
+    ! and exact as a real: glb_nelv * lxyz < 2**53.
+    this%n_points_glb = real(this%msh%glb_nelv, rp) * real(this%Xh%lxyz, rp)
+
   end subroutine entropy_viscosity_init
 
   !> Free the entropy viscosity model.
@@ -247,7 +252,6 @@ contains
     end if
 
     n = this%dof%size()
-    call field_cfill(this%entropy_residual, 0.0_rp, n)
 
     bdf_coeffs = 0.0_rp
     dt_local = dt_lag
@@ -283,20 +287,18 @@ contains
             ws_field%x, this%u%x, this%v%x, this%w%x, this%S%x, n)
     end if
 
-    call div(div_field%x, us_field%x, vs_field%x, ws_field%x, this%coef)
-
+    ! Residual |dS/dt + div(u S)|, formed where the fields live. The device
+    ! path used to copy both fields to the host, add there and copy back,
+    ! three full-field transfers per step, two of them blocking.
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%entropy_residual%x, this%entropy_residual%x_d, &
-            n, DEVICE_TO_HOST, sync = .false.)
-       call device_memcpy(div_field%x, div_field%x_d, n, DEVICE_TO_HOST, &
-            sync = .true.)
-    end if
-
-    call entropy_viscosity_abs_add_cpu(this%entropy_residual%x, div_field%x, n)
-
-    if (NEKO_BCKND_DEVICE .eq. 1) then
-       call device_memcpy(this%entropy_residual%x, this%entropy_residual%x_d, &
-            n, HOST_TO_DEVICE, sync = .false.)
+       call div(div_field%x_d, us_field%x_d, vs_field%x_d, ws_field%x_d, &
+            this%coef)
+       call device_add2(this%entropy_residual%x_d, div_field%x_d, n)
+       call device_absval(this%entropy_residual%x_d, n)
+    else
+       call div(div_field%x, us_field%x, vs_field%x, ws_field%x, this%coef)
+       call entropy_viscosity_abs_add_cpu(this%entropy_residual%x, &
+            div_field%x, n)
     end if
 
     call neko_scratch_registry%relinquish_field(temp_indices)
@@ -323,22 +325,19 @@ contains
     call neko_scratch_registry%request_field(temp_field, temp_indices(1), &
          .false.)
 
-    call field_cfill(temp_field, 1.0_rp, n)
-    S_mean = field_glsum(this%S, n) / field_glsum(temp_field, n)
+    ! Mean entropy over all (non-unique) points
+    S_mean = field_glsum(this%S, n) / this%n_points_glb
 
+    ! Normalization factor n_S = |S - S_mean|_inf, reduced where the data is
     call field_copy(temp_field, this%S, n)
     call field_cadd(temp_field, -S_mean, n)
-
     if (NEKO_BCKND_DEVICE .eq. 1) then
        call device_absval(temp_field%x_d, n)
-       call device_memcpy(temp_field%x, temp_field%x_d, n, DEVICE_TO_HOST, &
-            sync = .true.)
+       n_S = device_glmax(temp_field%x_d, n)
     else
        call absval(temp_field%x, n)
+       n_S = glmax(temp_field%x, n)
     end if
-
-    ! Normalization factor n_S = |S-S_mean|_inf
-    n_S = glmax(temp_field%x, n)
 
     call neko_scratch_registry%relinquish_field(temp_indices)
 
@@ -375,36 +374,26 @@ contains
   end subroutine entropy_viscosity_compute_viscosity
 
   !> Cross-element smoothing via gather-scatter averaging.
-  !! Averages viscosity values at shared nodes between elements.
+  !! Averages viscosity values at shared nodes between elements: the sum
+  !! over the elements sharing a node, divided by their number. The latter
+  !! is the gather-scatter multiplicity, already held as coef%mult, so one
+  !! in-place exchange does the job (this used to copy the field, exchange
+  !! the copy, and re-derive the multiplicity with a second exchange of a
+  !! field of ones, every step).
   !! @param this The entropy viscosity model.
   subroutine entropy_viscosity_smooth_viscosity(this)
     class(entropy_viscosity_t), intent(inout) :: this
     integer :: n
-    type(field_t), pointer :: temp_field, mult_field
-    integer :: temp_indices(2)
 
     n = this%dof%size()
 
-    call neko_scratch_registry%request_field(temp_field, temp_indices(1), &
-         .false.)
-    call neko_scratch_registry%request_field(mult_field, temp_indices(2), &
-         .false.)
-
-    call field_copy(temp_field, this%reg_coeff, n)
-    call this%gs%op(temp_field, GS_OP_ADD)
-
-    call field_cfill(mult_field, 1.0_rp, n)
-    call this%gs%op(mult_field, GS_OP_ADD)
+    call this%gs%op(this%reg_coeff, GS_OP_ADD)
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
-       call entropy_viscosity_smooth_divide_device( &
-            this%reg_coeff%x_d, temp_field%x_d, mult_field%x_d, n)
+       call device_col2(this%reg_coeff%x_d, this%coef%mult_d, n)
     else
-       call entropy_viscosity_smooth_divide_cpu( &
-            this%reg_coeff%x, temp_field%x, mult_field%x, n)
+       call col2(this%reg_coeff%x, this%coef%mult, n)
     end if
-
-    call neko_scratch_registry%relinquish_field(temp_indices)
 
   end subroutine entropy_viscosity_smooth_viscosity
 

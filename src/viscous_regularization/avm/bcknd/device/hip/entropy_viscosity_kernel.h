@@ -142,20 +142,4 @@ __global__ void entropy_visc_clamp_to_low_order_kernel(T * __restrict__ reg_coef
   }
 }
 
-/**
- * Kernel for dividing by multiplicity (smoothing)
- */
-template<typename T>
-__global__ void entropy_visc_smooth_divide_kernel(T * __restrict__ reg_coeff,
-                                                  const T * __restrict__ temp_field,
-                                                  const T * __restrict__ mult_field,
-                                                  const int n) {
-  const int idx = blockIdx.x * blockDim.x + threadIdx.x;
-  const int str = blockDim.x * gridDim.x;
-
-  for (int i = idx; i < n; i += str) {
-    reg_coeff[i] = temp_field[i] / mult_field[i];
-  }
-}
-
 #endif // __FLUID_ENTROPY_VISCOSITY_KERNEL_H__

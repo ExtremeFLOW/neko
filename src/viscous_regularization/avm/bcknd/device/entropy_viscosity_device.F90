@@ -86,16 +86,6 @@ module entropy_viscosity_device
      end subroutine hip_entropy_visc_clamp_to_low_order
   end interface
 
-  interface
-     subroutine hip_entropy_visc_smooth_divide(reg_coeff_d, &
-          temp_field_d, mult_field_d, n) &
-          bind(c, name = 'hip_entropy_visc_smooth_divide')
-       use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: reg_coeff_d, temp_field_d, mult_field_d
-       integer(c_int) :: n
-     end subroutine hip_entropy_visc_smooth_divide
-  end interface
-
 #elif HAVE_CUDA
   interface
      subroutine cuda_entropy_visc_compute_residual(entropy_residual_d, &
@@ -142,16 +132,6 @@ module entropy_viscosity_device
        real(c_rp) :: c_avisc_low
        integer(c_int) :: n
      end subroutine cuda_entropy_visc_clamp_to_low_order
-  end interface
-
-  interface
-     subroutine cuda_entropy_visc_smooth_divide(reg_coeff_d, &
-          temp_field_d, mult_field_d, n) &
-          bind(c, name = 'cuda_entropy_visc_smooth_divide')
-       use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: reg_coeff_d, temp_field_d, mult_field_d
-       integer(c_int) :: n
-     end subroutine cuda_entropy_visc_smooth_divide
   end interface
 
 #elif HAVE_OPENCL
@@ -201,16 +181,6 @@ module entropy_viscosity_device
        integer(c_int), value :: n
      end subroutine opencl_entropy_visc_clamp_to_low_order
   end interface
-
-  interface
-     subroutine opencl_entropy_visc_smooth_divide(reg_coeff_d, &
-          temp_field_d, mult_field_d, n) &
-          bind(c, name = 'opencl_entropy_visc_smooth_divide')
-       use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: reg_coeff_d, temp_field_d, mult_field_d
-       integer(c_int), value :: n
-     end subroutine opencl_entropy_visc_smooth_divide
-  end interface
 #elif HAVE_METAL
   interface
      subroutine metal_entropy_visc_compute_residual(entropy_residual_d, &
@@ -258,23 +228,12 @@ module entropy_viscosity_device
        integer(c_int), value :: n
      end subroutine metal_entropy_visc_clamp_to_low_order
   end interface
-
-  interface
-     subroutine metal_entropy_visc_smooth_divide(reg_coeff_d, &
-          temp_field_d, mult_field_d, n) &
-          bind(c, name = 'metal_entropy_visc_smooth_divide')
-       use, intrinsic :: iso_c_binding
-       type(c_ptr), value :: reg_coeff_d, temp_field_d, mult_field_d
-       integer(c_int), value :: n
-     end subroutine metal_entropy_visc_smooth_divide
-  end interface
 #endif
 
   public :: entropy_viscosity_compute_residual_device, &
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
-       entropy_viscosity_clamp_to_low_order_device, &
-       entropy_viscosity_smooth_divide_device
+       entropy_viscosity_clamp_to_low_order_device
 
 contains
 
@@ -395,32 +354,5 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine entropy_viscosity_clamp_to_low_order_device
-
-  !> Divide by gather-scatter multiplicity on a device.
-  !! @param reg_coeff_d Device regularization coefficient field.
-  !! @param temp_field_d Device field containing summed values.
-  !! @param mult_field_d Device multiplicity field.
-  !! @param n Number of points.
-  subroutine entropy_viscosity_smooth_divide_device(reg_coeff_d, &
-       temp_field_d, mult_field_d, n)
-    type(c_ptr), intent(in) :: reg_coeff_d, temp_field_d, mult_field_d
-    integer, intent(in) :: n
-
-#ifdef HAVE_HIP
-    call hip_entropy_visc_smooth_divide(reg_coeff_d, &
-         temp_field_d, mult_field_d, n)
-#elif HAVE_CUDA
-    call cuda_entropy_visc_smooth_divide(reg_coeff_d, &
-         temp_field_d, mult_field_d, n)
-#elif HAVE_OPENCL
-    call opencl_entropy_visc_smooth_divide(reg_coeff_d, &
-         temp_field_d, mult_field_d, n)
-#elif HAVE_METAL
-    call metal_entropy_visc_smooth_divide(reg_coeff_d, &
-         temp_field_d, mult_field_d, n)
-#else
-    call neko_error('No device backend configured')
-#endif
-  end subroutine entropy_viscosity_smooth_divide_device
 
 end module entropy_viscosity_device
