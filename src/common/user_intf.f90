@@ -131,6 +131,24 @@ module user_intf
      end subroutine user_compute_intf
   end interface
 
+  !> Abstract interface for a user-defined entropy pair.
+  !! @param entropy Entropy density.
+  !! @param flux_x Entropy flux in the x direction.
+  !! @param flux_y Entropy flux in the y direction.
+  !! @param flux_z Entropy flux in the z direction.
+  !! @param wave_speed Characteristic speed for the viscosity cap.
+  !! @param time The time state.
+  abstract interface
+     subroutine user_entropy_pair_intf(entropy, flux_x, flux_y, flux_z, &
+          wave_speed, time)
+       import field_t, time_state_t
+       type(field_t), intent(inout) :: entropy
+       type(field_t), intent(inout) :: flux_x, flux_y, flux_z
+       type(field_t), intent(inout) :: wave_speed
+       type(time_state_t), intent(in) :: time
+     end subroutine user_entropy_pair_intf
+  end interface
+
   !> Abstract interface for finalizating user variables
   !! @param time The time state.
   abstract interface
@@ -243,6 +261,9 @@ module user_intf
      !> Run at the end of each time-step in the time loop, right before field
      !! output to disk.
      procedure(user_compute_intf), nopass, pointer :: compute => null()
+     !> Evaluate a user-defined entropy pair for entropy viscosity.
+     procedure(user_entropy_pair_intf), nopass, pointer :: &
+          entropy_pair => null()
      !> Runs in the end of the simulation, after the last output. Mean as a
      !! place to run `free()` on user-allocated objects.
      procedure(user_finalize_intf), nopass, pointer :: &
@@ -285,6 +306,7 @@ module user_intf
   public :: user_initial_conditions_intf, user_initialize_intf, &
        user_mesh_setup_intf, dummy_user_material_properties, &
        user_material_properties_intf, user_finalize_intf, &
+       user_entropy_pair_intf, dummy_user_entropy_pair, &
        user_startup_intf, user_source_term_intf, &
        user_ale_mesh_velocity_intf, user_ale_base_shapes_intf, &
        user_ale_rigid_kinematics_intf, &
@@ -379,6 +401,14 @@ contains
        user_extended = .true.
        n = n + 1
        write(extensions(n), '(A)') '- User preprocess'
+    end if
+
+    if (.not. associated(this%entropy_pair)) then
+       this%entropy_pair => dummy_user_entropy_pair
+    else
+       user_extended = .true.
+       n = n + 1
+       write(extensions(n), '(A)') '- Entropy pair'
     end if
 
     if (.not. associated(this%initialize)) then
@@ -512,6 +542,17 @@ contains
   subroutine dummy_user_compute(time)
     type(time_state_t), intent(in) :: time
   end subroutine dummy_user_compute
+
+  !> Dummy user entropy pair.
+  subroutine dummy_user_entropy_pair(entropy, flux_x, flux_y, flux_z, &
+       wave_speed, time)
+    type(field_t), intent(inout) :: entropy
+    type(field_t), intent(inout) :: flux_x, flux_y, flux_z
+    type(field_t), intent(inout) :: wave_speed
+    type(time_state_t), intent(in) :: time
+
+    call neko_error('User entropy pair requested but not provided')
+  end subroutine dummy_user_entropy_pair
 
   subroutine dummy_initialize(time)
     type(time_state_t), intent(in) :: time

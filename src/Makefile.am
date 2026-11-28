@@ -222,6 +222,7 @@ neko_fortran_SOURCES = \
 	bc/overset_interface.f90\
 	bc/overset_interface_vector.f90\
 	bc/facet_normal.f90\
+	bc/slip.f90\
 	bc/symmetry.f90\
 	bc/symmetry_aligned.f90\
 	bc/non_normal_aligned.f90\
@@ -295,6 +296,9 @@ neko_fortran_SOURCES = \
 	fluid/stress_formulation/bcknd/device/pnpn_res_stress_device.F90\
 	fluid/fluid_scheme_base.f90\
 	fluid/fluid_scheme_incompressible.f90\
+	fluid/euler_idp_backend.f90\
+	fluid/euler_idp.f90\
+	fluid/euler_gll_graph.f90\
 	fluid/fluid_scheme_compressible.f90\
 	fluid/fluid_scheme_compressible_ns.f90\
 	fluid/fluid_aux.f90\
@@ -322,6 +326,9 @@ neko_fortran_SOURCES = \
 	fluid/bcknd/cpu/compressible_res_cpu.f90\
 	fluid/bcknd/device/compressible_res_device.F90\
 	fluid/bcknd/cpu/compressible_ops_cpu.f90\
+	fluid/bcknd/cpu/euler_idp_cpu.f90\
+	fluid/bcknd/device/euler_idp_device_kernels.F90\
+	fluid/bcknd/device/euler_idp_device.F90\
 	fluid/bcknd/device/compressible_ops_device.F90\
 	fluid/fluid_source_term.f90\
 	common/time_step_controller.f90\
@@ -598,6 +605,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip\
 	fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip\
 	fluid/bcknd/device/hip/compressible_ops_update.hip\
+	fluid/bcknd/device/hip/euler_idp.hip\
 	fluid/stress_formulation/bcknd/device/hip/pnpn_stress_res.hip\
 	scalar/bcknd/device/hip/scalar_residual.hip\
 	sem/bcknd/device/hip/coef.hip\
@@ -676,6 +684,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu\
 	fluid/bcknd/device/cuda/compressible_ops_compute_entropy.cu\
 	fluid/bcknd/device/cuda/compressible_ops_update.cu\
+	fluid/bcknd/device/cuda/euler_idp.cu\
 	fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu\
 	scalar/bcknd/device/cuda/scalar_residual.cu\
 	sem/bcknd/device/cuda/coef.cu\
@@ -786,6 +795,7 @@ libneko_la_SOURCES += \
 	fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.c\
 	fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c\
 	fluid/bcknd/device/opencl/compressible_ops_update.c\
+	fluid/bcknd/device/opencl/euler_idp.c\
 	viscous_regularization/avm/bcknd/device/opencl/entropy_viscosity.c\
 	scalar/bcknd/device/opencl/scalar_residual.c\
 	sem/bcknd/device/opencl/coef.c\
@@ -856,6 +866,7 @@ METAL_OBJS = \
 	fluid/bcknd/device/metal/compressible_ops_compute_max_wave_speed.lo\
 	fluid/bcknd/device/metal/compressible_ops_compute_entropy.lo\
 	fluid/bcknd/device/metal/compressible_ops_update.lo\
+	fluid/bcknd/device/metal/euler_idp.lo\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity.lo\
 	filter/bcknd/device/metal/mappings.lo\
 	gs/bcknd/device/metal/gs.lo\
@@ -922,6 +933,7 @@ dist_noinst_DATA = \
 	fluid/bcknd/device/metal/compressible_ops_compute_max_wave_speed.m\
 	fluid/bcknd/device/metal/compressible_ops_compute_entropy.m\
 	fluid/bcknd/device/metal/compressible_ops_update.m\
+	fluid/bcknd/device/metal/euler_idp.m\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity.m\
 	filter/bcknd/device/metal/mappings.m\
 	gs/bcknd/device/metal/gs.m\
@@ -985,6 +997,7 @@ METAL_KERNELS = \
 	fluid/bcknd/device/metal/compressible_ops_compute_max_wave_speed_kernel.metal\
 	fluid/bcknd/device/metal/compressible_ops_compute_entropy_kernel.metal\
 	fluid/bcknd/device/metal/compressible_ops_update_kernel.metal\
+	fluid/bcknd/device/metal/euler_idp_kernel.air\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity_kernel.metal\
 	filter/bcknd/device/metal/mapping_kernels.metal\
 	gs/bcknd/device/metal/gs_kernels.metal\
@@ -1017,6 +1030,10 @@ METAL_KERNELS = \
 	ale/bcknd/device/metal/ale_kinematics_kernel.metal\
 	source_terms/bcknd/device/metal/gradient_jump_penalty_kernel.metal\
 	wall_models/bcknd/device/metal/cai_sagaut_model_ii_kernel.metal
+
+fluid/bcknd/device/metal/euler_idp_kernel.air: fluid/bcknd/device/metal/euler_idp_kernel.metal \
+    fluid/bcknd/device/euler_idp_kernels.cl
+	@XCRUN@ -sdk macosx metal -O2 -fno-fast-math -c $< -o $@
 
 device/metal/neko_kernels.metallib: $(METAL_KERNELS)
 	$(MKDIR_P) device/metal
@@ -1093,12 +1110,14 @@ endif
 
 if ENABLE_METAL
 CLEANFILES += $(METAL_OBJS)\
+	fluid/bcknd/device/metal/euler_idp_kernel.air\
 	device/metal/neko_kernels.metallib\
 	device/metal/neko_metallib.c
 endif
 
 if ENABLE_OPENCL
 CLEANFILES += \
+	fluid/bcknd/device/euler_idp_kernels.cl.h\
 	math/bcknd/device/opencl/*.cl.h\
 	gs/bcknd/device/opencl/*.cl.h\
 	bc/bcknd/device/opencl/*.cl.h\
@@ -1128,6 +1147,9 @@ endif
 
 # Note we need to list any headers etc here for the dist. script
 EXTRA_DIST = \
+	fluid/bcknd/device/euler_idp_launch.h\
+	fluid/bcknd/device/euler_idp_args.h\
+	fluid/bcknd/device/euler_idp_kernel.h\
     ale/bcknd/device/cuda/ale_kinematics_kernel.h\
 	bc/bcknd/device/cuda/dirichlet_kernel.h\
 	bc/bcknd/device/cuda/inflow_kernel.h\
@@ -1336,6 +1358,7 @@ EXTRA_DIST = \
 	filter/bcknd/device/cuda/mapping_kernels.h\
 	filter/bcknd/device/hip/mapping_kernels.h\
 	filter/bcknd/device/opencl/mapping_kernels.cl\
+	fluid/bcknd/device/euler_idp_kernels.cl\
 	viscous_regularization/avm/bcknd/device/opencl/entropy_viscosity_kernel.cl\
 	source_terms/bcknd/device/cuda/gradient_jump_penalty_kernel.h\
 	source_terms/bcknd/device/hip/gradient_jump_penalty_kernel.h\
@@ -1370,6 +1393,7 @@ EXTRA_DIST = \
 	fluid/bcknd/device/metal/compressible_ops_compute_max_wave_speed_kernel.metal\
 	fluid/bcknd/device/metal/compressible_ops_compute_entropy_kernel.metal\
 	fluid/bcknd/device/metal/compressible_ops_update_kernel.metal\
+	fluid/bcknd/device/metal/euler_idp_kernel.metal\
 	fluid/regularization/bcknd/device/metal/entropy_viscosity_kernel.metal\
 	filter/bcknd/device/metal/mapping_kernels.metal\
 	gs/bcknd/device/metal/gs_kernels.metal\

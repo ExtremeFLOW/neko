@@ -206,7 +206,7 @@
           "type": "object",
           "required": ["type", "zone_indices"],
           "properties": {
-            "type": {"enum": ["no_slip", "symmetry", "outflow", "normal_outflow"]},
+            "type": {"enum": ["no_slip", "slip", "symmetry", "outflow", "normal_outflow"]},
             "zone_indices": {"$ref": "urn:neko:schema:common#/$defs/integerArrayOrRef"},
             "name": {"$ref": "urn:neko:schema:common#/$defs/nonEmptyString"}
           },

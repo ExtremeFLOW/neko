@@ -33,15 +33,105 @@
 !> CPU implementation of compressible flow operations
 module compressible_ops_cpu
   use num_types, only : rp
+  use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
   implicit none
   private
 
+  integer, public, parameter :: EULER_STATE_OK = 0
+  integer, public, parameter :: EULER_STATE_INVALID_GAMMA = 1
+  integer, public, parameter :: EULER_STATE_INVALID_DENSITY = 2
+  integer, public, parameter :: EULER_STATE_INVALID_INTERNAL_ENERGY = 3
+
   public :: compressible_ops_cpu_compute_max_wave_speed, &
        compressible_ops_cpu_compute_entropy, compressible_ops_cpu_update_uvw, &
-       compressible_ops_cpu_update_mxyz_p_ruvw, compressible_ops_cpu_update_e
+       compressible_ops_cpu_update_mxyz_p_ruvw, compressible_ops_cpu_update_e, &
+       compressible_ops_cpu_conserved_to_primitive
 
 
 contains
+
+  !> Convert conserved Euler states to primitives without modifying energy.
+  !> @param rho Conserved density
+  !> @param m_x,m_y,m_z Conserved momentum components
+  !> @param E Conserved total-energy density
+  !> @param gamma Ratio of specific heats
+  !> @param internal_energy_floor Numerical internal-energy-density floor
+  !> @param rho_primitive Primitive density
+  !> @param u,v,w Primitive velocity components
+  !> @param p Pressure
+  !> @param sound_speed Sound speed
+  !> @param internal_energy Internal-energy density
+  !> @param status Admissibility status for each state
+  !> @param n Number of states
+  subroutine compressible_ops_cpu_conserved_to_primitive(rho, m_x, m_y, m_z, &
+       E, gamma, internal_energy_floor, rho_primitive, &
+       u, v, w, p, sound_speed, internal_energy, status, n)
+    integer, intent(in) :: n
+    real(kind=rp), dimension(n), intent(in) :: rho, m_x, m_y, m_z, E
+    real(kind=rp), intent(in) :: gamma, internal_energy_floor
+    real(kind=rp), dimension(n), intent(out) :: rho_primitive
+    real(kind=rp), dimension(n), intent(out) :: u, v, w, p, sound_speed
+    real(kind=rp), dimension(n), intent(out) :: internal_energy
+    integer, dimension(n), intent(out) :: status
+    real(kind=rp) :: kinetic_energy
+    integer :: i
+
+    if (.not. ieee_is_finite(gamma) .or. gamma .le. 1.0_rp) then
+       rho_primitive = 0.0_rp
+       u = 0.0_rp
+       v = 0.0_rp
+       w = 0.0_rp
+       p = 0.0_rp
+       sound_speed = 0.0_rp
+       internal_energy = 0.0_rp
+       status = EULER_STATE_INVALID_GAMMA
+       return
+    end if
+
+    !$omp parallel do simd private(kinetic_energy)
+    do i = 1, n
+       rho_primitive(i) = rho(i)
+       u(i) = 0.0_rp
+       v(i) = 0.0_rp
+       w(i) = 0.0_rp
+       p(i) = 0.0_rp
+       sound_speed(i) = 0.0_rp
+       internal_energy(i) = 0.0_rp
+
+       if (.not. ieee_is_finite(rho(i)) .or. rho(i) .le. 0.0_rp) then
+          status(i) = EULER_STATE_INVALID_DENSITY
+          cycle
+       end if
+       if (.not. ieee_is_finite(m_x(i)) .or. &
+            .not. ieee_is_finite(m_y(i)) .or. &
+            .not. ieee_is_finite(m_z(i)) .or. &
+            .not. ieee_is_finite(E(i))) then
+          status(i) = EULER_STATE_INVALID_INTERNAL_ENERGY
+          cycle
+       end if
+
+       u(i) = m_x(i) / rho(i)
+       v(i) = m_y(i) / rho(i)
+       w(i) = m_z(i) / rho(i)
+       kinetic_energy = 0.5_rp * &
+            (m_x(i)**2 + m_y(i)**2 + m_z(i)**2) / rho(i)
+       internal_energy(i) = E(i) - kinetic_energy
+       if (.not. ieee_is_finite(internal_energy(i)) .or. &
+            internal_energy(i) .lt. internal_energy_floor) then
+          status(i) = EULER_STATE_INVALID_INTERNAL_ENERGY
+          cycle
+       end if
+
+       p(i) = (gamma - 1.0_rp) * internal_energy(i)
+       sound_speed(i) = sqrt(gamma * p(i) / rho(i))
+       if (.not. ieee_is_finite(sound_speed(i))) then
+          status(i) = EULER_STATE_INVALID_INTERNAL_ENERGY
+          cycle
+       end if
+       status(i) = EULER_STATE_OK
+    end do
+    !$omp end parallel do simd
+  end subroutine compressible_ops_cpu_conserved_to_primitive
 
   !> Compute maximum wave speed for compressible flows on CPU
   subroutine compressible_ops_cpu_compute_max_wave_speed(max_wave_speed, &
@@ -145,25 +235,44 @@ contains
   end subroutine compressible_ops_cpu_update_mxyz_p_ruvw
 
   !> Update E field
-  subroutine compressible_ops_cpu_update_e(E, p, ruvw, gamma, n)
+  subroutine compressible_ops_cpu_update_e(E, p, ruvw, gamma, n, &
+       internal_energy_floor)
     integer, intent(in) :: n
     real(kind=rp), dimension(n), intent(inout) :: E, p
     ! ruvw = 0.5 * rho * (u^2 + v^2 + w^2)
     real(kind=rp), dimension(n), intent(in) :: ruvw
     real(kind=rp), intent(in) :: gamma
+    real(kind=rp), intent(in), optional :: internal_energy_floor
     integer :: i
-    real(kind=rp) :: inv_gamma_m1
+    real(kind=rp) :: inv_gamma_m1, internal_energy_floor_
+    real(kind=rp) :: roundoff_guard
+    logical :: enforce_internal_energy_floor
 
     inv_gamma_m1 = 1.0_rp / (gamma - 1.0_rp)
+    enforce_internal_energy_floor = present(internal_energy_floor)
+    internal_energy_floor_ = 0.0_rp
+    if (enforce_internal_energy_floor) then
+       internal_energy_floor_ = max(internal_energy_floor, 0.0_rp)
+    end if
 
     !OCL NORECURRENCE, NOVREC, NOALIAS
     !DIR$ CONCURRENT
     !DIR$ IVDEP
     !GCC$ ivdep
-    !$omp parallel do simd
+    !$omp parallel do simd private(roundoff_guard)
     do i = 1, n
-       ! Ensure pressure is positive
-       p(i) = max(p(i), 1.0e-12_rp)
+       if (.not. enforce_internal_energy_floor .or. &
+            p(i) * inv_gamma_m1 .le. internal_energy_floor_) then
+          p(i) = max(p(i), 1.0e-12_rp)
+          ! The pressure floor must survive addition to the kinetic energy.
+          if (enforce_internal_energy_floor .and. p(i) * inv_gamma_m1 .le. &
+               internal_energy_floor_ + epsilon(1.0_rp) * abs(ruvw(i))) then
+             roundoff_guard = 32.0_rp * epsilon(1.0_rp) * &
+                  max(1.0_rp, abs(ruvw(i)), internal_energy_floor_)
+             p(i) = (gamma - 1.0_rp) * &
+                  (internal_energy_floor_ + roundoff_guard)
+          end if
+       end if
        ! E = p / (gamma - 1) + 0.5 * rho * (u^2 + v^2 + w^2)
        E(i) = p(i) * inv_gamma_m1 + ruvw(i)
     end do

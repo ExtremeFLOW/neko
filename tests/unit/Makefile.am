@@ -40,6 +40,8 @@ SUBDIRS = tuple\
 	  time_scheme\
 	  time_scheme_controller\
 	  runge_kutta_scheme\
+	  euler_idp_limiter\
+	  euler_gll_graph\
 	  time_based_controller\
 	  time_step_controller\
 	  json_utils\
@@ -101,6 +103,8 @@ TESTS = device/device_test\
 	time_scheme/time_scheme_test\
 	time_scheme_controller/time_scheme_controller_test\
 	runge_kutta_scheme/runge_kutta_scheme_test\
+	euler_idp_limiter/euler_idp_limiter_test\
+	euler_gll_graph/euler_gll_graph_test\
 	time_based_controller/time_based_controller_test\
 	time_step_controller/time_step_controller_test\
 	json_utils/json_utils_test\
@@ -205,6 +209,9 @@ EXTRA_DIST = \
 	time_scheme/test_ab.pf\
 	time_scheme_controller/test_time_scheme_controller.pf\
 	runge_kutta_scheme/test_runge_kutta_scheme.pf\
+	euler_idp_limiter/test_euler_idp_limiter.pf\
+	euler_gll_graph/test_euler_gll_graph_parallel.pf\
+	euler_gll_graph/euler_gll_graph_test\
 	json_utils/test_json_utils.pf\
 	utils/test_read_duration.pf\
 	expression/test_expression.pf\

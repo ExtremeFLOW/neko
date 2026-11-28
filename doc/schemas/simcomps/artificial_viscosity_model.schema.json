@@ -30,6 +30,12 @@
             },
             "c_avisc_entropy": {
               "$ref": "urn:neko:schema:simulation-components#/$defs/numberOrRef"
+            },
+            "entropy_pair_type": {
+              "enum": [
+                "euler",
+                "user"
+              ]
             }
           },
           "additionalProperties": true

@@ -38,6 +38,20 @@ module entropy_viscosity_device
   implicit none
   private
 
+#if HAVE_OPENCL || HAVE_METAL
+  interface
+     subroutine gpu_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+          max_wave_speed_d, c_avisc_low, n) &
+          bind(c, name = 'gpu_entropy_visc_fraction')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: fraction_d, reg_coeff_d, h_d, max_wave_speed_d
+       real(c_rp) :: c_avisc_low
+       integer(c_int) :: n
+     end subroutine gpu_entropy_visc_fraction
+  end interface
+#endif
+
 #ifdef HAVE_HIP
   interface
      subroutine hip_entropy_visc_compute_residual(entropy_residual_d, &
@@ -94,6 +108,16 @@ module entropy_viscosity_device
        type(c_ptr), value :: reg_coeff_d, temp_field_d, mult_field_d
        integer(c_int) :: n
      end subroutine hip_entropy_visc_smooth_divide
+
+     subroutine hip_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+          max_wave_speed_d, c_avisc_low, n) &
+          bind(c, name = 'hip_entropy_visc_fraction')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: fraction_d, reg_coeff_d, h_d, max_wave_speed_d
+       real(c_rp) :: c_avisc_low
+       integer(c_int) :: n
+     end subroutine hip_entropy_visc_fraction
   end interface
 
 #elif HAVE_CUDA
@@ -142,6 +166,18 @@ module entropy_viscosity_device
        real(c_rp) :: c_avisc_low
        integer(c_int) :: n
      end subroutine cuda_entropy_visc_clamp_to_low_order
+  end interface
+
+  interface
+     subroutine cuda_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+          max_wave_speed_d, c_avisc_low, n) &
+          bind(c, name = 'cuda_entropy_visc_fraction')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: fraction_d, reg_coeff_d, h_d, max_wave_speed_d
+       real(c_rp) :: c_avisc_low
+       integer(c_int) :: n
+     end subroutine cuda_entropy_visc_fraction
   end interface
 
   interface
@@ -274,6 +310,7 @@ module entropy_viscosity_device
        entropy_viscosity_compute_viscosity_device, &
        entropy_viscosity_apply_element_max_device, &
        entropy_viscosity_clamp_to_low_order_device, &
+       entropy_viscosity_fraction_device, &
        entropy_viscosity_smooth_divide_device
 
 contains
@@ -395,6 +432,28 @@ contains
     call neko_error('No device backend configured')
 #endif
   end subroutine entropy_viscosity_clamp_to_low_order_device
+
+  !> Convert entropy viscosity to a bounded low-order blending fraction.
+  subroutine entropy_viscosity_fraction_device(fraction_d, reg_coeff_d, &
+       h_d, max_wave_speed_d, c_avisc_low, n)
+    type(c_ptr), intent(in) :: fraction_d, reg_coeff_d, h_d
+    type(c_ptr), intent(in) :: max_wave_speed_d
+    real(kind=rp), intent(in) :: c_avisc_low
+    integer, intent(in) :: n
+
+#if HAVE_HIP
+    call hip_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+         max_wave_speed_d, c_avisc_low, n)
+#elif HAVE_CUDA
+    call cuda_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+         max_wave_speed_d, c_avisc_low, n)
+#elif HAVE_OPENCL || HAVE_METAL
+    call gpu_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+         max_wave_speed_d, c_avisc_low, n)
+#else
+    call neko_error('No device backend configured')
+#endif
+  end subroutine entropy_viscosity_fraction_device
 
   !> Divide by gather-scatter multiplicity on a device.
   !! @param reg_coeff_d Device regularization coefficient field.

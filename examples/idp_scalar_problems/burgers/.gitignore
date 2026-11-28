@@ -1,0 +1,11 @@
+neko
+*.csv
+*.log
+*.fld
+*.chkp
+*.bp
+*.f?????
+*.nek5000
+*.mod
+*.smod
+burgers*.png

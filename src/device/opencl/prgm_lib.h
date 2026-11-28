@@ -132,6 +132,7 @@ extern void *find_rst_legendre_program;
 
 /** Device entropy viscosity kernels */
 extern void *entropy_viscosity_program;
+extern void *euler_idp_program;
 
 /** Device Smagorinsky eddy viscosity kernels */
 extern void *smagorinsky_nut_program;

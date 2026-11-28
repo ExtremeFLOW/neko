@@ -78,7 +78,10 @@ void cuda_entropy_visc_apply_element_max(void *reg_coeff,
                                          int *lx,
                                          int *nelv) {
   const int lx3 = (*lx) * (*lx) * (*lx);
-  const int nthrds_x = min(1024, lx3);
+  // The shared-memory reduction requires a power-of-two block size.  A
+  // fixed block also covers elements larger than the block through the
+  // grid-stride loop in the kernel.
+  const int nthrds_x = 256;
   const dim3 nthrds(nthrds_x, 1, 1);
   const dim3 nblcks(*nelv, 1, 1);
   const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
@@ -99,6 +102,25 @@ void cuda_entropy_visc_clamp_to_low_order(void *reg_coeff,
 
   entropy_visc_clamp_to_low_order_kernel<real>
     <<<nblcks, nthrds, 0, stream>>>((real *) reg_coeff,
+                                    (real *) h,
+                                    (real *) max_wave_speed,
+                                    *c_avisc_low, *n);
+  CUDA_CHECK(cudaGetLastError());
+}
+
+void cuda_entropy_visc_fraction(void *fraction,
+                                void *reg_coeff,
+                                void *h,
+                                void *max_wave_speed,
+                                real *c_avisc_low,
+                                int *n) {
+  const dim3 nthrds(1024, 1, 1);
+  const dim3 nblcks(((*n) + 1024 - 1) / 1024, 1, 1);
+  const cudaStream_t stream = (cudaStream_t) glb_cmd_queue;
+
+  entropy_visc_fraction_kernel<real>
+    <<<nblcks, nthrds, 0, stream>>>((real *) fraction,
+                                    (real *) reg_coeff,
                                     (real *) h,
                                     (real *) max_wave_speed,
                                     *c_avisc_low, *n);

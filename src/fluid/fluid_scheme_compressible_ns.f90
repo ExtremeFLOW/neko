@@ -39,11 +39,14 @@ module fluid_scheme_compressible_ns
   use bdf_time_scheme, only : bdf_time_scheme_t
   use time_scheme_controller, only : time_scheme_controller_t
   use field, only : field_t
-  use fluid_scheme_compressible, only : fluid_scheme_compressible_t
+  use fluid_scheme_compressible, only : fluid_scheme_compressible_t, &
+       fluid_scheme_compressible_validate, &
+       fluid_scheme_compressible_compute_cfl
+  use euler_idp, only : euler_idp_t, EULER_IDP_DIAGNOSTICS_FULL
   use scratch_registry, only : neko_scratch_registry
   use gs_ops, only : GS_OP_MIN, GS_OP_MAX
   use gather_scatter, only : gs_t
-  use num_types, only : rp
+  use num_types, only : rp, dp
   use mesh, only : mesh_t
   use checkpoint, only : chkp_t
   use json_module, only : json_file, json_core, json_value
@@ -59,7 +62,7 @@ module fluid_scheme_compressible_ns
   use bc_list, only : bc_list_t
   use bc, only : bc_t
   use utils, only : neko_error, neko_type_error
-  use logger, only : LOG_SIZE, neko_log
+  use logger, only : LOG_SIZE, neko_log, NEKO_LOG_VERBOSE
   use time_state, only : time_state_t
   use compressible_ops_cpu, only : compressible_ops_cpu_update_uvw, &
        compressible_ops_cpu_update_mxyz_p_ruvw, &
@@ -68,7 +71,6 @@ module fluid_scheme_compressible_ns
        compressible_ops_device_update_mxyz_p_ruvw, &
        compressible_ops_device_update_e, &
        compressible_ops_device_update_temperature
-  use neko_config, only : NEKO_BCKND_DEVICE
   use mpi_f08, only : MPI_Allreduce, MPI_INTEGER, MPI_MAX
   use viscous_regularization, only : viscous_regularization_t, &
        viscous_regularization_factory
@@ -81,6 +83,10 @@ module fluid_scheme_compressible_ns
        :: fluid_scheme_compressible_ns_t
      type(field_t) :: rho_res, m_x_res, m_y_res, m_z_res, m_E_res
      type(field_t) :: drho, dm_x, dm_y, dm_z, dE
+     type(euler_idp_t) :: euler_idp_solver
+     type(field_t) :: idp_entropy_fraction
+     type(field_t), pointer :: idp_wave_speed => null()
+     integer :: idp_viscosity_step = -1
      class(advection_t), allocatable :: adv
      class(ax_t), allocatable :: Ax
      class(ax_t), allocatable :: Ax_stress
@@ -100,10 +106,16 @@ module fluid_scheme_compressible_ns
      procedure, pass(this) :: free => fluid_scheme_compressible_ns_free
      procedure, pass(this) :: step => fluid_scheme_compressible_ns_step
      procedure, pass(this) :: restart => fluid_scheme_compressible_ns_restart
+     procedure, pass(this) :: validate => fluid_scheme_compressible_ns_validate
+     procedure, pass(this) :: compute_cfl => &
+          fluid_scheme_compressible_ns_compute_cfl
      !> Set up boundary conditions.
      procedure, pass(this) :: setup_bcs &
           => fluid_scheme_compressible_ns_setup_bcs
      procedure, pass(this), private :: setup_viscous_regularization
+     procedure, pass(this) :: prepare_idp_graph
+     procedure, pass(this), private :: log_euler_idp_diagnostics => &
+          fluid_scheme_compressible_ns_log_euler_idp_diagnostics
   end type fluid_scheme_compressible_ns_t
 
   interface
@@ -158,6 +170,32 @@ module fluid_scheme_compressible_ns
   end interface
 
 contains
+  !> Validate the compressible state and initialise the IDP graph CFL.
+  subroutine fluid_scheme_compressible_ns_validate(this)
+    class(fluid_scheme_compressible_ns_t), target, intent(inout) :: this
+
+    call fluid_scheme_compressible_validate(this)
+    if (this%euler_idp%enabled) then
+       call this%euler_idp_solver%invalidate()
+       call this%euler_idp_solver%prepare(this%rho, this%m_x, this%m_y, &
+            this%m_z, this%E, this%gs_Xh, this%bcs_density, this%bcs_vel, &
+            this%bcs_prs, this%gamma)
+    end if
+  end subroutine fluid_scheme_compressible_ns_validate
+
+  !> Return the graph CFL in Euler-IDP mode and the legacy CFL otherwise.
+  function fluid_scheme_compressible_ns_compute_cfl(this, dt) result(cfl)
+    class(fluid_scheme_compressible_ns_t), intent(in) :: this
+    real(kind=dp), intent(in) :: dt
+    real(kind=dp) :: cfl
+
+    if (this%euler_idp%enabled) then
+       cfl = this%euler_idp_solver%cfl(real(dt, rp))
+    else
+       cfl = fluid_scheme_compressible_compute_cfl(this, dt)
+    end if
+  end function fluid_scheme_compressible_ns_compute_cfl
+
   !> Initialize the compressible Navier-Stokes fluid scheme
   !! @param this The fluid scheme object
   !! @param msh Mesh data structure
@@ -197,6 +235,14 @@ contains
       call this%dE%init(dm_Xh, 'dE')
 
     end associate
+
+    call json_get_or_default(numerics_params, 'time_order', rk_order, 4)
+
+    if (this%euler_idp%enabled) then
+       call this%idp_entropy_fraction%init(this%dm_Xh, "idp_entropy_fraction")
+       call this%euler_idp_solver%init(this%dm_Xh, this%c_Xh, this%gs_Xh, &
+            this%euler_idp, rk_order)
+    end if
 
     if (NEKO_BCKND_DEVICE .eq. 1) then
        associate(p => this%p, rho => this%rho, &
@@ -240,7 +286,6 @@ contains
     call this%setup_viscous_regularization(params)
 
     ! Initialize Runge-Kutta scheme
-    call json_get_or_default(numerics_params, 'time_order', rk_order, 4)
     call this%rk_scheme%init(rk_order)
 
     call neko_log%section("Fluid boundary conditions")
@@ -278,6 +323,10 @@ contains
     call this%dm_y%free()
     call this%dm_z%free()
     call this%dE%free()
+    call this%idp_entropy_fraction%free()
+    nullify(this%idp_wave_speed)
+    this%idp_viscosity_step = -1
+    call this%euler_idp_solver%free()
     call this%rk_scheme%free()
 
     if (allocated(this%viscous_regularization)) then
@@ -312,6 +361,11 @@ contains
     integer :: n
     integer :: i
     class(bc_t), pointer :: b
+
+    if (this%euler_idp%enabled) then
+       call fluid_scheme_compressible_ns_step_idp(this, time)
+       return
+    end if
 
     n = this%dm_Xh%size()
     call neko_scratch_registry%request_field(temp, temp_indices(1), .false.)
@@ -426,6 +480,138 @@ contains
 
   end subroutine fluid_scheme_compressible_ns_step
 
+  !> Advance one invariant-domain-preserving limited Euler step.
+  subroutine fluid_scheme_compressible_ns_step_idp(this, time)
+    class(fluid_scheme_compressible_ns_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+    class(bc_t), pointer :: b
+    integer :: i, n
+
+    call profiler_start_region('Fluid Euler IDP', 1)
+    if (this%idp_viscosity_step /= time%tstep) then
+       call neko_error('Euler IDP requires an entropy_viscosity model ' // &
+            'updating the configured regularization field every step')
+    end if
+    call this%viscous_regularization%update(this%artificial_visc)
+    n = this%dm_Xh%size()
+    call this%euler_idp_solver%advance(this%rho, this%m_x, this%m_y, &
+         this%m_z, this%E, this%c_Xh, this%gs_Xh, this%bcs_density, &
+         this%bcs_vel, this%bcs_prs, this%gamma, real(time%dt, rp), time, &
+         this%euler_idp_diagnostics, this%idp_entropy_fraction, &
+         this%idp_wave_speed)
+    call this%log_euler_idp_diagnostics(time)
+
+    call this%euler_idp_solver%copy_primitives(this%u, this%v, this%w, &
+         this%p)
+    if (NEKO_BCKND_DEVICE .eq. 1) then
+       call compressible_ops_device_update_temperature( &
+            this%temperature%x_d, this%p%x_d, this%rho%x_d, this%gamma, n)
+    else
+       do concurrent (i = 1:n)
+          this%temperature%x(i,1,1,1) = this%p%x(i,1,1,1) / &
+               (this%rho%x(i,1,1,1) * (this%gamma - 1.0_rp))
+       end do
+    end if
+    call this%compute_max_wave_speed()
+    if (.not. associated(this%idp_wave_speed)) call this%prepare_idp_graph(time)
+    do i = 1, this%bcs_vel%size()
+       b => this%bcs_vel%get(i)
+       b%updated = .false.
+    end do
+    do i = 1, this%bcs_prs%size()
+       b => this%bcs_prs%get(i)
+       b%updated = .false.
+    end do
+    do i = 1, this%bcs_density%size()
+       b => this%bcs_density%get(i)
+       b%updated = .false.
+    end do
+    nullify(b)
+    call profiler_end_region('Fluid Euler IDP', 1)
+  end subroutine fluid_scheme_compressible_ns_step_idp
+
+  !> Prepare the graph CFL using the wave speeds for the updated state.
+  subroutine prepare_idp_graph(this, time)
+    class(fluid_scheme_compressible_ns_t), intent(inout) :: this
+    type(time_state_t), intent(in) :: time
+
+    call this%euler_idp_solver%prepare(this%rho, this%m_x, this%m_y, &
+         this%m_z, this%E, this%gs_Xh, this%bcs_density, this%bcs_vel, &
+         this%bcs_prs, this%gamma, time, this%idp_wave_speed)
+  end subroutine prepare_idp_graph
+
+  !> Log limiter activity for each stage of one completed IDP timestep.
+  subroutine fluid_scheme_compressible_ns_log_euler_idp_diagnostics(this, &
+       time)
+    class(fluid_scheme_compressible_ns_t), intent(in) :: this
+    type(time_state_t), intent(in) :: time
+    character(len=2*LOG_SIZE) :: log_buf
+    integer :: nstages, stage
+
+    if (this%euler_idp%diagnostics_level .ne. &
+         EULER_IDP_DIAGNOSTICS_FULL) return
+    if (mod(time%tstep, this%euler_idp%diagnostics_interval) .ne. 0) return
+    nstages = 1
+    if (this%rk_scheme%order .eq. 3) nstages = 3
+    do stage = 1, nstages
+       associate(diag => this%euler_idp_solver%stage_diagnostics(stage))
+         write(log_buf, '(A,I0,A,I0,A,ES10.3,A,ES10.3)') &
+            'IDP limiter: step = ', time%tstep, ' stage = ', stage, &
+            ' amin = ', diag%min_limiter, &
+            ' frac = ', diag%limited_edge_fraction
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+         write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
+            'IDP state: rho_min = ', diag%min_density, &
+            ' p_min = ', diag%min_pressure, &
+            ' e_min = ', diag%min_internal_energy
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+         write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
+            'IDP graph: t = ', diag%stage_time, &
+            ' wave = ', diag%max_graph_wave_speed, &
+            ' rate = ', diag%max_graph_rate
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+         write(log_buf, '(A,ES10.3,A,ES10.3,A,ES10.3)') &
+            'IDP timestep: nodal_wave = ', diag%max_nodal_wave_speed, &
+            ' graph_cfl = ', diag%max_graph_cfl, &
+            ' dt_floor = ', diag%maximum_floor_timestep
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+         write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary pre:', &
+            ' rho = ', diag%before_boundary%min_density, &
+            ' p = ', diag%before_boundary%min_pressure, &
+            ' e = ', diag%before_boundary%min_internal_energy
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+         write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary pre:', &
+            ' nodal = ', diag%before_boundary%max_nodal_wave_speed, &
+            ' graph = ', diag%before_boundary%max_graph_wave_speed, &
+            ' rate = ', diag%before_boundary%max_graph_rate
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+         write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary post:', &
+            ' rho = ', diag%after_boundary%min_density, &
+            ' p = ', diag%after_boundary%min_pressure, &
+            ' e = ', diag%after_boundary%min_internal_energy
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+         write(log_buf, '(A,3(A,ES10.3))') 'IDP boundary post:', &
+            ' nodal = ', diag%after_boundary%max_nodal_wave_speed, &
+            ' graph = ', diag%after_boundary%max_graph_wave_speed, &
+            ' rate = ', diag%after_boundary%max_graph_rate
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+
+         write(log_buf, '(A,I0,A,I0,A,I0)') &
+            'IDP edges: rho = ', diag%density_limited_edges, &
+            ' energy = ', diag%internal_energy_limited_edges, &
+            ' entropy = ', diag%entropy_limited_edges
+         call neko_log%message(log_buf, lvl = NEKO_LOG_VERBOSE)
+       end associate
+    end do
+  end subroutine fluid_scheme_compressible_ns_log_euler_idp_diagnostics
+
   !> Set up boundary conditions for the fluid scheme
   !> @param this The fluid scheme object
   !> @param user User-defined boundary conditions
@@ -458,7 +644,6 @@ contains
           ! Extract BC configuration
           call json_extract_item(core, bc_object, i, bc_subdict)
           call json_get(bc_subdict, "zone_indices", zone_indices)
-
           ! Validate zones
           do j = 1, size(zone_indices)
              zone_size = this%msh%labeled_zones(zone_indices(j))%size

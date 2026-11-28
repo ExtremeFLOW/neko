@@ -18,7 +18,7 @@ This classic test case is valuable for validating numerical schemes for compress
 - Ratio of specific heats (γ): 1.4
 - Boundary conditions:
   - Inlet/far-field (zone 1): Fixed velocity, density, and pressure
-  - Cylinder surface (zone 7): No-slip wall
+  - Cylinder surface (zone 7): Slip wall
   - Domain boundaries (zones 3, 4, 5, 6): Symmetry conditions
 
 ## Mesh

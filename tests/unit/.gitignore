@@ -27,6 +27,7 @@ test-suite.log
 !tensor4/tensor4_test
 !vector/vector_test
 !vtkhdf/vtkhdf_test
+!euler_gll_graph/euler_gll_graph_test
 !restart_consistency/restart_consistency_test
 !restart_consistency_hdf5/restart_consistency_hdf5_test
 !geo_compression/geo_compression_test
@@ -77,6 +78,8 @@ fast3d/fast3d_test
 time_scheme/time_scheme_test
 time_scheme_controller/time_scheme_controller_test
 time_based_controller/time_based_controller_test
+euler_idp_limiter/euler_idp_limiter_test
+euler_gll_graph/euler_gll_graph_suite
 time_step_controller/time_step_controller_test
 errors/errors_test
 json_utils/json_utils_test

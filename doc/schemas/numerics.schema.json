@@ -49,6 +49,54 @@
         },
         "compress_geometric_factors_tolerance": {
           "$ref": "urn:neko:schema:common#/$defs/nonNegativeNumberOrRef"
+        },
+        "euler_idp": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "low_order_only": {
+              "type": "boolean"
+            },
+            "relax_density_bounds": {
+              "type": "boolean"
+            },
+            "density_bound_relaxation_factor": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "limit_internal_energy": {
+              "type": "boolean"
+            },
+            "limit_entropy": {
+              "type": "boolean"
+            },
+            "internal_energy_floor": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "correction_tolerance": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            },
+            "diagnostics_level": {
+              "type": "string",
+              "enum": [
+                "off",
+                "safety",
+                "full"
+              ]
+            },
+            "diagnostics_interval": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "relax_entropy_bounds": {
+              "type": "boolean"
+            },
+            "entropy_bound_relaxation_factor": {
+              "$ref": "urn:neko:schema:common#/$defs/positiveNumberOrRef"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false

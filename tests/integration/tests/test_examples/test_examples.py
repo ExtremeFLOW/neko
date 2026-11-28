@@ -21,6 +21,8 @@ class NekoTestCase:
 
 examples_dir = join(neko_dir, "examples")
 
+idp_scalar_dir = join(examples_dir, "idp_scalar_problems")
+
 examples = {
     "2d_cylinder": NekoTestCase(
         case_file=join(examples_dir, "2d_cylinder", "2d_cylinder.case"),
@@ -77,6 +79,16 @@ examples = {
         mesh_file=join(examples_dir, "euler_2d_smooth", "box.nmsh"),
         user_file=join(examples_dir, "euler_2d_smooth", "euler_2d_smooth.f90")
     ),
+    "euler_mach3_cylinder": NekoTestCase(
+        case_file=join(examples_dir, "euler_mach3_cylinder", "mach3_cylinder.json"),
+        user_file=join(examples_dir, "euler_mach3_cylinder", "mach3_cylinder.f90"),
+        mesh_file=join(examples_dir, "euler_mach3_cylinder", "mach3_cylinder.nmsh"),
+    ),
+    "euler_mach_800_jet": NekoTestCase(
+        case_file=join(examples_dir, "euler_mach_800_jet", "euler_mach_800_jet.case"),
+        user_file=join(examples_dir, "euler_mach_800_jet", "euler_mach_800_jet.f90"),
+        mesh_file=join(examples_dir, "euler_mach_800_jet", "mach_800_jet.nmsh"),
+    ),
     "euler_tgv": NekoTestCase(
         case_file=join(examples_dir, "euler_tgv", "euler_tgv.case"),
         user_file=join(examples_dir, "euler_tgv", "euler_tgv.f90")
@@ -84,6 +96,21 @@ examples = {
     "hemi": NekoTestCase(
         case_file=join(examples_dir, "hemi", "hemi.case"),
         mesh_file=join(examples_dir, "hemi", "hemi.nmsh")
+    ),
+    "burgers": NekoTestCase(
+        case_file=join(idp_scalar_dir, "burgers", "burgers.case"),
+        user_file=join(idp_scalar_dir, "burgers", "burgers.f90"),
+        mesh_file=join(idp_scalar_dir, "burgers", "box.nmsh"),
+    ),
+    "kpp": NekoTestCase(
+        case_file=join(idp_scalar_dir, "kpp", "kpp.case"),
+        user_file=join(idp_scalar_dir, "kpp", "kpp.f90"),
+        mesh_file=join(idp_scalar_dir, "kpp", "box.nmsh"),
+    ),
+    "three_body_rotation": NekoTestCase(
+        case_file=join(idp_scalar_dir, "three_body_rotation", "three_body_rotation.case"),
+        user_file=join(idp_scalar_dir, "three_body_rotation", "three_body_rotation.f90"),
+        mesh_file=join(idp_scalar_dir, "three_body_rotation", "box.nmsh"),
     ),
     "lid": NekoTestCase(
         case_file=join(examples_dir, "lid", "lid.case"),

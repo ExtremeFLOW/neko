@@ -1009,6 +1009,12 @@ following keywords:
     to 0.5
     - `c_avisc_entropy`: Coefficient for entropy-based artificial viscosity,
     defaults to 1.0
+    - `entropy_pair_type` defaults to `euler`. On the CPU, `user` selects the
+      entropy density, flux and wave speed supplied by `user%entropy_pair`.
+
+  With `case.numerics.euler_idp.enabled`, run this component every step and
+  select its field in `case.fluid.viscous_regularization.reg_coeff_name`.
+  The Mach 800 jet example shows both settings.
 
 - `field_name`: The name of the artificial viscosity field added to the registry.
   Defaults to the model name.

@@ -36,6 +36,7 @@ submodule(fluid_scheme_compressible_ns) compressible_ns_bc_fctry
   use inflow, only : inflow_t
   use zero_dirichlet, only : zero_dirichlet_t
   use symmetry, only : symmetry_t
+  use slip, only : slip_t
   use json_utils, only : json_get_or_lookup
   implicit none
 
@@ -179,7 +180,11 @@ contains
     case ("symmetry")
        allocate(symmetry_t::object)
     case ("slip")
-       allocate(symmetry_t::object)
+       if (scheme%euler_idp%enabled) then
+          allocate(slip_t::object)
+       else
+          allocate(symmetry_t::object)
+       end if
     case ("no_slip")
        allocate(zero_dirichlet_t::object)
     case ("velocity_value")

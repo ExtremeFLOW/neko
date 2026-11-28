@@ -50,6 +50,7 @@ fluid/bcknd/device/hip/pnpn_res.lo : fluid/bcknd/device/hip/pnpn_res.hip fluid/b
 fluid/bcknd/device/hip/compressible_res.lo : fluid/bcknd/device/hip/compressible_res.hip fluid/bcknd/device/hip/compressible_res_kernel.h
 fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/hip/compressible_ops_compute_max_wave_speed.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
 fluid/bcknd/device/hip/compressible_ops_compute_entropy.lo : fluid/bcknd/device/hip/compressible_ops_compute_entropy.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
+fluid/bcknd/device/hip/euler_idp.lo : fluid/bcknd/device/hip/euler_idp.hip fluid/bcknd/device/euler_idp_kernel.h fluid/bcknd/device/euler_idp_kernels.cl fluid/bcknd/device/euler_idp_launch.h
 fluid/bcknd/device/hip/compressible_ops_update.lo : fluid/bcknd/device/hip/compressible_ops_update.hip fluid/bcknd/device/hip/compressible_ops_kernel.h
 viscous_regularization/avm/bcknd/device/hip/entropy_viscosity.lo : viscous_regularization/avm/bcknd/device/hip/entropy_viscosity.hip viscous_regularization/avm/bcknd/device/hip/entropy_viscosity_kernel.h
 scalar/bcknd/device/hip/scalar_residual.lo : scalar/bcknd/device/hip/scalar_residual.hip scalar/bcknd/device/hip/scalar_residual_update_kernel.h
@@ -119,6 +120,7 @@ fluid/bcknd/device/cuda/pnpn_res.lo : fluid/bcknd/device/cuda/pnpn_res.cu fluid/
 fluid/bcknd/device/cuda/compressible_res.lo : fluid/bcknd/device/cuda/compressible_res.cu fluid/bcknd/device/cuda/compressible_res_kernel.h
 fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/cuda/compressible_ops_compute_max_wave_speed.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
 fluid/bcknd/device/cuda/compressible_ops_compute_entropy.lo : fluid/bcknd/device/cuda/compressible_ops_compute_entropy.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
+fluid/bcknd/device/cuda/euler_idp.lo : fluid/bcknd/device/cuda/euler_idp.cu fluid/bcknd/device/euler_idp_kernel.h fluid/bcknd/device/euler_idp_kernels.cl fluid/bcknd/device/euler_idp_launch.h
 fluid/bcknd/device/cuda/compressible_ops_update.lo : fluid/bcknd/device/cuda/compressible_ops_update.cu fluid/bcknd/device/cuda/compressible_ops_kernel.h
 viscous_regularization/avm/bcknd/device/cuda/entropy_viscosity.lo : viscous_regularization/avm/bcknd/device/cuda/entropy_viscosity.cu viscous_regularization/avm/bcknd/device/cuda/entropy_viscosity_kernel.h
 fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.lo : fluid/stress_formulation/bcknd/device/cuda/pnpn_stress_res.cu fluid/stress_formulation/bcknd/device/cuda/prs_stress_res_kernel.h
@@ -176,6 +178,8 @@ fluid/bcknd/device/opencl/compressible_res.lo : fluid/bcknd/device/opencl/compre
 fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.lo : fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed.c fluid/bcknd/device/opencl/compressible_ops_compute_max_wave_speed_kernel.cl.h
 fluid/bcknd/device/opencl/compressible_ops_compute_entropy.lo : fluid/bcknd/device/opencl/compressible_ops_compute_entropy.c fluid/bcknd/device/opencl/compressible_ops_compute_entropy_kernel.cl.h
 fluid/bcknd/device/opencl/compressible_ops_update.lo : fluid/bcknd/device/opencl/compressible_ops_update.c fluid/bcknd/device/opencl/compressible_ops_update_kernel.cl.h
+fluid/bcknd/device/opencl/euler_idp.lo : fluid/bcknd/device/opencl/euler_idp.c fluid/bcknd/device/euler_idp_args.h fluid/bcknd/device/euler_idp_launch.h fluid/bcknd/device/euler_idp_kernels.cl.h
+fluid/bcknd/device/metal/euler_idp.lo : fluid/bcknd/device/metal/euler_idp.m fluid/bcknd/device/euler_idp_args.h fluid/bcknd/device/euler_idp_launch.h
 viscous_regularization/avm/bcknd/device/opencl/entropy_viscosity.lo : viscous_regularization/avm/bcknd/device/opencl/entropy_viscosity.c viscous_regularization/avm/bcknd/device/opencl/entropy_viscosity_kernel.cl.h
 scalar/bcknd/device/opencl/scalar_residual.lo : scalar/bcknd/device/opencl/scalar_residual.c scalar/bcknd/device/opencl/scalar_residual_kernel.cl.h
 sem/bcknd/device/opencl/coef.lo : sem/bcknd/device/opencl/coef.c sem/bcknd/device/opencl/coef_kernel.cl.h
