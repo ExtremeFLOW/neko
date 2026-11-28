@@ -40,7 +40,7 @@ module legendre_rst_finder
   use vector, only: vector_t
   use matrix, only: matrix_t
   use math, only: NEKO_EPS, matinv39
-  use tensor_cpu, only: tnsr3d_cpu, tnsr3d_el_cpu
+  use tensor_cpu, only: tnsr3d_cpu, tnsr3d_interp_grad_cpu
   use device_local_interpolation, only: device_find_rst_legendre
   use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr
   use device, only: device_alloc, device_free, device_memcpy, &
@@ -304,33 +304,17 @@ contains
              z_hat(ih + 1) = this%z_hat%x(e + ih)
           end do
 
-          ! Compute the current xyz value
-          call tnsr3d_el_cpu(resx(i), 1, x_hat, lx, &
-               r_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(resy(i), 1, y_hat, lx, &
-               r_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(resz(i), 1, z_hat, lx, &
-               r_legendre, s_legendre, t_legendre)
-          ! This should in principle be merged into some larger kernel
-          ! Compute the jacobian
-          call tnsr3d_el_cpu(jac(1,1), 1, x_hat, lx, &
-               dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(1,2), 1, y_hat, lx, &
-               dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(1,3), 1, z_hat, lx, &
-               dr_legendre, s_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,1), 1, x_hat, lx, &
-               r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,2), 1, y_hat, lx, &
-               r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(2,3), 1, z_hat, lx, &
-               r_legendre, ds_legendre, t_legendre)
-          call tnsr3d_el_cpu(jac(3,1), 1, x_hat, lx, &
-               r_legendre, s_legendre, dt_legendre)
-          call tnsr3d_el_cpu(jac(3,2), 1, y_hat, lx, &
-               r_legendre, s_legendre, dt_legendre)
-          call tnsr3d_el_cpu(jac(3,3), 1, z_hat, lx, &
-               r_legendre, s_legendre, dt_legendre)
+          ! Compute the current xyz value and the jacobian,
+          ! jac(d, c) = d(x_c)/d(r_d), in one fused pass per coordinate
+          call tnsr3d_interp_grad_cpu(x_hat, lx, r_legendre, s_legendre, &
+               t_legendre, dr_legendre, ds_legendre, dt_legendre, &
+               resx(i), jac(1,1), jac(2,1), jac(3,1))
+          call tnsr3d_interp_grad_cpu(y_hat, lx, r_legendre, s_legendre, &
+               t_legendre, dr_legendre, ds_legendre, dt_legendre, &
+               resy(i), jac(1,2), jac(2,2), jac(3,2))
+          call tnsr3d_interp_grad_cpu(z_hat, lx, r_legendre, s_legendre, &
+               t_legendre, dr_legendre, ds_legendre, dt_legendre, &
+               resz(i), jac(1,3), jac(2,3), jac(3,3))
           resx(i) = pt_x(i) - resx(i)
           resy(i) = pt_y(i) - resy(i)
           resz(i) = pt_z(i) - resz(i)

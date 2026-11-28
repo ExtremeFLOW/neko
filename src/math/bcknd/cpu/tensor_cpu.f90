@@ -4,7 +4,11 @@ module tensor_cpu
   implicit none
   private
 
-  public :: tnsr2d_el_cpu, tnsr3d_el_cpu, tnsr3d_cpu, tnsr1_3d_cpu
+  public :: tnsr2d_el_cpu, tnsr3d_el_cpu, tnsr3d_cpu, tnsr1_3d_cpu, &
+       tnsr3d_interp_grad_cpu
+
+  !> Largest n for which tnsr3d_interp_grad_cpu uses fixed-size work space.
+  integer, parameter :: tnsr3d_ig_nmax = 16
 
 contains
 
@@ -445,6 +449,148 @@ contains
          + work2(12) * Ct(12, 1)
 
   end subroutine tnsr3d_el_1_12_cpu
+
+  !> Evaluate a field and its three reference-space derivatives at one point.
+  !! @details Computes, for the single-element coefficients \f$ u_{ijk} \f$,
+  !! \f[ u = \sum_{ijk} u_{ijk} r_i s_j t_k, \quad
+  !!     \partial_r u = \sum_{ijk} u_{ijk} r'_i s_j t_k, \f]
+  !! and likewise \f$ \partial_s u \f$ and \f$ \partial_t u \f$. Equivalent to
+  !! four calls of tnsr3d_el_cpu with @a nv = 1, but the contractions shared by
+  !! the four results are computed only once (sum factorisation, as in
+  !! `tensor_ig3` of GSLIB):
+  !! \f[ a_{ij} = \sum_k u_{ijk} t_k, \quad b_{ij} = \sum_k u_{ijk} t'_k, \f]
+  !! \f[ c_i = \sum_j a_{ij} s_j, \quad d_i = \sum_j a_{ij} s'_j, \quad
+  !!     e_i = \sum_j b_{ij} s_j, \f]
+  !! \f[ u = \sum_i c_i r_i, \quad \partial_r u = \sum_i c_i r'_i, \quad
+  !!     \partial_s u = \sum_i d_i r_i, \quad \partial_t u = \sum_i e_i r_i. \f]
+  !! This costs \f$ 2n^3 + 3n^2 + 4n \f$ multiply-adds instead of
+  !! \f$ 4(n^3 + n^2 + n) \f$. The slowest index is contracted first so that
+  !! every inner loop runs with unit stride over the leading index. The basis
+  !! values are arbitrary, so the routine works for any (curved) element and
+  !! any point, including points outside the reference element.
+  !! @note Contains no OpenMP and is marked `!OCL SERIAL`, like the other
+  !! single-element kernels.
+  !! @param u Input coefficients, n*n*n values.
+  !! @param n Number of coefficients per direction (polynomial order + 1).
+  !! @param r Basis along the first reference direction, n values.
+  !! @param s Basis along the second reference direction, n values.
+  !! @param t Basis along the third reference direction, n values.
+  !! @param dr Derivative of @a r, n values.
+  !! @param ds Derivative of @a s, n values.
+  !! @param dt Derivative of @a t, n values.
+  !! @param v Interpolated value.
+  !! @param dvdr Derivative of the interpolated value with respect to r.
+  !! @param dvds Derivative of the interpolated value with respect to s.
+  !! @param dvdt Derivative of the interpolated value with respect to t.
+  !OCL SERIAL
+  subroutine tnsr3d_interp_grad_cpu(u, n, r, s, t, dr, ds, dt, &
+       v, dvdr, dvds, dvdt)
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: r(n), s(n), t(n)
+    real(kind=rp), intent(in) :: dr(n), ds(n), dt(n)
+    real(kind=rp), intent(out) :: v, dvdr, dvds, dvdt
+    ! Fixed-size work space: automatic arrays sized by n end up on the heap
+    ! with some compilers, which costs more than the arithmetic here
+    real(kind=rp) :: a(tnsr3d_ig_nmax**2), b(tnsr3d_ig_nmax**2)
+    real(kind=rp) :: c(tnsr3d_ig_nmax), d(tnsr3d_ig_nmax), e(tnsr3d_ig_nmax)
+
+    if (n .le. tnsr3d_ig_nmax) then
+       call tnsr3d_interp_grad_work_cpu(u, n, r, s, t, dr, ds, dt, &
+            v, dvdr, dvds, dvdt, a, b, c, d, e)
+    else
+       call tnsr3d_interp_grad_large_cpu(u, n, r, s, t, dr, ds, dt, &
+            v, dvdr, dvds, dvdt)
+    end if
+
+  end subroutine tnsr3d_interp_grad_cpu
+
+  !> tnsr3d_interp_grad_cpu for n above tnsr3d_ig_nmax, with work arrays
+  !! sized at run time.
+  !OCL SERIAL
+  subroutine tnsr3d_interp_grad_large_cpu(u, n, r, s, t, dr, ds, dt, &
+       v, dvdr, dvds, dvdt)
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: u(n*n*n)
+    real(kind=rp), intent(in) :: r(n), s(n), t(n)
+    real(kind=rp), intent(in) :: dr(n), ds(n), dt(n)
+    real(kind=rp), intent(out) :: v, dvdr, dvds, dvdt
+    real(kind=rp) :: a(n*n), b(n*n), c(n), d(n), e(n)
+
+    call tnsr3d_interp_grad_work_cpu(u, n, r, s, t, dr, ds, dt, &
+         v, dvdr, dvds, dvdt, a, b, c, d, e)
+
+  end subroutine tnsr3d_interp_grad_large_cpu
+
+  !> Arithmetic of tnsr3d_interp_grad_cpu, with caller-provided work space.
+  !! @param a, b Work, at least n*n values each.
+  !! @param c, d, e Work, at least n values each.
+  !OCL SERIAL
+  subroutine tnsr3d_interp_grad_work_cpu(u, n, r, s, t, dr, ds, dt, &
+       v, dvdr, dvds, dvdt, a, b, c, d, e)
+    integer, intent(in) :: n
+    real(kind=rp), intent(in) :: u(n*n, n)
+    real(kind=rp), intent(in) :: r(n), s(n), t(n)
+    real(kind=rp), intent(in) :: dr(n), ds(n), dt(n)
+    real(kind=rp), intent(out) :: v, dvdr, dvds, dvdt
+    real(kind=rp), intent(inout) :: a(n*n), b(n*n), c(n), d(n), e(n)
+    real(kind=rp) :: tk, dtk, sj, dsj
+    integer :: i, j, k, ij, nn, jj
+
+    nn = n * n
+
+    ! Contract the third direction with t and t', the n^3 part. The
+    ! (i, j) pairs are contiguous in u, a and b, so each u(:, k) is
+    ! streamed once with unit stride and feeds two multiply-adds. The first
+    ! k initialises a and b, so no separate zeroing pass is needed.
+    tk = t(1)
+    dtk = dt(1)
+    do ij = 1, nn
+       a(ij) = u(ij, 1) * tk
+       b(ij) = u(ij, 1) * dtk
+    end do
+    do k = 2, n
+       tk = t(k)
+       dtk = dt(k)
+       do ij = 1, nn
+          a(ij) = a(ij) + u(ij, k) * tk
+          b(ij) = b(ij) + u(ij, k) * dtk
+       end do
+    end do
+
+    ! Contract the second direction: s on a gives c and s' on a gives d,
+    ! s on b gives e. Same unit-stride structure over i.
+    sj = s(1)
+    dsj = ds(1)
+    do i = 1, n
+       c(i) = a(i) * sj
+       d(i) = a(i) * dsj
+       e(i) = b(i) * sj
+    end do
+    do j = 2, n
+       sj = s(j)
+       dsj = ds(j)
+       jj = n * (j - 1)
+       do i = 1, n
+          c(i) = c(i) + a(i + jj) * sj
+          d(i) = d(i) + a(i + jj) * dsj
+          e(i) = e(i) + b(i + jj) * sj
+       end do
+    end do
+
+    ! Contract the first direction
+    v = 0.0_rp
+    dvdr = 0.0_rp
+    dvds = 0.0_rp
+    dvdt = 0.0_rp
+    do i = 1, n
+       v = v + c(i) * r(i)
+       dvdr = dvdr + c(i) * dr(i)
+       dvds = dvds + d(i) * r(i)
+       dvdt = dvdt + e(i) * r(i)
+    end do
+
+  end subroutine tnsr3d_interp_grad_work_cpu
 
   !> Single-element tensor product with @a nv = @a nu, for arbitrary order.
   !! @details The order-preserving case of tnsr3d_el_cpu, which is what
