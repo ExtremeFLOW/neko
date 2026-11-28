@@ -38,6 +38,7 @@ module lpt_simcomp
   use time_state, only : time_state_t
   use num_types, only : dp
   use lpt, only : lpt_t
+  use profiler, only : profiler_start_region, profiler_end_region
   implicit none
   private
 
@@ -103,6 +104,7 @@ contains
     type(time_state_t), intent(in) :: time
 
     call this%lpt%preprocess(time)
+
   end subroutine lpt_simcomp_preprocess
 
   !> Update LPT after the fluid solve.
@@ -111,6 +113,7 @@ contains
     type(time_state_t), intent(in) :: time
 
     call this%lpt%compute(time)
+
   end subroutine lpt_simcomp_compute
 
 end module lpt_simcomp

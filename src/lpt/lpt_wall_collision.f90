@@ -34,12 +34,12 @@
 submodule (lpt) lpt_wall_collision
   use neko_config, only : NEKO_BCKND_DEVICE
   use lpt_wall_collision_cpu, only : lpt_handle_elastic_wall_collisions_cpu
-  use lpt_wall_collision_device, only : &
-       lpt_handle_elastic_wall_collisions_device
+  use lpt_wall_collision_device, only : lpt_wall_collide_device
+  use lpt_wall_geometry, only : LPT_WALL_RESTITUTION
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST, device_map, &
        device_memcpy, device_deassociate, device_free, device_sync
   use, intrinsic :: iso_c_binding, only : c_ptr, C_NULL_PTR, c_associated
-  use scratch_registry, only : neko_scratch_registry
+  use utils, only : neko_warning
   implicit none
 
 contains
@@ -91,19 +91,13 @@ contains
     class(lpt_t), intent(inout) :: this
     type(vector_t), intent(in) :: x_old, y_old, z_old
     type(vector_t), intent(inout) :: u_old, v_old, w_old
-    type(matrix_t) :: rst_new
-    type(vector_t), pointer :: resx, resy, resz
+    type(matrix_t) :: rst_old
     integer, allocatable :: el_list(:)
-    integer, allocatable :: wall_facet_mask_i(:, :)
     type(c_ptr) :: el_list_d
-    type(c_ptr) :: wall_facet_mask_d
     integer :: i
     integer :: n
-    integer :: ind(3)
 
-    associate(global_interp => this%global_interp, msh => this%msh, &
-         dm_Xh => this%dm_Xh, coef => this%coef, &
-         wall_facet_mask => this%wall_facet_mask, &
+    associate(global_interp => this%global_interp, &
          x => this%particles%x, y => this%particles%y, &
          z => this%particles%z, d => this%particles%d, &
          u => this%particles%u, v => this%particles%v, &
@@ -125,13 +119,8 @@ contains
       if (n .eq. 0) return
 
       el_list_d = C_NULL_PTR
-      wall_facet_mask_d = C_NULL_PTR
 
       allocate(el_list(n))
-      call rst_new%init(3, n)
-      call neko_scratch_registry%request_vector(resx, ind(1), n, .false.)
-      call neko_scratch_registry%request_vector(resy, ind(2), n, .false.)
-      call neko_scratch_registry%request_vector(resz, ind(3), n, .false.)
 
       if (NEKO_BCKND_DEVICE .eq. 1) then
          call device_map(el_list, el_list_d, n)
@@ -144,40 +133,38 @@ contains
          call device_memcpy(el_list, el_list_d, n, HOST_TO_DEVICE, .true.)
       end if
 
-      call global_interp%rst_finder%find(rst_new, x, y, z, el_list, n, &
-           resx, resy, resz)
-
       if (NEKO_BCKND_DEVICE .eq. 1) then
-         allocate(wall_facet_mask_i(size(wall_facet_mask, 1), &
-              size(wall_facet_mask, 2)))
-         wall_facet_mask_i = merge(1, 0, wall_facet_mask)
-         call device_map(wall_facet_mask_i, wall_facet_mask_d, &
-              size(wall_facet_mask_i))
-         call device_memcpy(wall_facet_mask_i, wall_facet_mask_d, &
-              size(wall_facet_mask_i), HOST_TO_DEVICE, .true.)
+         ! Reference coordinates of the start positions in their owner
+         ! elements, found when the particles were last located; they serve
+         ! as initial guesses, as on the CPU. Only a host copy exists.
+         call rst_old%init(3, n)
+         rst_old%x = global_interp%rst_local(:, 1:n)
+         call rst_old%copy_from(HOST_TO_DEVICE, .false.)
 
-         call lpt_handle_elastic_wall_collisions_device(msh, dm_Xh, coef, &
-              wall_facet_mask_d, el_list_d, x_old, y_old, z_old, x, y, z, d, &
-              u, v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-              acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-              acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, acc_z, &
-              lag_len, n)
+         ! High-order geometry, copied to the device at setup.
+         call lpt_wall_collide_device(this%wall_geom, el_list_d, &
+              rst_old%x_d, x_old, y_old, z_old, x, y, z, d, u, v, w, u_lag, &
+              v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
+              acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
+              u_old, v_old, w_old, acc_x, acc_y, acc_z, &
+              LPT_WALL_RESTITUTION, lag_len, n)
+         call device_sync()
+         call lpt_report_wall_diagnostics(this%wall_geom)
 
          call lpt_wall_collision_sync_from_device(x, y, z, u, v, w, u_lag, &
               v_lag, w_lag, u_laglag, v_laglag, w_laglag, acc_xlag, &
               acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, acc_zlaglag, &
               u_old, v_old, w_old, acc_x, acc_y, acc_z)
 
-         call device_deassociate(wall_facet_mask_i)
-         call device_free(wall_facet_mask_d)
-         deallocate(wall_facet_mask_i)
+         call rst_old%free()
       else
-         call lpt_handle_elastic_wall_collisions_cpu(msh, dm_Xh, coef, &
-              wall_facet_mask, el_list, x_old, y_old, z_old, x, y, z, d, u, &
-              v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, w_laglag, &
-              acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, acc_ylaglag, &
-              acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, acc_z, &
-              lag_len, n)
+         call lpt_handle_elastic_wall_collisions_cpu(this%wall_geom, &
+              el_list, global_interp%rst_local, x_old, y_old, z_old, x, y, &
+              z, d, u, v, w, u_lag, v_lag, w_lag, u_laglag, v_laglag, &
+              w_laglag, acc_xlag, acc_ylag, acc_zlag, acc_xlaglag, &
+              acc_ylaglag, acc_zlaglag, u_old, v_old, w_old, acc_x, acc_y, &
+              acc_z, lag_len, n)
+         call lpt_report_wall_diagnostics(this%wall_geom)
       end if
 
       if (c_associated(el_list_d)) then
@@ -186,11 +173,29 @@ contains
       end if
 
       if (allocated(el_list)) deallocate(el_list)
-      call rst_new%free()
-      call neko_scratch_registry%relinquish(ind)
 
     end associate
   end subroutine lpt_handle_elastic_wall_collisions
+
+  !> Warn once per rank about each kind of degraded collision handling.
+  subroutine lpt_report_wall_diagnostics(wall_geom)
+    type(lpt_wall_geometry_t), intent(in) :: wall_geom
+    logical, save :: warned_unresolved = .false.
+    logical, save :: warned_reach = .false.
+
+    if (.not. warned_unresolved .and. &
+         wall_geom%stats%n_unresolved .gt. 0) then
+       warned_unresolved = .true.
+       call neko_warning("lpt wall collisions: an intersection search " // &
+            "could not be resolved at the finest patch level")
+    end if
+    if (.not. warned_reach .and. wall_geom%stats%n_reach_exceeded .gt. 0) then
+       warned_reach = .true.
+       call neko_warning("lpt wall collisions: a particle moved further " // &
+            "than its element size in one step; reduce the time step")
+    end if
+
+  end subroutine lpt_report_wall_diagnostics
 
   !> Copy wall-collision-updated particle state from device to host.
   subroutine lpt_wall_collision_sync_from_device(x, y, z, u, v, w, &

@@ -49,7 +49,7 @@ module lpt
   use utils, only : neko_error
   use file, only : file_t
   use matrix, only : matrix_t
-  use vector_math, only : vector_add2s2, vector_cfill, vector_cmult2, &
+  use vector_math, only : vector_add2s2, vector_cfill, &
        vector_col2, vector_col3, vector_invcol2, vector_sqrt_inplace, &
        vector_power, vector_sub3, vector_vdot3, vector_cmult, &
        vector_cadd
@@ -58,6 +58,8 @@ module lpt
   use lpt_migrate, only : lpt_migrate_t, LPT_MIGRATE_TO_OWNER, &
        LPT_MIGRATE_NONE
   use lpt_output, only : lpt_output_t
+  use lpt_wall_geometry, only : lpt_wall_geometry_t
+  use neko_config, only : NEKO_BCKND_DEVICE
   use comm, only : pe_rank
   use csv_file, only : csv_file_t
   use vector, only : vector_t
@@ -88,6 +90,8 @@ module lpt
      logical :: elastic_wall_enabled = .false.
      integer, allocatable :: wall_zone_indices(:)
      logical, allocatable :: wall_facet_mask(:, :)
+     !> High-order wall geometry for the CPU collision handling.
+     type(lpt_wall_geometry_t) :: wall_geom
      type(time_state_t) :: lpt_time
      logical :: lpt_time_initialized = .false.
      type(global_interpolation_t) :: global_interp
@@ -224,6 +228,16 @@ contains
          params_subdict = interp_subdict)
     call this%periodic_bc%init(case%fluid%msh, case%fluid%dm_Xh, &
          case%fluid%c_Xh)
+    ! High-order wall geometry, on the host and copied to the device.
+    if (this%elastic_wall_enabled) then
+       block
+         real(kind=rp), allocatable :: images(:,:)
+         call lpt_wall_periodic_images(this%periodic_bc, images)
+         call this%wall_geom%init(this%msh, this%dm_Xh, this%coef, &
+              this%wall_facet_mask, images)
+       end block
+       if (NEKO_BCKND_DEVICE .eq. 1) call this%wall_geom%to_device()
+    end if
     call this%migration%migrate_particles(this%global_interp, &
          this%periodic_bc, this%inertia, this%particles)
     call this%sync_time_controller(case%time)
@@ -269,6 +283,51 @@ contains
 
     call this%log_status()
   end subroutine lpt_init_from_json
+
+  !> Periodic image transforms of the domain for the wall geometry, as
+  !! (translation, rotation about z) columns: all non-trivial combinations
+  !! of +-1 times each translational shift, or +-1 rotational sector.
+  !! @param periodic_bc Periodic boundary description.
+  !! @param images Image transforms, (4, m).
+  subroutine lpt_wall_periodic_images(periodic_bc, images)
+    type(lpt_periodic_bc_t), intent(in) :: periodic_bc
+    real(kind=rp), allocatable, intent(out) :: images(:,:)
+    real(kind=rp) :: shifts(3, 3)
+    integer :: n, m, k, j, code, digit
+
+    if (periodic_bc%rotational_periodic_enabled) then
+       allocate(images(4, 2))
+       images = 0.0_rp
+       images(4, 1) = periodic_bc%rotational_theta_len
+       images(4, 2) = -periodic_bc%rotational_theta_len
+       return
+    end if
+
+    n = 0
+    if (periodic_bc%periodic_enabled) n = periodic_bc%n_periodic_dirs
+    shifts(:, 1) = [periodic_bc%periodic_shift_x1, &
+         periodic_bc%periodic_shift_y1, periodic_bc%periodic_shift_z1]
+    shifts(:, 2) = [periodic_bc%periodic_shift_x2, &
+         periodic_bc%periodic_shift_y2, periodic_bc%periodic_shift_z2]
+    shifts(:, 3) = [periodic_bc%periodic_shift_x3, &
+         periodic_bc%periodic_shift_y3, periodic_bc%periodic_shift_z3]
+
+    ! Base-3 digits 0, 1, 2 select -1, 0, +1 times each shift; the code
+    ! with all digits 1 is the identity and is skipped.
+    allocate(images(4, 3**n - 1))
+    images = 0.0_rp
+    m = 0
+    do code = 0, 3**n - 1
+       if (code .eq. (3**n - 1) / 2) cycle
+       m = m + 1
+       k = code
+       do j = 1, n
+          digit = mod(k, 3) - 1
+          k = k / 3
+          images(1:3, m) = images(1:3, m) + real(digit, rp) * shifts(:, j)
+       end do
+    end do
+  end subroutine lpt_wall_periodic_images
 
   !> Read particle data from JSON and initialise particles on rank 0.
   !! @param json LPT configuration containing either `coordinates` or
@@ -822,6 +881,7 @@ contains
     this%coef => null()
     if (allocated(this%wall_zone_indices)) deallocate(this%wall_zone_indices)
     if (allocated(this%wall_facet_mask)) deallocate(this%wall_facet_mask)
+    call this%wall_geom%free()
     this%elastic_wall_enabled = .false.
     this%output_enabled = .false.
     this%log = .true.

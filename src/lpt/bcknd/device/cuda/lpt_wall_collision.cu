@@ -32,14 +32,18 @@
  POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 #include <device/device_config.h>
 #include <device/cuda/check.h>
 #include <lpt/bcknd/device/cuda/lpt_wall_collision_kernel.h>
 
 extern "C" {
 
-  void cuda_lpt_handle_elastic_wall_collisions(
-      void *wall_facet_mask, void *el_list,
+  /** Fortran wrapper for the elastic particle-wall collision kernel */
+  void cuda_lpt_wall_collide(
+      void *xf, void *fr, void *fi, void *zg,
+      void *el_ptr, void *el_facets, void *el_radius,
+      int *lx, int *nelv, void *el_list, void *rst,
       void *x_old, void *y_old, void *z_old,
       void *x, void *y, void *z,
       void *d, void *u, void *v, void *w,
@@ -49,21 +53,20 @@ extern "C" {
       void *acc_xlaglag, void *acc_ylaglag, void *acc_zlaglag,
       void *u_old, void *v_old, void *w_old,
       void *acc_x, void *acc_y, void *acc_z,
-      void *dm_x, void *dm_y, void *dm_z,
-      void *nx, void *ny, void *nz,
-      int *n, int *gdim, int *nelv,
-      int *lx, int *ly, int *lz, int *lag_len, cudaStream_t strm) {
+      int *lag_len, real *e_n, int *n, void *stats, cudaStream_t strm) {
 
     if (*n <= 0) {
       return;
     }
 
-    const dim3 nthrds(256, 1, 1);
-    const dim3 nblcks(((*n) + 256 - 1) / 256, 1, 1);
+    const dim3 nthrds(128, 1, 1);
+    const dim3 nblcks(((*n) + 128 - 1) / 128, 1, 1);
 
-    lpt_handle_elastic_wall_collisions_kernel<real>
+    lpt_wall_collide_kernel<real>
       <<<nblcks, nthrds, 0, strm>>>(
-          (int *) wall_facet_mask, (int *) el_list,
+          (real *) xf, (real *) fr, (int *) fi, (real *) zg,
+          (int *) el_ptr, (int *) el_facets, (real *) el_radius,
+          *lx, *nelv, (int *) el_list, (real *) rst,
           (real *) x_old, (real *) y_old, (real *) z_old,
           (real *) x, (real *) y, (real *) z,
           (real *) d, (real *) u, (real *) v, (real *) w,
@@ -73,9 +76,7 @@ extern "C" {
           (real *) acc_xlaglag, (real *) acc_ylaglag, (real *) acc_zlaglag,
           (real *) u_old, (real *) v_old, (real *) w_old,
           (real *) acc_x, (real *) acc_y, (real *) acc_z,
-          (real *) dm_x, (real *) dm_y, (real *) dm_z,
-          (real *) nx, (real *) ny, (real *) nz,
-          *n, *gdim, *nelv, *lx, *ly, *lz, *lag_len);
+          *lag_len, *e_n, *n, (unsigned int *) stats);
     CUDA_CHECK(cudaGetLastError());
   }
 
