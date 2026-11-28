@@ -1279,7 +1279,6 @@ IDP_KERNEL void idp_validation_kernel(IDP_GLOBAL const real *q0, IDP_GLOBAL cons
 }
 
 enum diagnostic_summary_kind {
-  full_summary = 0,
   validation_summary = 1,
   observation_summary = 2,
   limiter_status_summary = 3
@@ -1292,9 +1291,7 @@ IDP_KERNEL void idp_diagnostic_summary_init_kernel(IDP_GLOBAL real *summary,
     return;
   for (int i = 0; i < size; ++i)
     summary[i] = 0.0f;
-  if (kind == full_summary) {
-    summary[3] = IDP_HUGE;
-  } else if (kind == validation_summary) {
+  if (kind == validation_summary) {
     for (int i = 3; i <= 6; ++i)
       summary[i] = IDP_HUGE;
   } else if (kind == observation_summary) {
@@ -1405,7 +1402,6 @@ IDP_KERNEL void idp_full_diagnostics_edge_partial_kernel(
 }
 
 IDP_KERNEL void idp_full_diagnostics_finalize_kernel(IDP_GLOBAL const real *node_partial,
-                                                     IDP_GLOBAL const real *edge_partial,
                                                      IDP_GLOBAL const real *directional_error,
                                                      IDP_GLOBAL real *summary,
                                                      IDP_VALUE(int, node_blocks),
@@ -1440,9 +1436,9 @@ IDP_KERNEL void idp_full_diagnostics_finalize_kernel(IDP_GLOBAL const real *node
       result = IDP_HUGE;
     else if (metric == 4)
       result = -IDP_HUGE;
+    IDP_GLOBAL const real *edge_partial = node_partial + full_node_partial_size * node_blocks;
     for (int block = 0; block < edge_blocks; ++block) {
-      const real value = edge_partial[full_node_partial_size * node_blocks +
-                                      block * full_edge_partial_size + source];
+      const real value = edge_partial[block * full_edge_partial_size + source];
       if (metric == 3)
         result = rmin(result, value);
       else if (metric == 4 || metric == 20)

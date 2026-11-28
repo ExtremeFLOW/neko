@@ -80,7 +80,6 @@ void gpu_euler_idp_reconstruct(
     void *B, void *jacinv, void *const dr[3], void *const ds[3], void *const dt[3],
     void *const derivative[3], void *const weight[3], real *gamma, int *lx, int *ly,
     int *lz, int *nelv, int *edges_per_element, int *affine, int *n, int *nedge) {
-
   IDP_ZERO(correction, 5 * (*nedge));
   IDP_ZERO(error, 5);
   if (*affine) {
@@ -253,7 +252,6 @@ void gpu_euler_idp_full_diagnostics(void *rho, void *mx, void *my, void *mz,
                                     void *r1, void *r2, void *r3, void *r4,
                                     void *directional_error, void *summary,
                                     void *partial, int *n, int *nedge) {
-
   const int node_blocks = idp_blocks(*n), edge_blocks = idp_blocks(*nedge);
   IDP_LAUNCH(idp_full_diagnostics_node_partial_kernel, node_blocks, 256, RBUF(rho),
              RBUF(mx), RBUF(my), RBUF(mz), RBUF(energy), RVAL(*gamma),
@@ -263,9 +261,8 @@ void gpu_euler_idp_full_diagnostics(void *rho, void *mx, void *my, void *mz,
              RBUF(edge_limit), RBUF(limited), RBUF(density_flag), RBUF(energy_flag),
              RBUF(entropy_flag), RBUF(correction), RBUF(partial), IVAL(*nedge),
              IVAL(node_blocks));
-  IDP_LAUNCH(idp_full_diagnostics_finalize_kernel, 1, 32, RBUF(partial), RBUF(partial),
-             RBUF(directional_error), RBUF(summary), IVAL(node_blocks),
-             IVAL(edge_blocks));
+  IDP_LAUNCH(idp_full_diagnostics_finalize_kernel, 1, 32, RBUF(partial),
+             RBUF(directional_error), RBUF(summary), IVAL(node_blocks), IVAL(edge_blocks));
 }
 
 void gpu_euler_idp_validation_summary(void *q0, void *q1, void *q2, void *q3, void *q4,
@@ -283,7 +280,6 @@ void gpu_euler_idp_validation_summary(void *q0, void *q1, void *q2, void *q3, vo
 void gpu_euler_idp_observation_summary(void *rho, void *internal, void *pressure,
                                        void *u, void *v, void *w, void *sound,
                                        void *summary, int *n) {
-
   IDP_LAUNCH(idp_diagnostic_summary_init_kernel, 1, 1, RBUF(summary), IVAL(4),
              IVAL(observation_summary));
   IDP_LAUNCH(idp_observation_summary_kernel, idp_blocks(*n), 256, RBUF(rho),
@@ -292,7 +288,6 @@ void gpu_euler_idp_observation_summary(void *rho, void *internal, void *pressure
 }
 
 void gpu_euler_idp_limiter_status(void *edge_limit, void *summary, int *nedge) {
-
   IDP_LAUNCH(idp_diagnostic_summary_init_kernel, 1, 1, RBUF(summary), IVAL(3),
              IVAL(limiter_status_summary));
   IDP_LAUNCH(idp_limiter_status_kernel, idp_blocks(*nedge), 256, RBUF(edge_limit),
