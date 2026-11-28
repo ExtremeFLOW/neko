@@ -38,6 +38,20 @@ module entropy_viscosity_device
   implicit none
   private
 
+#if HAVE_OPENCL || HAVE_METAL
+  interface
+     subroutine gpu_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+          max_wave_speed_d, c_avisc_low, n) &
+          bind(c, name = 'gpu_entropy_visc_fraction')
+       use, intrinsic :: iso_c_binding
+       import c_rp
+       type(c_ptr), value :: fraction_d, reg_coeff_d, h_d, max_wave_speed_d
+       real(c_rp) :: c_avisc_low
+       integer(c_int) :: n
+     end subroutine gpu_entropy_visc_fraction
+  end interface
+#endif
+
 #ifdef HAVE_HIP
   interface
      subroutine hip_entropy_visc_compute_residual(entropy_residual_d, &
@@ -433,8 +447,11 @@ contains
 #elif HAVE_CUDA
     call cuda_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
          max_wave_speed_d, c_avisc_low, n)
+#elif HAVE_OPENCL || HAVE_METAL
+    call gpu_entropy_visc_fraction(fraction_d, reg_coeff_d, h_d, &
+         max_wave_speed_d, c_avisc_low, n)
 #else
-    call neko_error('Euler IDP entropy-viscosity blending requires CUDA or HIP')
+    call neko_error('No device backend configured')
 #endif
   end subroutine entropy_viscosity_fraction_device
 

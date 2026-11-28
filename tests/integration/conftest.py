@@ -37,8 +37,8 @@ def pytest_addoption(parser):
         "--backend",
         action="store",
         default="cpu",
-        choices=["cpu", "cuda", "hip", "opencl"],
-        help="Backend to use for tests (cpu [default], cuda, hip, opencl)."
+        choices=["cpu", "cuda", "hip", "opencl", "metal"],
+        help="Backend to use for tests (cpu [default], cuda, hip, opencl, metal)."
     )
     parser.addoption(
         "--max_nprocs",

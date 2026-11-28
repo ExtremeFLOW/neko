@@ -16,7 +16,12 @@
 ! THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 ! AND ANY EXPRESS OR IMPLIED WARRANTIES ARE DISCLAIMED.
 !
-!> CUDA and HIP implementation of the Euler GLL-IDP solver.
+#if defined(HAVE_CUDA) || defined(HAVE_HIP) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
+#define HAVE_IDP_DEVICE
+#endif
+
+!> Device implementation of the Euler GLL-IDP solver.
 module euler_idp_device
   use, intrinsic :: ieee_arithmetic, only : ieee_is_finite
   use, intrinsic :: iso_c_binding, only : c_ptr, c_null_ptr
@@ -40,7 +45,7 @@ module euler_idp_device
        EULER_IDP_DIAGNOSTICS_FULL, &
        euler_idp_backend_t, euler_idp_diagnostics_t, &
        euler_idp_state_observation_t
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
   use euler_idp_device_kernels, only : &
        gpu_euler_idp_primitives, &
        gpu_euler_idp_graph_viscosity, &
@@ -221,8 +226,8 @@ contains
     integer :: a(4), b(4), component, direction, edge, ierr, n
     integer :: diagnostic_partial_size
 
-#if !defined(HAVE_CUDA) && !defined(HAVE_HIP)
-    call neko_error('Euler IDP device backend currently requires CUDA or HIP')
+#ifndef HAVE_IDP_DEVICE
+    call neko_error('Euler IDP device backend is unavailable in this build')
 #else
     if (.not. this%initialized) then
        call neko_error('Euler IDP device object is not initialised')
@@ -557,7 +562,7 @@ contains
     character(len=*), intent(in) :: label
     integer :: n
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     n = rho%size()
     call gpu_euler_idp_primitives(rho%x_d, m_x%x_d, m_y%x_d, m_z%x_d, &
          energy%x_d, this%u%x_d, this%v%x_d, this%w%x_d, this%p%x_d, &
@@ -569,7 +574,7 @@ contains
             ' has invalid density or internal energy on the device')
     end if
 #else
-    call neko_error('Euler IDP device primitives require CUDA or HIP')
+    call neko_error('Euler IDP device primitives require a device backend')
 #endif
   end subroutine euler_idp_device_primitives
 
@@ -584,7 +589,7 @@ contains
     real(kind=rp) :: min_wave_speed
     integer :: has_user, n, n_edges
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     n = rho%size(); n_edges = this%graph%n_edges
     has_user = 0
     graph_wave_speed_d = rho%x_d
@@ -615,7 +620,7 @@ contains
        this%maximum_graph_timestep = huge(1.0_rp)
     end if
 #else
-    call neko_error('Euler IDP graph viscosity requires CUDA or HIP')
+    call neko_error('Euler IDP graph viscosity requires a device backend')
 #endif
   end subroutine euler_idp_device_update_graph_viscosity
 
@@ -656,8 +661,8 @@ contains
     integer :: affine, check_base, component, enforce_energy, enforce_entropy
     integer :: has_entropy, low_only, n, n_edges, periodic, scalar_mode
 
-#if !defined(HAVE_CUDA) && !defined(HAVE_HIP)
-    call neko_error('Euler IDP Forward Euler update requires CUDA or HIP')
+#ifndef HAVE_IDP_DEVICE
+    call neko_error('Euler IDP Forward Euler update requires a device backend')
 #else
     call diagnostics%reset()
     diagnostics%stage = stage
@@ -827,7 +832,7 @@ contains
     real(kind=rp) :: limiter_tolerance
     integer :: ierr, n, n_edges
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     n = this%low_candidate(1)%size()
     n_edges = this%graph%n_edges
     call gpu_euler_idp_full_diagnostics(rho%x_d, m_x%x_d, m_y%x_d, &
@@ -904,7 +909,7 @@ contains
     real(kind=rp) :: local_invalid, global_invalid, tolerance
     integer :: ierr, n_edges
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     n_edges = this%graph%n_edges
     call gpu_euler_idp_limiter_status(this%edge_work_d, &
          this%diagnostic_summary_d, n_edges)
@@ -938,7 +943,7 @@ contains
     real(kind=rp) :: local_minimum(4), global_minimum(4)
     integer :: ierr, limit_entropy, n
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     n = this%low_candidate(1)%size()
     limit_entropy = merge(1, 0, this%limit_entropy)
     call gpu_euler_idp_validation_summary(this%low_candidate(1)%x_d, &
@@ -973,7 +978,7 @@ contains
     real(kind=rp) :: local_maximum, global_maximum
     integer :: ierr, n
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     n = this%low_candidate(1)%size()
     call gpu_euler_idp_observation_summary( &
          this%low_candidate(1)%x_d, this%internal_energy%x_d, &
@@ -1003,7 +1008,7 @@ contains
     real(kind=rp), intent(in) :: gamma
     integer :: limit_entropy, n, n_edges, relax
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     n = rho%size(); n_edges = this%graph%n_edges
     relax = merge(1, 0, this%relax_density_bounds)
     limit_entropy = merge(1, 0, this%limit_entropy)
@@ -1061,7 +1066,7 @@ contains
     real(kind=rp) :: scale, violation
     real(kind=rp) :: summary(EULER_IDP_DEVICE_VALIDATION_SIZE)
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     call euler_idp_device_reduce_validation(this, gamma, summary)
     violation = max(summary(1), summary(2))
     scale = max(1.0_rp, summary(8))
@@ -1091,8 +1096,8 @@ contains
     logical :: refresh_
     integer :: i, n
 
-#if !defined(HAVE_CUDA) && !defined(HAVE_HIP)
-    call neko_error('Euler IDP boundary conditions require CUDA or HIP')
+#ifndef HAVE_IDP_DEVICE
+    call neko_error('Euler IDP boundary conditions require a device backend')
 #else
     if (density_bcs%size() .eq. 0 .and. velocity_bcs%size() .eq. 0 .and. &
          pressure_bcs%size() .eq. 0) then
@@ -1169,7 +1174,7 @@ contains
     type(euler_idp_state_observation_t), intent(out) :: observation
     type(field_t), intent(in), optional :: graph_wave_speed
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     if (.not. primitives_valid) then
        call euler_idp_device_primitives(this, this%low_candidate(1), &
             this%low_candidate(2), this%low_candidate(3), &
@@ -1186,7 +1191,7 @@ contains
     observation%max_graph_wave_speed = this%max_graph_wave_speed
     observation%max_graph_rate = this%max_graph_rate
 #else
-    call neko_error('Euler IDP candidate observation requires CUDA or HIP')
+    call neko_error('Euler IDP candidate observation requires a device backend')
 #endif
   end subroutine euler_idp_device_observe_candidate
 
@@ -1200,7 +1205,7 @@ contains
     real(kind=rp) :: summary(EULER_IDP_DEVICE_VALIDATION_SIZE)
 
     if (this%diagnostics_level .eq. EULER_IDP_DIAGNOSTICS_OFF) return
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#ifdef HAVE_IDP_DEVICE
     call euler_idp_device_reduce_validation(this, gamma, summary)
     diagnostics%max_density_lower_violation = summary(1)
     diagnostics%max_density_upper_violation = summary(2)
@@ -1227,7 +1232,7 @@ contains
     diagnostics%min_pressure = summary(6)
     diagnostics%min_specific_entropy = summary(7)
 #else
-    call neko_error('Euler IDP candidate validation requires CUDA or HIP')
+    call neko_error('Euler IDP candidate validation requires a device backend')
 #endif
   end subroutine euler_idp_device_validate_candidate
 

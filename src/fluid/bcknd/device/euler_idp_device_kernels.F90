@@ -23,7 +23,8 @@ module euler_idp_device_kernels
   implicit none
   private
 
-#if defined(HAVE_CUDA) || defined(HAVE_HIP)
+#if defined(HAVE_CUDA) || defined(HAVE_HIP) || \
+    defined(HAVE_OPENCL) || defined(HAVE_METAL)
   public :: gpu_euler_idp_primitives, gpu_euler_idp_graph_viscosity
   public :: gpu_euler_idp_graph_rate, gpu_euler_idp_nodal_wave
   public :: gpu_euler_idp_low_residual, gpu_euler_idp_scale_residual

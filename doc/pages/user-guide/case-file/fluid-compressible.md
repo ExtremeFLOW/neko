@@ -74,6 +74,13 @@ Example configuration:
 }
 ~~~~~~~~~~~~~~~
 
+The Euler GLL-IDP scheme uses the configured CPU, CUDA, HIP, OpenCL or Metal
+backend when `case.numerics.euler_idp.enabled` is true. On Apple silicon,
+configure with `--with-metal --enable-real=sp` or `--with-opencl --enable-real=ssp`.
+The latter also selects single precision for OpenCL reductions. Double-precision
+OpenCL builds require a device with FP64 and 64-bit integer compare-and-swap
+(`cl_khr_int64_base_atomics`).
+
 ## Compressible boundary conditions
 
 The compressible solver supports the following boundary conditions:

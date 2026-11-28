@@ -25,6 +25,8 @@
 
 ## Develop
 
+- PR#2928 Added the invariant-domain-preserving Euler GLL scheme for the CPU,
+  CUDA, HIP, OpenCL and Metal backends.
 - Added the `reichardt` wall model, based on Reichardt's law of the wall,
   which blends the viscous sublayer, buffer layer and logarithmic region in a
   single formula. Available for the CPU, CUDA, HIP, OpenCL and Metal backends.

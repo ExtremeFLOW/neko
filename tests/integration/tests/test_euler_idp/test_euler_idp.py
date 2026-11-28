@@ -301,6 +301,7 @@ def _run_case(
     case_label=None,
     record_parity=True,
     viscosity_model=True,
+    warp_mesh=False,
 ):
     """Write, run, and parse one generated Euler IDP case."""
     case_data = _case(
@@ -320,6 +321,8 @@ def _run_case(
         relax_entropy_bounds,
         entropy_bound_relaxation_factor,
     )
+    if warp_mesh:
+        case_data["test"]["warp_mesh"] = True
     if not viscosity_model:
         del case_data["case"]["simulation_components"]
     label = case_label or problem
@@ -562,6 +565,18 @@ def test_idp_free_stream(
             "correction",
         ),
     )
+
+
+def test_idp_nonaffine_reconstruction(launcher_script, log_file, euler_idp_runtime):
+    for ranks in _rank_sequence():
+        result = _run_case(
+            launcher_script, log_file, euler_idp_runtime, "smooth_transport",
+            polynomial_order=3, steps=1, timestep=2.0e-4, mpi_ranks=ranks,
+            warp_mesh=True, case_label="smooth_transport_nonaffine",
+        )
+        assert np.max(result["drifts"]) <= _tolerances()["conservation"]
+        assert np.max(result["bounds"]) <= _tolerances()["bounds"]
+        assert np.min(result["state"]) > 0.0
 
 
 @pytest.mark.parametrize("periodic", (True, False))

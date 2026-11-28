@@ -138,6 +138,7 @@ module opencl_prgm_lib
 
   !> Device entropy viscosity kernels
   type(c_ptr), public, bind(c) :: entropy_viscosity_program = C_NULL_PTR
+  type(c_ptr), public, bind(c) :: euler_idp_program = C_NULL_PTR
 
   !> Device Smagorinsky eddy viscosity kernels
   type(c_ptr), public, bind(c) :: smagorinsky_nut_program = C_NULL_PTR
@@ -485,6 +486,12 @@ contains
        entropy_viscosity_program = C_NULL_PTR
     end if
 
+    if (c_associated(euler_idp_program)) then
+       if (clReleaseProgram(euler_idp_program) .ne. CL_SUCCESS) then
+          call neko_error('Failed to release program')
+       end if
+       euler_idp_program = C_NULL_PTR
+    end if
 
     if (c_associated(smagorinsky_nut_program)) then
        if (clReleaseProgram(smagorinsky_nut_program) .ne. CL_SUCCESS) then

@@ -5,14 +5,16 @@ module user
   use comm, only : NEKO_COMM, MPI_REAL_PRECISION
   use device, only : HOST_TO_DEVICE, DEVICE_TO_HOST
   use fluid_scheme_compressible_ns, only : fluid_scheme_compressible_ns_t
-  use mpi_f08, only : MPI_Allreduce, MPI_MAX, MPI_MIN
+  use mpi_f08, only : MPI_Allreduce, MPI_MAX, MPI_MIN, MPI_SUM, &
+       MPI_DOUBLE_PRECISION
   implicit none
 
   character(len=:), allocatable :: problem
+  logical :: warp_mesh = .false.
   integer :: polynomial_order = 0
   real(kind=rp) :: gamma_ref = 1.4_rp
   real(kind=rp) :: energy_floor = 1.0e-12_rp
-  real(kind=rp) :: initial_integrals(5) = 0.0_rp
+  real(kind=dp) :: initial_integrals(5) = 0.0_dp
   real(kind=rp) :: minimum_stage_density = huge(1.0_rp)
   real(kind=rp) :: minimum_stage_internal_energy = huge(1.0_rp)
   real(kind=rp) :: minimum_limiter = 1.0_rp
@@ -35,11 +37,29 @@ module user
 
 contains
 
+  !> Measure drift in double precision even on single-precision devices.
+  subroutine conserved_integrals(integrals, coef, rho, m_x, m_y, m_z, energy)
+    real(kind=dp), intent(out) :: integrals(5)
+    type(coef_t), intent(in) :: coef
+    type(field_t), intent(in) :: rho, m_x, m_y, m_z, energy
+    real(kind=dp) :: local(5)
+    integer :: ierr
+
+    local = [sum(real(coef%B, dp) * real(rho%x, dp)), &
+         sum(real(coef%B, dp) * real(m_x%x, dp)), &
+         sum(real(coef%B, dp) * real(m_y%x, dp)), &
+         sum(real(coef%B, dp) * real(m_z%x, dp)), &
+         sum(real(coef%B, dp) * real(energy%x, dp))]
+    call MPI_Allreduce(local, integrals, 5, MPI_DOUBLE_PRECISION, MPI_SUM, &
+         NEKO_COMM, ierr)
+  end subroutine conserved_integrals
+
   !> Register the test callbacks.
   subroutine user_setup(user)
     type(user_t), intent(inout) :: user
 
     user%startup => startup
+    user%mesh_setup => deform_test_mesh
     user%initial_conditions => initial_conditions
     user%initialize => initialize
     user%compute => monitor_stages
@@ -51,12 +71,28 @@ contains
     type(json_file), intent(inout) :: params
 
     call json_get(params, 'test.problem', problem)
+    call json_get_or_default(params, 'test.warp_mesh', warp_mesh, .false.)
     call json_get(params, 'case.numerics.polynomial_order', &
          polynomial_order)
     call json_get(params, 'case.fluid.gamma', gamma_ref)
     call json_get(params, &
          'case.numerics.euler_idp.internal_energy_floor', energy_floor)
   end subroutine startup
+
+  !> Move interior vertices to exercise reconstruction on non-affine elements.
+  subroutine deform_test_mesh(msh, time)
+    type(mesh_t), intent(inout) :: msh
+    type(time_state_t), intent(in) :: time
+    real(kind=rp) :: x, y
+    integer :: i
+
+    if (.not. warp_mesh) return
+    do i = 1, size(msh%points)
+       x = msh%points(i)%x(1)
+       y = msh%points(i)%x(2)
+       msh%points(i)%x(1) = x + 0.5_rp * x * (1.0_rp-x) * y * (1.0_rp-y)
+    end do
+  end subroutine deform_test_mesh
 
   !> Set one of the Euler states exercised by pytest.
   subroutine initial_conditions(scheme_name, fields)
@@ -177,11 +213,8 @@ contains
     call m_z%copy_from(DEVICE_TO_HOST, sync = .false.)
     call energy%copy_from(DEVICE_TO_HOST, sync = .true.)
 
-    initial_integrals(1) = glsc2(rho%x, coef%B, rho%size())
-    initial_integrals(2) = glsc2(m_x%x, coef%B, rho%size())
-    initial_integrals(3) = glsc2(m_y%x, coef%B, rho%size())
-    initial_integrals(4) = glsc2(m_z%x, coef%B, rho%size())
-    initial_integrals(5) = glsc2(energy%x, coef%B, rho%size())
+    call conserved_integrals(initial_integrals, coef, rho, m_x, m_y, &
+         m_z, energy)
 
     if (index(trim(problem), 'boundary_') .eq. 1) then
        call probe_boundary_map(time)
@@ -436,8 +469,9 @@ contains
     type(coef_t), pointer :: coef
     type(field_t), pointer :: rho, m_x, m_y, m_z, energy, temperature
     real(kind=rp), allocatable :: work(:)
-    real(kind=rp) :: state(5), exact(5), final_integrals(5)
-    real(kind=rp) :: errors(5), drifts(5)
+    real(kind=rp) :: state(5), exact(5)
+    real(kind=dp) :: final_integrals(5), drifts(5)
+    real(kind=rp) :: errors(5)
     real(kind=rp) :: minimum_density, minimum_internal_energy, temperature_error
     integer :: component, i, n
 
@@ -457,11 +491,7 @@ contains
     n = rho%size()
     allocate(work(n))
 
-    final_integrals(1) = glsc2(rho%x, coef%B, n)
-    final_integrals(2) = glsc2(m_x%x, coef%B, n)
-    final_integrals(3) = glsc2(m_y%x, coef%B, n)
-    final_integrals(4) = glsc2(m_z%x, coef%B, n)
-    final_integrals(5) = glsc2(energy%x, coef%B, n)
+    call conserved_integrals(final_integrals, coef, rho, m_x, m_y, m_z, energy)
     drifts = abs(final_integrals - initial_integrals)
 
     do i = 1, n
