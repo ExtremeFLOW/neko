@@ -103,9 +103,8 @@ contains
     class(lpt_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call profiler_start_region('LPT_preprocess')
     call this%lpt%preprocess(time)
-    call profiler_end_region('LPT_preprocess')
+
   end subroutine lpt_simcomp_preprocess
 
   !> Update LPT after the fluid solve.
@@ -113,9 +112,8 @@ contains
     class(lpt_simcomp_t), intent(inout) :: this
     type(time_state_t), intent(in) :: time
 
-    call profiler_start_region('LPT_compute')
     call this%lpt%compute(time)
-    call profiler_end_region('LPT_compute')
+
   end subroutine lpt_simcomp_compute
 
 end module lpt_simcomp
