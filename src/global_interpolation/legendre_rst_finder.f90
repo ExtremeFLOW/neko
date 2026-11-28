@@ -245,12 +245,9 @@ contains
     real(kind=rp) :: dt_legendre(this%Xh%lx, 1)
     real(kind=rp) :: jac(3,3)
     real(kind=xp) :: rst_d(3), jacinv(3,3)
-    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: x_hat
-    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: y_hat
-    real(kind=rp), dimension(this%Xh%lx * this%Xh%lx * this%Xh%lx) :: z_hat
     integer :: conv_pts
     logical :: converged
-    integer :: i, j, e, iter, lx, ih
+    integer :: i, j, e, e_end, iter, lx
 
 
 
@@ -263,6 +260,10 @@ contains
     do i = 1, n_pts
        iter = 0
        converged = .false.
+       ! Coefficient range of the candidate element (el_list is zero-based),
+       ! fixed for the whole Newton solve
+       e = el_list(i) * this%Xh%lxyz + 1
+       e_end = e + this%Xh%lxyz - 1
        do while (.not. converged)
           iter = iter + 1
           ! Compute legendre polynomials in this rst coordinate
@@ -295,25 +296,21 @@ contains
              dt_legendre(j+1, 1) = ((j-1.0_xp)+1.0_xp) * t_legendre(j, 1) &
                   + rst(3,i)*dt_legendre(j, 1)
           end do
-          e = (el_list(i))*this%Xh%lxyz + 1
-
-          ! Pull the element data to a static array instead of a slice
-          do ih = 0, lx*lx*lx - 1
-             x_hat(ih + 1) = this%x_hat%x(e + ih)
-             y_hat(ih + 1) = this%y_hat%x(e + ih)
-             z_hat(ih + 1) = this%z_hat%x(e + ih)
-          end do
-
           ! Compute the current xyz value and the jacobian,
-          ! jac(d, c) = d(x_c)/d(r_d), in one fused pass per coordinate
-          call tnsr3d_interp_grad_cpu(x_hat, lx, r_legendre, s_legendre, &
-               t_legendre, dr_legendre, ds_legendre, dt_legendre, &
+          ! jac(d, c) = d(x_c)/d(r_d), in one fused pass per coordinate.
+          ! The element's coefficients are passed in place: x is
+          ! allocatable, so the sections are contiguous and no copy is made.
+          call tnsr3d_interp_grad_cpu(this%x_hat%x(e:e_end), lx, &
+               r_legendre, s_legendre, t_legendre, &
+               dr_legendre, ds_legendre, dt_legendre, &
                resx(i), jac(1,1), jac(2,1), jac(3,1))
-          call tnsr3d_interp_grad_cpu(y_hat, lx, r_legendre, s_legendre, &
-               t_legendre, dr_legendre, ds_legendre, dt_legendre, &
+          call tnsr3d_interp_grad_cpu(this%y_hat%x(e:e_end), lx, &
+               r_legendre, s_legendre, t_legendre, &
+               dr_legendre, ds_legendre, dt_legendre, &
                resy(i), jac(1,2), jac(2,2), jac(3,2))
-          call tnsr3d_interp_grad_cpu(z_hat, lx, r_legendre, s_legendre, &
-               t_legendre, dr_legendre, ds_legendre, dt_legendre, &
+          call tnsr3d_interp_grad_cpu(this%z_hat%x(e:e_end), lx, &
+               r_legendre, s_legendre, t_legendre, &
+               dr_legendre, ds_legendre, dt_legendre, &
                resz(i), jac(1,3), jac(2,3), jac(3,3))
           resx(i) = pt_x(i) - resx(i)
           resy(i) = pt_y(i) - resy(i)
